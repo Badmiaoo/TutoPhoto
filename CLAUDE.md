@@ -15,6 +15,13 @@ Archive de reprise : `REPRISE.md`.
 - Proposer l'approche avant de produire ; Julien tranche.
 - Contenu juridique pays par pays, à partir des textes officiels.
 
+## Dépôt public : rien ne doit filtrer (`docs/publication.md`)
+- Ne jamais écrire dans un fichier, un message de commit, une pull request ou un commentaire : secret (jeton, clé, mot de passe, clé privée), donnée personnelle (adresse électronique hors « noreply », téléphone, adresse postale), lien vers une ressource privée (Claude, Google Docs ou Drive, Dropbox, Notion), chemin local qui révèle un nom d'utilisateur. Seule exception : le nom de Julien comme auteur des commits.
+- Commits uniquement avec une adresse « noreply ».
+- Un secret nécessaire à un workflow va dans les secrets GitHub du dépôt, jamais dans un fichier.
+- `python3 scripts/check_public.py --commits all` avant toute pull request ; la CI le lance, avec gitleaks sur tout l'historique.
+- Si quelque chose a fuité : le dire à Julien tout de suite ; un secret se révoque chez son émetteur, l'historique publié ne se réécrit pas.
+
 ## Dépôt
 - Jamais de push sur `main` : une branche et une pull request par sujet.
 - `python3 scripts/validate.py` avant toute pull request qui touche `data/` ; `cd app && npm run build` avant toute pull request qui touche `app/`.

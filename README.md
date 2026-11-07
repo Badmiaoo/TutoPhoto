@@ -17,7 +17,7 @@ TutoPhoto est le nom du projet. L'application sera publiée comme site statique,
 | Chemin | Rôle |
 | --- | --- |
 | `data/` | Référentiel (`data/referentiel/`), situations, sources et jalons : la source de vérité |
-| `docs/` | Cadrage, architecture, lecture du référentiel, contenus, licences, pile technique, questions ouvertes, historique |
+| `docs/` | Cadrage, architecture, lecture du référentiel, contenus, licences, pile technique, publication, questions ouvertes, historique |
 | `schemas/` | Schémas JSON des fichiers de `data/` |
 | `app/` | Application (TypeScript, Babylon.js, Vite) |
 | `scripts/` | Extraction, validation et couverture |
@@ -55,6 +55,7 @@ python3 scripts/coverage.py
 - Toute modification de `data/` passe par `scripts/validate.py`.
 - Les identifiants sont stables : jamais renumérotés ; un identifiant retiré va dans `data/referentiel/retired.yaml`.
 - Toute affirmation factuelle est sourcée ; les sources vont dans `data/sources.yaml`.
+- Dépôt public : aucun secret, aucune donnée personnelle, aucun lien privé ([docs/publication.md](docs/publication.md)) ; `python3 scripts/check_public.py --commits all` le vérifie.
 - Chaque pull request fusionnée donne une version, décrite dans [CHANGELOG.md](CHANGELOG.md) et marquée par un tag `vX.Y.Z`.
 
 ## Licence

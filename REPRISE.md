@@ -26,7 +26,7 @@ Sommaire
 - Porteur : Julien, tech lead DevOps. Il décide ; tu proposes et tu exécutes.
 - V1 en 2.5D : de vraies photos et leur carte de profondeur. V2 : uniquement le passage en 3D et ce qu'il débloque.
 - État au 7 novembre 2026 : cadrage et référentiel v0.2 validés. Aucun code, aucun contenu rédigé, couverture 0 sur 191.
-- Ce fichier fait foi. Le Claude Doc d'origine (https://claude.ai/artifact/FcAXzQJiSS3ooTHuqDNxzu) est privé et figé en v0.1 : tu n'en as pas besoin.
+- Ce fichier fait foi. Le Claude Doc d'origine (lien privé retiré le 7 novembre 2026, avant la publication du dépôt) est privé et figé en v0.1 : tu n'en as pas besoin.
 
 ### 0.2 Lire ce fichier
 
