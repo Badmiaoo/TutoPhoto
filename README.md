@@ -8,7 +8,7 @@ Boîte à outils open source, en français et en anglais, qui apprend la photo a
 
 ## État au 7 novembre 2026
 
-- Cadrage et référentiel v0.2 validés : 191 notions en 13 domaines, 49 situations (42 en V1, 7 en V2), 78 sources.
+- Cadrage et référentiel v0.2 à l'état de brouillon, à remettre en question : 191 notions en 13 domaines, 49 situations (42 en V1, 7 en V2), 78 sources.
 - V1 en 2.5D : de vraies photos et leur carte de profondeur. V2 : uniquement le passage en 3D et ce qu'il débloque.
 - Pas encore de code applicatif ni de contenu rédigé : couverture 0 sur 191.
 
@@ -22,6 +22,7 @@ Boîte à outils open source, en français et en anglais, qui apprend la photo a
 | `scripts/` | Extraction, validation et couverture |
 | `REPRISE.md` | Fichier de reprise du 7 novembre 2026, gardé tel quel comme archive |
 | `CLAUDE.md` | Règles de travail |
+| `CHANGELOG.md` | Versions et tags |
 
 Pour comprendre les fichiers de données : [docs/lire-le-referentiel.md](docs/lire-le-referentiel.md).
 
@@ -41,6 +42,7 @@ python3 scripts/coverage.py
 - Toute modification de `data/` passe par `scripts/validate.py`.
 - Les identifiants sont stables : jamais renumérotés ; un identifiant retiré va dans `data/referentiel/retired.yaml`.
 - Toute affirmation factuelle est sourcée ; les sources vont dans `data/sources.yaml`.
+- Chaque pull request fusionnée donne une version, décrite dans [CHANGELOG.md](CHANGELOG.md) et marquée par un tag `vX.Y.Z`.
 
 ## Licence
 

@@ -8,7 +8,7 @@ An open source toolkit, in French and English, that teaches photography to begin
 
 ## Status as of 7 November 2026
 
-- Scope and curriculum v0.2 approved: 191 topics in 13 domains, 49 situations (42 in V1, 7 in V2), 78 sources.
+- Scope and curriculum v0.2 are a draft, open to challenge: 191 topics in 13 domains, 49 situations (42 in V1, 7 in V2), 78 sources.
 - V1 in 2.5D: real photos and their depth maps. V2: only the move to 3D and what it unlocks.
 - No application code or written content yet: coverage 0 of 191.
 
@@ -22,6 +22,7 @@ An open source toolkit, in French and English, that teaches photography to begin
 | `scripts/` | Extraction, validation and coverage |
 | `REPRISE.md` | Handover file of 7 November 2026, kept as is as an archive |
 | `CLAUDE.md` | Working rules |
+| `CHANGELOG.md` | Releases and tags (in French) |
 
 Data files are explained in [docs/lire-le-referentiel.md](docs/lire-le-referentiel.md) (in French).
 
@@ -41,6 +42,7 @@ python3 scripts/coverage.py
 - Every change to `data/` goes through `scripts/validate.py`.
 - Identifiers are stable: never renumbered; a retired identifier goes into `data/referentiel/retired.yaml`.
 - Every factual claim is sourced; sources go into `data/sources.yaml`.
+- Every merged pull request is a release, described in [CHANGELOG.md](CHANGELOG.md) (in French) and marked by a `vX.Y.Z` tag.
 
 ## License
 
