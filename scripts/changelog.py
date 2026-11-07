@@ -150,10 +150,24 @@ def expect(code, body, wanted, what):
         sys.exit(1)
 
 
+def report(text):
+    """Écrit dans le résumé de l'exécution GitHub Actions, s'il existe."""
+    path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if path:
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(text + "\n")
+
+
 def tag_on_github(versions):
+    """Crée les tags et releases manquants. Échoue seulement si la version la plus récente reste sans tag.
+
+    GitHub peut refuser au jeton du workflow la référence d'une ancienne version (HTTP 403) : cette
+    version est alors signalée, avec la commande pour poser le tag à la main, et les suivantes sont traitées.
+    """
     repo = os.environ["GITHUB_REPOSITORY"]
     tagger = {"name": "github-actions[bot]", "email": "41898282+github-actions[bot]@users.noreply.github.com",
               "date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+    blocked = []
     for v in reversed(versions):  # du plus ancien au plus récent : la dernière release créée est la plus récente
         tag = f"v{v['version']}"
         code, body = github_api("GET", f"/repos/{repo}/git/ref/tags/{tag}")
@@ -166,6 +180,11 @@ def tag_on_github(versions):
                 "tag": tag, "message": tag_message(v), "object": sha, "type": "commit", "tagger": tagger})
             expect(code, obj, 201, f"création de l'objet tag {tag}")
             code, body = github_api("POST", f"/repos/{repo}/git/refs", {"ref": f"refs/tags/{tag}", "sha": obj["sha"]})
+            if code == 403:
+                print(f"::warning::{tag} sur {sha[:7]} : référence refusée au jeton du workflow "
+                      f"(HTTP 403 : {body.get('message', body)}) ; tag à poser à la main.")
+                blocked.append((tag, sha))
+                continue
             expect(code, body, 201, f"création de la référence {tag}")
             print(f"{tag} créé sur {sha[:7]}")
         else:
@@ -178,6 +197,17 @@ def tag_on_github(versions):
             print(f"release {tag} créée")
         else:
             expect(code, body, 200, f"lecture de la release {tag}")
+    if blocked:
+        report("## Tags à poser à la main\n\n"
+               + "\n".join(f"- `{tag}` sur `{sha[:7]}`" for tag, sha in blocked)
+               + "\n\nDepuis un clone à jour de `main`, avec un compte qui a le droit de pousser :\n\n"
+               "```sh\npython3 scripts/changelog.py tag --apply\ngit push origin "
+               + " ".join(tag for tag, _ in blocked) + "\n```\n\n"
+               "Le passage suivant de ce workflow créera leurs releases.")
+    newest = f"v{versions[0]['version']}"
+    if any(tag == newest for tag, _ in blocked):
+        print(f"ERREUR : la version la plus récente, {newest}, n'a pas pu être taguée.")
+        return 1
     return 0
 
 
