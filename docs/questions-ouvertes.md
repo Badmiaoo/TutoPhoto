@@ -4,11 +4,10 @@ _Repris de la section 8 de `REPRISE.md` (7 novembre 2026), puis mis à jour le m
 
 ## Questions ouvertes
 
-Les licences se tranchent avant tout contenu.
 
 - [x] Taille de la V1 : tranché le 7 novembre 2026. V1 minimale testée d'abord (scène de parc : SIT-01, SIT-05, SIT-06), puis extension.
 - [ ] Nom du projet et du dépôt.
-- [ ] Licences : laquelle pour le code (permissive ou copyleft), laquelle pour les contenus (famille Creative Commons), et quelles licences accepter pour les modèles et textures 3D ?
+- [x] Licences : tranché le 7 novembre 2026. Code sous MIT, contenus et données sous CC BY-SA 4.0, modèles et textures 3D de tiers sous CC0 ou CC BY (`docs/licences.md`).
 - [x] Smartphone : tranché le 7 novembre 2026. Hors périmètre, comme les compacts et les bridges : reflex et hybrides uniquement.
 - [ ] Scènes 3D : qui les modélise (le porteur du projet, des contributeurs, des bibliothèques de modèles sous licence libre), avec quel niveau de réalisme, et où stocker les fichiers lourds (hors du dépôt Git ou non) ?
 - [ ] Relecture : qui valide l'exactitude des contenus et de leurs sources avant publication, en français et en anglais ?

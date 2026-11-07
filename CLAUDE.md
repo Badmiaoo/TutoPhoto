@@ -22,3 +22,4 @@ Archive de reprise : `REPRISE.md`.
 - Identifiants stables, jamais renumérotés ; un identifiant retiré va dans `data/referentiel/retired.yaml`.
 - Pas d'extension au-delà de la V1 minimale avant de l'avoir testée avec des débutants.
 - Vérifier la licence de toute dépendance, de tout modèle et de toute scène avant de l'ajouter.
+- Licences (`docs/licences.md`) : code sous MIT, contenus et données sous CC BY-SA 4.0 ; modèles et textures 3D de tiers sous CC0 ou CC BY uniquement, avec auteur, adresse d'origine et licence dans les métadonnées de la scène.

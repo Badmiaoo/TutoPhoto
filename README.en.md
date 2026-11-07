@@ -23,6 +23,7 @@ An open source toolkit, in French and English, that teaches photography to begin
 | `REPRISE.md` | Handover file of 7 November 2026, kept as is as an archive |
 | `CLAUDE.md` | Working rules |
 | `CHANGELOG.md` | Releases and tags (in French) |
+| `LICENSE`, `LICENSES/` | License texts |
 
 Data files are explained in [docs/lire-le-referentiel.md](docs/lire-le-referentiel.md) (in French).
 
@@ -46,4 +47,8 @@ python3 scripts/coverage.py
 
 ## License
 
-Not chosen yet: it is an open question ([docs/questions-ouvertes.md](docs/questions-ouvertes.md), in French).
+- Code (`scripts/`, `schemas/`, `.github/`, upcoming application): MIT, see [LICENSE](LICENSE).
+- Content and data (`content/`, `docs/`, `data/`, READMEs, changelog): CC BY-SA 4.0, see [LICENSES/CC-BY-SA-4.0.txt](LICENSES/CC-BY-SA-4.0.txt).
+- Third-party 3D models and textures: CC0 or CC BY only, each with its author and license.
+
+Details: [docs/licences.md](docs/licences.md) (in French).

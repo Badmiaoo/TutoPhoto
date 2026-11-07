@@ -329,3 +329,18 @@ sources:
     group: "Droit et réglementation"
     label: "EASA, Regulations on UAS (drone) explained, FAQ (règlements (UE) 2019/947 et 2019/945)"
     url: "https://www.easa.europa.eu/en/the-agency/faqs/regulations-uas-drone-explained"
+  - id: spdx-mit
+    group: "Licences"
+    label: "SPDX License List, texte de la licence MIT (dépôt spdx/license-list-data, commit 3184648 du 29 octobre 2026)"
+    url: "https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/MIT.txt"
+    used_in: [docs/licences.md]
+  - id: spdx-cc-by-sa-4
+    group: "Licences"
+    label: "SPDX License List, texte de la licence CC BY-SA 4.0 (dépôt spdx/license-list-data, commit 3184648 du 29 octobre 2026)"
+    url: "https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/CC-BY-SA-4.0.txt"
+    used_in: [docs/licences.md]
+  - id: spdx-cc0
+    group: "Licences"
+    label: "SPDX License List, texte de CC0 1.0 (dépôt spdx/license-list-data, commit 3184648 du 29 octobre 2026)"
+    url: "https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/CC0-1.0.txt"
+    used_in: [docs/licences.md]

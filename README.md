@@ -23,6 +23,7 @@ Boîte à outils open source, en français et en anglais, qui apprend la photo a
 | `REPRISE.md` | Fichier de reprise du 7 novembre 2026, gardé tel quel comme archive |
 | `CLAUDE.md` | Règles de travail |
 | `CHANGELOG.md` | Versions et tags |
+| `LICENSE`, `LICENSES/` | Textes des licences |
 
 Pour comprendre les fichiers de données : [docs/lire-le-referentiel.md](docs/lire-le-referentiel.md).
 
@@ -46,4 +47,8 @@ python3 scripts/coverage.py
 
 ## Licence
 
-Pas encore choisie : c'est une question ouverte ([docs/questions-ouvertes.md](docs/questions-ouvertes.md)).
+- Code (`scripts/`, `schemas/`, `.github/`, application à venir) : MIT, voir [LICENSE](LICENSE).
+- Contenus et données (`content/`, `docs/`, `data/`, README, changelog) : CC BY-SA 4.0, voir [LICENSES/CC-BY-SA-4.0.txt](LICENSES/CC-BY-SA-4.0.txt).
+- Modèles et textures 3D de tiers : CC0 ou CC BY uniquement, chacun avec son auteur et sa licence.
+
+Détail : [docs/licences.md](docs/licences.md).
