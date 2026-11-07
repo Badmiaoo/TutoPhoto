@@ -11,7 +11,7 @@ Décidé par Julien le 7 novembre 2026. Les clauses citées ici ont été lues d
 | Données | `data/` (référentiel, situations, sources, jalons) | CC BY-SA 4.0 |
 | Modèles et textures 3D faits par d'autres | scènes 3D | la licence de chaque élément, qui doit être CC0 ou CC BY |
 
-Titulaire indiqué dans `LICENSE` : « les contributeurs de TutoPhoto ».
+Titulaire indiqué dans `LICENSE` : Julien Touzeau (décision du 7 novembre 2026).
 
 ## Ce que cela implique
 

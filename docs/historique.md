@@ -88,3 +88,9 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 
 - Dépôt passé en public et GitHub Pages activé par Julien ; première publication réussie : https://badmiaoo.github.io/TutoPhoto/
 - Julien autorise Claude à gérer la configuration de ce dépôt, et de lui seul. Les réglages de GitHub hors de portée des outils de Claude (protection de `main`, options de sécurité, Pages) restent faits par Julien, sur indication de Claude.
+
+## 7 novembre 2026 : scène de parc, stockage, copyright
+
+- Scène de parc de la V1 minimale : entièrement assemblée à partir de modèles et de textures sous CC0 ou CC BY (décor, personnages, chien, ciel), chacun avec son auteur, son adresse d'origine et sa licence.
+- Fichiers lourds (modèles glTF, textures, ciels) : dans le dépôt, sous `app/public/`, avec un contrôle de taille en CI dont le seuil sera fixé quand le poids réel sera connu.
+- Titulaire du copyright dans `LICENSE` : Julien Touzeau, au lieu de « les contributeurs de TutoPhoto ».
