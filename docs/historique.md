@@ -59,3 +59,11 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 
 - Code sous MIT, contenus et données sous CC BY-SA 4.0, modèles et textures 3D de tiers acceptés seulement sous CC0 ou CC BY. Détail dans `docs/licences.md`.
 - Textes des licences repris du dépôt de référence SPDX ; titulaire indiqué dans `LICENSE` : « les contributeurs de TutoPhoto ».
+
+## 7 novembre 2026 : nom, hébergement, tests
+
+- Nom du projet : TutoPhoto.
+- Hébergement : GitHub Pages d'abord, comme site statique. Contraintes relevées dans la [documentation de GitHub](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) (source du dépôt `github/docs`, commit `8cd1075` du 6 novembre 2026) : site publié de 1 Go au plus, bande passante « souple » de 100 Go par mois, déploiement limité à 10 minutes, pas d'usage commercial. Bascule vers le serveur de Julien si le moteur 3D exige des en-têtes HTTP particuliers (point que la page ne documente pas) ou si les scènes dépassent ces limites.
+- Ordre de grandeur, sur une hypothèse de scène de 50 Mo : 100 Go ÷ 50 Mo = 100 000 Mo ÷ 50 Mo, soit environ 2 000 chargements complets par mois.
+- Testeurs de la V1 minimale : des débutants de l'entourage de Julien.
+- Scène de parc : mode de production à décider avec la pile technique.

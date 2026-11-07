@@ -4,7 +4,7 @@ _English version: [README.en.md](README.en.md)._
 
 Boîte à outils open source, en français et en anglais, qui apprend la photo aux débutants par la simulation : régler son appareil, faire la mise au point, choisir ses collimateurs, et réussir une photo dans une situation donnée (où, quand, quoi, pourquoi).
 
-« TutoPhoto » est le nom du dépôt ; le nom du projet n'est pas encore choisi.
+TutoPhoto est le nom du projet. L'application sera publiée comme site statique, d'abord sur GitHub Pages.
 
 ## État au 7 novembre 2026
 

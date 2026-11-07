@@ -344,3 +344,8 @@ sources:
     label: "SPDX License List, texte de CC0 1.0 (dépôt spdx/license-list-data, commit 3184648 du 29 octobre 2026)"
     url: "https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/CC0-1.0.txt"
     used_in: [docs/licences.md]
+  - id: github-pages-limits
+    group: "Outils"
+    label: "GitHub Docs, GitHub Pages limits (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
+    url: "https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits"
+    used_in: [docs/historique.md, docs/questions-ouvertes.md]
