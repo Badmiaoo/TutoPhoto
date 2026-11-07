@@ -12,6 +12,21 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.6] - 2026-11-07
+
+### Ajouté
+
+- `scripts/check_public.py` : refuse secrets (clés privées, jetons d'API aux formats connus, mots de passe en clair), données personnelles (adresses électroniques hors « noreply », téléphones), liens vers des ressources privées et chemins locaux nominatifs dans les fichiers suivis, ainsi que les adresses de commit qui ne sont pas « noreply ».
+- CI : job `confidentialite`, qui lance ce contrôle sur tout l'historique des commits, puis gitleaks 8.30.1 (binaire de la release officielle, vérifié par son empreinte SHA-256) sur tout l'historique git.
+- `docs/publication.md` : ce qui ne doit jamais être publié, les contrôles, que faire en cas de fuite.
+- Trois sources : gitleaks, recherche de secrets et protection des pushes dans la documentation GitHub.
+
+### Modifié
+
+- `CLAUDE.md` : règles du dépôt public.
+- `REPRISE.md` : lien vers le Claude Doc d'origine, privé, retiré de la version courante.
+- README, `docs/questions-ouvertes.md`, `docs/historique.md`.
+
 ## [0.3.5] - 2026-11-07
 
 ### Ajouté
@@ -148,6 +163,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.6]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.2...v0.3.3

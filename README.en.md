@@ -17,7 +17,7 @@ TutoPhoto is the project name. The application will be published as a static sit
 | Path | Purpose |
 | --- | --- |
 | `data/` | Curriculum (`data/referentiel/`), situations, sources and milestones: the source of truth |
-| `docs/` | Scope, architecture, reading the curriculum, content, licenses, tech stack, open questions, history (in French) |
+| `docs/` | Scope, architecture, reading the curriculum, content, licenses, tech stack, publication, open questions, history (in French) |
 | `schemas/` | JSON Schemas for the files in `data/` |
 | `app/` | Application (TypeScript, Babylon.js, Vite) |
 | `scripts/` | Extraction, validation and coverage |
@@ -55,6 +55,7 @@ python3 scripts/coverage.py
 - Every change to `data/` goes through `scripts/validate.py`.
 - Identifiers are stable: never renumbered; a retired identifier goes into `data/referentiel/retired.yaml`.
 - Every factual claim is sourced; sources go into `data/sources.yaml`.
+- Public repository: no secrets, no personal data, no private links ([docs/publication.md](docs/publication.md), in French); `python3 scripts/check_public.py --commits all` checks it.
 - Every merged pull request is a release, described in [CHANGELOG.md](CHANGELOG.md) (in French) and marked by a `vX.Y.Z` tag.
 
 ## License

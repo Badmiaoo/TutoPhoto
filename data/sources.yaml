@@ -348,7 +348,7 @@ sources:
     group: "Outils"
     label: "GitHub Docs, GitHub Pages limits (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
     url: "https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits"
-    used_in: [docs/historique.md, docs/questions-ouvertes.md]
+    used_in: [docs/historique.md, docs/questions-ouvertes.md, docs/publication.md]
   - id: threejs-r187
     group: "Outils"
     label: "three.js, dépôt mrdoob/three.js, version r187 (commit 7e89746 du 30 octobre 2026), licence MIT"
@@ -404,3 +404,18 @@ sources:
     label: "TypeScript, registre npm (version 7.0.2, licence Apache-2.0, lu le 7 novembre 2026)"
     url: "https://www.npmjs.com/package/typescript"
     used_in: [docs/pile-technique.md]
+  - id: gitleaks-8-30-1
+    group: "Outils"
+    label: "gitleaks, dépôt gitleaks/gitleaks (Zachary Rice), version 8.30.1 (commit 83d9cd6 du 12 mars 2026), licence MIT"
+    url: "https://github.com/gitleaks/gitleaks/tree/v8.30.1"
+    used_in: [docs/publication.md]
+  - id: github-secret-scanning
+    group: "Outils"
+    label: "GitHub Docs, Secret scanning (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
+    url: "https://docs.github.com/en/code-security/concepts/secret-security/secret-scanning"
+    used_in: [docs/publication.md]
+  - id: github-push-protection-users
+    group: "Outils"
+    label: "GitHub Docs, Managing push protection for users (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
+    url: "https://docs.github.com/en/code-security/how-tos/secure-your-secrets/prevent-future-leaks/manage-user-push-protection"
+    used_in: [docs/publication.md]

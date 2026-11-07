@@ -77,3 +77,9 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 
 - Code de l'application en TypeScript, construit avec Vite, dans `app/` ; publication sur GitHub Pages à chaque fusion sur `main`.
 - Premier écran : une scène Babylon.js de départ (sol, sphère de repère, caméra orbitale), une interface en français et en anglais, et une page des licences.
+
+## 7 novembre 2026 : dépôt public
+
+- GitHub Pages n'est gratuit que pour un dépôt public : Julien passe le dépôt en public. Son nom comme auteur des commits est accepté.
+- Règles et contrôles pour que rien de privé n'entre dans le dépôt : `docs/publication.md`, `CLAUDE.md`, `scripts/check_public.py` et gitleaks dans la CI.
+- Le lien vers le Claude Doc d'origine est retiré de `REPRISE.md` ; il reste dans l'historique, vers un document privé.
