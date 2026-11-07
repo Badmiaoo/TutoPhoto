@@ -17,7 +17,7 @@ TutoPhoto is the project name. The application will be published as a static sit
 | Path | Purpose |
 | --- | --- |
 | `data/` | Curriculum (`data/referentiel/`), situations, sources and milestones: the source of truth |
-| `docs/` | Scope, architecture, reading the curriculum, content, open questions, history (in French) |
+| `docs/` | Scope, architecture, reading the curriculum, content, licenses, tech stack, open questions, history (in French) |
 | `schemas/` | JSON Schemas for the files in `data/` |
 | `scripts/` | Extraction, validation and coverage |
 | `REPRISE.md` | Handover file of 7 November 2026, kept as is as an archive |

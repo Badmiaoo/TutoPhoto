@@ -12,6 +12,17 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.4] - 2026-11-07
+
+### Ajouté
+
+- `docs/pile-technique.md` : comparaison de three.js, Babylon.js, PlayCanvas et three-gpu-pathtracer pour la V1 minimale (licence, profondeur de champ, flou de mouvement, glTF, API graphique), prise en charge de WebGL2 et WebGPU par les navigateurs, trois options. Constats tirés du code source de chaque moteur à sa dernière version publiée. Décision de Julien : Babylon.js.
+- Huit sources : les quatre moteurs, three-mesh-bvh, xatlas-web, les données de compatibilité de MDN et le texte de la licence Apache-2.0.
+
+### Modifié
+
+- `docs/questions-ouvertes.md`, `docs/historique.md` et `CLAUDE.md` : pile technique tranchée (Babylon.js) ; README : liste des documents.
+
 ## [0.3.3] - 2026-11-07
 
 ### Modifié
@@ -124,6 +135,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.4]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.0...v0.3.1

@@ -349,3 +349,43 @@ sources:
     label: "GitHub Docs, GitHub Pages limits (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
     url: "https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits"
     used_in: [docs/historique.md, docs/questions-ouvertes.md]
+  - id: threejs-r187
+    group: "Outils"
+    label: "three.js, dépôt mrdoob/three.js, version r187 (commit 7e89746 du 30 octobre 2026), licence MIT"
+    url: "https://github.com/mrdoob/three.js/tree/r187"
+    used_in: [docs/pile-technique.md]
+  - id: babylonjs-9-35-0
+    group: "Outils"
+    label: "Babylon.js, dépôt BabylonJS/Babylon.js, version 9.35.0 (commit 00bc37c du 6 novembre 2026), licence Apache-2.0"
+    url: "https://github.com/BabylonJS/Babylon.js/tree/9.35.0"
+    used_in: [docs/pile-technique.md]
+  - id: playcanvas-2-23-3
+    group: "Outils"
+    label: "PlayCanvas Engine, dépôt playcanvas/engine, version 2.23.3 (commit b7655d8 du 15 octobre 2026), licence MIT"
+    url: "https://github.com/playcanvas/engine/tree/v2.23.3"
+    used_in: [docs/pile-technique.md]
+  - id: three-gpu-pathtracer-0-0-28
+    group: "Outils"
+    label: "three-gpu-pathtracer, dépôt gkjohnson/three-gpu-pathtracer (Garrett Johnson), version 0.0.28 (commit 80d1888 du 2 novembre 2026), licence MIT"
+    url: "https://github.com/gkjohnson/three-gpu-pathtracer/tree/v0.0.28"
+    used_in: [docs/pile-technique.md]
+  - id: three-mesh-bvh-0-9-18
+    group: "Outils"
+    label: "three-mesh-bvh, dépôt gkjohnson/three-mesh-bvh (Garrett Johnson), version 0.9.18, licence MIT"
+    url: "https://github.com/gkjohnson/three-mesh-bvh/tree/v0.9.18"
+    used_in: [docs/pile-technique.md]
+  - id: xatlas-web-npm
+    group: "Outils"
+    label: "xatlas-web, registre npm (licence MIT, dernière modification le 24 mai 2022)"
+    url: "https://www.npmjs.com/package/xatlas-web"
+    used_in: [docs/pile-technique.md]
+  - id: mdn-bcd-8-1-8
+    group: "Outils"
+    label: "MDN, browser-compat-data, version 8.1.8 (commit 29768a4 du 2 novembre 2026), fichiers api/GPU.json et api/WebGL2RenderingContext.json"
+    url: "https://github.com/mdn/browser-compat-data/tree/v8.1.8"
+    used_in: [docs/pile-technique.md]
+  - id: spdx-apache-2
+    group: "Licences"
+    label: "SPDX License List, texte de la licence Apache-2.0 (dépôt spdx/license-list-data, commit 3184648 du 29 octobre 2026)"
+    url: "https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/Apache-2.0.txt"
+    used_in: [docs/pile-technique.md]
