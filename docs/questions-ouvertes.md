@@ -13,7 +13,7 @@ _Repris de la section 8 de `REPRISE.md` (7 novembre 2026), puis mis à jour le m
 - [ ] Relecture : qui valide l'exactitude des contenus et de leurs sources avant publication, en français et en anglais ?
 - [x] Flash en 2.5D : sans objet depuis le passage à la 3D de synthèse. Le rendu du flash reste à vérifier dans la maquette (chantier du domaine LUM).
 - [x] Hébergement : tranché le 7 novembre 2026. GitHub Pages d'abord (site statique), avec bascule vers le serveur de Julien si le moteur 3D exige des en-têtes HTTP particuliers ou si les scènes dépassent les [limites de GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits).
-- [ ] Pile technique de la maquette et du moteur de rendu 3D dans le navigateur : comparaison et recommandation dans `docs/pile-technique.md` (7 novembre 2026), choix de Julien en attente.
+- [x] Pile technique : tranché le 7 novembre 2026, Babylon.js (comparaison et points à traiter dans `docs/pile-technique.md`).
 - [ ] Tests de la V1 minimale : les testeurs sont des débutants de l'entourage de Julien (tranché le 7 novembre 2026) ; restent le nombre, le protocole et les critères pour décider d'étendre.
 
 ## Points à surveiller

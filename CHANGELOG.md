@@ -16,12 +16,12 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 ### Ajouté
 
-- `docs/pile-technique.md` : comparaison de three.js, Babylon.js, PlayCanvas et three-gpu-pathtracer pour la V1 minimale (licence, profondeur de champ, flou de mouvement, glTF, API graphique), prise en charge de WebGL2 et WebGPU par les navigateurs, trois options et une recommandation (Babylon.js). Constats tirés du code source de chaque moteur à sa dernière version publiée.
+- `docs/pile-technique.md` : comparaison de three.js, Babylon.js, PlayCanvas et three-gpu-pathtracer pour la V1 minimale (licence, profondeur de champ, flou de mouvement, glTF, API graphique), prise en charge de WebGL2 et WebGPU par les navigateurs, trois options. Constats tirés du code source de chaque moteur à sa dernière version publiée. Décision de Julien : Babylon.js.
 - Huit sources : les quatre moteurs, three-mesh-bvh, xatlas-web, les données de compatibilité de MDN et le texte de la licence Apache-2.0.
 
 ### Modifié
 
-- `docs/questions-ouvertes.md` : choix de la pile technique en attente ; README : liste des documents.
+- `docs/questions-ouvertes.md`, `docs/historique.md` et `CLAUDE.md` : pile technique tranchée (Babylon.js) ; README : liste des documents.
 
 ## [0.3.3] - 2026-11-07
 

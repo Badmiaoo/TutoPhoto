@@ -1,6 +1,6 @@
 # Pile technique : comparaison des moteurs 3D
 
-_Proposition du 7 novembre 2026, à trancher par Julien. Constats tirés du code source de chaque moteur, à sa dernière version publiée, lu le même jour ; les sites de documentation n'étaient pas joignables depuis la session de travail, les dépôts publics l'étaient._
+_Comparaison du 7 novembre 2026. **Décision de Julien, le même jour : option B, Babylon.js.** Constats tirés du code source de chaque moteur, à sa dernière version publiée, lu le même jour ; les sites de documentation n'étaient pas joignables depuis la session de travail, les dépôts publics l'étaient._
 
 ## Besoins de la V1 minimale
 
@@ -70,6 +70,16 @@ PlayCanvas n'est pas retenu : profondeur de champ artistique et pas de flou de m
 - Le temps de calcul d'une photo par lancer de rayons sur téléphone (option C).
 - Si l'une des options a besoin d'en-têtes HTTP particuliers, que GitHub Pages ne documente pas : rien dans le code lu ne l'indique, à vérifier dans la maquette.
 
-## Recommandation
+## Décision
+
+Le 7 novembre 2026, Julien a choisi l'option B, Babylon.js. Points à traiter dans la preuve du moteur sur la scène de parc :
+
+- régler `lensSize` sur la focale pour une profondeur de champ physiquement juste ;
+- relier `motionStrength` à la vitesse d'obturation ;
+- calculer l'exposition (ouverture, vitesse, ISO) et le bruit du capteur ;
+- mesurer les performances sur les téléphones des testeurs ;
+- reprendre la licence Apache-2.0 et les mentions de `NOTICE.md` de Babylon.js dans la distribution.
+
+## Recommandation (avant décision)
 
 Option B, Babylon.js, pour la V1 minimale. C'est la seule qui couvre d'origine les deux effets clés de la tranche de parc, profondeur de champ physique et flou de mouvement, sur tous les navigateurs du tableau. Le risque principal, les performances sur téléphone, se mesure dès la preuve du moteur sur la scène de parc. La voie C reste une piste pour une photo de meilleure qualité, si WebGPU se généralise.

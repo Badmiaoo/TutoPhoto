@@ -67,3 +67,8 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Ordre de grandeur, sur une hypothèse de scène de 50 Mo : 100 Go ÷ 50 Mo = 100 000 Mo ÷ 50 Mo, soit environ 2 000 chargements complets par mois.
 - Testeurs de la V1 minimale : des débutants de l'entourage de Julien.
 - Scène de parc : mode de production à décider avec la pile technique.
+
+## 7 novembre 2026 : pile technique
+
+- Moteur 3D : Babylon.js (option B de `docs/pile-technique.md`), seul moteur temps réel lu qui fournit d'origine une profondeur de champ physique et un flou de mouvement par objet, en WebGL2.
+- Écartés : three.js avec une couche écrite par nous (option A), three.js avec une photo calculée par lancer de rayons (option C, WebGPU obligatoire), PlayCanvas.
