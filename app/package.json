@@ -1,0 +1,24 @@
+{
+  "name": "tutophoto-app",
+  "private": true,
+  "version": "0.0.0",
+  "description": "TutoPhoto : simulateur photo en 3D dans le navigateur",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build && node scripts/copy-licences.mjs",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@babylonjs/core": "9.35.0"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2",
+    "vite": "8.3.6"
+  }
+}
