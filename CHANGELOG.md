@@ -12,6 +12,16 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.2.2] - 2026-11-07
+
+### Corrigé
+
+- `scripts/changelog.py` affiche la sortie de git quand une commande échoue. Le premier passage du workflow `tag.yml`, après la fusion de 0.2.1, a trouvé les bons commits (`v0.2.0` sur `804a2de`, `v0.2.1` sur `3bd4ae0`), mais l'envoi du tag a échoué sans dire pourquoi.
+
+### Ajouté
+
+- Le workflow `tag.yml` peut aussi être relancé à la main (`workflow_dispatch`).
+
 ## [0.2.1] - 2026-11-07
 
 ### Ajouté
@@ -38,5 +48,6 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.2.2]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Badmiaoo/TutoPhoto/tree/v0.2.0

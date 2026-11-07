@@ -25,7 +25,13 @@ LINK_REF = re.compile(r"^\[(\d+\.\d+\.\d+)\]: \S+$")
 
 
 def git(*args, check=True):
-    return subprocess.run(["git", *args], cwd=ROOT, check=check, capture_output=True, text=True)
+    result = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True)
+    if check and result.returncode != 0:
+        # Afficher ce que git a dit : sans cela, un échec (push refusé, par exemple) reste muet.
+        sys.stderr.write(f"ERREUR : git {' '.join(args)} a échoué (code {result.returncode})\n")
+        sys.stderr.write(result.stdout + result.stderr)
+        sys.exit(1)
+    return result
 
 
 def parse(text):
