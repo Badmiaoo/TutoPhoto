@@ -3,6 +3,7 @@ name: Tags de version
 on:
   push:
     branches: [main]
+  workflow_dispatch: # relance à la main, par exemple après un échec
 
 # Seul ce workflow écrit dans le dépôt : il crée des tags, rien d'autre.
 permissions:
