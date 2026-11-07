@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sources.schema.json",
+  "title": "Sources (data/sources.yaml)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["checked", "sources"],
+  "properties": {
+    "checked": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "group", "label", "url"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"},
+          "group": {"type": "string", "minLength": 1},
+          "label": {"type": "string", "minLength": 1},
+          "url": {"type": "string", "pattern": "^https://"},
+          "note": {"type": "string", "minLength": 1},
+          "used_in": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    }
+  }
+}
