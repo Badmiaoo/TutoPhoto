@@ -27,3 +27,14 @@ jobs:
         run: python scripts/validate.py
       - name: Comptes et couverture
         run: python scripts/coverage.py | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Contrôler le changelog
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          # Sur une pull request : elle doit ajouter une version plus récente que celle de la branche cible.
+          if [ -n "$BASE_REF" ]; then
+            git fetch --no-tags --depth=1 origin "$BASE_REF"
+            python scripts/changelog.py check --base FETCH_HEAD
+          else
+            python scripts/changelog.py check
+          fi
