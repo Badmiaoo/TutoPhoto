@@ -17,7 +17,7 @@ TutoPhoto est le nom du projet. L'application sera publiée comme site statique,
 | Chemin | Rôle |
 | --- | --- |
 | `data/` | Référentiel (`data/referentiel/`), situations, sources et jalons : la source de vérité |
-| `docs/` | Cadrage, architecture, lecture du référentiel, contenus, questions ouvertes, historique |
+| `docs/` | Cadrage, architecture, lecture du référentiel, contenus, licences, pile technique, questions ouvertes, historique |
 | `schemas/` | Schémas JSON des fichiers de `data/` |
 | `scripts/` | Extraction, validation et couverture |
 | `REPRISE.md` | Fichier de reprise du 7 novembre 2026, gardé tel quel comme archive |
