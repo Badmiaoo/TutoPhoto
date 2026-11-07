@@ -34,3 +34,13 @@ Julien a accepté toute la liste consolidée de l'audit indépendant. Ce fichier
 Comptes, de la v0.1 à la v0.2 : notions 163 → 191 ; V1 153 → 177 ; V1→V2 6 → 12 ; V2 4 → 2 ; situations V1 31 → 42 ; situations V2 7 → 7 ; sources 41 → 78.
 
 Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de Depth Anything ; le numéro de version de SunCalc ; la faisabilité des scènes en couches, du flash par captures et du flou de défilement, que seule la maquette dira.
+
+---
+
+## 7 novembre 2026 : session 1 (après REPRISE.md)
+
+- `REPRISE.md` poussé directement sur `main`, sur demande explicite : c'est le premier commit du dépôt, alors vide. Tout le reste passe par une branche et une pull request.
+- Périmètre de la pull request de bootstrap : le plan complet de la section 0.7 de `REPRISE.md`, sans fichier de licence tant que la licence n'est pas tranchée.
+- Contenus rangés par langue : `content/fr/notions/<ID>.md`, `content/en/notions/<ID>.md`, et de même pour les situations (`docs/contenus.md`).
+- Quatrième brique, la situation réelle : comptée dès qu'une situation liée à la notion est rédigée en français et en anglais ; pour une notion `situations: all` ou sans situation, par une section « Situation réelle » dans la fiche.
+- Identité entre `data/` et les blocs YAML de `REPRISE.md` : vérifiée une fois, dans la pull request de bootstrap, et pas en CI, puisque `REPRISE.md` reste figé alors que `data/` va évoluer.
