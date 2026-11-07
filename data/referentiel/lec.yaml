@@ -1,0 +1,49 @@
+# fichier: data/referentiel/lec.yaml
+domain:
+  id: LEC
+  title: {fr: "Lire une image et progresser", en: "reading images and improving"}
+  intro: "Quatre notions, toutes en V1 : apprendre à regarder des images, les siennes comprises."
+notions:
+  - id: LEC-01
+    title: {fr: "Analyser une photo", en: "analyzing a photo"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Décrire la lumière, la composition, les réglages probables, l'intention"
+      simulator: "Exercice inverse : retrouver les réglages d'une image produite par le moteur"
+      exercise: "Retrouver les réglages de dix images"
+    situations: all
+    since: v0.1
+  - id: LEC-02
+    title: {fr: "Critiquer ses photos", en: "self-critique"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Une grille : intention, lumière, composition, technique"
+      simulator: "Bulletin du moteur et grille d'auto-évaluation"
+      exercise: "Critiquer cinq de ses photos, puis comparer au bulletin"
+    situations: all
+    since: v0.1
+  - id: LEC-03
+    title: {fr: "Culture photographique", en: "photo history, great photographers"}
+    version: V1
+    level: N2
+    activity: true
+    spec:
+      explanation: "Genres, repères historiques, grands photographes"
+      simulator: "Activité interactive : frise avec liens vers des œuvres hébergées ailleurs, droits obligent"
+      exercise: "Associer des photos à leur courant"
+    situations: []
+    practice_outside: "Visite d'une exposition"
+    since: v0.1
+  - id: LEC-04
+    title: {fr: "Progresser par projets", en: "projects, series"}
+    version: V1
+    level: N2
+    activity: true
+    spec:
+      explanation: "Séries, contraintes créatives, régularité"
+      simulator: "Activité interactive : défis hebdomadaires tirés du catalogue de situations"
+      exercise: "Série de cinq images sur un thème"
+    situations: all
+    since: v0.1

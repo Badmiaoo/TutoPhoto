@@ -1,0 +1,232 @@
+# fichier: data/referentiel/map.yaml
+domain:
+  id: MAP
+  title: {fr: "Mise au point et autofocus", en: "focus and autofocus"}
+  intro: "21 notions, toutes en V1 : la carte de profondeur, les sujets détourés et les annotations (visages, yeux) suffisent à placer le plan net et à simuler chaque mode AF et chaque collimateur, options comprises. Un premier plan flou qui déborde sur le sujet (grillage, branche) demande en plus ce qui est caché derrière lui : scène capturée en couches."
+  sources: [sheng-2023]
+  todo:
+    - "Faisabilité des scènes en couches à valider en maquette (étape 5)."
+notions:
+  - id: MAP-01
+    title: {fr: "Plan de mise au point", en: "plane of focus"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "La netteté maximale est un plan, à une distance donnée"
+      simulator: "Bague qui déplace un plan coloré dans la scène"
+      exercise: "Faire le point sur trois sujets à des distances différentes"
+    situations: [SIT-01, SIT-22]
+    since: v0.1
+  - id: MAP-02
+    title: {fr: "Mise au point manuelle et aides", en: "manual focus, magnification, peaking"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Quand passer en manuel ; loupe, surlignage de netteté, échelle des distances"
+      simulator: "Loupe et surlignage calculés sur l'image simulée"
+      exercise: "Faire le point à la loupe sur une étoile"
+    situations: [SIT-20, SIT-21, SIT-22]
+    since: v0.1
+  - id: MAP-03
+    title: {fr: "Comment l'AF voit", en: "contrast, phase, hybrid AF"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Détection de contraste et de phase ; pourquoi l'AF patine sur une surface unie ou dans le noir"
+      simulator: "AF qui échoue faute de contraste dans la scène"
+      exercise: "Faire accrocher l'AF dans une scène sombre"
+    situations: [SIT-18, SIT-25]
+    todo:
+      - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+    since: v0.1
+  - id: MAP-04
+    title: {fr: "AF ponctuel ou continu", en: "single AF, continuous AF"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Verrouiller une distance ou la suivre ; le mode automatique et ses hésitations"
+      simulator: "Sujet qui approche : en ponctuel la netteté décroche, en continu elle suit"
+      exercise: "Rafale nette sur un chien qui court vers soi"
+    situations: [SIT-06, SIT-08, SIT-38, SIT-39]
+    sources: [canon-r5-af-operation, canon-80d-manualslib, nikon-zr-focus, sony-a9-focus-mode, sony-a7riv-automatic-af, fujifilm-gfx100-af]
+    since: v0.1
+  - id: MAP-05
+    title: {fr: "Modes de zone AF", en: "AF area modes"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Point unique, zone, large, suivi : quelle partie du cadre sert à faire le point"
+      simulator: "Zones superposées dans le viseur, comportement de chaque mode"
+      exercise: "Choisir le mode adapté à quatre scènes"
+    situations: [SIT-05, SIT-06, SIT-08, SIT-38]
+    sources: [canon-r5ii-af-area, nikon-zr-focus, sony-a7iv-focus-area, fujifilm-gfx100-af]
+    since: v0.1
+  - id: MAP-06
+    title: {fr: "Collimateurs", en: "AF points"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Choisir soi-même le collimateur, le déplacer vite, connaître sa couverture"
+      simulator: "Grille de collimateurs ; la netteté suit la profondeur sous le point choisi"
+      exercise: "Point sur l'œil le plus proche à f/1.8, sujet décentré"
+    situations: [SIT-01, SIT-04]
+    since: v0.1
+  - id: MAP-07
+    title: {fr: "Quand l'appareil choisit", en: "auto-area pitfalls"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Sur quels critères l'appareil choisit, et pourquoi il se trompe de sujet"
+      simulator: "Zone automatique qui accroche une branche au premier plan"
+      exercise: "Corriger trois photos ratées en zone automatique"
+    situations: [SIT-08, SIT-26, SIT-38]
+    since: v0.1
+  - id: MAP-08
+    title: {fr: "Mémorisation AF, mise au point puis recadrage", en: "focus lock, focus and recompose"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Verrouiller la distance à mi-course ou par une touche, puis recadrer ; la limite de la technique à grande ouverture ; le lien avec la mémorisation d'exposition"
+      simulator: "Touche de mémorisation configurable, rotation sur place, écart de netteté mesuré"
+      exercise: "Verrouiller sur le sujet et recadrer avec un premier plan flou, puis comparer avec le déplacement du collimateur à f/1.4"
+    situations: [SIT-01, SIT-04, SIT-26, SIT-28]
+    notes:
+      - "Fusion de MAP-13 (mémorisation AF) en v0.2 ; niveau N1 pour le geste, la limite fait partie de l'explication."
+    since: v0.1
+  - id: MAP-09
+    title: {fr: "Détection des yeux et des sujets", en: "eye, face, subject detection"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Ce qu'apporte la détection, ses réglages, ses échecs"
+      simulator: "Détection simulée à partir des visages et des yeux annotés"
+      exercise: "Photo de groupe : choisir le bon visage"
+    situations: [SIT-01, SIT-05, SIT-08, SIT-34, SIT-37, SIT-39]
+    since: v0.1
+  - id: MAP-10
+    title: {fr: "Suivi du sujet", en: "subject tracking"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Suivi dans le cadre, sensibilité du suivi, obstacles"
+      simulator: "Sujet mobile qui passe derrière un obstacle"
+      exercise: "Garder la netteté sur un cycliste qui passe derrière un poteau"
+    situations: [SIT-07, SIT-09, SIT-38]
+    since: v0.1
+  - id: MAP-11
+    title: {fr: "Découplage AF", en: "back-button focus"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Séparer la mise au point du déclenchement"
+      simulator: "Touche AF-ON assignable"
+      exercise: "Passer d'un sujet fixe à un sujet mobile sans changer de mode"
+    situations: [SIT-06, SIT-15]
+    since: v0.1
+  - id: MAP-12
+    title: {fr: "Priorité au déclenchement ou à la netteté", en: "release vs focus priority"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Déclencher même flou, ou attendre la netteté"
+      simulator: "Taux de photos nettes et moments ratés selon le réglage"
+      exercise: "Choisir pour un mariage, puis pour un oiseau en vol"
+    situations: [SIT-08, SIT-25, SIT-37]
+    since: v0.1
+  - id: MAP-14
+    title: {fr: "Distance minimale et limiteur", en: "minimum focus distance, focus limiter"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Pourquoi l'AF refuse trop près ; le limiteur accélère l'AF sur les sujets lointains"
+      simulator: "AF impossible sous la distance minimale, limiteur réglable"
+      exercise: "Régler le limiteur pour des oiseaux lointains"
+    situations: [SIT-08, SIT-22]
+    sources: [sony-rx10iv-limiter]
+    since: v0.1
+  - id: MAP-15
+    title: {fr: "Mise au point dans le noir et à l'infini", en: "low light, infinity focus"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Faisceau d'assistance, loupe ; vérifier l'infini à l'écran"
+      simulator: "Ciel étoilé où l'infini se règle à la loupe"
+      exercise: "Obtenir des étoiles ponctuelles et nettes"
+    situations: [SIT-20, SIT-31, SIT-33]
+    sources: [sony-a7iii-infinity]
+    since: v0.1
+  - id: MAP-16
+    title: {fr: "Mise au point par zone", en: "zone focusing"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Prérégler distance et ouverture pour une plage nette sans AF"
+      simulator: "Plage nette affichée sur la scène de rue"
+      exercise: "Régler une zone nette de 2 à 5 m"
+    situations: [SIT-15]
+    since: v0.1
+  - id: MAP-17
+    title: {fr: "Réglage fin de l'AF", en: "AF fine-tune"}
+    version: V1
+    level: N3
+    spec:
+      explanation: "Surtout sur reflex, et sur certains hybrides : corriger un objectif qui fait le point devant ou derrière"
+      simulator: "Objectif décalé à diagnostiquer sur une mire"
+      exercise: "Diagnostiquer et corriger un décalage"
+    situations: [SIT-01]
+    sources: [nikon-zr-af-finetune]
+    since: v0.1
+  - id: MAP-18
+    title: {fr: "Bracketing de mise au point", en: "focus bracketing"}
+    version: V1
+    level: N3
+    spec:
+      explanation: "Série de mises au point destinée à l'empilement"
+      simulator: "Série automatique au pas réglable"
+      exercise: "Couvrir une fleur de l'avant à l'arrière en un minimum de vues"
+    situations: [SIT-11, SIT-22]
+    since: v0.1
+  - id: MAP-19
+    title: {fr: "Déplacer son collimateur : joystick, écran tactile, retour au centre", en: "moving the focus point"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Les commandes qui déplacent le collimateur sans quitter le viseur : multicontrôleur, écran tactile, retour au centre"
+      simulator: "Boîtier virtuel : joystick, pavé tactile, touche de retour au centre"
+      exercise: "Suivre un sujet qui change de place dans le cadre en déplaçant le collimateur"
+    situations: [SIT-01, SIT-08]
+    sources: [canon-r5-af-method]
+    since: v0.2
+  - id: MAP-20
+    title: {fr: "Collimateur selon l'orientation", en: "orientation-linked focus point"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Mémoriser un collimateur pour la position horizontale et un autre pour la verticale"
+      simulator: "Rotation du boîtier virtuel, collimateur mémorisé par orientation"
+      exercise: "Enchaîner portraits en vertical et en horizontal sans replacer le collimateur"
+    situations: [SIT-01, SIT-37]
+    sources: [canon-r5-af-method]
+    since: v0.2
+  - id: MAP-21
+    title: {fr: "Retouche manuelle en AF", en: "manual focus override, AF+MF, DMF"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Corriger l'AF à la bague après l'accroche, sans changer de mode"
+      simulator: "Bague de mise au point active après l'accroche de l'AF"
+      exercise: "Reprendre à la main une mise au point accrochée sur le grillage"
+    situations: [SIT-22, SIT-26]
+    sources: [nikon-zr-mf-ring]
+    since: v0.2
+  - id: MAP-22
+    title: {fr: "Options des collimateurs : nombre de points, bouclage, position mémorisée", en: "focus point options"}
+    version: V1
+    level: N3
+    spec:
+      explanation: "Réduire le nombre de collimateurs sélectionnables, faire boucler le déplacement d'un bord à l'autre, rappeler une position mémorisée"
+      simulator: "Menu des options du collimateur, effet sur la vitesse de déplacement"
+      exercise: "Configurer le collimateur pour passer d'un bord à l'autre en un geste"
+    situations: [SIT-08, SIT-38]
+    sources: [nikon-z8-guide, canon-r5ii-af-area]
+    since: v0.2

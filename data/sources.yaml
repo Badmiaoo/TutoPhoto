@@ -1,0 +1,330 @@
+# fichier: data/sources.yaml
+# Pages ouvertes ou trouvées par recherche et vérifiées le 7 novembre 2026 ; auteur et date dans le libellé
+# quand la page les donne.
+checked: 2026-11-07
+sources:
+  - id: levoy-teaching
+    group: "Cours et pédagogie"
+    label: "Marc Levoy, page d'enseignement, Stanford (mise à jour le 10 septembre 2016)"
+    url: "https://graphics.stanford.edu/~levoy/teaching.html"
+    used_in: [docs/lire-le-referentiel.md]
+  - id: levoy-assignments
+    group: "Cours et pédagogie"
+    label: "Marc Levoy, exercices du cours de photographie numérique (version donnée chez Google en 2016)"
+    url: "https://sites.google.com/site/marclevoylectures/assignments"
+  - id: levoy-cs178-interiors
+    group: "Cours et pédagogie"
+    label: "Marc Levoy et Andrew Adams, CS178, Assignment 4 : Architecture and Interiors (Stanford, 2009)"
+    url: "https://graphics.stanford.edu/courses/cs178-09/assignments/assn4.html"
+  - id: cic-sensors
+    group: "Cours et pédagogie"
+    label: "Cambridge in Colour, Understanding Digital Camera Sensors"
+    url: "https://www.cambridgeincolour.com/tutorials/camera-sensors.htm"
+  - id: cic-bit-depth
+    group: "Cours et pédagogie"
+    label: "Cambridge in Colour, Bit Depth Tutorial (JPEG en 8 bits par couche)"
+    url: "https://www.cambridgeincolour.com/tutorials/bit-depth.htm"
+    note: "Ne parle pas du RAW : voir nikon-d6-raw-bit-depth."
+  - id: cic-eye
+    group: "Cours et pédagogie"
+    label: "Cambridge in Colour, Cameras vs. The Human Eye"
+    url: "https://www.cambridgeincolour.com/tutorials/cameras-vs-human-eye.htm"
+  - id: cic-compact-dslr
+    group: "Cours et pédagogie"
+    label: "Cambridge in Colour, Compact vs. Digital SLR Cameras"
+    url: "https://www.cambridgeincolour.com/tutorials/compact-vs-digital-slr-cameras.htm"
+    note: "Tutoriel ancien (audit indépendant) : à compléter."
+  - id: cic-tripods
+    group: "Cours et pédagogie"
+    label: "Cambridge in Colour, Selecting and Using a Camera Tripod (colonne centrale, sac suspendu)"
+    url: "https://www.cambridgeincolour.com/tutorials/camera-tripods.htm"
+  - id: cic-posterization
+    group: "Cours et pédagogie"
+    label: "Cambridge in Colour, Image Posterization"
+    url: "https://www.cambridgeincolour.com/tutorials/posterization.htm"
+  - id: cic-closeup
+    group: "Cours et pédagogie"
+    label: "Cambridge in Colour (Sean McHugh), Macro Extension Tubes & Close-up Lenses"
+    url: "https://www.cambridgeincolour.com/tutorials/macro-extension-tubes.htm"
+  - id: wikipedia-zone-system
+    group: "Cours et pédagogie"
+    label: "Wikipedia, Zone System"
+    url: "https://en.wikipedia.org/wiki/Zone_System"
+    note: "Source secondaire : ajouter une source primaire à la rédaction."
+  - id: bh-sunstars
+    group: "Cours et pédagogie"
+    label: "B&H Explora, 6 Tips to Create Compelling Star Effects"
+    url: "https://www.bhphotovideo.com/explora/photography/tips-and-solutions/create-compelling-star-effects-sun-stars-starbursts-photos"
+  - id: hugin-nopar
+    group: "Physique, rendu et technique"
+    label: "Hugin, No-parallax point"
+    url: "https://hugin.sourceforge.io/docs/manual/Entrance_pupil.html"
+  - id: dpreview-iso-invariance
+    group: "Physique, rendu et technique"
+    label: "DPReview, What is ISO invariance, and should I care? (Richard Butler, publié le 27 juillet 2026, mis à jour le 16 septembre 2026)"
+    url: "https://www.dpreview.com/articles/iso-invar/"
+  - id: pl-iso-invariance
+    group: "Physique, rendu et technique"
+    label: "Photography Life, ISO Invariance Explained"
+    url: "https://photographylife.com/iso-invariance-explained"
+  - id: petapixel-perspective
+    group: "Physique, rendu et technique"
+    label: "PetaPixel, Perspective Distortion, Or: Why Lens Compression Doesn't Exist (23 mai 2018)"
+    url: "https://petapixel.com/2018/05/23/perspective-distortion-or-why-lens-compression-doesnt-exist"
+    note: "Source secondaire (audit A)."
+  - id: pl-lens-compression
+    group: "Physique, rendu et technique"
+    label: "Photography Life, What is Lens Compression?"
+    url: "https://photographylife.com/what-is-lens-compression"
+  - id: petschnigg-2004
+    group: "Physique, rendu et technique"
+    label: "Petschnigg et al., Digital Photography with Flash and No-Flash Image Pairs (ACM TOG, SIGGRAPH 2004)"
+    url: "https://hhoppe.com/proj/flash/"
+  - id: sheng-2023
+    group: "Physique, rendu et technique"
+    label: "Sheng et al., Dr.Bokeh: Differentiable Occlusion-aware Bokeh Rendering (arXiv, 17 août 2023 ; CVPR 2024)"
+    url: "https://arxiv.org/abs/2308.08843"
+  - id: tabellion-2023
+    group: "Physique, rendu et technique"
+    label: "Tabellion et al., Computational Long Exposure Mobile Photography (arXiv, 2 août 2023)"
+    url: "https://arxiv.org/abs/2308.01379"
+  - id: jiang-2025
+    group: "Physique, rendu et technique"
+    label: "Jiang et al., DEFOM-Stereo, matériel supplémentaire CVPR 2025"
+    url: "https://openaccess.thecvf.com/content/CVPR2025/supplemental/Jiang_DEFOM-Stereo_Depth_Foundation_CVPR_2025_supplemental.pdf"
+    used_in: [docs/architecture.md]
+  - id: fujifilm-teleconverters
+    group: "Physique, rendu et technique"
+    label: "Fujifilm X, Getting the most from teleconverters (17 février 2022, mis à jour le 15 avril 2024)"
+    url: "https://www.fujifilm-x.com/en-gb/learning-centre/getting-the-most-from-teleconverters"
+  - id: hasinoff-2016
+    group: "Physique, rendu et technique"
+    label: "Hasinoff et al., Burst photography for high dynamic range and low-light imaging on mobile cameras (ACM TOG 35(6), SIGGRAPH Asia 2016)"
+    url: "https://research.google/pubs/burst-photography-for-high-dynamic-range-and-low-light-imaging-on-mobile-cameras/"
+  - id: noaa-red
+    group: "Physique, rendu et technique"
+    label: "NOAA Ocean Exploration, Why are so many deep-sea animals red in color?"
+    url: "https://oceanexplorer.noaa.gov/facts/red-color.html"
+  - id: adorama-backscatter
+    group: "Physique, rendu et technique"
+    label: "Adorama Learning Center, How To Avoid Backscatter in Underwater Photography (Michele Westmorland et Matt Weiss, 19 mars 2012)"
+    url: "https://www.adorama.com/alc/how-to-avoid-backscatter-in-underwater-photography/"
+  - id: depth-anything-v2
+    group: "Outils"
+    label: "Depth Anything V2, dépôt officiel (Lihe Yang et al., NeurIPS 2024)"
+    url: "https://github.com/DepthAnything/Depth-Anything-V2"
+    note: "Licence Apache-2.0 vérifiée pour le modèle Small seulement ; licence des modèles métriques : je ne sais pas."
+    used_in: [docs/architecture.md]
+  - id: suncalc
+    group: "Outils"
+    label: "SunCalc, dépôt de Volodymyr Agafonkin (licence BSD-2-Clause ; la v2.0 a changé unités et conventions, version à figer)"
+    url: "https://github.com/mourner/suncalc"
+    note: "Aucune version publiée affichée sur le dépôt : figer un commit (audit indépendant)."
+  - id: canon-r5-af-operation
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon EOS R5, AF Operation"
+    url: "https://cam.start.canon/en/C003/manual/html/UG-04_AF-Drive_0040.html"
+  - id: canon-r5-af-method
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon EOS R5, Selecting the AF Method"
+    url: "https://cam.start.canon/en/C003/manual/html/UG-04_AF-Drive_0050.html"
+  - id: canon-r5-custom
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon EOS R5, Custom Functions (pas d'exposition en 1/3 ou 1/2 IL)"
+    url: "https://cam.start.canon/en/C003/manual/html/UG-08_Custom_0030.html"
+  - id: canon-r5ii-af-area
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon EOS R5 Mark II, Selecting the AF Area"
+    url: "https://cam.start.canon/en/C017/manual/html/UG-04_AF-Drive_0060.html"
+  - id: canon-m50ii-metering
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon EOS M50 Mark II, Metering Mode"
+    url: "https://cam.start.canon/fa/C007/manual/html/UG-04_AF-Drive_0080.html"
+  - id: canon-80d-manualslib
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon EOS 80D, caractéristiques (ManualsLib)"
+    url: "https://www.manualslib.com/manual/1063993/Canon-Eos-80d.html?page=499"
+    note: "Préférer le PDF officiel de Canon à ManualsLib (audit A)."
+  - id: canon-psp
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, Print Studio Pro : style d'image choisi au développement RAW"
+    url: "https://ij.manual.canon/ij/webmanual/PrintStudioPro/M/2.2/EN/PSP/psp-305.html"
+    note: "Source indirecte pour COU-05 : chercher une source directe (audit A)."
+  - id: nikon-zr-focus
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon ZR, Reference Guide, Focus"
+    url: "https://onlinemanual.nikonimglib.com/zr/en/18-02.html"
+  - id: nikon-zr-metering
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon ZR, Reference Guide, Metering"
+    url: "https://onlinemanual.nikonimglib.com/zr/en/09-03-21.html"
+  - id: nikon-zr-af-finetune
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon ZR, Reference Guide, AF Fine-Tuning Options"
+    url: "https://onlinemanual.nikonimglib.com/zr/en/09-06-12.html"
+  - id: nikon-zfc-d7
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon Z fc, d7 Apply settings to live view"
+    url: "https://onlinemanual.nikonimglib.com/zfc/en/09-05-28.html"
+  - id: sony-a9-focus-mode
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony α9 (ILCE-9), Focus Mode"
+    url: "https://helpguide.sony.net/ilc/1650/v1/en/contents/TP0001486782.html"
+  - id: sony-a9-metering
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony α9 (ILCE-9, version 5 ou ultérieure), Metering Mode"
+    url: "https://helpguide.sony.net/ilc/1830/v1/en/contents/TP0002351792.html"
+  - id: sony-a7riv-automatic-af
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony α7R IV (ILCE-7RM4), Focus Mode (Automatic AF)"
+    url: "https://helpguide.sony.net/ilc/1930/v1/en/contents/TP0002720640.html"
+  - id: sony-a7iv-focus-area
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony α7 IV (ILCE-7M4), Focus Area"
+    url: "https://helpguide.sony.net/ilc/2110/v1/en/contents/TP1000640179.html"
+  - id: sony-rx0ii-highlight
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony RX0 II (DSC-RX0M2), Metering Mode (Highlight)"
+    url: "https://helpguide.sony.net/dsc/1910/v1/en/contents/TP0002055602.html"
+  - id: sony-rx10iv-limiter
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony RX10 IV (DSC-RX10M4), limiteur de mise au point"
+    url: "https://helpguide.sony.net/dsc/1720/v1/en/contents/TP0001593199.html"
+  - id: sony-a7iii-infinity
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony α7 III (ILCE-7M3), mise au point à l'infini"
+    url: "https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001661940.html"
+  - id: fujifilm-gfx100-af
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Fujifilm GFX100, Autofocus"
+    url: "https://fujifilm-dsc.com/en-int/manual/gfx100/taking_photo/autofocus/index.html"
+  - id: fujifilm-gfx100-photometry
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Fujifilm GFX100, Photometry"
+    url: "https://fujifilm-dsc.com/en-int/manual/gfx100/taking_photo/photometry/index.html"
+  - id: fujifilm-xt4-photometry
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Fujifilm X-T4, Photometry"
+    url: "https://fujifilm-dsc.com/en-int/manual/x-t4/taking_photo/photometry/index.html"
+  - id: canon-hdr-heif
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon Global, technologie HDR de nouvelle génération (HEIF en 10 bits, JPEG en 8 bits)"
+    url: "https://global.canon/en/technology/hdr2019.html"
+  - id: canon-r5-wb
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon EOS R5, White Balance (priorité ambiance, priorité blanc)"
+    url: "https://cam.start.canon/en/C003/manual/html/UG-03_Shooting-1_0120.html"
+  - id: canon-5ds-iso
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, Setting the ISO Speed (EOS 5DS / EOS 5DS R), page d'assistance (ISO étendus L et H)"
+    url: "https://vn.canon/vi/support/8202597900"
+  - id: canon-dof-preview
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, page d'assistance sur la touche d'aperçu de profondeur de champ (EOS 7D Mark II)"
+    url: "https://sg.canon/en/support/8202200200"
+  - id: canon-format-card
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, Formatting a Memory Card, page d'assistance (17 juillet 2018)"
+    url: "https://id.canon/id/support/8204084200"
+  - id: nikon-zr-mf-ring
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon ZR, Reference Guide, Manual focus ring in AF mode"
+    url: "https://onlinemanual.nikonimglib.com/zr/en/09-05.html"
+  - id: nikon-zr-multiple-exposure
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon ZR, Reference Guide, Multiple exposure (2 à 10 vues NEF, modes Add, Average, Lighten, Darken)"
+    url: "https://onlinemanual.nikonimglib.com/zr/en/09-03-29.html"
+  - id: nikon-zr-fv-lock
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon ZR, Reference Guide, FV lock"
+    url: "https://onlinemanual.nikonimglib.com/zr/en/12-06.html"
+  - id: nikon-z8-time
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon Z 8, Reference Guide, Long Time-Exposures (Bulb, Time)"
+    url: "https://onlinemanual.nikonimglib.com/z8/en/exposure_32.html"
+  - id: nikon-z8-guide
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon Z 8, guide de référence (Focus Points Used, Focus Point Wrap-Around)"
+    url: "https://onlinemanual.nikonimglib.com/z8/en/"
+    note: "Lien vers l'accueil du guide : pointer la page exacte à la rédaction."
+  - id: nikon-z50ii-bracketing
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon Z50II, Reference Guide, Auto bracketing (exposition, flash, balance des blancs, ADL)"
+    url: "https://onlinemanual.nikonimglib.com/z50II/en/09-03-28.html"
+  - id: nikon-zf-flicker
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon Z f, Reference Guide, Photo Flicker Reduction"
+    url: "https://onlinemanual.nikonimglib.com/zf/en/psm_photo_flicker_reduction_132.html"
+  - id: nikon-d6-flicker
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon D6, Reference Guide, Flicker reduction (déclenchement calé sur le scintillement)"
+    url: "https://onlinemanual.nikonimglib.com/d6/en/16_menu_guide_03_21.html"
+  - id: nikon-zf-flash-modes
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon Z f, Reference Guide, Flash Modes (Red-eye reduction)"
+    url: "https://onlinemanual.nikonimglib.com/zf/en/flash_modes_105.html"
+  - id: nikon-faq-diopter
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, FAQ, The viewfinder is out of focus (réglage dioptrique)"
+    url: "https://onlinemanual.nikonimglib.com/faq/en/power_or_display_issues/viewfinder_view_unclear.html"
+  - id: nikon-zf-snapbridge
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon Z f, Reference Guide, The SnapBridge App"
+    url: "https://onlinemanual.nikonimglib.com/zf/en/the_snapbridge_app_83.html"
+  - id: nikon-zf-image-area
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon Z f, Reference Guide, Image Recording Options (Image Area, Quality, and Size)"
+    url: "https://onlinemanual.nikonimglib.com/zf/en/image_area_quality_and_size_guid-82570d60-9673-6e5f-ad84-cb37292dd134_24.html"
+  - id: nikon-zf-prerelease
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon Z f, Reference Guide, d3 Pre-Release Capture Options"
+    url: "https://onlinemanual.nikonimglib.com/zf/en/csmd_pre-release_capture_options_guid-3d636db4-4929-6497-4d88-0e39207284cd_194.html"
+  - id: nikon-d6-raw-bit-depth
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon D6, Reference Guide, NEF (RAW) Recording (12 ou 14 bits)"
+    url: "https://onlinemanual.nikonimglib.com/d6/en/16_menu_guide_03_09.html"
+  - id: nikon-z7-raw-compression
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon Z 7/Z 6, Reference Guide, NEF (RAW) Recording (compression avec ou sans perte)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_03_07.html"
+  - id: sony-a7iv-spot-point
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony α7 IV (ILCE-7M4), Spot Metering Point (Focus Point Link)"
+    url: "https://helpguide.sony.net/ilc/2110/v1/en/contents/TP1000649034.html"
+  - id: sony-a7iv-raw-type
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony α7 IV (ILCE-7M4), RAW File Type (non compressé, sans perte, compressé)"
+    url: "https://helpguide.sony.net/ilc/2110/v1/en/contents/TP1000659395.html"
+  - id: fujifilm-x100t-photometry
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Fujifilm X100T, Photometry (Interlock Spot AE & Focus Area)"
+    url: "https://fujifilm-dsc.com/en/manual/x100t/shooting/photometry/index.html"
+  - id: lingibe-2019
+    group: "Droit et réglementation"
+    label: "Village de la Justice, Droit à l'image : quelles sont les règles applicables (Patrick Lingibé, 25 février 2019)"
+    url: "https://www.village-justice.com/articles/droit-image-quelles-sont-les-regles-applicables,30783.html"
+  - id: service-public-droit-image
+    group: "Droit et réglementation"
+    label: "Service-public.fr, droit à l'image (vérifié le 6 mai 2022)"
+    url: "https://www.service-public.gouv.fr/particuliers/vosdroits/F32103"
+  - id: actu-juridique-2024
+    group: "Droit et réglementation"
+    label: "Actu-Juridique, Protection du droit à l'image de l'enfant : publication de la loi (20 février 2024)"
+    url: "https://www.actu-juridique.fr/breves/personnes-famille/protection-du-droit-a-limage-de-lenfant-publication-de-la-loi/"
+  - id: circulaire-2024
+    group: "Droit et réglementation"
+    label: "Ministère de la Justice, circulaire de présentation de la loi n° 2024-120 (23 mai 2024)"
+    url: "https://cnb.avocat.fr/sites/default/files/documents/circulaire_de_presentation_des_dispositions_de_loi_n_2024-120_du_19_fevrier_2024_visant_a_garantir_le_respect_du_droit_a_limage_des_enfants_-_240523.pdf"
+  - id: cms-cadio-2017
+    group: "Droit et réglementation"
+    label: "CMS, La nouvelle exception de panorama (Prudence Cadio, 29 juin 2017)"
+    url: "https://cms.law/fr/fra/a-la-une/la-nouvelle-exception-de-panorama-et-la-reproduction-de-l-image-de-l-immeuble"
+  - id: cc-by-sa-4
+    group: "Droit et réglementation"
+    label: "Creative Commons, licence CC BY-SA 4.0"
+    url: "https://creativecommons.org/licenses/by-sa/4.0/deed.en"
+    used_in: [docs/architecture.md]
+  - id: easa-uas-faq
+    group: "Droit et réglementation"
+    label: "EASA, Regulations on UAS (drone) explained, FAQ (règlements (UE) 2019/947 et 2019/945)"
+    url: "https://www.easa.europa.eu/en/the-agency/faqs/regulations-uas-drone-explained"

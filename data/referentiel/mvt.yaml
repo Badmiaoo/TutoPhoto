@@ -1,0 +1,136 @@
+# fichier: data/referentiel/mvt.yaml
+domain:
+  id: MVT
+  title: {fr: "Mouvement et temps de pose", en: "motion and exposure time"}
+  intro: "Douze notions, toutes en V1 : sujets détourés en mouvement, séquences d'images et rotation sur place couvrent le figé, le flou, le filé et la pose longue ; le trépied et les appuis en font partie."
+  sources: [tabellion-2023]
+  todo:
+    - "Flou reconstruit par séquences et flou de défilement (SIT-29) à valider en maquette."
+notions:
+  - id: MVT-01
+    title: {fr: "Figer le mouvement", en: "freezing motion"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "La vitesse nécessaire dépend de la vitesse du sujet, de sa direction et de sa taille dans l'image"
+      simulator: "Sujets mobiles, traînée mesurée en pixels"
+      exercise: "Figer un saut, puis un cycliste de profil"
+    situations: [SIT-06, SIT-07, SIT-29, SIT-38, SIT-40]
+    since: v0.1
+  - id: MVT-02
+    title: {fr: "Flou de bougé", en: "camera shake"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Vitesse de sécurité selon la focale, la tenue et la définition du capteur"
+      simulator: "Tremblement selon focale, vitesse, posture et stabilisation"
+      exercise: "Vitesse la plus lente utilisable à main levée au 200 mm"
+    situations: [SIT-08, SIT-18, SIT-29, SIT-35]
+    todo:
+      - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+    since: v0.1
+  - id: MVT-03
+    title: {fr: "Tenir son appareil", en: "handholding"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Posture, appui, respiration, déclenchement en douceur"
+      simulator: "Postures qui changent l'amplitude du tremblement"
+      exercise: "Mesurer ce que la posture fait gagner en vitesse"
+    situations: [SIT-18, SIT-35]
+    since: v0.1
+  - id: MVT-04
+    title: {fr: "Ce que la stabilisation ne fait pas", en: "stabilization limits"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Elle compense le bougé, pas le mouvement du sujet"
+      simulator: "Stabilisation activable : le décor se fige, le sujet reste flou"
+      exercise: "Intérieur sombre avec une personne qui marche"
+    situations: [SIT-18, SIT-19, SIT-34, SIT-35]
+    since: v0.1
+  - id: MVT-05
+    title: {fr: "Flou de mouvement créatif", en: "creative motion blur"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Suggérer le mouvement : eau, foule, nuages"
+      simulator: "Poses longues reconstruites en moyennant des séquences sans trou entre les images, ou avec un flou interpolé entre elles"
+      exercise: "Rivière soyeuse, rochers nets"
+    situations: [SIT-12, SIT-24, SIT-40]
+    sources: [tabellion-2023]
+    since: v0.1
+  - id: MVT-06
+    title: {fr: "Filé", en: "panning"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Suivre le sujet pendant la pose : sujet net, fond étiré"
+      simulator: "Rotation de l'appareil pendant la pose, sujet suivi"
+      exercise: "Filé d'un cycliste au 1/30 s"
+    situations: [SIT-09]
+    since: v0.1
+  - id: MVT-07
+    title: {fr: "Pose longue de jour", en: "long exposure, ND filters"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Filtres ND, calcul du temps de pose, trépied"
+      simulator: "Filtre ND en crans, temps recalculé"
+      exercise: "Poser 30 s en plein jour"
+    situations: [SIT-12, SIT-24]
+    since: v0.1
+  - id: MVT-08
+    title: {fr: "Traînées lumineuses et light painting", en: "light trails, light painting"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Choisir la durée selon le trafic et les lumières ; dessiner avec une lampe tournée vers l'appareil (light painting). Éclairer la scène à la lampe relève de la V2"
+      simulator: "Séquence de nuit accumulée, sans trou entre les images ; tracé lumineux dessiné pendant la pose"
+      exercise: "Traînées continues sans brûler les lampadaires"
+    situations: [SIT-17]
+    sources: [tabellion-2023]
+    since: v0.1
+  - id: MVT-09
+    title: {fr: "Étoiles ponctuelles ou filées", en: "star points, star trails"}
+    version: V1
+    level: N3
+    spec:
+      explanation: "La rotation de la Terre limite la pose ; règles empiriques et leurs limites ; filé par empilement"
+      simulator: "Ciel qui tourne selon la focale et le temps de pose"
+      exercise: "Pose maximale au 14 mm, puis au 50 mm"
+    situations: [SIT-20]
+    todo:
+      - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+    since: v0.1
+  - id: MVT-10
+    title: {fr: "L'instant décisif", en: "timing, burst"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Anticiper, pré-déclencher, utiliser la rafale sans la subir"
+      simulator: "Séquence d'action notée selon l'instant capté"
+      exercise: "Capter le ballon au contact du pied"
+    situations: [SIT-06, SIT-07, SIT-37, SIT-38]
+    since: v0.1
+  - id: MVT-11
+    title: {fr: "Zoom pendant la pose et mouvement volontaire", en: "zoom burst, ICM"}
+    version: V1
+    level: N3
+    spec:
+      explanation: "Tourner ou zoomer volontairement pendant la pose ; déplacer l'appareil relève de la V2"
+      simulator: "Zoom et rotation pendant la pose"
+      exercise: "Zoom pendant la pose sur des lumières de ville"
+    situations: [SIT-17]
+    since: v0.1
+  - id: MVT-12
+    title: {fr: "Trépied et appuis", en: "tripods and supports"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Quand le trépied s'impose, comment le rendre stable (colonne centrale basse, poids suspendu), et les appuis de fortune"
+      simulator: "Bougé résiduel selon le support, la colonne centrale et le mode de déclenchement"
+      exercise: "Réussir une pose de 2 s sans flou, avec puis sans trépied"
+    situations: [SIT-12, SIT-20]
+    sources: [cic-tripods]
+    since: v0.2

@@ -1,0 +1,160 @@
+# fichier: data/referentiel/ret.yaml
+domain:
+  id: RET
+  title: {fr: "Retouche et flux de travail", en: "editing and workflow"}
+  intro: "Quinze notions, toutes en V1 : on développe les photos prises dans le simulateur, avec un mini-développeur intégré ; la restauration de photos anciennes se pratique hors catalogue."
+notions:
+  - id: RET-01
+    title: {fr: "Développer un RAW", en: "basic RAW development"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Exposition, hautes lumières, ombres, blancs, noirs"
+      simulator: "Mini-développeur appliqué aux photos simulées"
+      exercise: "Rattraper une photo sous-exposée de 2 IL"
+    situations: [SIT-10]
+    since: v0.1
+  - id: RET-02
+    title: {fr: "Contraste et courbes", en: "contrast, tone curve"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Ce que fait une courbe, contraste global et local"
+      simulator: "Courbe éditable, avant/après"
+      exercise: "Reproduire un rendu doux, puis contrasté"
+    situations: [SIT-14]
+    since: v0.1
+  - id: RET-03
+    title: {fr: "Balance des blancs au développement", en: "white balance in post"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Corriger ou réinterpréter la couleur après la prise"
+      simulator: "Pipette et kelvins au développement"
+      exercise: "Neutraliser une photo d'intérieur"
+    situations: [SIT-18]
+    since: v0.1
+  - id: RET-04
+    title: {fr: "Saturation, vibrance, TSL", en: "saturation, vibrance, HSL"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Agir sur les couleurs sans les dénaturer"
+      simulator: "Curseurs par teinte"
+      exercise: "Adoucir un vert criard sans toucher aux tons chair"
+    situations: [SIT-01]
+    since: v0.1
+  - id: RET-05
+    title: {fr: "Recadrer et redresser", en: "crop, straighten"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Ratio, horizon, définition perdue"
+      simulator: "Outil de recadrage qui affiche la définition restante"
+      exercise: "Redresser et recadrer une photo d'architecture"
+    situations: [SIT-16]
+    since: v0.1
+  - id: RET-06
+    title: {fr: "Accentuation et bruit", en: "sharpening, noise reduction"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Doser l'accentuation et la réduction du bruit"
+      simulator: "Réglages avec aperçu à 100 %"
+      exercise: "Nettoyer une photo de nuit sans effet plastique"
+    situations: [SIT-20]
+    since: v0.1
+  - id: RET-07
+    title: {fr: "Corrections d'objectif", en: "lens corrections"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Distorsion, vignetage, aberrations"
+      simulator: "Profils d'objectifs du simulateur"
+      exercise: "Corriger une photo prise au grand-angle"
+    situations: [SIT-16, SIT-32]
+    since: v0.1
+  - id: RET-08
+    title: {fr: "Retouches locales", en: "masks, gradients, brush"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Corriger une zone sans toucher au reste"
+      simulator: "Masques, dégradés, pinceau"
+      exercise: "Assombrir un ciel au dégradé"
+    situations: [SIT-10]
+    since: v0.1
+  - id: RET-09
+    title: {fr: "Noir et blanc au développement", en: "black and white conversion"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Mélange des couches, contraste"
+      simulator: "Mélangeur de couches"
+      exercise: "Trois conversions d'une même photo"
+    situations: [SIT-15]
+    since: v0.1
+  - id: RET-10
+    title: {fr: "Fusions", en: "HDR, panorama, stacking"}
+    version: V1
+    level: N3
+    spec:
+      explanation: "Assembler plusieurs vues pour dépasser une limite ; moyenner une rafale réduit le bruit"
+      simulator: "Fusion dans l'outil des séries simulées, moyennage compris"
+      exercise: "Assembler un panorama : recouvrement suffisant, exposition et balance des blancs verrouillées"
+    situations: [SIT-10, SIT-30, SIT-32]
+    sources: [hasinoff-2016]
+    since: v0.1
+  - id: RET-11
+    title: {fr: "Trier, noter, sauvegarder", en: "culling, rating, backup"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Tri rapide, notes, sauvegardes multiples ; édition non destructive, archivage en deux copies dont une ailleurs"
+      simulator: "Lot de photos à trier"
+      exercise: "Garder les dix meilleures sur cinquante"
+    situations: [SIT-24, SIT-36]
+    since: v0.1
+  - id: RET-12
+    title: {fr: "Exporter", en: "export: format, size, color space"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Format, taille, accentuation de sortie, espace couleur ; épreuvage à l'écran avec le profil du papier avant un tirage"
+      simulator: "Export simulé pour le web et pour un tirage"
+      exercise: "Préparer une photo pour un réseau social et pour un tirage"
+    situations: [SIT-10]
+    since: v0.1
+  - id: RET-13
+    title: {fr: "Éviter la surretouche", en: "over-editing"}
+    version: V1
+    level: N2
+    activity: true
+    spec:
+      explanation: "Halos, saturation excessive, ombres trop débouchées"
+      simulator: "Activité interactive : exemples poussés trop loin"
+      exercise: "Repérer la surretouche sur cinq photos"
+    situations: all
+    since: v0.1
+  - id: RET-14
+    title: {fr: "Postérisation", en: "posterization"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Des bandes apparaissent quand on étire les tons d'un fichier aux niveaux trop peu nombreux, surtout en 8 bits"
+      simulator: "Dégradé de ciel étiré au développement, en 8 et en 16 bits"
+      exercise: "Éclaircir un ciel sans faire apparaître de bandes"
+    situations: [SIT-10, SIT-17]
+    sources: [cic-posterization]
+    since: v0.2
+  - id: RET-15
+    title: {fr: "Restaurer une photo ancienne", en: "restoring old photos"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Numériser un tirage, puis corriger poussières, rayures, dominante et contraste"
+      simulator: "Tirage numérisé virtuel avec défauts, outils de retouche locale"
+      exercise: "Restaurer un tirage abîmé sans le dénaturer"
+    situations: []
+    practice_outside: "Numériser et restaurer un tirage de famille"
+    since: v0.2

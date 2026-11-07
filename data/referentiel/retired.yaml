@@ -1,0 +1,7 @@
+# fichier: data/referentiel/retired.yaml
+# Identifiants retirés : jamais réutilisés.
+retired:
+  - id: MAP-13
+    merged_into: MAP-08
+    since: v0.2
+    reason: "Même geste que MAP-08 à deux niveaux (audit indépendant du 7 novembre 2026)."
