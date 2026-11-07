@@ -19,6 +19,7 @@ TutoPhoto is the project name. The application will be published as a static sit
 | `data/` | Curriculum (`data/referentiel/`), situations, sources and milestones: the source of truth |
 | `docs/` | Scope, architecture, reading the curriculum, content, licenses, tech stack, open questions, history (in French) |
 | `schemas/` | JSON Schemas for the files in `data/` |
+| `app/` | Application (TypeScript, Babylon.js, Vite) |
 | `scripts/` | Extraction, validation and coverage |
 | `REPRISE.md` | Handover file of 7 November 2026, kept as is as an archive |
 | `CLAUDE.md` | Working rules |
@@ -26,6 +27,17 @@ TutoPhoto is the project name. The application will be published as a static sit
 | `LICENSE`, `LICENSES/` | License texts |
 
 Data files are explained in [docs/lire-le-referentiel.md](docs/lire-le-referentiel.md) (in French).
+
+## Running the application
+
+Node.js 22 or later:
+
+```sh
+cd app
+npm ci
+npm run dev      # development server
+npm run build    # type check and static site in app/dist/
+```
 
 ## Checking the curriculum
 

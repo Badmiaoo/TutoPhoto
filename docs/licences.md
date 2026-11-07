@@ -19,6 +19,10 @@ Titulaire indiqué dans `LICENSE` : « les contributeurs de TutoPhoto ».
 - Contenus et données sous CC BY-SA 4.0 : réutilisation permise, y compris commerciale, avec attribution. Une adaptation partagée doit être placée sous une licence Creative Commons aux mêmes éléments, cette version ou une ultérieure, ou sous une licence déclarée compatible BY-SA (section 3(b) du [texte CC BY-SA 4.0](https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/CC-BY-SA-4.0.txt)).
 - Modèles et textures 3D de tiers : seulement sous CC0, qui renonce à tous les droits (section 2 du [texte CC0 1.0](https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/CC0-1.0.txt)), ou sous CC BY, qui demande seulement d'attribuer l'œuvre. Ne sont pas acceptés : CC BY-SA, les licences avec clause NC (pas d'usage commercial) ou ND (pas de modification), et les licences propres à un site.
 
+## Code de tiers dans le site publié
+
+- Babylon.js (Apache-2.0) : sa licence et les mentions de son `NOTICE.md` sont recopiées dans le site construit, sous `licences/`, avec les licences du projet ; une page `licences/` les liste.
+
 ## Règles pour les scènes 3D
 
 - Avant d'intégrer un modèle ou une texture, lire sa licence sur la page d'origine.

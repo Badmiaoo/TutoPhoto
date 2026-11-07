@@ -19,6 +19,7 @@ TutoPhoto est le nom du projet. L'application sera publiée comme site statique,
 | `data/` | Référentiel (`data/referentiel/`), situations, sources et jalons : la source de vérité |
 | `docs/` | Cadrage, architecture, lecture du référentiel, contenus, licences, pile technique, questions ouvertes, historique |
 | `schemas/` | Schémas JSON des fichiers de `data/` |
+| `app/` | Application (TypeScript, Babylon.js, Vite) |
 | `scripts/` | Extraction, validation et couverture |
 | `REPRISE.md` | Fichier de reprise du 7 novembre 2026, gardé tel quel comme archive |
 | `CLAUDE.md` | Règles de travail |
@@ -26,6 +27,17 @@ TutoPhoto est le nom du projet. L'application sera publiée comme site statique,
 | `LICENSE`, `LICENSES/` | Textes des licences |
 
 Pour comprendre les fichiers de données : [docs/lire-le-referentiel.md](docs/lire-le-referentiel.md).
+
+## Lancer l'application
+
+Node.js 22 ou plus récent :
+
+```sh
+cd app
+npm ci
+npm run dev      # serveur de développement
+npm run build    # vérification des types et site statique dans app/dist/
+```
 
 ## Vérifier le référentiel
 

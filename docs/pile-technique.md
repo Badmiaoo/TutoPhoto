@@ -80,6 +80,16 @@ Le 7 novembre 2026, Julien a choisi l'option B, Babylon.js. Points à traiter da
 - mesurer les performances sur les téléphones des testeurs ;
 - reprendre la licence Apache-2.0 et les mentions de `NOTICE.md` de Babylon.js dans la distribution.
 
+## Outillage de l'application
+
+Décidé par Julien le 7 novembre 2026 ; versions et licences lues dans le registre npm le même jour.
+
+- Code de l'application en TypeScript, dans `app/` : [TypeScript](https://www.npmjs.com/package/typescript) 7.0.2, licence Apache-2.0, outil de développement seulement (absent du site publié).
+- Construction avec [Vite](https://www.npmjs.com/package/vite) 8.3.6, licence MIT, outil de développement seulement ; le polyfill de préchargement de Vite est désactivé, si bien que le site publié ne contient que notre code et celui de Babylon.js.
+- Moteur : [@babylonjs/core](https://www.npmjs.com/package/@babylonjs/core) 9.35.0, licence Apache-2.0. Sa licence et son `NOTICE.md` sont recopiés dans le site construit (`licences/`), avec les licences du projet.
+- Publication sur GitHub Pages à chaque fusion sur `main`, par le workflow `.github/workflows/pages.yml`. GitHub Pages doit être activé dans les réglages du dépôt, avec la source « GitHub Actions ».
+- La CI des pull requests vérifie les types et construit le site (`.github/workflows/validate.yml`, job `app`).
+
 ## Recommandation (avant décision)
 
 Option B, Babylon.js, pour la V1 minimale. C'est la seule qui couvre d'origine les deux effets clés de la tranche de parc, profondeur de champ physique et flou de mouvement, sur tous les navigateurs du tableau. Le risque principal, les performances sur téléphone, se mesure dès la preuve du moteur sur la scène de parc. La voie C reste une piste pour une photo de meilleure qualité, si WebGPU se généralise.
