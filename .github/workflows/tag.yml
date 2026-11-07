@@ -5,7 +5,7 @@ on:
     branches: [main]
   workflow_dispatch: # relance à la main, par exemple après un échec
 
-# Seul ce workflow écrit dans le dépôt : il crée des tags, rien d'autre.
+# Seul ce workflow écrit dans le dépôt : il crée des tags et des releases, rien d'autre.
 permissions:
   contents: write
 
@@ -23,13 +23,12 @@ jobs:
       # Actions épinglées par commit ; licence MIT vérifiée le 7 novembre 2026.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0 # tout l'historique et les tags, pour retrouver le commit de chaque version
+          fetch-depth: 0 # tout l'historique, pour retrouver le commit de chaque version
+          persist-credentials: false # git ne pousse rien : les tags passent par l'API
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.13"
-      - name: Identité du tagueur
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Poser les tags des versions du changelog
-        run: python scripts/changelog.py tag --push
+      - name: Poser les tags et les releases des versions du changelog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/changelog.py tag --github
