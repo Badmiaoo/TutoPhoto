@@ -2,6 +2,8 @@
 
 _Section 2 de `REPRISE.md` (7 novembre 2026), copiée sans réécriture ; seuls les niveaux de titre changent._
 
+> **En partie caduque depuis le 7 novembre 2026.** Les scènes seront en 3D de synthèse, et non en 2.5D : le moteur de rendu 2.5D, les défis « dans une scène 2.5D » et la section « Format de scène 2.5D » ne valent plus. Cette page sera réécrite avec le choix de la pile technique. Les trois portes d'entrée, le solveur de situations, le bulletin, le boîtier virtuel et le bilinguisme restent valables comme brouillon. Le profil de capteur « 1 pouce » est à réexaminer, le public visé n'utilisant que des reflex et des hybrides. La partie « Droits » portait sur des photos réelles ; pour des scènes de synthèse, la question devient surtout celle des licences des modèles et des textures.
+
 Trois portes d'entrée mènent au même moteur de rendu. Une situation décrite passe par le solveur de situations, qui produit une recette expliquée ; un défi se joue dans une scène 2.5D ; une notion se manipule dans son simulateur. Chaque photo simulée reçoit un bulletin, qui renvoie aux notions à revoir.
 
 ```mermaid

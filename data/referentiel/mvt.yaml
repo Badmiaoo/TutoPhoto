@@ -2,14 +2,13 @@
 domain:
   id: MVT
   title: {fr: "Mouvement et temps de pose", en: "motion and exposure time"}
-  intro: "Douze notions, toutes en V1 : sujets détourés en mouvement, séquences d'images et rotation sur place couvrent le figé, le flou, le filé et la pose longue ; le trépied et les appuis en font partie."
+  intro: "Douze notions : sujets en mouvement et appareil qui tourne, zoome ou se déplace pendant la pose couvrent le figé, le flou, le filé et la pose longue ; le trépied et les appuis en font partie."
   sources: [tabellion-2023]
   todo:
-    - "Flou reconstruit par séquences et flou de défilement (SIT-29) à valider en maquette."
+    - "Choisir, avec le moteur de rendu, la méthode de rendu du flou de mouvement et des poses longues."
 notions:
   - id: MVT-01
     title: {fr: "Figer le mouvement", en: "freezing motion"}
-    version: V1
     level: N1
     spec:
       explanation: "La vitesse nécessaire dépend de la vitesse du sujet, de sa direction et de sa taille dans l'image"
@@ -19,7 +18,6 @@ notions:
     since: v0.1
   - id: MVT-02
     title: {fr: "Flou de bougé", en: "camera shake"}
-    version: V1
     level: N1
     spec:
       explanation: "Vitesse de sécurité selon la focale, la tenue et la définition du capteur"
@@ -31,7 +29,6 @@ notions:
     since: v0.1
   - id: MVT-03
     title: {fr: "Tenir son appareil", en: "handholding"}
-    version: V1
     level: N1
     spec:
       explanation: "Posture, appui, respiration, déclenchement en douceur"
@@ -41,7 +38,6 @@ notions:
     since: v0.1
   - id: MVT-04
     title: {fr: "Ce que la stabilisation ne fait pas", en: "stabilization limits"}
-    version: V1
     level: N1
     spec:
       explanation: "Elle compense le bougé, pas le mouvement du sujet"
@@ -51,7 +47,6 @@ notions:
     since: v0.1
   - id: MVT-05
     title: {fr: "Flou de mouvement créatif", en: "creative motion blur"}
-    version: V1
     level: N2
     spec:
       explanation: "Suggérer le mouvement : eau, foule, nuages"
@@ -62,7 +57,6 @@ notions:
     since: v0.1
   - id: MVT-06
     title: {fr: "Filé", en: "panning"}
-    version: V1
     level: N2
     spec:
       explanation: "Suivre le sujet pendant la pose : sujet net, fond étiré"
@@ -72,7 +66,6 @@ notions:
     since: v0.1
   - id: MVT-07
     title: {fr: "Pose longue de jour", en: "long exposure, ND filters"}
-    version: V1
     level: N2
     spec:
       explanation: "Filtres ND, calcul du temps de pose, trépied"
@@ -82,10 +75,9 @@ notions:
     since: v0.1
   - id: MVT-08
     title: {fr: "Traînées lumineuses et light painting", en: "light trails, light painting"}
-    version: V1
     level: N2
     spec:
-      explanation: "Choisir la durée selon le trafic et les lumières ; dessiner avec une lampe tournée vers l'appareil (light painting). Éclairer la scène à la lampe relève de la V2"
+      explanation: "Choisir la durée selon le trafic et les lumières ; dessiner avec une lampe tournée vers l'appareil (light painting). ; éclairer la scène à la lampe pendant la pose"
       simulator: "Séquence de nuit accumulée, sans trou entre les images ; tracé lumineux dessiné pendant la pose"
       exercise: "Traînées continues sans brûler les lampadaires"
     situations: [SIT-17]
@@ -93,7 +85,6 @@ notions:
     since: v0.1
   - id: MVT-09
     title: {fr: "Étoiles ponctuelles ou filées", en: "star points, star trails"}
-    version: V1
     level: N3
     spec:
       explanation: "La rotation de la Terre limite la pose ; règles empiriques et leurs limites ; filé par empilement"
@@ -105,7 +96,6 @@ notions:
     since: v0.1
   - id: MVT-10
     title: {fr: "L'instant décisif", en: "timing, burst"}
-    version: V1
     level: N1
     spec:
       explanation: "Anticiper, pré-déclencher, utiliser la rafale sans la subir"
@@ -115,17 +105,15 @@ notions:
     since: v0.1
   - id: MVT-11
     title: {fr: "Zoom pendant la pose et mouvement volontaire", en: "zoom burst, ICM"}
-    version: V1
     level: N3
     spec:
-      explanation: "Tourner ou zoomer volontairement pendant la pose ; déplacer l'appareil relève de la V2"
+      explanation: "Tourner, zoomer ou déplacer volontairement l'appareil pendant la pose"
       simulator: "Zoom et rotation pendant la pose"
       exercise: "Zoom pendant la pose sur des lumières de ville"
     situations: [SIT-17]
     since: v0.1
   - id: MVT-12
     title: {fr: "Trépied et appuis", en: "tripods and supports"}
-    version: V1
     level: N1
     spec:
       explanation: "Quand le trépied s'impose, comment le rendre stable (colonne centrale basse, poids suspendu), et les appuis de fortune"

@@ -9,7 +9,7 @@
     "rules": {
       "type": "object",
       "additionalProperties": {"type": "string", "minLength": 1},
-      "required": ["level", "key_notions", "flash", "capture"]
+      "required": ["level", "key_notions", "flash"]
     },
     "situations": {
       "type": "array",
@@ -19,9 +19,10 @@
   },
   "$defs": {
     "situation": {
+      "$comment": "SIT-V2-NN : identifiants des anciennes situations V2, gardés tels quels (identifiants stables).",
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "title", "version", "level", "level_max", "where_when", "intention", "key_notions", "since"],
+      "required": ["id", "title", "level", "level_max", "where_when", "intention", "key_notions", "since"],
       "properties": {
         "id": {"type": "string", "pattern": "^SIT-(V2-)?[0-9]{2}$"},
         "title": {
@@ -33,7 +34,6 @@
             "en": {"type": "string", "minLength": 1}
           }
         },
-        "version": {"enum": ["V1", "V2"]},
         "level": {"enum": ["N1", "N2", "N3"]},
         "level_max": {"enum": ["N1", "N2", "N3"]},
         "where_when": {"type": "string", "minLength": 1},
@@ -43,7 +43,6 @@
           "minItems": 1,
           "items": {"type": "string", "pattern": "^[A-Z]{3}-[0-9]{2}$"}
         },
-        "capture": {"type": "string", "minLength": 1},
         "flash": {"enum": ["required", "optional"]},
         "sources": {
           "type": "array",
@@ -51,21 +50,7 @@
         },
         "notes": {"type": "array", "items": {"type": "string", "minLength": 1}},
         "since": {"type": "string", "pattern": "^v[0-9]+\\.[0-9]+$"}
-      },
-      "allOf": [
-        {
-          "$comment": "La capture est la scène 2.5D à produire : V1 seulement.",
-          "if": {"properties": {"version": {"const": "V1"}}},
-          "then": {"required": ["capture"]},
-          "else": {"$comment": "une situation V2 n'a pas de champ capture", "not": {"required": ["capture"]}}
-        },
-        {
-          "$comment": "Les identifiants SIT-V2-NN sont réservés aux situations V2, et inversement.",
-          "if": {"properties": {"version": {"const": "V2"}}},
-          "then": {"properties": {"id": {"pattern": "^SIT-V2-[0-9]{2}$"}}},
-          "else": {"properties": {"id": {"pattern": "^SIT-[0-9]{2}$"}}}
-        }
-      ]
+      }
     }
   }
 }

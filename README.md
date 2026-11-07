@@ -8,8 +8,8 @@ Boîte à outils open source, en français et en anglais, qui apprend la photo a
 
 ## État au 7 novembre 2026
 
-- Cadrage et référentiel v0.2 à l'état de brouillon, à remettre en question : 191 notions en 13 domaines, 49 situations (42 en V1, 7 en V2), 78 sources.
-- V1 en 2.5D : de vraies photos et leur carte de profondeur. V2 : uniquement le passage en 3D et ce qu'il débloque.
+- Cadrage et référentiel v0.2 à l'état de brouillon, à remettre en question : 191 notions en 13 domaines, 49 situations, 78 sources.
+- Pour débutants avec un boîtier reflex ou hybride. Scènes en 3D de synthèse ; on commence par une V1 minimale (une scène de parc, trois situations), testée avec des débutants avant d'étendre.
 - Pas encore de code applicatif ni de contenu rédigé : couverture 0 sur 191.
 
 ## Contenu du dépôt
@@ -17,7 +17,7 @@ Boîte à outils open source, en français et en anglais, qui apprend la photo a
 | Chemin | Rôle |
 | --- | --- |
 | `data/` | Référentiel (`data/referentiel/`), situations et sources : la source de vérité |
-| `docs/` | Cadrage, architecture, lecture du référentiel, V2 en 3D, contenus, questions ouvertes, historique |
+| `docs/` | Cadrage, architecture, lecture du référentiel, contenus, questions ouvertes, historique |
 | `schemas/` | Schémas JSON des fichiers de `data/` |
 | `scripts/` | Extraction, validation et couverture |
 | `REPRISE.md` | Fichier de reprise du 7 novembre 2026, gardé tel quel comme archive |

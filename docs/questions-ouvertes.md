@@ -1,33 +1,33 @@
 # Questions ouvertes et prochaines étapes
 
-_Section 8 de `REPRISE.md` (7 novembre 2026), copiée sans réécriture ; seuls les niveaux de titre changent._
+_Repris de la section 8 de `REPRISE.md` (7 novembre 2026), puis mis à jour le même jour avec les décisions de la session 1 ; détail dans `docs/historique.md`._
 
 ## Questions ouvertes
 
-Neuf points. Les licences se tranchent avant tout contenu ; le flash se tranche pendant la preuve du moteur.
+Les licences se tranchent avant tout contenu.
 
-- [ ] Taille de la V1 : 189 notions, dont 12 en partie, et 42 situations d'un seul bloc, ou des jalons internes (par exemple boîtier, exposition et mise au point d'abord) ?
+- [x] Taille de la V1 : tranché le 7 novembre 2026. V1 minimale testée d'abord (scène de parc : SIT-01, SIT-05, SIT-06), puis extension.
 - [ ] Nom du projet et du dépôt.
-- [ ] Licences : laquelle pour le code (permissive ou copyleft), laquelle pour les contenus (famille Creative Commons) ?
-- [ ] Smartphone : un profil « smartphone » dans le boîtier virtuel dès la V1, ou hors périmètre ? BOI-28 en dépend.
-- [ ] Scènes : qui les capture (le porteur du projet, des contributeurs, des banques d'images sous licence libre), avec quel protocole, et où les stocker (fichiers lourds hors du dépôt Git ou non) ?
+- [ ] Licences : laquelle pour le code (permissive ou copyleft), laquelle pour les contenus (famille Creative Commons), et quelles licences accepter pour les modèles et textures 3D ?
+- [x] Smartphone : tranché le 7 novembre 2026. Hors périmètre, comme les compacts et les bridges : reflex et hybrides uniquement.
+- [ ] Scènes 3D : qui les modélise (le porteur du projet, des contributeurs, des bibliothèques de modèles sous licence libre), avec quel niveau de réalisme, et où stocker les fichiers lourds (hors du dépôt Git ou non) ?
 - [ ] Relecture : qui valide l'exactitude des contenus et de leurs sources avant publication, en français et en anglais ?
-- [ ] Flash en 2.5D : les captures ambiante et flash seul suffisent-elles, ou faut-il aussi le calcul par carte de profondeur ? Si aucune approche ne tient, le flash passe entièrement en V2, et avec lui SIT-02, SIT-25 et SIT-34.
+- [x] Flash en 2.5D : sans objet depuis le passage à la 3D de synthèse. Le rendu du flash reste à vérifier dans la maquette (chantier du domaine LUM).
 - [ ] Hébergement : serveur personnel, hébergement statique public, ou les deux ?
-- [ ] Pile technique de la maquette et du moteur de rendu : Claude Code propose des options, Julien tranche.
+- [ ] Pile technique de la maquette et du moteur de rendu 3D dans le navigateur : Claude Code propose des options, Julien tranche.
+- [ ] Tests de la V1 minimale : qui teste (combien de débutants, recrutés comment), avec quel protocole, et sur quels critères on décide d'étendre ?
 
 ## Points à surveiller
 
-- Faisabilité, à prouver en maquette : scènes en couches, flash par captures, flou de défilement (SIT-29), poses longues reconstruites par séquences.
+- Réalisme de la 3D de synthèse : à évaluer dans la maquette, avec les débutants.
+- Rendu, au choix du moteur : flou d'un premier plan qui déborde sur le sujet, flou de mouvement et poses longues, flash (chantiers des domaines MAP, MVT et LUM).
 - Niveaux des situations : la règle de la médiane est un choix par défaut de la v0.2, à confirmer en écrivant les premiers défis.
 - Lisibilité sur téléphone, demandée par l'audit indépendant : intitulé anglais à la ligne, codes cliquables, textes lisibles. À appliquer dans la maquette.
 - SunCalc : le dépôt n'affiche aucune version publiée et la v2.0 a changé unités et conventions ; figer un commit.
-- Licence des modèles métriques de Depth Anything : je ne sais pas ; seule la version Small (Apache-2.0) est vérifiée.
 - Sources et vérifications à compléter, d'après les champs `todo` du référentiel :
 
   - MES-04, BOI-14, BOI-19, MAP-03, NET-02, NET-03, NET-04, MVT-02, MVT-09, OPT-03, LUM-08, LUM-11, LUM-12, COU-01, COU-06, PLA-05 : sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026).
   - MES-13 : ajouter une source primaire (Wikipedia est secondaire).
-  - BOI-28 : dépend de la question ouverte sur le smartphone.
   - BOI-28 : source ancienne, à compléter par une source récente.
   - OPT-12 : ajouter une source pour la polarisation du ciel, maximale à 90° du soleil.
   - LUM-04 : sourcer la qualité de la lumière à ces heures à la rédaction ; le calcul des horaires relève de PLA-01.
@@ -35,18 +35,18 @@ Neuf points. Les licences se tranchent avant tout contenu ; le flash se tranche 
   - COU-09 : sourcer la pratique de la balance des blancs sous l'eau à la rédaction.
   - PLA-07 : écrire le contenu juridique pays par pays, à partir des textes officiels ; aucun chiffre ni article inventé.
   - PLA-09 : écrire le contenu juridique pays par pays, à partir des textes officiels ; aucun chiffre ni article inventé.
-  - Domaine MAP : faisabilité des scènes en couches à valider en maquette (étape 5).
-  - Domaine MVT : flou reconstruit par séquences et flou de défilement (SIT-29) à valider en maquette.
-  - Domaine LUM : flash par captures ambiante et flash seul à valider en maquette (étape 5).
+  - Domaine MAP : vérifier, au choix du moteur de rendu, que le flou d'un premier plan qui déborde sur le sujet est rendu correctement.
+  - Domaine MVT : choisir, avec le moteur de rendu, la méthode de rendu du flou de mouvement et des poses longues.
+  - Domaine LUM : vérifier, dans la maquette 3D, le rendu du flash direct, rebondi et déporté.
 
 ## Prochaines étapes
 
-La 3D ne démarre qu'une fois la maquette 2.5D validée.
+On n'étend au-delà de la V1 minimale qu'après l'avoir testée avec des débutants.
 
-1. Valider le référentiel : fait le 7 novembre 2026, v0.2.
+1. Verser le référentiel dans le dépôt : fait le 7 novembre 2026 (version 0.2.0), à l'état de brouillon à remettre en question.
 2. Trancher les questions ouvertes, au fil des étapes.
-3. Verser le référentiel dans le dépôt sous forme de fichiers de données : source unique pour l'outil, la couverture et les traductions (session 1, section 0.7).
-4. Maquetter en 2.5D les écrans clés : accueil et trois portes, questionnaire de situation, recette expliquée, boîtier virtuel et viseur avec collimateurs, simulation et bulletin, fiche notion, carte du référentiel avec sa couverture.
-5. Prouver le moteur de rendu sur une seule scène : exposition, mise au point, profondeur de champ, bruit, flou de bougé, flash direct à partir des captures ambiante et flash seul.
-6. Valider la maquette, puis écrire la doc fonctionnelle et technique et produire les contenus FR/EN notion par notion, en relevant les termes des manuels français des constructeurs.
-7. V2 : passage en 3D et contenus débloqués.
+3. Proposer la pile technique de la maquette et du moteur de rendu 3D : deux ou trois options comparées sur le réalisme, la profondeur de champ, le flou de mouvement, le bruit, le flash, les performances sur téléphone et les licences. Julien choisit.
+4. Maquetter les écrans clés de la V1 minimale, lisibles sur téléphone : accueil et trois portes, questionnaire de situation, recette expliquée, boîtier virtuel et viseur avec collimateurs, simulation et bulletin, fiche notion.
+5. Prouver le moteur de rendu sur la scène de parc : exposition, mise au point, profondeur de champ, bruit, flou de bougé et de sujet.
+6. Rédiger en français et en anglais les contenus des notions et des situations de la V1 minimale, sources à l'appui, en relevant les termes des manuels des constructeurs.
+7. Tester avec des débutants, corriger, puis étendre aux autres situations.

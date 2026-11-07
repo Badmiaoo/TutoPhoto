@@ -1,16 +1,22 @@
 # Cadrage
 
-_Section 1 de `REPRISE.md` (7 novembre 2026), copiée sans réécriture ; seuls les niveaux de titre changent._
+_Repris de la section 1 de `REPRISE.md` (7 novembre 2026), puis mis à jour le même jour avec les décisions de la session 1 ; détail dans `docs/historique.md`._
 
-La V1 simule en 2.5D tout ce qui se fait sans déplacer l'appareil ni la lumière, avec les situations au centre. La V2 n'ajoute que ce que la 3D débloque.
+Un simulateur en 3D de synthèse apprend aux débutants à se servir d'un boîtier reflex ou hybride, avec les situations au centre. On commence par une V1 minimale, testée avec des débutants avant d'étendre.
 
-## Décisions actées le 6 novembre 2026
+## Décisions du 7 novembre 2026
+
+- Public : débutants avec un boîtier reflex ou hybride. La photo au smartphone, les compacts et les bridges sont hors périmètre.
+- Scènes en 3D de synthèse dès la V1, à la place des photos réelles et de leur carte de profondeur (2.5D).
+- Plus de découpage V1/V2 dans le référentiel : ses 191 notions et 49 situations relèvent toutes de la V1.
+- V1 minimale d'abord : une scène 3D de parc, avec SIT-01 (portrait à l'ombre), SIT-05 (photo de groupe) et SIT-06 (enfant ou chien qui court), testée avec quelques débutants avant d'étendre.
+
+## Décisions du 6 novembre 2026
 
 - Bilingue français et anglais dès la V1 : chaque notion, situation et texte d'interface a une clé stable et deux langues.
-- V1 en 2.5D : de vraies photos et leur carte de profondeur. La maquette 2.5D est validée avant de lancer la 3D.
 - Les situations sont le cœur de la V1 : on part de « où, quand, quoi, pourquoi » pour arriver aux réglages.
-- V2 : uniquement le passage en 3D et les contenus qu'il débloque.
 - Toute la maîtrise du boîtier est au programme : modes, menus, mise au point, modes AF, collimateurs, mesure, obturateur, fichiers.
+- Remplacées le 7 novembre : « V1 en 2.5D, maquette 2.5D validée avant de lancer la 3D » et « V2 : uniquement le passage en 3D et les contenus qu'il débloque ».
 
 ## Ce que « 100 % » veut dire
 
@@ -19,16 +25,8 @@ La V1 simule en 2.5D tout ce qui se fait sans déplacer l'appareil ni la lumièr
 - Taux de couverture = notions couvertes ÷ notions du référentiel, affiché dans l'outil et dans le dépôt.
 - Ajouter ou retirer une notion passe par une proposition de modification du référentiel, comme pour le code.
 
-## Règle de découpage V1 / V2
-
-Une notion est en V1 si elle se simule sans déplacer l'appareil ni la lumière. Zoomer revient à recadrer pour le cadrage et la perspective ; le flou, lui, est recalculé selon la focale. Avec la plupart des objectifs (pas les fisheyes), tourner l'appareil autour du centre de sa pupille d'entrée ne crée pas de parallaxe ([manuel Hugin](https://hugin.sourceforge.io/docs/manual/Entrance_pupil.html)) : une capture plus large que le cadre suffit, si elle couvre la rotation voulue et garde assez de définition pour la focale la plus longue. Dès qu'il faut changer librement de point de vue ou placer une lumière, c'est la V2. Exception : une translation de quelques centimètres pendant la pose, depuis un train par exemple (SIT-29), reste en V1, le flou se calculant selon la profondeur (à valider en maquette).
-
-- V1 (177 notions) : réglages, exposition, mise au point, profondeur de champ, flous, bruit, couleur, cadrage par rotation et zoom, variantes capturées (heures, météo, flash seul).
-- V1 → V2 (12 notions) : une base en V1 avec des variantes capturées depuis quelques points, la version libre en V2 : perspective, distance sujet-fond, point de vue, premiers plans, pose du modèle, qualité et direction de la lumière, lumière de fenêtre, flash direct et rebondi, réflecteurs, éclairage sous l'eau.
-- V2 (2 notions) : flash déporté et studio, point sans parallaxe.
-
 ## Périmètre
 
 - Dans le périmètre depuis le 7 novembre 2026 : la photo par drone (PLA-09, SIT-41), la photo sous l'eau près de la surface (COU-09, LUM-18, SIT-42), la restauration de photos anciennes (RET-15, hors catalogue).
+- Hors périmètre, décidé le 7 novembre 2026 : la photo au smartphone, les compacts et les bridges.
 - Hors périmètre proposé : la vidéo ; le développement argentique (les principes de prise de vue restent valables, la chimie non) ; l'activité professionnelle (tarifs, clients, contrats).
-- À trancher : la photo au smartphone (section 8).

@@ -2,11 +2,10 @@
 domain:
   id: COU
   title: {fr: "Couleur", en: "color"}
-  intro: "Neuf notions, toutes en V1 : la couleur se règle sur les captures, sans avoir besoin de la 3D, sous l'eau comprise."
+  intro: "Neuf notions : la couleur des sources, sa correction et son usage, sous l'eau comprise."
 notions:
   - id: COU-01
     title: {fr: "Température de couleur", en: "color temperature, tint"}
-    version: V1
     level: N1
     spec:
       explanation: "La lumière a une couleur : kelvins et teinte"
@@ -18,7 +17,6 @@ notions:
     since: v0.1
   - id: COU-02
     title: {fr: "Balance des blancs", en: "white balance"}
-    version: V1
     level: N1
     spec:
       explanation: "Auto, préréglages, kelvins, mesure sur une carte grise ; selon les marques, une balance auto qui garde l'ambiance chaude ou qui neutralise le blanc"
@@ -29,7 +27,6 @@ notions:
     since: v0.1
   - id: COU-03
     title: {fr: "Lumière mixte", en: "mixed lighting"}
-    version: V1
     level: N2
     spec:
       explanation: "Choisir quelle source neutraliser"
@@ -39,7 +36,6 @@ notions:
     since: v0.1
   - id: COU-04
     title: {fr: "Balance créative", en: "creative white balance"}
-    version: V1
     level: N1
     spec:
       explanation: "Réchauffer, refroidir, servir l'ambiance"
@@ -49,7 +45,6 @@ notions:
     since: v0.1
   - id: COU-05
     title: {fr: "Styles d'image", en: "picture styles, profiles"}
-    version: V1
     level: N1
     spec:
       explanation: "Ils changent le JPEG et l'aperçu ; en RAW, le style se choisit au développement, dans le logiciel"
@@ -62,7 +57,6 @@ notions:
     since: v0.1
   - id: COU-06
     title: {fr: "Espaces couleur et écrans", en: "color spaces, displays"}
-    version: V1
     level: N3
     activity: true
     spec:
@@ -75,7 +69,6 @@ notions:
     since: v0.1
   - id: COU-07
     title: {fr: "Couleur et composition", en: "color harmony"}
-    version: V1
     level: N2
     spec:
       explanation: "Contrastes et harmonies, couleur dominante"
@@ -85,7 +78,6 @@ notions:
     since: v0.1
   - id: COU-08
     title: {fr: "Penser en noir et blanc", en: "seeing in black and white"}
-    version: V1
     level: N2
     spec:
       explanation: "Luminances, contrastes, filtres colorés en noir et blanc"
@@ -95,7 +87,6 @@ notions:
     since: v0.1
   - id: COU-09
     title: {fr: "Couleur sous l'eau", en: "color underwater"}
-    version: V1
     level: N2
     spec:
       explanation: "L'eau absorbe d'abord le rouge : les couleurs s'éteignent avec la profondeur et la distance au sujet ; la balance des blancs se corrige selon la profondeur"

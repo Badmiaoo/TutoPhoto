@@ -86,9 +86,6 @@ def check_links(ref):
                 error(f"{n['id']} : situation {sid} inexistante")
                 continue
             cited[sid] += 1
-            if n["version"] == "V2" and situations[sid]["version"] == "V1":
-                if not any(sid in note for note in n.get("notes", [])):
-                    error(f"{n['id']} (V2) renvoie à {sid} (V1) sans note qui l'explique")
 
     for sid, s in situations.items():
         if not cited[sid]:
@@ -100,8 +97,6 @@ def check_links(ref):
                 continue
             if n["situations"] != "all" and sid not in n["situations"]:
                 error(f"{sid} : la notion clé {nid} ne renvoie pas à cette situation")
-            if s["version"] == "V1" and n["version"] == "V2":
-                error(f"{sid} (V1) a une notion clé V2 : {nid}")
 
 
 def check_levels(ref):
@@ -168,10 +163,9 @@ def check_retired(ref):
 
 
 def summary(ref):
-    versions = collections.Counter(n["version"] for n in ref.notions)
-    sits = collections.Counter(s["version"] for s in ref.situations)
-    detail = ", ".join(f"{versions[v]} {v}" for v in referentiel.VERSIONS)
-    return (f"{len(ref.notions)} notions ({detail}), {sits['V1']} situations V1, {sits['V2']} situations V2, "
+    levels = collections.Counter(n["level"] for n in ref.notions)
+    detail = ", ".join(f"{levels[lv]} {lv}" for lv in referentiel.LEVELS)
+    return (f"{len(ref.notions)} notions ({detail}), {len(ref.situations)} situations, "
             f"{len(ref.sources)} sources, {len(ref.retired)} identifiant(s) retiré(s)")
 
 

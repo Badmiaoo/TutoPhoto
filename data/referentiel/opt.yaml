@@ -2,23 +2,21 @@
 domain:
   id: OPT
   title: {fr: "Optique et objectifs", en: "optics and lenses"}
-  intro: "Dix-sept notions ; la perspective attend la V2 pour sa version libre, car elle dépend de la position de l'appareil, pas de la focale ; le point sans parallaxe, qui demande de déplacer l'axe de rotation, est entièrement en V2."
+  intro: "Dix-sept notions ; la perspective dépend de la position de l'appareil, pas de la focale ; le point sans parallaxe demande de déplacer l'axe de rotation de l'appareil."
   sources: [petapixel-perspective, hugin-nopar]
 notions:
   - id: OPT-01
     title: {fr: "Focale et angle de champ", en: "focal length, field of view"}
-    version: V1
     level: N1
     spec:
       explanation: "Depuis un même point, la focale change le cadrage et la profondeur de champ, pas la perspective"
-      simulator: "Zoom par recadrage d'une capture large"
+      simulator: "Zoom depuis un point fixe"
       exercise: "Cadrer un monument entier depuis un point fixe"
     situations: [SIT-16, SIT-24, SIT-32]
     sources: [petapixel-perspective, pl-lens-compression]
     since: v0.1
   - id: OPT-02
     title: {fr: "Taille de capteur", en: "sensor size, crop factor"}
-    version: V1
     level: N1
     spec:
       explanation: "Focale équivalente, champ, bruit et profondeur selon le format"
@@ -28,7 +26,6 @@ notions:
     since: v0.1
   - id: OPT-03
     title: {fr: "Équivalences entre formats", en: "format equivalence"}
-    version: V1
     level: N3
     spec:
       explanation: "Même image sur deux formats : focale, ouverture et ISO équivalents"
@@ -40,7 +37,6 @@ notions:
     since: v0.1
   - id: OPT-04
     title: {fr: "Familles d'objectifs", en: "lens types"}
-    version: V1
     level: N1
     spec:
       explanation: "Grand-angle, standard, téléobjectif, focale fixe, zoom, macro, fisheye"
@@ -50,7 +46,6 @@ notions:
     since: v0.1
   - id: OPT-05
     title: {fr: "Luminosité d'un objectif", en: "maximum aperture"}
-    version: V1
     level: N1
     spec:
       explanation: "Ouverture maximale ; zoom à ouverture constante ou variable"
@@ -60,18 +55,16 @@ notions:
     since: v0.1
   - id: OPT-06
     title: {fr: "Perspective", en: "perspective"}
-    version: V1→V2
     level: N2
     spec:
       explanation: "La perspective dépend de la position, pas de la focale"
-      simulator: "V1 : zoomer depuis un même point ne la change pas ; deux variantes capturées à deux distances la changent. V2 : se déplacer librement"
-      exercise: "Portrait au 24 et au 85 mm à cadrage égal : sur deux variantes capturées en V1, en se déplaçant en V2 ; montrer aussi qu'un recadrage du grand-angle donne la même géométrie que le télé (le flou diffère)"
+      simulator: "Zoomer depuis un même point ne change pas la perspective ; se déplacer la change"
+      exercise: "Portrait au 24 et au 85 mm à cadrage égal, en se déplaçant ; montrer aussi qu'un recadrage du grand-angle donne la même géométrie que le télé (le flou diffère)"
     situations: [SIT-16, SIT-V2-02]
     sources: [petapixel-perspective, pl-lens-compression]
     since: v0.1
   - id: OPT-07
     title: {fr: "Distorsions", en: "distortion"}
-    version: V1
     level: N2
     spec:
       explanation: "Déformations dues à l'objectif ou au point de vue"
@@ -81,7 +74,6 @@ notions:
     since: v0.1
   - id: OPT-08
     title: {fr: "Vignetage", en: "vignetting"}
-    version: V1
     level: N2
     spec:
       explanation: "Coins assombris selon l'ouverture ; le corriger ou s'en servir"
@@ -91,7 +83,6 @@ notions:
     since: v0.1
   - id: OPT-09
     title: {fr: "Aberrations, reflets, pare-soleil", en: "aberrations, flare, lens hood"}
-    version: V1
     level: N2
     spec:
       explanation: "Franges colorées, voile face au soleil, rôle du pare-soleil"
@@ -101,7 +92,6 @@ notions:
     since: v0.1
   - id: OPT-10
     title: {fr: "Piqué", en: "sharpness, best aperture"}
-    version: V1
     level: N2
     spec:
       explanation: "Centre et bords, ouverture optimale d'un objectif"
@@ -111,7 +101,6 @@ notions:
     since: v0.1
   - id: OPT-11
     title: {fr: "Macro", en: "magnification ratio"}
-    version: V1
     level: N2
     spec:
       explanation: "Rapport de grandissement, distance de travail, profondeur infime"
@@ -121,11 +110,10 @@ notions:
     since: v0.1
   - id: OPT-12
     title: {fr: "Filtres", en: "ND, polarizer, graduated ND"}
-    version: V1
     level: N2
     spec:
       explanation: "À quoi sert chaque filtre ; le polarisant assombrit le ciel selon l'angle au soleil (au plus à 90°) et coupe les reflets selon l'angle de vue sur la surface (au plus vers 53 à 56°, sans effet de face)"
-      simulator: "ND et dégradés calculés, polarisant sur variantes capturées"
+      simulator: "ND et dégradés calculés ; méthode de rendu du polarisant à définir"
       exercise: "Enlever le reflet d'une vitrine ; équilibrer ciel et sol"
     situations: [SIT-10, SIT-12, SIT-26, SIT-29]
     notes:
@@ -135,17 +123,15 @@ notions:
     since: v0.1
   - id: OPT-13
     title: {fr: "Bascule et décentrement", en: "tilt-shift"}
-    version: V1
     level: N3
     spec:
       explanation: "Redresser les verticales, incliner le plan de netteté"
-      simulator: "Décentrement dans une capture large, plan de netteté inclinable"
+      simulator: "Décentrement et bascule de l'objectif virtuel, plan de netteté inclinable"
       exercise: "Bâtiment aux verticales parallèles"
     situations: [SIT-16, SIT-32]
     since: v0.1
   - id: OPT-14
     title: {fr: "Multiplicateurs, bagues allonge et bonnettes", en: "teleconverters, extension tubes, close-up lenses"}
-    version: V1
     level: N3
     spec:
       explanation: "Gagner de la focale ou du grandissement, et ce qu'on y perd ; la bonnette se visse à l'avant comme un filtre et grossit d'autant plus que la focale est longue"
@@ -156,7 +142,6 @@ notions:
     since: v0.1
   - id: OPT-15
     title: {fr: "Choisir son objectif", en: "choosing a lens"}
-    version: V1
     level: N1
     spec:
       explanation: "Arbitrer focale, ouverture, poids, distance minimale ; monture et adaptateurs"
@@ -166,7 +151,6 @@ notions:
     since: v0.1
   - id: OPT-16
     title: {fr: "Étoiles de soleil", en: "sunstars"}
-    version: V1
     level: N2
     spec:
       explanation: "Une source ponctuelle prend des branches aux petites ouvertures : autant que de lamelles si leur nombre est pair, le double s'il est impair"
@@ -179,7 +163,6 @@ notions:
     since: v0.2
   - id: OPT-17
     title: {fr: "Point sans parallaxe", en: "no-parallax point"}
-    version: V2
     level: N3
     spec:
       explanation: "Tourner autour du centre de la pupille d'entrée évite la parallaxe ; tourner ailleurs décale premier plan et fond, ce qui gêne l'assemblage"
@@ -187,6 +170,4 @@ notions:
       exercise: "Régler l'axe pour assembler un panorama avec un premier plan proche"
     situations: [SIT-30]
     sources: [hugin-nopar]
-    notes:
-      - "Situation : SIT-30, rejouée en 3D en V2."
     since: v0.2

@@ -2,14 +2,12 @@
 domain:
   id: LUM
   title: {fr: "Lumière et flash", en: "light and flash"}
-  intro: "Dix-huit notions : la V1 travaille sur des variantes capturées et sur le flash direct, la V2 ajoute les sources qu'on place soi-même. Le flash en V1 (LUM-09 à LUM-14, LUM-17, LUM-18) repose sur deux captures par scène, ambiante et flash seul : les lumières s'additionnent, ce qui suffit pour doser le flash, déboucher et mélanger flash et ambiance. Calculer le flash à partir de la seule carte de profondeur reste une piste : la profondeur donne la chute de lumière, pas la réflectance des surfaces."
-  sources: [petschnigg-2004]
+  intro: "Dix-huit notions : lumière naturelle, sources qu'on place soi-même, réflecteurs et flash (direct, rebondi, déporté), simulés dans la scène 3D."
   todo:
-    - "Flash par captures ambiante et flash seul à valider en maquette (étape 5) ; si aucune approche ne tient, le flash passe entièrement en V2."
+    - "Vérifier, dans la maquette 3D, le rendu du flash direct, rebondi et déporté."
 notions:
   - id: LUM-01
     title: {fr: "Lire la lumière", en: "seeing light"}
-    version: V1
     level: N1
     spec:
       explanation: "D'où vient la lumière, sa qualité, ses ombres, avant tout réglage"
@@ -19,31 +17,28 @@ notions:
     since: v0.1
   - id: LUM-02
     title: {fr: "Lumière dure ou douce", en: "hard, soft light"}
-    version: V1→V2
     level: N1
     spec:
       explanation: "La douceur dépend de la taille apparente de la source"
-      simulator: "V1 : soleil direct ou ciel couvert. V2 : taille de source réglable"
+      simulator: "Taille de la source réglable, du soleil direct au ciel couvert"
       exercise: "Choisir le lieu ou l'heure d'un portrait doux"
     situations: [SIT-01, SIT-02, SIT-V2-01]
     since: v0.1
   - id: LUM-03
     title: {fr: "Direction de la lumière", en: "front light, side light, backlight"}
-    version: V1→V2
     level: N1
     spec:
       explanation: "Effet de chaque direction sur les volumes, les textures, l'ambiance"
-      simulator: "V1 : captures à plusieurs heures. V2 : source déplaçable"
+      simulator: "Source déplaçable, dont le soleil à plusieurs heures"
       exercise: "Faire ressortir une texture en lumière rasante"
     situations: [SIT-03, SIT-10, SIT-V2-04]
     since: v0.1
   - id: LUM-04
     title: {fr: "Heure dorée, heure bleue", en: "golden hour, blue hour"}
-    version: V1
     level: N1
     spec:
       explanation: "Ce que ces moments changent : soleil bas, lumière chaude et rasante, puis ciel bleu dense après le coucher"
-      simulator: "Même scène capturée à plusieurs moments"
+      simulator: "Même scène à plusieurs moments de la journée"
       exercise: "Choisir le moment pour une scène de ville"
     situations: [SIT-10, SIT-17]
     sources: [suncalc]
@@ -52,7 +47,6 @@ notions:
     since: v0.1
   - id: LUM-05
     title: {fr: "Météo et lumière", en: "weather and light"}
-    version: V1
     level: N1
     spec:
       explanation: "Couvert, brouillard, pluie : contraintes et occasions"
@@ -62,7 +56,6 @@ notions:
     since: v0.1
   - id: LUM-06
     title: {fr: "Contre-jour et silhouettes", en: "backlight, silhouettes"}
-    version: V1
     level: N1
     spec:
       explanation: "Silhouette, sujet exposé et ciel brûlé, ou débouchage"
@@ -72,17 +65,15 @@ notions:
     since: v0.1
   - id: LUM-07
     title: {fr: "Lumière de fenêtre", en: "window light"}
-    version: V1→V2
     level: N1
     spec:
       explanation: "Distance à la fenêtre, orientation du sujet, voilage"
-      simulator: "V1 : variantes capturées à plusieurs distances, avec et sans voilage. V2 : sujet déplaçable, fenêtre réglable"
+      simulator: "Sujet déplaçable, fenêtre réglable, voilage activable"
       exercise: "Portrait doux près d'une fenêtre"
     situations: [SIT-04, SIT-23, SIT-32, SIT-39]
     since: v0.1
   - id: LUM-08
     title: {fr: "Lumières artificielles", en: "artificial light, flicker"}
-    version: V1
     level: N2
     spec:
       explanation: "Couleurs, scintillement, mélange avec la lumière du jour"
@@ -94,17 +85,15 @@ notions:
     since: v0.1
   - id: LUM-09
     title: {fr: "Flash : portée et chute", en: "flash range, inverse square law"}
-    version: V1→V2
     level: N1
     spec:
       explanation: "Portée, chute de la lumière avec la distance, fond qui devient noir"
-      simulator: "V1 : capture flash seul (flash sur l'appareil, puissance connue) ajoutée à l'ambiante. V2 : flash placé librement"
+      simulator: "Flash sur l'appareil ou placé librement, puissance connue, chute de lumière visible"
       exercise: "Flasher un sujet sans trou noir derrière"
     situations: [SIT-25, SIT-V2-05]
     since: v0.1
   - id: LUM-10
     title: {fr: "Flash TTL ou manuel", en: "TTL, manual, flash compensation"}
-    version: V1
     level: N2
     spec:
       explanation: "Laisser le flash doser ou doser soi-même ; corriger ; mémoriser la puissance du flash sur le sujet avant de recadrer"
@@ -115,7 +104,6 @@ notions:
     since: v0.1
   - id: LUM-11
     title: {fr: "Synchronisation", en: "sync speed, high-speed sync"}
-    version: V1
     level: N2
     spec:
       explanation: "Pourquoi une vitesse maximale avec flash ; rôle de la synchro haute vitesse"
@@ -127,7 +115,6 @@ notions:
     since: v0.1
   - id: LUM-12
     title: {fr: "Rideaux et synchro lente", en: "rear curtain, slow sync"}
-    version: V1
     level: N2
     spec:
       explanation: "Mélanger flash et ambiance ; traînées derrière ou devant le sujet"
@@ -139,7 +126,6 @@ notions:
     since: v0.1
   - id: LUM-13
     title: {fr: "Flash de débouchage", en: "fill flash"}
-    version: V1
     level: N2
     spec:
       explanation: "Adoucir les ombres d'un soleil dur ou d'un contre-jour"
@@ -149,17 +135,15 @@ notions:
     since: v0.1
   - id: LUM-14
     title: {fr: "Flash indirect", en: "bounce flash"}
-    version: V1→V2
     level: N2
     spec:
       explanation: "Faire rebondir le flash pour adoucir la lumière"
-      simulator: "V1 : captures flash seul dirigé vers le plafond, un mur ou une carte de rebond. V2 : tête de flash orientable dans une pièce en 3D"
+      simulator: "Tête de flash orientable dans une pièce en 3D : plafond, mur, carte de rebond"
       exercise: "Comparer plafond, mur et carte de rebond"
     situations: [SIT-25, SIT-V2-05]
     since: v0.1
   - id: LUM-15
     title: {fr: "Flash déporté et studio", en: "off-camera flash, studio lighting"}
-    version: V2
     level: N3
     spec:
       explanation: "Placer une ou plusieurs sources, schémas d'éclairage classiques, modeleurs"
@@ -169,17 +153,15 @@ notions:
     since: v0.1
   - id: LUM-16
     title: {fr: "Réflecteurs et diffuseurs", en: "reflectors, diffusers"}
-    version: V1→V2
     level: N2
     spec:
       explanation: "Rediriger ou adoucir la lumière existante"
-      simulator: "V1 : variantes capturées avec un réflecteur à quelques positions. V2 : réflecteur positionnable en 3D"
+      simulator: "Réflecteur positionnable en 3D"
       exercise: "Déboucher un visage en contre-jour"
     situations: [SIT-03, SIT-V2-07]
     since: v0.1
   - id: LUM-17
     title: {fr: "Yeux rouges", en: "red-eye reduction"}
-    version: V1
     level: N1
     spec:
       explanation: "Défaut du flash direct ; la réduction des yeux rouges allume une lampe avant l'éclair"
@@ -190,11 +172,10 @@ notions:
     since: v0.2
   - id: LUM-18
     title: {fr: "Éclairage sous l'eau", en: "underwater lighting"}
-    version: V1→V2
     level: N3
     spec:
       explanation: "Le flash rend leurs couleurs aux sujets proches ; les particules en suspension éclairées face à l'objectif font des taches, d'où l'intérêt d'écarter la source de l'axe"
-      simulator: "V1 : captures flash seul ajoutées à l'ambiante. V2 : flashs positionnables"
+      simulator: "Flashs positionnables sous l'eau"
       exercise: "Éclairer un sujet proche sans particules éclairées"
     situations: [SIT-42]
     sources: [noaa-red, adorama-backscatter]

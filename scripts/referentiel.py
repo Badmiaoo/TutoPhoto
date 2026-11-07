@@ -9,7 +9,6 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # Ordre des domaines de REPRISE.md (section 4) ; un domaine absent de la liste vient ensuite, par ordre alphabétique.
 DOMAIN_ORDER = ["EXP", "MES", "BOI", "MAP", "NET", "MVT", "OPT", "LUM", "COU", "CMP", "PLA", "RET", "LEC"]
-VERSIONS = ["V1", "V1→V2", "V2"]
 LEVELS = ["N1", "N2", "N3"]
 
 

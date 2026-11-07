@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Simulateur photo open source, bilingue FR/EN, pour débutants. V1 en 2.5D ; V2 = passage en 3D.
+Simulateur photo open source, bilingue FR/EN, pour débutants avec un boîtier reflex ou hybride (pas de smartphone, de compact ni de bridge). Scènes en 3D de synthèse ; V1 minimale d'abord (scène de parc : SIT-01, SIT-05, SIT-06), testée avec des débutants.
 Source de vérité : `data/` (référentiel, situations, sources). Contexte et décisions : `docs/`.
 Archive de reprise : `REPRISE.md`.
 
@@ -20,5 +20,5 @@ Archive de reprise : `REPRISE.md`.
 - Claude fusionne lui-même ses pull requests quand la CI est verte sur le dernier commit (commit de fusion, pas de squash), puis vérifie que le tag de version a été posé.
 - Chaque pull request fusionnée est une version : elle ajoute sa section à `CHANGELOG.md` (contrôlée par `python3 scripts/changelog.py check --base origin/main`), et le workflow `tag.yml` pose le tag annoté `vX.Y.Z` sur son commit de fusion et publie la release GitHub. Numérotation dans `CHANGELOG.md`.
 - Identifiants stables, jamais renumérotés ; un identifiant retiré va dans `data/referentiel/retired.yaml`.
-- Pas de 3D avant la validation de la maquette 2.5D.
+- Pas d'extension au-delà de la V1 minimale avant de l'avoir testée avec des débutants.
 - Vérifier la licence de toute dépendance, de tout modèle et de toute scène avant de l'ajouter.
