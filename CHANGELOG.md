@@ -1,6 +1,6 @@
 # Changelog
 
-Évolutions du dépôt, de la plus récente à la plus ancienne. Chaque pull request fusionnée donne une version : elle ajoute ici sa section, et le tag annoté `vX.Y.Z` est posé sur son commit de fusion, avec le texte de cette section.
+Évolutions du dépôt, de la plus récente à la plus ancienne. Chaque pull request fusionnée donne une version : elle ajoute ici sa section, que la CI contrôle (`scripts/changelog.py check`). Après la fusion, le workflow `.github/workflows/tag.yml` pose le tag annoté `vX.Y.Z` sur le commit de fusion, avec le texte de cette section.
 
 ## Numérotation `vX.Y.Z`
 
@@ -11,6 +11,18 @@
 ## Rubriques
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
+
+## [0.2.1] - 2026-11-07
+
+### Ajouté
+
+- `scripts/changelog.py` : `check` contrôle le format du changelog et, sur une pull request, qu'elle ajoute une version plus récente sans retirer de version publiée ; `tag` pose le tag annoté de chaque version qui n'en a pas, sur le commit de `main` qui a introduit sa section.
+- Workflow `.github/workflows/tag.yml` : lance `scripts/changelog.py tag --push` à chaque mise à jour de `main`. La session de travail de Claude ne peut pas pousser de tags ; ce workflow les pose à sa place, et rattrape `v0.2.0`.
+
+### Modifié
+
+- Le workflow de validation contrôle aussi le changelog.
+- `CLAUDE.md` et ce changelog décrivent la pose des tags par le workflow.
 
 ## [0.2.0] - 2026-11-07
 
@@ -26,4 +38,5 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.2.1]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Badmiaoo/TutoPhoto/tree/v0.2.0
