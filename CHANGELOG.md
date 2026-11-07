@@ -1,6 +1,6 @@
 # Changelog
 
-Évolutions du dépôt, de la plus récente à la plus ancienne. Chaque pull request fusionnée donne une version : elle ajoute ici sa section, que la CI contrôle (`scripts/changelog.py check`). Après la fusion, le workflow `.github/workflows/tag.yml` pose le tag annoté `vX.Y.Z` sur le commit de fusion, avec le texte de cette section.
+Évolutions du dépôt, de la plus récente à la plus ancienne. Chaque pull request fusionnée donne une version : elle ajoute ici sa section, que la CI contrôle (`scripts/changelog.py check`). Après la fusion, le workflow `.github/workflows/tag.yml` pose le tag annoté `vX.Y.Z` sur le commit de fusion et publie la release GitHub correspondante, avec le texte de cette section.
 
 ## Numérotation `vX.Y.Z`
 
@@ -11,6 +11,20 @@
 ## Rubriques
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
+
+## [0.2.3] - 2026-11-07
+
+### Corrigé
+
+- Les tags sont créés par l'API de GitHub et non plus par `git push`. Le deuxième passage du workflow `tag.yml` a affiché la cause du refus : GitHub n'autorise pas le jeton d'un workflow, qui n'a pas le droit `workflows`, à pousser un tag dont le commit contient des fichiers de workflow.
+
+### Ajouté
+
+- Une release GitHub par version, avec le texte de sa section du changelog (`scripts/changelog.py tag --github`).
+
+### Modifié
+
+- `tag.yml` ne garde plus d'identifiants git après le checkout (`persist-credentials: false`).
 
 ## [0.2.2] - 2026-11-07
 
@@ -48,6 +62,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.2.3]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Badmiaoo/TutoPhoto/tree/v0.2.0
