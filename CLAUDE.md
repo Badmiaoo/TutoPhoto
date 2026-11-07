@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 Simulateur photo open source, bilingue FR/EN, pour débutants avec un boîtier reflex ou hybride (pas de smartphone, de compact ni de bridge). Scènes en 3D de synthèse ; V1 minimale d'abord (scène de parc : SIT-01, SIT-05, SIT-06), testée avec des débutants.
-Publication : site statique, d'abord sur GitHub Pages ; tout tourne dans le navigateur. Moteur 3D : Babylon.js (`docs/pile-technique.md`).
+Publication : site statique sur GitHub Pages (https://badmiaoo.github.io/TutoPhoto/), à chaque fusion sur `main` ; tout tourne dans le navigateur. Moteur 3D : Babylon.js (`docs/pile-technique.md`).
 Source de vérité : `data/` (référentiel, situations, sources, jalons). Contexte et décisions : `docs/`.
 Archive de reprise : `REPRISE.md`.
 
@@ -24,6 +24,7 @@ Archive de reprise : `REPRISE.md`.
 
 ## Dépôt
 - Jamais de push sur `main` : une branche et une pull request par sujet.
+- Julien autorise Claude à gérer la configuration de ce dépôt, et de lui seul (7 novembre 2026). Ce qui vit dans le dépôt (workflows, `.github/`) passe par une pull request ; un réglage de GitHub que les outils de Claude ne permettent pas de changer est indiqué à Julien, avec le chemin exact dans l'interface.
 - `python3 scripts/validate.py` avant toute pull request qui touche `data/` ; `cd app && npm run build` avant toute pull request qui touche `app/`.
 - Claude fusionne lui-même ses pull requests quand la CI est verte sur le dernier commit (commit de fusion, pas de squash), puis vérifie que le tag de version a été posé.
 - Chaque pull request fusionnée est une version : elle ajoute sa section à `CHANGELOG.md` (contrôlée par `python3 scripts/changelog.py check --base origin/main`), et le workflow `tag.yml` pose le tag annoté `vX.Y.Z` sur son commit de fusion et publie la release GitHub. Numérotation dans `CHANGELOG.md`.

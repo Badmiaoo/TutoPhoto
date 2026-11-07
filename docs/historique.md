@@ -83,3 +83,8 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - GitHub Pages n'est gratuit que pour un dépôt public : Julien passe le dépôt en public. Son nom comme auteur des commits est accepté.
 - Règles et contrôles pour que rien de privé n'entre dans le dépôt : `docs/publication.md`, `CLAUDE.md`, `scripts/check_public.py` et gitleaks dans la CI.
 - Le lien vers le Claude Doc d'origine est retiré de `REPRISE.md` ; il reste dans l'historique, vers un document privé.
+
+## 7 novembre 2026 : site en ligne
+
+- Dépôt passé en public et GitHub Pages activé par Julien ; première publication réussie : https://badmiaoo.github.io/TutoPhoto/
+- Julien autorise Claude à gérer la configuration de ce dépôt, et de lui seul. Les réglages de GitHub hors de portée des outils de Claude (protection de `main`, options de sécurité, Pages) restent faits par Julien, sur indication de Claude.
