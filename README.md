@@ -16,7 +16,7 @@ Boîte à outils open source, en français et en anglais, qui apprend la photo a
 
 | Chemin | Rôle |
 | --- | --- |
-| `data/` | Référentiel (`data/referentiel/`), situations et sources : la source de vérité |
+| `data/` | Référentiel (`data/referentiel/`), situations, sources et jalons : la source de vérité |
 | `docs/` | Cadrage, architecture, lecture du référentiel, contenus, questions ouvertes, historique |
 | `schemas/` | Schémas JSON des fichiers de `data/` |
 | `scripts/` | Extraction, validation et couverture |

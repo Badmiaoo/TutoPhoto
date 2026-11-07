@@ -1,0 +1,24 @@
+# Jalons de livraison : les notions et situations que chaque étape doit couvrir.
+# Règle : un jalon contient toutes les notions clés de ses situations (contrôlé par scripts/validate.py).
+jalons:
+  - id: v1-min
+    title: {fr: "V1 minimale : le parc", en: "minimal V1: the park"}
+    decided: "2026-11-07"
+    goal: "Une scène 3D de parc, testée avec quelques débutants avant d'étendre aux autres situations."
+    situations: [SIT-01, SIT-05, SIT-06]
+    notions:
+      # Réglages de base : ouverture, vitesse, ISO.
+      - EXP-04
+      - EXP-05
+      - EXP-06
+      # Notions clés de SIT-01, SIT-05 et SIT-06.
+      - MAP-04
+      - MAP-05
+      - MAP-06
+      - MAP-09
+      - NET-01
+      - NET-06
+      - LUM-02
+      - MVT-01
+      - MES-10
+      - BOI-12

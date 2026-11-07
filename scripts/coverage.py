@@ -119,7 +119,15 @@ def main():
     out.append("")
     out.append(f"Situations rédigées : {len(written['fr'])} sur {len(situations)} en français, "
                f"{len(written['en'])} sur {len(situations)} en anglais.")
-    out.append("Contenus lus dans `content/fr/` et `content/en/` ; règles dans `docs/contenus.md`.")
+    out.append("")
+    out.append("| Jalon | Notions couvertes | Situations rédigées FR et EN |")
+    out.append("| --- | --- | --- |")
+    for j in ref.jalons:
+        done = len([i for i in j["notions"] if i in covered])
+        both = len([s for s in j["situations"] if s in written["fr"] and s in written["en"]])
+        out.append(f"| {j['id']} · {j['title']['fr']} | {done} sur {len(j['notions'])} | {both} sur {len(j['situations'])} |")
+    out.append("")
+    out.append("Contenus lus dans `content/fr/` et `content/en/` ; règles dans `docs/contenus.md` ; jalons dans `data/jalons.yaml`.")
     print("\n".join(out))
     return 0
 

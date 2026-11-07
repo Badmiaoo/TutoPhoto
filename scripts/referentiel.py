@@ -35,6 +35,7 @@ class Referentiel:
     retired_file: tuple = None                         # (chemin, contenu)
     situations_file: tuple = None
     sources_file: tuple = None
+    jalons_file: tuple = None
 
     @property
     def domains(self):
@@ -61,6 +62,10 @@ class Referentiel:
     def retired(self):
         return self.retired_file[1]["retired"]
 
+    @property
+    def jalons(self):
+        return self.jalons_file[1]["jalons"]
+
     def rel(self, path):
         return pathlib.Path(path).relative_to(self.root).as_posix()
 
@@ -81,6 +86,7 @@ def load(root=ROOT):
     ref.retired_file = (ref_dir / "retired.yaml", load_yaml(ref_dir / "retired.yaml"))
     ref.situations_file = (root / "data" / "situations.yaml", load_yaml(root / "data" / "situations.yaml"))
     ref.sources_file = (root / "data" / "sources.yaml", load_yaml(root / "data" / "sources.yaml"))
+    ref.jalons_file = (root / "data" / "jalons.yaml", load_yaml(root / "data" / "jalons.yaml"))
     return ref
 
 

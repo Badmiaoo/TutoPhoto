@@ -45,6 +45,7 @@ def check_schemas(ref):
     validate("retired.schema.json", *ref.retired_file)
     validate("situations.schema.json", *ref.situations_file)
     validate("sources.schema.json", *ref.sources_file)
+    validate("jalons.schema.json", *ref.jalons_file)
 
 
 def duplicates(ids):
@@ -162,11 +163,36 @@ def check_retired(ref):
                 error(f"{s['id']} : notion clé retirée {nid}")
 
 
+def check_jalons(ref):
+    """Un jalon ne cite que des notions et situations existantes, et contient les notions clés de ses situations."""
+    notions = {n["id"] for n in ref.notions}
+    situations = {s["id"]: s for s in ref.situations}
+    retired = {r["id"] for r in ref.retired}
+    for dup in duplicates([j["id"] for j in ref.jalons]):
+        error(f"jalon en double : {dup}")
+    for j in ref.jalons:
+        for kind, ids in (("notion", j["notions"]), ("situation", j["situations"])):
+            for dup in duplicates(ids):
+                error(f"jalon {j['id']} : {kind} en double : {dup}")
+        for nid in j["notions"]:
+            if nid in retired:
+                error(f"jalon {j['id']} : notion retirée {nid}")
+            elif nid not in notions:
+                error(f"jalon {j['id']} : notion {nid} inexistante")
+        for sid in j["situations"]:
+            if sid not in situations:
+                error(f"jalon {j['id']} : situation {sid} inexistante")
+                continue
+            for nid in situations[sid]["key_notions"]:
+                if nid not in j["notions"]:
+                    error(f"jalon {j['id']} : la notion clé {nid} de {sid} manque")
+
+
 def summary(ref):
     levels = collections.Counter(n["level"] for n in ref.notions)
     detail = ", ".join(f"{levels[lv]} {lv}" for lv in referentiel.LEVELS)
     return (f"{len(ref.notions)} notions ({detail}), {len(ref.situations)} situations, "
-            f"{len(ref.sources)} sources, {len(ref.retired)} identifiant(s) retiré(s)")
+            f"{len(ref.sources)} sources, {len(ref.retired)} identifiant(s) retiré(s), {len(ref.jalons)} jalon(s)")
 
 
 def main():
@@ -179,6 +205,7 @@ def main():
         check_levels(ref)
         check_sources(ref)
         check_retired(ref)
+        check_jalons(ref)
     for e in errors:
         print(f"ERREUR : {e}")
     for w in warnings:

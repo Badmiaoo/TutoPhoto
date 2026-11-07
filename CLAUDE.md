@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 Simulateur photo open source, bilingue FR/EN, pour débutants avec un boîtier reflex ou hybride (pas de smartphone, de compact ni de bridge). Scènes en 3D de synthèse ; V1 minimale d'abord (scène de parc : SIT-01, SIT-05, SIT-06), testée avec des débutants.
-Source de vérité : `data/` (référentiel, situations, sources). Contexte et décisions : `docs/`.
+Source de vérité : `data/` (référentiel, situations, sources, jalons). Contexte et décisions : `docs/`.
 Archive de reprise : `REPRISE.md`.
 
 `REPRISE.md`, et `docs/` qui en est copié, sont un brouillon : probablement incomplet, mal écrit par endroits, avec des erreurs. Tout peut être remis en question, arguments et sources à l'appui ; Julien tranche.
