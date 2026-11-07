@@ -389,3 +389,18 @@ sources:
     label: "SPDX License List, texte de la licence Apache-2.0 (dépôt spdx/license-list-data, commit 3184648 du 29 octobre 2026)"
     url: "https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/Apache-2.0.txt"
     used_in: [docs/pile-technique.md]
+  - id: npm-babylonjs-core
+    group: "Outils"
+    label: "@babylonjs/core, registre npm (version 9.35.0, licence Apache-2.0, lu le 7 novembre 2026)"
+    url: "https://www.npmjs.com/package/@babylonjs/core"
+    used_in: [docs/pile-technique.md]
+  - id: npm-vite
+    group: "Outils"
+    label: "Vite, registre npm (version 8.3.6, licence MIT, lu le 7 novembre 2026)"
+    url: "https://www.npmjs.com/package/vite"
+    used_in: [docs/pile-technique.md]
+  - id: npm-typescript
+    group: "Outils"
+    label: "TypeScript, registre npm (version 7.0.2, licence Apache-2.0, lu le 7 novembre 2026)"
+    url: "https://www.npmjs.com/package/typescript"
+    used_in: [docs/pile-technique.md]

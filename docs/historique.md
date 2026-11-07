@@ -72,3 +72,8 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 
 - Moteur 3D : Babylon.js (option B de `docs/pile-technique.md`), seul moteur temps réel lu qui fournit d'origine une profondeur de champ physique et un flou de mouvement par objet, en WebGL2.
 - Écartés : three.js avec une couche écrite par nous (option A), three.js avec une photo calculée par lancer de rayons (option C, WebGPU obligatoire), PlayCanvas.
+
+## 7 novembre 2026 : squelette de l'application
+
+- Code de l'application en TypeScript, construit avec Vite, dans `app/` ; publication sur GitHub Pages à chaque fusion sur `main`.
+- Premier écran : une scène Babylon.js de départ (sol, sphère de repère, caméra orbitale), une interface en français et en anglais, et une page des licences.
