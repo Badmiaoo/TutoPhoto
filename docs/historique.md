@@ -54,3 +54,8 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Le champ `version` (V1, V1→V2, V2) est retiré du référentiel : les 191 notions et les 49 situations relèvent toutes de la V1. Les identifiants `SIT-V2-NN` restent tels quels. Le champ `capture` des situations, qui décrivait des captures 2.5D, est retiré aussi ; les besoins de chaque scène 3D seront décrits à sa conception.
 - V1 minimale testée d'abord : une scène de parc avec SIT-01, SIT-05 et SIT-06, testée avec quelques débutants avant d'étendre.
 - `docs/v2-3d.md` est supprimé, sans objet ; `docs/architecture.md` est marqué en partie caduc jusqu'au choix de la pile technique.
+
+## 7 novembre 2026 : licences
+
+- Code sous MIT, contenus et données sous CC BY-SA 4.0, modèles et textures 3D de tiers acceptés seulement sous CC0 ou CC BY. Détail dans `docs/licences.md`.
+- Textes des licences repris du dépôt de référence SPDX ; titulaire indiqué dans `LICENSE` : « les contributeurs de TutoPhoto ».
