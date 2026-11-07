@@ -4,7 +4,7 @@ _Version française : [README.md](README.md)._
 
 An open source toolkit, in French and English, that teaches photography to beginners through simulation: setting up the camera, focusing, choosing AF points, and getting a photo right in a given situation (where, when, what, why).
 
-"TutoPhoto" is the repository name; the project name has not been chosen yet.
+TutoPhoto is the project name. The application will be published as a static site, on GitHub Pages first.
 
 ## Status as of 7 November 2026
 
