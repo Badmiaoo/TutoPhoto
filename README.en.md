@@ -16,7 +16,7 @@ An open source toolkit, in French and English, that teaches photography to begin
 
 | Path | Purpose |
 | --- | --- |
-| `data/` | Curriculum (`data/referentiel/`), situations and sources: the source of truth |
+| `data/` | Curriculum (`data/referentiel/`), situations, sources and milestones: the source of truth |
 | `docs/` | Scope, architecture, reading the curriculum, content, open questions, history (in French) |
 | `schemas/` | JSON Schemas for the files in `data/` |
 | `scripts/` | Extraction, validation and coverage |

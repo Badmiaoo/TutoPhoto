@@ -16,6 +16,8 @@ Champs d'une notion (section 4) :
 
 Champs d'une situation (section 5) : `where_when`, `intention`, `key_notions`, `flash` (`required` ou `optional`), `level` et `level_max` (règle dans le bloc), `sources` quand la situation vient d'un cours.
 
+Champs d'un jalon (`data/jalons.yaml`, ajouté le 7 novembre 2026) : `id`, `title.fr`, `title.en`, `decided` (date de la décision), `goal`, `situations`, `notions`. Un jalon contient toutes les notions clés de ses situations ; `scripts/validate.py` le contrôle, et `scripts/coverage.py` donne sa couverture. Premier jalon : `v1-min`, la V1 minimale (scène de parc).
+
 Champs d'une source (section 10) : `id`, `group`, `label`, `url`, `note` éventuelle, et `used_in` quand elle n'est citée que dans un document en prose.
 
 - Notions clés : celles qui sont propres à la situation. Les réglages de base (ouverture, vitesse, ISO, modes, mesure, AF, balance des blancs) servent dans toutes les recettes sans être répétés.
