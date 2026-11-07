@@ -2,21 +2,19 @@
 domain:
   id: CMP
   title: {fr: "Composition et cadrage", en: "composition and framing"}
-  intro: "Quatorze notions : en V1 on compose en tournant et en zoomant dans une capture large, ou en choisissant parmi des variantes capturées (hauteur de prise de vue, poses) ; se déplacer librement attend la V2."
+  intro: "Quatorze notions : on compose en tournant, en zoomant et en se déplaçant dans la scène 3D."
 notions:
   - id: CMP-01
     title: {fr: "Cadrer", en: "framing, orientation, aspect ratio"}
-    version: V1
     level: N1
     spec:
       explanation: "Ce qui entre dans le cadre, l'orientation, le format"
-      simulator: "Cadre mobile (rotation, zoom) dans une capture large"
+      simulator: "Cadre mobile : rotation et zoom de l'appareil"
       exercise: "Trois cadrages d'une scène pour trois intentions"
     situations: all
     since: v0.1
   - id: CMP-02
     title: {fr: "Tiers, centre, symétrie", en: "rule of thirds, symmetry"}
-    version: V1
     level: N1
     spec:
       explanation: "Placer le sujet ; savoir quand centrer"
@@ -26,7 +24,6 @@ notions:
     since: v0.1
   - id: CMP-03
     title: {fr: "Lignes", en: "leading lines, diagonals"}
-    version: V1
     level: N1
     spec:
       explanation: "Guider le regard"
@@ -36,7 +33,6 @@ notions:
     since: v0.1
   - id: CMP-04
     title: {fr: "Horizon", en: "horizon placement, level"}
-    version: V1
     level: N1
     spec:
       explanation: "Hauteur de l'horizon selon l'intérêt du ciel ; horizon droit"
@@ -46,37 +42,33 @@ notions:
     since: v0.1
   - id: CMP-05
     title: {fr: "Simplifier", en: "negative space, clean background"}
-    version: V1
     level: N1
     spec:
       explanation: "Retirer les éléments parasites, laisser respirer le sujet"
       simulator: "Éléments parasites annotés, signalés après la prise"
-      exercise: "Portrait devant un fond chargé : cadrer ou flouter pour le simplifier (le poteau qui sort de la tête se règle en se déplaçant : CMP-07, en V2)"
+      exercise: "Portrait devant un fond chargé : cadrer ou flouter pour le simplifier (le poteau qui sort de la tête se règle en se déplaçant : CMP-07)"
     situations: [SIT-15, SIT-23]
     since: v0.1
   - id: CMP-06
     title: {fr: "Profondeur et premiers plans", en: "depth, foreground"}
-    version: V1→V2
     level: N2
     spec:
       explanation: "Construire des plans successifs"
-      simulator: "V1 : cadrer avec un premier plan existant. V2 : se déplacer pour en créer un"
+      simulator: "Cadrer avec un premier plan existant, ou se déplacer pour en créer un"
       exercise: "Intégrer un premier plan net ou flou"
     situations: [SIT-11, SIT-V2-03]
     since: v0.1
   - id: CMP-07
     title: {fr: "Point de vue", en: "point of view: height, angle, distance"}
-    version: V1→V2
     level: N1
     spec:
       explanation: "Se baisser, monter, s'approcher change l'image"
-      simulator: "V1 : variantes capturées à plusieurs hauteurs et distances. V2 : appareil déplaçable en 3D"
+      simulator: "Appareil déplaçable : hauteur, angle et distance"
       exercise: "Photographier un enfant à sa hauteur"
     situations: [SIT-39, SIT-V2-02, SIT-V2-06]
     since: v0.1
   - id: CMP-08
     title: {fr: "Cadre dans le cadre, motifs", en: "frame within a frame, patterns"}
-    version: V1
     level: N2
     spec:
       explanation: "Portes, fenêtres, répétitions, ruptures de motif"
@@ -86,7 +78,6 @@ notions:
     since: v0.1
   - id: CMP-09
     title: {fr: "Équilibre et poids visuel", en: "visual balance"}
-    version: V1
     level: N2
     spec:
       explanation: "Contraste, taille, couleur et netteté attirent l'œil"
@@ -96,7 +87,6 @@ notions:
     since: v0.1
   - id: CMP-10
     title: {fr: "Direction et espace", en: "lead room, gaze"}
-    version: V1
     level: N1
     spec:
       explanation: "Laisser de l'espace devant un regard ou un mouvement"
@@ -106,7 +96,6 @@ notions:
     since: v0.1
   - id: CMP-11
     title: {fr: "Échelle", en: "scale, human element"}
-    version: V1
     level: N2
     spec:
       explanation: "Donner la taille d'un paysage avec un élément connu"
@@ -116,7 +105,6 @@ notions:
     since: v0.1
   - id: CMP-12
     title: {fr: "Enfreindre les règles", en: "breaking the rules"}
-    version: V1
     level: N3
     activity: true
     spec:
@@ -127,7 +115,6 @@ notions:
     since: v0.1
   - id: CMP-13
     title: {fr: "Choisir son sujet", en: "subject"}
-    version: V1
     level: N1
     activity: true
     spec:
@@ -138,11 +125,10 @@ notions:
     since: v0.2
   - id: CMP-14
     title: {fr: "Diriger une personne", en: "posing"}
-    version: V1→V2
     level: N2
     spec:
       explanation: "Placer et guider une personne : posture, mains, regard, mise à l'aise"
-      simulator: "V1 : variantes capturées de plusieurs poses. V2 : personnage posable en 3D"
+      simulator: "Personnage posable en 3D"
       exercise: "Choisir et justifier la pose de trois portraits"
     situations: [SIT-01, SIT-04, SIT-05]
     since: v0.2

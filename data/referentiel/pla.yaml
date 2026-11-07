@@ -2,12 +2,11 @@
 domain:
   id: PLA
   title: {fr: "Planification : où et quand", en: "planning: where and when"}
-  intro: "Neuf notions, toutes en V1 : prévoir la lumière, le ciel, le lieu et les règles avant de partir. Les horaires du soleil et de la lune peuvent venir de SunCalc, petite bibliothèque JavaScript sous licence BSD qui calcule aussi l'heure dorée ; l'heure bleue s'y ajoute en fixant ses propres angles."
+  intro: "Neuf notions : prévoir la lumière, le ciel, le lieu et les règles avant de partir. Les horaires du soleil et de la lune peuvent venir de SunCalc, petite bibliothèque JavaScript sous licence BSD qui calcule aussi l'heure dorée ; l'heure bleue s'y ajoute en fixant ses propres angles."
   sources: [suncalc]
 notions:
   - id: PLA-01
     title: {fr: "Heures de lumière", en: "sunrise, sunset, golden and blue hour"}
-    version: V1
     level: N1
     spec:
       explanation: "Calculer les horaires et la durée de ces moments selon le lieu, la date et la saison"
@@ -18,7 +17,6 @@ notions:
     since: v0.1
   - id: PLA-02
     title: {fr: "Position du soleil", en: "sun azimuth, elevation"}
-    version: V1
     level: N2
     spec:
       explanation: "D'où viendra la lumière à une heure donnée, en été comme en hiver"
@@ -29,7 +27,6 @@ notions:
     since: v0.1
   - id: PLA-03
     title: {fr: "La Lune", en: "moon phases, rise, set"}
-    version: V1
     level: N2
     spec:
       explanation: "Phase, lever, coucher : gêne ou atout"
@@ -40,7 +37,6 @@ notions:
     since: v0.1
   - id: PLA-04
     title: {fr: "Météo pour la photo", en: "weather forecast"}
-    version: V1
     level: N2
     spec:
       explanation: "Nuages, vent, brouillard, visibilité"
@@ -50,7 +46,6 @@ notions:
     since: v0.1
   - id: PLA-05
     title: {fr: "Ciel nocturne", en: "light pollution"}
-    version: V1
     level: N2
     spec:
       explanation: "Obscurité du ciel, nouvelle lune, distance aux villes"
@@ -62,7 +57,6 @@ notions:
     since: v0.1
   - id: PLA-06
     title: {fr: "Repérage", en: "scouting"}
-    version: V1
     level: N1
     activity: true
     spec:
@@ -73,7 +67,6 @@ notions:
     since: v0.1
   - id: PLA-07
     title: {fr: "Droit et respect", en: "rights, etiquette"}
-    version: V1
     level: N1
     activity: true
     spec:
@@ -87,7 +80,6 @@ notions:
     since: v0.1
   - id: PLA-08
     title: {fr: "Préparer son sac", en: "packing for a shoot"}
-    version: V1
     level: N1
     spec:
       explanation: "Matériel selon la situation, protection contre la pluie et le froid"
@@ -97,7 +89,6 @@ notions:
     since: v0.1
   - id: PLA-09
     title: {fr: "Photo par drone : règles et sécurité", en: "drone photography: rules and safety"}
-    version: V1
     level: N1
     activity: true
     spec:

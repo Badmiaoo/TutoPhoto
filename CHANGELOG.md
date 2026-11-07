@@ -5,12 +5,33 @@
 ## Numérotation `vX.Y.Z`
 
 - X : 0 jusqu'à la publication de la V1.
-- Y : version du référentiel, celle du champ `since` des notions et des situations. Y augmente quand une notion ou une situation est ajoutée, retirée ou reclassée (version, niveau, notions clés) ; les nouveautés prennent alors `since: v0.Y`.
+- Y : version du référentiel, celle du champ `since` des notions et des situations. Y augmente quand une notion ou une situation est ajoutée, retirée ou reclassée (niveau, notions clés) ; les nouveautés prennent alors `since: v0.Y`.
 - Z : tout le reste (textes, sources, documentation, scripts, CI) ; remis à 0 quand Y augmente.
 
 ## Rubriques
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
+
+## [0.3.0] - 2026-11-07
+
+Décisions du 7 novembre 2026 : boîtiers reflex et hybrides uniquement, scènes en 3D de synthèse dès la V1, plus de découpage V1/V2, V1 minimale testée d'abord (scène de parc : SIT-01, SIT-05, SIT-06).
+
+### Retiré
+
+- Champ `version` (V1, V1→V2, V2) des 191 notions et des 49 situations : toutes relèvent de la V1. Les identifiants `SIT-V2-NN` restent tels quels.
+- Champ `capture` des 42 situations qui l'avaient, et sa règle : il décrivait des captures 2.5D.
+- `docs/v2-3d.md`, sans objet.
+- Contrôles de `validate.py` propres aux versions (notion clé V2 dans une situation V1, notion V2 renvoyant à une situation V1).
+
+### Modifié
+
+- Introductions des domaines et spécifications des simulateurs qui décrivaient la 2.5D ou opposaient V1 et V2 (CMP-01, CMP-05, CMP-06, CMP-07, CMP-14, LUM-02, LUM-03, LUM-04, LUM-07, LUM-09, LUM-14, LUM-16, LUM-18, MVT-08, MVT-11, NET-06, OPT-01, OPT-06, OPT-12, OPT-13, OPT-17) ; chantiers des domaines MAP, MVT et LUM, désormais liés au choix du moteur de rendu 3D.
+- BOI-28 : reflex ou hybride uniquement.
+- Règle `flash` des situations, sans référence aux captures.
+- Source `petschnigg-2004` : plus citée par les données, renvoi à `docs/historique.md`.
+- Schémas, `validate.py` et `coverage.py` sans le champ `version` ; `coverage.py` compte les notions par domaine et par niveau.
+- `docs/cadrage.md`, `docs/questions-ouvertes.md`, `docs/lire-le-referentiel.md` mis à jour ; `docs/architecture.md` marqué en partie caduc jusqu'au choix de la pile technique ; décisions consignées dans `docs/historique.md`.
+- `CLAUDE.md` et les README : public, 3D de synthèse, V1 minimale ; la règle « pas de 3D avant la maquette 2.5D » devient « pas d'extension avant d'avoir testé la V1 minimale ».
 
 ## [0.2.4] - 2026-11-07
 
@@ -69,6 +90,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.0]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.4...v0.3.0
 [0.2.4]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.1...v0.2.2

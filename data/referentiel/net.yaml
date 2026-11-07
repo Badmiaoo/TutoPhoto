@@ -2,12 +2,11 @@
 domain:
   id: NET
   title: {fr: "Netteté et profondeur de champ", en: "sharpness and depth of field"}
-  intro: "Neuf notions ; seule la distance entre le sujet et le fond attend la V2 pour sa version libre. La profondeur de champ dépend de l'ouverture, de la focale, de la distance et de la taille du capteur."
+  intro: "Neuf notions. La profondeur de champ dépend de l'ouverture, de la focale, de la distance et de la taille du capteur."
   sources: [pl-lens-compression]
 notions:
   - id: NET-01
     title: {fr: "Profondeur de champ", en: "depth of field"}
-    version: V1
     level: N1
     spec:
       explanation: "La zone de netteté acceptable et ses quatre leviers"
@@ -18,7 +17,6 @@ notions:
     since: v0.1
   - id: NET-02
     title: {fr: "Netteté perçue", en: "circle of confusion, viewing size"}
-    version: V1
     level: N3
     spec:
       explanation: "La netteté dépend aussi de la taille d'affichage"
@@ -30,7 +28,6 @@ notions:
     since: v0.1
   - id: NET-03
     title: {fr: "Hyperfocale", en: "hyperfocal distance"}
-    version: V1
     level: N2
     spec:
       explanation: "Faire le point pour étendre la netteté jusqu'à l'infini"
@@ -42,7 +39,6 @@ notions:
     since: v0.1
   - id: NET-04
     title: {fr: "Diffraction", en: "diffraction"}
-    version: V1
     level: N2
     spec:
       explanation: "Pourquoi fermer au maximum fait perdre du piqué"
@@ -54,7 +50,6 @@ notions:
     since: v0.1
   - id: NET-05
     title: {fr: "Bokeh", en: "bokeh"}
-    version: V1
     level: N2
     spec:
       explanation: "Qualité du flou, forme des points lumineux, lames du diaphragme"
@@ -64,17 +59,15 @@ notions:
     since: v0.1
   - id: NET-06
     title: {fr: "Distance sujet-fond", en: "subject-background distance"}
-    version: V1→V2
     level: N1
     spec:
       explanation: "Plus le fond est loin du sujet, plus il est flou"
-      simulator: "V1 : variantes capturées à plusieurs distances. V2 : sujet et appareil déplaçables"
+      simulator: "Sujet et appareil déplaçables"
       exercise: "Placer un portrait pour flouter le fond à f/4"
     situations: [SIT-01, SIT-V2-02]
     since: v0.1
   - id: NET-07
     title: {fr: "Pourquoi c'est flou", en: "diagnosing blur"}
-    version: V1
     level: N1
     spec:
       explanation: "Distinguer bougé, flou de sujet, mise au point ratée, profondeur trop courte, diffraction"
@@ -84,7 +77,6 @@ notions:
     since: v0.1
   - id: NET-08
     title: {fr: "Empilement de mise au point", en: "focus stacking"}
-    version: V1
     level: N3
     spec:
       explanation: "Fusionner plusieurs mises au point quand la profondeur ne suffit pas"
@@ -94,7 +86,6 @@ notions:
     since: v0.1
   - id: NET-09
     title: {fr: "Aperçu de profondeur de champ", en: "depth-of-field preview"}
-    version: V1
     level: N2
     spec:
       explanation: "Fermer le diaphragme à la valeur choisie pour juger la zone nette avant de déclencher"

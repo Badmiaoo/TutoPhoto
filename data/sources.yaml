@@ -80,6 +80,7 @@ sources:
     group: "Physique, rendu et technique"
     label: "Petschnigg et al., Digital Photography with Flash and No-Flash Image Pairs (ACM TOG, SIGGRAPH 2004)"
     url: "https://hhoppe.com/proj/flash/"
+    used_in: [docs/historique.md]
   - id: sheng-2023
     group: "Physique, rendu et technique"
     label: "Sheng et al., Dr.Bokeh: Differentiable Occlusion-aware Bokeh Rendering (arXiv, 17 août 2023 ; CVPR 2024)"

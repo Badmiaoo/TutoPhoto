@@ -75,30 +75,27 @@ def main():
     out = []
 
     out.append("## Référentiel\n")
-    out.append("| Domaine | Notions | " + " | ".join(referentiel.VERSIONS) + " |")
-    out.append("| --- | --- | " + " | ".join("---" for _ in referentiel.VERSIONS) + " |")
+    out.append("| Domaine | Notions | " + " | ".join(referentiel.LEVELS) + " |")
+    out.append("| --- | --- | " + " | ".join("---" for _ in referentiel.LEVELS) + " |")
     total = collections.Counter()
     for d in ref.domains:
         mine = [n for n in notions if n["_domain"] == d["id"]]
-        counts = collections.Counter(n["version"] for n in mine)
+        counts = collections.Counter(n["level"] for n in mine)
         total.update(counts)
         out.append(f"| {d['id']} · {d['title']['fr']} | {len(mine)} | "
-                   + " | ".join(str(counts[v]) for v in referentiel.VERSIONS) + " |")
-    out.append(f"| Total | {len(notions)} | " + " | ".join(str(total[v]) for v in referentiel.VERSIONS) + " |")
+                   + " | ".join(str(counts[lv]) for lv in referentiel.LEVELS) + " |")
+    out.append(f"| Total | {len(notions)} | " + " | ".join(str(total[lv]) for lv in referentiel.LEVELS) + " |")
 
-    levels = collections.Counter(n["level"] for n in notions)
     situations = {s["id"]: s for s in ref.situations}
     links = [(n["id"], s) for n in notions if n["situations"] != "all" for s in n["situations"]]
     one_way = sum(1 for nid, s in links if nid not in situations[s]["key_notions"])
     keyed = {k for s in ref.situations for k in s["key_notions"]}
-    sit_versions = collections.Counter(s["version"] for s in ref.situations)
     entry = collections.Counter(s["level"] for s in ref.situations)
     top = collections.Counter(s["level_max"] for s in ref.situations)
     out.append("")
-    out.append("Niveaux des notions : " + ", ".join(f"{levels[lv]} en {lv}" for lv in referentiel.LEVELS) + ".")
     out.append(f"Renvois notion → situation : {len(links)}, dont {one_way} sans retour ; "
                f"{len([n for n in notions if n['id'] not in keyed])} notions ne sont la notion clé d'aucune situation.")
-    out.append(f"Situations : {sit_versions['V1']} en V1, {sit_versions['V2']} en V2 ; niveaux d'entrée : "
+    out.append(f"Situations : {len(situations)} ; niveaux d'entrée : "
                + ", ".join(f"{entry[lv]} en {lv}" for lv in referentiel.LEVELS) + " ; niveaux max : "
                + ", ".join(f"{top[lv]} en {lv}" for lv in referentiel.LEVELS) + ".")
 

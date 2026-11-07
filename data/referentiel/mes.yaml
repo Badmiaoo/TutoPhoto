@@ -2,11 +2,10 @@
 domain:
   id: MES
   title: {fr: "Mesure et contrôle de l'exposition", en: "metering and exposure control"}
-  intro: "Treize notions, toutes en V1 : comprendre ce que la cellule mesure, la corriger, puis placer ses tons."
+  intro: "Treize notions : comprendre ce que la cellule mesure, la corriger, puis placer ses tons."
 notions:
   - id: MES-01
     title: {fr: "Ce que mesure la cellule", en: "how metering works"}
-    version: V1
     level: N1
     spec:
       explanation: "La cellule mesure la lumière renvoyée et ramène la zone mesurée vers un gris moyen ; la mesure multizone corrige en partie selon la répartition des tons, mais une scène très claire ou très sombre la trompe encore"
@@ -16,7 +15,6 @@ notions:
     since: v0.1
   - id: MES-02
     title: {fr: "Modes de mesure", en: "metering modes"}
-    version: V1
     level: N1
     spec:
       explanation: "Multizone, pondérée centrale, spot et variantes de marque : quand utiliser chacune"
@@ -27,7 +25,6 @@ notions:
     since: v0.1
   - id: MES-03
     title: {fr: "Pièges de la mesure", en: "metering traps"}
-    version: V1
     level: N1
     spec:
       explanation: "Neige, fond noir, contre-jour, nuit : pourquoi la cellule se trompe"
@@ -37,7 +34,6 @@ notions:
     since: v0.1
   - id: MES-04
     title: {fr: "Correction d'exposition", en: "exposure compensation"}
-    version: V1
     level: N1
     spec:
       explanation: "Décaler la cible de la cellule en P, A et S, et en M avec ISO auto"
@@ -49,7 +45,6 @@ notions:
     since: v0.1
   - id: MES-05
     title: {fr: "Mémorisation d'exposition", en: "AE lock"}
-    version: V1
     level: N2
     spec:
       explanation: "Mesurer sur une zone, recadrer, garder l'exposition"
@@ -59,7 +54,6 @@ notions:
     since: v0.1
   - id: MES-06
     title: {fr: "Histogramme", en: "histogram"}
-    version: V1
     level: N1
     spec:
       explanation: "Lire la répartition des tons et repérer l'écrêtage, couche par couche"
@@ -69,7 +63,6 @@ notions:
     since: v0.1
   - id: MES-07
     title: {fr: "Alertes de surexposition et zébras", en: "highlight alerts, zebras"}
-    version: V1
     level: N1
     spec:
       explanation: "Repérer en direct les zones brûlées"
@@ -79,7 +72,6 @@ notions:
     since: v0.1
   - id: MES-08
     title: {fr: "Bracketing d'exposition", en: "exposure bracketing"}
-    version: V1
     level: N2
     spec:
       explanation: "Sécuriser une prise ou préparer une fusion HDR : nombre de vues, écart ; certaines marques font aussi varier la balance des blancs ou l'optimiseur de plage dynamique"
@@ -90,7 +82,6 @@ notions:
     since: v0.1
   - id: MES-09
     title: {fr: "Posemètre en manuel", en: "metering in manual mode"}
-    version: V1
     level: N1
     spec:
       explanation: "Lire l'échelle d'exposition du viseur en M"
@@ -100,7 +91,6 @@ notions:
     since: v0.1
   - id: MES-10
     title: {fr: "ISO auto", en: "auto ISO"}
-    version: V1
     level: N2
     spec:
       explanation: "Plafond d'ISO, vitesse minimale, ISO auto en M avec correction"
@@ -110,7 +100,6 @@ notions:
     since: v0.1
   - id: MES-11
     title: {fr: "Mesure incidente", en: "incident metering"}
-    version: V1
     level: N3
     spec:
       explanation: "Mesurer la lumière reçue par le sujet plutôt que celle qu'il renvoie"
@@ -120,7 +109,6 @@ notions:
     since: v0.1
   - id: MES-12
     title: {fr: "Mesure spot liée au collimateur", en: "spot metering linked to the focus point"}
-    version: V1
     level: N2
     spec:
       explanation: "Sur certains boîtiers, la mesure spot se fait sous le collimateur choisi plutôt qu'au centre : un sujet décentré s'expose sans recadrer"
@@ -131,7 +119,6 @@ notions:
     since: v0.2
   - id: MES-13
     title: {fr: "Système de zones", en: "zone system"}
-    version: V1
     level: N3
     spec:
       explanation: "Placer un ton choisi sur une valeur voulue et prévoir où tombent les autres ; méthode d'Ansel Adams et Fred Archer, adaptée au numérique"

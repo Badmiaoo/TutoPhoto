@@ -2,11 +2,10 @@
 domain:
   id: LEC
   title: {fr: "Lire une image et progresser", en: "reading images and improving"}
-  intro: "Quatre notions, toutes en V1 : apprendre à regarder des images, les siennes comprises."
+  intro: "Quatre notions : apprendre à regarder des images, les siennes comprises."
 notions:
   - id: LEC-01
     title: {fr: "Analyser une photo", en: "analyzing a photo"}
-    version: V1
     level: N1
     spec:
       explanation: "Décrire la lumière, la composition, les réglages probables, l'intention"
@@ -16,7 +15,6 @@ notions:
     since: v0.1
   - id: LEC-02
     title: {fr: "Critiquer ses photos", en: "self-critique"}
-    version: V1
     level: N1
     spec:
       explanation: "Une grille : intention, lumière, composition, technique"
@@ -26,7 +24,6 @@ notions:
     since: v0.1
   - id: LEC-03
     title: {fr: "Culture photographique", en: "photo history, great photographers"}
-    version: V1
     level: N2
     activity: true
     spec:
@@ -38,7 +35,6 @@ notions:
     since: v0.1
   - id: LEC-04
     title: {fr: "Progresser par projets", en: "projects, series"}
-    version: V1
     level: N2
     activity: true
     spec:

@@ -46,3 +46,11 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Identité entre `data/` et les blocs YAML de `REPRISE.md` : vérifiée une fois, dans la pull request de bootstrap, et pas en CI, puisque `REPRISE.md` reste figé alors que `data/` va évoluer.
 - `REPRISE.md` est un brouillon, probablement incomplet, mal écrit par endroits et avec des erreurs : tout peut être remis en question, y compris ce que la section 0.6 dit « acté ».
 - Claude fusionne lui-même ses pull requests quand la CI est verte, et gère les versions : un tag annoté `vX.Y.Z` par pull request fusionnée, décrit dans `CHANGELOG.md`. Y suit la version du référentiel.
+
+## 7 novembre 2026 : public, 3D de synthèse et V1 minimale
+
+- Public : uniquement les boîtiers reflex et hybrides. La photo au smartphone est hors périmètre, comme les compacts et les bridges ; BOI-28 est mis à jour en conséquence.
+- Scènes en 3D de synthèse dès la V1. La 2.5D (photos réelles et carte de profondeur) est abandonnée, avec la règle de découpage V1/V2, le format de scène 2.5D et le flash par captures.
+- Le champ `version` (V1, V1→V2, V2) est retiré du référentiel : les 191 notions et les 49 situations relèvent toutes de la V1. Les identifiants `SIT-V2-NN` restent tels quels. Le champ `capture` des situations, qui décrivait des captures 2.5D, est retiré aussi ; les besoins de chaque scène 3D seront décrits à sa conception.
+- V1 minimale testée d'abord : une scène de parc avec SIT-01, SIT-05 et SIT-06, testée avec quelques débutants avant d'étendre.
+- `docs/v2-3d.md` est supprimé, sans objet ; `docs/architecture.md` est marqué en partie caduc jusqu'au choix de la pile technique.

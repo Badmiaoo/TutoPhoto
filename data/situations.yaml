@@ -2,440 +2,354 @@
 rules:
   level: "Niveau d'entrée = niveau médian des notions clés (médiane haute). level_max = plus haut niveau des notions clés. Les défis vont de level à level_max. Règle par défaut v0.2, ajustable à la main avec une raison dans notes."
   key_notions: "Notions propres à la situation. Les réglages de base (ouverture, vitesse, ISO, modes, mesure, AF, balance des blancs) servent dans toutes les recettes sans être répétés."
-  flash: "required : la situation dépend du flash (captures ambiante et flash seul) ; optional : elle l'utilise en option. Absent : pas de flash."
-  capture: "Scène 2.5D à produire pour la situation (V1 seulement)."
+  flash: "required : la situation dépend du flash ; optional : elle l'utilise en option. Absent : pas de flash."
 situations:
   - id: SIT-01
     title: {fr: "Portrait à l'ombre ou par ciel couvert", en: "portrait in open shade, overcast"}
-    version: V1
     level: N1
     level_max: N1
     where_when: "Extérieur, journée"
     intention: "Isoler le sujet, regard net"
     key_notions: [MAP-06, MAP-09, NET-01, NET-06, LUM-02]
-    capture: "HDR, profondeur, visages et yeux annotés ; plusieurs poses du modèle"
     since: v0.1
   - id: SIT-02
     title: {fr: "Portrait en plein soleil", en: "portrait in harsh sun"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Extérieur, milieu de journée"
     intention: "Visage lisible malgré les ombres dures"
     key_notions: [LUM-13, LUM-11, MES-07, BOI-03]
-    capture: "HDR, profondeur, visages annotés"
     flash: required
     since: v0.1
   - id: SIT-03
     title: {fr: "Portrait en contre-jour à l'heure dorée", en: "backlit portrait at golden hour"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Extérieur, soir"
     intention: "Sujet exposé et ciel gardé, ou silhouette"
     key_notions: [EXP-09, MES-02, MES-05, LUM-06, OPT-09]
-    capture: "HDR à forte dynamique, profondeur, visages ; variantes avec réflecteur"
     flash: optional
     since: v0.1
   - id: SIT-04
     title: {fr: "Portrait près d'une fenêtre", en: "window-light portrait"}
-    version: V1
     level: N1
     level_max: N2
     where_when: "Intérieur, jour"
     intention: "Lumière douce et directionnelle"
     key_notions: [LUM-07, MAP-06, COU-03]
-    capture: "Variantes de distance à la fenêtre et de voilage ; plusieurs poses du modèle"
     since: v0.1
   - id: SIT-05
     title: {fr: "Photo de groupe", en: "group photo"}
-    version: V1
     level: N1
     level_max: N1
     where_when: "Intérieur ou extérieur"
     intention: "Tout le monde net"
     key_notions: [NET-01, MAP-05, MAP-09]
-    capture: "Profondeur, visages annotés ; plusieurs poses du modèle"
     since: v0.1
   - id: SIT-06
     title: {fr: "Enfant ou chien qui court", en: "running child or dog"}
-    version: V1
     level: N1
     level_max: N2
     where_when: "Parc, fin de journée"
     intention: "Figer un sujet net"
     key_notions: [MAP-04, MAP-05, MVT-01, MES-10, BOI-12]
-    capture: "Sujet détouré avec trajectoire"
     since: v0.1
   - id: SIT-07
     title: {fr: "Sport en salle", en: "indoor sports"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Gymnase éclairé aux LED"
     intention: "Figer sans bandes ni bruit excessif"
     key_notions: [EXP-06, BOI-14, LUM-08, MAP-10, MVT-10]
-    capture: "Sujets mobiles, scintillement modélisé"
     since: v0.1
   - id: SIT-08
     title: {fr: "Oiseaux et animaux sauvages", en: "birds, wildlife"}
-    version: V1
     level: N1
     level_max: N3
     where_when: "Nature, longue focale"
     intention: "Sujet net malgré les obstacles"
     key_notions: [MAP-07, MAP-14, MVT-02, OPT-14, PLA-07]
-    capture: "Sujet lointain détouré, premier plan gênant"
     since: v0.1
   - id: SIT-09
     title: {fr: "Filé d'un cycliste ou d'une voiture", en: "panning a cyclist or car"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Rue ou route, jour"
     intention: "Sujet net, fond étiré"
     key_notions: [MVT-06, BOI-15, MAP-10, CMP-10]
-    capture: "Sujet mobile, capture large pour la rotation"
     since: v0.1
   - id: SIT-10
     title: {fr: "Paysage au coucher du soleil", en: "landscape at sunset"}
-    version: V1
     level: N1
     level_max: N2
     where_when: "Extérieur, soir"
     intention: "Détails dans le ciel et dans le sol"
     key_notions: [MES-08, OPT-12, LUM-04, PLA-01, CMP-04]
-    capture: "HDR, variantes horaires"
     since: v0.1
   - id: SIT-11
     title: {fr: "Paysage net de bout en bout", en: "front-to-back sharp landscape"}
-    version: V1
     level: N2
     level_max: N3
     where_when: "Extérieur, premier plan proche"
     intention: "Tout net"
     key_notions: [NET-01, NET-03, NET-04, NET-08, MAP-18]
-    capture: "Profondeur précise au premier plan"
     since: v0.1
   - id: SIT-12
     title: {fr: "Cascade en pose longue de jour", en: "daytime long exposure waterfall"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Rivière, jour"
     intention: "Eau soyeuse, rochers nets"
     key_notions: [MVT-05, MVT-07, OPT-12]
-    capture: "Séquence d'images depuis un trépied"
     since: v0.1
   - id: SIT-13
     title: {fr: "Neige, plage et scènes très claires", en: "snow, beach, bright scenes"}
-    version: V1
     level: N1
     level_max: N2
     where_when: "Extérieur, plein jour"
     intention: "Un blanc qui reste blanc"
     key_notions: [MES-03, MES-04, MES-07, EXP-11]
-    capture: "HDR très lumineux"
     since: v0.1
   - id: SIT-14
     title: {fr: "Brouillard et temps couvert", en: "fog, overcast"}
-    version: V1
     level: N1
     level_max: N3
     where_when: "Extérieur"
     intention: "Garder l'ambiance sans grisaille"
     key_notions: [LUM-05, COU-04, EXP-12]
-    capture: "Variantes météo"
     since: v0.1
   - id: SIT-15
     title: {fr: "Photo de rue", en: "street photography"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Ville, jour"
     intention: "Réagir vite, rester discret"
     key_notions: [MAP-16, NET-03, MAP-11, CMP-05, PLA-07]
-    capture: "Passants détourés, capture large"
     since: v0.1
   - id: SIT-16
     title: {fr: "Architecture et verticales", en: "architecture, verticals"}
-    version: V1
     level: N2
     level_max: N3
     where_when: "Ville"
     intention: "Des verticales droites"
     key_notions: [OPT-07, OPT-13, CMP-02, PLA-02]
-    capture: "Capture très large et rectiligne"
     since: v0.1
   - id: SIT-17
     title: {fr: "Ville à l'heure bleue", en: "city at blue hour"}
-    version: V1
     level: N1
     level_max: N2
     where_when: "Ville, crépuscule"
     intention: "Ciel bleu dense, traînées lumineuses"
     key_notions: [MVT-08, LUM-04, COU-04, BOI-09]
-    capture: "Séquence d'images, variantes horaires"
     flash: optional
     since: v0.1
   - id: SIT-18
     title: {fr: "Intérieur sombre sans flash", en: "dim interior without flash"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Musée, église"
     intention: "Net sans flash ni bruit excessif"
     key_notions: [MVT-02, MVT-04, BOI-14, MAP-03]
-    capture: "HDR en faible lumière, personnes mobiles"
     since: v0.1
   - id: SIT-19
     title: {fr: "Concert et spectacle", en: "concert, stage"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Salle, lumières de scène"
     intention: "Exposer les artistes, pas la salle"
     key_notions: [MES-02, MES-03, LUM-08, COU-03]
-    capture: "Éclairages colorés changeants"
     since: v0.1
   - id: SIT-20
     title: {fr: "Ciel étoilé et Voie lactée", en: "starry sky, Milky Way"}
-    version: V1
     level: N2
     level_max: N3
     where_when: "Campagne, nuit sans lune"
     intention: "Étoiles ponctuelles, bruit maîtrisé"
     key_notions: [MAP-15, MVT-09, EXP-08, PLA-05]
-    capture: "Séquence de ciel nocturne"
     since: v0.1
   - id: SIT-21
     title: {fr: "Feux d'artifice", en: "fireworks"}
-    version: V1
     level: N1
     level_max: N2
     where_when: "Nuit"
     intention: "Traînées nettes et colorées"
     key_notions: [BOI-10, MAP-02, MES-09]
-    capture: "Séquence de bouquets"
     since: v0.1
   - id: SIT-22
     title: {fr: "Macro : fleur ou insecte", en: "macro: flower, insect"}
-    version: V1
     level: N2
     level_max: N3
     where_when: "Jardin"
     intention: "Détail net, fond doux"
     key_notions: [OPT-11, NET-08, MAP-02, MAP-14]
-    capture: "Profondeur fine, pile de mises au point"
     since: v0.1
   - id: SIT-23
     title: {fr: "Plat ou objet sur une table", en: "food or object on a table"}
-    version: V1
     level: N1
     level_max: N2
     where_when: "Intérieur, près d'une fenêtre"
     intention: "Mettre la matière en valeur"
     key_notions: [LUM-07, COU-02, CMP-05, CMP-09]
-    capture: "Variantes d'éclairage de fenêtre"
     since: v0.1
   - id: SIT-24
     title: {fr: "Monument très fréquenté", en: "crowded landmark"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Ville, journée"
     intention: "Monument sans la foule, ou avec"
     key_notions: [MVT-05, MVT-07, OPT-01, PLA-06]
-    capture: "Séquence avec passants"
     since: v0.1
   - id: SIT-25
     title: {fr: "Soirée en intérieur au flash", en: "indoor party with flash"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Intérieur, soir"
     intention: "Visages nets, ambiance gardée"
     key_notions: [LUM-09, LUM-10, LUM-12, MAP-03]
-    capture: "Profondeur, personnes mobiles ; flash seul direct et rebondi"
     flash: required
     since: v0.1
   - id: SIT-26
     title: {fr: "À travers une vitre ou un grillage", en: "through glass or a fence"}
-    version: V1
     level: N1
     level_max: N2
     where_when: "Zoo, aquarium, vitrine"
     intention: "Faire disparaître l'obstacle"
     key_notions: [MAP-07, MAP-08, OPT-12, NET-01]
-    capture: "Fond et obstacle capturés en couches, à plusieurs distances de l'obstacle ; reflets en variante"
     since: v0.1
   - id: SIT-27
     title: {fr: "Bougies et feu de camp", en: "candlelight, campfire"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Nuit"
     intention: "Lumière chaude, bruit maîtrisé"
     key_notions: [COU-01, EXP-08, NET-05]
-    capture: "HDR en faible lumière"
     since: v0.1
   - id: SIT-28
     title: {fr: "Autoportrait au retardateur", en: "self-portrait with a timer"}
-    version: V1
     level: N1
     level_max: N1
     where_when: "Partout"
     intention: "Être net et bien cadré sans opérateur"
     key_notions: [BOI-12, MAP-08, BOI-01]
-    capture: "Profondeur, sujet annoté"
     since: v0.1
   - id: SIT-29
     title: {fr: "Depuis un train ou un avion", en: "from a train or plane window"}
-    version: V1
     level: N1
     level_max: N2
     where_when: "Transport"
     intention: "Paysage net, sans reflet"
     key_notions: [MVT-01, MVT-02, OPT-12]
-    capture: "Défilement calculé selon la profondeur, reflets en variante"
     since: v0.1
   - id: SIT-30
     title: {fr: "Panorama", en: "panorama"}
-    version: V1
     level: N2
     level_max: N3
     where_when: "Paysage ou ville"
     intention: "Assemblage sans défaut"
     key_notions: [BOI-09, MES-05, RET-10]
-    capture: "Capture très large depuis un point fixe"
     since: v0.1
   - id: SIT-31
     title: {fr: "La Lune", en: "the Moon"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Nuit"
     intention: "Une Lune détaillée, pas un disque blanc"
     key_notions: [MES-03, EXP-11, MAP-15, PLA-03]
-    capture: "Lune en haute définition"
     since: v0.1
   - id: SIT-32
     title: {fr: "Pièce d'une maison, fenêtre comprise", en: "room interior with a bright window"}
-    version: V1
     level: N2
     level_max: N3
     where_when: "Intérieur, jour"
     intention: "Pièce et vue extérieure lisibles, verticales droites"
     key_notions: [OPT-01, OPT-07, OPT-13, BOI-04, EXP-09, MES-08, COU-03, LUM-07, RET-07, RET-10]
     sources: [levoy-cs178-interiors]
-    capture: "HDR à forte dynamique, capture large et rectiligne"
     since: v0.2
   - id: SIT-33
     title: {fr: "Orage et éclairs", en: "lightning storm"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Extérieur, nuit d'orage, à distance et à l'abri"
     intention: "Saisir un ou plusieurs éclairs nets"
     key_notions: [BOI-10, BOI-26, MAP-15, PLA-04]
-    capture: "Séquence d'images sans trou depuis un trépied, éclairs captés"
     since: v0.2
   - id: SIT-34
     title: {fr: "Portrait de nuit en ville", en: "night portrait"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Ville, nuit"
     intention: "Visage net, lumières de la ville gardées"
     key_notions: [LUM-12, LUM-10, NET-05, MES-10, MVT-04, COU-03, MAP-09]
-    capture: "Profondeur, visages annotés, ambiante et flash seul, sources de la ville"
     flash: required
     since: v0.2
   - id: SIT-35
     title: {fr: "Ville la nuit à main levée", en: "handheld night scene"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Ville, nuit, sans trépied"
     intention: "Une scène nette sans trépied, bruit maîtrisé"
     key_notions: [MVT-02, MVT-03, MVT-04, BOI-15, MES-10, EXP-08]
-    capture: "HDR en faible lumière, passants détourés"
     since: v0.2
   - id: SIT-36
     title: {fr: "Journée de voyage", en: "travel day"}
-    version: V1
     level: N1
     level_max: N1
     where_when: "Ville ou nature, du matin au soir"
     intention: "Tenir la journée et rapporter des images variées"
     key_notions: [OPT-04, OPT-15, BOI-17, BOI-22, BOI-23, BOI-25, PLA-06, PLA-08, RET-11]
-    capture: "Plusieurs scènes d'une même journée, à plusieurs heures"
     since: v0.2
   - id: SIT-37
     title: {fr: "Mariage ou cérémonie, en invité", en: "wedding guest"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Lieu de cérémonie, intérieur et extérieur"
     intention: "Des visages nets, sans gêner ni faire de bruit"
     key_notions: [BOI-14, MAP-09, MAP-12, MES-10, MVT-10, BOI-12, COU-03, PLA-07]
-    capture: "Intérieur sombre et extérieur, personnes mobiles, visages annotés"
     since: v0.2
   - id: SIT-38
     title: {fr: "Sport en extérieur, au bord du terrain", en: "outdoor field sports"}
-    version: V1
     level: N1
     level_max: N2
     where_when: "Stade ou terrain, jour"
     intention: "Figer l'action au bon instant"
     key_notions: [MAP-04, MAP-05, MAP-07, MAP-10, MVT-01, MVT-10, OPT-04, BOI-13]
     sources: [levoy-assignments]
-    capture: "Sujets mobiles détourés avec trajectoires, capture large"
     since: v0.2
   - id: SIT-39
     title: {fr: "Enfant ou animal à la maison", en: "kids or pets at home"}
-    version: V1
     level: N1
     level_max: N2
     where_when: "Intérieur, près d'une fenêtre"
     intention: "Un sujet vif net, photographié à sa hauteur"
     key_notions: [LUM-07, MAP-09, MAP-04, MES-10, BOI-14]
-    capture: "Sujet mobile détouré, variantes de hauteur de prise de vue"
     since: v0.2
   - id: SIT-40
     title: {fr: "Pluie et mauvais temps", en: "rain"}
-    version: V1
     level: N1
     level_max: N2
     where_when: "Extérieur, pluie"
     intention: "Rendre la pluie visible et protéger le matériel"
     key_notions: [LUM-05, PLA-08, MVT-01, MVT-05, BOI-24]
-    capture: "Variantes météo, séquence d'images à haute cadence pour la pluie"
     since: v0.2
   - id: SIT-41
     title: {fr: "Paysage vu d'un drone", en: "aerial landscape from a drone"}
-    version: V1
     level: N2
     level_max: N2
     where_when: "Extérieur, zone de vol autorisée, jour"
     intention: "Une vue d'en haut nette et bien exposée, dans les règles"
     key_notions: [PLA-09, PLA-04, MES-08]
-    capture: "Captures aériennes depuis des points fixes, à plusieurs hauteurs"
     since: v0.2
   - id: SIT-42
     title: {fr: "Sous l'eau, près de la surface", en: "underwater near the surface"}
-    version: V1
     level: N2
     level_max: N3
     where_when: "Mer ou piscine, en apnée, de jour"
     intention: "Des couleurs naturelles malgré l'eau"
     key_notions: [COU-09, LUM-18, COU-02]
-    capture: "Captures sous l'eau à plusieurs profondeurs et distances du sujet, ambiante et flash seul"
     flash: optional
     since: v0.2
   - id: SIT-V2-01
     title: {fr: "Portrait studio avec un flash déporté", en: "studio portrait, off-camera flash"}
-    version: V2
     level: N3
     level_max: N3
     where_when: "Studio"
@@ -444,7 +358,6 @@ situations:
     since: v0.1
   - id: SIT-V2-02
     title: {fr: "Portrait : choisir sa distance", en: "portrait: choosing your distance"}
-    version: V2
     level: N1
     level_max: N2
     where_when: "Extérieur ou studio"
@@ -453,7 +366,6 @@ situations:
     since: v0.1
   - id: SIT-V2-03
     title: {fr: "Paysage : créer un premier plan en se déplaçant", en: "landscape: building a foreground"}
-    version: V2
     level: N2
     level_max: N2
     where_when: "Extérieur"
@@ -462,7 +374,6 @@ situations:
     since: v0.1
   - id: SIT-V2-04
     title: {fr: "Nature morte à deux lumières", en: "two-light still life"}
-    version: V2
     level: N3
     level_max: N3
     where_when: "Studio"
@@ -471,7 +382,6 @@ situations:
     since: v0.1
   - id: SIT-V2-05
     title: {fr: "Flash indirect en intérieur", en: "bounce flash indoors"}
-    version: V2
     level: N2
     level_max: N2
     where_when: "Intérieur"
@@ -480,7 +390,6 @@ situations:
     since: v0.1
   - id: SIT-V2-06
     title: {fr: "Plongée et contre-plongée", en: "high and low angles"}
-    version: V2
     level: N1
     level_max: N1
     where_when: "Partout"
@@ -489,7 +398,6 @@ situations:
     since: v0.1
   - id: SIT-V2-07
     title: {fr: "Réflecteur en extérieur", en: "reflector outdoors"}
-    version: V2
     level: N2
     level_max: N2
     where_when: "Extérieur"

@@ -2,14 +2,13 @@
 domain:
   id: MAP
   title: {fr: "Mise au point et autofocus", en: "focus and autofocus"}
-  intro: "21 notions, toutes en V1 : la carte de profondeur, les sujets détourés et les annotations (visages, yeux) suffisent à placer le plan net et à simuler chaque mode AF et chaque collimateur, options comprises. Un premier plan flou qui déborde sur le sujet (grillage, branche) demande en plus ce qui est caché derrière lui : scène capturée en couches."
+  intro: "21 notions : la scène 3D connaît la distance de chaque objet et la place des visages et des yeux, ce qui permet de placer le plan net et de simuler chaque mode AF et chaque collimateur, options comprises. Un premier plan flou qui déborde sur le sujet (grillage, branche) laisse voir une partie de ce qu'il cache : la qualité de ce rendu dépend de la méthode de rendu de la profondeur de champ."
   sources: [sheng-2023]
   todo:
-    - "Faisabilité des scènes en couches à valider en maquette (étape 5)."
+    - "Vérifier, au choix du moteur de rendu, que le flou d'un premier plan qui déborde sur le sujet est rendu correctement."
 notions:
   - id: MAP-01
     title: {fr: "Plan de mise au point", en: "plane of focus"}
-    version: V1
     level: N1
     spec:
       explanation: "La netteté maximale est un plan, à une distance donnée"
@@ -19,7 +18,6 @@ notions:
     since: v0.1
   - id: MAP-02
     title: {fr: "Mise au point manuelle et aides", en: "manual focus, magnification, peaking"}
-    version: V1
     level: N1
     spec:
       explanation: "Quand passer en manuel ; loupe, surlignage de netteté, échelle des distances"
@@ -29,7 +27,6 @@ notions:
     since: v0.1
   - id: MAP-03
     title: {fr: "Comment l'AF voit", en: "contrast, phase, hybrid AF"}
-    version: V1
     level: N2
     spec:
       explanation: "Détection de contraste et de phase ; pourquoi l'AF patine sur une surface unie ou dans le noir"
@@ -41,7 +38,6 @@ notions:
     since: v0.1
   - id: MAP-04
     title: {fr: "AF ponctuel ou continu", en: "single AF, continuous AF"}
-    version: V1
     level: N1
     spec:
       explanation: "Verrouiller une distance ou la suivre ; le mode automatique et ses hésitations"
@@ -52,7 +48,6 @@ notions:
     since: v0.1
   - id: MAP-05
     title: {fr: "Modes de zone AF", en: "AF area modes"}
-    version: V1
     level: N1
     spec:
       explanation: "Point unique, zone, large, suivi : quelle partie du cadre sert à faire le point"
@@ -63,7 +58,6 @@ notions:
     since: v0.1
   - id: MAP-06
     title: {fr: "Collimateurs", en: "AF points"}
-    version: V1
     level: N1
     spec:
       explanation: "Choisir soi-même le collimateur, le déplacer vite, connaître sa couverture"
@@ -73,7 +67,6 @@ notions:
     since: v0.1
   - id: MAP-07
     title: {fr: "Quand l'appareil choisit", en: "auto-area pitfalls"}
-    version: V1
     level: N1
     spec:
       explanation: "Sur quels critères l'appareil choisit, et pourquoi il se trompe de sujet"
@@ -83,7 +76,6 @@ notions:
     since: v0.1
   - id: MAP-08
     title: {fr: "Mémorisation AF, mise au point puis recadrage", en: "focus lock, focus and recompose"}
-    version: V1
     level: N1
     spec:
       explanation: "Verrouiller la distance à mi-course ou par une touche, puis recadrer ; la limite de la technique à grande ouverture ; le lien avec la mémorisation d'exposition"
@@ -95,7 +87,6 @@ notions:
     since: v0.1
   - id: MAP-09
     title: {fr: "Détection des yeux et des sujets", en: "eye, face, subject detection"}
-    version: V1
     level: N1
     spec:
       explanation: "Ce qu'apporte la détection, ses réglages, ses échecs"
@@ -105,7 +96,6 @@ notions:
     since: v0.1
   - id: MAP-10
     title: {fr: "Suivi du sujet", en: "subject tracking"}
-    version: V1
     level: N2
     spec:
       explanation: "Suivi dans le cadre, sensibilité du suivi, obstacles"
@@ -115,7 +105,6 @@ notions:
     since: v0.1
   - id: MAP-11
     title: {fr: "Découplage AF", en: "back-button focus"}
-    version: V1
     level: N2
     spec:
       explanation: "Séparer la mise au point du déclenchement"
@@ -125,7 +114,6 @@ notions:
     since: v0.1
   - id: MAP-12
     title: {fr: "Priorité au déclenchement ou à la netteté", en: "release vs focus priority"}
-    version: V1
     level: N2
     spec:
       explanation: "Déclencher même flou, ou attendre la netteté"
@@ -135,7 +123,6 @@ notions:
     since: v0.1
   - id: MAP-14
     title: {fr: "Distance minimale et limiteur", en: "minimum focus distance, focus limiter"}
-    version: V1
     level: N2
     spec:
       explanation: "Pourquoi l'AF refuse trop près ; le limiteur accélère l'AF sur les sujets lointains"
@@ -146,7 +133,6 @@ notions:
     since: v0.1
   - id: MAP-15
     title: {fr: "Mise au point dans le noir et à l'infini", en: "low light, infinity focus"}
-    version: V1
     level: N2
     spec:
       explanation: "Faisceau d'assistance, loupe ; vérifier l'infini à l'écran"
@@ -157,7 +143,6 @@ notions:
     since: v0.1
   - id: MAP-16
     title: {fr: "Mise au point par zone", en: "zone focusing"}
-    version: V1
     level: N2
     spec:
       explanation: "Prérégler distance et ouverture pour une plage nette sans AF"
@@ -167,7 +152,6 @@ notions:
     since: v0.1
   - id: MAP-17
     title: {fr: "Réglage fin de l'AF", en: "AF fine-tune"}
-    version: V1
     level: N3
     spec:
       explanation: "Surtout sur reflex, et sur certains hybrides : corriger un objectif qui fait le point devant ou derrière"
@@ -178,7 +162,6 @@ notions:
     since: v0.1
   - id: MAP-18
     title: {fr: "Bracketing de mise au point", en: "focus bracketing"}
-    version: V1
     level: N3
     spec:
       explanation: "Série de mises au point destinée à l'empilement"
@@ -188,7 +171,6 @@ notions:
     since: v0.1
   - id: MAP-19
     title: {fr: "Déplacer son collimateur : joystick, écran tactile, retour au centre", en: "moving the focus point"}
-    version: V1
     level: N1
     spec:
       explanation: "Les commandes qui déplacent le collimateur sans quitter le viseur : multicontrôleur, écran tactile, retour au centre"
@@ -199,7 +181,6 @@ notions:
     since: v0.2
   - id: MAP-20
     title: {fr: "Collimateur selon l'orientation", en: "orientation-linked focus point"}
-    version: V1
     level: N2
     spec:
       explanation: "Mémoriser un collimateur pour la position horizontale et un autre pour la verticale"
@@ -210,7 +191,6 @@ notions:
     since: v0.2
   - id: MAP-21
     title: {fr: "Retouche manuelle en AF", en: "manual focus override, AF+MF, DMF"}
-    version: V1
     level: N2
     spec:
       explanation: "Corriger l'AF à la bague après l'accroche, sans changer de mode"
@@ -221,7 +201,6 @@ notions:
     since: v0.2
   - id: MAP-22
     title: {fr: "Options des collimateurs : nombre de points, bouclage, position mémorisée", en: "focus point options"}
-    version: V1
     level: N3
     spec:
       explanation: "Réduire le nombre de collimateurs sélectionnables, faire boucler le déplacement d'un bord à l'autre, rappeler une position mémorisée"
