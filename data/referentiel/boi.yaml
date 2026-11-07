@@ -1,0 +1,389 @@
+# fichier: data/referentiel/boi.yaml
+domain:
+  id: BOI
+  title: {fr: "Maîtrise du boîtier", en: "camera operation"}
+  intro: "36 notions, toutes en V1 : le boîtier virtuel reproduit les commandes d'un vrai appareil et affiche le vocabulaire de chaque marque. L'autofocus, la mesure, la couleur et le flash ont leurs propres domaines (MAP, MES, COU, LUM)."
+notions:
+  - id: BOI-01
+    title: {fr: "Anatomie du boîtier", en: "camera anatomy"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Molettes, déclencheur, viseur, écran, touches : ce que chacun commande"
+      simulator: "Boîtier virtuel cliquable"
+      exercise: "« Trouve le réglage » chronométré"
+    situations: [SIT-28]
+    since: v0.1
+  - id: BOI-02
+    title: {fr: "Déclencheur à mi-course", en: "half-press"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "À mi-course, mise au point et mesure ; à fond, déclenchement"
+      simulator: "Déclencheur à deux niveaux, confirmation de netteté"
+      exercise: "Faire le point, recadrer, déclencher sans relâcher"
+    situations: [SIT-05]
+    since: v0.1
+  - id: BOI-03
+    title: {fr: "Viseur et écran", en: "OVF, EVF, LCD"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Le viseur électronique peut montrer l'exposition finale (aperçu activé), le viseur optique non ; la luminosité de l'écran et du viseur se règle et ne change pas la photo"
+      simulator: "Bascule viseur optique ou électronique, luminosité de l'écran réglable"
+      exercise: "Voir une surexposition avant de déclencher"
+    situations: [SIT-02]
+    sources: [nikon-zfc-d7]
+    since: v0.1
+  - id: BOI-04
+    title: {fr: "Aides à l'affichage", en: "grid, level, live histogram"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Grille, niveau électronique, histogramme en direct"
+      simulator: "Couches d'affichage activables"
+      exercise: "Redresser un horizon au niveau électronique"
+    situations: [SIT-10, SIT-16, SIT-32]
+    since: v0.1
+  - id: BOI-05
+    title: {fr: "Modes auto et scènes", en: "auto, scene modes"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Ce que l'appareil décide à ta place, et où ça casse"
+      simulator: "Mode auto qui affiche ses choix"
+      exercise: "Expliquer trois photos ratées en mode auto"
+    situations: [SIT-06, SIT-25]
+    since: v0.1
+  - id: BOI-06
+    title: {fr: "Programme et décalage", en: "program mode, program shift"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "P choisit un couple, la molette le décale à exposition égale"
+      simulator: "Couples équivalents affichés pendant le décalage"
+      exercise: "En P, obtenir un fond flou"
+    situations: [SIT-01]
+    since: v0.1
+  - id: BOI-07
+    title: {fr: "Priorité à l'ouverture", en: "aperture priority, A/Av"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Choisir la profondeur de champ, surveiller la vitesse"
+      simulator: "Alerte de vitesse trop lente"
+      exercise: "Portrait fond flou sans bougé"
+    situations: [SIT-01, SIT-11]
+    since: v0.1
+  - id: BOI-08
+    title: {fr: "Priorité à la vitesse", en: "shutter priority, S/Tv"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Choisir l'effet du mouvement, surveiller ouverture et ISO"
+      simulator: "Ouverture qui atteint sa limite et clignote"
+      exercise: "Figer un enfant qui court en fin de journée"
+    situations: [SIT-06, SIT-09]
+    since: v0.1
+  - id: BOI-09
+    title: {fr: "Mode manuel", en: "manual, M"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Tout fixer soi-même : lumière stable, panorama, nuit"
+      simulator: "M avec posemètre et ISO auto en option"
+      exercise: "Série d'un concert à lumière changeante"
+    situations: [SIT-17, SIT-19, SIT-30]
+    since: v0.1
+  - id: BOI-10
+    title: {fr: "Poses B et T", en: "bulb, time"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Poses plus longues que la vitesse la plus lente, avec télécommande ; en pose T, un premier appui ouvre l'obturateur, un second le ferme"
+      simulator: "Poses B et T chronométrées"
+      exercise: "Trois bouquets de feu d'artifice en une pose"
+    situations: [SIT-20, SIT-21, SIT-33]
+    sources: [nikon-z8-time]
+    since: v0.1
+  - id: BOI-11
+    title: {fr: "Modes personnalisés", en: "custom modes"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Enregistrer une configuration par situation"
+      simulator: "Sauvegarde et rappel de configurations"
+      exercise: "Créer une configuration action et une paysage"
+    situations: [SIT-06, SIT-10]
+    since: v0.1
+  - id: BOI-12
+    title: {fr: "Modes d'entraînement", en: "drive modes"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Vue par vue, rafale, silencieux, retardateur"
+      simulator: "Rafale qui produit une série à trier"
+      exercise: "Capter le sommet d'un saut"
+    situations: [SIT-06, SIT-28, SIT-37]
+    since: v0.1
+  - id: BOI-13
+    title: {fr: "Mémoire tampon et cartes", en: "buffer, card speed"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Pourquoi la rafale ralentit : format, tampon, vitesse de carte"
+      simulator: "Tampon qui se remplit et se vide"
+      exercise: "Choisir format et rafale pour cinq secondes d'action"
+    situations: [SIT-07, SIT-08, SIT-38]
+    since: v0.1
+  - id: BOI-14
+    title: {fr: "Types d'obturateur", en: "mechanical, EFCS, electronic shutter"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Silence, déformation des sujets rapides, bandes sous LED, compatibilité flash"
+      simulator: "Obturateur électronique qui déforme et crée des bandes"
+      exercise: "Choisir l'obturateur pour un concert, un gymnase, une église"
+    situations: [SIT-07, SIT-18, SIT-19, SIT-37, SIT-39]
+    todo:
+      - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+    since: v0.1
+  - id: BOI-15
+    title: {fr: "Réglages de stabilisation", en: "stabilization settings"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Optique ou capteur, modes, cas du trépied et du filé"
+      simulator: "Modes et effet sur le flou de bougé"
+      exercise: "Choisir le mode pour un filé"
+    situations: [SIT-09, SIT-18, SIT-35]
+    since: v0.1
+  - id: BOI-16
+    title: {fr: "RAW, JPEG ou HEIF", en: "RAW vs JPEG vs HEIF"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Ce que contient chaque format, marge de rattrapage, poids ; le HEIF peut enregistrer 10 bits par couche, le JPEG 8 ; le RAW se compresse avec ou sans perte"
+      simulator: "Même prise développée en RAW, en HEIF et en JPEG"
+      exercise: "Récupérer un ciel en RAW, pas en JPEG"
+    situations: [SIT-10, SIT-17]
+    sources: [canon-hdr-heif, nikon-z7-raw-compression, sony-a7iv-raw-type]
+    since: v0.1
+  - id: BOI-17
+    title: {fr: "Qualité et taille d'image", en: "image quality, size"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Définition, compression, marge de recadrage"
+      simulator: "Comparaison à 100 %"
+      exercise: "Choisir la qualité pour un voyage"
+    situations: [SIT-24, SIT-36]
+    since: v0.1
+  - id: BOI-18
+    title: {fr: "Traitements internes", en: "in-camera processing"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Réduction du bruit, corrections d'objectif, optimiseurs de plage dynamique : ce qu'ils changent en JPEG, et en RAW"
+      simulator: "Options avec avant/après"
+      exercise: "Configurer le boîtier pour un contre-jour en JPEG"
+    situations: [SIT-03, SIT-20]
+    since: v0.1
+  - id: BOI-19
+    title: {fr: "Réduction du bruit en pose longue", en: "long exposure noise reduction"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "La seconde pose qui allonge l'attente ; quand l'activer"
+      simulator: "Attente simulée, comparaison avec et sans"
+      exercise: "Décider pour une série d'étoiles"
+    situations: [SIT-20]
+    todo:
+      - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+    since: v0.1
+  - id: BOI-20
+    title: {fr: "Personnaliser les commandes", en: "custom buttons, menus"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Mettre les réglages fréquents sous les doigts"
+      simulator: "Assignation des touches du boîtier virtuel"
+      exercise: "Changer de collimateur et d'ISO sans quitter le viseur"
+    situations: [SIT-06, SIT-15]
+    since: v0.1
+  - id: BOI-21
+    title: {fr: "Formater sa carte", en: "card formatting"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Formater la carte dans l'appareil, après avoir vérifié la sauvegarde des photos"
+      simulator: "Menu de formatage, alerte si les photos ne sont pas sauvegardées"
+      exercise: "Préparer une carte pour une journée de prise de vue"
+    situations: [SIT-36]
+    sources: [canon-format-card]
+    notes:
+      - "Scission de BOI-21 en v0.2 : les doubles emplacements passent dans BOI-36."
+    since: v0.1
+  - id: BOI-22
+    title: {fr: "Configuration de base", en: "date, time zone, copyright, firmware, reset"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Date, fuseau, auteur, géolocalisation, microprogramme, réinitialisation"
+      simulator: "Menu de première configuration"
+      exercise: "Préparer le boîtier pour un voyage avec décalage horaire"
+    situations: [SIT-24, SIT-36]
+    since: v0.1
+  - id: BOI-23
+    title: {fr: "Batteries et autonomie", en: "batteries, power"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Ce qui consomme : écran, viseur, stabilisation, froid"
+      simulator: "Jauge d'autonomie qui réagit aux réglages et au froid"
+      exercise: "Tenir une journée de randonnée avec deux batteries"
+    situations: [SIT-13, SIT-20, SIT-36]
+    since: v0.1
+  - id: BOI-24
+    title: {fr: "Entretien et capteur", en: "sensor dust, care"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Poussières visibles aux petites ouvertures, changement d'objectif, condensation"
+      simulator: "Poussières qui apparaissent à f/16 sur un ciel"
+      exercise: "Diagnostiquer des taches sur une série"
+    situations: [SIT-10, SIT-13, SIT-40]
+    since: v0.1
+  - id: BOI-25
+    title: {fr: "Check-up avant de partir", en: "pre-shoot checklist"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Batterie, cartes, réglages remis à zéro, objectif propre"
+      simulator: "Boîtier « piégé » laissé avec des réglages oubliés"
+      exercise: "Trouver les réglages oubliés en moins d'une minute"
+    situations: all
+    since: v0.1
+  - id: BOI-26
+    title: {fr: "Télécommande et intervallomètre", en: "remote, intervalometer"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Déclencher sans toucher l'appareil, séries automatiques"
+      simulator: "Intervallomètre qui produit une série"
+      exercise: "Planifier une série d'étoiles à empiler"
+    situations: [SIT-12, SIT-20, SIT-33]
+    since: v0.1
+  - id: BOI-27
+    title: {fr: "Le vocabulaire de sa marque", en: "brand terminology"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Relier les termes génériques à ceux du manuel de son appareil"
+      simulator: "Bascule de vocabulaire dans tout l'outil"
+      exercise: "Retrouver cinq réglages clés dans son propre manuel"
+    situations: all
+    sources: [canon-r5-af-method, canon-r5ii-af-area]
+    since: v0.1
+  - id: BOI-28
+    title: {fr: "Choisir son appareil : familles et formats", en: "choosing a camera"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Reflex, hybride, compact, bridge : viseur, taille de capteur, objectifs interchangeables ou non, encombrement"
+      simulator: "Même situation simulée avec plusieurs profils d'appareil"
+      exercise: "Choisir un appareil pour trois profils de photographe"
+    situations: all
+    sources: [cic-compact-dslr]
+    todo:
+      - "Dépend de la question ouverte sur le smartphone."
+      - "Source ancienne, à compléter par une source récente."
+    since: v0.2
+  - id: BOI-29
+    title: {fr: "Vérifier une photo à l'écran", en: "image review, playback zoom"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Agrandir en lecture pour juger la netteté et les yeux ; juger l'exposition à l'histogramme, pas à la luminosité de l'écran"
+      simulator: "Lecture avec loupe à 100 %, histogramme et alertes"
+      exercise: "Trier cinq photos nettes ou floues en lecture, sans ordinateur"
+    situations: [SIT-05, SIT-37]
+    since: v0.2
+  - id: BOI-30
+    title: {fr: "Réglage dioptrique du viseur", en: "viewfinder diopter adjustment"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Adapter le viseur à sa vue : sans ce réglage, l'image du viseur peut paraître floue alors que la mise au point est bonne"
+      simulator: "Molette dioptrique virtuelle, viseur flou tant qu'elle n'est pas réglée"
+      exercise: "Régler la dioptrie, puis vérifier la netteté à la loupe"
+    situations: [SIT-22, SIT-31]
+    sources: [nikon-faq-diopter]
+    since: v0.2
+  - id: BOI-31
+    title: {fr: "Réduction du scintillement", en: "flicker reduction"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Sous tubes fluorescents ou lampes à vapeur de mercure, le scintillement rend l'exposition inégale, ou change exposition et couleur d'une vue à l'autre en rafale ; la fonction cale le déclenchement pour le limiter"
+      simulator: "Gymnase aux lampes qui scintillent : série avec et sans la fonction"
+      exercise: "Obtenir une série homogène sous un éclairage qui scintille"
+    situations: [SIT-07, SIT-19]
+    sources: [nikon-zf-flicker, nikon-d6-flicker]
+    since: v0.2
+  - id: BOI-32
+    title: {fr: "Pré-capture", en: "pre-capture"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "À mi-course, le boîtier met des images en mémoire ; à l'appui complet, il garde aussi celles prises juste avant"
+      simulator: "Envol d'oiseau joué en temps réel, images d'avant l'appui récupérées"
+      exercise: "Capter l'envol en réglant la durée de pré-capture"
+    situations: [SIT-08, SIT-38]
+    sources: [nikon-zf-prerelease]
+    since: v0.2
+  - id: BOI-33
+    title: {fr: "Exposition multiple", en: "multiple exposure"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Combiner plusieurs vues en une image dans le boîtier ; chez Nikon, de 2 à 10 vues, par addition, moyenne, plus clair ou plus sombre"
+      simulator: "Superposition de vues de scènes du catalogue, mode de fusion au choix"
+      exercise: "Placer une Lune détaillée dans un paysage de crépuscule"
+    situations: [SIT-21, SIT-31]
+    sources: [nikon-zr-multiple-exposure]
+    since: v0.2
+  - id: BOI-34
+    title: {fr: "Zone d'image, recadrage APS-C, zoom numérique", en: "image area, crop mode"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Recadrer dans le boîtier resserre le champ comme une focale plus longue mais réduit le nombre de pixels ; en DX, la focale équivalente est multipliée par 1,5 environ"
+      simulator: "Zone d'image sélectionnable, définition restante affichée"
+      exercise: "Choisir entre recadrage dans le boîtier et recadrage au développement pour un oiseau lointain"
+    situations: [SIT-08, SIT-38]
+    sources: [nikon-zf-image-area]
+    since: v0.2
+  - id: BOI-35
+    title: {fr: "Connexion au smartphone", en: "smartphone connection"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Transférer les photos et déclencher à distance depuis l'application du constructeur"
+      simulator: "Téléphone virtuel : visée et déclenchement à distance"
+      exercise: "Faire un autoportrait déclenché depuis le téléphone"
+    situations: [SIT-28, SIT-36]
+    sources: [nikon-zf-snapbridge]
+    since: v0.2
+  - id: BOI-36
+    title: {fr: "Doubles emplacements de carte", en: "dual card slots"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Sauvegarde en double, débordement, séparation RAW et JPEG"
+      simulator: "Menu des emplacements"
+      exercise: "Configurer une sauvegarde en temps réel pour un événement"
+    situations: [SIT-25, SIT-37]
+    notes:
+      - "Issue de la scission de BOI-21 en v0.2."
+    since: v0.2

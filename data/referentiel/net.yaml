@@ -1,0 +1,105 @@
+# fichier: data/referentiel/net.yaml
+domain:
+  id: NET
+  title: {fr: "Netteté et profondeur de champ", en: "sharpness and depth of field"}
+  intro: "Neuf notions ; seule la distance entre le sujet et le fond attend la V2 pour sa version libre. La profondeur de champ dépend de l'ouverture, de la focale, de la distance et de la taille du capteur."
+  sources: [pl-lens-compression]
+notions:
+  - id: NET-01
+    title: {fr: "Profondeur de champ", en: "depth of field"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "La zone de netteté acceptable et ses quatre leviers"
+      simulator: "Zone nette visualisée en vue de dessus et sur l'image"
+      exercise: "Flouter le fond sans changer d'ouverture"
+    situations: [SIT-01, SIT-05, SIT-11, SIT-26]
+    sources: [pl-lens-compression]
+    since: v0.1
+  - id: NET-02
+    title: {fr: "Netteté perçue", en: "circle of confusion, viewing size"}
+    version: V1
+    level: N3
+    spec:
+      explanation: "La netteté dépend aussi de la taille d'affichage"
+      simulator: "Même image en vignette, plein écran et à 100 %"
+      exercise: "Régler pour un tirage grand format"
+    situations: [SIT-11]
+    todo:
+      - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+    since: v0.1
+  - id: NET-03
+    title: {fr: "Hyperfocale", en: "hyperfocal distance"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Faire le point pour étendre la netteté jusqu'à l'infini"
+      simulator: "Calcul et visualisation, comparés à un point sur l'infini"
+      exercise: "Paysage net de 1,5 m à l'infini"
+    situations: [SIT-11, SIT-15]
+    todo:
+      - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+    since: v0.1
+  - id: NET-04
+    title: {fr: "Diffraction", en: "diffraction"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Pourquoi fermer au maximum fait perdre du piqué"
+      simulator: "Flou de diffraction selon l'ouverture"
+      exercise: "Trouver le compromis entre profondeur et piqué"
+    situations: [SIT-11, SIT-22]
+    todo:
+      - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+    since: v0.1
+  - id: NET-05
+    title: {fr: "Bokeh", en: "bokeh"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Qualité du flou, forme des points lumineux, lames du diaphragme"
+      simulator: "Sources floues rendues selon l'ouverture et le diaphragme"
+      exercise: "Obtenir des boules de lumière rondes"
+    situations: [SIT-17, SIT-27, SIT-34]
+    since: v0.1
+  - id: NET-06
+    title: {fr: "Distance sujet-fond", en: "subject-background distance"}
+    version: V1→V2
+    level: N1
+    spec:
+      explanation: "Plus le fond est loin du sujet, plus il est flou"
+      simulator: "V1 : variantes capturées à plusieurs distances. V2 : sujet et appareil déplaçables"
+      exercise: "Placer un portrait pour flouter le fond à f/4"
+    situations: [SIT-01, SIT-V2-02]
+    since: v0.1
+  - id: NET-07
+    title: {fr: "Pourquoi c'est flou", en: "diagnosing blur"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Distinguer bougé, flou de sujet, mise au point ratée, profondeur trop courte, diffraction"
+      simulator: "Photos floues générées avec une cause cachée"
+      exercise: "Trouver la cause de dix flous"
+    situations: all
+    since: v0.1
+  - id: NET-08
+    title: {fr: "Empilement de mise au point", en: "focus stacking"}
+    version: V1
+    level: N3
+    spec:
+      explanation: "Fusionner plusieurs mises au point quand la profondeur ne suffit pas"
+      simulator: "Série et fusion dans l'outil"
+      exercise: "Macro nette de bout en bout"
+    situations: [SIT-11, SIT-22]
+    since: v0.1
+  - id: NET-09
+    title: {fr: "Aperçu de profondeur de champ", en: "depth-of-field preview"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Fermer le diaphragme à la valeur choisie pour juger la zone nette avant de déclencher"
+      simulator: "Touche d'aperçu : vue à pleine ouverture, puis à l'ouverture de prise de vue"
+      exercise: "Choisir l'ouverture d'une macro en s'aidant de l'aperçu"
+    situations: [SIT-11, SIT-22]
+    sources: [canon-dof-preview]
+    since: v0.2

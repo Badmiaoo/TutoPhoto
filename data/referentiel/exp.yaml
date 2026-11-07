@@ -1,0 +1,154 @@
+# fichier: data/referentiel/exp.yaml
+domain:
+  id: EXP
+  title: {fr: "Exposition", en: "exposure"}
+  intro: "Quatorze notions, toutes en V1 : la lumière captée d'abord, puis l'ISO, qui amplifie sans ajouter de lumière, et ce que le capteur enregistre. Le bruit vient surtout du manque de lumière captée."
+  sources: [dpreview-iso-invariance, pl-iso-invariance]
+notions:
+  - id: EXP-01
+    title: {fr: "Exposition et luminosité", en: "exposure vs brightness"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "La lumière captée et la luminosité finale sont deux choses distinctes"
+      simulator: "Jauge de lumière captée séparée de la luminosité affichée"
+      exercise: "Même luminosité avec deux quantités de lumière, puis comparer le bruit"
+    situations: [SIT-07, SIT-18]
+    since: v0.1
+  - id: EXP-02
+    title: {fr: "Lumière de la scène", en: "scene brightness, EV"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Situer une scène de la nuit noire au soleil sur la neige"
+      simulator: "Curseur de lumière ambiante sur une même scène"
+      exercise: "Classer cinq scènes de la plus sombre à la plus claire"
+    situations: [SIT-13, SIT-20]
+    since: v0.1
+  - id: EXP-03
+    title: {fr: "Diaphs et IL", en: "stops, EV"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Un IL (un diaph) double ou divise par deux l'exposition : la lumière captée pour l'ouverture et la vitesse, l'amplification pour l'ISO. Un cran de molette vaut en général 1/3 d'IL, réglable sur les boîtiers"
+      simulator: "Compteur d'IL qui additionne ouverture, vitesse et ISO"
+      exercise: "Compenser +2 IL de vitesse par l'ouverture"
+    situations: [SIT-10]
+    sources: [canon-r5-custom]
+    notes:
+      - "1 IL = facteur 2 sur la lumière captée (ouverture, vitesse) ou sur l'amplification (ISO)."
+    since: v0.1
+  - id: EXP-04
+    title: {fr: "Ouverture", en: "aperture"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "La série des f/ ; un petit nombre laisse passer plus de lumière"
+      simulator: "Diaphragme animé lié à l'image"
+      exercise: "Trouver l'ouverture qui donne +1 IL depuis f/5.6"
+    situations: [SIT-04, SIT-18]
+    since: v0.1
+  - id: EXP-05
+    title: {fr: "Vitesse d'obturation", en: "shutter speed"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Temps de pose et quantité de lumière"
+      simulator: "Rideau animé, durée visualisée"
+      exercise: "Compenser le passage de f/4 à f/8 par la vitesse"
+    situations: [SIT-17]
+    since: v0.1
+  - id: EXP-06
+    title: {fr: "ISO", en: "ISO sensitivity"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "L'ISO éclaircit sans ajouter de lumière ; le bruit vient surtout du manque de lumière, et chaque IL d'ISO en plus coûte environ un IL de marge dans les hautes lumières ; les ISO étendus coûtent en qualité : plage dynamique réduite en bas, bruit et couleurs irrégulières en haut"
+      simulator: "Même lumière captée, ISO variable : la luminosité change, le rapport signal/bruit presque pas (selon le profil d'appareil)"
+      exercise: "ISO le plus bas utilisable à vitesse et ouverture imposées"
+    situations: [SIT-07, SIT-19]
+    sources: [dpreview-iso-invariance, pl-iso-invariance, canon-5ds-iso]
+    since: v0.1
+  - id: EXP-07
+    title: {fr: "Expositions équivalentes", en: "equivalent exposures"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Plusieurs couples donnent la même luminosité, pas la même image"
+      simulator: "Exposition verrouillée, couples équivalents à parcourir"
+      exercise: "Fond flou, mouvement figé puis filé, à exposition égale"
+    situations: [SIT-06, SIT-12]
+    since: v0.1
+  - id: EXP-08
+    title: {fr: "Bruit numérique", en: "digital noise"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Bruit photonique, bruit de lecture et, en pose longue, bruit thermique ; pourquoi les ombres sont plus bruitées, et les petits capteurs aussi à ouverture et vitesse égales"
+      simulator: "Bruit calculé à partir des photons captés et du profil d'appareil"
+      exercise: "Réduire le bruit d'une scène de nuit à luminosité finale égale"
+    situations: [SIT-20, SIT-27, SIT-35]
+    sources: [dpreview-iso-invariance, pl-iso-invariance]
+    since: v0.1
+  - id: EXP-09
+    title: {fr: "Plage dynamique", en: "dynamic range"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "L'écart en IL entre la saturation du capteur et son plancher de bruit ; quand la scène le dépasse, on sacrifie hautes lumières ou ombres"
+      simulator: "Scène HDR, capteur limité, zones écrêtées signalées"
+      exercise: "Choisir quoi sacrifier dans un contre-jour"
+    situations: [SIT-03, SIT-10, SIT-32]
+    since: v0.1
+  - id: EXP-10
+    title: {fr: "Exposition voulue", en: "high-key, low-key, silhouette"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "La bonne exposition est celle qui sert l'intention"
+      simulator: "Objectifs d'intention mesurés par le moteur"
+      exercise: "Silhouette nette sur un ciel coloré"
+    situations: [SIT-03, SIT-10]
+    since: v0.1
+  - id: EXP-11
+    title: {fr: "Régler sans posemètre", en: "sunny 16, starting points"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Estimer une exposition de tête, et savoir quand ces règles cessent de marcher"
+      simulator: "Mode « cellule cachée »"
+      exercise: "Exposer trois scènes sans posemètre"
+    situations: [SIT-13, SIT-31]
+    since: v0.1
+  - id: EXP-12
+    title: {fr: "Exposer à droite", en: "expose to the right"}
+    version: V1
+    level: N3
+    spec:
+      explanation: "Capter le plus de lumière possible en RAW sans écrêter, et les limites de la méthode"
+      simulator: "Histogrammes RAW et JPEG, développement après la prise"
+      exercise: "Gagner en propreté sur une scène peu contrastée"
+    situations: [SIT-14, SIT-17]
+    since: v0.1
+  - id: EXP-13
+    title: {fr: "Le capteur : photosites, matrice de Bayer, profondeur de bits", en: "how a sensor works, bit depth"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Chaque photosite compte la lumière reçue ; la matrice de Bayer ne lui laisse voir qu'une couleur, l'appareil reconstitue les deux autres ; le RAW garde plus de niveaux que le JPEG, limité à 8 bits par couche (12 ou 14 bits en RAW chez Nikon)"
+      simulator: "Capteur agrandi : photosites, filtres colorés, dématriçage, nombre de niveaux"
+      exercise: "Prédire quelle image supporte le mieux un éclaircissement de 2 IL : RAW ou JPEG"
+    situations: [SIT-10, SIT-17]
+    sources: [cic-sensors, cic-bit-depth, nikon-d6-raw-bit-depth]
+    since: v0.2
+  - id: EXP-14
+    title: {fr: "L'œil et l'appareil", en: "cameras vs the human eye"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "L'œil balaie la scène et s'adapte zone par zone ; l'appareil capte une seule image, avec une seule exposition"
+      simulator: "Même scène vue à l'œil puis par l'appareil : ombres bouchées ou ciel brûlé"
+      exercise: "Repérer dans trois scènes ce que l'appareil ne rendra pas comme l'œil"
+    situations: [SIT-03, SIT-32]
+    sources: [cic-eye]
+    since: v0.2

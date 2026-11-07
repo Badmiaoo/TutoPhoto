@@ -1,0 +1,108 @@
+# fichier: data/referentiel/cou.yaml
+domain:
+  id: COU
+  title: {fr: "Couleur", en: "color"}
+  intro: "Neuf notions, toutes en V1 : la couleur se règle sur les captures, sans avoir besoin de la 3D, sous l'eau comprise."
+notions:
+  - id: COU-01
+    title: {fr: "Température de couleur", en: "color temperature, tint"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "La lumière a une couleur : kelvins et teinte"
+      simulator: "Sources de températures différentes dans une même scène"
+      exercise: "Classer des sources de la plus chaude à la plus froide"
+    situations: [SIT-17, SIT-27]
+    todo:
+      - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+    since: v0.1
+  - id: COU-02
+    title: {fr: "Balance des blancs", en: "white balance"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Auto, préréglages, kelvins, mesure sur une carte grise ; selon les marques, une balance auto qui garde l'ambiance chaude ou qui neutralise le blanc"
+      simulator: "Tous les modes, pipette"
+      exercise: "Neutraliser un intérieur éclairé à l'ampoule"
+    situations: [SIT-18, SIT-23, SIT-42]
+    sources: [canon-r5-wb]
+    since: v0.1
+  - id: COU-03
+    title: {fr: "Lumière mixte", en: "mixed lighting"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Choisir quelle source neutraliser"
+      simulator: "Fenêtre et ampoule dans la même scène"
+      exercise: "Choisir et justifier une balance"
+    situations: [SIT-04, SIT-19, SIT-32, SIT-34, SIT-37]
+    since: v0.1
+  - id: COU-04
+    title: {fr: "Balance créative", en: "creative white balance"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Réchauffer, refroidir, servir l'ambiance"
+      simulator: "Kelvins libres"
+      exercise: "Renforcer une heure bleue sans la dénaturer"
+    situations: [SIT-14, SIT-17]
+    since: v0.1
+  - id: COU-05
+    title: {fr: "Styles d'image", en: "picture styles, profiles"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Ils changent le JPEG et l'aperçu ; en RAW, le style se choisit au développement, dans le logiciel"
+      simulator: "Profils génériques : standard, neutre, vif, monochrome"
+      exercise: "Choisir un profil pour juger l'exposition"
+    situations: [SIT-10]
+    sources: [canon-psp]
+    todo:
+      - "Remplacer Canon Print Studio Pro, source indirecte, par une source directe (audit A)."
+    since: v0.1
+  - id: COU-06
+    title: {fr: "Espaces couleur et écrans", en: "color spaces, displays"}
+    version: V1
+    level: N3
+    activity: true
+    spec:
+      explanation: "sRGB, Adobe RGB, Display P3 ; pourquoi les couleurs changent d'un écran à l'autre, calibrage de l'écran"
+      simulator: "Activité interactive, le rendu dépendant de l'écran de chacun"
+      exercise: "Choisir l'espace pour le web et pour un tirage"
+    situations: [SIT-10]
+    todo:
+      - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+    since: v0.1
+  - id: COU-07
+    title: {fr: "Couleur et composition", en: "color harmony"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Contrastes et harmonies, couleur dominante"
+      simulator: "Cercle chromatique superposé à l'image"
+      exercise: "Cadrer pour isoler une couleur"
+    situations: [SIT-15]
+    since: v0.1
+  - id: COU-08
+    title: {fr: "Penser en noir et blanc", en: "seeing in black and white"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Luminances, contrastes, filtres colorés en noir et blanc"
+      simulator: "Conversion avec filtres virtuels"
+      exercise: "Faire ressortir un ciel en noir et blanc"
+    situations: [SIT-14, SIT-15]
+    since: v0.1
+  - id: COU-09
+    title: {fr: "Couleur sous l'eau", en: "color underwater"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "L'eau absorbe d'abord le rouge : les couleurs s'éteignent avec la profondeur et la distance au sujet ; la balance des blancs se corrige selon la profondeur"
+      simulator: "Même sujet à plusieurs profondeurs et distances, balance des blancs réglable"
+      exercise: "Retrouver des couleurs naturelles à faible profondeur"
+    situations: [SIT-42]
+    sources: [noaa-red]
+    todo:
+      - "Sourcer la pratique de la balance des blancs sous l'eau à la rédaction."
+    since: v0.2

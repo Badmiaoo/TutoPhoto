@@ -1,0 +1,4 @@
+# Dépendances des scripts de contrôle (scripts/validate.py, scripts/coverage.py).
+# Licences relevées dans les métadonnées des paquets le 7 novembre 2026 : MIT pour les deux.
+PyYAML==6.0.3
+jsonschema==4.26.0

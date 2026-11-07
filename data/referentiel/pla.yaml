@@ -1,0 +1,111 @@
+# fichier: data/referentiel/pla.yaml
+domain:
+  id: PLA
+  title: {fr: "Planification : où et quand", en: "planning: where and when"}
+  intro: "Neuf notions, toutes en V1 : prévoir la lumière, le ciel, le lieu et les règles avant de partir. Les horaires du soleil et de la lune peuvent venir de SunCalc, petite bibliothèque JavaScript sous licence BSD qui calcule aussi l'heure dorée ; l'heure bleue s'y ajoute en fixant ses propres angles."
+  sources: [suncalc]
+notions:
+  - id: PLA-01
+    title: {fr: "Heures de lumière", en: "sunrise, sunset, golden and blue hour"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Calculer les horaires et la durée de ces moments selon le lieu, la date et la saison"
+      simulator: "Calculateur relié aux scènes"
+      exercise: "Planifier une sortie au coucher du soleil"
+    situations: [SIT-10, SIT-17]
+    sources: [suncalc]
+    since: v0.1
+  - id: PLA-02
+    title: {fr: "Position du soleil", en: "sun azimuth, elevation"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "D'où viendra la lumière à une heure donnée, en été comme en hiver"
+      simulator: "Boussole solaire sur une carte"
+      exercise: "Choisir l'heure où une façade sera éclairée"
+    situations: [SIT-03, SIT-16]
+    sources: [suncalc]
+    since: v0.1
+  - id: PLA-03
+    title: {fr: "La Lune", en: "moon phases, rise, set"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Phase, lever, coucher : gêne ou atout"
+      simulator: "Calculateur lunaire"
+      exercise: "Choisir une nuit pour les étoiles, puis une pour la Lune"
+    situations: [SIT-20, SIT-31]
+    sources: [suncalc]
+    since: v0.1
+  - id: PLA-04
+    title: {fr: "Météo pour la photo", en: "weather forecast"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Nuages, vent, brouillard, visibilité"
+      simulator: "Scénarios de prévision à interpréter"
+      exercise: "Décider de sortir ou non pour un lever de soleil"
+    situations: [SIT-10, SIT-14, SIT-33, SIT-41]
+    since: v0.1
+  - id: PLA-05
+    title: {fr: "Ciel nocturne", en: "light pollution"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Obscurité du ciel, nouvelle lune, distance aux villes"
+      simulator: "Même ciel à plusieurs niveaux de pollution lumineuse"
+      exercise: "Choisir un lieu pour la Voie lactée"
+    situations: [SIT-20]
+    todo:
+      - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+    since: v0.1
+  - id: PLA-06
+    title: {fr: "Repérage", en: "scouting"}
+    version: V1
+    level: N1
+    activity: true
+    spec:
+      explanation: "Accès, points de vue, affluence, horaires, marées"
+      simulator: "Activité interactive : fiche de repérage guidée"
+      exercise: "Préparer la fiche d'un lieu proche de chez soi"
+    situations: [SIT-10, SIT-24, SIT-36]
+    since: v0.1
+  - id: PLA-07
+    title: {fr: "Droit et respect", en: "rights, etiquette"}
+    version: V1
+    level: N1
+    activity: true
+    spec:
+      explanation: "Droit à l'image, lieux réglementés, respect des personnes et de la faune, droit d'auteur sur ses propres photos ; règles propres à chaque pays"
+      simulator: "Activité interactive : cas pratiques par pays"
+      exercise: "Quiz de cas pratiques"
+    situations: [SIT-08, SIT-15, SIT-24, SIT-37]
+    sources: [lingibe-2019, service-public-droit-image, actu-juridique-2024, circulaire-2024, cms-cadio-2017]
+    todo:
+      - "Écrire le contenu juridique pays par pays, à partir des textes officiels ; aucun chiffre ni article inventé."
+    since: v0.1
+  - id: PLA-08
+    title: {fr: "Préparer son sac", en: "packing for a shoot"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Matériel selon la situation, protection contre la pluie et le froid"
+      simulator: "Sac virtuel lié à une situation"
+      exercise: "Préparer le sac d'une sortie de nuit"
+    situations: [SIT-12, SIT-20, SIT-36, SIT-40]
+    since: v0.1
+  - id: PLA-09
+    title: {fr: "Photo par drone : règles et sécurité", en: "drone photography: rules and safety"}
+    version: V1
+    level: N1
+    activity: true
+    spec:
+      explanation: "Où et comment voler : catégories d'opération, zones, distance aux personnes, enregistrement, vie privée ; règles écrites pays par pays à partir des textes officiels"
+      simulator: "Activité interactive : carte des zones et cas pratiques par pays"
+      exercise: "Dire si un vol est permis dans cinq cas"
+    situations: [SIT-41]
+    sources: [easa-uas-faq]
+    todo:
+      - "Écrire le contenu juridique pays par pays, à partir des textes officiels ; aucun chiffre ni article inventé."
+    since: v0.2

@@ -1,0 +1,148 @@
+# fichier: data/referentiel/cmp.yaml
+domain:
+  id: CMP
+  title: {fr: "Composition et cadrage", en: "composition and framing"}
+  intro: "Quatorze notions : en V1 on compose en tournant et en zoomant dans une capture large, ou en choisissant parmi des variantes capturées (hauteur de prise de vue, poses) ; se déplacer librement attend la V2."
+notions:
+  - id: CMP-01
+    title: {fr: "Cadrer", en: "framing, orientation, aspect ratio"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Ce qui entre dans le cadre, l'orientation, le format"
+      simulator: "Cadre mobile (rotation, zoom) dans une capture large"
+      exercise: "Trois cadrages d'une scène pour trois intentions"
+    situations: all
+    since: v0.1
+  - id: CMP-02
+    title: {fr: "Tiers, centre, symétrie", en: "rule of thirds, symmetry"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Placer le sujet ; savoir quand centrer"
+      simulator: "Grilles superposables"
+      exercise: "Comparer deux placements et justifier"
+    situations: [SIT-01, SIT-16]
+    since: v0.1
+  - id: CMP-03
+    title: {fr: "Lignes", en: "leading lines, diagonals"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Guider le regard"
+      simulator: "Lignes annotées surlignées"
+      exercise: "Cadrer pour qu'une route mène au sujet"
+    situations: [SIT-10, SIT-15]
+    since: v0.1
+  - id: CMP-04
+    title: {fr: "Horizon", en: "horizon placement, level"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Hauteur de l'horizon selon l'intérêt du ciel ; horizon droit"
+      simulator: "Rotation du cadre et niveau"
+      exercise: "Deux versions : ciel dominant, sol dominant"
+    situations: [SIT-10]
+    since: v0.1
+  - id: CMP-05
+    title: {fr: "Simplifier", en: "negative space, clean background"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Retirer les éléments parasites, laisser respirer le sujet"
+      simulator: "Éléments parasites annotés, signalés après la prise"
+      exercise: "Portrait devant un fond chargé : cadrer ou flouter pour le simplifier (le poteau qui sort de la tête se règle en se déplaçant : CMP-07, en V2)"
+    situations: [SIT-15, SIT-23]
+    since: v0.1
+  - id: CMP-06
+    title: {fr: "Profondeur et premiers plans", en: "depth, foreground"}
+    version: V1→V2
+    level: N2
+    spec:
+      explanation: "Construire des plans successifs"
+      simulator: "V1 : cadrer avec un premier plan existant. V2 : se déplacer pour en créer un"
+      exercise: "Intégrer un premier plan net ou flou"
+    situations: [SIT-11, SIT-V2-03]
+    since: v0.1
+  - id: CMP-07
+    title: {fr: "Point de vue", en: "point of view: height, angle, distance"}
+    version: V1→V2
+    level: N1
+    spec:
+      explanation: "Se baisser, monter, s'approcher change l'image"
+      simulator: "V1 : variantes capturées à plusieurs hauteurs et distances. V2 : appareil déplaçable en 3D"
+      exercise: "Photographier un enfant à sa hauteur"
+    situations: [SIT-39, SIT-V2-02, SIT-V2-06]
+    since: v0.1
+  - id: CMP-08
+    title: {fr: "Cadre dans le cadre, motifs", en: "frame within a frame, patterns"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Portes, fenêtres, répétitions, ruptures de motif"
+      simulator: "Scènes riches en motifs"
+      exercise: "Trouver une rupture de motif"
+    situations: [SIT-15, SIT-16]
+    since: v0.1
+  - id: CMP-09
+    title: {fr: "Équilibre et poids visuel", en: "visual balance"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Contraste, taille, couleur et netteté attirent l'œil"
+      simulator: "Zones d'attention annotées"
+      exercise: "Rééquilibrer une composition"
+    situations: [SIT-23]
+    since: v0.1
+  - id: CMP-10
+    title: {fr: "Direction et espace", en: "lead room, gaze"}
+    version: V1
+    level: N1
+    spec:
+      explanation: "Laisser de l'espace devant un regard ou un mouvement"
+      simulator: "Sujets orientés annotés"
+      exercise: "Cadrer un cycliste avec de l'espace devant lui"
+    situations: [SIT-09]
+    since: v0.1
+  - id: CMP-11
+    title: {fr: "Échelle", en: "scale, human element"}
+    version: V1
+    level: N2
+    spec:
+      explanation: "Donner la taille d'un paysage avec un élément connu"
+      simulator: "Scènes avec un personnage lointain"
+      exercise: "Intégrer un randonneur pour donner l'échelle"
+    situations: [SIT-10]
+    since: v0.1
+  - id: CMP-12
+    title: {fr: "Enfreindre les règles", en: "breaking the rules"}
+    version: V1
+    level: N3
+    activity: true
+    spec:
+      explanation: "Savoir pourquoi une règle marche pour savoir quand l'ignorer"
+      simulator: "Activité interactive : comparaisons commentées"
+      exercise: "Justifier une composition hors règles"
+    situations: all
+    since: v0.1
+  - id: CMP-13
+    title: {fr: "Choisir son sujet", en: "subject"}
+    version: V1
+    level: N1
+    activity: true
+    spec:
+      explanation: "Savoir ce qu'on photographie et pourquoi, avant de cadrer"
+      simulator: "Activité interactive : une scène, plusieurs sujets possibles, une intention à formuler"
+      exercise: "Trouver trois sujets dans une même scène et les cadrer"
+    situations: all
+    since: v0.2
+  - id: CMP-14
+    title: {fr: "Diriger une personne", en: "posing"}
+    version: V1→V2
+    level: N2
+    spec:
+      explanation: "Placer et guider une personne : posture, mains, regard, mise à l'aise"
+      simulator: "V1 : variantes capturées de plusieurs poses. V2 : personnage posable en 3D"
+      exercise: "Choisir et justifier la pose de trois portraits"
+    situations: [SIT-01, SIT-04, SIT-05]
+    since: v0.2
