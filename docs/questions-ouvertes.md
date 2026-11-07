@@ -9,7 +9,7 @@ _Repris de la section 8 de `REPRISE.md` (7 novembre 2026), puis mis à jour le m
 - [x] Nom du projet : tranché le 7 novembre 2026, TutoPhoto.
 - [x] Licences : tranché le 7 novembre 2026. Code sous MIT, contenus et données sous CC BY-SA 4.0, modèles et textures 3D de tiers sous CC0 ou CC BY (`docs/licences.md`).
 - [x] Smartphone : tranché le 7 novembre 2026. Hors périmètre, comme les compacts et les bridges : reflex et hybrides uniquement.
-- [ ] Scènes 3D (pour la scène de parc : à décider avec la pile technique) : qui les modélise (le porteur du projet, des contributeurs, des bibliothèques de modèles sous licence libre), avec quel niveau de réalisme, et où stocker les fichiers lourds (hors du dépôt Git ou non) ?
+- [ ] Scènes 3D (pour la scène de parc, tranché le 7 novembre 2026 : entièrement en modèles et textures sous CC0 ou CC BY, stockés dans le dépôt) : qui les modélise (le porteur du projet, des contributeurs, des bibliothèques de modèles sous licence libre), avec quel niveau de réalisme, et où stocker les fichiers lourds (hors du dépôt Git ou non) ?
 - [ ] Relecture : qui valide l'exactitude des contenus et de leurs sources avant publication, en français et en anglais ?
 - [x] Flash en 2.5D : sans objet depuis le passage à la 3D de synthèse. Le rendu du flash reste à vérifier dans la maquette (chantier du domaine LUM).
 - [x] Hébergement : tranché le 7 novembre 2026. Dépôt public (`docs/publication.md`) et GitHub Pages d'abord (site statique), avec bascule vers le serveur de Julien si le moteur 3D exige des en-têtes HTTP particuliers ou si les scènes dépassent les [limites de GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits).

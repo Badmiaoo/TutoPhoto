@@ -9,7 +9,7 @@ Décidé par Julien le 7 novembre 2026 : le dépôt devient public, condition po
 - Liens vers des ressources privées : documents Claude, Google Docs ou Drive, Dropbox, Notion.
 - Chemins locaux qui révèlent un nom d'utilisateur (`/Users/…`, `/home/…`, `C:\Users\…`).
 
-Exception acceptée par Julien : son nom, comme auteur des commits de fusion, avec son adresse « noreply » de GitHub.
+Exceptions acceptées par Julien : son nom, comme auteur des commits de fusion avec son adresse « noreply » de GitHub, et comme titulaire du copyright dans `LICENSE`.
 
 ## Contrôles
 
