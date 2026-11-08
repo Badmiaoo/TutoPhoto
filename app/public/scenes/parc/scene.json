@@ -153,6 +153,238 @@
           "origin": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/metal_trash_can/metal_trash_can_rust_nor_gl_1k.jpg"
         }
       ]
+    },
+    {
+      "id": "nathan_animated_003",
+      "title": "Nathan Animated 003 - Walking 3D Man",
+      "role": {
+        "fr": "Homme qui marche, en arrière-plan",
+        "en": "Man walking, in the background"
+      },
+      "authors": [
+        "Renderpeople"
+      ],
+      "source": "https://sketchfab.com/3d-models/nathan-animated-003-walking-3d-man-143a2b1ea5eb4385ae90a73657aca3bc",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "license_checked_at": "https://api.sketchfab.com/v3/models/143a2b1ea5eb4385ae90a73657aca3bc",
+      "verified": "2026-11-08",
+      "changes": {
+        "fr": "Texture de couleur réduite de 8192 à 2048 px de côté.",
+        "en": "Color texture downscaled from 8192 to 2048 px per side."
+      },
+      "files": [
+        {
+          "path": "nathan_animated_003/license.txt",
+          "bytes": 776,
+          "sha256": "c5eae27a67569e0cee34ef6d2a29a401b76b68eb4117259e6dd3d8207920cb68",
+          "origin": "https://sketchfab.com/3d-models/nathan-animated-003-walking-3d-man-143a2b1ea5eb4385ae90a73657aca3bc"
+        },
+        {
+          "path": "nathan_animated_003/scene.bin",
+          "bytes": 1086168,
+          "sha256": "72c539b63cb285e67fea4863be20f5dd6a193b329eb7180539aec4eabe959c47",
+          "origin": "https://sketchfab.com/3d-models/nathan-animated-003-walking-3d-man-143a2b1ea5eb4385ae90a73657aca3bc"
+        },
+        {
+          "path": "nathan_animated_003/scene.gltf",
+          "bytes": 138654,
+          "sha256": "8a160a11bcf22e131993d74be779f3a2eb7b8a67488a04a1d66930ea7826a1fe",
+          "origin": "https://sketchfab.com/3d-models/nathan-animated-003-walking-3d-man-143a2b1ea5eb4385ae90a73657aca3bc"
+        },
+        {
+          "path": "nathan_animated_003/textures/rp_nathan_animated_003_mat_baseColor.jpeg",
+          "bytes": 786389,
+          "sha256": "3889b65d9f8fc07cc91f77b1721a93cc548142190e84d6a8f937041f4ac0ce0f",
+          "origin": "https://sketchfab.com/3d-models/nathan-animated-003-walking-3d-man-143a2b1ea5eb4385ae90a73657aca3bc"
+        }
+      ]
+    },
+    {
+      "id": "sophia_animated_003",
+      "title": "Sophia Animated 003 - Animated 3D Woman",
+      "role": {
+        "fr": "Femme debout (portrait, groupe)",
+        "en": "Woman standing (portrait, group)"
+      },
+      "authors": [
+        "Renderpeople"
+      ],
+      "source": "https://sketchfab.com/3d-models/sophia-animated-003-animated-3d-woman-dc448c3be0e74f96a55fb475a13433cf",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "license_checked_at": "https://api.sketchfab.com/v3/models/dc448c3be0e74f96a55fb475a13433cf",
+      "verified": "2026-11-08",
+      "changes": {
+        "fr": "Texture de couleur réduite de 8192 à 2048 px de côté.",
+        "en": "Color texture downscaled from 8192 to 2048 px per side."
+      },
+      "files": [
+        {
+          "path": "sophia_animated_003/license.txt",
+          "bytes": 788,
+          "sha256": "655d20cef7c6f726b12fa7928510511409e1d8b3ef3bb5162c669d3806183da5",
+          "origin": "https://sketchfab.com/3d-models/sophia-animated-003-animated-3d-woman-dc448c3be0e74f96a55fb475a13433cf"
+        },
+        {
+          "path": "sophia_animated_003/scene.bin",
+          "bytes": 2371076,
+          "sha256": "de393b155cdeb5153eb20cc570637206df3de9aa0e6d8bcad911b90f280c3da2",
+          "origin": "https://sketchfab.com/3d-models/sophia-animated-003-animated-3d-woman-dc448c3be0e74f96a55fb475a13433cf"
+        },
+        {
+          "path": "sophia_animated_003/scene.gltf",
+          "bytes": 171648,
+          "sha256": "88729af52e1cf137fb05098126e28294c5efe4c612b36418eb48d7c81cdb6709",
+          "origin": "https://sketchfab.com/3d-models/sophia-animated-003-animated-3d-woman-dc448c3be0e74f96a55fb475a13433cf"
+        },
+        {
+          "path": "sophia_animated_003/textures/rp_sophia_animated_003_mat_baseColor.jpeg",
+          "bytes": 679321,
+          "sha256": "5fa8e0513e319bf9728eb3c978324dd3f504b9be2b4f0b9aa3da030e7aba9959",
+          "origin": "https://sketchfab.com/3d-models/sophia-animated-003-animated-3d-woman-dc448c3be0e74f96a55fb475a13433cf"
+        }
+      ]
+    },
+    {
+      "id": "dennis_posed_004",
+      "title": "Dennis Posed 004 - Male Standing Business Model",
+      "role": {
+        "fr": "Homme debout (groupe)",
+        "en": "Man standing (group)"
+      },
+      "authors": [
+        "Renderpeople"
+      ],
+      "source": "https://sketchfab.com/3d-models/dennis-posed-004-male-standing-business-model-e211ffd52a96416e89c0cc415a388d61",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "license_checked_at": "https://api.sketchfab.com/v3/models/e211ffd52a96416e89c0cc415a388d61",
+      "verified": "2026-11-08",
+      "changes": {
+        "fr": "Texture de couleur réduite de 8192 à 2048 px de côté.",
+        "en": "Color texture downscaled from 8192 to 2048 px per side."
+      },
+      "files": [
+        {
+          "path": "dennis_posed_004/license.txt",
+          "bytes": 820,
+          "sha256": "fd879d46911ea4160c209eb3d9971ca57b40595265702bb16a512bf00b1c0e98",
+          "origin": "https://sketchfab.com/3d-models/dennis-posed-004-male-standing-business-model-e211ffd52a96416e89c0cc415a388d61"
+        },
+        {
+          "path": "dennis_posed_004/scene.bin",
+          "bytes": 2871184,
+          "sha256": "c79cdaa9791a9ec34247687667104698ce15652164db1376f276a37e466370a4",
+          "origin": "https://sketchfab.com/3d-models/dennis-posed-004-male-standing-business-model-e211ffd52a96416e89c0cc415a388d61"
+        },
+        {
+          "path": "dennis_posed_004/scene.gltf",
+          "bytes": 4358,
+          "sha256": "49450e72c27e52a6786bcb935a6fbfc9ab0cf2a46b5dd657cc947d3620c51814",
+          "origin": "https://sketchfab.com/3d-models/dennis-posed-004-male-standing-business-model-e211ffd52a96416e89c0cc415a388d61"
+        },
+        {
+          "path": "dennis_posed_004/textures/rp_dennis_posed_004_100k_mat_baseColor.jpeg",
+          "bytes": 453296,
+          "sha256": "9c9fcaf61335f2f384d108d50fec2f00a25c838c4fcaabdeea5994342b94b9c2",
+          "origin": "https://sketchfab.com/3d-models/dennis-posed-004-male-standing-business-model-e211ffd52a96416e89c0cc415a388d61"
+        }
+      ]
+    },
+    {
+      "id": "fabienne_percy_posed_001",
+      "title": "Fabienne & Percy 001 - Mother and Child",
+      "role": {
+        "fr": "Mère et enfant (groupe)",
+        "en": "Mother and child (group)"
+      },
+      "authors": [
+        "Renderpeople"
+      ],
+      "source": "https://sketchfab.com/3d-models/fabienne-percy-001-mother-and-child-8c9bfd4fb8a444b3a42a4fc31935a2fb",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "license_checked_at": "https://api.sketchfab.com/v3/models/8c9bfd4fb8a444b3a42a4fc31935a2fb",
+      "verified": "2026-11-08",
+      "changes": {
+        "fr": "Texture de couleur réduite de 8192 à 2048 px de côté.",
+        "en": "Color texture downscaled from 8192 to 2048 px per side."
+      },
+      "files": [
+        {
+          "path": "fabienne_percy_posed_001/license.txt",
+          "bytes": 784,
+          "sha256": "2f34726fb2dfef00c779b3457f1d44b332cd2e93f603e51edac13bfd8cea60d3",
+          "origin": "https://sketchfab.com/3d-models/fabienne-percy-001-mother-and-child-8c9bfd4fb8a444b3a42a4fc31935a2fb"
+        },
+        {
+          "path": "fabienne_percy_posed_001/scene.bin",
+          "bytes": 6333176,
+          "sha256": "d52e6fc8bf5177968b03786377de5e69b2be9950ab816b05e81c4f5a9887a503",
+          "origin": "https://sketchfab.com/3d-models/fabienne-percy-001-mother-and-child-8c9bfd4fb8a444b3a42a4fc31935a2fb"
+        },
+        {
+          "path": "fabienne_percy_posed_001/scene.gltf",
+          "bytes": 6018,
+          "sha256": "4df83de801ec97e3c9f67f8cafb04fbd5c8dbd025ab5c9fc60ff224e67ed5691",
+          "origin": "https://sketchfab.com/3d-models/fabienne-percy-001-mother-and-child-8c9bfd4fb8a444b3a42a4fc31935a2fb"
+        },
+        {
+          "path": "fabienne_percy_posed_001/textures/rp_fabienne_percy_posed_001_200k_mat_baseColor.jpeg",
+          "bytes": 574076,
+          "sha256": "b26e3e546cdb246c8ad98bcccb4ceee2a0dd2e52b3d8277360b7157124eed7d5",
+          "origin": "https://sketchfab.com/3d-models/fabienne-percy-001-mother-and-child-8c9bfd4fb8a444b3a42a4fc31935a2fb"
+        }
+      ]
+    },
+    {
+      "id": "alaskan_malamute",
+      "title": "Alaskan malamute dog",
+      "role": {
+        "fr": "Chien qui court (SIT-06), modèle stylisé ; seul le chien « Jim » est affiché",
+        "en": "Running dog (SIT-06), stylized model; only the dog \"Jim\" is shown"
+      },
+      "authors": [
+        "striderrotk"
+      ],
+      "source": "https://sketchfab.com/3d-models/alaskan-malamute-dog-93ace661ef72455d9bcd0f8c9d4880f3",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "license_checked_at": "https://api.sketchfab.com/v3/models/93ace661ef72455d9bcd0f8c9d4880f3",
+      "verified": "2026-11-08",
+      "files": [
+        {
+          "path": "alaskan_malamute/license.txt",
+          "bytes": 712,
+          "sha256": "9b2a2e8183878895dd77492f6566d159d714e7e8fc9d9167a001ddc3d2bb63a4",
+          "origin": "https://sketchfab.com/3d-models/alaskan-malamute-dog-93ace661ef72455d9bcd0f8c9d4880f3"
+        },
+        {
+          "path": "alaskan_malamute/scene.bin",
+          "bytes": 732596,
+          "sha256": "221c0ba9e13ae816a9900fc2e99960f8b773d031d3f5f321c8cd32edcaf2eec6",
+          "origin": "https://sketchfab.com/3d-models/alaskan-malamute-dog-93ace661ef72455d9bcd0f8c9d4880f3"
+        },
+        {
+          "path": "alaskan_malamute/scene.gltf",
+          "bytes": 184263,
+          "sha256": "391fb018cc1f4b62eba94eeb078d26ea61034ca3709967a5ab3ffec182d62389",
+          "origin": "https://sketchfab.com/3d-models/alaskan-malamute-dog-93ace661ef72455d9bcd0f8c9d4880f3"
+        },
+        {
+          "path": "alaskan_malamute/textures/Ears.001_baseColor.png",
+          "bytes": 279124,
+          "sha256": "a43576443edf6db3edac87c79f60db49b920f85953b82f2997eeb65302d7361a",
+          "origin": "https://sketchfab.com/3d-models/alaskan-malamute-dog-93ace661ef72455d9bcd0f8c9d4880f3"
+        },
+        {
+          "path": "alaskan_malamute/textures/paws.001_baseColor.png",
+          "bytes": 85295,
+          "sha256": "a12c6f4675b954e6686540423280045f04a006544f699c10877e168e7f79d8c4",
+          "origin": "https://sketchfab.com/3d-models/alaskan-malamute-dog-93ace661ef72455d9bcd0f8c9d4880f3"
+        }
+      ]
     }
   ]
 }

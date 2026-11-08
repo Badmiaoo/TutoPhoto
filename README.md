@@ -10,7 +10,7 @@ TutoPhoto est le nom du projet. L'application est publiée sur GitHub Pages : ht
 
 - Cadrage et référentiel v0.2 à l'état de brouillon, à remettre en question : 191 notions en 13 domaines, 49 situations, 96 sources.
 - Pour débutants avec un boîtier reflex ou hybride. Scènes en 3D de synthèse ; on commence par une V1 minimale (une scène de parc, trois situations), testée avec des débutants avant d'étendre.
-- Application en construction : la scène de parc s'affiche (fond photo à 360°, banc, poubelles), sans caméra physique pour l'instant. Pas encore de contenu rédigé : couverture 0 sur 191.
+- Application en construction : la scène de parc s'affiche (fond photo à 360°, banc, poubelles, quatre personnages, un chien qui court), sans caméra physique pour l'instant. Pas encore de contenu rédigé : couverture 0 sur 191.
 
 ## Contenu du dépôt
 

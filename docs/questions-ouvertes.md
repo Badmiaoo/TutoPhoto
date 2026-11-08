@@ -10,6 +10,7 @@ _Repris de la section 8 de `REPRISE.md` (7 novembre 2026), puis mis à jour le m
 - [x] Licences : tranché le 7 novembre 2026. Code sous MIT, contenus et données sous CC BY-SA 4.0, modèles et textures 3D de tiers sous CC0 ou CC BY (`docs/licences.md`).
 - [x] Smartphone : tranché le 7 novembre 2026. Hors périmètre, comme les compacts et les bridges : reflex et hybrides uniquement.
 - [ ] Scènes 3D. Pour la scène de parc, tranché les 7 et 8 novembre 2026 : modèles, textures et photos sous CC0 ou CC BY, stockés dans le dépôt ; fond et éclairage tirés d'une photo à 360°, premier plan en 3D (`docs/historique.md`). Reste ouvert pour les autres scènes : qui les assemble, avec quel niveau de réalisme.
+- [ ] Droit à l'image des personnes scannées par Renderpeople (personnages de la scène de parc). La licence CC BY 4.0 porte sur le droit d'auteur du modèle 3D ; elle exclut les droits de la personnalité (« nor are publicity, privacy, and/or other similar personality rights », section 2(b)(1) du [texte CC BY 4.0](https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/CC-BY-4.0.txt)). Je ne sais pas si Renderpeople a obtenu des personnes scannées une autorisation qui couvre ce type d'usage : ses conditions n'ont pas été lues (site non joignable depuis la session de travail). À vérifier avant toute diffusion large.
 - [ ] Relecture : qui valide l'exactitude des contenus et de leurs sources avant publication, en français et en anglais ?
 - [x] Flash en 2.5D : sans objet depuis le passage à la 3D de synthèse. Le rendu du flash reste à vérifier dans la maquette (chantier du domaine LUM).
 - [x] Hébergement : tranché le 7 novembre 2026. Dépôt public (`docs/publication.md`) et GitHub Pages d'abord (site statique), avec bascule vers le serveur de Julien si le moteur 3D exige des en-têtes HTTP particuliers ou si les scènes dépassent les [limites de GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits).
@@ -25,6 +26,10 @@ _Repris de la section 8 de `REPRISE.md` (7 novembre 2026), puis mis à jour le m
   - Hauteur de prise de vue de la photo : non publiée par Poly Haven ; 1,6 m supposé. Si elle est fausse, les objets 3D paraissent posés trop près ou trop loin sur le sol de la photo.
   - Mémoire sur téléphone : la photo fait 8192 × 4096 px. Babylon la réduit si l'appareil n'accepte pas cette taille de texture, mais la mémoire utilisée reste à mesurer sur les téléphones des testeurs.
   - Ombres de contact sous les objets 3D : réglées à l'œil le 8 novembre 2026.
+- Personnages et chien de la scène de parc :
+  - Fabienne & Percy compte 199 850 triangles (version « 200k » de l'archive) et Dennis 99 964 : charge à mesurer sur téléphone, avec réduction possible.
+  - Le chien est stylisé, les personnages réalistes : écart de rendu à juger avec les débutants.
+  - Vitesse du chien (3,5 m/s) estimée dans son animation, de façon imprécise ; elle compte pour le flou de bougé de SIT-06.
 - Rendu, au choix du moteur : flou d'un premier plan qui déborde sur le sujet, flou de mouvement et poses longues, flash (chantiers des domaines MAP, MVT et LUM).
 - Niveaux des situations : la règle de la médiane est un choix par défaut de la v0.2, à confirmer en écrivant les premiers défis.
 - Lisibilité sur téléphone, demandée par l'audit indépendant : intitulé anglais à la ligne, codes cliquables, textes lisibles. À appliquer dans la maquette.

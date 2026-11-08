@@ -102,3 +102,13 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Sketchfab : télécharger un modèle exige un compte (« Downloading models requires users to be authenticated with a Sketchfab account », [Download API](https://sketchfab.com/developers/download-api), lue le 7 novembre 2026). Julien a créé un compte ; sa clé d'API est enregistrée dans l'environnement de travail de Claude, jamais dans le dépôt.
 - SIT-06 : le Shiba Inu retenu n'a aucune animation de course. Ses cinq animations : faire le mort, se rouler, s'ébrouer, assis, debout. Aucun chien réaliste avec une course, sous CC0 ou CC BY, n'a été trouvé sur Sketchfab ni ailleurs. Benny the Rottweiler (OpenGameArt) court, mais il est sous CC BY-SA 3.0, une licence que nos règles refusent. Décision de Julien : un chien stylisé qui court vraiment (le malamute de striderrotk, CC BY 4.0), en attendant mieux. Le Shiba Inu est retiré.
 - Le format des crédits de scène et les limites de taille sont décrits dans `docs/licences.md`.
+
+## 8 novembre 2026 : personnages et chien de la scène de parc
+
+- Quatre personnages de Renderpeople, sous CC BY 4.0, téléchargés depuis Sketchfab avec le compte de Julien : Dennis et Fabienne & Percy (poses fixes), Sophia (debout, animée), Nathan (marche). Les archives glTF contiennent des textures de 8192 × 8192 px ; elles sont réduites à 2048 px, modification indiquée dans les crédits comme l'exige CC BY 4.0.
+- Chien de SIT-06 : le malamute de striderrotk (CC BY 4.0). Le fichier contient deux chiens ; seul « Jim », qui galope, est affiché.
+- Taille du chien : 0,6 m au garrot, valeur choisie. Le standard de la race n'a pas pu être lu : les sites du club de race américain et du Canadian Kennel Club ne sont pas joignables depuis la session de travail. Un extrait de recherche attribue au standard du Canadian Kennel Club 63,5 cm (25 pouces) au garrot pour un mâle, mais la page n'a pas été ouverte.
+- Vitesses, mesurées dans les animations elles-mêmes, pour que les pieds ne glissent pas : pendant l'appui, un pied posé recule à la vitesse d'avance du sujet.
+  - Nathan : 1,23 à 1,27 m/s selon le pied et le point mesuré ; 1,25 m/s retenu.
+  - Jim : de 2,4 à 13,3 unités/s selon la patte (médiane 10,6 ; deux pattes concordent vers 13). L'épaule est à 2,05 unités du sol, donc 0,6 / 2,05 ≈ 0,29 m par unité, soit 3,1 à 3,9 m/s entre la médiane et la valeur concordante. 3,5 m/s retenu ; mesure imprécise.
+- Le Shiba Inu, retiré, n'avait jamais été intégré.
