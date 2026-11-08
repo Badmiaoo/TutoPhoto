@@ -19,7 +19,7 @@ import { BackgroundMaterial } from "@babylonjs/core/Materials/Background/backgro
 import { HDRCubeTexture } from "@babylonjs/core/Materials/Textures/hdrCubeTexture";
 import { PhotoDome } from "@babylonjs/core/Helpers/photoDome";
 import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
-import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
+import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import "@babylonjs/loaders/glTF/2.0";
 // Effet de bord requis par Babylon (matériau par défaut des maillages).
 import "@babylonjs/core/Materials/standardMaterial";
@@ -62,7 +62,7 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
   engine.onResizeObservable.add(fitFov);
   camera.minZ = 0.05;
   camera.maxZ = 2000;
-  camera.setTarget(new Vector3(0, EYE_HEIGHT - 0.1, 10));
+  camera.setTarget(new Vector3(0, EYE_HEIGHT - 0.6, 10));
   // On tourne seulement : pas de clavier, de molette ni de manette, qui déplaceraient l'appareil.
   camera.inputs.removeByType("FreeCameraKeyboardMoveInput");
   camera.inputs.removeByType("FreeCameraMouseWheelInput");
@@ -117,21 +117,70 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
   ground.material = groundMaterial;
   ground.receiveShadows = true;
 
-  const place = (meshes: AbstractMesh[], x: number, z: number, rotationY: number): void => {
-    const root = meshes[0];
-    root.position = new Vector3(x, 0, z);
-    root.rotationQuaternion = null;
-    root.rotation = new Vector3(0, rotationY, 0);
-    for (const mesh of meshes) shadows.addShadowCaster(mesh, false);
+  /**
+   * Charge un modèle glTF sous un nœud porteur qu'on place, tourne et met à l'échelle ; le nœud racine
+   * créé par Babylon garde sa conversion de repère. Angle 0 : le modèle regarde vers +Z, à l'opposé de
+   * l'appareil ; π : il regarde l'appareil.
+   */
+  const load = async (path: string, x: number, z: number, rotationY: number, scale = 1) => {
+    const result = await ImportMeshAsync(`${SCENE_URL}${path}`, scene);
+    const holder = new TransformNode(path, scene);
+    result.meshes[0].parent = holder;
+    holder.position.set(x, 0, z);
+    holder.rotation.y = rotationY;
+    holder.scaling.setAll(scale);
+    for (const mesh of result.meshes) shadows.addShadowCaster(mesh, false);
+    return { holder, result };
   };
 
+  /** Fait aller et venir un sujet le long de l'axe X, entre deux bornes, à vitesse constante. */
+  const walkers: { holder: TransformNode; speed: number; minX: number; maxX: number; direction: 1 | -1 }[] = [];
+  scene.onBeforeRenderObservable.add(() => {
+    const dt = Math.min(engine.getDeltaTime(), 100) / 1000;
+    for (const w of walkers) {
+      w.holder.position.x += w.direction * w.speed * dt;
+      if ((w.direction === 1 && w.holder.position.x > w.maxX) || (w.direction === -1 && w.holder.position.x < w.minX)) {
+        w.direction = w.direction === 1 ? -1 : 1;
+      }
+      w.holder.rotation.y = (w.direction * Math.PI) / 2;
+    }
+  });
+
+  // Personnages Renderpeople : modèles en centimètres, d'où l'échelle 0,01.
+  const CM = 0.01;
+
   const ready = Promise.all([
-    ImportMeshAsync(`${SCENE_URL}painted_wooden_bench/painted_wooden_bench_1k.gltf`, scene).then((r) =>
-      place(r.meshes, -1.8, 6.5, 0.35),
-    ),
-    ImportMeshAsync(`${SCENE_URL}metal_trash_can/metal_trash_can_1k.gltf`, scene).then((r) =>
-      place(r.meshes, 1.6, 7.5, Math.PI - 0.3),
-    ),
+    load("painted_wooden_bench/painted_wooden_bench_1k.gltf", -3.4, 8, 0.35 - Math.PI),
+    load("metal_trash_can/metal_trash_can_1k.gltf", 3.2, 10.5, -0.3),
+    // Groupe (SIT-05) et portrait (SIT-01), face à l'appareil.
+    load("dennis_posed_004/scene.gltf", -1.0, 6.5, Math.PI, CM),
+    load("sophia_animated_003/scene.gltf", -0.2, 6.6, Math.PI, CM).then(({ result }) => {
+      for (const group of result.animationGroups) group.start(true);
+    }),
+    load("fabienne_percy_posed_001/scene.gltf", 0.75, 6.5, Math.PI, CM),
+    // Homme qui marche en arrière-plan. Vitesse mesurée dans l'animation (8 novembre 2026) : pendant
+    // l'appui, le pied posé recule de 1,23 à 1,27 m/s selon le pied et le point mesuré.
+    load("nathan_animated_003/scene.gltf", -4, 12.5, Math.PI / 2, CM).then(({ holder, result }) => {
+      for (const group of result.animationGroups) group.start(true);
+      walkers.push({ holder, speed: 1.25, minX: -5, maxX: 5, direction: 1 });
+    }),
+    // Chien qui court (SIT-06). Le fichier contient deux chiens : on ne garde que « Jim », qui galope.
+    // Échelle : 0,6 m au garrot, valeur choisie ; l'épaule de Jim est à 2,05 unités du sol, soit
+    // 0,6 / 2,05 ≈ 0,29 m par unité. Décalage : ramène Jim au centre et ses pattes au sol (mesuré).
+    // Vitesse, estimée dans l'animation : pendant l'appui, la patte posée recule de 2,4 à 13,3 unités/s
+    // selon la patte (médiane 10,6 ; deux pattes concordent vers 13), soit 3,1 à 3,9 m/s entre la médiane
+    // et la valeur concordante. 3,5 m/s retenu ; mesure imprécise, à revoir.
+    load("alaskan_malamute/scene.gltf", -5, 9, Math.PI / 2, 0.6 / 2.05).then(({ holder, result }) => {
+      result.meshes[0].position.set(0.87, 2.45, 0.11);
+      for (const node of result.transformNodes) {
+        if (node.name === "Armature Ethan" || node.name === "Ethan") node.dispose();
+      }
+      for (const group of result.animationGroups) {
+        if (group.name === "Jim canter") group.start(true);
+        else group.dispose();
+      }
+      walkers.push({ holder, speed: 3.5, minX: -5, maxX: 5, direction: 1 });
+    }),
     new Promise<void>((resolve, reject) => {
       dome.onLoadObservable.addOnce(() => resolve());
       dome.onLoadErrorObservable.addOnce((message) => reject(new Error(message)));

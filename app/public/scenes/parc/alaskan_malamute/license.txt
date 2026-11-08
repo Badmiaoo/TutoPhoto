@@ -1,0 +1,11 @@
+Model Information:
+* title:	Alaskan malamute dog
+* source:	https://sketchfab.com/3d-models/alaskan-malamute-dog-93ace661ef72455d9bcd0f8c9d4880f3
+* author:	striderrotk (https://sketchfab.com/striderrotk)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Alaskan malamute dog" (https://sketchfab.com/3d-models/alaskan-malamute-dog-93ace661ef72455d9bcd0f8c9d4880f3) by striderrotk (https://sketchfab.com/striderrotk) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
