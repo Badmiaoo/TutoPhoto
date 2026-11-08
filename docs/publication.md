@@ -26,7 +26,7 @@ Un dépôt public peut être copié dès qu'un commit est poussé : effacer le f
 - Les 28 commits faits par Claude du 7 au 8 novembre 2026, avant la version 0.3.9, finissent par une ligne « Claude-Session » qui donne l'adresse de la session de travail de Claude (claude.ai/code/session_…). Les descriptions des pull requests #1 à #14 contiennent la même adresse.
 - C'est un lien vers une ressource privée : seul le propriétaire de la session peut l'ouvrir. Aucun secret ni donnée personnelle n'y figure.
 - Cause : `scripts/check_public.py` ne lisait pas les messages de commit, et son motif ne couvrait pas ces adresses. Les deux sont corrigés dans la version 0.3.9. Les commits concernés sont listés dans `scripts/check_public_historique.txt` : l'historique publié n'est pas réécrit, et le contrôle tolère ce seul problème dans ces seuls commits.
-- Signalé à Julien le 8 novembre 2026.
+- Signalé à Julien le 8 novembre 2026. Décision de Julien, le même jour : les descriptions des pull requests #1 à #14 restent en l'état, le lien ne s'ouvrant pas pour les autres. Les modifier n'aurait de toute façon pas effacé l'ancienne version : « Anyone with read access to a repository can view a comment's edit history » ([documentation GitHub](https://docs.github.com/en/communities/moderating-comments-and-conversations/tracking-changes-in-a-comment), source lue dans le dépôt `github/docs`, branche `main`, le 8 novembre 2026).
 
 ## Avant le passage en public
 
