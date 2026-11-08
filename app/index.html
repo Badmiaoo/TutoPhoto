@@ -18,6 +18,19 @@
     <main>
       <canvas id="scene"></canvas>
       <div id="frame" class="frame" aria-hidden="true"></div>
+      <div id="focus-marker" class="focus-marker" aria-hidden="true"></div>
+      <div id="progress" class="progress" hidden>
+        <p id="progress-label"></p>
+        <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+      </div>
+      <section id="review" class="review" hidden>
+        <img id="review-image" alt="" />
+        <p id="review-caption" class="review-caption"></p>
+        <div class="review-actions">
+          <button id="review-back" type="button"></button>
+          <a id="review-save" download="tutophoto.jpg"></a>
+        </div>
+      </section>
       <p id="status" class="status" role="status"></p>
       <p id="no-webgl" class="error" hidden></p>
     </main>
@@ -67,7 +80,9 @@
         </div>
         <p id="meter-value" class="meter-value" aria-live="polite"></p>
         <button id="body-button" type="button" class="body-button"></button>
+        <button id="shutter-button" type="button" class="shutter-button"></button>
       </div>
+      <p id="focus-hint" class="note focus-hint"></p>
     </section>
     <dialog id="body-dialog" aria-labelledby="body-title">
       <h2 id="body-title"></h2>

@@ -26,6 +26,8 @@ _Repris de la section 8 de `REPRISE.md` (7 novembre 2026), puis mis à jour le m
   - Hauteur de prise de vue de la photo : non publiée par Poly Haven ; 1,6 m supposé. Si elle est fausse, les objets 3D paraissent posés trop près ou trop loin sur le sol de la photo.
   - Mémoire sur téléphone : la photo fait 8192 × 4096 px. Babylon la réduit si l'appareil n'accepte pas cette taille de texture, mais la mémoire utilisée reste à mesurer sur les téléphones des testeurs.
   - Ombres de contact sous les objets 3D : réglées à l'œil le 8 novembre 2026.
+  - Sol de la photo : projeté sur un plan pour la photo calculée (`docs/camera-physique.md`), donc supposé plat.
+- Photo calculée : temps de calcul à mesurer sur les ordinateurs et les téléphones des testeurs. Le rendu logiciel des essais ne dit rien d'un vrai processeur graphique.
 - Personnages et chien de la scène de parc :
   - Fabienne & Percy compte 199 850 triangles (version « 200k » de l'archive) et Dennis 99 964 : charge à mesurer sur téléphone, avec réduction possible.
   - Le chien est stylisé, les personnages réalistes : écart de rendu à juger avec les débutants.

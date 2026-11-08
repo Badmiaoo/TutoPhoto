@@ -6,19 +6,21 @@ import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
 import type { UniversalCamera } from "@babylonjs/core/Cameras/universalCamera";
 import { Camera } from "@babylonjs/core/Cameras/camera";
-import { BODIES, findBody, type Brand, type Format } from "../camera/bodies";
+import { BODIES, findBody, type Body, type Brand, type Format } from "../camera/bodies";
 import {
   DEFAULT_FOCAL_INDEX,
   DEFAULT_SETTINGS,
   FOCAL_LENGTHS,
   SCALES,
   apertureLabel,
+  apertureValue,
   exposureOffset,
   isoLabel,
   shutterLabel,
+  shutterSeconds,
   type ExposureSettings,
 } from "../camera/exposure";
-import { cameraFov, frameFor } from "../camera/viewfinder";
+import { cameraFov, frameFor, type Frame } from "../camera/viewfinder";
 import { t, type Lang, type MessageKey } from "../i18n";
 
 /** Écart maximal affiché par la cellule, en IL. */
@@ -26,6 +28,18 @@ const METER_RANGE = 3;
 const STORAGE_KEY = "tutophoto.boitier";
 
 type Dial = "aperture" | "shutter" | "iso" | "focal";
+
+/** Réglages courants, pour la photo calculée. */
+export interface CurrentSettings {
+  body: Body;
+  focalMm: number;
+  aperture: number;
+  shutterSeconds: number;
+  exposure: number;
+  frame: Frame;
+  /** Réglages tels qu'affichés : « f/8 · 1/100 s · ISO 100 · 50 mm ». */
+  summary: string;
+}
 
 interface PanelElements {
   panel: HTMLElement;
@@ -42,6 +56,7 @@ export class CameraPanel {
   private brand: Brand = "nikon";
   private format: Format = "ff";
   private lang: Lang;
+  private frame: Frame | null = null;
 
   constructor(
     private readonly engine: Engine,
@@ -71,6 +86,24 @@ export class CameraPanel {
   setLang(lang: Lang): void {
     this.lang = lang;
     this.update();
+  }
+
+  current(): CurrentSettings {
+    if (!this.frame) this.applyView();
+    return {
+      body: this.body(),
+      focalMm: FOCAL_LENGTHS[this.focalIndex],
+      aperture: apertureValue(this.settings.aperture),
+      shutterSeconds: shutterSeconds(this.settings.shutter),
+      exposure: 2 ** exposureOffset(this.settings),
+      frame: this.frame!,
+      summary: [this.label("aperture"), this.label("shutter"), `ISO ${this.label("iso")}`, this.label("focal")].join(" · "),
+    };
+  }
+
+  /** Grise les réglages pendant le calcul d'une photo. */
+  setEnabled(enabled: boolean): void {
+    for (const button of this.el.panel.querySelectorAll<HTMLButtonElement>("button")) button.disabled = !enabled;
   }
 
   private body() {
@@ -153,6 +186,7 @@ export class CameraPanel {
     if (width === 0 || height === 0) return;
     const body = this.body();
     const frame = frameFor(width, height, body);
+    this.frame = frame;
     const fov = cameraFov(width, height, frame, body, FOCAL_LENGTHS[this.focalIndex]);
     this.camera.fovMode = fov.axis === "vertical" ? Camera.FOVMODE_VERTICAL_FIXED : Camera.FOVMODE_HORIZONTAL_FIXED;
     this.camera.fov = fov.fov;
