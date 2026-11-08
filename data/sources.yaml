@@ -1,7 +1,7 @@
 # fichier: data/sources.yaml
-# Pages ouvertes ou trouvées par recherche et vérifiées le 7 novembre 2026 ; auteur et date dans le libellé
+# Pages ouvertes ou trouvées par recherche et vérifiées les 7 et 8 novembre 2026 ; auteur et date dans le libellé
 # quand la page les donne.
-checked: 2026-11-07
+checked: 2026-11-08
 sources:
   - id: levoy-teaching
     group: "Cours et pédagogie"
@@ -419,3 +419,58 @@ sources:
     label: "GitHub Docs, Managing push protection for users (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
     url: "https://docs.github.com/en/code-security/how-tos/secure-your-secrets/prevent-future-leaks/manage-user-push-protection"
     used_in: [docs/publication.md]
+  - id: spdx-cc-by-4
+    group: "Licences"
+    label: "SPDX License List, texte de la licence CC BY 4.0 (dépôt spdx/license-list-data, commit 3184648 du 29 octobre 2026)"
+    url: "https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/CC-BY-4.0.txt"
+    used_in: [docs/licences.md, docs/questions-ouvertes.md]
+  - id: polyhaven-license
+    group: "Licences"
+    label: "Poly Haven, License : « Our assets are all licensed as CC0 » (page lue le 7 novembre 2026)"
+    url: "https://polyhaven.com/license"
+    used_in: [app/public/scenes/parc/scene.json]
+  - id: sketchfab-download-api
+    group: "Outils"
+    label: "Sketchfab for Developers, Download API : « Downloading models requires users to be authenticated with a Sketchfab account » (page lue le 7 novembre 2026)"
+    url: "https://sketchfab.com/developers/download-api"
+    used_in: [docs/historique.md]
+  - id: github-large-files
+    group: "Outils"
+    label: "GitHub Docs, About large files on GitHub : avertissement à 50 Mio, blocage à 100 Mio, envoi par le navigateur limité à 25 Mio (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
+    url: "https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github"
+    used_in: [docs/licences.md]
+  - id: github-comment-history
+    group: "Outils"
+    label: "GitHub Docs, Tracking changes in a comment : « Anyone with read access to a repository can view a comment's edit history » (source lue dans le dépôt github/docs, branche main, le 8 novembre 2026)"
+    url: "https://docs.github.com/en/communities/moderating-comments-and-conversations/tracking-changes-in-a-comment"
+    used_in: [docs/publication.md]
+  - id: filament-pbr
+    group: "Physique, rendu et technique"
+    label: "Romain Guy et Mathias Agopian, Physically Based Rendering in Filament, section « Physically based camera » : EV100, constante K = 12,5, facteur d'exposition 1/(1,2 × 2^EV100) (dépôt google/filament, docs/Filament.md.html, commit e8669b6, lu le 8 novembre 2026)"
+    url: "https://github.com/google/filament/blob/e8669b688a9381beb4f7470df828e1932d78efa6/docs/Filament.md.html"
+    used_in: [docs/camera-physique.md]
+  - id: wikipedia-exposure-value
+    group: "Physique, rendu et technique"
+    label: "Wikipedia, Exposure value, table 2 « Exposure values (ISO 100) for various lighting conditions », tirée des guides ANSI PH2.7-1973 et PH2.7-1986 (révision 1352562239, source secondaire, lue le 8 novembre 2026)"
+    url: "https://en.wikipedia.org/w/index.php?title=Exposure_value&oldid=1352562239"
+    used_in: [docs/camera-physique.md]
+  - id: wikipedia-image-sensor-format
+    group: "Physique, rendu et technique"
+    label: "Wikipedia, Image sensor format, tableau des formats : Canon APS-C 22,30 × 14,90 mm ; APS-C Sony, Nikon DX, Pentax, Fujifilm 23,6 à 23,7 × 15,60 mm (révision 1374408806, source secondaire, lue le 8 novembre 2026)"
+    url: "https://en.wikipedia.org/w/index.php?title=Image_sensor_format&oldid=1374408806"
+    used_in: [docs/camera-physique.md]
+  - id: haeberli-akeley-1990
+    group: "Physique, rendu et technique"
+    label: "Paul Haeberli et Kurt Akeley, The accumulation buffer: hardware support for high-quality rendering, SIGGRAPH 1990, Computer Graphics 24(4), p. 309-318, DOI 10.1145/97879.97913 (fiche de Microsoft Research ; article complet non lu)"
+    url: "https://www.microsoft.com/en-us/research/publication/the-accumulation-buffer-hardware-support-for-high-quality-rendering/"
+    used_in: [docs/camera-physique.md]
+  - id: photonstophotos-read-noise
+    group: "Physique, rendu et technique"
+    label: "William J. Claff, PhotonsToPhotos, Input-referred Read Noise versus ISO Setting (page révisée le 17 août 2026, lue le 8 novembre 2026)"
+    url: "https://www.photonstophotos.net/Charts/RN_e.htm"
+    used_in: [docs/camera-physique.md]
+  - id: photonstophotos-sensor-characteristics
+    group: "Physique, rendu et technique"
+    label: "William J. Claff, PhotonsToPhotos, DxOMark Derived Sensor Characteristics : capacité des photosites, gain unitaire (page révisée le 15 décembre 2025, lue le 8 novembre 2026)"
+    url: "https://www.photonstophotos.net/Charts/Sensor_Characteristics.htm"
+    used_in: [docs/camera-physique.md]
