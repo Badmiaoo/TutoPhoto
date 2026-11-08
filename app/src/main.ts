@@ -3,6 +3,8 @@ import { Engine } from "@babylonjs/core/Engines/engine";
 import { createScene } from "./scene";
 import { loadManifest, renderCredits } from "./credits";
 import { CameraPanel } from "./ui/cameraPanel";
+import { Shutter } from "./ui/shutter";
+import { DOME_RADIUS, EYE_HEIGHT } from "./scene";
 import { initialLang, rememberLang, t, type Lang } from "./i18n";
 
 function element<T extends HTMLElement>(id: string): T {
@@ -21,6 +23,7 @@ const manifest = loadManifest("scenes/parc/scene.json");
 let lang: Lang = initialLang();
 let statusKey: "loading" | "loadError" | null = "loading";
 let cameraPanel: CameraPanel | null = null;
+let shutter: Shutter | null = null;
 
 function applyLang(): void {
   document.documentElement.lang = lang;
@@ -37,6 +40,7 @@ function applyLang(): void {
   status.hidden = statusKey === null;
   manifest.then((m) => renderCredits(creditsList, m, lang)).catch(() => undefined);
   cameraPanel?.setLang(lang);
+  shutter?.setLang(lang);
 }
 
 langButton.addEventListener("click", () => {
@@ -55,7 +59,7 @@ if (!Engine.isSupported()) {
   applyLang();
 } else {
   const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true });
-  const { scene, camera, ready } = createScene(engine, canvas);
+  const { scene, camera, ready, time } = createScene(engine, canvas);
   cameraPanel = new CameraPanel(
     engine,
     scene,
@@ -70,6 +74,32 @@ if (!Engine.isSupported()) {
     },
     lang,
   );
+  const render = () => scene.render();
+  shutter = new Shutter(
+    engine,
+    scene,
+    camera,
+    time,
+    { eyeHeight: EYE_HEIGHT, domeRadius: DOME_RADIUS },
+    cameraPanel,
+    {
+      canvas,
+      frame: element("frame"),
+      marker: element("focus-marker"),
+      hint: element("focus-hint"),
+      button: element<HTMLButtonElement>("shutter-button"),
+      progress: element("progress"),
+      progressLabel: element("progress-label"),
+      progressBar: element("progress-bar"),
+      review: element("review"),
+      reviewImage: element<HTMLImageElement>("review-image"),
+      reviewCaption: element("review-caption"),
+      reviewBack: element<HTMLButtonElement>("review-back"),
+      reviewSave: element<HTMLAnchorElement>("review-save"),
+    },
+    () => engine.runRenderLoop(render),
+    lang,
+  );
   ready
     .then(() => {
       statusKey = null;
@@ -79,6 +109,6 @@ if (!Engine.isSupported()) {
       statusKey = "loadError";
     })
     .finally(applyLang);
-  engine.runRenderLoop(() => scene.render());
+  engine.runRenderLoop(render);
   window.addEventListener("resize", () => engine.resize());
 }

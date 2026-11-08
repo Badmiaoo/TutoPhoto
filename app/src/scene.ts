@@ -20,6 +20,8 @@ import { HDRCubeTexture } from "@babylonjs/core/Materials/Textures/hdrCubeTextur
 import { PhotoDome } from "@babylonjs/core/Helpers/photoDome";
 import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
+import type { AnimationGroup } from "@babylonjs/core/Animations/animationGroup";
+import type { SceneTimeControl } from "./camera/photo";
 import "@babylonjs/loaders/glTF/2.0";
 // Effet de bord requis par Babylon (matériau par défaut des maillages).
 import "@babylonjs/core/Materials/standardMaterial";
@@ -27,7 +29,10 @@ import "@babylonjs/core/Materials/standardMaterial";
 const SCENE_URL = "scenes/parc/";
 
 /** Hauteur de l'œil, en mètres. Poly Haven ne publie pas la hauteur de prise de vue : valeur supposée. */
-const EYE_HEIGHT = 1.6;
+export const EYE_HEIGHT = 1.6;
+
+/** Rayon de la sphère du fond, en mètres : la photo est vue comme si elle était à 500 m. */
+export const DOME_RADIUS = 500;
 
 /**
  * Rotation du fond autour de la verticale. Mesurée le 8 novembre 2026 en comparant, dans la même
@@ -42,6 +47,8 @@ export interface ParkScene {
   camera: UniversalCamera;
   /** Résolue quand tous les fichiers de la scène sont chargés. */
   ready: Promise<void>;
+  /** Horloge, position de l'œil et sujets en mouvement, pour la photo calculée (camera/photo.ts). */
+  time: SceneTimeControl;
 }
 
 export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScene {
@@ -61,19 +68,73 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
   if (touch) touch.singleFingerRotate = true;
   camera.angularSensibility = 4000;
   camera.attachControl(canvas, true);
+  // Horloge de la scène : positions et animations sont calculées à partir de l'instant présent, si bien
+  // que la photo peut placer la scène à n'importe quel instant du temps de pose.
+  let clock = 0;
+  let frozen = false;
+  let eyeOffset: Vector3 | null = null;
+  const animations: { group: AnimationGroup; from: number; to: number; fps: number }[] = [];
+  const walkers: { holder: TransformNode; speed: number; minX: number; maxX: number; phase: number }[] = [];
+
+  /** Aller-retour à vitesse constante entre minX et maxX : position et sens à l'instant donné. */
+  const applyTime = (time: number): void => {
+    for (const w of walkers) {
+      const span = w.maxX - w.minX;
+      const travelled = (((w.speed * time + w.phase) % (2 * span)) + 2 * span) % (2 * span);
+      const forward = travelled < span;
+      w.holder.position.x = forward ? w.minX + travelled : w.maxX - (travelled - span);
+      w.holder.rotation.y = forward ? Math.PI / 2 : -Math.PI / 2;
+    }
+    for (const a of animations) {
+      const length = a.to - a.from;
+      a.group.goToFrame(a.from + ((((time * a.fps) % length) + length) % length));
+    }
+  };
+
   scene.onBeforeRenderObservable.add(() => {
+    if (!frozen) clock += Math.min(engine.getDeltaTime(), 100) / 1000;
+    applyTime(clock);
     camera.position.copyFrom(eye);
+    if (eyeOffset) camera.position.addInPlace(eyeOffset);
     camera.rotation.x = Math.min(0.7, Math.max(-0.7, camera.rotation.x));
   });
 
+  /** Lance une animation en boucle, pilotée par l'horloge. */
+  const animate = (group: AnimationGroup): void => {
+    group.start(true);
+    group.pause();
+    animations.push({ group, from: group.from, to: group.to, fps: group.targetedAnimations[0]?.animation.framePerSecond ?? 30 });
+  };
+
+  const time: SceneTimeControl = {
+    setFrozenTime(t) {
+      frozen = true;
+      clock = t;
+    },
+    release(t) {
+      clock = t;
+      frozen = false;
+    },
+    now: () => clock,
+    setEyeOffset(offset) {
+      eyeOffset = offset;
+    },
+    movers: () => walkers.map((w) => ({ position: w.holder.position.clone(), speed: w.speed })),
+  };
+
   // Fond : la photo à 360° en 8192 × 4096 px. Babylon la réduit si l'appareil n'accepte pas cette taille.
+  // Projection du sol : le bas de la photo est lu comme un sol plat, à la hauteur de l'œil sous le centre
+  // de la sphère, si bien qu'il garde sa distance quand l'œil se déplace sur l'ouverture (photo calculée).
   const dome = new PhotoDome(
     "fond",
     `${SCENE_URL}autumn_hockey/autumn_hockey.jpg`,
-    { resolution: 64, size: 1000 },
+    { resolution: 64, size: 2 * DOME_RADIUS },
     scene,
   );
   dome.mesh.rotation.y = DOME_ROTATION;
+  dome.material.enableGroundProjection = true;
+  dome.material.projectedGroundRadius = DOME_RADIUS;
+  dome.material.projectedGroundHeight = EYE_HEIGHT;
 
   // Éclairage et reflets : la même prise de vue en HDR (1024 × 512 px), qui garde les hautes lumières.
   const environment = new HDRCubeTexture(
@@ -123,19 +184,6 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
     return { holder, result };
   };
 
-  /** Fait aller et venir un sujet le long de l'axe X, entre deux bornes, à vitesse constante. */
-  const walkers: { holder: TransformNode; speed: number; minX: number; maxX: number; direction: 1 | -1 }[] = [];
-  scene.onBeforeRenderObservable.add(() => {
-    const dt = Math.min(engine.getDeltaTime(), 100) / 1000;
-    for (const w of walkers) {
-      w.holder.position.x += w.direction * w.speed * dt;
-      if ((w.direction === 1 && w.holder.position.x > w.maxX) || (w.direction === -1 && w.holder.position.x < w.minX)) {
-        w.direction = w.direction === 1 ? -1 : 1;
-      }
-      w.holder.rotation.y = (w.direction * Math.PI) / 2;
-    }
-  });
-
   // Personnages Renderpeople : modèles en centimètres, d'où l'échelle 0,01.
   const CM = 0.01;
 
@@ -145,14 +193,14 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
     // Groupe (SIT-05) et portrait (SIT-01), face à l'appareil.
     load("dennis_posed_004/scene.gltf", -1.0, 6.5, Math.PI, CM),
     load("sophia_animated_003/scene.gltf", -0.2, 6.6, Math.PI, CM).then(({ result }) => {
-      for (const group of result.animationGroups) group.start(true);
+      for (const group of result.animationGroups) animate(group);
     }),
     load("fabienne_percy_posed_001/scene.gltf", 0.75, 6.5, Math.PI, CM),
     // Homme qui marche en arrière-plan. Vitesse mesurée dans l'animation (8 novembre 2026) : pendant
     // l'appui, le pied posé recule de 1,23 à 1,27 m/s selon le pied et le point mesuré.
     load("nathan_animated_003/scene.gltf", -4, 12.5, Math.PI / 2, CM).then(({ holder, result }) => {
-      for (const group of result.animationGroups) group.start(true);
-      walkers.push({ holder, speed: 1.25, minX: -5, maxX: 5, direction: 1 });
+      for (const group of result.animationGroups) animate(group);
+      walkers.push({ holder, speed: 1.25, minX: -5, maxX: 5, phase: 1 });
     }),
     // Chien qui court (SIT-06). Le fichier contient deux chiens : on ne garde que « Jim », qui galope.
     // Échelle : 0,6 m au garrot, valeur choisie ; l'épaule de Jim est à 2,05 unités du sol, soit
@@ -166,10 +214,10 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
         if (node.name === "Armature Ethan" || node.name === "Ethan") node.dispose();
       }
       for (const group of result.animationGroups) {
-        if (group.name === "Jim canter") group.start(true);
+        if (group.name === "Jim canter") animate(group);
         else group.dispose();
       }
-      walkers.push({ holder, speed: 3.5, minX: -5, maxX: 5, direction: 1 });
+      walkers.push({ holder, speed: 3.5, minX: -5, maxX: 5, phase: 0 });
     }),
     new Promise<void>((resolve, reject) => {
       dome.onLoadObservable.addOnce(() => resolve());
@@ -177,5 +225,5 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
     }),
   ]).then(() => scene.whenReadyAsync());
 
-  return { scene, camera, ready };
+  return { scene, camera, ready, time };
 }

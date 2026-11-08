@@ -126,3 +126,10 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Crans par tiers de diaphragme, comme sur les vrais boîtiers. Les libellés des vitesses intermédiaires (1/1250, 1/640, etc.) ne sont donnés par aucune source lue ; ils sont signalés comme non sourcés, et les calculs utilisent les valeurs exactes.
 - Objectif virtuel : zoom de 18 à 200 mm ouvrant à f/1.4 sur toute la plage, présenté comme tel dans l'outil.
 - Sites de manuels des constructeurs ajoutés à l'environnement de travail : onlinemanual.nikonimglib.com, downloadcenter.nikonimglib.com, helpguide.sony.net, cam.start.canon.
+
+## 8 novembre 2026 : photo calculée
+
+- Mise au point : le débutant touche le point du viseur qui doit être net ; sa distance est lue au déclenchement. Cela préfigure le choix des collimateurs.
+- Nombre de rendus selon le flou : copies espacées de 4 px au plus, de 16 à 256 rendus, et 5 s de calcul au plus.
+- Accumulation suivie d'un lissage, appliqué une fois sur la moyenne. Le résultat est identique à un lissage de chaque rendu, puisque le rayon ne dépend que de la profondeur de la vue centrale.
+- Le sol de la photo à 360° est projeté sur un plan, pour que sa profondeur de champ soit juste.

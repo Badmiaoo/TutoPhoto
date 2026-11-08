@@ -103,12 +103,40 @@ L'image affichée compte moins de pixels que le capteur : chaque pixel affiché 
 - Aperçu dans le viseur : la lumière de la scène est multipliée par 2^écart avant l'affichage, sans courbe de tons ; ce qui dépasse le blanc est écrêté. Vérifié le 8 novembre 2026 sur le site construit : un diaphragme de plus double la lumière (rapport médian 2,00 sur le fond comme sur le sol). Le rapport se mesure avec la courbe de Babylon, une puissance de 2,2 (`LinearEncodePowerApprox`) ; avec la courbe sRGB exacte, on lirait 1,86, ce qui ne vient que de la différence entre les deux courbes.
 - Viseur : cadre aux proportions du capteur (vertical si l'écran l'est), champ de vue de 2 × atan(grand côté du capteur / (2 × focale)) le long de son grand côté.
 
+## Photo calculée (version 0.3.14)
+
+Décisions de Julien du 8 novembre 2026 :
+- mise au point en touchant le viseur ;
+- nombre de rendus selon le flou ;
+- accumulation suivie d'un lissage.
+
+Fonctionnement :
+- **Mise au point.** Le débutant touche un point du viseur, qui reste marqué. Au déclenchement, la distance de ce point est lue dans la carte de profondeur de la vue centrale, comme un autofocus ponctuel sur le collimateur choisi. Sans toucher, le point est au centre.
+- **Accumulation.** Chaque rendu place l'œil sur le disque d'ouverture, élargi de S / (S − f), et décentre la projection pour garder fixe le plan de netteté : x_ndc = x × m0 / z + m8, avec m8 = dx × m0 / S. Il place aussi la scène à un instant du temps de pose. Pour cela, positions et animations sont désormais calculées à partir d'une horloge de scène. Les instants sont permutés pour ne pas suivre l'ordre des points du disque.
+- **Lumière.** Les rendus sont faits en lumière linéaire, dans une texture en demi-flottants, avec `applyByPostProcess`. Sans ce réglage, les matériaux de Babylon passent en gamma et écrêtent à 1, même traitement d'image désactivé (`pbrBlockImageProcessing`). Avec lui, Babylon plafonne la lumière à 30. La somme est faite en flottants. Viennent ensuite l'exposition 2^écart, l'écrêtage au blanc et la courbe de Babylon (puissance 1/2,2). La photo mesure 1500 px de grand côté.
+- **Nombre de rendus.** Il est choisi pour que les copies d'un grand flou soient espacées de 4 px au plus : 0,9 × flou / √M sur le disque, et traînée / M le long d'un mouvement, de 16 à 256. Le calcul s'arrête au bout de 5 s ; la photo indique alors les rendus reçus sur les rendus prévus.
+- **Lissage.** Un flou résiduel est appliqué une fois sur la moyenne, avec un rayon de 0,45 × flou / √M, selon la profondeur de la vue centrale. Ce rayon ne dépendant que de cette profondeur, le résultat est le même que si l'on lissait chaque rendu.
+- **Sol de la photo.** Le bas de la photo à 360° est projeté sur un sol plat, à 1,6 m sous l'œil (`enableGroundProjection` de Babylon). Il garde ainsi sa distance quand l'œil se déplace sur l'ouverture, au lieu d'être flou comme un horizon. La carte de profondeur ne contient pas ce sol : sa distance est calculée par l'intersection du rayon de vue avec le plan du sol, pour la mise au point comme pour le lissage.
+- **Revue.** La photo s'affiche avec ses réglages, le boîtier, la distance de mise au point, les rendus et la durée du calcul. On peut l'enregistrer en JPEG.
+
+Vérifications du 8 novembre 2026, faites dans Chromium sans écran (rendu logiciel), sur une construction locale non publiée. Elle produit des photos de 600 px et porte le plafond à 10 min, car le rendu logiciel est trop lent :
+- **Premier essai.** La photo était 3,3 fois trop claire en lumière linéaire, et délavée : les matériaux appliquaient la courbe gamma une première fois. C'est corrigé par `applyByPostProcess`.
+- **À f/8, sans flou.** La luminosité de la photo, rapportée à celle du viseur, vaut 1,01 sur le fond, 1,05 sur le sol et 1,06 sur l'image entière. L'écart restant correspond aux sujets qui ont bougé entre la capture du viseur et la photo.
+- **Portrait au 135 mm à f/1.4, au point sur Sophia (6,6 m).** Le sujet est net, ainsi que les personnes à la même distance. Le fond et le sol sont flous de façon continue. 57 rendus, sans copies visibles.
+- **Au point sur le fond (37,9 m).** Le premier plan est flou et la haie nette.
+- **À 1/20 s.** Le chien qui court laisse une traînée ; les personnages immobiles restent nets.
+
+Limites :
+- **Fond à l'infini.** Le décor de la photo au-dessus du sol (arbres, haie) est vu comme s'il était à 500 m. Son flou est donc un peu surestimé (voir `docs/questions-ouvertes.md`). Le sol photographié est supposé plat.
+- **Temps de calcul.** En rendu logiciel, un rendu de 600 px prend de l'ordre de la seconde. Ce chiffre ne dit rien d'un vrai processeur graphique : le temps reste à mesurer sur ordinateur et sur téléphone.
+- **Pas encore de flou de bougé ni de bruit.**
+
 ## Plan de mise en œuvre
 
 Une pull request par étape :
 
 1. Boîtier virtuel minimal et exposition : fait en version 0.3.13 (voir ci-dessus).
-2. Photo au déclenchement par accumulation : profondeur de champ et flou de mouvement, avec mesure du temps de calcul.
+2. Photo au déclenchement par accumulation : faite en version 0.3.14 (voir ci-dessus).
 3. Bruit physique sur la photo.
 4. Profondeur de champ approchée dans le viseur.
 5. Ensuite : mise au point et collimateurs (MAP-04, MAP-05, MAP-06, MAP-09), flou de bougé (BOI-12, MVT-01).

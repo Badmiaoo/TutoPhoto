@@ -12,6 +12,24 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.14] - 2026-11-08
+
+### Ajouté
+
+- Photo calculée au déclenchement, par accumulation de rendus (`app/src/camera/photo.ts`) :
+  - profondeur de champ exacte, avec le disque d'ouverture élargi de S / (S − f) pour retrouver la formule des lentilles minces ;
+  - flou de mouvement ;
+  - moyenne en lumière linéaire, puis exposition, écrêtage au blanc et courbe de Babylon ;
+  - nombre de rendus selon le flou (16 à 256, 5 s au plus), puis lissage selon la profondeur.
+- Mise au point en touchant le viseur : point marqué, distance lue au déclenchement.
+- Bouton « Déclencher », barre de calcul, écran de revue (réglages, distance de mise au point, rendus, durée) et enregistrement de la photo en JPEG.
+- Projection du sol de la photo à 360° sur un plan, pour que le sol garde sa distance dans la photo calculée.
+
+### Modifié
+
+- Positions et animations des sujets calculées à partir d'une horloge de scène, pour placer la scène à n'importe quel instant du temps de pose.
+- `docs/camera-physique.md` : fonctionnement, vérifications et limites de la photo calculée. `docs/historique.md`, `docs/questions-ouvertes.md`, README.
+
 ## [0.3.13] - 2026-11-08
 
 ### Ajouté
@@ -246,6 +264,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.14]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.13...v0.3.14
 [0.3.13]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.12...v0.3.13
 [0.3.12]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.11...v0.3.12
 [0.3.11]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.10...v0.3.11
