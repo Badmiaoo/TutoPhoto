@@ -11,14 +11,27 @@ Décisions prises par Julien le 8 novembre 2026 ; le modèle qui suit est propos
 - Bruit numérique : modèle physique (bruit photonique et bruit de lecture), à partir de mesures publiées.
 - Boîtiers de référence : trois paires, au choix de la marque. La réponse de Julien, « 1,2,3 », est comprise comme « les trois » :
 
-  | Marque | Plein format | APS-C | Dimensions APS-C (Wikipedia) |
-  | --- | --- | --- | --- |
-  | Nikon | Z 6 | D5600 | 23,6 à 23,7 × 15,6 mm |
-  | Sony | A7 III (ILCE-7M3) | A6000 (ILCE-6000) | 23,6 à 23,7 × 15,6 mm |
-  | Canon | EOS RP | EOS 2000D | 22,3 × 14,9 mm |
+  | Marque | Plein format | APS-C |
+  | --- | --- | --- |
+  | Nikon | Z 6 | D5600 |
+  | Sony | A7 III (ILCE-7M3) | A6000 (ILCE-6000) |
+  | Canon | EOS RP | EOS 2000D |
 
-  Le plein format mesure 36 × 24 mm. Les dimensions APS-C viennent du tableau des formats de capteur de [Wikipedia](https://en.wikipedia.org/w/index.php?title=Image_sensor_format&oldid=1374408806) (source secondaire), qui donne une fourchette pour Sony et Nikon. À remplacer par les fiches techniques des constructeurs dès qu'elles seront lues.
-- Hôtes ajoutés à l'environnement de travail pour lire les sources : imaging.kodakalaris.com, www.photonstophotos.net, en.wikipedia.org. Les fiches Kodak redirigent vers un autre domaine, toujours bloqué ; elles n'ont pas été lues.
+- Dimensions des capteurs, utilisées pour le champ de vue :
+
+  | Boîtier | Capteur | Source |
+  | --- | --- | --- |
+  | Nikon Z 6 | 35,9 × 23,9 mm | [manuel en ligne Nikon](https://onlinemanual.nikonimglib.com/z7_z6/en/14_technical_notes_06.html), lu |
+  | Nikon D5600 | 23,5 × 15,6 mm | [dslrbodies.com](https://dslrbodies.com/cameras/older-camera-database/nikon-d5600-specifications.html), extrait de recherche, page non ouverte |
+  | Sony A7 III | 35,6 × 23,8 mm | [guide d'aide Sony](https://helpguide.sony.net/ilc/1720/v1/en/print.pdf), lu |
+  | Sony A6000 | 23,5 × 15,6 mm | [fiche Sony Asie](https://www.sony-asia.com/electronics/interchangeable-lens-cameras/ilce-6000-body-kit/specifications), extrait de recherche, page non ouverte |
+  | Canon EOS RP | 35,9 × 24,0 mm | [fiche Canon](https://en.canon-cna.com/cameras/eos-rp/specifications/), extrait de recherche, page non ouverte |
+  | Canon EOS 2000D | 22,3 × 14,9 mm | [fiche Canon Royaume-Uni](https://www.canon.co.uk/cameras/eos-2000d/specifications/), extrait de recherche, page non ouverte |
+
+  Le tableau des formats de [Wikipedia](https://en.wikipedia.org/w/index.php?title=Image_sensor_format&oldid=1374408806) donne 23,6 à 23,7 × 15,6 mm pour l'APS-C de Sony et de Nikon : les constructeurs, pour ces deux boîtiers, annoncent 23,5 mm, valeur retenue.
+- Crans par tiers de diaphragme, comme sur les vrais boîtiers (8 novembre 2026). Les ouvertures et les ISO suivent les échelles de Wikipedia ([F-number](https://en.wikipedia.org/w/index.php?title=F-number&oldid=1382682702), [Film speed](https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213)). Pour les vitesses, [Wikipedia](https://en.wikipedia.org/w/index.php?title=Shutter_speed&oldid=1382495283) donne les crans entiers de 1/1000 à 1 s, et les manuels lus disent seulement « par pas de 1/3 IL » : les libellés des crans intermédiaires (1/1250, 1/640, etc.) sont les libellés usuels des boîtiers, non sourcés. Les calculs utilisent les valeurs exactes des crans : N = 2^(j/6), t = 2^(−k/3), S = 100 × 2^(i/3).
+- Objectif virtuel : zoom de 18 à 200 mm, ouvrant à f/1.4 sur toute la plage (8 novembre 2026). Il n'existe pas ; l'outil le dit.
+- Hôtes ajoutés à l'environnement de travail pour lire les sources : imaging.kodakalaris.com, www.photonstophotos.net, en.wikipedia.org, puis les sites de manuels onlinemanual.nikonimglib.com, downloadcenter.nikonimglib.com, helpguide.sony.net et cam.start.canon. Les fiches Kodak redirigent vers un autre domaine, toujours bloqué ; elles n'ont pas été lues. Les manuels du D5600, de l'A6000, de l'EOS RP et de l'EOS 2000D n'ont pas été trouvés sur ces sites.
 
 ## Ce que fait Babylon.js 9.35.0
 
@@ -83,11 +96,18 @@ Modèle proposé, pour un photosite :
 
 L'image affichée compte moins de pixels que le capteur : chaque pixel affiché regroupe k photosites, et son bruit relatif est divisé par √k. Les définitions des capteurs restent à relever.
 
+## Boîtier virtuel (version 0.3.13)
+
+- Réglages : ouverture de f/1.4 à f/22, vitesse de 30 s à 1/4000 s, ISO de 100 à 6400, par tiers ; focale de 18 à 200 mm ; marque et format. Ces plages sont communes aux six boîtiers ; leurs plages réelles, souvent plus larges, viendront avec l'étape du bruit.
+- Cellule : écart à l'exposition correcte, en IL, de −3 à +3. Pour l'instant, la scène vaut EV₁₀₀ = 12,5 où que l'on vise : pas encore de mode de mesure.
+- Aperçu dans le viseur : la lumière de la scène est multipliée par 2^écart avant l'affichage, sans courbe de tons ; ce qui dépasse le blanc est écrêté. Vérifié le 8 novembre 2026 sur le site construit : un diaphragme de plus double la lumière (rapport médian 2,00 sur le fond comme sur le sol). Le rapport se mesure avec la courbe de Babylon, une puissance de 2,2 (`LinearEncodePowerApprox`) ; avec la courbe sRGB exacte, on lirait 1,86, ce qui ne vient que de la différence entre les deux courbes.
+- Viseur : cadre aux proportions du capteur (vertical si l'écran l'est), champ de vue de 2 × atan(grand côté du capteur / (2 × focale)) le long de son grand côté.
+
 ## Plan de mise en œuvre
 
 Une pull request par étape :
 
-1. Boîtier virtuel minimal et exposition : réglages (ouverture, vitesse, ISO, focale, marque, format), mesure de la lumière, aperçu de l'exposition dans le viseur.
+1. Boîtier virtuel minimal et exposition : fait en version 0.3.13 (voir ci-dessus).
 2. Photo au déclenchement par accumulation : profondeur de champ et flou de mouvement, avec mesure du temps de calcul.
 3. Bruit physique sur la photo.
 4. Profondeur de champ approchée dans le viseur.

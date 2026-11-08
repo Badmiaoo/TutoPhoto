@@ -17,9 +17,77 @@
     </header>
     <main>
       <canvas id="scene"></canvas>
+      <div id="frame" class="frame" aria-hidden="true"></div>
       <p id="status" class="status" role="status"></p>
       <p id="no-webgl" class="error" hidden></p>
     </main>
+    <section id="camera-panel" class="panel">
+      <div class="dials">
+        <div class="dial" data-box="aperture">
+          <span class="dial-name"></span>
+          <div class="dial-row">
+            <button type="button" data-dial="aperture" data-step="-1">−</button>
+            <output aria-live="polite"></output>
+            <button type="button" data-dial="aperture" data-step="1">+</button>
+          </div>
+        </div>
+        <div class="dial" data-box="shutter">
+          <span class="dial-name"></span>
+          <div class="dial-row">
+            <button type="button" data-dial="shutter" data-step="-1">−</button>
+            <output aria-live="polite"></output>
+            <button type="button" data-dial="shutter" data-step="1">+</button>
+          </div>
+        </div>
+        <div class="dial" data-box="iso">
+          <span class="dial-name"></span>
+          <div class="dial-row">
+            <button type="button" data-dial="iso" data-step="-1">−</button>
+            <output aria-live="polite"></output>
+            <button type="button" data-dial="iso" data-step="1">+</button>
+          </div>
+        </div>
+        <div class="dial" data-box="focal">
+          <span class="dial-name"></span>
+          <div class="dial-row">
+            <button type="button" data-dial="focal" data-step="-1">−</button>
+            <output aria-live="polite"></output>
+            <button type="button" data-dial="focal" data-step="1">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="meter-row">
+        <div class="meter" aria-hidden="true">
+          <span class="meter-tick" style="left: 0%">−3</span>
+          <span class="meter-tick" style="left: 33.333%">−1</span>
+          <span class="meter-tick meter-zero" style="left: 50%">0</span>
+          <span class="meter-tick" style="left: 66.667%">+1</span>
+          <span class="meter-tick" style="left: 100%">+3</span>
+          <span id="meter-needle" class="meter-needle"></span>
+        </div>
+        <p id="meter-value" class="meter-value" aria-live="polite"></p>
+        <button id="body-button" type="button" class="body-button"></button>
+      </div>
+    </section>
+    <dialog id="body-dialog" aria-labelledby="body-title">
+      <h2 id="body-title"></h2>
+      <fieldset>
+        <legend id="brand-legend"></legend>
+        <label><input type="radio" name="brand" value="nikon" /> Nikon</label>
+        <label><input type="radio" name="brand" value="sony" /> Sony</label>
+        <label><input type="radio" name="brand" value="canon" /> Canon</label>
+      </fieldset>
+      <fieldset>
+        <legend id="format-legend"></legend>
+        <label><input type="radio" name="format" value="ff" /> <span id="format-ff-label"></span></label>
+        <label><input type="radio" name="format" value="apsc" /> <span id="format-apsc-label"></span></label>
+      </fieldset>
+      <p id="sensor-note" class="note"></p>
+      <p id="lens-note" class="note"></p>
+      <form method="dialog">
+        <button id="body-close" type="submit"></button>
+      </form>
+    </dialog>
     <dialog id="credits-dialog" aria-labelledby="credits-title">
       <h2 id="credits-title"></h2>
       <p id="credits-intro"></p>

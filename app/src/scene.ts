@@ -30,12 +30,6 @@ const SCENE_URL = "scenes/parc/";
 const EYE_HEIGHT = 1.6;
 
 /**
- * Champ d'un 50 mm sur plein format (24 × 36 mm), le long du grand côté : 2 × atan(36 / (2 × 50)) ≈ 39,6°.
- * Appliqué au grand côté de l'écran, comme un appareil tenu à l'horizontale ou à la verticale.
- */
-const FOV_50MM = 2 * Math.atan(36 / (2 * 50));
-
-/**
  * Rotation du fond autour de la verticale. Mesurée le 8 novembre 2026 en comparant, dans la même
  * direction, la photo affichée en fond et le fichier HDR d'éclairage : avec un quart de tour,
  * les deux montrent la même haie et les mêmes arbres.
@@ -44,6 +38,8 @@ const DOME_ROTATION = Math.PI / 2;
 
 export interface ParkScene {
   scene: Scene;
+  /** Caméra 3D de l'appareil : son champ de vue est réglé par le boîtier virtuel (camera/viewfinder.ts). */
+  camera: UniversalCamera;
   /** Résolue quand tous les fichiers de la scène sont chargés. */
   ready: Promise<void>;
 }
@@ -53,13 +49,7 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
 
   const eye = new Vector3(0, EYE_HEIGHT, 0);
   const camera = new UniversalCamera("appareil", eye.clone(), scene);
-  camera.fov = FOV_50MM;
-  const fitFov = (): void => {
-    const landscape = engine.getRenderWidth() >= engine.getRenderHeight();
-    camera.fovMode = landscape ? Camera.FOVMODE_HORIZONTAL_FIXED : Camera.FOVMODE_VERTICAL_FIXED;
-  };
-  fitFov();
-  engine.onResizeObservable.add(fitFov);
+  camera.fovMode = Camera.FOVMODE_HORIZONTAL_FIXED;
   camera.minZ = 0.05;
   camera.maxZ = 2000;
   camera.setTarget(new Vector3(0, EYE_HEIGHT - 0.6, 10));
@@ -187,5 +177,5 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
     }),
   ]).then(() => scene.whenReadyAsync());
 
-  return { scene, ready };
+  return { scene, camera, ready };
 }

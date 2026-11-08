@@ -474,3 +474,48 @@ sources:
     label: "William J. Claff, PhotonsToPhotos, DxOMark Derived Sensor Characteristics : capacité des photosites, gain unitaire (page révisée le 15 décembre 2025, lue le 8 novembre 2026)"
     url: "https://www.photonstophotos.net/Charts/Sensor_Characteristics.htm"
     used_in: [docs/camera-physique.md]
+  - id: wikipedia-f-number
+    group: "Physique, rendu et technique"
+    label: "Wikipedia, F-number, « Typical one-third-stop f-number scale » (révision 1382682702, source secondaire, lue le 8 novembre 2026)"
+    url: "https://en.wikipedia.org/w/index.php?title=F-number&oldid=1382682702"
+    used_in: [docs/camera-physique.md]
+  - id: wikipedia-shutter-speed
+    group: "Physique, rendu et technique"
+    label: "Wikipedia, Shutter speed : crans normalisés de 1/1000 à 1 s, échelle 2:1 (révision 1382495283, source secondaire, lue le 8 novembre 2026)"
+    url: "https://en.wikipedia.org/w/index.php?title=Shutter_speed&oldid=1382495283"
+    used_in: [docs/camera-physique.md]
+  - id: wikipedia-film-speed
+    group: "Physique, rendu et technique"
+    label: "Wikipedia, Film speed, tableau des valeurs ISO par tiers (révision 1383727213, source secondaire, lue le 8 novembre 2026)"
+    url: "https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213"
+    used_in: [docs/camera-physique.md]
+  - id: nikon-z6-specifications
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, Specifications : capteur 35.9 × 23.9 mm, vitesses 1/8000 – 30 s par pas de 1/3 ou 1/2 IL, ISO 100 – 51200 (lu le 8 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/14_technical_notes_06.html"
+    used_in: [docs/camera-physique.md]
+  - id: sony-ilce-7m3-help-guide
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, Help Guide ILCE-7M3 (PDF), Specifications : capteur 35.6 mm × 23.8 mm, vitesses 1/8 000 s à 30 s, ISO 100 à 51 200 (lu le 8 novembre 2026)"
+    url: "https://helpguide.sony.net/ilc/1720/v1/en/print.pdf"
+    used_in: [docs/camera-physique.md]
+  - id: nikon-d5600-sensor
+    group: "Constructeurs : manuels et pages techniques"
+    label: "dslrbodies.com (Thom Hogan), Nikon D5600 Specifications : capteur 23,5 × 15,6 mm (extrait de recherche du 8 novembre 2026, page non ouverte)"
+    url: "https://dslrbodies.com/cameras/older-camera-database/nikon-d5600-specifications.html"
+    used_in: [docs/camera-physique.md]
+  - id: sony-ilce-6000-sensor
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony Asie, α6000, Specifications : capteur APS-C 23,5 × 15,6 mm (extrait de recherche du 8 novembre 2026, page non ouverte)"
+    url: "https://www.sony-asia.com/electronics/interchangeable-lens-cameras/ilce-6000-body-kit/specifications"
+    used_in: [docs/camera-physique.md]
+  - id: canon-eos-rp-sensor
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, EOS RP, Specifications : capteur 35,9 × 24 mm (extrait de recherche du 8 novembre 2026, page non ouverte)"
+    url: "https://en.canon-cna.com/cameras/eos-rp/specifications/"
+    used_in: [docs/camera-physique.md]
+  - id: canon-eos-2000d-sensor
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon Royaume-Uni, EOS 2000D, Specifications : capteur d'environ 22,3 × 14,9 mm (extrait de recherche du 8 novembre 2026, page non ouverte)"
+    url: "https://www.canon.co.uk/cameras/eos-2000d/specifications/"
+    used_in: [docs/camera-physique.md]

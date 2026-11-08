@@ -120,3 +120,9 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Bruit : modèle physique (bruit photonique et bruit de lecture), à partir des mesures de William J. Claff (PhotonsToPhotos).
 - Boîtiers de référence : trois paires au choix de la marque, Nikon Z 6 et D5600, Sony A7 III et A6000, Canon EOS RP et EOS 2000D. La réponse de Julien, « 1,2,3 », est comprise comme « les trois ».
 - Trois hôtes ajoutés à l'environnement de travail pour lire les sources : imaging.kodakalaris.com, www.photonstophotos.net, en.wikipedia.org.
+
+## 8 novembre 2026 : boîtier virtuel
+
+- Crans par tiers de diaphragme, comme sur les vrais boîtiers. Les libellés des vitesses intermédiaires (1/1250, 1/640, etc.) ne sont donnés par aucune source lue ; ils sont signalés comme non sourcés, et les calculs utilisent les valeurs exactes.
+- Objectif virtuel : zoom de 18 à 200 mm ouvrant à f/1.4 sur toute la plage, présenté comme tel dans l'outil.
+- Sites de manuels des constructeurs ajoutés à l'environnement de travail : onlinemanual.nikonimglib.com, downloadcenter.nikonimglib.com, helpguide.sony.net, cam.start.canon.
