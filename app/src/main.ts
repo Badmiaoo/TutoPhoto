@@ -2,6 +2,7 @@ import "./style.css";
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { createScene } from "./scene";
 import { loadManifest, renderCredits } from "./credits";
+import { CameraPanel } from "./ui/cameraPanel";
 import { initialLang, rememberLang, t, type Lang } from "./i18n";
 
 function element<T extends HTMLElement>(id: string): T {
@@ -19,6 +20,7 @@ const status = element<HTMLParagraphElement>("status");
 const manifest = loadManifest("scenes/parc/scene.json");
 let lang: Lang = initialLang();
 let statusKey: "loading" | "loadError" | null = "loading";
+let cameraPanel: CameraPanel | null = null;
 
 function applyLang(): void {
   document.documentElement.lang = lang;
@@ -34,6 +36,7 @@ function applyLang(): void {
   status.textContent = statusKey ? t(lang, statusKey) : "";
   status.hidden = statusKey === null;
   manifest.then((m) => renderCredits(creditsList, m, lang)).catch(() => undefined);
+  cameraPanel?.setLang(lang);
 }
 
 langButton.addEventListener("click", () => {
@@ -46,12 +49,27 @@ applyLang();
 
 if (!Engine.isSupported()) {
   canvas.hidden = true;
+  element("camera-panel").hidden = true;
   statusKey = null;
   element("no-webgl").hidden = false;
   applyLang();
 } else {
   const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true });
-  const { scene, ready } = createScene(engine, canvas);
+  const { scene, camera, ready } = createScene(engine, canvas);
+  cameraPanel = new CameraPanel(
+    engine,
+    scene,
+    camera,
+    {
+      panel: element("camera-panel"),
+      frame: element("frame"),
+      meterNeedle: element("meter-needle"),
+      meterValue: element("meter-value"),
+      bodyButton: element<HTMLButtonElement>("body-button"),
+      bodyDialog: element<HTMLDialogElement>("body-dialog"),
+    },
+    lang,
+  );
   ready
     .then(() => {
       statusKey = null;
