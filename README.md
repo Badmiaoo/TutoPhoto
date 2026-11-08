@@ -6,11 +6,11 @@ Boîte à outils open source, en français et en anglais, qui apprend la photo a
 
 TutoPhoto est le nom du projet. L'application est publiée sur GitHub Pages : https://badmiaoo.github.io/TutoPhoto/
 
-## État au 7 novembre 2026
+## État au 8 novembre 2026
 
-- Cadrage et référentiel v0.2 à l'état de brouillon, à remettre en question : 191 notions en 13 domaines, 49 situations, 78 sources.
+- Cadrage et référentiel v0.2 à l'état de brouillon, à remettre en question : 191 notions en 13 domaines, 49 situations, 96 sources.
 - Pour débutants avec un boîtier reflex ou hybride. Scènes en 3D de synthèse ; on commence par une V1 minimale (une scène de parc, trois situations), testée avec des débutants avant d'étendre.
-- Pas encore de code applicatif ni de contenu rédigé : couverture 0 sur 191.
+- Application en construction : la scène de parc s'affiche (fond photo à 360°, banc, poubelles), sans caméra physique pour l'instant. Pas encore de contenu rédigé : couverture 0 sur 191.
 
 ## Contenu du dépôt
 
@@ -18,9 +18,9 @@ TutoPhoto est le nom du projet. L'application est publiée sur GitHub Pages : ht
 | --- | --- |
 | `data/` | Référentiel (`data/referentiel/`), situations, sources et jalons : la source de vérité |
 | `docs/` | Cadrage, architecture, lecture du référentiel, contenus, licences, pile technique, publication, questions ouvertes, historique |
-| `schemas/` | Schémas JSON des fichiers de `data/` |
-| `app/` | Application (TypeScript, Babylon.js, Vite) |
-| `scripts/` | Extraction, validation et couverture |
+| `schemas/` | Schémas JSON des fichiers de `data/` et des manifestes de scène |
+| `app/` | Application (TypeScript, Babylon.js, Vite) ; scènes 3D et leurs crédits dans `app/public/scenes/` |
+| `scripts/` | Extraction, validation, couverture et contrôles (scènes 3D, dépôt public, changelog) |
 | `REPRISE.md` | Fichier de reprise du 7 novembre 2026, gardé tel quel comme archive |
 | `CLAUDE.md` | Règles de travail |
 | `CHANGELOG.md` | Versions et tags |
@@ -53,6 +53,7 @@ python3 scripts/coverage.py
 
 - Une branche et une pull request par sujet ; pas de push direct sur `main`.
 - Toute modification de `data/` passe par `scripts/validate.py`.
+- Toute scène 3D passe par `scripts/check_scenes.py` : chaque fichier figure dans le manifeste `scene.json` de sa scène, avec son auteur, sa licence (CC0 ou CC BY) et son empreinte.
 - Les identifiants sont stables : jamais renumérotés ; un identifiant retiré va dans `data/referentiel/retired.yaml`.
 - Toute affirmation factuelle est sourcée ; les sources vont dans `data/sources.yaml`.
 - Dépôt public : aucun secret, aucune donnée personnelle, aucun lien privé ([docs/publication.md](docs/publication.md)) ; `python3 scripts/check_public.py --commits all` le vérifie.
@@ -60,8 +61,8 @@ python3 scripts/coverage.py
 
 ## Licence
 
-- Code (`scripts/`, `schemas/`, `.github/`, application à venir) : MIT, voir [LICENSE](LICENSE).
+- Code (`scripts/`, `schemas/`, `.github/`, `app/` hors modèles et textures de tiers) : MIT, voir [LICENSE](LICENSE).
 - Contenus et données (`content/`, `docs/`, `data/`, README, changelog) : CC BY-SA 4.0, voir [LICENSES/CC-BY-SA-4.0.txt](LICENSES/CC-BY-SA-4.0.txt).
-- Modèles et textures 3D de tiers : CC0 ou CC BY uniquement, chacun avec son auteur et sa licence.
+- Modèles, textures et photos 3D de tiers (`app/public/scenes/`) : CC0 ou CC BY uniquement, chacun avec son auteur et sa licence, affichés dans l'application (bouton « Crédits »).
 
 Détail : [docs/licences.md](docs/licences.md).

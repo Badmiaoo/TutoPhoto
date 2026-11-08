@@ -1,0 +1,33 @@
+# Commits publiés avant le 8 novembre 2026 dont le message contient un lien vers une session Claude
+# (ligne « Claude-Session » ajoutée par Claude, vers claude.ai/code/session_…). Ce lien désigne une
+# ressource privée : seul son propriétaire peut l'ouvrir. Fuite signalée à Julien le 8 novembre 2026 ;
+# l'historique publié ne se réécrit pas (CLAUDE.md, docs/publication.md). scripts/check_public.py
+# tolère ce seul type de problème, dans le message de ces seuls commits ; tout nouveau commit est contrôlé.
+0675ea1597f8175691c3a9df702c1523851ceda4
+b0bedf4cb2ffe94efa1b840c65b7ffca930344bc
+9595ca8382725fa88755ddfe94ce99a2471059b5
+1145032c5862df2834ffeb803e7722ffe7e1616b
+69e2bc56c63581af3a8636844c7fc8b899d88829
+88bebcaee27e8ceb3d88607604eb7c41db264bfe
+c85c9bb490f142bd12dc88fdce95ee35a149fdb7
+91dfa4320a0848d9238e21a5fb3894c92ecf327c
+9d0c3e6503ad1dc388f88bd8425993faaee5cb90
+691770d4d11b64daf1b296e32b48c176afc73367
+5c517387f43ebe8dc4d9a38f1d7949492c5dc929
+90b09fe1eb51850b5337c2aa5ed716d1746bca74
+3509d312c71342bdace9fa801a51164ae4c12ca0
+f7e67d601b9e3e82804a5c05a4952fe9d322db0e
+66ae78d7ceba5795504a37fcc4b52cedff56fabc
+baa9fec5fa83855fb24874cf6b410b8840f022cf
+bbf1adfc0f95a00db256b064ee816cf3a166cf3c
+f69c1781e6ca823bc23836669322b714d48895ef
+aa8f45e09d944612d8c51ef9363fd66979a14c40
+cce06e630b2786bd1937be9c77dc9092e859774e
+c5066e2d69b993b840a36dd6639493cdd5f8f64d
+6e8304323aa201913cc92f2532741a93655ec06e
+2cbca4863e493783c67b0a89aa29e8043c681427
+6485305a78a821e7cfcfb4f45a443bc17681bc47
+818c9d869fd35d1141322a658c908e0e640f97e1
+5b94ba2617a81d510c2e9a54d8acb8d22fc661d7
+876f85b183a8453da444843551ba7c2cd9662d2a
+e89680d9a29f06d6fb2013739952854173101ace

@@ -17,7 +17,7 @@ Archive de reprise : `REPRISE.md`.
 
 ## Dépôt public : rien ne doit filtrer (`docs/publication.md`)
 - Ne jamais écrire dans un fichier, un message de commit, une pull request ou un commentaire : secret (jeton, clé, mot de passe, clé privée), donnée personnelle (adresse électronique hors « noreply », téléphone, adresse postale), lien vers une ressource privée (Claude, Google Docs ou Drive, Dropbox, Notion), chemin local qui révèle un nom d'utilisateur. Seules exceptions : le nom de Julien comme auteur des commits et comme titulaire du copyright dans `LICENSE`.
-- Commits uniquement avec une adresse « noreply ».
+- Commits uniquement avec une adresse « noreply ». Ni ligne « Claude-Session » ni lien vers une session Claude dans les commits et les pull requests (fuite du 8 novembre 2026, `docs/publication.md`).
 - Un secret nécessaire à un workflow va dans les secrets GitHub du dépôt, jamais dans un fichier.
 - `python3 scripts/check_public.py --commits all` avant toute pull request ; la CI le lance, avec gitleaks sur tout l'historique.
 - Si quelque chose a fuité : le dire à Julien tout de suite ; un secret se révoque chez son émetteur, l'historique publié ne se réécrit pas.
@@ -25,7 +25,7 @@ Archive de reprise : `REPRISE.md`.
 ## Dépôt
 - Jamais de push sur `main` : une branche et une pull request par sujet.
 - Julien autorise Claude à gérer la configuration de ce dépôt, et de lui seul (7 novembre 2026). Ce qui vit dans le dépôt (workflows, `.github/`) passe par une pull request ; un réglage de GitHub que les outils de Claude ne permettent pas de changer est indiqué à Julien, avec le chemin exact dans l'interface.
-- `python3 scripts/validate.py` avant toute pull request qui touche `data/` ; `cd app && npm run build` avant toute pull request qui touche `app/`.
+- `python3 scripts/validate.py` avant toute pull request qui touche `data/` ; `cd app && npm run build` avant toute pull request qui touche `app/` ; `python3 scripts/check_scenes.py` avant toute pull request qui touche `app/public/scenes/`.
 - Claude fusionne lui-même ses pull requests quand la CI est verte sur le dernier commit (commit de fusion, pas de squash), puis vérifie que le tag de version a été posé.
 - Chaque pull request fusionnée est une version : elle ajoute sa section à `CHANGELOG.md` (contrôlée par `python3 scripts/changelog.py check --base origin/main`), et le workflow `tag.yml` pose le tag annoté `vX.Y.Z` sur son commit de fusion et publie la release GitHub. Numérotation dans `CHANGELOG.md`.
 - Identifiants stables, jamais renumérotés ; un identifiant retiré va dans `data/referentiel/retired.yaml`.

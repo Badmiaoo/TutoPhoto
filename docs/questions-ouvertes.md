@@ -9,7 +9,7 @@ _Repris de la section 8 de `REPRISE.md` (7 novembre 2026), puis mis à jour le m
 - [x] Nom du projet : tranché le 7 novembre 2026, TutoPhoto.
 - [x] Licences : tranché le 7 novembre 2026. Code sous MIT, contenus et données sous CC BY-SA 4.0, modèles et textures 3D de tiers sous CC0 ou CC BY (`docs/licences.md`).
 - [x] Smartphone : tranché le 7 novembre 2026. Hors périmètre, comme les compacts et les bridges : reflex et hybrides uniquement.
-- [ ] Scènes 3D (pour la scène de parc, tranché le 7 novembre 2026 : entièrement en modèles et textures sous CC0 ou CC BY, stockés dans le dépôt) : qui les modélise (le porteur du projet, des contributeurs, des bibliothèques de modèles sous licence libre), avec quel niveau de réalisme, et où stocker les fichiers lourds (hors du dépôt Git ou non) ?
+- [ ] Scènes 3D. Pour la scène de parc, tranché les 7 et 8 novembre 2026 : modèles, textures et photos sous CC0 ou CC BY, stockés dans le dépôt ; fond et éclairage tirés d'une photo à 360°, premier plan en 3D (`docs/historique.md`). Reste ouvert pour les autres scènes : qui les assemble, avec quel niveau de réalisme.
 - [ ] Relecture : qui valide l'exactitude des contenus et de leurs sources avant publication, en français et en anglais ?
 - [x] Flash en 2.5D : sans objet depuis le passage à la 3D de synthèse. Le rendu du flash reste à vérifier dans la maquette (chantier du domaine LUM).
 - [x] Hébergement : tranché le 7 novembre 2026. Dépôt public (`docs/publication.md`) et GitHub Pages d'abord (site statique), avec bascule vers le serveur de Julien si le moteur 3D exige des en-têtes HTTP particuliers ou si les scènes dépassent les [limites de GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits).
@@ -19,6 +19,12 @@ _Repris de la section 8 de `REPRISE.md` (7 novembre 2026), puis mis à jour le m
 ## Points à surveiller
 
 - Réalisme de la 3D de synthèse : à évaluer dans la maquette, avec les débutants.
+- Fond photo à 360° de la scène de parc :
+  - L'image affichée est la version JPG de Poly Haven, en 8 bits et déjà tonemappée : ses hautes lumières sont écrêtées. Seul l'éclairage vient du fichier HDR (1024 × 512 px). À réévaluer quand l'exposition sera simulée (surexposition, sous-exposition du ciel).
+  - Profondeur de champ : le fond est placé à 500 m, ce qui revient à l'infini. Le flou d'un arrière-plan à la distance d, pour une mise au point à s, vaut (1 − s/d) fois le flou à l'infini. Exemple : portrait à s = 2 m devant des arbres à d = 30 m, 1 − 2/30 ≈ 0,93, soit un flou réel inférieur d'environ 7 % à celui affiché. La distance réelle des arbres de la photo n'est pas connue.
+  - Hauteur de prise de vue de la photo : non publiée par Poly Haven ; 1,6 m supposé. Si elle est fausse, les objets 3D paraissent posés trop près ou trop loin sur le sol de la photo.
+  - Mémoire sur téléphone : la photo fait 8192 × 4096 px. Babylon la réduit si l'appareil n'accepte pas cette taille de texture, mais la mémoire utilisée reste à mesurer sur les téléphones des testeurs.
+  - Ombres de contact sous les objets 3D : réglées à l'œil le 8 novembre 2026.
 - Rendu, au choix du moteur : flou d'un premier plan qui déborde sur le sujet, flou de mouvement et poses longues, flash (chantiers des domaines MAP, MVT et LUM).
 - Niveaux des situations : la règle de la médiane est un choix par défaut de la v0.2, à confirmer en écrivant les premiers défis.
 - Lisibilité sur téléphone, demandée par l'audit indépendant : intitulé anglais à la ligne, codes cliquables, textes lisibles. À appliquer dans la maquette.

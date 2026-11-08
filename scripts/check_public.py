@@ -8,8 +8,10 @@ Contrôles, tous bloquants :
   en clair, adresses électroniques (hors adresses « noreply » et domaines d'exemple), numéros de téléphone,
   liens vers des ressources privées (Claude, Google Docs et Drive, Dropbox, Notion), chemins locaux
   qui révèlent un nom d'utilisateur ;
-- métadonnées des commits (avec --commits) : adresses des auteurs et des committers, qui doivent être
-  des adresses « noreply ».
+- commits (avec --commits) : adresses des auteurs et des committers, qui doivent être des adresses
+  « noreply », et messages, soumis aux mêmes contrôles que les fichiers. Seule exception : les commits
+  listés dans scripts/check_public_historique.txt, publiés avec un lien vers une session Claude dans
+  leur message, tolérés pour ce seul problème (fuite signalée, historique non réécrit).
 
 Les secrets dans tout l'historique sont aussi cherchés par gitleaks, dans la CI.
 Les valeurs trouvées ne sont jamais affichées en entier.
@@ -29,6 +31,8 @@ ALLOWED_EMAIL = re.compile(
     re.IGNORECASE,
 )
 
+PRIVATE_LINK = "lien vers une ressource privée"
+
 PATTERNS = [
     ("clé privée", re.compile(r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----")),
     ("jeton GitHub", re.compile(r"\b(gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{22,})\b")),
@@ -43,8 +47,9 @@ PATTERNS = [
         r"\s*[:=]\s*[\"'][^\"'\s]{8,}[\"']")),
     ("numéro de téléphone", re.compile(r"(?<![\w.+-])(?:\+33[\s.]?|0)[1-9](?:[\s.-]?\d{2}){4}(?![\w-])")),
     ("numéro de téléphone international", re.compile(r"(?<![\w.])\+\d{1,3}[\s.-]?\(?\d{1,4}\)?(?:[\s.-]?\d{2,4}){2,4}(?![\w.])")),
-    ("lien vers une ressource privée", re.compile(
-        r"https?://(claude\.ai/(artifact|chat|project|share)/|docs\.google\.com/|drive\.google\.com/"
+    (PRIVATE_LINK, re.compile(
+        r"https?://(claude\.ai/(artifact|chat|project|share)/|claude\.ai/code/(session_|artifact/)"
+        r"|docs\.google\.com/|drive\.google\.com/"
         r"|(www\.)?dropbox\.com/(s|sh|scl)/|(www\.)?notion\.(so|site)/)\S*")),
     ("chemin local avec nom d'utilisateur", re.compile(
         r"(?:/Users/|/home/(?!user\b|runner\b)|[A-Za-z]:\\Users\\)[A-Za-z0-9._-]+")),
@@ -61,9 +66,22 @@ def tracked_files():
     return [ROOT / p for p in out.split("\0") if p]
 
 
-def scan_text(label, text, problems):
+HISTORY_FILE = ROOT / "scripts" / "check_public_historique.txt"
+
+
+def known_history():
+    """Commits publiés avec un lien de session Claude dans leur message (fuite signalée le 8 novembre 2026)."""
+    if not HISTORY_FILE.is_file():
+        return set()
+    lines = HISTORY_FILE.read_text(encoding="utf-8").splitlines()
+    return {l.strip() for l in lines if l.strip() and not l.startswith("#")}
+
+
+def scan_text(label, text, problems, skip=()):
     for n, line in enumerate(text.splitlines(), 1):
         for kind, pattern in PATTERNS:
+            if kind in skip:
+                continue
             for m in pattern.finditer(line):
                 problems.append(f"{label}:{n} : {kind} ({redact(m.group(0))})")
         for m in EMAIL.finditer(line):
@@ -85,16 +103,21 @@ def scan_files(problems):
 
 
 def scan_commits(spec, problems):
-    args = ["git", "log", "--format=%H%x09%ae%x09%ce"]
+    # -z : commits séparés par un octet nul ; première ligne : empreinte, auteur, committer ; puis le message.
+    args = ["git", "log", "-z", "--format=%H%x09%ae%x09%ce%n%B"]
     args += ["--all"] if spec == "all" else [spec]
     out = subprocess.run(args, cwd=ROOT, capture_output=True, text=True, check=True).stdout
-    lines = [l for l in out.splitlines() if l]
-    for line in lines:
-        sha, author, committer = line.split("\t")
+    records = [r for r in out.split("\0") if r.strip()]
+    known = known_history()
+    for record in records:
+        header, _, message = record.partition("\n")
+        sha, author, committer = header.split("\t")
         for role, email in (("de l'auteur", author), ("du committer", committer)):
             if not ALLOWED_EMAIL.match(email):
                 problems.append(f"commit {sha[:7]} : adresse {role} non autorisée ({redact(email)})")
-    return len(lines)
+        skip = (PRIVATE_LINK,) if sha in known else ()
+        scan_text(f"commit {sha[:7]} (message)", message, problems, skip)
+    return len(records)
 
 
 def main():

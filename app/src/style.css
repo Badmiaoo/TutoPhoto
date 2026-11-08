@@ -60,13 +60,15 @@ body {
 }
 
 .links a,
-.links button {
+.links button,
+dialog button {
   color: inherit;
   font: inherit;
   font-size: 0.9rem;
 }
 
-.links button {
+.links button,
+dialog button {
   padding: 0.25rem 0.6rem;
   border: 1px solid currentColor;
   border-radius: 4px;
@@ -75,8 +77,58 @@ body {
 }
 
 main {
+  position: relative;
   flex: 1;
   min-height: 0;
+}
+
+.status {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  background: var(--fond);
+  color: var(--texte);
+  font-size: 0.9rem;
+}
+
+dialog {
+  max-width: min(36rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  border: 1px solid var(--discret);
+  border-radius: 6px;
+  background: var(--fond);
+  color: var(--texte);
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+dialog h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+dialog ul {
+  padding-left: 1.1rem;
+  line-height: 1.5;
+}
+
+dialog li + li {
+  margin-top: 0.6rem;
+}
+
+dialog .role {
+  color: var(--discret);
+  font-size: 0.9rem;
+}
+
+dialog a {
+  color: inherit;
 }
 
 #scene {
