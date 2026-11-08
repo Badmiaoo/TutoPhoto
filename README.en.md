@@ -17,7 +17,7 @@ TutoPhoto is the project name. The application is published on GitHub Pages: htt
 | Path | Purpose |
 | --- | --- |
 | `data/` | Curriculum (`data/referentiel/`), situations, sources and milestones: the source of truth |
-| `docs/` | Scope, architecture, reading the curriculum, content, licenses, tech stack, publication, open questions, history (in French) |
+| `docs/` | Scope, architecture, reading the curriculum, content, licenses, tech stack, physical camera, publication, open questions, history (in French) |
 | `schemas/` | JSON Schemas for the files in `data/` and for scene manifests |
 | `app/` | Application (TypeScript, Babylon.js, Vite); 3D scenes and their credits in `app/public/scenes/` |
 | `scripts/` | Extraction, validation, coverage and checks (3D scenes, public repository, changelog) |

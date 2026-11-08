@@ -45,8 +45,8 @@ _Repris de la section 8 de `REPRISE.md` (7 novembre 2026), puis mis à jour le m
   - COU-09 : sourcer la pratique de la balance des blancs sous l'eau à la rédaction.
   - PLA-07 : écrire le contenu juridique pays par pays, à partir des textes officiels ; aucun chiffre ni article inventé.
   - PLA-09 : écrire le contenu juridique pays par pays, à partir des textes officiels ; aucun chiffre ni article inventé.
-  - Domaine MAP : vérifier, au choix du moteur de rendu, que le flou d'un premier plan qui déborde sur le sujet est rendu correctement.
-  - Domaine MVT : choisir, avec le moteur de rendu, la méthode de rendu du flou de mouvement et des poses longues.
+  - Domaine MAP : vérifier, au choix du moteur de rendu, que le flou d'un premier plan qui déborde sur le sujet est rendu correctement. L'accumulation de rendus retenue pour la photo le traite par construction ; à vérifier dans la mise en œuvre.
+  - Domaine MVT : choisir, avec le moteur de rendu, la méthode de rendu du flou de mouvement et des poses longues. Pour la photo, tranché le 8 novembre 2026 : accumulation de rendus (`docs/camera-physique.md`).
   - Domaine LUM : vérifier, dans la maquette 3D, le rendu du flash direct, rebondi et déporté.
 
 ## Prochaines étapes

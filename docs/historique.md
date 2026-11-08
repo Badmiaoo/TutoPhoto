@@ -112,3 +112,11 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
   - Nathan : 1,23 à 1,27 m/s selon le pied et le point mesuré ; 1,25 m/s retenu.
   - Jim : de 2,4 à 13,3 unités/s selon la patte (médiane 10,6 ; deux pattes concordent vers 13). L'épaule est à 2,05 unités du sol, donc 0,6 / 2,05 ≈ 0,29 m par unité, soit 3,1 à 3,9 m/s entre la médiane et la valeur concordante. 3,5 m/s retenu ; mesure imprécise.
 - Le Shiba Inu, retiré, n'avait jamais été intégré.
+
+## 8 novembre 2026 : caméra physique
+
+- Rendu : le viseur montre en temps réel le cadrage, l'exposition et une profondeur de champ approchée (effets de Babylon.js) ; au déclenchement, la photo est calculée exactement par accumulation de rendus (Haeberli et Akeley, 1990). Babylon.js plafonne son flou d'arrière-plan et règle son flou de mouvement à la main ; le détail est dans `docs/camera-physique.md`.
+- Capteur : plein format ou APS-C, au choix du débutant.
+- Bruit : modèle physique (bruit photonique et bruit de lecture), à partir des mesures de William J. Claff (PhotonsToPhotos).
+- Boîtiers de référence : trois paires au choix de la marque, Nikon Z 6 et D5600, Sony A7 III et A6000, Canon EOS RP et EOS 2000D. La réponse de Julien, « 1,2,3 », est comprise comme « les trois ».
+- Trois hôtes ajoutés à l'environnement de travail pour lire les sources : imaging.kodakalaris.com, www.photonstophotos.net, en.wikipedia.org.

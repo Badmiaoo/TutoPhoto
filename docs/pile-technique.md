@@ -80,6 +80,8 @@ Le 7 novembre 2026, Julien a choisi l'option B, Babylon.js. Points à traiter da
 - mesurer les performances sur les téléphones des testeurs ;
 - reprendre la licence Apache-2.0 et les mentions de `NOTICE.md` de Babylon.js dans la distribution.
 
+Le 8 novembre 2026, Julien a choisi comment calculer la photo : effets approchés de Babylon.js dans le viseur, et photo exacte calculée au déclenchement par accumulation de rendus. Modèle et plan : `docs/camera-physique.md`.
+
 ## Outillage de l'application
 
 Décidé par Julien le 7 novembre 2026 ; versions et licences lues dans le registre npm le même jour.
