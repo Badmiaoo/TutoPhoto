@@ -6,11 +6,11 @@ An open source toolkit, in French and English, that teaches photography to begin
 
 TutoPhoto is the project name. The application is published on GitHub Pages: https://badmiaoo.github.io/TutoPhoto/
 
-## Status as of 7 November 2026
+## Status as of 8 November 2026
 
-- Scope and curriculum v0.2 are a draft, open to challenge: 191 topics in 13 domains, 49 situations, 78 sources.
+- Scope and curriculum v0.2 are a draft, open to challenge: 191 topics in 13 domains, 49 situations, 96 sources.
 - For beginners with a DSLR or mirrorless camera. Scenes are synthetic 3D; we start with a minimal V1 (one park scene, three situations), tested with beginners before going further.
-- No application code or written content yet: coverage 0 of 191.
+- Application under construction: the park scene is displayed (360° photo background, bench, trash cans), with no physical camera yet. No written content yet: coverage 0 of 191.
 
 ## Repository layout
 
@@ -18,9 +18,9 @@ TutoPhoto is the project name. The application is published on GitHub Pages: htt
 | --- | --- |
 | `data/` | Curriculum (`data/referentiel/`), situations, sources and milestones: the source of truth |
 | `docs/` | Scope, architecture, reading the curriculum, content, licenses, tech stack, publication, open questions, history (in French) |
-| `schemas/` | JSON Schemas for the files in `data/` |
-| `app/` | Application (TypeScript, Babylon.js, Vite) |
-| `scripts/` | Extraction, validation and coverage |
+| `schemas/` | JSON Schemas for the files in `data/` and for scene manifests |
+| `app/` | Application (TypeScript, Babylon.js, Vite); 3D scenes and their credits in `app/public/scenes/` |
+| `scripts/` | Extraction, validation, coverage and checks (3D scenes, public repository, changelog) |
 | `REPRISE.md` | Handover file of 7 November 2026, kept as is as an archive |
 | `CLAUDE.md` | Working rules |
 | `CHANGELOG.md` | Releases and tags (in French) |
@@ -53,6 +53,7 @@ python3 scripts/coverage.py
 
 - One branch and one pull request per topic; no direct push to `main`.
 - Every change to `data/` goes through `scripts/validate.py`.
+- Every 3D scene goes through `scripts/check_scenes.py`: each file is listed in its scene's `scene.json` manifest, with its author, its license (CC0 or CC BY) and its checksum.
 - Identifiers are stable: never renumbered; a retired identifier goes into `data/referentiel/retired.yaml`.
 - Every factual claim is sourced; sources go into `data/sources.yaml`.
 - Public repository: no secrets, no personal data, no private links ([docs/publication.md](docs/publication.md), in French); `python3 scripts/check_public.py --commits all` checks it.
@@ -60,8 +61,8 @@ python3 scripts/coverage.py
 
 ## License
 
-- Code (`scripts/`, `schemas/`, `.github/`, upcoming application): MIT, see [LICENSE](LICENSE).
+- Code (`scripts/`, `schemas/`, `.github/`, `app/` except third-party models and textures): MIT, see [LICENSE](LICENSE).
 - Content and data (`content/`, `docs/`, `data/`, READMEs, changelog): CC BY-SA 4.0, see [LICENSES/CC-BY-SA-4.0.txt](LICENSES/CC-BY-SA-4.0.txt).
-- Third-party 3D models and textures: CC0 or CC BY only, each with its author and license.
+- Third-party 3D models, textures and photos (`app/public/scenes/`): CC0 or CC BY only, each with its author and license, shown in the application ("Credits" button).
 
 Details: [docs/licences.md](docs/licences.md) (in French).

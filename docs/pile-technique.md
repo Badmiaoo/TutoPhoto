@@ -87,6 +87,8 @@ Décidé par Julien le 7 novembre 2026 ; versions et licences lues dans le regis
 - Code de l'application en TypeScript, dans `app/` : [TypeScript](https://www.npmjs.com/package/typescript) 7.0.2, licence Apache-2.0, outil de développement seulement (absent du site publié).
 - Construction avec [Vite](https://www.npmjs.com/package/vite) 8.3.6, licence MIT, outil de développement seulement ; le polyfill de préchargement de Vite est désactivé, si bien que le site publié ne contient que notre code et celui de Babylon.js.
 - Moteur : [@babylonjs/core](https://www.npmjs.com/package/@babylonjs/core) 9.35.0, licence Apache-2.0. Sa licence et son `NOTICE.md` sont recopiés dans le site construit (`licences/`), avec les licences du projet.
+- Chargement des modèles glTF : [@babylonjs/loaders](https://www.npmjs.com/package/@babylonjs/loaders) 9.35.0, licence Apache-2.0, ajouté le 8 novembre 2026 ; il dépend de [babylonjs-gltf2interface](https://www.npmjs.com/package/babylonjs-gltf2interface) 9.35.0 (Apache-2.0, déclarations de types seulement). Versions et licences lues dans le registre npm le 7 novembre 2026.
+- Scène de parc (8 novembre 2026) : fond `PhotoDome` (photo à 360°), éclairage par `HDRCubeTexture`, sol invisible en `BackgroundMaterial` qui ne reçoit que les ombres. Code dans `app/src/scene.ts` ; fichiers et crédits dans `app/public/scenes/parc/`.
 - Publication sur GitHub Pages à chaque fusion sur `main`, par le workflow `.github/workflows/pages.yml`. GitHub Pages doit être activé dans les réglages du dépôt, avec la source « GitHub Actions ».
 - La CI des pull requests vérifie les types et construit le site (`.github/workflows/validate.yml`, job `app`).
 

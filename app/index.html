@@ -11,13 +11,23 @@
       <p id="subtitle" class="subtitle"></p>
       <nav class="links">
         <button id="lang" type="button"></button>
+        <button id="credits" type="button"></button>
         <a id="licences" href="licences/"></a>
       </nav>
     </header>
     <main>
       <canvas id="scene"></canvas>
+      <p id="status" class="status" role="status"></p>
       <p id="no-webgl" class="error" hidden></p>
     </main>
+    <dialog id="credits-dialog" aria-labelledby="credits-title">
+      <h2 id="credits-title"></h2>
+      <p id="credits-intro"></p>
+      <ul id="credits-list"></ul>
+      <form method="dialog">
+        <button id="credits-close" type="submit"></button>
+      </form>
+    </dialog>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
