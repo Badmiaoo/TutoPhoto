@@ -129,12 +129,16 @@ ShaderStore.ShadersStore[`${VIEWFINDER_SHADER}FragmentShader`] = `
 precision highp float;
 varying vec2 vUV;
 uniform sampler2D textureSampler;
+uniform float noiseGain;
 ${NOISE_GLSL}
 void main(void) {
   // L'image du viseur est déjà encodée (puissance 1/2,2) et écrêtée : on revient en lumière linéaire,
   // on ajoute le bruit, puis on réencode. Approximation : les hautes lumières écrêtées n'ont plus de bruit.
   vec3 linear = pow(texture2D(textureSampler, vUV).rgb, vec3(2.2));
-  vec3 noisy = clamp(addSensorNoise(linear, gl_FragCoord.xy), 0.0, 1.0);
+  // Aperçu de la luminosité coupé : l'image affichée vaut l'image réelle divisée par noiseGain. Le bruit
+  // est celui de l'image réelle, ramené à l'échelle de l'image affichée.
+  vec3 real = min(linear * noiseGain, 1.0);
+  vec3 noisy = clamp(linear + (addSensorNoise(real, gl_FragCoord.xy) - real) / noiseGain, 0.0, 1.0);
   gl_FragColor = vec4(pow(noisy, vec3(1.0 / 2.2)), 1.0);
 }`;
 
@@ -142,27 +146,53 @@ void main(void) {
 export class ViewfinderNoise {
   private readonly postProcess: PostProcess;
   private params: NoiseParameters | null = null;
+  private gain = 1;
+  private enabled = true;
+  private suspended = false;
+  private attached = true;
 
   constructor(
     scene: Scene,
     private readonly camera: Camera,
   ) {
-    this.postProcess = new PostProcess("viseur-bruit", VIEWFINDER_SHADER, NOISE_UNIFORMS, ["noiseSampler"], 1, camera);
+    this.postProcess = new PostProcess("viseur-bruit", VIEWFINDER_SHADER, [...NOISE_UNIFORMS, "noiseGain"], ["noiseSampler"], 1, camera);
     this.postProcess.onApply = (effect) => {
       if (this.params) bindNoise(effect, scene, this.params);
+      effect.setFloat("noiseGain", this.gain);
     };
   }
 
-  update(body: Body, iso: number, framePixels: number): void {
+  /**
+   * Paramètres du bruit. gain : rapport entre l'image réelle et l'image affichée, 1 quand le viseur montre
+   * la luminosité réelle, 2^écart quand l'aperçu de la luminosité est coupé.
+   */
+  update(body: Body, iso: number, framePixels: number, gain: number): void {
     this.params = noiseParameters(body, iso, framePixels);
+    this.gain = gain;
+  }
+
+  /** Interrupteur de l'aperçu du bruit dans le viseur. */
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
+    this.sync();
   }
 
   /** Retire le bruit du viseur pendant le calcul d'une photo, qui ajoute le sien. */
-  detach(): void {
-    this.camera.detachPostProcess(this.postProcess);
+  suspend(): void {
+    this.suspended = true;
+    this.sync();
   }
 
-  attach(): void {
-    this.camera.attachPostProcess(this.postProcess);
+  resume(): void {
+    this.suspended = false;
+    this.sync();
+  }
+
+  private sync(): void {
+    const wanted = this.enabled && !this.suspended;
+    if (wanted === this.attached) return;
+    if (wanted) this.camera.attachPostProcess(this.postProcess);
+    else this.camera.detachPostProcess(this.postProcess);
+    this.attached = wanted;
   }
 }

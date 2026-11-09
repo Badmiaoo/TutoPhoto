@@ -102,7 +102,7 @@ export class Shutter {
     this.el.progress.hidden = false;
     this.el.progressBar.style.width = "0%";
     this.engine.stopRenderLoop();
-    this.noise.detach();
+    this.noise.suspend();
     try {
       const photo = await takePhoto(
         this.engine,
@@ -147,7 +147,7 @@ export class Shutter {
       this.el.review.hidden = false;
     } finally {
       this.el.progress.hidden = true;
-      this.noise.attach();
+      this.noise.resume();
       this.panel.setEnabled(true);
       this.resumeRendering();
       this.busy = false;
