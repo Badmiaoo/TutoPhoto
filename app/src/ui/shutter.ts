@@ -9,6 +9,7 @@ import { takePhoto, type GroundInfo, type PhotoRequest, type PhotoResult, type S
 import { sensorPixels } from "../camera/bodies";
 import type { CameraPanel, CurrentSettings } from "./cameraPanel";
 import type { ViewfinderNoise } from "../camera/noise";
+import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
 import { t, type Lang, type MessageKey } from "../i18n";
 
 /** Un toucher qui bouge de moins de 6 px et dure moins de 0,4 s choisit le point ; au-delà, on tourne. */
@@ -72,6 +73,7 @@ export class Shutter {
     private readonly resumeRendering: () => void,
     private lang: Lang,
     private readonly noise: ViewfinderNoise,
+    private readonly dof: ViewfinderDepthOfField,
   ) {
     let down: { x: number; y: number; at: number } | null = null;
     el.canvas.addEventListener("pointerdown", (e) => (down = { x: e.clientX, y: e.clientY, at: performance.now() }));
@@ -136,13 +138,16 @@ export class Shutter {
     this.el.progressBar.style.width = "0%";
     this.engine.stopRenderLoop();
     this.noise.suspend();
+    this.dof.suspend();
     try {
       return await takePhoto(this.engine, this.scene, this.camera, this.time, this.ground, request, (fraction) => {
         this.el.progressBar.style.width = `${Math.round(fraction * 100)}%`;
       });
     } finally {
       this.el.progress.hidden = true;
+      this.dof.resume();
       this.noise.resume();
+      this.noise.moveToEnd();
       this.panel.setEnabled(true);
       this.panel.restoreView();
       this.resumeRendering();

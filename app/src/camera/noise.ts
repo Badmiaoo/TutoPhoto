@@ -227,6 +227,13 @@ export class ViewfinderNoise {
     this.sync();
   }
 
+  /** Remet le bruit en dernier post-traitement, après un effet attaché depuis (profondeur de champ). */
+  moveToEnd(): void {
+    if (!this.attached) return;
+    this.camera.detachPostProcess(this.postProcess);
+    this.camera.attachPostProcess(this.postProcess);
+  }
+
   private sync(): void {
     const wanted = this.compiled && this.enabled && !this.suspended;
     if (wanted === this.attached) return;
