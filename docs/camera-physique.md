@@ -326,7 +326,7 @@ Ce que disent les manuels, lus le 9 novembre 2026 :
 - Sony α9, « Focus Mode » ([guide d'aide](https://helpguide.sony.net/ilc/1650/v1/en/contents/TP0001486782.html)) : AF-S « locks the focus once focusing is complete » ; AF-C « continues to focus while the shutter button is pressed and held halfway down ».
 
 Dans TutoPhoto (`app/src/camera/autofocus.ts`) :
-- **Choix du mode** : bouton « AF-S / AF-C » du boîtier. AF-C par défaut, ce qui garde le comportement des versions précédentes. Le choix est mémorisé avec le boîtier.
+- **Choix du mode** : bouton « AF-S / AF-C » du boîtier, remplacé en version 0.3.27 par la fenêtre « Mise au point ». AF-C par défaut, ce qui garde le comportement des versions précédentes. Le choix est mémorisé avec le boîtier.
 - **Mi-course** : un écran tactile n'a pas de déclencheur à mi-course ; toucher le viseur en tient lieu.
 - **AF-S** :
   - toucher le viseur mesure la distance au point touché et la verrouille jusqu'au toucher suivant, comme si le déclencheur restait à mi-course entre les photos ;
@@ -343,6 +343,29 @@ Non simulé :
 - le temps de mise au point, et la priorité au déclenchement ou à la mise au point ;
 - la prédiction du mouvement : en AF-C, la distance mesurée au déclenchement est exacte, donc la mise au point parfaite ;
 - le mode automatique et ses hésitations, que cite la fiche de MAP-04 ; le mode AF-F du Z 6, réservé à la vidéo ; la mise au point manuelle.
+
+## Modes de zone AF (version 0.3.27)
+
+Décision de Julien du 9 novembre 2026 : les quatre points proposés sont validés.
+1. AF point sélectif : le fonctionnement des versions précédentes.
+2. AF zone large (S) et (L) : mise au point sur le sujet le plus proche de la zone.
+3. AF zone automatique : avec la détection des yeux (MAP-09), sur laquelle elle repose chez Nikon.
+4. Laissés de côté : le pinpoint, qui ne diffère que par la finesse et la vitesse, non simulées ; la zone dynamique, dont le manuel ne dit pas comment elle choisit entre les points voisins.
+
+Ce que dit le manuel du Z 6 ([« Focus »](https://onlinemanual.nikonimglib.com/z7_z6/en/05_basic_settings_01.html) ; termes français du [manuel en français](https://onlinemanual.nikonimglib.com/z7_z6/fr/05_basic_settings_01.html)), lu le 9 novembre 2026 :
+- AF point sélectif (« Single-point AF ») : « The camera focuses on a point selected by the user » ; c'est le réglage par défaut.
+- AF zone large (S) et (L) (« Wide-area AF ») : comme le point sélectif, sur une zone plus large, « the focus areas for Wide-area AF (L) being larger than those for Wide-area AF (S) ». Et : « If the selected focus area contains subjects at different distances from the camera, the camera will assign priority to the closest subject ».
+- Déclencheur tactile : une option « Touch the display to focus on the selected point. Lifting your finger from the display does not release the shutter ». C'est le geste que TutoPhoto utilise depuis la version 0.3.26.
+
+Dans TutoPhoto :
+- **Fenêtre « Mise au point »**, ouverte par le bouton du boîtier (« AF-C · Point ») : mode de mise au point (AF-S, AF-C) et mode de zone AF, avec les termes du manuel en français.
+- **Zone large** : l'autofocus lit toute la zone dans la carte de profondeur du viseur et retient la plus petite distance. Sur le fond à 360°, chaque pixel prend la distance du plan du sol le long de son rayon.
+- **Taille des zones** : le manuel ne la donne pas, et les recherches du 9 novembre 2026 ne l'ont pas trouvée pour le Z 6. Elle est choisie pour TutoPhoto : des carrés de 10 % (S) et de 20 % (L) du grand côté du cadre. La zone est rognée au cadre, et le repère montre la zone réellement mesurée.
+- **Photo** : sans verrou, l'autofocus du viseur fait le point au déclenchement, avec le mode de zone choisi, et la photo prend cette distance. La photo ne mesure elle-même la distance au point que si cette mesure échoue.
+- **Affichage** : le viseur et la légende de la photo indiquent la zone (« AF-S · Zone L · verrouillée à 5,4 m »).
+- **Exemple mesuré** le 9 novembre 2026 dans le navigateur de test, sur ordinateur : au même point, en bas du cadre, 6,2 m en point sélectif et 5,4 m en zone large (L), où le sol en bas du cadre est le sujet le plus proche (4,4 m et 3,8 m sur le profil Android, tenu à la verticale). C'est le piège de la zone large : ce qui est proche dans la zone prend la mise au point.
+
+Non simulé : la taille minimale d'un sujet pour qu'une zone large le retienne (un seul pixel suffit ici), la zone dynamique, le pinpoint.
 
 ## Fonctions demandées par Julien le 9 novembre 2026
 
@@ -377,7 +400,7 @@ Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 mi
 ### Décisions de Julien du 9 novembre 2026
 
 - Indicateur de l'« équilibre » entre ouverture, vitesse et ISO, selon le point visé : forme B, un triangle dans lequel un point bouge selon les réglages. Les seuils de « trop » et de « pas assez » (exposition au point visé, traînée du sujet, profondeur de champ, bruit) sont à proposer à Julien avant de produire.
-- Modes de mise au point autres qu'un collimateur unique : « suivons ta reco », soit AF ponctuel ou continu (fait en version 0.3.26, voir « Mise au point »), puis modes de zone (MAP-05), puis détection des yeux (MAP-09). Les trois notions sont dans la V1 minimale.
+- Modes de mise au point autres qu'un collimateur unique : « suivons ta reco », soit AF ponctuel ou continu (fait en version 0.3.26, voir « Mise au point »), puis modes de zone (MAP-05, faits en version 0.3.27, voir « Modes de zone AF »), puis détection des yeux (MAP-09). Les trois notions sont dans la V1 minimale.
 
 Voir `docs/questions-ouvertes.md`.
 
@@ -390,7 +413,7 @@ Une pull request par étape :
 3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus). Interrupteurs de l'aperçu dans le viseur : version 0.3.16.
 4. Loupe dans le viseur et sur l'écran de revue : faite en version 0.3.17 (voir ci-dessus).
 5. Profondeur de champ approchée dans le viseur : faite en version 0.3.22, puis en flou de taille physique en version 0.3.23 (voir ci-dessus).
-6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26. Ensuite : modes de zone (MAP-05), détection des yeux (MAP-09), collimateurs (MAP-06), indicateur d'équilibre, flou de bougé et de sujet (MVT-01), modes d'entraînement (BOI-12).
+6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27. Ensuite : détection des yeux et zone automatique (MAP-09), collimateurs (MAP-06), indicateur d'équilibre, flou de bougé et de sujet (MVT-01), modes d'entraînement (BOI-12).
 7. Après les tests de la V1 minimale : balance des blancs, grilles de composition, histogramme (voir ci-dessus). En V2 : correction de la photo après la prise.
 
 ## Ce que je ne sais pas

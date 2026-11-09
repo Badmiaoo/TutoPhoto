@@ -54,7 +54,7 @@ notions:
       simulator: "Zones superposées dans le viseur, comportement de chaque mode"
       exercise: "Choisir le mode adapté à quatre scènes"
     situations: [SIT-05, SIT-06, SIT-08, SIT-38]
-    sources: [canon-r5ii-af-area, nikon-zr-focus, sony-a7iv-focus-area, fujifilm-gfx100-af]
+    sources: [canon-r5ii-af-area, nikon-zr-focus, nikon-z6-focus, nikon-z6-focus-fr, sony-a7iv-focus-area, fujifilm-gfx100-af]
     since: v0.1
   - id: MAP-06
     title: {fr: "Collimateurs", en: "AF points"}

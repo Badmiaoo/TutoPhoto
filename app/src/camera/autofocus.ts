@@ -11,9 +11,16 @@
 // - AF-C (continu) : la mise au point suit le sujet tant que le déclencheur est à mi-course. Ici, la
 //   distance est relue au point choisi toutes les 200 ms, comme si le déclencheur était tenu à mi-course en
 //   permanence ; la photo mesure la distance au déclenchement.
+// Toucher pour faire le point sans déclencher existe sur le Z 6 (« Touch the display to focus on the selected
+// point. Lifting your finger from the display does not release the shutter »).
+// Modes de zone AF (MAP-05, décision de Julien du 9 novembre 2026), d'après le même manuel :
+// - AF point sélectif : la distance au point choisi ;
+// - AF zone large (S) et (L) : « If the selected focus area contains subjects at different distances from the
+//   camera, the camera will assign priority to the closest subject » ; ici, la plus petite distance de la
+//   zone. Le manuel ne donne pas la taille des zones : elle est choisie pour TutoPhoto (ui/cameraPanel.ts).
 // Non simulé : les échecs et les hésitations de l'autofocus (sujet peu contrasté, faible lumière), la
 // priorité au déclenchement ou à la mise au point, la prédiction du mouvement (la distance mesurée au
-// déclenchement est exacte).
+// déclenchement est exacte), la taille minimale d'un sujet pour qu'une zone large le retienne.
 //
 // Carte de profondeur propre au viseur (z dans le repère de la caméra, en mètres), sol invisible compris.
 // Rendue à chaque image quand la profondeur de champ du viseur s'en sert, sinon seulement avant chaque
@@ -28,6 +35,16 @@ import { RenderTargetTexture } from "@babylonjs/core/Materials/Textures/renderTa
 import { groundDepth, type GroundInfo } from "./photo";
 
 export type FocusMode = "single" | "continuous";
+/** Mode de zone AF : point sélectif, zone large (S) ou (L). */
+export type AreaMode = "point" | "wideS" | "wideL";
+
+/** Où mesurer, dans le canevas (de 0 à 1, origine en haut à gauche). */
+export interface FocusArea {
+  /** Point de mise au point. */
+  point: { x: number; y: number };
+  /** Zone large, rognée au cadre ; null pour le point sélectif. */
+  zone: { left: number; top: number; right: number; bottom: number } | null;
+}
 
 const FOCUS_REFRESH_MS = 200;
 /**
@@ -45,7 +62,7 @@ export class Autofocus {
   private isLocked = false;
   private suspended = false;
   private everyFrame = false;
-  private readonly pixel = new Float32Array(4);
+  private pixels = new Float32Array(4);
   /** Mesures en cours, l'une après l'autre. */
   private queue: Promise<void> = Promise.resolve();
   private measuring = false;
@@ -53,12 +70,12 @@ export class Autofocus {
   private measuredOnce = false;
   private readonly listeners: (() => void)[] = [];
 
-  /** focusOnCanvas : point de mise au point dans le canevas (de 0 à 1, origine en haut à gauche). */
+  /** focusArea : point ou zone de mise au point, dans le canevas, loupe comprise. */
   constructor(
     private readonly scene: Scene,
     private readonly camera: Camera,
     private readonly ground: GroundInfo,
-    private readonly focusOnCanvas: () => { x: number; y: number },
+    private readonly focusArea: () => FocusArea,
   ) {
     this.depth = new DepthRenderer(scene, Constants.TEXTURETYPE_FLOAT, camera, false, Constants.TEXTURE_NEAREST_SAMPLINGMODE, true, "viseur-profondeur");
     this.depth.forceDepthWriteTransparentMeshes = true;
@@ -112,6 +129,15 @@ export class Autofocus {
     return this.measure(() => {
       if (this.focusMode === "single") this.isLocked = true;
     });
+  }
+
+  /** Mesure immédiate (au déclenchement, sans verrou) ; faux si elle n'a pas abouti. */
+  async measureNow(): Promise<boolean> {
+    let measured = false;
+    await this.measure(() => {
+      measured = true;
+    });
+    return measured;
   }
 
   /** Photo prise en AF-S sans verrou : l'objectif a fait le point au déclenchement, la distance est verrouillée. */
@@ -176,8 +202,9 @@ export class Autofocus {
   }
 
   /**
-   * Profondeur au point choisi, lue dans une image rendue après la demande (la projection a pu changer avec
-   * la loupe) ; sur le fond à 360°, distance du plan du sol le long du rayon. Null si la lecture échoue.
+   * Distance au point choisi, ou plus petite distance de la zone large, lue dans une image rendue après la
+   * demande (la projection a pu changer avec la loupe). Sur le fond à 360°, distance du plan du sol le long
+   * du rayon de chaque pixel. Null si la lecture échoue.
    */
   private async read(): Promise<number | null> {
     if (this.suspended) return null;
@@ -187,22 +214,40 @@ export class Autofocus {
     if (!rendered || this.suspended) return null;
     const size = map.getSize();
     if (!size.width || !size.height) return null;
-    const point = this.focusOnCanvas();
-    const x = Math.min(size.width - 1, Math.max(0, Math.round(point.x * (size.width - 1))));
-    const y = Math.min(size.height - 1, Math.max(0, Math.round((1 - point.y) * (size.height - 1))));
+    const { width: W, height: H } = size;
+    const area = this.focusArea();
+    // Rectangle à lire, en pixels de la carte ; les lignes de la carte commencent en bas.
+    const column = (x: number) => Math.min(W - 1, Math.max(0, Math.round(x * (W - 1))));
+    const row = (y: number) => Math.min(H - 1, Math.max(0, Math.round((1 - y) * (H - 1))));
+    const zone = area.zone ?? { left: area.point.x, right: area.point.x, top: area.point.y, bottom: area.point.y };
+    const x0 = column(zone.left);
+    const x1 = column(zone.right);
+    const y0 = row(zone.bottom);
+    const y1 = row(zone.top);
+    const w = x1 - x0 + 1;
+    const h = y1 - y0 + 1;
+    if (this.pixels.length !== w * h * 4) this.pixels = new Float32Array(w * h * 4);
     try {
-      await map.readPixels(0, 0, this.pixel, true, false, x, y, 1, 1);
+      await map.readPixels(0, 0, this.pixels, true, false, x0, y0, w, h);
     } catch {
       // Lecture impossible pendant un changement de taille : on garde la distance précédente.
       return null;
     }
-    let z = this.pixel[0];
     const domeDistance = 0.8 * this.ground.domeRadius;
-    if (!(z > this.camera.minZ) || z > domeDistance) {
-      const upInCamera = Vector3.TransformNormal(Vector3.Up(), this.camera.getViewMatrix());
-      z = Math.min(this.ground.domeRadius, groundDepth(this.camera.getProjectionMatrix(), upInCamera, this.ground, point));
+    const upInCamera = Vector3.TransformNormal(Vector3.Up(), this.camera.getViewMatrix());
+    const projection = this.camera.getProjectionMatrix();
+    let nearest = Infinity;
+    for (let j = 0; j < h; j++) {
+      for (let i = 0; i < w; i++) {
+        let z = this.pixels[(j * w + i) * 4];
+        if (!(z > this.camera.minZ) || z > domeDistance) {
+          const point = area.zone ? { x: (x0 + i) / Math.max(1, W - 1), y: 1 - (y0 + j) / Math.max(1, H - 1) } : area.point;
+          z = Math.min(this.ground.domeRadius, groundDepth(projection, upInCamera, this.ground, point));
+        }
+        if (z > 0 && z < nearest) nearest = z;
+      }
     }
-    return Number.isFinite(z) && z > 0 ? z : null;
+    return Number.isFinite(nearest) ? nearest : null;
   }
 
   /** Attend la fin de la prochaine image ; faux si aucune image n'a été rendue à temps. */

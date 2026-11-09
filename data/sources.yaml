@@ -542,9 +542,14 @@ sources:
     used_in: [docs/camera-physique.md]
   - id: nikon-z6-focus
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, Focus : AF-S « focus will lock while the shutter-release button is pressed halfway », collimateur qui passe du rouge au vert, priorité à la mise au point par défaut ; AF-C « focuses continuously while the shutter-release button is pressed halfway », priorité au déclenchement par défaut (lu le 9 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6, Focus : AF-S « focus will lock while the shutter-release button is pressed halfway », collimateur qui passe du rouge au vert, priorité à la mise au point par défaut ; AF-C « focuses continuously while the shutter-release button is pressed halfway », priorité au déclenchement par défaut ; AF-area mode : zone large (S) et (L), « the camera will assign priority to the closest subject », zones (L) plus grandes que les zones (S), sans dimensions ; Touch Shutter, « Touch the display to focus on the selected point » sans déclencher (lu le 9 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/05_basic_settings_01.html"
     used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts]
+  - id: nikon-z6-focus-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Mise au point : termes « AF ponctuel », « AF continu », « Mode de zone AF », « AF point sélectif », « AF zone large (S) » et « (L) », « AF zone automatique » (lu le 9 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/05_basic_settings_01.html"
+    used_in: [docs/camera-physique.md]
   - id: nikon-z6-apply-settings-live-view
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé d8 Apply Settings to Live View (lu le 9 novembre 2026)"
