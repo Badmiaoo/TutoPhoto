@@ -150,3 +150,4 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
   - indicateur d'équilibre : forme B, un triangle dans lequel un point bouge ;
   - modes de mise au point : « suivons ta reco », soit AF ponctuel ou continu, puis modes de zone, puis détection des yeux.
 - Version 0.3.26 : AF ponctuel (AF-S) ou continu (AF-C). Toucher le viseur tient lieu de déclencheur à mi-course ; en AF-S, la distance reste verrouillée jusqu'au toucher suivant.
+- Modes de zone AF : Julien valide les quatre points proposés (point sélectif ; zone large S et L, priorité au sujet le plus proche ; zone automatique avec la détection des yeux ; pinpoint et zone dynamique laissés de côté). Version 0.3.27.

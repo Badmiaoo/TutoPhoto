@@ -103,6 +103,7 @@ if (!Engine.isSupported()) {
       loupeButton: element<HTMLButtonElement>("loupe-button"),
       loupeBadge: element("loupe-badge"),
       afButton: element<HTMLButtonElement>("af-button"),
+      afDialog: element<HTMLDialogElement>("af-dialog"),
       afBadge: element("af-badge"),
       focusMarker: element("focus-marker"),
       focusHint: element("focus-hint"),
@@ -112,7 +113,7 @@ if (!Engine.isSupported()) {
   );
   const panel = cameraPanel;
   const ground = { eyeHeight: EYE_HEIGHT, domeRadius: DOME_RADIUS };
-  const autofocus = new Autofocus(scene, camera, ground, () => panel.focusOnCanvas());
+  const autofocus = new Autofocus(scene, camera, ground, () => panel.focusArea());
   panel.attachAutofocus(autofocus);
   const dof = new ViewfinderDepthOfField(
     scene,

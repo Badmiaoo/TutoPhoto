@@ -8,9 +8,10 @@
 // Loupe du viseur (même décision) : grossit l'image autour du point de mise au point, jusqu'à 100 % (un
 // pixel du canevas pour un photosite), comme la fonction de grossissement des hybrides. Elle ne change
 // que l'affichage : la photo couvre toujours tout le cadre.
-// Mode de mise au point (MAP-04, décision du 9 novembre 2026) : AF-S ou AF-C (camera/autofocus.ts). Le
-// viseur indique le mode et la distance ; le repère du point passe au vert quand la distance est verrouillée,
-// comme le collimateur du Nikon Z 6 [nikon-z6-focus].
+// Mise au point (décisions du 9 novembre 2026, camera/autofocus.ts) : mode AF-S ou AF-C (MAP-04) et mode de
+// zone AF (MAP-05), point sélectif ou zone large (S) ou (L), choisis dans la fenêtre « Mise au point ». Le
+// viseur indique le mode, la zone et la distance ; le repère passe au vert quand la distance est verrouillée,
+// comme le point AF du Nikon Z 6 [nikon-z6-focus].
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
@@ -36,7 +37,7 @@ import {
 import { cameraFov, frameFor, type Frame } from "../camera/viewfinder";
 import type { ViewfinderNoise } from "../camera/noise";
 import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
-import type { Autofocus, FocusMode } from "../camera/autofocus";
+import type { AreaMode, Autofocus, FocusArea, FocusMode } from "../camera/autofocus";
 import { t, type Lang, type MessageKey } from "../i18n";
 
 /** Écart maximal affiché par la cellule, en IL. */
@@ -46,6 +47,16 @@ const PREVIEW_STORAGE_KEY = "tutophoto.apercu";
 /** Grossissements de la loupe, en fraction de la vue à 100 % ; un cran trop proche de 1 est sauté. */
 const LOUPE_LEVELS = [0.5, 1] as const;
 const LOUPE_MIN_ZOOM = 1.25;
+/**
+ * Côté des zones larges, en fraction du grand côté du cadre : zones carrées. Le manuel du Z 6 dit seulement
+ * que les zones (L) sont plus grandes que les zones (S) ; ces tailles sont choisies pour TutoPhoto.
+ */
+const WIDE_AREA_SIZE: Record<Exclude<AreaMode, "point">, number> = { wideS: 0.1, wideL: 0.2 };
+const AREA_KEYS: Record<AreaMode, { label: MessageKey; short: MessageKey }> = {
+  point: { label: "areaPoint", short: "areaPointShort" },
+  wideS: { label: "areaWideS", short: "areaWideSShort" },
+  wideL: { label: "areaWideL", short: "areaWideLShort" },
+};
 
 /** Interrupteurs de l'aperçu dans le viseur. */
 interface Preview {
@@ -83,6 +94,7 @@ interface PanelElements {
   loupeButton: HTMLButtonElement;
   loupeBadge: HTMLElement;
   afButton: HTMLButtonElement;
+  afDialog: HTMLDialogElement;
   afBadge: HTMLElement;
   focusMarker: HTMLElement;
   focusHint: HTMLElement;
@@ -101,6 +113,7 @@ export class CameraPanel {
   private dof: ViewfinderDepthOfField | null = null;
   private autofocus: Autofocus | null = null;
   private focusMode: FocusMode = "continuous";
+  private areaMode: AreaMode = "point";
   /** Cran de la loupe dans LOUPE_LEVELS ; -1 : pas de loupe. */
   private loupeLevel = -1;
   private loupeZoom = 1;
@@ -128,7 +141,17 @@ export class CameraPanel {
     const touch = camera.inputs.attached["touch"] as FreeCameraTouchInput | undefined;
     this.baseTouchSensibility = touch ? touch.touchAngularSensibility : null;
     el.loupeButton.addEventListener("click", () => this.cycleLoupe());
-    el.afButton.addEventListener("click", () => this.toggleFocusMode());
+    el.afButton.addEventListener("click", () => el.afDialog.showModal());
+    for (const input of el.afDialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) {
+      input.addEventListener("change", () => {
+        if (input.name === "focusMode") this.focusMode = input.value as FocusMode;
+        if (input.name === "areaMode") this.areaMode = input.value as AreaMode;
+        this.saveBody();
+        this.autofocus?.setMode(this.focusMode);
+        this.updateFocus();
+        for (const listener of this.viewListeners) listener();
+      });
+    }
     this.restoreBody();
     this.restorePreview();
     for (const button of el.panel.querySelectorAll<HTMLButtonElement>("button[data-dial]")) {
@@ -197,6 +220,41 @@ export class CameraPanel {
       x: (frame.left + shown.x * frame.width) / this.canvasSize.width,
       y: (frame.top + shown.y * frame.height) / this.canvasSize.height,
     };
+  }
+
+  /** Point et zone de mise au point dans le canevas, loupe comprise ; la zone large est rognée au cadre. */
+  focusArea(): FocusArea {
+    const point = this.focusOnCanvas();
+    const size = this.zoneOnCanvas();
+    if (!size || !this.frame) return { point, zone: null };
+    const frame = this.frame;
+    const { width, height } = this.canvasSize;
+    const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+    const left = frame.left / width;
+    const top = frame.top / height;
+    const right = (frame.left + frame.width) / width;
+    const bottom = (frame.top + frame.height) / height;
+    return {
+      point,
+      zone: {
+        left: clamp(point.x - size.width / 2, left, right),
+        right: clamp(point.x + size.width / 2, left, right),
+        top: clamp(point.y - size.height / 2, top, bottom),
+        bottom: clamp(point.y + size.height / 2, top, bottom),
+      },
+    };
+  }
+
+  /** Taille de la zone large dans le canevas (fractions de sa largeur et de sa hauteur) ; null pour un point. */
+  zoneOnCanvas(): { width: number; height: number } | null {
+    if (this.areaMode === "point" || !this.frame) return null;
+    const side = WIDE_AREA_SIZE[this.areaMode] * Math.max(this.frame.width, this.frame.height) * this.loupeZoom;
+    return { width: side / this.canvasSize.width, height: side / this.canvasSize.height };
+  }
+
+  /** Mode de zone AF, pour la légende de la photo. */
+  area(): AreaMode {
+    return this.areaMode;
   }
 
   /** Appelé à chaque changement du viseur (taille, focale, boîtier, loupe). */
@@ -419,22 +477,36 @@ export class CameraPanel {
     };
   }
 
-  private toggleFocusMode(): void {
-    this.focusMode = this.focusMode === "single" ? "continuous" : "single";
-    this.saveBody();
-    this.autofocus?.setMode(this.focusMode);
-    this.updateFocus();
-  }
-
-  /** Bouton du mode, consigne sous le viseur, indicateur dans le viseur (mode, distance, verrou), repère. */
+  /**
+   * Bouton et fenêtre « Mise au point », consigne sous le viseur, indicateur dans le viseur (mode, zone,
+   * distance, verrou), repère.
+   */
   private updateFocus(): void {
     const tr = (key: MessageKey) => t(this.lang, key);
     const colon = this.lang === "fr" ? " : " : ": ";
     const single = this.focusMode === "single";
     const short = single ? "AF-S" : "AF-C";
-    this.el.afButton.textContent = short;
-    this.el.afButton.title = tr("afHelp");
-    this.el.afButton.setAttribute("aria-label", `${tr("afMode")}${colon}${tr(single ? "afSingle" : "afContinuous")}`);
+    const areaShort = tr(AREA_KEYS[this.areaMode].short);
+    this.el.afButton.textContent = `${short} · ${areaShort}`;
+    this.el.afButton.title = tr("afTitle");
+    this.el.afButton.setAttribute(
+      "aria-label",
+      `${tr("afTitle")}${colon}${tr(single ? "afSingle" : "afContinuous")}, ${tr(AREA_KEYS[this.areaMode].label)}`,
+    );
+    const dialog = this.el.afDialog;
+    dialog.querySelector("#af-title")!.textContent = tr("afTitle");
+    dialog.querySelector("#af-mode-legend")!.textContent = tr("afMode");
+    dialog.querySelector("#af-single-label")!.textContent = tr("afSingle");
+    dialog.querySelector("#af-continuous-label")!.textContent = tr("afContinuous");
+    dialog.querySelector("#af-area-legend")!.textContent = tr("areaMode");
+    dialog.querySelector("#af-point-label")!.textContent = tr("areaPoint");
+    dialog.querySelector("#af-wide-s-label")!.textContent = tr("areaWideS");
+    dialog.querySelector("#af-wide-l-label")!.textContent = tr("areaWideL");
+    dialog.querySelector("#af-note")!.textContent = tr("afHelp");
+    dialog.querySelector("#af-close")!.textContent = tr("close");
+    for (const input of dialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) {
+      input.checked = input.value === (input.name === "focusMode" ? this.focusMode : this.areaMode);
+    }
     this.el.focusHint.textContent = tr(single ? "focusHintSingle" : "focusHint");
     const af = this.autofocus;
     this.el.afBadge.hidden = !af;
@@ -442,7 +514,7 @@ export class CameraPanel {
     const locked = af.locked();
     const meters = af.distance().toFixed(1);
     const distance = `${this.lang === "fr" ? meters.replace(".", ",") : meters} m`;
-    const text = locked ? `${short} · ${tr("lockedAt")} ${distance}` : `${short} · ${distance}`;
+    const text = `${short} · ${areaShort} · ${locked ? `${tr("lockedAt")} ` : ""}${distance}`;
     if (this.el.afBadge.textContent !== text) this.el.afBadge.textContent = text;
     this.el.focusMarker.classList.toggle("locked", locked);
   }
@@ -507,12 +579,18 @@ export class CameraPanel {
 
   private restoreBody(): void {
     try {
-      const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null") as { brand?: string; format?: string; focusMode?: string } | null;
+      const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null") as {
+        brand?: string;
+        format?: string;
+        focusMode?: string;
+        areaMode?: string;
+      } | null;
       if (saved && BODIES.some((b) => b.brand === saved.brand && b.format === saved.format)) {
         this.brand = saved.brand as Brand;
         this.format = saved.format as Format;
       }
       if (saved?.focusMode === "single" || saved?.focusMode === "continuous") this.focusMode = saved.focusMode;
+      if (saved?.areaMode === "point" || saved?.areaMode === "wideS" || saved?.areaMode === "wideL") this.areaMode = saved.areaMode;
     } catch {
       // Stockage indisponible : boîtier par défaut.
     }
@@ -520,7 +598,7 @@ export class CameraPanel {
 
   private saveBody(): void {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ brand: this.brand, format: this.format, focusMode: this.focusMode }));
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ brand: this.brand, format: this.format, focusMode: this.focusMode, areaMode: this.areaMode }));
     } catch {
       // Sans stockage, le choix vaut pour la page en cours seulement.
     }

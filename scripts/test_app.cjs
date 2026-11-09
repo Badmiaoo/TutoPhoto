@@ -17,9 +17,10 @@
 // - au 135 mm à f/1.4, la profondeur de champ du viseur floute le fond ; coupée, le fond redevient net ;
 // - la loupe passe à 100 % et l'indique ;
 // - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne ;
-// - mise au point (MAP-04), en fin de test parce que la vue change : AF-C par défaut ; en AF-S, toucher le bas
-//   du cadre verrouille la distance, qui ne bouge plus quand on relève l'appareil (et, avec --photo, la photo
-//   la garde) ; repassé en AF-C, la distance suit le point.
+// - mise au point (MAP-04, MAP-05), en fin de test parce que la vue change : AF-C et point sélectif par
+//   défaut ; en AF-S, toucher le bas du cadre verrouille la distance ; au même endroit, la zone large (L)
+//   retient un sujet plus proche (le sol en bas du cadre) ; la distance ne bouge plus quand on relève
+//   l'appareil (et, avec --photo, la photo la garde) ; repassé en AF-C, la distance suit la zone.
 
 "use strict";
 const fs = require("fs");
@@ -266,17 +267,41 @@ async function runProfile(browser, name, base) {
       const m = /(\d+[,.]\d) m/.exec(text);
       return m ? Number(m[1].replace(",", ".")) : NaN;
     };
+    const setAf = async (mode, area) => {
+      await page.click("#af-button");
+      await page.check(`#af-dialog input[name="focusMode"][value="${mode}"]`);
+      await page.check(`#af-dialog input[name="areaMode"][value="${area}"]`);
+      await page.click("#af-close");
+    };
     const startText = await afText();
-    check("mise au point : AF-C par défaut", /^AF-C · /.test(startText), startText);
-    await page.click("#af-button");
+    check("mise au point : AF-C et point sélectif par défaut", /^AF-C · Point · /.test(startText), startText);
+    await setAf("single", "point");
     const frameBox = await page.locator("#frame").boundingBox();
-    await page.mouse.click(frameBox.x + frameBox.width / 2, frameBox.y + 0.92 * frameBox.height);
-    await page
-      .waitForFunction(() => document.getElementById("focus-marker").classList.contains("locked"), null, { timeout: 30000 })
-      .catch(() => undefined);
-    const lockedText = await afText();
+    const tapLow = async (previous) => {
+      await page.mouse.click(frameBox.x + frameBox.width / 2, frameBox.y + 0.92 * frameBox.height);
+      await page
+        .waitForFunction(
+          (before) => {
+            const text = document.getElementById("af-badge").textContent;
+            return document.getElementById("focus-marker").classList.contains("locked") && text !== before;
+          },
+          previous,
+          { timeout: 30000 },
+        )
+        .catch(() => undefined);
+      return afText();
+    };
+    const pointText = await tapLow(startText);
+    const pointAt = lockedMetres(pointText);
+    check("AF-S : toucher le viseur verrouille la distance", /^AF-S · Point · verrouillée à /.test(pointText), pointText);
+    await setAf("single", "wideL");
+    const lockedText = await tapLow(await afText());
     const lockedAt = lockedMetres(lockedText);
-    check("AF-S : toucher le viseur verrouille la distance", /^AF-S · verrouillée à /.test(lockedText), lockedText);
+    check(
+      "zone large (L) : sujet le plus proche de la zone",
+      /^AF-S · Zone L · verrouillée à /.test(lockedText) && lockedAt < pointAt - 0.1,
+      `${lockedText} ; point sélectif : ${pointText}`,
+    );
     const cx = frameBox.x + frameBox.width / 2;
     const cy = frameBox.y + frameBox.height / 2;
     for (let k = 0; k < 2; k++) {
@@ -293,16 +318,16 @@ async function runProfile(browser, name, base) {
       await page.click("#shutter-button");
       await page.waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden, null, { timeout: 300000 });
       const caption = await page.evaluate(() => document.getElementById("review-caption").textContent);
-      const m = /AF-S · mise au point verrouillée à (\d+[,.]\d) m/.exec(caption);
+      const m = /AF-S · Zone L · mise au point verrouillée à (\d+[,.]\d) m/.exec(caption);
       check("AF-S : la photo garde la distance verrouillée", Boolean(m) && Number(m[1].replace(",", ".")) === lockedAt, caption);
       await page.click("#review-back");
     }
-    await page.click("#af-button");
+    await setAf("continuous", "wideL");
     const followed = await page
       .waitForFunction(
         (locked) => {
           const text = document.getElementById("af-badge").textContent;
-          const m = /^AF-C · (\d+[,.]\d) m/.exec(text);
+          const m = /^AF-C · Zone L · (\d+[,.]\d) m/.exec(text);
           return Boolean(m) && Math.abs(Number(m[1].replace(",", ".")) - locked) > 0.5;
         },
         lockedAt,
@@ -310,7 +335,7 @@ async function runProfile(browser, name, base) {
       )
       .then(() => true)
       .catch(() => false);
-    check("AF-C : la distance suit le point", followed, `${await afText()} ; avant : ${lockedText}`);
+    check("AF-C : la distance suit la zone", followed, `${await afText()} ; avant : ${lockedText}`);
   } catch (error) {
     check("déroulement du test", false, String(error).split("\n")[0]);
   } finally {

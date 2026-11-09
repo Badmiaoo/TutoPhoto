@@ -125,6 +125,24 @@
         <button id="preview-close" type="submit"></button>
       </form>
     </dialog>
+    <dialog id="af-dialog" aria-labelledby="af-title">
+      <h2 id="af-title"></h2>
+      <fieldset>
+        <legend id="af-mode-legend"></legend>
+        <label><input type="radio" name="focusMode" value="single" /> <span id="af-single-label"></span></label>
+        <label><input type="radio" name="focusMode" value="continuous" /> <span id="af-continuous-label"></span></label>
+      </fieldset>
+      <fieldset>
+        <legend id="af-area-legend"></legend>
+        <label><input type="radio" name="areaMode" value="point" /> <span id="af-point-label"></span></label>
+        <label><input type="radio" name="areaMode" value="wideS" /> <span id="af-wide-s-label"></span></label>
+        <label><input type="radio" name="areaMode" value="wideL" /> <span id="af-wide-l-label"></span></label>
+      </fieldset>
+      <p id="af-note" class="note"></p>
+      <form method="dialog">
+        <button id="af-close" type="submit"></button>
+      </form>
+    </dialog>
     <dialog id="credits-dialog" aria-labelledby="credits-title">
       <h2 id="credits-title"></h2>
       <p id="credits-intro"></p>
