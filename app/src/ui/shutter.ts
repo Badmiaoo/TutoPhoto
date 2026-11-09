@@ -172,7 +172,7 @@ export class Shutter {
       this.showWhole();
     } catch (error) {
       console.error(error);
-      this.showError();
+      this.showError(error);
     }
   }
 
@@ -226,7 +226,7 @@ export class Shutter {
       this.showCaption();
     } catch (error) {
       console.error(error);
-      this.showError();
+      this.showError(error);
     }
   }
 
@@ -242,8 +242,10 @@ export class Shutter {
     this.el.review.hidden = false;
   }
 
-  private showError(): void {
-    this.lastCaption = () => t(this.lang, "photoError");
+  /** Message d'erreur, avec le détail technique pour le diagnostic sur téléphone. */
+  private showError(error: unknown): void {
+    const detail = error instanceof Error ? error.message : String(error);
+    this.lastCaption = () => `${t(this.lang, "photoError")} (${detail})`;
     this.el.reviewCaption.textContent = this.lastCaption();
     this.el.review.hidden = false;
   }

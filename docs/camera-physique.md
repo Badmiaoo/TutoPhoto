@@ -149,6 +149,7 @@ Fonctionnement (`app/src/camera/noise.ts`) :
 - **Photo.** Le bruit est ajouté après le flou optique et avant l'écrêtage, avec k calculé pour 1500 px.
 - **Viseur.** Le bruit est tiré à nouveau à chaque image, avec k calculé pour la taille du cadre à l'écran. C'est une approximation : l'image du viseur est déjà encodée et écrêtée, on revient en lumière linéaire par la puissance 2,2, et les hautes lumières écrêtées n'ont plus de bruit. Il est retiré pendant le calcul d'une photo, qui ajoute le sien.
 - **Pas de réduction de bruit** : les traitements des boîtiers sont propres à chaque marque et non documentés dans les sources lues.
+- **Chargement** (correction de la version 0.3.18) : Babylon ne déclare la scène prête que si les post-traitements de la caméra le sont (`Camera.isReady`, Babylon.js 9.35.0). Un shader du bruit qui ne compile pas bloquait donc le chargement, ce qui est arrivé sur le téléphone de Julien le 9 novembre 2026. Le bruit du viseur n'est désormais attaché qu'une fois son shader compilé. En cas d'échec, le viseur reste sans bruit et l'erreur de compilation s'affiche à l'écran. La cause de l'échec sur ce téléphone n'est pas connue à ce jour.
 
 Définition des capteurs :
 

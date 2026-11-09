@@ -166,6 +166,25 @@ void main(void) {
 }`;
 
 /**
+ * Attend la compilation d'un shader. Sans cela, EffectRenderer saute les rendus tant que le shader n'est
+ * pas prêt ; s'il ne compile pas, l'erreur de compilation remonte au lieu d'une photo noire.
+ */
+function whenCompiled(wrapper: EffectWrapper, timeoutMs = 20000): Promise<void> {
+  const started = performance.now();
+  return new Promise((resolve, reject) => {
+    const check = () => {
+      const effect = wrapper.effect;
+      if (effect.isReady()) return resolve();
+      const error = effect.getCompilationError();
+      if (error) return reject(new Error(`${wrapper.name} : ${error.trim().split("\n").slice(0, 3).join(" ")}`));
+      if (performance.now() - started > timeoutMs) return reject(new Error(`${wrapper.name} : > ${timeoutMs / 1000} s`));
+      setTimeout(check, 50);
+    };
+    check();
+  });
+}
+
+/**
  * Distance du plan du sol le long du rayon qui passe par le point donné du cadre (de 0 à 1, origine en
  * haut à gauche), en z dans le repère de la caméra ; Infinity si le rayon ne descend pas.
  */
@@ -255,6 +274,7 @@ export async function takePhoto(
   });
 
   try {
+    await Promise.all([whenCompiled(accumulate), whenCompiled(finish)]);
     camera.freezeProjectionMatrix(base);
     time.setFrozenTime(t0 + request.shutterSeconds / 2);
 

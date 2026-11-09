@@ -145,24 +145,60 @@ void main(void) {
   gl_FragColor = vec4(pow(noisy, vec3(1.0 / 2.2)), 1.0);
 }`;
 
-/** Bruit du viseur : post-traitement de la caméra, nouveau tirage à chaque image. */
+/** Délai laissé à la compilation du shader du bruit du viseur, en millisecondes. */
+const COMPILE_TIMEOUT_MS = 20000;
+
+/**
+ * Bruit du viseur : post-traitement de la caméra, nouveau tirage à chaque image. Il n'est attaché à la
+ * caméra qu'une fois son shader compilé : Babylon attend que les post-traitements de la caméra soient
+ * prêts avant de déclarer la scène prête, et un shader qui ne compile pas bloquait le chargement.
+ */
 export class ViewfinderNoise {
   private readonly postProcess: PostProcess;
   private params: NoiseParameters | null = null;
   private gain = 1;
   private enabled = true;
   private suspended = false;
-  private attached = true;
+  private compiled = false;
+  private attached = false;
 
+  /** onFailure : appelé avec l'erreur de compilation si le shader ne compile pas ; le viseur reste sans bruit. */
   constructor(
     scene: Scene,
     private readonly camera: Camera,
+    onFailure: (message: string) => void,
   ) {
-    this.postProcess = new PostProcess("viseur-bruit", VIEWFINDER_SHADER, [...NOISE_UNIFORMS, "noiseGain"], ["noiseSampler"], 1, camera);
+    this.postProcess = new PostProcess(
+      "viseur-bruit",
+      VIEWFINDER_SHADER,
+      [...NOISE_UNIFORMS, "noiseGain"],
+      ["noiseSampler"],
+      1,
+      null,
+      Texture.NEAREST_SAMPLINGMODE,
+      scene.getEngine(),
+    );
     this.postProcess.onApply = (effect) => {
       if (this.params) bindNoise(effect, scene, this.params);
       effect.setFloat("noiseGain", this.gain);
     };
+    const started = performance.now();
+    const check = () => {
+      const effect = this.postProcess.getEffect();
+      if (effect?.isReady()) {
+        this.compiled = true;
+        this.sync();
+        return;
+      }
+      const error = effect?.getCompilationError();
+      if (error || performance.now() - started > COMPILE_TIMEOUT_MS) {
+        this.postProcess.dispose();
+        onFailure(error ? error.trim().split("\n").slice(0, 3).join(" ") : `> ${COMPILE_TIMEOUT_MS / 1000} s`);
+        return;
+      }
+      setTimeout(check, 100);
+    };
+    check();
   }
 
   /**
@@ -192,7 +228,7 @@ export class ViewfinderNoise {
   }
 
   private sync(): void {
-    const wanted = this.enabled && !this.suspended;
+    const wanted = this.compiled && this.enabled && !this.suspended;
     if (wanted === this.attached) return;
     if (wanted) this.camera.attachPostProcess(this.postProcess);
     else this.camera.detachPostProcess(this.postProcess);
