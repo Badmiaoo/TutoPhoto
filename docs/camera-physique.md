@@ -128,8 +128,55 @@ Vérifications du 8 novembre 2026, faites dans Chromium sans écran (rendu logic
 
 Limites :
 - **Fond à l'infini.** Le décor de la photo au-dessus du sol (arbres, haie) est vu comme s'il était à 500 m. Son flou est donc un peu surestimé (voir `docs/questions-ouvertes.md`). Le sol photographié est supposé plat.
-- **Temps de calcul.** En rendu logiciel, un rendu de 600 px prend de l'ordre de la seconde. Ce chiffre ne dit rien d'un vrai processeur graphique : le temps reste à mesurer sur ordinateur et sur téléphone.
-- **Pas encore de flou de bougé ni de bruit.**
+- **Temps de calcul.** En rendu logiciel, un rendu de 600 px prend de l'ordre de la seconde, ce qui ne dit rien d'un vrai processeur graphique. Mesures de Julien du 9 novembre 2026, sur son téléphone (modèle non précisé) :
+  - réglages par défaut : 16 rendus en 0,8 s ;
+  - 135 mm à f/1.4, au point sur Sophia : 256 rendus en 2,0 s, sous le plafond de 5 s.
+
+  Entre les deux, (2,0 − 0,8) / (256 − 16) ≈ 5 ms par rendu, la préparation (environ 0,8 s) dominant pour peu de rendus. C'est un calcul de Claude, qui suppose une préparation identique dans les deux cas.
+- **Pas encore de flou de bougé.**
+
+## Bruit numérique (version 0.3.15)
+
+Décisions de Julien du 9 novembre 2026 :
+- bruit coloré selon la matrice de Bayer ;
+- bruit brut, sans réduction de bruit ;
+- bruit visible dans le viseur comme sur la photo.
+
+Fonctionnement (`app/src/camera/noise.ts`) :
+- **Électrons.** Pour un photosite à la sensibilité S : électrons à saturation e_sat = capacité × 100 / S, électrons reçus n = v × e_sat, écart type √(n + σ_r²). Le bruit de lecture σ_r est interpolé entre les ISO mesurés, en log₂(ISO) et log₂(électrons). Au-delà de la dernière mesure, la dernière valeur est gardée : D5600 au-delà d'ISO 2546.
+- **Regroupement.** Un pixel de l'image regroupe k = pixels effectifs / pixels de l'image photosites. Pour chaque canal, seule une part capte sa couleur : la moitié pour le vert, un quart pour le rouge et pour le bleu. La matrice de Bayer compte en effet deux fois plus de verts que de rouges ou de bleus (« twice as many green elements as red or blue », [Wikipedia, Bayer filter](https://en.wikipedia.org/w/index.php?title=Bayer_filter&oldid=1384004962), source secondaire). Écart type par canal, rapporté à la saturation : √(n + σ_r²) / (e_sat × √(k × part)).
+- **Tirages.** Les tirages gaussiens viennent d'une texture de 512 × 512 tirages (méthode de Box-Muller), lue deux fois, la seconde tournée de 37°, pour casser la répétition.
+- **Photo.** Le bruit est ajouté après le flou optique et avant l'écrêtage, avec k calculé pour 1500 px.
+- **Viseur.** Le bruit est tiré à nouveau à chaque image, avec k calculé pour la taille du cadre à l'écran. C'est une approximation : l'image du viseur est déjà encodée et écrêtée, on revient en lumière linéaire par la puissance 2,2, et les hautes lumières écrêtées n'ont plus de bruit. Il est retiré pendant le calcul d'une photo, qui ajoute le sien.
+- **Pas de réduction de bruit** : les traitements des boîtiers sont propres à chaque marque et non documentés dans les sources lues.
+
+Définition des capteurs :
+
+| Boîtier | Pixels effectifs | Source |
+| --- | --- | --- |
+| Nikon Z 6 | 24,5 millions | [manuel en ligne Nikon](https://onlinemanual.nikonimglib.com/z7_z6/en/14_technical_notes_06.html), lu |
+| Nikon D5600 | 24,2 millions | [fiche de Clifton Cameras](https://www.cliftoncameras.co.uk/uploads/downloads/Product%20Specifications/NIKON/Nikon%20D5600%20Body%20Only%20Full%20Spec.pdf), extrait de recherche, page non ouverte |
+| Sony A7 III | environ 24 200 000 | [guide d'aide Sony](https://helpguide.sony.net/ilc/1720/v1/en/print.pdf), lu |
+| Sony A6000 | 24,3 millions | [Wikipedia, Sony α6000](https://en.wikipedia.org/w/index.php?title=Sony_%CE%B16000&oldid=1380408739), lu, source secondaire (le manuel Sony n'est pas joignable depuis l'environnement de travail) |
+| Canon EOS RP | environ 26,2 millions | [fiche Canon Royaume-Uni](https://www.canon.co.uk/cameras/eos-rp/specifications/), extrait de recherche, page non ouverte |
+| Canon EOS 2000D | 24,1 millions | [fiche Canon Royaume-Uni](https://www.canon.co.uk/cameras/eos-2000d/specifications/), extrait de recherche, page non ouverte |
+
+Vérification du 9 novembre 2026, dans le viseur du site construit. Le bruit étant tiré à nouveau à chaque image, la différence entre deux images, sur le fond immobile, divisée par √2, isole le bruit. On la compare au modèle, calculé pixel par pixel (Nikon Z 6, k ≈ 31) :
+
+| ISO | Mesuré, en niveaux sur 255 (rouge, vert, bleu) | Prévu |
+| --- | --- | --- |
+| 6400 | 1,23 ; 0,92 ; 1,34 | 1,39 ; 1,00 ; 1,53 |
+| 100 | 0,07 ; 0,01 ; 0,10 | 0,17 ; 0,12 ; 0,18 |
+
+À ISO 6400, la mesure atteint 88 à 92 % du modèle, avec le rouge et le bleu plus bruités que le vert d'un facteur proche de √2, comme prévu. À ISO 100, le bruit prévu est inférieur à un niveau : l'arrondi aux niveaux entiers l'efface presque entièrement.
+
+Visibilité. Calcul pour le Z 6 à ISO 6400, dans une zone moyenne correctement exposée (v ≈ 0,10) :
+- e_sat = 83 698 × 100 / 6400 ≈ 1308 électrons, n ≈ 131 électrons, σ = √(131 + 1,21²) ≈ 11,5 électrons ;
+- un photosite seul a donc un bruit relatif de 11,5 / 131 ≈ 8,8 % ;
+- sur une photo de 1500 px, chaque pixel regroupe k ≈ 16,3 photosites, dont environ 8,2 verts et 4,1 rouges ou bleus ;
+- le bruit relatif tombe à 8,8 / √8,2 ≈ 3,1 % pour le vert et 8,8 / √4,1 ≈ 4,3 % pour le rouge et le bleu.
+
+Le bruit reste donc discret à cette échelle, sauf dans les ombres et les photos sous-exposées. Décision de Julien du 9 novembre 2026 : c'est un outil d'apprentissage, tout doit se voir dans le viseur et sur la photo ; un interrupteur, au choix de l'utilisateur, coupe l'aperçu dans le viseur, pour s'entraîner. Mise en œuvre à proposer.
 
 ## Plan de mise en œuvre
 
@@ -137,7 +184,7 @@ Une pull request par étape :
 
 1. Boîtier virtuel minimal et exposition : fait en version 0.3.13 (voir ci-dessus).
 2. Photo au déclenchement par accumulation : faite en version 0.3.14 (voir ci-dessus).
-3. Bruit physique sur la photo.
+3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus).
 4. Profondeur de champ approchée dans le viseur.
 5. Ensuite : mise au point et collimateurs (MAP-04, MAP-05, MAP-06, MAP-09), flou de bougé (BOI-12, MVT-01).
 

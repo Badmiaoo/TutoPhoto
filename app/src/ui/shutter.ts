@@ -5,6 +5,7 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { UniversalCamera } from "@babylonjs/core/Cameras/universalCamera";
 import { takePhoto, type GroundInfo, type SceneTimeControl } from "../camera/photo";
 import type { CameraPanel } from "./cameraPanel";
+import type { ViewfinderNoise } from "../camera/noise";
 import { t, type Lang, type MessageKey } from "../i18n";
 
 /** Un toucher qui bouge de moins de 6 px et dure moins de 0,4 s choisit le point ; au-delà, on tourne. */
@@ -44,6 +45,7 @@ export class Shutter {
     private readonly el: ShutterElements,
     private readonly resumeRendering: () => void,
     private lang: Lang,
+    private readonly noise: ViewfinderNoise,
   ) {
     let down: { x: number; y: number; at: number } | null = null;
     el.canvas.addEventListener("pointerdown", (e) => (down = { x: e.clientX, y: e.clientY, at: performance.now() }));
@@ -100,6 +102,7 @@ export class Shutter {
     this.el.progress.hidden = false;
     this.el.progressBar.style.width = "0%";
     this.engine.stopRenderLoop();
+    this.noise.detach();
     try {
       const photo = await takePhoto(
         this.engine,
@@ -112,6 +115,7 @@ export class Shutter {
           focalMm: settings.focalMm,
           aperture: settings.aperture,
           shutterSeconds: settings.shutterSeconds,
+          iso: settings.iso,
           exposure: settings.exposure,
           focusPoint: this.focusPoint,
           portrait: settings.frame.portrait,
@@ -143,6 +147,7 @@ export class Shutter {
       this.el.review.hidden = false;
     } finally {
       this.el.progress.hidden = true;
+      this.noise.attach();
       this.panel.setEnabled(true);
       this.resumeRendering();
       this.busy = false;
