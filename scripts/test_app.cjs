@@ -14,6 +14,7 @@
 // - la scène se charge (le message de chargement disparaît) et aucun problème ne s'affiche à l'écran ;
 // - le rendu a la taille affichée et le cadre les proportions du capteur ;
 // - à ISO 6400, le bruit du viseur varie d'une image à l'autre ; aperçu coupé, il disparaît ;
+// - au 135 mm à f/1.4, la profondeur de champ du viseur floute le fond ; coupée, le fond redevient net ;
 // - la loupe passe à 100 % et l'indique ;
 // - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne.
 
@@ -96,6 +97,34 @@ async function frameNoise(page) {
   });
 }
 
+/** Netteté du haut du canevas (fond) : moyenne de la valeur absolue du laplacien, en niveaux de gris. */
+async function sharpness(page) {
+  return page.evaluate(
+    () =>
+      new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => {
+        const canvas = document.getElementById("scene");
+        const w = canvas.width;
+        const h = Math.floor(canvas.height / 4);
+        const copy = document.createElement("canvas");
+        copy.width = w;
+        copy.height = canvas.height;
+        const g = copy.getContext("2d");
+        g.drawImage(canvas, 0, 0);
+        const d = g.getImageData(0, 0, w, h).data;
+        const grey = (x, y) => { const i = (y * w + x) * 4; return (d[i] + d[i + 1] + d[i + 2]) / 3; };
+        let sum = 0;
+        let n = 0;
+        for (let y = 1; y < h - 1; y++) {
+          for (let x = 1; x < w - 1; x++) {
+            sum += Math.abs(4 * grey(x, y) - grey(x - 1, y) - grey(x + 1, y) - grey(x, y - 1) - grey(x, y + 1));
+            n++;
+          }
+        }
+        resolve(sum / n);
+      }))),
+  );
+}
+
 async function runProfile(browser, name, base) {
   const profile = PROFILES[name];
   if (!profile) throw new Error(`Profil inconnu : ${name}`);
@@ -140,6 +169,30 @@ async function runProfile(browser, name, base) {
     });
     check("rendu à la taille affichée", Math.abs(geometry.rw - geometry.cw) <= 1 && Math.abs(geometry.rh - geometry.ch) <= 1, `${geometry.rw}×${geometry.rh} rendu, ${geometry.cw}×${geometry.ch} affiché`);
     check("cadre aux proportions du capteur", Math.abs(geometry.ratio - 35.9 / 23.9) < 0.02, `rapport ${geometry.ratio.toFixed(3)}, attendu ${(35.9 / 23.9).toFixed(3)}`);
+
+    // Profondeur de champ : 135 mm, f/1.4, vitesse ajustée pour rester près de l'exposition correcte. Les
+    // réglages se font effet coupé, puis l'effet reste coupé : en rendu logiciel, il ralentit chaque image.
+    const clicks = async (selector, n) => { for (let i = 0; i < n; i++) await page.click(selector); };
+    const setDof = async (on) => {
+      await page.click("#preview-button");
+      if (on) await page.check('#preview-dialog input[value="depthOfField"]');
+      else await page.uncheck('#preview-dialog input[value="depthOfField"]');
+      await page.click("#preview-close");
+    };
+    await setDof(false);
+    await clicks('[data-dial="focal"][data-step="1"]', 4);
+    await clicks('[data-dial="aperture"][data-step="-1"]', 15);
+    await clicks('[data-dial="shutter"][data-step="-1"]', 14);
+    await setDof(true);
+    await page.waitForTimeout(1500);
+    const blurred = await sharpness(page);
+    await setDof(false);
+    await page.waitForTimeout(800);
+    const sharp = await sharpness(page);
+    check("profondeur de champ du viseur", blurred < 0.6 * sharp, `netteté du fond ${blurred.toFixed(2)} avec, ${sharp.toFixed(2)} sans`);
+    await clicks('[data-dial="focal"][data-step="-1"]', 4);
+    await clicks('[data-dial="aperture"][data-step="1"]', 15);
+    await clicks('[data-dial="shutter"][data-step="1"]', 14);
 
     for (let i = 0; i < 18; i++) await page.click('[data-dial="iso"][data-step="1"]');
     for (let i = 0; i < 16; i++) await page.click('[data-dial="shutter"][data-step="-1"]');

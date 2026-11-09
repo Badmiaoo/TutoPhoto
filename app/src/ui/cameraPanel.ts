@@ -31,6 +31,7 @@ import {
 } from "../camera/exposure";
 import { cameraFov, frameFor, type Frame } from "../camera/viewfinder";
 import type { ViewfinderNoise } from "../camera/noise";
+import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
 import { t, type Lang, type MessageKey } from "../i18n";
 
 /** Écart maximal affiché par la cellule, en IL. */
@@ -46,6 +47,7 @@ interface Preview {
   all: boolean;
   brightness: boolean;
   noise: boolean;
+  depthOfField: boolean;
 }
 
 type Dial = "aperture" | "shutter" | "iso" | "focal";
@@ -86,7 +88,8 @@ export class CameraPanel {
   private format: Format = "ff";
   private lang: Lang;
   private frame: Frame | null = null;
-  private preview: Preview = { all: true, brightness: true, noise: true };
+  private preview: Preview = { all: true, brightness: true, noise: true, depthOfField: true };
+  private dof: ViewfinderDepthOfField | null = null;
   /** Cran de la loupe dans LOUPE_LEVELS ; -1 : pas de loupe. */
   private loupeLevel = -1;
   private loupeZoom = 1;
@@ -156,6 +159,23 @@ export class CameraPanel {
       exposure: 2 ** exposureOffset(this.settings),
       frame: this.frame!,
       summary: [this.label("aperture"), this.label("shutter"), `ISO ${this.label("iso")}`, this.label("focal")].join(" · "),
+    };
+  }
+
+  /** Profondeur de champ du viseur, créée après le panneau (elle lit le point de mise au point). */
+  attachDepthOfField(dof: ViewfinderDepthOfField): void {
+    this.dof = dof;
+    this.update();
+  }
+
+  /** Point de mise au point dans le canevas (de 0 à 1, origine en haut à gauche), loupe comprise. */
+  focusOnCanvas(): Point {
+    if (!this.frame) return { x: 0.5, y: 0.5 };
+    const shown = this.frameToDisplayed(this.focusPoint);
+    const frame = this.frame;
+    return {
+      x: (frame.left + shown.x * frame.width) / this.canvasSize.width,
+      y: (frame.top + shown.y * frame.height) / this.canvasSize.height,
     };
   }
 
@@ -249,6 +269,7 @@ export class CameraPanel {
     // Aperçu de la luminosité coupé : exposition correcte quels que soient les réglages.
     this.scene.imageProcessingConfiguration.exposure = this.showsBrightness() ? 2 ** offset : 1;
     this.noise.setEnabled(this.showsNoise());
+    this.dof?.setEnabled(this.showsDepthOfField());
     this.updatePreview(tr, colon);
 
     const body = this.body();
@@ -289,6 +310,12 @@ export class CameraPanel {
     // photosites.
     const gain = this.showsBrightness() ? 1 : 2 ** exposureOffset(this.settings);
     this.noise.update(body, isoValue(this.settings.iso), frame.width * frame.height * this.loupeZoom ** 2, gain);
+    // Profondeur de champ : pixels du canevas par millimètre de capteur, loupe comprise.
+    this.dof?.update({
+      focalMm: FOCAL_LENGTHS[this.focalIndex],
+      aperture: apertureValue(this.settings.aperture),
+      pixelsPerMm: (Math.max(frame.width, frame.height) / body.sensorWidthMm) * this.loupeZoom,
+    });
     // Le canevas peut être dessiné à une autre résolution que sa taille à l'écran : on passe en pourcentages.
     const style = this.el.frame.style;
     style.left = `${(frame.left / width) * 100}%`;
@@ -378,6 +405,10 @@ export class CameraPanel {
     return this.preview.all && this.preview.noise;
   }
 
+  private showsDepthOfField(): boolean {
+    return this.preview.all && this.preview.depthOfField;
+  }
+
   /** Textes de la fenêtre de l'aperçu, cases cochées, et rappel dans le viseur de ce qui n'est pas montré. */
   private updatePreview(tr: (key: MessageKey) => string, colon: string): void {
     const dialog = this.el.previewDialog;
@@ -387,6 +418,7 @@ export class CameraPanel {
     dialog.querySelector("#preview-all-label")!.textContent = tr("previewAll");
     dialog.querySelector("#preview-brightness-label")!.textContent = tr("previewBrightness");
     dialog.querySelector("#preview-noise-label")!.textContent = tr("previewNoise");
+    dialog.querySelector("#preview-dof-label")!.textContent = tr("previewDepthOfField");
     dialog.querySelector("#preview-note")!.textContent = tr("previewNote");
     dialog.querySelector("#preview-close")!.textContent = tr("close");
     for (const input of dialog.querySelectorAll<HTMLInputElement>("input[type=checkbox]")) {
@@ -396,15 +428,17 @@ export class CameraPanel {
     const hidden: string[] = [];
     if (!this.showsBrightness()) hidden.push(tr("previewBrightnessShort"));
     if (!this.showsNoise()) hidden.push(tr("previewNoiseShort"));
+    if (!this.showsDepthOfField()) hidden.push(tr("previewDepthOfFieldShort"));
     this.el.previewBadge.hidden = hidden.length === 0;
-    this.el.previewBadge.textContent = `${tr("previewOff")}${colon}${hidden.join(tr("and"))}`;
+    const list = hidden.length > 1 ? `${hidden.slice(0, -1).join(", ")}${tr("and")}${hidden[hidden.length - 1]}` : hidden.join("");
+    this.el.previewBadge.textContent = `${tr("previewOff")}${colon}${list}`;
   }
 
   private restorePreview(): void {
     try {
       const saved = JSON.parse(window.localStorage.getItem(PREVIEW_STORAGE_KEY) ?? "null") as Partial<Preview> | null;
       if (saved) {
-        for (const key of ["all", "brightness", "noise"] as const) {
+        for (const key of ["all", "brightness", "noise", "depthOfField"] as const) {
           if (typeof saved[key] === "boolean") this.preview[key] = saved[key];
         }
       }

@@ -6,6 +6,7 @@ import { CameraPanel } from "./ui/cameraPanel";
 import { Shutter } from "./ui/shutter";
 import { DOME_RADIUS, EYE_HEIGHT } from "./scene";
 import { ViewfinderNoise } from "./camera/noise";
+import { ViewfinderDepthOfField } from "./camera/viewfinderDof";
 import { initialLang, rememberLang, t, type Lang } from "./i18n";
 
 function element<T extends HTMLElement>(id: string): T {
@@ -29,7 +30,7 @@ let shutter: Shutter | null = null;
 
 // Problèmes affichés à l'écran, pour diagnostiquer sur un téléphone sans console : erreurs JavaScript,
 // shader du bruit qui ne compile pas, scène affichée avant d'être prête.
-type ProblemKey = "problemError" | "problemNoise" | "problemLate";
+type ProblemKey = "problemError" | "problemNoise" | "problemDepthOfField" | "problemLate";
 const problems: { key: ProblemKey; detail: string }[] = [];
 
 function report(key: ProblemKey, detail: string): void {
@@ -104,6 +105,16 @@ if (!Engine.isSupported()) {
     lang,
     noise,
   );
+  const panel = cameraPanel;
+  const dof = new ViewfinderDepthOfField(
+    scene,
+    camera,
+    { eyeHeight: EYE_HEIGHT, domeRadius: DOME_RADIUS },
+    () => panel.focusOnCanvas(),
+    () => noise.moveToEnd(),
+    (message) => report("problemDepthOfField", message),
+  );
+  panel.attachDepthOfField(dof);
   const render = () => scene.render();
   shutter = new Shutter(
     engine,
@@ -132,6 +143,7 @@ if (!Engine.isSupported()) {
     () => engine.runRenderLoop(render),
     lang,
     noise,
+    dof,
   );
   ready
     .then((waiting) => {

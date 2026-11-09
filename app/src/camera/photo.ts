@@ -188,7 +188,7 @@ function whenCompiled(wrapper: EffectWrapper, timeoutMs = 20000): Promise<void> 
  * Distance du plan du sol le long du rayon qui passe par le point donné du cadre (de 0 à 1, origine en
  * haut à gauche), en z dans le repère de la caméra ; Infinity si le rayon ne descend pas.
  */
-function groundDepth(projection: Matrix, upInCamera: Vector3, ground: GroundInfo, point: { x: number; y: number }): number {
+export function groundDepth(projection: Matrix, upInCamera: Vector3, ground: GroundInfo, point: { x: number; y: number }): number {
   const m = projection.asArray();
   const ray = new Vector3((point.x * 2 - 1 - m[8]) / m[0], (1 - point.y * 2 - m[9]) / m[5], 1);
   const slope = Vector3.Dot(upInCamera, ray);

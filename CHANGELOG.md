@@ -12,6 +12,22 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.22] - 2026-11-09
+
+### Ajouté
+
+- Profondeur de champ approchée dans le viseur (`app/src/camera/viewfinderDof.ts`) :
+  - effet de profondeur de champ de Babylon.js, alimenté par une carte de profondeur propre au viseur, sol compris ;
+  - mise au point continue sur le point choisi ;
+  - `lensSize` calé pour qu'un cercle de confusion de 1 corresponde au flou maximal mesuré de l'effet, 24 px, loupe comprise ;
+  - case « Profondeur de champ (approchée) » dans la fenêtre « Aperçu », en marche par défaut ;
+  - effet retiré pendant le calcul de la photo.
+- Routine de test : contrôle de la profondeur de champ du viseur (fond flou au 135 mm à f/1.4, net sans l'effet).
+
+### Modifié
+
+- `docs/camera-physique.md` : fonctionnement, mesure du flou maximal (23 à 24,75 px selon l'écran), écart à mi-course (−28 %), limites. `docs/questions-ouvertes.md`.
+
 ## [0.3.21] - 2026-11-09
 
 ### Corrigé
@@ -356,6 +372,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.22]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.21...v0.3.22
 [0.3.21]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.20...v0.3.21
 [0.3.20]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.19...v0.3.20
 [0.3.19]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.18...v0.3.19
