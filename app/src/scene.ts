@@ -19,6 +19,7 @@ import { BackgroundMaterial } from "@babylonjs/core/Materials/Background/backgro
 import { HDRCubeTexture } from "@babylonjs/core/Materials/Textures/hdrCubeTexture";
 import { PhotoDome } from "@babylonjs/core/Helpers/photoDome";
 import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
+import type { FaceSubject } from "./camera/faces";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { AnimationGroup } from "@babylonjs/core/Animations/animationGroup";
 import type { SceneTimeControl } from "./camera/photo";
@@ -50,6 +51,8 @@ export interface ParkScene {
   ready: Promise<string[]>;
   /** Horloge, position de l'œil et sujets en mouvement, pour la photo calculée (camera/photo.ts). */
   time: SceneTimeControl;
+  /** Visages et yeux des personnages et du chien, pour l'AF zone automatique (camera/faces.ts). */
+  subjects: FaceSubject[];
 }
 
 /** Délai au-delà duquel la scène s'affiche même si Babylon ne la déclare pas prête, en millisecondes. */
@@ -203,20 +206,60 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
   // Personnages Renderpeople : modèles en centimètres, d'où l'échelle 0,01.
   const CM = 0.01;
 
+  // Yeux, pour l'AF zone automatique. Sophia et Nathan ont un squelette avec des os pour les yeux. Les
+  // modèles figés (Dennis, Fabienne et Percy) et le chien n'en ont pas : leurs yeux ont été placés à la main
+  // le 9 novembre 2026, en visant la pupille sur une vue rapprochée de face et en lisant la profondeur à ce
+  // pixel ; points vérifiés en les reprojetant sur une autre vue (et, pour le chien, à deux autres instants
+  // du galop). Coordonnées dans le repère du porteur du modèle (centimètres), ou de l'os de la tête du chien.
+  // L'œil gauche de Fabienne, collé à la joue de Percy dans cette pose, n'est pas placé.
+  const subjects: FaceSubject[] = [];
+  const localEyes = (node: TransformNode, points: [number, number, number][]) => () => {
+    node.computeWorldMatrix(true);
+    return points.map((p) => Vector3.TransformCoordinates(new Vector3(...p), node.getWorldMatrix()));
+  };
+  const spacing = (eyes: Vector3[]) => (eyes.length === 2 ? Vector3.Distance(eyes[0], eyes[1]) : 0);
+  /** Écart des yeux mesuré sur Dennis (6,5 cm), pour Fabienne dont un seul œil est placé. */
+  const ADULT_SPACING = 0.065;
+  const boneEyes = (id: string, nodes: TransformNode[]) => {
+    const eyes = nodes.filter((n) => /_eye_[lr]_\d+$/.test(n.name));
+    if (eyes.length !== 2) return;
+    const get = () =>
+      eyes.map((n) => {
+        n.computeWorldMatrix(true);
+        return n.getAbsolutePosition().clone();
+      });
+    subjects.push({ id, kind: "human", eyes: get, eyeSpacing: spacing(get()) });
+  };
+
   const ready = Promise.all([
     load("painted_wooden_bench/painted_wooden_bench_1k.gltf", -3.4, 8, 0.35 - Math.PI),
     load("metal_trash_can/metal_trash_can_1k.gltf", 3.2, 10.5, -0.3),
     // Groupe (SIT-05) et portrait (SIT-01), face à l'appareil.
-    load("dennis_posed_004/scene.gltf", -1.0, 6.5, Math.PI, CM),
+    load("dennis_posed_004/scene.gltf", -1.0, 6.5, Math.PI, CM).then(({ holder }) => {
+      const eyes = localEyes(holder, [
+        [5.602, 169.306, 18.183],
+        [-0.48, 168.615, 20.398],
+      ]);
+      subjects.push({ id: "dennis", kind: "human", eyes, eyeSpacing: spacing(eyes()) });
+    }),
     load("sophia_animated_003/scene.gltf", -0.2, 6.6, Math.PI, CM).then(({ result }) => {
       for (const group of result.animationGroups) animate(group);
+      boneEyes("sophia", result.transformNodes);
     }),
-    load("fabienne_percy_posed_001/scene.gltf", 0.75, 6.5, Math.PI, CM),
+    load("fabienne_percy_posed_001/scene.gltf", 0.75, 6.5, Math.PI, CM).then(({ holder }) => {
+      subjects.push({ id: "fabienne", kind: "human", eyes: localEyes(holder, [[10.071, 151.36, 9.096]]), eyeSpacing: ADULT_SPACING });
+      const percy = localEyes(holder, [
+        [4.106, 152.09, 15.159],
+        [0.415, 151.445, 19.793],
+      ]);
+      subjects.push({ id: "percy", kind: "human", eyes: percy, eyeSpacing: spacing(percy()) });
+    }),
     // Homme qui marche en arrière-plan. Vitesse mesurée dans l'animation (8 novembre 2026) : pendant
     // l'appui, le pied posé recule de 1,23 à 1,27 m/s selon le pied et le point mesuré.
     load("nathan_animated_003/scene.gltf", -4, 12.5, Math.PI / 2, CM).then(({ holder, result }) => {
       for (const group of result.animationGroups) animate(group);
       walkers.push({ holder, speed: 1.25, minX: -5, maxX: 5, phase: 1 });
+      boneEyes("nathan", result.transformNodes);
     }),
     // Chien qui court (SIT-06). Le fichier contient deux chiens : on ne garde que « Jim », qui galope.
     // Échelle : 0,6 m au garrot, valeur choisie ; l'épaule de Jim est à 2,05 unités du sol, soit
@@ -234,6 +277,15 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
         else group.dispose();
       }
       walkers.push({ holder, speed: 3.5, minX: -5, maxX: 5, phase: 0 });
+      // Os de la tête de Jim (nommé « Ethan_Head_013 » dans le fichier, sous la cible de tête de Jim).
+      const head = result.transformNodes.find((node) => node.name === "Ethan_Head_013");
+      if (head) {
+        const eyes = localEyes(head, [
+          [-0.1376, 0.4689, 0.0387],
+          [0.1779, 0.4472, 0.0316],
+        ]);
+        subjects.push({ id: "jim", kind: "animal", eyes, eyeSpacing: spacing(eyes()) });
+      }
     }),
     new Promise<void>((resolve, reject) => {
       dome.onLoadObservable.addOnce(() => resolve());
@@ -241,5 +293,5 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
     }),
   ]).then(() => readyOrLate(scene));
 
-  return { scene, camera, ready, time };
+  return { scene, camera, ready, time, subjects };
 }

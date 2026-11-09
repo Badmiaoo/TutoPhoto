@@ -47,6 +47,8 @@ interface Shot {
   focusMode: FocusMode;
   areaMode: AreaMode;
   focusLocked: boolean;
+  /** Zone automatique : œil, visage, sujet le plus proche ou point touché. */
+  target: "eye" | "face" | "nearest" | "point" | null;
 }
 
 /** Fenêtre affichée par la loupe, dans l'image à la définition du capteur. */
@@ -95,6 +97,7 @@ export class Shutter {
     el.reviewWhole.addEventListener("click", () => this.showWhole());
     el.reviewImage.addEventListener("click", (e) => void this.magnify(e));
     panel.onViewChange(() => this.placeMarker());
+    autofocus.onChange(() => this.placeMarker());
     this.setLang(lang);
     requestAnimationFrame(() => this.placeMarker());
   }
@@ -132,10 +135,23 @@ export class Shutter {
     const height = parseFloat(frame.height) || 100;
     const shown = this.panel.frameToDisplayed(this.focusPoint);
     this.el.marker.hidden = shown.x < 0 || shown.x > 1 || shown.y < 0 || shown.y > 1;
+    const style = this.el.marker.style;
+    // Zone automatique : le repère entoure ce sur quoi l'appareil a fait le point (œil, visage, sujet).
+    const area = this.panel.focusArea();
+    const target = area.auto ? this.autofocus.target() : null;
+    if (area.auto) {
+      const point = target?.point ?? area.point;
+      this.el.marker.hidden = false;
+      style.left = `${point.x * 100}%`;
+      style.top = `${point.y * 100}%`;
+      const side = target && target.size > 0 ? target.size : 0;
+      style.width = side ? `${side * 100}%` : "";
+      style.height = side ? `${side * area.auto.canvasWidth * (100 / area.auto.canvasHeight)}%` : "";
+      return;
+    }
     // Zone large : le repère montre la zone mesurée, rognée au cadre ; point sélectif : un carré centré sur le
     // point, à la taille de la feuille de style.
-    const zone = this.panel.focusArea().zone;
-    const style = this.el.marker.style;
+    const zone = area.zone;
     style.left = zone ? `${((zone.left + zone.right) / 2) * 100}%` : `${left + shown.x * width}%`;
     style.top = zone ? `${((zone.top + zone.bottom) / 2) * 100}%` : `${top + shown.y * height}%`;
     style.width = zone ? `${(zone.right - zone.left) * 100}%` : "";
@@ -201,7 +217,8 @@ export class Shutter {
       if (focusMode === "single" && !focusLocked) this.autofocus.lockAt(photo.focusDistance);
       if (this.shot) URL.revokeObjectURL(this.shot.photo.url);
       this.dropLoupe();
-      this.shot = { settings, request, photo, focusMode, areaMode, focusLocked };
+      const target = areaMode === "auto" ? (this.autofocus.target()?.kind ?? null) : null;
+      this.shot = { settings, request, photo, focusMode, areaMode, focusLocked, target };
       this.el.reviewSave.href = photo.url;
       this.showWhole();
     } catch (error) {
@@ -214,14 +231,16 @@ export class Shutter {
   private showWhole(): void {
     const shot = this.shot;
     if (!shot) return;
-    const { photo, settings, focusMode, areaMode, focusLocked } = shot;
+    const { photo, settings, focusMode, areaMode, focusLocked, target } = shot;
     this.setImage(photo.url, photo.width, photo.height);
     this.el.reviewWhole.hidden = true;
     this.el.reviewHint.hidden = false;
     this.lastCaption = () => {
       const tr = (key: MessageKey) => t(this.lang, key);
-      const area = tr(areaMode === "point" ? "areaPointShort" : areaMode === "wideS" ? "areaWideSShort" : "areaWideLShort");
-      const mode = `${focusMode === "single" ? "AF-S" : "AF-C"} · ${area}`;
+      const areaKeys: Record<AreaMode, MessageKey> = { point: "areaPointShort", wideS: "areaWideSShort", wideL: "areaWideLShort", auto: "areaAutoShort" };
+      const targetKeys: Record<NonNullable<Shot["target"]>, MessageKey> = { eye: "targetEye", face: "targetFace", nearest: "targetNearest", point: "targetPoint" };
+      const what = target ? ` · ${tr(targetKeys[target])}` : "";
+      const mode = `${focusMode === "single" ? "AF-S" : "AF-C"} · ${tr(areaKeys[areaMode])}${what}`;
       const focus = `${tr(focusLocked ? "focusLockedAt" : "focusedAt")} ${this.decimal(photo.focusDistance, 1)} m`;
       return `${settings.summary} · ${settings.body.model} · ${mode} · ${focus} · ${this.computedText(photo)}`;
     };

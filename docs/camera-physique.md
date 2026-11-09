@@ -368,6 +368,43 @@ Dans TutoPhoto :
 
 Non simulé : la taille minimale d'un sujet pour qu'une zone large le retienne (un seul pixel suffit ici), la zone dynamique, le pinpoint.
 
+## Détection des yeux et zone automatique (version 0.3.29)
+
+Décision de Julien du 9 novembre 2026 : les cinq points proposés sont validés, ainsi que le placement à la main des yeux des modèles sans squelette et du chien. Pour le cas sans visage : « fais ce qu'il y a de plus réaliste », mot d'ordre désormais inscrit dans `CLAUDE.md`.
+
+Ce que dit le manuel du Z 6, lu le 9 novembre 2026 :
+- [« Focus »](https://onlinemanual.nikonimglib.com/z7_z6/en/05_basic_settings_01.html), AF zone automatique : « The camera automatically detects the subject and selects the focus area. » Visage ou œil détecté : bordure ambre en AF-C, verte une fois la mise au point faite en AF-S. Si le sujet détourne la tête, « the focus point will move to track their motion ». La détection peut échouer si « the subject's face occupies a very large or very small proportion of the frame », ou si les yeux sont cachés.
+- Déclencheur tactile, en zone automatique : « the camera will track the selected subject as it moves through the frame. To switch to a different subject, tap it in the display », et elle fait le point sur « the face or eye closest to the selected point ».
+- [Réglage a4](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_a04.html) ([en français](https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_a04.html), « Détect. visage-yeux AF zone auto ») : visages et yeux, visages seulement, chiens et chats, ou désactivé. Personnes et animaux ne sont pas détectés en même temps. Le réglage par défaut n'est pas donné sur cette page.
+- Rien sur le cas sans visage. Le seul texte de constructeur trouvé est celui du compact Nikon COOLPIX P1100 ([« AF area mode »](https://onlinemanual.nikonimglib.com/p1100/en/08-31.html)) : sans visage, « the camera automatically selects one or more of the nine focus areas containing the subject closest to the camera ». C'est aussi la règle de la zone large du Z 6. Elle est retenue, faute de mieux, et présentée comme telle.
+
+Dans TutoPhoto (`app/src/camera/faces.ts`, `app/src/camera/autofocus.ts`) :
+- **Fenêtre « Mise au point »** : quatrième mode de zone, « AF zone automatique », et le réglage « Détect. visage-yeux AF zone auto », avec les termes du manuel en français. Par défaut, détection des visages et des yeux.
+- **Yeux des personnages** :
+  - Sophia et Nathan : les os des yeux de leur squelette ;
+  - Dennis, Percy et Fabienne (modèles figés) et le chien Jim : placés à la main. La pupille est visée sur une vue rapprochée de face, puis la profondeur est lue à ce pixel dans la carte du viseur ; la visée de Babylon donne le même point à 0,3 mm près sur Dennis. Chaque point a été vérifié en le reprojetant sur une autre vue. Pour le chien, il l'a été à deux autres instants du galop, les yeux étant attachés à l'os de sa tête.
+  - L'œil gauche de Fabienne, collé à la joue de Percy, n'est pas placé.
+  - Écarts entre les yeux mesurés : Dennis 6,5 cm, Percy 6,0 cm, le chien 9,2 cm (modèle stylisé). Celui de Dennis sert pour Fabienne.
+- **Un œil est vu** s'il est dans le cadre et si rien ne le cache : à son pixel, la carte de profondeur ne montre rien de plus proche que l'œil moins 4 cm. Un œil de profil caché par le nez, ou une tête de dos, échoue donc naturellement à ce test.
+- **Taille du visage**, seuils choisis pour TutoPhoto, le manuel n'en donnant pas : écart entre les yeux rapporté au grand côté du cadre, sans la loupe. Visage détecté de 0,4 % à 25 %, yeux à partir de 0,8 %. Calcul pour Dennis au 50 mm, en plein format : 50 × 0,065 / (D × 35,9), d'où des yeux détectés jusqu'à 11,3 m et un visage jusqu'à 22,6 m. Au 18 mm, c'est 4,1 m et 8,1 m ; au 135 mm, des yeux jusqu'à 30,6 m.
+- **Œil retenu** : le plus proche de l'appareil parmi les yeux vus. Le manuel dit seulement « one or the other of the subject's eyes ».
+- **Choix du sujet** : sans toucher, le visage le plus proche du point de mise au point (le centre au départ), puis suivi. Toucher le viseur choisit le visage le plus proche du point touché, puis le suit. Si le visage suivi n'est plus détecté, l'appareil passe au visage le plus proche du point.
+- **Sans visage** : le sujet le plus proche dans tout le cadre (règle du P1100). Le cadre entier est lu, le manuel ne donnant pas la couverture de l'autofocus. Appareil horizontal, c'est souvent le sol en bas du cadre : le piège est le même qu'en zone large. Après un toucher sans visage détecté : le point touché, comme le déclencheur tactile du Z 6.
+- **Affichage** : repère ambre autour de l'œil ou du visage, vert une fois verrouillé en AF-S. Le viseur et la légende de la photo indiquent ce qui a été retenu (« AF-C · Auto · œil · 6,6 m »).
+- **Mesures du 9 novembre 2026 dans le navigateur de test**, vue de départ, sur ordinateur :
+  - œil de Sophia à 6,6 m, suivi ;
+  - toucher à droite : œil de Percy à 6,3 m ;
+  - détection coupée : sol à 5,4 m ;
+  - animaux : œil du chien à 9,0 m quand il passe.
+
+Corrigé dans la même version : la carte de profondeur du viseur gardait la taille du canevas à sa création (Babylon ne la redimensionne pas), soit 1000 × 738 pour un canevas de 1000 × 706 pendant les mesures. Elle suit désormais le canevas, par exemple quand on tourne le téléphone.
+
+Non simulé :
+- **Délai de suivi** (réglage a3 du Z 6) : quand le chien passe derrière quelqu'un, la mise au point saute aussitôt ailleurs.
+- **Conditions de détection** : lumière, lunettes, cheveux et mouvement ne gênent pas la détection, et toutes les races sont reconnues.
+- **Sujets autres que des visages** : ils ne sont pas suivis.
+- **Choix d'un autre visage au sélecteur** : non simulé ; on touche le visage voulu.
+
 ## Fonctions demandées par Julien le 9 novembre 2026
 
 Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 minimale (`data/jalons.yaml`), qui ne contient que les notions clés de SIT-01, SIT-05 et SIT-06. `CLAUDE.md` demande de ne pas étendre la V1 minimale avant de l'avoir testée avec des débutants. Julien laisse à Claude le choix du moment (« quand tu estimes que c'est le meilleur moment », 9 novembre 2026) : balance des blancs, grilles de composition et histogramme viendront après les tests de la V1 minimale. Les équivalents cités viennent du [guide d'aide Sony ILCE-7M3](https://helpguide.sony.net/ilc/1720/v1/en/print.pdf), lu le 9 novembre 2026.
@@ -401,7 +438,7 @@ Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 mi
 ### Décisions de Julien du 9 novembre 2026
 
 - Indicateur de l'« équilibre » entre ouverture, vitesse et ISO, selon le point visé : forme B, un triangle dans lequel un point bouge selon les réglages. Les seuils de « trop » et de « pas assez » (exposition au point visé, traînée du sujet, profondeur de champ, bruit) sont à proposer à Julien avant de produire.
-- Modes de mise au point autres qu'un collimateur unique : « suivons ta reco », soit AF ponctuel ou continu (fait en version 0.3.26, voir « Mise au point »), puis modes de zone (MAP-05, faits en version 0.3.27, voir « Modes de zone AF »), puis détection des yeux (MAP-09). Les trois notions sont dans la V1 minimale.
+- Modes de mise au point autres qu'un collimateur unique : « suivons ta reco », soit AF ponctuel ou continu (fait en version 0.3.26, voir « Mise au point »), puis modes de zone (MAP-05, faits en version 0.3.27, voir « Modes de zone AF »), puis détection des yeux (MAP-09, faite en version 0.3.29, voir « Détection des yeux et zone automatique »). Les trois notions sont dans la V1 minimale.
 
 Voir `docs/questions-ouvertes.md`.
 
@@ -414,7 +451,7 @@ Une pull request par étape :
 3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus). Interrupteurs de l'aperçu dans le viseur : version 0.3.16.
 4. Loupe dans le viseur et sur l'écran de revue : faite en version 0.3.17 (voir ci-dessus).
 5. Profondeur de champ approchée dans le viseur : faite en version 0.3.22, puis en flou de taille physique en version 0.3.23 (voir ci-dessus).
-6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27. Ensuite : détection des yeux et zone automatique (MAP-09), collimateurs (MAP-06), indicateur d'équilibre, flou de bougé et de sujet (MVT-01), modes d'entraînement (BOI-12).
+6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Ensuite : collimateurs (MAP-06), indicateur d'équilibre, flou de bougé et de sujet (MVT-01), modes d'entraînement (BOI-12).
 7. Après les tests de la V1 minimale : balance des blancs, grilles de composition, histogramme (voir ci-dessus). En V2 : correction de la photo après la prise.
 
 ## Ce que je ne sais pas

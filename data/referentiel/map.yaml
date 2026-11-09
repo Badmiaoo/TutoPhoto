@@ -93,6 +93,7 @@ notions:
       simulator: "Détection simulée à partir des visages et des yeux annotés"
       exercise: "Photo de groupe : choisir le bon visage"
     situations: [SIT-01, SIT-05, SIT-08, SIT-34, SIT-37, SIT-39]
+    sources: [nikon-z6-focus, nikon-z6-a4, nikon-z6-a4-fr, nikon-p1100-af-area]
     since: v0.1
   - id: MAP-10
     title: {fr: "Suivi du sujet", en: "subject tracking"}

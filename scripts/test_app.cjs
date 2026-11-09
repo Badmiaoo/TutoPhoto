@@ -17,8 +17,10 @@
 // - au 135 mm à f/1.4, la profondeur de champ du viseur floute le fond ; coupée, le fond redevient net ;
 // - la loupe passe à 100 % et l'indique ;
 // - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne ;
-// - mise au point (MAP-04, MAP-05), en fin de test parce que la vue change : AF-C et point sélectif par
-//   défaut ; en AF-S, toucher le bas du cadre verrouille la distance ; au même endroit, la zone large (L)
+// - mise au point (MAP-04, MAP-05, MAP-09), en fin de test parce que la vue change : AF-C et point sélectif par
+//   défaut ; en zone automatique, un œil est détecté dans le groupe ; détection coupée, l'appareil prend le
+//   sujet le plus proche ; en détection des animaux, l'œil du chien est détecté quand il passe (au plus 30 s) ;
+//   en AF-S, toucher le bas du cadre verrouille la distance ; au même endroit, la zone large (L)
 //   retient un sujet plus proche (le sol en bas du cadre) ; la distance ne bouge plus quand on relève
 //   l'appareil (et, avec --photo, la photo la garde) ; repassé en AF-C, la distance suit la zone.
 
@@ -267,14 +269,41 @@ async function runProfile(browser, name, base) {
       const m = /(\d+[,.]\d) m/.exec(text);
       return m ? Number(m[1].replace(",", ".")) : NaN;
     };
-    const setAf = async (mode, area) => {
+    const setAf = async (mode, area, detection) => {
       await page.click("#af-button");
       await page.check(`#af-dialog input[name="focusMode"][value="${mode}"]`);
       await page.check(`#af-dialog input[name="areaMode"][value="${area}"]`);
+      if (detection) await page.check(`#af-dialog input[name="detection"][value="${detection}"]`);
       await page.click("#af-close");
     };
+    const waitBadge = (pattern, timeout) =>
+      page
+        .waitForFunction((source) => new RegExp(source).test(document.getElementById("af-badge").textContent), pattern.source, { timeout })
+        .then(() => true)
+        .catch(() => false);
     const startText = await afText();
     check("mise au point : AF-C et point sélectif par défaut", /^AF-C · Point · /.test(startText), startText);
+
+    // Zone automatique, vue de départ : le groupe est à environ 6,5 m.
+    await setAf("continuous", "auto", "faceEye");
+    const eyeSeen = await waitBadge(/^AF-C · Auto · œil · \d+,\d m$/, 30000);
+    const eyeText = await afText();
+    const eyeAt = lockedMetres(eyeText);
+    const amber = await page.evaluate(() => document.getElementById("focus-marker").classList.contains("detected"));
+    check("zone automatique : œil détecté dans le groupe", eyeSeen && amber && eyeAt > 5.5 && eyeAt < 7.5, `${eyeText}${amber ? ", repère ambre" : ""}`);
+    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-zone-auto.png`), timeout: 120000 });
+    await setAf("continuous", "auto", "off");
+    const nearestSeen = await waitBadge(/^AF-C · Auto · sujet le plus proche · /, 30000);
+    const nearestText = await afText();
+    check(
+      "zone automatique sans détection : sujet le plus proche",
+      nearestSeen && lockedMetres(nearestText) < eyeAt,
+      `${nearestText} ; œil : ${eyeText}`,
+    );
+    await setAf("continuous", "auto", "animal");
+    const dogSeen = await waitBadge(/^AF-C · Auto · (œil|visage) · /, 30000);
+    check("détection des animaux : œil ou visage du chien", dogSeen, await afText());
+    await setAf("continuous", "auto", "faceEye");
     await setAf("single", "point");
     const frameBox = await page.locator("#frame").boundingBox();
     const tapLow = async (previous) => {

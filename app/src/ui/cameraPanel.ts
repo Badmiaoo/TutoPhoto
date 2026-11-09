@@ -9,7 +9,8 @@
 // pixel du canevas pour un photosite), comme la fonction de grossissement des hybrides. Elle ne change
 // que l'affichage : la photo couvre toujours tout le cadre.
 // Mise au point (décisions du 9 novembre 2026, camera/autofocus.ts) : mode AF-S ou AF-C (MAP-04) et mode de
-// zone AF (MAP-05), point sélectif ou zone large (S) ou (L), choisis dans la fenêtre « Mise au point ». Le
+// zone AF (MAP-05, MAP-09), point sélectif, zone large (S) ou (L), ou zone automatique avec la détection des
+// visages et des yeux (réglage a4 du Z 6), choisis dans la fenêtre « Mise au point ». Le
 // viseur indique le mode, la zone et la distance ; le repère passe au vert quand la distance est verrouillée,
 // comme le point AF du Nikon Z 6 [nikon-z6-focus].
 
@@ -38,6 +39,7 @@ import { cameraFov, frameFor, type Frame } from "../camera/viewfinder";
 import type { ViewfinderNoise } from "../camera/noise";
 import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
 import type { AreaMode, Autofocus, FocusArea, FocusMode } from "../camera/autofocus";
+import type { Detection } from "../camera/faces";
 import { t, type Lang, type MessageKey } from "../i18n";
 
 /** Écart maximal affiché par la cellule, en IL. */
@@ -51,11 +53,19 @@ const LOUPE_MIN_ZOOM = 1.25;
  * Côté des zones larges, en fraction du grand côté du cadre : zones carrées. Le manuel du Z 6 dit seulement
  * que les zones (L) sont plus grandes que les zones (S) ; ces tailles sont choisies pour TutoPhoto.
  */
-const WIDE_AREA_SIZE: Record<Exclude<AreaMode, "point">, number> = { wideS: 0.1, wideL: 0.2 };
+const WIDE_AREA_SIZE: Record<"wideS" | "wideL", number> = { wideS: 0.1, wideL: 0.2 };
 const AREA_KEYS: Record<AreaMode, { label: MessageKey; short: MessageKey }> = {
   point: { label: "areaPoint", short: "areaPointShort" },
   wideS: { label: "areaWideS", short: "areaWideSShort" },
   wideL: { label: "areaWideL", short: "areaWideLShort" },
+  auto: { label: "areaAuto", short: "areaAutoShort" },
+};
+const DETECTIONS: readonly Detection[] = ["faceEye", "face", "animal", "off"];
+const TARGET_KEYS: Record<"eye" | "face" | "nearest" | "point", MessageKey> = {
+  eye: "targetEye",
+  face: "targetFace",
+  nearest: "targetNearest",
+  point: "targetPoint",
 };
 
 /** Interrupteurs de l'aperçu dans le viseur. */
@@ -114,6 +124,8 @@ export class CameraPanel {
   private autofocus: Autofocus | null = null;
   private focusMode: FocusMode = "continuous";
   private areaMode: AreaMode = "point";
+  /** Réglage a4 du Z 6 ; le manuel lu ne donne pas le réglage par défaut. */
+  private detection: Detection = "faceEye";
   /** Cran de la loupe dans LOUPE_LEVELS ; -1 : pas de loupe. */
   private loupeLevel = -1;
   private loupeZoom = 1;
@@ -146,6 +158,7 @@ export class CameraPanel {
       input.addEventListener("change", () => {
         if (input.name === "focusMode") this.focusMode = input.value as FocusMode;
         if (input.name === "areaMode") this.areaMode = input.value as AreaMode;
+        if (input.name === "detection") this.detection = input.value as Detection;
         this.saveBody();
         this.autofocus?.setMode(this.focusMode);
         this.updateFocus();
@@ -222,32 +235,53 @@ export class CameraPanel {
     };
   }
 
-  /** Point et zone de mise au point dans le canevas, loupe comprise ; la zone large est rognée au cadre. */
+  /**
+   * Point et zone de mise au point dans le canevas, loupe comprise : zone large rognée au cadre, ou tout le
+   * cadre et le réglage de détection en zone automatique.
+   */
   focusArea(): FocusArea {
     const point = this.focusOnCanvas();
-    const size = this.zoneOnCanvas();
-    if (!size || !this.frame) return { point, zone: null };
+    if (!this.frame) return { point, zone: null, auto: null };
     const frame = this.frame;
     const { width, height } = this.canvasSize;
     const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
-    const left = frame.left / width;
-    const top = frame.top / height;
-    const right = (frame.left + frame.width) / width;
-    const bottom = (frame.top + frame.height) / height;
+    const bounds = {
+      left: frame.left / width,
+      top: frame.top / height,
+      right: (frame.left + frame.width) / width,
+      bottom: (frame.top + frame.height) / height,
+    };
+    if (this.areaMode === "auto") {
+      return {
+        point,
+        zone: bounds,
+        auto: {
+          detection: this.detection,
+          frame: bounds,
+          frameLongSidePx: Math.max(frame.width, frame.height),
+          zoom: this.loupeZoom,
+          canvasWidth: width,
+          canvasHeight: height,
+        },
+      };
+    }
+    const size = this.zoneOnCanvas();
+    if (!size) return { point, zone: null, auto: null };
     return {
       point,
       zone: {
-        left: clamp(point.x - size.width / 2, left, right),
-        right: clamp(point.x + size.width / 2, left, right),
-        top: clamp(point.y - size.height / 2, top, bottom),
-        bottom: clamp(point.y + size.height / 2, top, bottom),
+        left: clamp(point.x - size.width / 2, bounds.left, bounds.right),
+        right: clamp(point.x + size.width / 2, bounds.left, bounds.right),
+        top: clamp(point.y - size.height / 2, bounds.top, bounds.bottom),
+        bottom: clamp(point.y + size.height / 2, bounds.top, bounds.bottom),
       },
+      auto: null,
     };
   }
 
   /** Taille de la zone large dans le canevas (fractions de sa largeur et de sa hauteur) ; null pour un point. */
   zoneOnCanvas(): { width: number; height: number } | null {
-    if (this.areaMode === "point" || !this.frame) return null;
+    if (this.areaMode === "point" || this.areaMode === "auto" || !this.frame) return null;
     const side = WIDE_AREA_SIZE[this.areaMode] * Math.max(this.frame.width, this.frame.height) * this.loupeZoom;
     return { width: side / this.canvasSize.width, height: side / this.canvasSize.height };
   }
@@ -266,7 +300,7 @@ export class CameraPanel {
   setFocusPoint(point: Point): void {
     this.focusPoint = point;
     this.applyView();
-    if (this.autofocus?.mode() === "single") void this.autofocus.focusNow();
+    void this.autofocus?.touch();
   }
 
   /** Remet la projection du viseur (et la loupe) après le calcul d'une photo, qui la remplace. */
@@ -502,10 +536,18 @@ export class CameraPanel {
     dialog.querySelector("#af-point-label")!.textContent = tr("areaPoint");
     dialog.querySelector("#af-wide-s-label")!.textContent = tr("areaWideS");
     dialog.querySelector("#af-wide-l-label")!.textContent = tr("areaWideL");
+    dialog.querySelector("#af-auto-label")!.textContent = tr("areaAuto");
+    dialog.querySelector("#af-detection-legend")!.textContent = tr("detectionLegend");
+    dialog.querySelector("#af-det-face-eye-label")!.textContent = tr("detFaceEye");
+    dialog.querySelector("#af-det-face-label")!.textContent = tr("detFace");
+    dialog.querySelector("#af-det-animal-label")!.textContent = tr("detAnimal");
+    dialog.querySelector("#af-det-off-label")!.textContent = tr("detOff");
     dialog.querySelector("#af-note")!.textContent = tr("afHelp");
     dialog.querySelector("#af-close")!.textContent = tr("close");
     for (const input of dialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) {
-      input.checked = input.value === (input.name === "focusMode" ? this.focusMode : this.areaMode);
+      const current = input.name === "focusMode" ? this.focusMode : input.name === "areaMode" ? this.areaMode : this.detection;
+      input.checked = input.value === current;
+      if (input.name === "detection") input.disabled = this.areaMode !== "auto";
     }
     this.el.focusHint.textContent = tr(single ? "focusHintSingle" : "focusHint");
     const af = this.autofocus;
@@ -514,9 +556,14 @@ export class CameraPanel {
     const locked = af.locked();
     const meters = af.distance().toFixed(1);
     const distance = `${this.lang === "fr" ? meters.replace(".", ",") : meters} m`;
-    const text = `${short} · ${areaShort} · ${locked ? `${tr("lockedAt")} ` : ""}${distance}`;
+    // Zone automatique : ce sur quoi l'appareil a fait le point (œil, visage, sujet le plus proche, point touché).
+    const target = this.areaMode === "auto" ? af.target() : null;
+    const what = target ? `${tr(TARGET_KEYS[target.kind])} · ` : "";
+    const text = `${short} · ${areaShort} · ${what}${locked ? `${tr("lockedAt")} ` : ""}${distance}`;
     if (this.el.afBadge.textContent !== text) this.el.afBadge.textContent = text;
     this.el.focusMarker.classList.toggle("locked", locked);
+    // Visage ou œil détecté : repère ambre, comme sur le Z 6 ; vert une fois la distance verrouillée en AF-S.
+    this.el.focusMarker.classList.toggle("detected", !locked && (target?.kind === "eye" || target?.kind === "face"));
   }
 
   private showsBrightness(): boolean {
@@ -584,13 +631,15 @@ export class CameraPanel {
         format?: string;
         focusMode?: string;
         areaMode?: string;
+        detection?: string;
       } | null;
       if (saved && BODIES.some((b) => b.brand === saved.brand && b.format === saved.format)) {
         this.brand = saved.brand as Brand;
         this.format = saved.format as Format;
       }
       if (saved?.focusMode === "single" || saved?.focusMode === "continuous") this.focusMode = saved.focusMode;
-      if (saved?.areaMode === "point" || saved?.areaMode === "wideS" || saved?.areaMode === "wideL") this.areaMode = saved.areaMode;
+      if (saved?.areaMode && Object.prototype.hasOwnProperty.call(AREA_KEYS, saved.areaMode)) this.areaMode = saved.areaMode as AreaMode;
+      if (DETECTIONS.includes(saved?.detection as Detection)) this.detection = saved!.detection as Detection;
     } catch {
       // Stockage indisponible : boîtier par défaut.
     }
@@ -598,7 +647,7 @@ export class CameraPanel {
 
   private saveBody(): void {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ brand: this.brand, format: this.format, focusMode: this.focusMode, areaMode: this.areaMode }));
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ brand: this.brand, format: this.format, focusMode: this.focusMode, areaMode: this.areaMode, detection: this.detection }));
     } catch {
       // Sans stockage, le choix vaut pour la page en cours seulement.
     }
