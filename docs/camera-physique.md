@@ -134,6 +134,7 @@ Limites :
 
   Entre les deux, (2,0 − 0,8) / (256 − 16) ≈ 5 ms par rendu, la préparation (environ 0,8 s) dominant pour peu de rendus. C'est un calcul de Claude, qui suppose une préparation identique dans les deux cas.
 - **Pas encore de flou de bougé.**
+- **Appareils sans WebGL 2** (correction de la version 0.3.20) : la photo sortait noire. Les textures du calcul (1500 × 999 pixels) étaient créées en répétition, avec un filtrage qui attend des mipmaps. En WebGL 1, une telle texture, dont les côtés ne sont pas des puissances de 2, est incomplète et se lit en noir. Les textures sont désormais bornées aux bords et filtrées sans mipmaps ; cela évite aussi que le lissage, près d'un bord, prenne des pixels du bord opposé. Défaut trouvé par la routine de test du 9 novembre 2026, et cause isolée par des copies de contrôle.
 
 ## Bruit numérique (version 0.3.15)
 

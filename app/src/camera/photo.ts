@@ -245,18 +245,32 @@ export async function takePhoto(
   const imageProcessing = scene.imageProcessingConfiguration;
   const processingWasByPostProcess = imageProcessing.applyByPostProcess;
 
-  const color = new RenderTargetTexture("photo-rendu", { width, height }, scene, {
-    type: Constants.TEXTURETYPE_HALF_FLOAT,
-    generateMipMaps: false,
-    generateDepthBuffer: true,
-  });
-  const accumulation = [0, 1].map(
-    (i) =>
+  // Textures lues par les shaders : filtrage bilinéaire sans mipmaps et bords bloqués. En WebGL 1, une
+  // texture dont les côtés ne sont pas des puissances de 2 et qui se répète, ou qui attend des mipmaps,
+  // est incomplète et se lit en noir (photo noire constatée le 9 novembre 2026). Bloquer les bords
+  // évite aussi que le lissage, près d'un bord, prenne des pixels du bord opposé.
+  const sampled = (texture: RenderTargetTexture): RenderTargetTexture => {
+    texture.wrapU = Constants.TEXTURE_CLAMP_ADDRESSMODE;
+    texture.wrapV = Constants.TEXTURE_CLAMP_ADDRESSMODE;
+    return texture;
+  };
+  const color = sampled(
+    new RenderTargetTexture("photo-rendu", { width, height }, scene, {
+      type: Constants.TEXTURETYPE_HALF_FLOAT,
+      generateMipMaps: false,
+      generateDepthBuffer: true,
+      samplingMode: Constants.TEXTURE_BILINEAR_SAMPLINGMODE,
+    }),
+  );
+  const accumulation = [0, 1].map((i) =>
+    sampled(
       new RenderTargetTexture(`photo-somme-${i}`, { width, height }, scene, {
         type: Constants.TEXTURETYPE_FLOAT,
         generateMipMaps: false,
         generateDepthBuffer: false,
+        samplingMode: Constants.TEXTURE_BILINEAR_SAMPLINGMODE,
       }),
+    ),
   );
   const output = new RenderTargetTexture("photo-sortie", { width, height }, scene, {
     type: Constants.TEXTURETYPE_UNSIGNED_BYTE,
@@ -285,6 +299,8 @@ export async function takePhoto(
     await scene.whenReadyAsync();
     scene.render();
     const depthMap = depthRenderer.getDepthMap();
+    depthMap.wrapU = Constants.TEXTURE_CLAMP_ADDRESSMODE;
+    depthMap.wrapV = Constants.TEXTURE_CLAMP_ADDRESSMODE;
     const depths = (await depthMap.readPixels(0, 0, null, true)) as Float32Array;
     // La carte reste celle de la vue centrale : plus de mise à jour pendant les rendus.
     depthMap.refreshRate = RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
