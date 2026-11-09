@@ -97,20 +97,30 @@ async function frameNoise(page) {
   });
 }
 
-/** Netteté du haut du canevas (fond) : moyenne de la valeur absolue du laplacien, en niveaux de gris. */
+/**
+ * Netteté d'une zone de fond : moyenne de la valeur absolue du laplacien, en niveaux de gris. Zone en haut à
+ * gauche du cadre (de 15 à 35 % de sa largeur, de 2 à 20 % de sa hauteur) : au 135 mm, elle ne montre que le
+ * fond, alors que le haut du canevas contient aussi les têtes nettes des personnages.
+ */
 async function sharpness(page) {
   return page.evaluate(
     () =>
       new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => {
         const canvas = document.getElementById("scene");
-        const w = canvas.width;
-        const h = Math.floor(canvas.height / 4);
+        const frame = document.getElementById("frame").getBoundingClientRect();
+        const box = canvas.getBoundingClientRect();
+        const sx = canvas.width / box.width;
+        const sy = canvas.height / box.height;
+        const x0 = Math.round((frame.left - box.left + 0.15 * frame.width) * sx);
+        const y0 = Math.round((frame.top - box.top + 0.02 * frame.height) * sy);
+        const w = Math.round(0.2 * frame.width * sx);
+        const h = Math.round(0.18 * frame.height * sy);
         const copy = document.createElement("canvas");
-        copy.width = w;
+        copy.width = canvas.width;
         copy.height = canvas.height;
         const g = copy.getContext("2d");
         g.drawImage(canvas, 0, 0);
-        const d = g.getImageData(0, 0, w, h).data;
+        const d = g.getImageData(x0, y0, w, h).data;
         const grey = (x, y) => { const i = (y * w + x) * 4; return (d[i] + d[i + 1] + d[i + 2]) / 3; };
         let sum = 0;
         let n = 0;
@@ -186,6 +196,7 @@ async function runProfile(browser, name, base) {
     await setDof(true);
     await page.waitForTimeout(1500);
     const blurred = await sharpness(page);
+    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-profondeur-de-champ.png`), timeout: 120000 });
     await setDof(false);
     await page.waitForTimeout(800);
     const sharp = await sharpness(page);
