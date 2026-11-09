@@ -281,7 +281,29 @@ Version 0.3.23, flou en disque de taille physique (`app/src/camera/viewfinderDof
 - **Carte de profondeur et mise au point** : comme en version 0.3.22. Carte propre au viseur, en z caméra, qui inclut le sol invisible de 40 × 40 m ; mise au point continue sur le point choisi, relue toutes les 200 ms.
 - **Interrupteur et photo** : case « Profondeur de champ (approchée) » de la fenêtre « Aperçu ». L'effet est retiré pendant le calcul de la photo.
 
-Mesures de la version 0.3.23 : en cours.
+- **Arrêt de la spirale** : la spirale s'arrête au plus grand flou présent dans l'image, celui d'un point à l'infini ou celui du sol en bas du cadre, au lieu du plafond. Aux réglages par défaut (50 mm, f/8), ce flou fait moins de 2 px, et le calcul est presque gratuit. Limite : un objet plus proche que le sol en bas du cadre verrait son flou limité à cette valeur ; il n'y en a pas dans la scène de parc.
+- **Poids du pixel central** : sur la spirale, chaque échantillon représente une couronne de surface 2π × pas, le centre un disque de surface π × pas². Son poids, rapporté à celui d'un échantillon, vaut donc pas / 2, soit 0,375. Avec un poids 1, comme dans l'algorithme d'origine, un flou de 10,9 px attendus mesurait 9,5 à 10 px : les petits flous, qui ont peu d'échantillons, étaient trop nets.
+
+Mesures du 9 novembre 2026, avec la méthode de la version 0.3.22 (disque ajusté par moindres carrés sur des zones de fond sans sujet net ni en mouvement) :
+
+| Réglage | Écran | Flou réel attendu | Mesuré |
+| --- | --- | --- | --- |
+| 70 mm, f/2 | 1200 × 900 | 10,9 px | 10,5 à 11,0 px (quatre zones) |
+| 135 mm, f/1.4 | 1200 × 900 | 58,7 px | 57,25 px (deux zones ; erreur de 0,31 niveau pour un disque, de 1,5 à 1,6 pour une gaussienne) |
+| 135 mm, f/1.4 | 390 × 844 | 25,1 px | 21,5 à 23,5 px, indicatif |
+
+Calcul du flou attendu au 135 mm à f/1.4, mise au point vers 6,6 m, fond à 500 m :
+- c = (135 / 1,4) × 135 / (6600 − 135) × (500 000 − 6600) / 500 000 ≈ 1,99 mm sur le capteur ;
+- × 1060 / 35,9 ≈ 29,5 pixels par mm sur un écran de 1200 × 900, d'où 58,7 px ;
+- × 453 / 35,9 ≈ 12,6 pixels par mm sur un téléphone de 390 × 844 tenu à la verticale, d'où 25,1 px.
+
+Conclusion : le flou a la taille physique à 1 à 3 % près sur ordinateur, et la forme d'un disque. Sur téléphone, les zones de fond libres sont plus étroites que le flou mesuré (moins de 25 px de large) : l'ajustement n'y est pas fiable, et la mesure reste indicative.
+
+Limites :
+- **Plafond** : 64 px de diamètre (rayon de 32 px).
+- **Mi-résolution** : la transition entre net et flou se fait sur environ deux pixels.
+- **Fond à 360°** : il est traité comme un fond à 500 m, y compris le sol au-delà de 20 m.
+- **Coût** : la spirale compte au plus environ 170 échantillons par pixel de la passe. Sur le Google Pixel 8 Pro de Julien, la fluidité reste à vérifier au 135 mm à f/1.4, le cas le plus coûteux. En rendu logiciel (tests), une image prend alors plusieurs secondes sur un écran d'ordinateur.
 
 ## Plan de mise en œuvre
 

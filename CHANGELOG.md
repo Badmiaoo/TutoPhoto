@@ -19,7 +19,11 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 - Profondeur de champ du viseur : flou en disque de taille physique, écrit pour TutoPhoto, à la place de l'effet de Babylon.js (décision de Julien du 9 novembre 2026, option B) :
   - diamètre du flou calculé avec la formule de la photo, en pixels du canevas, loupe comprise, plafonné à 64 px ;
   - flou par « scatter-as-gather » en une passe (Dennis Gustafsson, 2018, lu dans l'exemple 45-bokeh de bgfx), à mi-résolution, puis recomposition en pleine résolution ;
-  - un fond flou ne déborde pas sur un sujet net ; un premier plan flou déborde sur un fond net.
+  - un fond flou ne déborde pas sur un sujet net ; un premier plan flou déborde sur un fond net ;
+  - poids du pixel central corrigé (pas / 2 au lieu de 1), pour que les petits flous aient leur taille ;
+  - spirale arrêtée au plus grand flou présent dans l'image : calcul presque gratuit aux réglages courants.
+- Mesures : 10,5 à 11 px pour 10,9 px attendus (70 mm, f/2) ; 57,25 px pour 58,7 px attendus (135 mm, f/1.4), en forme de disque.
+- Routine de test : délais allongés pour le rendu logiciel.
 - `docs/camera-physique.md`, `docs/historique.md`, `docs/questions-ouvertes.md` ; téléphone de Julien : Google Pixel 8 Pro, Chrome.
 
 ### Ajouté
