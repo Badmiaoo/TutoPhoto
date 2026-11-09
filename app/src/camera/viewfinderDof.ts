@@ -57,11 +57,16 @@ uniform vec2 texelSize;
 ${BLUR_RADIUS_GLSL}
 const float GOLDEN_ANGLE = 2.39996323;
 void main(void) {
-  vec3 color = texture2D(textureSampler, vUV).rgb;
   float centerSize = blurRadius(vUV);
   float absCenter = abs(centerSize);
-  float total = 1.0;
+  // Poids du pixel central. Sur la spirale, chaque échantillon représente une couronne de surface
+  // 2π × pas (un échantillon tous les pas / r de rayon) ; le centre ne représente que le disque de rayon pas,
+  // de surface π × pas². Son poids, rapporté à celui d'un échantillon, vaut donc pas / 2. Avec un poids 1,
+  // comme dans l'algorithme d'origine, les petits flous, qui ont peu d'échantillons, étaient trop nets.
+  float total = 0.5 * radiusStep;
+  vec3 color = texture2D(textureSampler, vUV).rgb * total;
   float sizes = 0.0;
+  float counted = 0.0;
   float radius = radiusStep;
   // Rotation de départ propre à chaque pixel, fixe d'une image à l'autre : casse les motifs réguliers.
   float theta = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) * 6.2831853;
@@ -76,12 +81,13 @@ void main(void) {
     float m = smoothstep(radius - 0.5, radius + 0.5, absSample);
     color += mix(color / total, sampleColor, m);
     sizes += absSample;
+    counted += 1.0;
     total += 1.0;
     radius += radiusStep / radius;
     theta += GOLDEN_ANGLE;
   }
   // Alpha : taille moyenne du flou des échantillons, rapportée au maximum, pour la recomposition.
-  gl_FragColor = vec4(color / total, sizes / max(1.0, total - 1.0) / maxRadius);
+  gl_FragColor = vec4(color / total, sizes / max(1.0, counted) / maxRadius);
 }`;
 
 ShaderStore.ShadersStore[`${COMPOSITE_SHADER}FragmentShader`] = `
