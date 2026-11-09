@@ -139,3 +139,4 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Mesures de Julien sur son téléphone (modèle non précisé) : photo calculée avec les réglages par défaut en 0,8 s (16 rendus), et un portrait au 135 mm à f/1.4 en 2,0 s (256 rendus). Le plafond de 5 s n'est pas atteint.
 - Bruit numérique : coloré selon la matrice de Bayer, brut (sans réduction de bruit), visible dans le viseur comme sur la photo.
 - Outil d'apprentissage : tout doit se voir dans le viseur et sur la photo. Un interrupteur, au choix de l'utilisateur, coupe l'aperçu dans le viseur, pour s'entraîner.
+- Mise en œuvre : loupe dans le viseur (jusqu'à 100 %) et sur l'écran de revue ; un interrupteur général de l'aperçu et un par effet ; aperçu en marche par défaut.

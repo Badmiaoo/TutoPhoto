@@ -1,6 +1,9 @@
 // Boîtier virtuel minimal : ouverture, vitesse, ISO, focale, boîtier de référence, cellule d'exposition.
 // L'aperçu d'exposition multiplie la lumière de la scène par 2^écart (écart en IL, camera/exposure.ts),
 // avant l'affichage ; sans courbe de tons, ce qui dépasse le blanc est écrêté.
+// Aperçu dans le viseur (décision du 9 novembre 2026) : un interrupteur général et un par effet
+// (luminosité, bruit), en marche par défaut. Coupé, le viseur reste correctement exposé et sans bruit ;
+// la photo garde toujours tous les effets.
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
@@ -28,6 +31,14 @@ import { t, type Lang, type MessageKey } from "../i18n";
 /** Écart maximal affiché par la cellule, en IL. */
 const METER_RANGE = 3;
 const STORAGE_KEY = "tutophoto.boitier";
+const PREVIEW_STORAGE_KEY = "tutophoto.apercu";
+
+/** Interrupteurs de l'aperçu dans le viseur. */
+interface Preview {
+  all: boolean;
+  brightness: boolean;
+  noise: boolean;
+}
 
 type Dial = "aperture" | "shutter" | "iso" | "focal";
 
@@ -51,6 +62,9 @@ interface PanelElements {
   meterValue: HTMLElement;
   bodyButton: HTMLButtonElement;
   bodyDialog: HTMLDialogElement;
+  previewButton: HTMLButtonElement;
+  previewDialog: HTMLDialogElement;
+  previewBadge: HTMLElement;
 }
 
 export class CameraPanel {
@@ -60,6 +74,7 @@ export class CameraPanel {
   private format: Format = "ff";
   private lang: Lang;
   private frame: Frame | null = null;
+  private preview: Preview = { all: true, brightness: true, noise: true };
 
   constructor(
     private readonly engine: Engine,
@@ -71,6 +86,7 @@ export class CameraPanel {
   ) {
     this.lang = lang;
     this.restoreBody();
+    this.restorePreview();
     for (const button of el.panel.querySelectorAll<HTMLButtonElement>("button[data-dial]")) {
       button.addEventListener("click", () => this.step(button.dataset.dial as Dial, Number(button.dataset.step)));
     }
@@ -80,6 +96,14 @@ export class CameraPanel {
         if (input.name === "brand") this.brand = input.value as Brand;
         if (input.name === "format") this.format = input.value as Format;
         this.saveBody();
+        this.update();
+      });
+    }
+    el.previewButton.addEventListener("click", () => el.previewDialog.showModal());
+    for (const input of el.previewDialog.querySelectorAll<HTMLInputElement>("input[type=checkbox]")) {
+      input.addEventListener("change", () => {
+        this.preview[input.value as keyof Preview] = input.checked;
+        this.savePreview();
         this.update();
       });
     }
@@ -161,7 +185,10 @@ export class CameraPanel {
     const amount = Math.abs(offset).toFixed(1);
     this.el.meterValue.textContent = `${tr("meter")} ${sign}${this.lang === "fr" ? amount.replace(".", ",") : amount} ${tr("meterUnit")}`;
     this.el.meterValue.title = tr("meterHelp");
-    this.scene.imageProcessingConfiguration.exposure = 2 ** offset;
+    // Aperçu de la luminosité coupé : exposition correcte quels que soient les réglages.
+    this.scene.imageProcessingConfiguration.exposure = this.showsBrightness() ? 2 ** offset : 1;
+    this.noise.setEnabled(this.showsNoise());
+    this.updatePreview(tr, colon);
 
     const body = this.body();
     const mm = (value: number) => (this.lang === "fr" ? String(value).replace(".", ",") : String(value));
@@ -193,7 +220,8 @@ export class CameraPanel {
     const frame = frameFor(width, height, body);
     this.frame = frame;
     // Bruit du viseur : chaque pixel du cadre regroupe effectivePixels / (largeur × hauteur) photosites.
-    this.noise.update(body, isoValue(this.settings.iso), frame.width * frame.height);
+    const gain = this.showsBrightness() ? 1 : 2 ** exposureOffset(this.settings);
+    this.noise.update(body, isoValue(this.settings.iso), frame.width * frame.height, gain);
     const fov = cameraFov(width, height, frame, body, FOCAL_LENGTHS[this.focalIndex]);
     this.camera.fovMode = fov.axis === "vertical" ? Camera.FOVMODE_VERTICAL_FIXED : Camera.FOVMODE_HORIZONTAL_FIXED;
     this.camera.fov = fov.fov;
@@ -203,6 +231,57 @@ export class CameraPanel {
     style.top = `${(frame.top / height) * 100}%`;
     style.width = `${(frame.width / width) * 100}%`;
     style.height = `${(frame.height / height) * 100}%`;
+  }
+
+  private showsBrightness(): boolean {
+    return this.preview.all && this.preview.brightness;
+  }
+
+  private showsNoise(): boolean {
+    return this.preview.all && this.preview.noise;
+  }
+
+  /** Textes de la fenêtre de l'aperçu, cases cochées, et rappel dans le viseur de ce qui n'est pas montré. */
+  private updatePreview(tr: (key: MessageKey) => string, colon: string): void {
+    const dialog = this.el.previewDialog;
+    this.el.previewButton.textContent = tr("previewButton");
+    this.el.previewButton.title = tr("previewTitle");
+    dialog.querySelector("#preview-title")!.textContent = tr("previewTitle");
+    dialog.querySelector("#preview-all-label")!.textContent = tr("previewAll");
+    dialog.querySelector("#preview-brightness-label")!.textContent = tr("previewBrightness");
+    dialog.querySelector("#preview-noise-label")!.textContent = tr("previewNoise");
+    dialog.querySelector("#preview-note")!.textContent = tr("previewNote");
+    dialog.querySelector("#preview-close")!.textContent = tr("close");
+    for (const input of dialog.querySelectorAll<HTMLInputElement>("input[type=checkbox]")) {
+      input.checked = this.preview[input.value as keyof Preview];
+      if (input.value !== "all") input.disabled = !this.preview.all;
+    }
+    const hidden: string[] = [];
+    if (!this.showsBrightness()) hidden.push(tr("previewBrightnessShort"));
+    if (!this.showsNoise()) hidden.push(tr("previewNoiseShort"));
+    this.el.previewBadge.hidden = hidden.length === 0;
+    this.el.previewBadge.textContent = `${tr("previewOff")}${colon}${hidden.join(tr("and"))}`;
+  }
+
+  private restorePreview(): void {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(PREVIEW_STORAGE_KEY) ?? "null") as Partial<Preview> | null;
+      if (saved) {
+        for (const key of ["all", "brightness", "noise"] as const) {
+          if (typeof saved[key] === "boolean") this.preview[key] = saved[key];
+        }
+      }
+    } catch {
+      // Stockage indisponible : aperçu complet.
+    }
+  }
+
+  private savePreview(): void {
+    try {
+      window.localStorage.setItem(PREVIEW_STORAGE_KEY, JSON.stringify(this.preview));
+    } catch {
+      // Sans stockage, le choix vaut pour la page en cours seulement.
+    }
   }
 
   private restoreBody(): void {

@@ -19,6 +19,7 @@
       <canvas id="scene"></canvas>
       <div id="frame" class="frame" aria-hidden="true"></div>
       <div id="focus-marker" class="focus-marker" aria-hidden="true"></div>
+      <p id="preview-badge" class="preview-badge" hidden></p>
       <div id="progress" class="progress" hidden>
         <p id="progress-label"></p>
         <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
@@ -80,6 +81,7 @@
         </div>
         <p id="meter-value" class="meter-value" aria-live="polite"></p>
         <button id="body-button" type="button" class="body-button"></button>
+        <button id="preview-button" type="button" class="body-button"></button>
         <button id="shutter-button" type="button" class="shutter-button"></button>
       </div>
       <p id="focus-hint" class="note focus-hint"></p>
@@ -101,6 +103,18 @@
       <p id="lens-note" class="note"></p>
       <form method="dialog">
         <button id="body-close" type="submit"></button>
+      </form>
+    </dialog>
+    <dialog id="preview-dialog" aria-labelledby="preview-title">
+      <h2 id="preview-title"></h2>
+      <label class="toggle"><input type="checkbox" value="all" /> <span id="preview-all-label"></span></label>
+      <div class="toggle-group">
+        <label class="toggle"><input type="checkbox" value="brightness" /> <span id="preview-brightness-label"></span></label>
+        <label class="toggle"><input type="checkbox" value="noise" /> <span id="preview-noise-label"></span></label>
+      </div>
+      <p id="preview-note" class="note"></p>
+      <form method="dialog">
+        <button id="preview-close" type="submit"></button>
       </form>
     </dialog>
     <dialog id="credits-dialog" aria-labelledby="credits-title">

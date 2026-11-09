@@ -308,6 +308,39 @@ dialog fieldset label {
   margin: 0.4rem 0 0;
 }
 
+/* Aperçu dans le viseur : interrupteurs, et rappel de ce qui n'est pas montré. */
+.toggle {
+  display: block;
+  margin: 0.4rem 0;
+}
+
+.toggle-group {
+  margin-left: 1.6rem;
+}
+
+.toggle input:disabled + span {
+  color: var(--discret);
+}
+
+.preview-badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0.15rem 0.6rem;
+  border-radius: 4px;
+  background: rgb(0 0 0 / 0.6);
+  color: #fff;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.preview-badge[hidden] {
+  display: none;
+}
+
 /* Calcul de la photo. */
 .progress {
   position: absolute;

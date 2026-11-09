@@ -176,7 +176,37 @@ Visibilité. Calcul pour le Z 6 à ISO 6400, dans une zone moyenne correctement 
 - sur une photo de 1500 px, chaque pixel regroupe k ≈ 16,3 photosites, dont environ 8,2 verts et 4,1 rouges ou bleus ;
 - le bruit relatif tombe à 8,8 / √8,2 ≈ 3,1 % pour le vert et 8,8 / √4,1 ≈ 4,3 % pour le rouge et le bleu.
 
-Le bruit reste donc discret à cette échelle, sauf dans les ombres et les photos sous-exposées. Décision de Julien du 9 novembre 2026 : c'est un outil d'apprentissage, tout doit se voir dans le viseur et sur la photo ; un interrupteur, au choix de l'utilisateur, coupe l'aperçu dans le viseur, pour s'entraîner. Mise en œuvre à proposer.
+Le bruit reste donc discret à cette échelle, sauf dans les ombres et les photos sous-exposées. Décision de Julien du 9 novembre 2026 : c'est un outil d'apprentissage, tout doit se voir dans le viseur et sur la photo ; un interrupteur, au choix de l'utilisateur, coupe l'aperçu dans le viseur, pour s'entraîner. Décisions du même jour sur la mise en œuvre :
+- le bruit se rend visible par une loupe, dans le viseur (jusqu'à 100 %) et sur l'écran de revue ;
+- l'aperçu dans le viseur a un interrupteur général et un interrupteur par effet ;
+- l'aperçu est en marche à l'ouverture du simulateur.
+
+## Aperçu dans le viseur (version 0.3.16)
+
+Les vrais hybrides permettent de couper l'effet des réglages sur la luminosité de la visée :
+- Sony A7 III, réglage « Live View Display » sur « Setting Effect OFF » : « Live View is always displayed with the appropriate brightness even in [Manual Exposure] mode » ([guide d'aide Sony ILCE-7M3](https://helpguide.sony.net/ilc/1720/v1/en/print.pdf), lu) ;
+- Nikon Z 6, réglage personnalisé « d8 Apply settings to live view » : « select Off to adjust brightness and hue for ease of viewing » ([manuel en ligne Nikon Z 7/Z 6](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d08.html), lu).
+
+Dans TutoPhoto (bouton « Aperçu ») :
+- **Interrupteur général** « Aperçu des réglages » : coupé, le viseur reste correctement exposé et sans bruit, quels que soient les réglages. Il faut lire la cellule et anticiper.
+- **Un interrupteur par effet** : luminosité (exposition) et bruit. Ils ne comptent que si l'interrupteur général est en marche. La profondeur de champ approchée s'y ajoutera.
+- **En marche par défaut**. Le choix est mémorisé dans le navigateur.
+- **Rappel dans le viseur** : un bandeau dit ce qui n'est pas montré, comme les icônes des boîtiers (« When [Setting Effect OFF] is selected, the icon is displayed on the Live View screen », Sony ; « A g icon is displayed when Off is selected », Nikon).
+- **La photo garde toujours tous les effets.**
+
+Luminosité coupée et bruit en marche : le viseur montre l'image réelle ramenée à une exposition correcte, avec le bruit de l'image réelle. L'image réelle vaut l'image affichée multipliée par g = 2^écart. Le bruit est calculé pour l'image réelle, puis divisé par g. Une photo sous-exposée paraît donc bruitée, comme si on l'éclaircissait après coup.
+
+Vérification du 9 novembre 2026, dans le site construit, avec le Nikon Z 6 à ISO 3200, f/22, 1/4000 s (écart de −3,5 IL) :
+- tout en marche : image sombre, bruit de 1,28 / 0,99 / 1,69 niveaux (rouge, vert, bleu) ;
+- luminosité coupée : image correctement exposée, bruit de 3,68 / 2,78 / 4,94 niveaux ;
+- aperçu coupé : bruit nul.
+
+Le rapport mesuré, de 2,8 à 2,9, est proche du rapport attendu, calculé ainsi :
+- en lumière linéaire, l'image et son bruit sont multipliés par g = 2^3,5 ≈ 11,3 ;
+- l'encodage E = L^(1/2,2) a une pente proportionnelle à L^(−0,545), plus faible là où l'image est plus claire ;
+- en niveaux, le bruit est donc multiplié par 11,3 × 11,3^(−0,545) = 11,3^0,455 ≈ 3,0.
+
+L'écart restant, de 3 à 7 %, n'est pas expliqué ; l'arrondi aux niveaux entiers en est une cause possible.
 
 ## Plan de mise en œuvre
 
@@ -184,9 +214,10 @@ Une pull request par étape :
 
 1. Boîtier virtuel minimal et exposition : fait en version 0.3.13 (voir ci-dessus).
 2. Photo au déclenchement par accumulation : faite en version 0.3.14 (voir ci-dessus).
-3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus).
-4. Profondeur de champ approchée dans le viseur.
-5. Ensuite : mise au point et collimateurs (MAP-04, MAP-05, MAP-06, MAP-09), flou de bougé (BOI-12, MVT-01).
+3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus). Interrupteurs de l'aperçu dans le viseur : version 0.3.16.
+4. Loupe dans le viseur et sur l'écran de revue.
+5. Profondeur de champ approchée dans le viseur.
+6. Ensuite : mise au point et collimateurs (MAP-04, MAP-05, MAP-06, MAP-09), flou de bougé (BOI-12, MVT-01).
 
 ## Ce que je ne sais pas
 
