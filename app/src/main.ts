@@ -20,11 +20,32 @@ const creditsButton = element<HTMLButtonElement>("credits");
 const creditsDialog = element<HTMLDialogElement>("credits-dialog");
 const creditsList = element<HTMLUListElement>("credits-list");
 const status = element<HTMLParagraphElement>("status");
+const diagnostic = element<HTMLParagraphElement>("diagnostic");
 const manifest = loadManifest("scenes/parc/scene.json");
 let lang: Lang = initialLang();
 let statusKey: "loading" | "loadError" | null = "loading";
 let cameraPanel: CameraPanel | null = null;
 let shutter: Shutter | null = null;
+
+// Problèmes affichés à l'écran, pour diagnostiquer sur un téléphone sans console : erreurs JavaScript,
+// shader du bruit qui ne compile pas, scène affichée avant d'être prête.
+type ProblemKey = "problemError" | "problemNoise" | "problemLate";
+const problems: { key: ProblemKey; detail: string }[] = [];
+
+function report(key: ProblemKey, detail: string): void {
+  if (problems.length >= 4 || problems.some((p) => p.key === key && p.detail === detail)) return;
+  problems.push({ key, detail });
+  renderProblems();
+}
+
+function renderProblems(): void {
+  const colon = lang === "fr" ? " : " : ": ";
+  diagnostic.textContent = problems.map((p) => `${t(lang, p.key)}${colon}${p.detail}`).join(" · ");
+  diagnostic.hidden = problems.length === 0;
+}
+
+window.addEventListener("error", (event) => report("problemError", event.message || String(event.error)));
+window.addEventListener("unhandledrejection", (event) => report("problemError", String(event.reason)));
 
 function applyLang(): void {
   document.documentElement.lang = lang;
@@ -42,6 +63,7 @@ function applyLang(): void {
   manifest.then((m) => renderCredits(creditsList, m, lang)).catch(() => undefined);
   cameraPanel?.setLang(lang);
   shutter?.setLang(lang);
+  renderProblems();
 }
 
 langButton.addEventListener("click", () => {
@@ -61,7 +83,7 @@ if (!Engine.isSupported()) {
 } else {
   const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true });
   const { scene, camera, ready, time } = createScene(engine, canvas);
-  const noise = new ViewfinderNoise(scene, camera);
+  const noise = new ViewfinderNoise(scene, camera, (message) => report("problemNoise", message));
   cameraPanel = new CameraPanel(
     engine,
     scene,
@@ -112,8 +134,9 @@ if (!Engine.isSupported()) {
     noise,
   );
   ready
-    .then(() => {
+    .then((waiting) => {
       statusKey = null;
+      if (waiting.length > 0) report("problemLate", waiting.slice(0, 5).join(", "));
     })
     .catch((error: unknown) => {
       console.error(error);

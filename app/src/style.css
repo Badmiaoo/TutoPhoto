@@ -145,6 +145,26 @@ dialog a {
   color: var(--erreur);
 }
 
+/* Problèmes affichés pour le diagnostic sur téléphone. */
+.diagnostic {
+  position: absolute;
+  top: 3rem;
+  left: 0.5rem;
+  right: 0.5rem;
+  z-index: 3;
+  margin: 0;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  background: var(--fond);
+  color: var(--erreur);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.diagnostic[hidden] {
+  display: none;
+}
+
 /* Viseur : cadre aux proportions du capteur ; l'extérieur est assombri. */
 .frame {
   position: absolute;

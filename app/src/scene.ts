@@ -46,9 +46,25 @@ export interface ParkScene {
   /** Caméra 3D de l'appareil : son champ de vue est réglé par le boîtier virtuel (camera/viewfinder.ts). */
   camera: UniversalCamera;
   /** Résolue quand tous les fichiers de la scène sont chargés. */
-  ready: Promise<void>;
+  /** Noms des objets pas encore prêts si la scène s'affiche après le délai ; vide sinon. */
+  ready: Promise<string[]>;
   /** Horloge, position de l'œil et sujets en mouvement, pour la photo calculée (camera/photo.ts). */
   time: SceneTimeControl;
+}
+
+/** Délai au-delà duquel la scène s'affiche même si Babylon ne la déclare pas prête, en millisecondes. */
+const READY_TIMEOUT_MS = 30000;
+
+/**
+ * Attend que Babylon déclare la scène prête. Au-delà de READY_TIMEOUT_MS, on affiche quand même, et l'on
+ * renvoie les noms des objets qui ne sont pas prêts, pour le diagnostic.
+ */
+async function readyOrLate(scene: Scene): Promise<string[]> {
+  const ready = scene.whenReadyAsync().then(() => true);
+  const late = new Promise<boolean>((resolve) => setTimeout(() => resolve(false), READY_TIMEOUT_MS));
+  if (await Promise.race([ready, late])) return [];
+  const waiting = scene.meshes.filter((mesh) => mesh.isEnabled() && !mesh.isReady(true)).map((mesh) => mesh.name);
+  return waiting.length > 0 ? waiting : ["?"];
 }
 
 export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScene {
@@ -223,7 +239,7 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
       dome.onLoadObservable.addOnce(() => resolve());
       dome.onLoadErrorObservable.addOnce((message) => reject(new Error(message)));
     }),
-  ]).then(() => scene.whenReadyAsync());
+  ]).then(() => readyOrLate(scene));
 
   return { scene, camera, ready, time };
 }

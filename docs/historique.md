@@ -140,3 +140,4 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Bruit numérique : coloré selon la matrice de Bayer, brut (sans réduction de bruit), visible dans le viseur comme sur la photo.
 - Outil d'apprentissage : tout doit se voir dans le viseur et sur la photo. Un interrupteur, au choix de l'utilisateur, coupe l'aperçu dans le viseur, pour s'entraîner.
 - Mise en œuvre : loupe dans le viseur (jusqu'à 100 %) et sur l'écran de revue ; un interrupteur général de l'aperçu et un par effet ; aperçu en marche par défaut.
+- Chargement sans fin sur le téléphone de Julien après les versions 0.3.15 à 0.3.17. Mécanisme reproduit en simulant un shader du bruit qui ne compile pas : Babylon attend les post-traitements de la caméra. Version 0.3.18 : le bruit ne bloque plus le chargement, et les erreurs s'affichent à l'écran pour trouver la cause.
