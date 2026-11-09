@@ -111,6 +111,8 @@ Demandé par Julien le 9 novembre 2026 : tester sur ordinateur et sur mobile à 
   - ordinateur sans WebGL 2.
 - Contrôles :
   - chargement complet, sans problème affiché à l'écran ;
+  - rendu à la taille affichée et cadre aux proportions du capteur (depuis la version 0.3.21) ;
+  - profondeur de champ du viseur au 135 mm à f/1.4 : netteté d'une zone de fond inférieure à 60 % de celle mesurée sans l'effet (depuis la version 0.3.22) ;
   - bruit du viseur à ISO 6400, et son absence quand l'aperçu est coupé ;
   - loupe du viseur à 100 % ;
   - photo calculée et non noire ;
