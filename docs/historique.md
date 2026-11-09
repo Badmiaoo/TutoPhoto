@@ -145,3 +145,8 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Profondeur de champ du viseur : Julien choisit l'option B, un flou en disque de taille physique écrit pour TutoPhoto, à la place de l'effet de Babylon.js (version 0.3.23).
 - Demandes de Julien : ajouter à la conception la balance des blancs, les grilles de composition et l'histogramme ; discuter d'un indicateur d'équilibre entre ouverture, vitesse et ISO selon le point visé, et des modes de mise au point autres qu'un collimateur unique ; prévoir en V2 des curseurs de correction de la photo (exposition, hautes lumières, ombres, noirs, contraste).
 - Chargement bloqué sur le téléphone de Julien, avec le message « Failed to fetch dynamically imported module » pour un shader de Babylon.js présent dans la version publiée. Version 0.3.25 : tout le code tient dans un seul fichier, au lieu de 324 chargés à la demande.
+- Réponses de Julien :
+  - balance des blancs, grilles et histogramme : « quand tu estimes que c'est le meilleur moment ». Claude les place après les tests de la V1 minimale, que `CLAUDE.md` demande avant toute extension ;
+  - indicateur d'équilibre : forme B, un triangle dans lequel un point bouge ;
+  - modes de mise au point : « suivons ta reco », soit AF ponctuel ou continu, puis modes de zone, puis détection des yeux.
+- Version 0.3.26 : AF ponctuel (AF-S) ou continu (AF-C). Toucher le viseur tient lieu de déclencheur à mi-course ; en AF-S, la distance reste verrouillée jusqu'au toucher suivant.

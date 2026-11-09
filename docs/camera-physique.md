@@ -278,7 +278,7 @@ Version 0.3.23, flou en disque de taille physique (`app/src/camera/viewfinderDof
   - un échantillon compte s'il couvre le pixel central, c'est-à-dire si son propre rayon de flou dépasse sa distance au centre ;
   - un échantillon plus loin que le pixel central voit son flou limité au double de celui du centre : le fond flou ne déborde pas sur un sujet net, alors qu'un premier plan flou déborde sur un fond net, comme sur une vraie photo.
 - **Résolution** : le flou est calculé à mi-résolution, avec environ 170 échantillons par pixel (pas de 0,75 pixel de la passe). L'image est ensuite recomposée en pleine résolution, selon la taille moyenne du flou des échantillons, comme dans l'exemple de bgfx : nette en dessous d'un pixel de flou, floue au-delà de deux.
-- **Carte de profondeur et mise au point** : comme en version 0.3.22. Carte propre au viseur, en z caméra, qui inclut le sol invisible de 40 × 40 m ; mise au point continue sur le point choisi, relue toutes les 200 ms.
+- **Carte de profondeur et mise au point** : comme en version 0.3.22. Carte propre au viseur, en z caméra, qui inclut le sol invisible de 40 × 40 m ; mise au point continue sur le point choisi, relue toutes les 200 ms. Depuis la version 0.3.26, la carte et la distance viennent de l'autofocus du viseur, en AF ponctuel ou continu (voir « Mise au point »).
 - **Interrupteur et photo** : case « Profondeur de champ (approchée) » de la fenêtre « Aperçu ». L'effet est retiré pendant le calcul de la photo.
 
 - **Arrêt de la spirale** : la spirale s'arrête au plus grand flou présent dans l'image, celui d'un point à l'infini ou celui du sol en bas du cadre, au lieu du plafond. Aux réglages par défaut (50 mm, f/8), ce flou fait moins de 2 px, et le calcul est presque gratuit. Limite : un objet plus proche que le sol en bas du cadre verrait son flou limité à cette valeur ; il n'y en a pas dans la scène de parc.
@@ -315,9 +315,38 @@ Limites :
 - **Fond à 360°** : il est traité comme un fond à 500 m, y compris le sol au-delà de 20 m.
 - **Coût** : la spirale compte au plus environ 170 échantillons par pixel de la passe. Sur le Google Pixel 8 Pro de Julien, la fluidité reste à vérifier au 135 mm à f/1.4, le cas le plus coûteux. En rendu logiciel (tests), une image prend alors plusieurs secondes sur un écran d'ordinateur.
 
+## Mise au point : AF ponctuel ou continu (version 0.3.26)
+
+Décision de Julien du 9 novembre 2026 (« suivons ta reco ») : les modes de mise au point arrivent dans l'ordre recommandé, un par pull request. D'abord l'AF ponctuel ou continu (MAP-04), puis les modes de zone (MAP-05), puis la détection des yeux (MAP-09).
+
+Ce que disent les manuels, lus le 9 novembre 2026 :
+- Nikon Z 7/Z 6, « Focus » ([manuel en ligne](https://onlinemanual.nikonimglib.com/z7_z6/en/05_basic_settings_01.html)) :
+  - AF-S, « For stationary subjects » : mise au point à mi-course du déclencheur ; « focus will lock while the shutter-release button is pressed halfway » ; le collimateur passe du rouge au vert. Par défaut, le déclenchement n'a lieu que si la mise au point est faite (« focus priority »).
+  - AF-C, « For moving subjects » : « The camera focuses continuously while the shutter-release button is pressed halfway », et prédit la distance finale d'un sujet qui bouge. Par défaut, le déclenchement a lieu même sans mise au point (« release priority »).
+- Sony α9, « Focus Mode » ([guide d'aide](https://helpguide.sony.net/ilc/1650/v1/en/contents/TP0001486782.html)) : AF-S « locks the focus once focusing is complete » ; AF-C « continues to focus while the shutter button is pressed and held halfway down ».
+
+Dans TutoPhoto (`app/src/camera/autofocus.ts`) :
+- **Choix du mode** : bouton « AF-S / AF-C » du boîtier. AF-C par défaut, ce qui garde le comportement des versions précédentes. Le choix est mémorisé avec le boîtier.
+- **Mi-course** : un écran tactile n'a pas de déclencheur à mi-course ; toucher le viseur en tient lieu.
+- **AF-S** :
+  - toucher le viseur mesure la distance au point touché et la verrouille jusqu'au toucher suivant, comme si le déclencheur restait à mi-course entre les photos ;
+  - le repère du point passe au vert, comme le collimateur du Z 6 ;
+  - recadrer après le toucher garde la distance : c'est la mise au point suivie d'un recadrage ;
+  - sans toucher depuis le passage en AF-S, l'objectif reste à la distance précédente ; la photo fait alors le point au déclenchement, et cette distance reste verrouillée.
+- **AF-C** : la distance est relue au point choisi toutes les 200 ms, comme si le déclencheur était tenu à mi-course en permanence. La photo mesure la distance au déclenchement.
+- **Affichage** : le viseur indique le mode et la distance (« AF-S · verrouillée à 6,5 m »), la légende de la photo aussi. La distance affichée est une aide à l'apprentissage ; les pages lues n'en parlent pas.
+- **Exemple de SIT-06** : en AF-S, toucher le chien qui court verrouille sa distance ; s'il change de distance avant le déclenchement, il sort de la zone nette. En AF-C, la mise au point le suit.
+- **Coût** : la carte de profondeur du viseur est rendue à chaque image quand la profondeur de champ du viseur s'en sert. Sinon, elle n'est rendue qu'avant chaque mesure, soit cinq fois par seconde en AF-C : couper l'aperçu de la profondeur de champ allège toujours le viseur.
+
+Non simulé :
+- les échecs de l'autofocus (sujet peu contrasté, faible lumière, motifs répétés, d'après la liste du manuel Nikon) : la mise au point réussit toujours ;
+- le temps de mise au point, et la priorité au déclenchement ou à la mise au point ;
+- la prédiction du mouvement : en AF-C, la distance mesurée au déclenchement est exacte, donc la mise au point parfaite ;
+- le mode automatique et ses hésitations, que cite la fiche de MAP-04 ; le mode AF-F du Z 6, réservé à la vidéo ; la mise au point manuelle.
+
 ## Fonctions demandées par Julien le 9 novembre 2026
 
-Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 minimale (`data/jalons.yaml`), qui ne contient que les notions clés de SIT-01, SIT-05 et SIT-06. `CLAUDE.md` demande de ne pas étendre la V1 minimale avant de l'avoir testée avec des débutants : leur place, avant ou après ces tests, reste à décider par Julien. Les équivalents cités viennent du [guide d'aide Sony ILCE-7M3](https://helpguide.sony.net/ilc/1720/v1/en/print.pdf), lu le 9 novembre 2026.
+Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 minimale (`data/jalons.yaml`), qui ne contient que les notions clés de SIT-01, SIT-05 et SIT-06. `CLAUDE.md` demande de ne pas étendre la V1 minimale avant de l'avoir testée avec des débutants. Julien laisse à Claude le choix du moment (« quand tu estimes que c'est le meilleur moment », 9 novembre 2026) : balance des blancs, grilles de composition et histogramme viendront après les tests de la V1 minimale. Les équivalents cités viennent du [guide d'aide Sony ILCE-7M3](https://helpguide.sony.net/ilc/1720/v1/en/print.pdf), lu le 9 novembre 2026.
 
 ### Balance des blancs (COU-01, COU-02)
 
@@ -345,10 +374,10 @@ Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 mi
 - Des curseurs (exposition, hautes lumières, ombres, blancs, noirs, contraste) appliqués à la photo calculée, pour montrer qu'une photo mal prise se rattrape, et dans quelles limites : des hautes lumières écrêtées ne reviennent pas, et le bruit remonte avec les ombres. Ce sont les leviers de RET-01 (« exposition, hautes lumières, ombres, blancs, noirs ») et de RET-02 (contraste et courbes).
 - Base possible : le calcul de la photo fait déjà sa somme en virgule flottante, avant l'écrêtage. Il faudrait la garder, comme un équivalent du RAW, au lieu de la jeter après la finition.
 
-### En discussion avec Julien
+### Décisions de Julien du 9 novembre 2026
 
-- Un indicateur de l'« équilibre » entre ouverture, vitesse et ISO, selon le point visé.
-- Les modes de mise au point autres qu'un collimateur unique (MAP-04, MAP-05, MAP-09, dans la V1 minimale).
+- Indicateur de l'« équilibre » entre ouverture, vitesse et ISO, selon le point visé : forme B, un triangle dans lequel un point bouge selon les réglages. Les seuils de « trop » et de « pas assez » (exposition au point visé, traînée du sujet, profondeur de champ, bruit) sont à proposer à Julien avant de produire.
+- Modes de mise au point autres qu'un collimateur unique : « suivons ta reco », soit AF ponctuel ou continu (fait en version 0.3.26, voir « Mise au point »), puis modes de zone (MAP-05), puis détection des yeux (MAP-09). Les trois notions sont dans la V1 minimale.
 
 Voir `docs/questions-ouvertes.md`.
 
@@ -361,8 +390,8 @@ Une pull request par étape :
 3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus). Interrupteurs de l'aperçu dans le viseur : version 0.3.16.
 4. Loupe dans le viseur et sur l'écran de revue : faite en version 0.3.17 (voir ci-dessus).
 5. Profondeur de champ approchée dans le viseur : faite en version 0.3.22, puis en flou de taille physique en version 0.3.23 (voir ci-dessus).
-6. Ensuite : mise au point et collimateurs (MAP-04, MAP-05, MAP-06, MAP-09), flou de bougé et de sujet (MVT-01), modes d'entraînement (BOI-12). Les modes de mise au point sont en discussion avec Julien (voir ci-dessus).
-7. Selon la décision de Julien : balance des blancs, grilles de composition, histogramme (voir ci-dessus). En V2 : correction de la photo après la prise.
+6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26. Ensuite : modes de zone (MAP-05), détection des yeux (MAP-09), collimateurs (MAP-06), indicateur d'équilibre, flou de bougé et de sujet (MVT-01), modes d'entraînement (BOI-12).
+7. Après les tests de la V1 minimale : balance des blancs, grilles de composition, histogramme (voir ci-dessus). En V2 : correction de la photo après la prise.
 
 ## Ce que je ne sais pas
 

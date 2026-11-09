@@ -303,6 +303,8 @@ dialog fieldset label {
   border: 2px solid #fff;
   box-shadow: 0 0 0 1px rgb(0 0 0 / 0.6);
   pointer-events: none;
+  /* Au-dessus des indicateurs du viseur, qui le masquaient en bas du cadre ; sous l'écran de revue. */
+  z-index: 1;
 }
 
 .shutter-button {
@@ -363,7 +365,18 @@ dialog fieldset label {
 
 .loupe-badge {
   top: auto;
+  bottom: 2.1rem;
+}
+
+/* Mode et distance de mise au point, en bas du viseur, sous la loupe. */
+.af-badge {
+  top: auto;
   bottom: 0.5rem;
+}
+
+/* Distance verrouillée en AF-S : repère vert, comme le collimateur du Nikon Z 6. */
+.focus-marker.locked {
+  border-color: #3ddc4a;
 }
 
 .body-button[aria-pressed="true"] {
@@ -405,6 +418,7 @@ dialog fieldset label {
 .review {
   position: absolute;
   inset: 0;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;

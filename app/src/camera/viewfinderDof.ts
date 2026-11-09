@@ -15,9 +15,8 @@
 // - La spirale s'arrête au plus grand flou présent dans l'image : celui d'un point à l'infini (le fond) ou
 //   celui du sol en bas du cadre, s'il est plus grand. Aux réglages courants, le flou est minuscule et le
 //   calcul presque gratuit.
-// - Carte de profondeur propre au viseur (z dans le repère de la caméra, en mètres), sol invisible compris.
-// - Mise au point continue sur le point choisi : distance relue dans la carte toutes les 200 ms ; sur le
-//   fond à 360°, distance du plan du sol le long du rayon, comme pour la photo.
+// - Carte de profondeur et distance de mise au point fournies par l'autofocus du viseur (camera/autofocus.ts),
+//   en AF ponctuel ou continu.
 // - Les post-traitements ne sont attachés à la caméra qu'une fois compilés (voir camera/noise.ts).
 
 import type { Scene } from "@babylonjs/core/scene";
@@ -25,10 +24,10 @@ import type { Camera } from "@babylonjs/core/Cameras/camera";
 import { Constants } from "@babylonjs/core/Engines/constants";
 import { ShaderStore } from "@babylonjs/core/Engines/shaderStore";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
-import { DepthRenderer } from "@babylonjs/core/Rendering/depthRenderer";
 import { PostProcess } from "@babylonjs/core/PostProcesses/postProcess";
 import { PassPostProcess } from "@babylonjs/core/PostProcesses/passPostProcess";
 import { groundDepth, type GroundInfo } from "./photo";
+import type { Autofocus } from "./autofocus";
 
 /** Rayon maximal du flou, en pixels du canevas (diamètre de 64 px). */
 export const MAX_BLUR_RADIUS_PX = 32;
@@ -41,7 +40,6 @@ export const MAX_BLUR_RADIUS_PX = 32;
 const RADIUS_STEP = 0.75;
 const MIN_SAMPLES = 64;
 const COMPILE_TIMEOUT_MS = 20000;
-const FOCUS_REFRESH_MS = 200;
 
 const BLUR_SHADER = "viseurPdcFlou";
 const COMPOSITE_SHADER = "viseurPdcComposition";
@@ -128,7 +126,6 @@ export interface DofSettings {
 }
 
 export class ViewfinderDepthOfField {
-  private readonly depth: DepthRenderer;
   private readonly copy: PassPostProcess;
   private readonly blur: PostProcess;
   private readonly composite: PostProcess;
@@ -138,31 +135,20 @@ export class ViewfinderDepthOfField {
   private suspended = false;
   private attached = false;
   private settings: DofSettings | null = null;
-  /** Distance de mise au point en mètres, relue au point choisi. */
-  private focusDistance = 5;
-  private reading = false;
-  private readonly pixel = new Float32Array(4);
   /** Rayon maximal du flou pour l'image en cours, en pixels du canevas (au moins 1). */
   private radiusLimit = 1;
 
-  /**
-   * focusOnCanvas : point de mise au point dans le canevas (de 0 à 1, origine en haut à gauche).
-   * afterAttach : appelé quand l'effet vient d'être attaché, pour remettre le bruit après lui.
-   */
+  /** afterAttach : appelé quand l'effet vient d'être attaché, pour remettre le bruit après lui. */
   constructor(
-    private readonly scene: Scene,
+    scene: Scene,
     private readonly camera: Camera,
     private readonly ground: GroundInfo,
-    private readonly focusOnCanvas: () => { x: number; y: number },
+    private readonly autofocus: Autofocus,
     private readonly afterAttach: () => void,
     onFailure: (message: string) => void,
   ) {
     const engine = scene.getEngine();
-    this.depth = new DepthRenderer(scene, Constants.TEXTURETYPE_FLOAT, camera, false, Constants.TEXTURE_NEAREST_SAMPLINGMODE, true, "viseur-profondeur");
-    this.depth.forceDepthWriteTransparentMeshes = true;
-    const map = this.depth.getDepthMap();
-    map.wrapU = Constants.TEXTURE_CLAMP_ADDRESSMODE;
-    map.wrapV = Constants.TEXTURE_CLAMP_ADDRESSMODE;
+    const map = autofocus.depthMap();
 
     this.copy = new PassPostProcess("viseur-pdc-copie", 1, null, Constants.TEXTURE_BILINEAR_SAMPLINGMODE, engine);
     this.blur = new PostProcess(
@@ -219,7 +205,6 @@ export class ViewfinderDepthOfField {
       setTimeout(check, 100);
     };
     check();
-    setInterval(() => void this.refreshFocus(), FOCUS_REFRESH_MS);
   }
 
   /** Réglages de l'objectif et échelle du viseur. */
@@ -244,15 +229,10 @@ export class ViewfinderDepthOfField {
     this.sync();
   }
 
-  /** Distance de mise au point courante, en mètres. */
-  distance(): number {
-    return this.focusDistance;
-  }
-
   /** Distance de mise au point, au moins un peu plus que la focale (formule des lentilles minces). */
   private focusMeters(): number {
     const f = (this.settings?.focalMm ?? 50) / 1000;
-    return Math.max(this.focusDistance, f * 1.01);
+    return Math.max(this.autofocus.distance(), f * 1.01);
   }
 
   /** Diamètre du cercle de confusion d'un point à l'infini, en pixels du canevas : (f / N) × f / (S − f). */
@@ -286,10 +266,8 @@ export class ViewfinderDepthOfField {
   private sync(): void {
     const wanted = this.compiled && !this.failed && this.enabled && !this.suspended;
     if (wanted === this.attached) return;
-    const targets = this.scene.customRenderTargets;
-    const map = this.depth.getDepthMap();
     if (wanted) {
-      if (!targets.includes(map)) targets.push(map);
+      this.autofocus.setDepthEveryFrame(true);
       this.camera.attachPostProcess(this.copy);
       this.camera.attachPostProcess(this.blur);
       this.camera.attachPostProcess(this.composite);
@@ -299,35 +277,8 @@ export class ViewfinderDepthOfField {
       this.camera.detachPostProcess(this.composite);
       this.camera.detachPostProcess(this.blur);
       this.camera.detachPostProcess(this.copy);
-      const index = targets.indexOf(map);
-      if (index >= 0) targets.splice(index, 1);
+      this.autofocus.setDepthEveryFrame(false);
       this.attached = false;
-    }
-  }
-
-  /** Relit la profondeur au point choisi ; sur le fond à 360°, distance du plan du sol le long du rayon. */
-  private async refreshFocus(): Promise<void> {
-    if (!this.attached || this.reading) return;
-    const map = this.depth.getDepthMap();
-    const size = map.getSize();
-    if (!size.width || !size.height) return;
-    const point = this.focusOnCanvas();
-    const x = Math.min(size.width - 1, Math.max(0, Math.round(point.x * (size.width - 1))));
-    const y = Math.min(size.height - 1, Math.max(0, Math.round((1 - point.y) * (size.height - 1))));
-    this.reading = true;
-    try {
-      await map.readPixels(0, 0, this.pixel, true, false, x, y, 1, 1);
-      let z = this.pixel[0];
-      const domeDistance = 0.8 * this.ground.domeRadius;
-      if (!(z > this.camera.minZ) || z > domeDistance) {
-        const upInCamera = Vector3.TransformNormal(Vector3.Up(), this.camera.getViewMatrix());
-        z = Math.min(this.ground.domeRadius, groundDepth(this.camera.getProjectionMatrix(), upInCamera, this.ground, point));
-      }
-      if (Number.isFinite(z) && z > 0) this.focusDistance = z;
-    } catch {
-      // Lecture impossible pendant un changement de taille : on garde la distance précédente.
-    } finally {
-      this.reading = false;
     }
   }
 }

@@ -68,6 +68,11 @@ export interface PhotoRequest {
   exposure: number;
   /** Point de mise au point dans le cadre, de 0 à 1 (0, 0 en haut à gauche). */
   focusPoint: { x: number; y: number };
+  /**
+   * Distance de mise au point verrouillée (AF ponctuel, camera/autofocus.ts), en mètres. Absente : la
+   * distance est mesurée au point choisi, au déclenchement.
+   */
+  focusDistance?: number;
   portrait: boolean;
   /**
    * Image à calculer : grand côté de l'image complète, en pixels, et fenêtre de cette image (par défaut, toute
@@ -316,7 +321,7 @@ export async function takePhoto(
     if (!(measured > camera.minZ) || measured > domeDistance) {
       measured = Math.min(ground.domeRadius, groundDepth(base, upInCamera, ground, request.focusPoint));
     }
-    const focusDistance = request.replay ? request.replay.focusDistance : Math.max(measured, f * 1.01);
+    const focusDistance = request.replay ? request.replay.focusDistance : Math.max(request.focusDistance ?? measured, f * 1.01);
     let nearest = Infinity;
     for (let i = 0; i < depths.length; i += 4) if (depths[i] > camera.minZ) nearest = Math.min(nearest, depths[i]);
     // Le sol de la photo est le plus proche en bas du cadre.

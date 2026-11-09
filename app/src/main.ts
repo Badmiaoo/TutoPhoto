@@ -7,6 +7,7 @@ import { Shutter } from "./ui/shutter";
 import { DOME_RADIUS, EYE_HEIGHT } from "./scene";
 import { ViewfinderNoise } from "./camera/noise";
 import { ViewfinderDepthOfField } from "./camera/viewfinderDof";
+import { Autofocus } from "./camera/autofocus";
 import { initialLang, rememberLang, t, type Lang } from "./i18n";
 
 function element<T extends HTMLElement>(id: string): T {
@@ -101,16 +102,23 @@ if (!Engine.isSupported()) {
       previewBadge: element("preview-badge"),
       loupeButton: element<HTMLButtonElement>("loupe-button"),
       loupeBadge: element("loupe-badge"),
+      afButton: element<HTMLButtonElement>("af-button"),
+      afBadge: element("af-badge"),
+      focusMarker: element("focus-marker"),
+      focusHint: element("focus-hint"),
     },
     lang,
     noise,
   );
   const panel = cameraPanel;
+  const ground = { eyeHeight: EYE_HEIGHT, domeRadius: DOME_RADIUS };
+  const autofocus = new Autofocus(scene, camera, ground, () => panel.focusOnCanvas());
+  panel.attachAutofocus(autofocus);
   const dof = new ViewfinderDepthOfField(
     scene,
     camera,
-    { eyeHeight: EYE_HEIGHT, domeRadius: DOME_RADIUS },
-    () => panel.focusOnCanvas(),
+    ground,
+    autofocus,
     () => noise.moveToEnd(),
     (message) => report("problemDepthOfField", message),
   );
@@ -121,13 +129,12 @@ if (!Engine.isSupported()) {
     scene,
     camera,
     time,
-    { eyeHeight: EYE_HEIGHT, domeRadius: DOME_RADIUS },
+    ground,
     cameraPanel,
     {
       canvas,
       frame: element("frame"),
       marker: element("focus-marker"),
-      hint: element("focus-hint"),
       button: element<HTMLButtonElement>("shutter-button"),
       progress: element("progress"),
       progressLabel: element("progress-label"),
@@ -144,6 +151,7 @@ if (!Engine.isSupported()) {
     lang,
     noise,
     dof,
+    autofocus,
   );
   ready
     .then((waiting) => {

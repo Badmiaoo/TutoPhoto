@@ -1,6 +1,9 @@
 // Déclencheur : choix du point de mise au point en touchant le viseur, calcul de la photo, écran de revue.
 // Loupe de l'écran de revue (décision du 9 novembre 2026) : toucher la photo recalcule, autour du point
 // touché, une fenêtre à 100 % (un pixel de l'image pour un photosite, affiché sur un pixel CSS).
+// Mise au point (camera/autofocus.ts) : en AF-S, la photo prend la distance verrouillée ; sans verrou, elle
+// fait le point au déclenchement, et cette distance est verrouillée. En AF-C, elle fait le point au
+// déclenchement.
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
@@ -10,6 +13,7 @@ import { sensorPixels } from "../camera/bodies";
 import type { CameraPanel, CurrentSettings } from "./cameraPanel";
 import type { ViewfinderNoise } from "../camera/noise";
 import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
+import type { Autofocus, FocusMode } from "../camera/autofocus";
 import { t, type Lang, type MessageKey } from "../i18n";
 
 /** Un toucher qui bouge de moins de 6 px et dure moins de 0,4 s choisit le point ; au-delà, on tourne. */
@@ -22,7 +26,6 @@ interface ShutterElements {
   canvas: HTMLCanvasElement;
   frame: HTMLElement;
   marker: HTMLElement;
-  hint: HTMLElement;
   button: HTMLButtonElement;
   progress: HTMLElement;
   progressLabel: HTMLElement;
@@ -36,11 +39,13 @@ interface ShutterElements {
   reviewSave: HTMLAnchorElement;
 }
 
-/** Dernière photo : réglages, demande et résultat, pour la loupe. */
+/** Dernière photo : réglages, demande et résultat, pour la loupe ; mode de mise au point et verrou. */
 interface Shot {
   settings: CurrentSettings;
   request: PhotoRequest;
   photo: PhotoResult;
+  focusMode: FocusMode;
+  focusLocked: boolean;
 }
 
 /** Fenêtre affichée par la loupe, dans l'image à la définition du capteur. */
@@ -74,6 +79,7 @@ export class Shutter {
     private lang: Lang,
     private readonly noise: ViewfinderNoise,
     private readonly dof: ViewfinderDepthOfField,
+    private readonly autofocus: Autofocus,
   ) {
     let down: { x: number; y: number; at: number } | null = null;
     el.canvas.addEventListener("pointerdown", (e) => (down = { x: e.clientX, y: e.clientY, at: performance.now() }));
@@ -96,7 +102,6 @@ export class Shutter {
     this.lang = lang;
     const tr = (key: MessageKey) => t(lang, key);
     this.el.button.textContent = tr("shutterButton");
-    this.el.hint.textContent = tr("focusHint");
     this.el.marker.title = tr("focusPoint");
     this.el.progressLabel.textContent = tr("computing");
     this.el.reviewBack.textContent = tr("reviewBack");
@@ -139,12 +144,14 @@ export class Shutter {
     this.engine.stopRenderLoop();
     this.noise.suspend();
     this.dof.suspend();
+    this.autofocus.suspend();
     try {
       return await takePhoto(this.engine, this.scene, this.camera, this.time, this.ground, request, (fraction) => {
         this.el.progressBar.style.width = `${Math.round(fraction * 100)}%`;
       });
     } finally {
       this.el.progress.hidden = true;
+      this.autofocus.resume();
       this.dof.resume();
       this.noise.resume();
       this.noise.moveToEnd();
@@ -157,7 +164,16 @@ export class Shutter {
 
   private async release(): Promise<void> {
     if (this.busy) return;
+    // Un toucher juste avant : sa mesure se termine avant le déclenchement.
+    this.busy = true;
+    try {
+      await this.autofocus.settled();
+    } finally {
+      this.busy = false;
+    }
     const settings = this.panel.current();
+    const focusMode = this.autofocus.mode();
+    const focusLocked = this.autofocus.locked();
     const request: PhotoRequest = {
       body: settings.body,
       focalMm: settings.focalMm,
@@ -166,13 +182,15 @@ export class Shutter {
       iso: settings.iso,
       exposure: settings.exposure,
       focusPoint: { ...this.focusPoint },
+      focusDistance: focusLocked ? this.autofocus.distance() : undefined,
       portrait: settings.frame.portrait,
     };
     try {
       const photo = await this.compute(request);
+      if (focusMode === "single" && !focusLocked) this.autofocus.lockAt(photo.focusDistance);
       if (this.shot) URL.revokeObjectURL(this.shot.photo.url);
       this.dropLoupe();
-      this.shot = { settings, request, photo };
+      this.shot = { settings, request, photo, focusMode, focusLocked };
       this.el.reviewSave.href = photo.url;
       this.showWhole();
     } catch (error) {
@@ -181,17 +199,19 @@ export class Shutter {
     }
   }
 
-  /** Photo entière, avec ses réglages, la distance de mise au point, les rendus et la durée du calcul. */
+  /** Photo entière : réglages, mode et distance de mise au point, rendus et durée du calcul. */
   private showWhole(): void {
     const shot = this.shot;
     if (!shot) return;
-    const { photo, settings } = shot;
+    const { photo, settings, focusMode, focusLocked } = shot;
     this.setImage(photo.url, photo.width, photo.height);
     this.el.reviewWhole.hidden = true;
     this.el.reviewHint.hidden = false;
     this.lastCaption = () => {
       const tr = (key: MessageKey) => t(this.lang, key);
-      return `${settings.summary} · ${settings.body.model} · ${tr("focusedAt")} ${this.decimal(photo.focusDistance, 1)} m · ${this.computedText(photo)}`;
+      const mode = focusMode === "single" ? "AF-S" : "AF-C";
+      const focus = `${tr(focusLocked ? "focusLockedAt" : "focusedAt")} ${this.decimal(photo.focusDistance, 1)} m`;
+      return `${settings.summary} · ${settings.body.model} · ${mode} · ${focus} · ${this.computedText(photo)}`;
     };
     this.showCaption();
   }

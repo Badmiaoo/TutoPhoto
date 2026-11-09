@@ -1,4 +1,5 @@
-// Boîtier virtuel minimal : ouverture, vitesse, ISO, focale, boîtier de référence, cellule d'exposition.
+// Boîtier virtuel minimal : ouverture, vitesse, ISO, focale, boîtier de référence, cellule d'exposition,
+// mode de mise au point.
 // L'aperçu d'exposition multiplie la lumière de la scène par 2^écart (écart en IL, camera/exposure.ts),
 // avant l'affichage ; sans courbe de tons, ce qui dépasse le blanc est écrêté.
 // Aperçu dans le viseur (décision du 9 novembre 2026) : un interrupteur général et un par effet
@@ -7,6 +8,9 @@
 // Loupe du viseur (même décision) : grossit l'image autour du point de mise au point, jusqu'à 100 % (un
 // pixel du canevas pour un photosite), comme la fonction de grossissement des hybrides. Elle ne change
 // que l'affichage : la photo couvre toujours tout le cadre.
+// Mode de mise au point (MAP-04, décision du 9 novembre 2026) : AF-S ou AF-C (camera/autofocus.ts). Le
+// viseur indique le mode et la distance ; le repère du point passe au vert quand la distance est verrouillée,
+// comme le collimateur du Nikon Z 6 [nikon-z6-focus].
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
@@ -32,6 +36,7 @@ import {
 import { cameraFov, frameFor, type Frame } from "../camera/viewfinder";
 import type { ViewfinderNoise } from "../camera/noise";
 import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
+import type { Autofocus, FocusMode } from "../camera/autofocus";
 import { t, type Lang, type MessageKey } from "../i18n";
 
 /** Écart maximal affiché par la cellule, en IL. */
@@ -77,6 +82,10 @@ interface PanelElements {
   previewBadge: HTMLElement;
   loupeButton: HTMLButtonElement;
   loupeBadge: HTMLElement;
+  afButton: HTMLButtonElement;
+  afBadge: HTMLElement;
+  focusMarker: HTMLElement;
+  focusHint: HTMLElement;
 }
 
 type Point = { x: number; y: number };
@@ -90,6 +99,8 @@ export class CameraPanel {
   private frame: Frame | null = null;
   private preview: Preview = { all: true, brightness: true, noise: true, depthOfField: true };
   private dof: ViewfinderDepthOfField | null = null;
+  private autofocus: Autofocus | null = null;
+  private focusMode: FocusMode = "continuous";
   /** Cran de la loupe dans LOUPE_LEVELS ; -1 : pas de loupe. */
   private loupeLevel = -1;
   private loupeZoom = 1;
@@ -117,6 +128,7 @@ export class CameraPanel {
     const touch = camera.inputs.attached["touch"] as FreeCameraTouchInput | undefined;
     this.baseTouchSensibility = touch ? touch.touchAngularSensibility : null;
     el.loupeButton.addEventListener("click", () => this.cycleLoupe());
+    el.afButton.addEventListener("click", () => this.toggleFocusMode());
     this.restoreBody();
     this.restorePreview();
     for (const button of el.panel.querySelectorAll<HTMLButtonElement>("button[data-dial]")) {
@@ -162,6 +174,14 @@ export class CameraPanel {
     };
   }
 
+  /** Autofocus du viseur, créé après le panneau (il lit le point de mise au point). */
+  attachAutofocus(autofocus: Autofocus): void {
+    this.autofocus = autofocus;
+    autofocus.setMode(this.focusMode);
+    autofocus.onChange(() => this.updateFocus());
+    this.updateFocus();
+  }
+
   /** Profondeur de champ du viseur, créée après le panneau (elle lit le point de mise au point). */
   attachDepthOfField(dof: ViewfinderDepthOfField): void {
     this.dof = dof;
@@ -184,10 +204,11 @@ export class CameraPanel {
     this.viewListeners.push(listener);
   }
 
-  /** Point de mise au point choisi : la loupe se centre dessus. */
+  /** Point de mise au point choisi : la loupe se centre dessus ; en AF-S, le toucher fait le point. */
   setFocusPoint(point: Point): void {
     this.focusPoint = point;
     this.applyView();
+    if (this.autofocus?.mode() === "single") void this.autofocus.focusNow();
   }
 
   /** Remet la projection du viseur (et la loupe) après le calcul d'une photo, qui la remplace. */
@@ -259,6 +280,7 @@ export class CameraPanel {
     }
 
     this.el.loupeButton.title = tr("loupeHelp");
+    this.updateFocus();
     const offset = exposureOffset(this.settings);
     const shown = Math.max(-METER_RANGE, Math.min(METER_RANGE, offset));
     this.el.meterNeedle.style.left = `${((shown + METER_RANGE) / (2 * METER_RANGE)) * 100}%`;
@@ -397,6 +419,34 @@ export class CameraPanel {
     };
   }
 
+  private toggleFocusMode(): void {
+    this.focusMode = this.focusMode === "single" ? "continuous" : "single";
+    this.saveBody();
+    this.autofocus?.setMode(this.focusMode);
+    this.updateFocus();
+  }
+
+  /** Bouton du mode, consigne sous le viseur, indicateur dans le viseur (mode, distance, verrou), repère. */
+  private updateFocus(): void {
+    const tr = (key: MessageKey) => t(this.lang, key);
+    const colon = this.lang === "fr" ? " : " : ": ";
+    const single = this.focusMode === "single";
+    const short = single ? "AF-S" : "AF-C";
+    this.el.afButton.textContent = short;
+    this.el.afButton.title = tr("afHelp");
+    this.el.afButton.setAttribute("aria-label", `${tr("afMode")}${colon}${tr(single ? "afSingle" : "afContinuous")}`);
+    this.el.focusHint.textContent = tr(single ? "focusHintSingle" : "focusHint");
+    const af = this.autofocus;
+    this.el.afBadge.hidden = !af;
+    if (!af) return;
+    const locked = af.locked();
+    const meters = af.distance().toFixed(1);
+    const distance = `${this.lang === "fr" ? meters.replace(".", ",") : meters} m`;
+    const text = locked ? `${short} · ${tr("lockedAt")} ${distance}` : `${short} · ${distance}`;
+    if (this.el.afBadge.textContent !== text) this.el.afBadge.textContent = text;
+    this.el.focusMarker.classList.toggle("locked", locked);
+  }
+
   private showsBrightness(): boolean {
     return this.preview.all && this.preview.brightness;
   }
@@ -457,11 +507,12 @@ export class CameraPanel {
 
   private restoreBody(): void {
     try {
-      const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null") as { brand?: string; format?: string } | null;
+      const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null") as { brand?: string; format?: string; focusMode?: string } | null;
       if (saved && BODIES.some((b) => b.brand === saved.brand && b.format === saved.format)) {
         this.brand = saved.brand as Brand;
         this.format = saved.format as Format;
       }
+      if (saved?.focusMode === "single" || saved?.focusMode === "continuous") this.focusMode = saved.focusMode;
     } catch {
       // Stockage indisponible : boîtier par défaut.
     }
@@ -469,7 +520,7 @@ export class CameraPanel {
 
   private saveBody(): void {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ brand: this.brand, format: this.format }));
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ brand: this.brand, format: this.format, focusMode: this.focusMode }));
     } catch {
       // Sans stockage, le choix vaut pour la page en cours seulement.
     }
