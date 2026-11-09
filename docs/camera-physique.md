@@ -103,6 +103,18 @@ L'image affichée compte moins de pixels que le capteur : chaque pixel affiché 
 - Aperçu dans le viseur : la lumière de la scène est multipliée par 2^écart avant l'affichage, sans courbe de tons ; ce qui dépasse le blanc est écrêté. Vérifié le 8 novembre 2026 sur le site construit : un diaphragme de plus double la lumière (rapport médian 2,00 sur le fond comme sur le sol). Le rapport se mesure avec la courbe de Babylon, une puissance de 2,2 (`LinearEncodePowerApprox`) ; avec la courbe sRGB exacte, on lirait 1,86, ce qui ne vient que de la différence entre les deux courbes.
 - Viseur : cadre aux proportions du capteur (vertical si l'écran l'est), champ de vue de 2 × atan(grand côté du capteur / (2 × focale)) le long de son grand côté.
 
+## Taille du viseur (correction de la version 0.3.21)
+
+Le moteur n'était redimensionné qu'au changement de taille de la fenêtre. Or le canevas change aussi de taille quand le panneau du boîtier passe sur plusieurs lignes, par exemple une fois les textes affichés. Le rendu gardait alors l'ancienne taille, étiré à l'affichage, et le cadre perdait les proportions du capteur.
+
+Mesures du 9 novembre 2026 avant correction (rendu, affichage, rapport du cadre ; attendu 1,502 pour le Nikon Z 6) :
+- 390 × 844 : rendu 390 × 557, affichage 390 × 453, cadre 1,221 ;
+- Android : rendu 412 × 552, affichage 412 × 465, cadre 1,264 ;
+- iPhone : rendu 390 × 377, affichage 390 × 273, cadre 2,077 ;
+- ordinateur : rendu 1280 × 638, affichage 1280 × 606, cadre 1,582.
+
+Après correction, le moteur est redimensionné à chaque changement de taille du canevas (`ResizeObserver`). Le rendu a la taille affichée, et le cadre mesure 1,501 à 1,504 sur les quatre profils. La photo calculée n'était pas touchée : elle a sa propre projection. Les mesures faites dans le viseur avant cette correction l'ont été sur un rendu étiré, que le navigateur réduisait à l'affichage en moyennant les pixels. Le bruit mesuré y était à 88 à 92 % du modèle (version 0.3.15). Remesuré après correction, dans les mêmes conditions (Nikon Z 6, ISO 6400, écran de 1200 × 900, k ≈ 32,7), il vaut 1,35 / 0,99 / 1,54 niveaux, pour 1,31 / 0,94 / 1,57 prévus, soit 98 à 105 % du modèle.
+
 ## Photo calculée (version 0.3.14)
 
 Décisions de Julien du 8 novembre 2026 :

@@ -144,5 +144,9 @@ if (!Engine.isSupported()) {
     })
     .finally(applyLang);
   engine.runRenderLoop(render);
+  // La taille du canevas change aussi sans que la fenêtre change : quand le panneau du boîtier passe sur
+  // plusieurs lignes, par exemple après l'affichage des textes. Sans redimensionnement du moteur, le rendu
+  // gardait l'ancienne taille, étiré à l'affichage, et le cadre perdait les proportions du capteur.
+  if (typeof ResizeObserver !== "undefined") new ResizeObserver(() => engine.resize()).observe(canvas);
   window.addEventListener("resize", () => engine.resize());
 }

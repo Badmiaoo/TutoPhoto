@@ -12,6 +12,7 @@
 //
 // Contrôles, pour chaque profil :
 // - la scène se charge (le message de chargement disparaît) et aucun problème ne s'affiche à l'écran ;
+// - le rendu a la taille affichée et le cadre les proportions du capteur ;
 // - à ISO 6400, le bruit du viseur varie d'une image à l'autre ; aperçu coupé, il disparaît ;
 // - la loupe passe à 100 % et l'indique ;
 // - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne.
@@ -129,6 +130,16 @@ async function runProfile(browser, name, base) {
     });
     check("aucun problème affiché", !diagnostic, diagnostic);
     if (!loaded) return { name, checks, errors };
+
+    // Le rendu a la taille affichée, et le cadre les proportions du capteur (Nikon Z 6 : 35,9 / 23,9).
+    await page.waitForTimeout(500);
+    const geometry = await page.evaluate(() => {
+      const c = document.getElementById("scene");
+      const f = document.getElementById("frame").getBoundingClientRect();
+      return { rw: c.width, rh: c.height, cw: c.clientWidth, ch: c.clientHeight, ratio: Math.max(f.width, f.height) / Math.min(f.width, f.height) };
+    });
+    check("rendu à la taille affichée", Math.abs(geometry.rw - geometry.cw) <= 1 && Math.abs(geometry.rh - geometry.ch) <= 1, `${geometry.rw}×${geometry.rh} rendu, ${geometry.cw}×${geometry.ch} affiché`);
+    check("cadre aux proportions du capteur", Math.abs(geometry.ratio - 35.9 / 23.9) < 0.02, `rapport ${geometry.ratio.toFixed(3)}, attendu ${(35.9 / 23.9).toFixed(3)}`);
 
     for (let i = 0; i < 18; i++) await page.click('[data-dial="iso"][data-step="1"]');
     for (let i = 0; i < 16; i++) await page.click('[data-dial="shutter"][data-step="-1"]');
