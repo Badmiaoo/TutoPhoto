@@ -44,7 +44,7 @@ notions:
       simulator: "Sujet qui approche : en ponctuel la netteté décroche, en continu elle suit"
       exercise: "Rafale nette sur un chien qui court vers soi"
     situations: [SIT-06, SIT-08, SIT-38, SIT-39]
-    sources: [canon-r5-af-operation, canon-80d-manualslib, nikon-zr-focus, sony-a9-focus-mode, sony-a7riv-automatic-af, fujifilm-gfx100-af]
+    sources: [canon-r5-af-operation, canon-80d-manualslib, nikon-zr-focus, nikon-z6-focus, sony-a9-focus-mode, sony-a7riv-automatic-af, fujifilm-gfx100-af]
     since: v0.1
   - id: MAP-05
     title: {fr: "Modes de zone AF", en: "AF area modes"}

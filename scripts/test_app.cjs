@@ -16,7 +16,10 @@
 // - à ISO 6400, le bruit du viseur varie d'une image à l'autre ; aperçu coupé, il disparaît ;
 // - au 135 mm à f/1.4, la profondeur de champ du viseur floute le fond ; coupée, le fond redevient net ;
 // - la loupe passe à 100 % et l'indique ;
-// - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne.
+// - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne ;
+// - mise au point (MAP-04), en fin de test parce que la vue change : AF-C par défaut ; en AF-S, toucher le bas
+//   du cadre verrouille la distance, qui ne bouge plus quand on relève l'appareil (et, avec --photo, la photo
+//   la garde) ; repassé en AF-C, la distance suit le point.
 
 "use strict";
 const fs = require("fs");
@@ -253,7 +256,61 @@ async function runProfile(browser, name, base) {
       const caption = await page.evaluate(() => document.getElementById("review-caption").textContent);
       check("loupe de l'écran de revue", /100/.test(caption), caption);
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-loupe.png`), timeout: 120000 });
+      await page.click("#review-back");
     }
+
+    // Mise au point. Le bas du cadre montre le sol, proche ; relever l'appareil y amène le sol lointain ou le
+    // fond. Les personnages bougent : en AF-C, on attend que la distance change, au plus 15 s.
+    const afText = () => page.evaluate(() => document.getElementById("af-badge").textContent);
+    const lockedMetres = (text) => {
+      const m = /(\d+[,.]\d) m/.exec(text);
+      return m ? Number(m[1].replace(",", ".")) : NaN;
+    };
+    const startText = await afText();
+    check("mise au point : AF-C par défaut", /^AF-C · /.test(startText), startText);
+    await page.click("#af-button");
+    const frameBox = await page.locator("#frame").boundingBox();
+    await page.mouse.click(frameBox.x + frameBox.width / 2, frameBox.y + 0.92 * frameBox.height);
+    await page
+      .waitForFunction(() => document.getElementById("focus-marker").classList.contains("locked"), null, { timeout: 30000 })
+      .catch(() => undefined);
+    const lockedText = await afText();
+    const lockedAt = lockedMetres(lockedText);
+    check("AF-S : toucher le viseur verrouille la distance", /^AF-S · verrouillée à /.test(lockedText), lockedText);
+    const cx = frameBox.x + frameBox.width / 2;
+    const cy = frameBox.y + frameBox.height / 2;
+    for (let k = 0; k < 2; k++) {
+      await page.mouse.move(cx, cy);
+      await page.mouse.down();
+      for (let i = 1; i <= 10; i++) await page.mouse.move(cx, cy - 15 * i);
+      await page.mouse.up();
+    }
+    await page.waitForTimeout(2500);
+    const tiltedText = await afText();
+    check("AF-S : distance gardée en relevant l'appareil", tiltedText === lockedText, tiltedText);
+    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-af-s.png`), timeout: 120000 });
+    if (withPhoto) {
+      await page.click("#shutter-button");
+      await page.waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden, null, { timeout: 300000 });
+      const caption = await page.evaluate(() => document.getElementById("review-caption").textContent);
+      const m = /AF-S · mise au point verrouillée à (\d+[,.]\d) m/.exec(caption);
+      check("AF-S : la photo garde la distance verrouillée", Boolean(m) && Number(m[1].replace(",", ".")) === lockedAt, caption);
+      await page.click("#review-back");
+    }
+    await page.click("#af-button");
+    const followed = await page
+      .waitForFunction(
+        (locked) => {
+          const text = document.getElementById("af-badge").textContent;
+          const m = /^AF-C · (\d+[,.]\d) m/.exec(text);
+          return Boolean(m) && Math.abs(Number(m[1].replace(",", ".")) - locked) > 0.5;
+        },
+        lockedAt,
+        { timeout: 15000 },
+      )
+      .then(() => true)
+      .catch(() => false);
+    check("AF-C : la distance suit le point", followed, `${await afText()} ; avant : ${lockedText}`);
   } catch (error) {
     check("déroulement du test", false, String(error).split("\n")[0]);
   } finally {

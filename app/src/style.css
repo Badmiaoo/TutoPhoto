@@ -363,7 +363,18 @@ dialog fieldset label {
 
 .loupe-badge {
   top: auto;
+  bottom: 2.1rem;
+}
+
+/* Mode et distance de mise au point, en bas du viseur, sous la loupe. */
+.af-badge {
+  top: auto;
   bottom: 0.5rem;
+}
+
+/* Distance verrouillée en AF-S : repère vert, comme le collimateur du Nikon Z 6. */
+.focus-marker.locked {
+  border-color: #3ddc4a;
 }
 
 .body-button[aria-pressed="true"] {

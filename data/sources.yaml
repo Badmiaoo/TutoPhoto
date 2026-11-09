@@ -169,8 +169,9 @@ sources:
     url: "https://onlinemanual.nikonimglib.com/zfc/en/09-05-28.html"
   - id: sony-a9-focus-mode
     group: "Constructeurs : manuels et pages techniques"
-    label: "Sony α9 (ILCE-9), Focus Mode"
+    label: "Sony α9 (ILCE-9), Focus Mode : AF-S « locks the focus once focusing is complete », AF-C « continues to focus while the shutter button is pressed and held halfway down » (lu le 9 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1650/v1/en/contents/TP0001486782.html"
+    used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts]
   - id: sony-a9-metering
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony α9 (ILCE-9, version 5 ou ultérieure), Metering Mode"
@@ -539,6 +540,11 @@ sources:
     label: "Canon Royaume-Uni, EOS RP, Specifications : environ 26,2 millions de pixels (extrait de recherche du 8 novembre 2026, page non ouverte)"
     url: "https://www.canon.co.uk/cameras/eos-rp/specifications/"
     used_in: [docs/camera-physique.md]
+  - id: nikon-z6-focus
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, Focus : AF-S « focus will lock while the shutter-release button is pressed halfway », collimateur qui passe du rouge au vert, priorité à la mise au point par défaut ; AF-C « focuses continuously while the shutter-release button is pressed halfway », priorité au déclenchement par défaut (lu le 9 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/05_basic_settings_01.html"
+    used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts]
   - id: nikon-z6-apply-settings-live-view
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé d8 Apply Settings to Live View (lu le 9 novembre 2026)"
