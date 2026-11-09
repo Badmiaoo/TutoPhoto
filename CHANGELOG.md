@@ -33,6 +33,7 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 ### Corrigé
 
 - `docs/camera-physique.md` : la section de profondeur de champ portait le numéro 0.3.21 au lieu de 0.3.22, resté de la renumérotation.
+- CI : le téléchargement de gitleaks, qui a renvoyé une erreur 504 trois fois le 9 novembre 2026, est retenté jusqu'à cinq fois (`curl --retry 5 --retry-delay 10 --retry-all-errors`).
 
 ## [0.3.22] - 2026-11-09
 
