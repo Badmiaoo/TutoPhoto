@@ -12,6 +12,9 @@
 //   double de celui du centre, pour que le fond ne déborde pas sur un sujet net.
 // - Calcul à mi-résolution, puis recomposition en pleine résolution selon la taille moyenne du flou des
 //   échantillons, comme dans l'exemple de bgfx.
+// - La spirale s'arrête au plus grand flou présent dans l'image : celui d'un point à l'infini (le fond) ou
+//   celui du sol en bas du cadre, s'il est plus grand. Aux réglages courants, le flou est minuscule et le
+//   calcul presque gratuit.
 // - Carte de profondeur propre au viseur (z dans le repère de la caméra, en mètres), sol invisible compris.
 // - Mise au point continue sur le point choisi : distance relue dans la carte toutes les 200 ms ; sur le
 //   fond à 360°, distance du plan du sol le long du rayon, comme pour la photo.
@@ -126,6 +129,8 @@ export class ViewfinderDepthOfField {
   private focusDistance = 5;
   private reading = false;
   private readonly pixel = new Float32Array(4);
+  /** Rayon maximal du flou pour l'image en cours, en pixels du canevas (au moins 1). */
+  private radiusLimit = 1;
 
   /**
    * focusOnCanvas : point de mise au point dans le canevas (de 0 à 1, origine en haut à gauche).
@@ -170,16 +175,17 @@ export class ViewfinderDepthOfField {
     // Passe à mi-résolution : distances en pixels de cette passe, soit la moitié des pixels du canevas.
     this.blur.onApply = (effect) => {
       const s = this.settings;
+      this.radiusLimit = this.largestRadius();
       effect.setTexture("depthSampler", map);
       effect.setFloat("focusDistance", this.focusMeters());
       effect.setFloat("cocScale", s ? this.cocAtInfinity(s) / 2 : 0);
-      effect.setFloat("maxRadius", MAX_BLUR_RADIUS_PX / 2);
+      effect.setFloat("maxRadius", this.radiusLimit / 2);
       effect.setFloat("radiusStep", RADIUS_STEP);
       effect.setFloat2("texelSize", 1 / Math.max(1, this.blur.width), 1 / Math.max(1, this.blur.height));
     };
     this.composite.onApply = (effect) => {
       effect.setTextureFromPostProcessOutput("sceneSampler", this.copy);
-      effect.setFloat("maxRadius", MAX_BLUR_RADIUS_PX);
+      effect.setFloat("maxRadius", this.radiusLimit);
     };
 
     const passes = [this.copy, this.blur, this.composite];
@@ -240,6 +246,27 @@ export class ViewfinderDepthOfField {
     const f = s.focalMm;
     const S = this.focusMeters() * 1000;
     return (f / s.aperture) * (f / (S - f)) * s.pixelsPerMm;
+  }
+
+  /**
+   * Plus grand rayon de flou présent dans l'image, en pixels du canevas, plafonné à MAX_BLUR_RADIUS_PX : celui
+   * d'un point à l'infini, ou celui du sol en bas du canevas (au centre et aux coins), s'il est plus proche
+   * que la moitié de la distance de mise au point.
+   */
+  private largestRadius(): number {
+    const s = this.settings;
+    if (!s) return 1;
+    const S = this.focusMeters();
+    const infinity = this.cocAtInfinity(s);
+    let largest = infinity;
+    const upInCamera = Vector3.TransformNormal(Vector3.Up(), this.camera.getViewMatrix());
+    const projection = this.camera.getProjectionMatrix();
+    for (const x of [0, 0.5, 1]) {
+      const d = groundDepth(projection, upInCamera, this.ground, { x, y: 1 });
+      if (Number.isFinite(d) && d > 0) largest = Math.max(largest, (infinity * Math.abs(d - S)) / d);
+    }
+    // Rayon = demi-diamètre ; un pixel de marge pour la transition entre net et flou.
+    return Math.min(MAX_BLUR_RADIUS_PX, Math.max(1, largest / 2 + 1));
   }
 
   private sync(): void {

@@ -150,6 +150,8 @@ async function runProfile(browser, name, base) {
     };
   }, Boolean(noWebgl2));
   const page = await context.newPage();
+  // En rendu logiciel, une image avec profondeur de champ peut prendre plusieurs secondes.
+  page.setDefaultTimeout(300000);
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("console", (m) => m.type() === "error" && errors.push(m.text().slice(0, 200)));
