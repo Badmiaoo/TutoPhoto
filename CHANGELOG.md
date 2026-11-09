@@ -18,9 +18,11 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 - Chargement bloqué si un des fichiers de code chargés à la demande n'arrive pas : « Failed to fetch dynamically imported module », constaté sur le téléphone de Julien, avec un réseau instable, pour un shader de Babylon.js pourtant publié. Le site tient désormais en un seul fichier JavaScript (4,1 Mo, environ 950 ko compressé) au lieu de 324.
 
+- Grain du flou du viseur sur les petits écrans : au moins 64 échantillons par pixel, sans dépasser 170, et même spirale pour tous les pixels. Le défaut est apparu au contrôle de la profondeur de champ de la routine sur iPhone : 9,01 de netteté avec l'effet, contre 8,84 sans.
+
 ### Modifié
 
-- `docs/pile-technique.md`, `docs/historique.md`.
+- `docs/pile-technique.md`, `docs/historique.md`, `docs/camera-physique.md`.
 
 ## [0.3.24] - 2026-11-09
 

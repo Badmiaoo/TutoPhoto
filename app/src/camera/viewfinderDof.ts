@@ -32,8 +32,14 @@ import { groundDepth, type GroundInfo } from "./photo";
 
 /** Rayon maximal du flou, en pixels du canevas (diamètre de 64 px). */
 export const MAX_BLUR_RADIUS_PX = 32;
-/** Pas de la spirale d'échantillons, en pixels de la passe à mi-résolution (environ 170 échantillons). */
+/**
+ * Pas de la spirale d'échantillons, en pixels de la passe à mi-résolution. Une spirale de rayon R et de pas p
+ * compte environ R² / (2p) échantillons : au plus 0,75 (environ 170 échantillons au plafond), et moins pour
+ * les petits flous, afin d'en garder au moins MIN_SAMPLES. Avec trop peu d'échantillons, le flou montrait un
+ * grain visible sur les petits écrans (9 novembre 2026).
+ */
 const RADIUS_STEP = 0.75;
+const MIN_SAMPLES = 64;
 const COMPILE_TIMEOUT_MS = 20000;
 const FOCUS_REFRESH_MS = 200;
 
@@ -71,8 +77,9 @@ void main(void) {
   float sizes = 0.0;
   float counted = 0.0;
   float radius = radiusStep;
-  // Rotation de départ propre à chaque pixel, fixe d'une image à l'autre : casse les motifs réguliers.
-  float theta = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) * 6.2831853;
+  // Même spirale pour tous les pixels : avec au moins 64 échantillons, une rotation propre à chaque pixel
+  // n'est plus nécessaire, et elle laissait un grain à l'échelle du pixel.
+  float theta = 0.0;
   for (int i = 0; i < 400; i++) {
     if (radius >= maxRadius) break;
     vec2 uv = vUV + vec2(cos(theta), sin(theta)) * texelSize * radius;
@@ -179,8 +186,9 @@ export class ViewfinderDepthOfField {
       effect.setTexture("depthSampler", map);
       effect.setFloat("focusDistance", this.focusMeters());
       effect.setFloat("cocScale", s ? this.cocAtInfinity(s) / 2 : 0);
-      effect.setFloat("maxRadius", this.radiusLimit / 2);
-      effect.setFloat("radiusStep", RADIUS_STEP);
+      const halfRadius = this.radiusLimit / 2;
+      effect.setFloat("maxRadius", halfRadius);
+      effect.setFloat("radiusStep", Math.min(RADIUS_STEP, Math.max(0.01, (halfRadius * halfRadius) / (2 * MIN_SAMPLES))));
       effect.setFloat2("texelSize", 1 / Math.max(1, this.blur.width), 1 / Math.max(1, this.blur.height));
     };
     this.composite.onApply = (effect) => {
