@@ -26,7 +26,7 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 ### Modifié
 
-- `docs/camera-physique.md` : fonctionnement, mesure du flou maximal (23 à 24,75 px selon l'écran), écart à mi-course (−28 %), limites. `docs/questions-ouvertes.md`.
+- `docs/camera-physique.md` : fonctionnement, mesure du flou maximal (19,75 à 28,5 px selon l'écran et la zone, 24 px retenus), écart à mi-course (environ −9 %), limites. `docs/questions-ouvertes.md`, README.
 
 ## [0.3.21] - 2026-11-09
 
