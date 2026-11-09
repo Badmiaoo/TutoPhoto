@@ -52,9 +52,15 @@ uniform sampler2D depthSampler;
 uniform float focusDistance;
 uniform float cocScale;
 uniform float maxRadius;
+// Le passage par la mi-résolution ajoute lui-même un flou : lecture de l'image par blocs de 2 × 2 pixels
+// (variance (2² − 1) / 12 = 0,25 pixel² du canevas par axe) et agrandissement bilinéaire final (2² / 6 ≈ 0,67).
+// Un disque de diamètre D ayant une variance D² / 16 par axe, on réduit le disque calculé pour que la somme
+// donne le diamètre voulu : r² − 0,92 en rayon de la passe à mi-résolution (r = D / 4).
+const float RESAMPLING_VARIANCE = 0.92;
 float blurRadius(vec2 uv) {
   float z = max(texture2D(depthSampler, uv).r, 0.001);
-  return clamp(0.5 * cocScale * (z - focusDistance) / z, -maxRadius, maxRadius);
+  float r = clamp(0.5 * cocScale * (z - focusDistance) / z, -maxRadius, maxRadius);
+  return sign(r) * sqrt(max(r * r - RESAMPLING_VARIANCE, 0.0));
 }`;
 
 ShaderStore.ShadersStore[`${BLUR_SHADER}FragmentShader`] = `
