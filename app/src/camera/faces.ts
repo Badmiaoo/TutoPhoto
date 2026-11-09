@@ -11,9 +11,9 @@
 //   frame » ou si les yeux sont cachés.
 //
 // Simulation (le manuel ne donne ni seuils ni règle de choix ; valeurs choisies pour TutoPhoto) :
-// - un œil est vu s'il est dans le cadre et si rien ne le cache : la carte de profondeur, à son pixel, ne
-//   montre rien de plus proche que l'œil moins 4 cm (le centre de l'œil d'un squelette est derrière la
-//   surface ; un œil caché par le nez ou par une autre personne a un obstacle bien plus proche) ;
+// - un œil est vu s'il est dans le cadre et si la carte de profondeur, à son pixel, montre une surface à moins
+//   de 4 cm de l'œil : ni obstacle devant (nez, autre personne), ni fond derrière quand le pixel tombe à côté
+//   de l'œil (le centre de l'œil d'un squelette est environ 1 cm derrière la surface) ;
 // - taille du visage : écart entre les yeux, rapporté au grand côté du cadre, sans la loupe ; visage
 //   détecté de 0,4 % à 25 %, yeux détectés à partir de 0,8 % ;
 // - œil retenu : le plus proche de l'appareil parmi les yeux vus.
@@ -100,7 +100,7 @@ export async function detectFaces(
       const f = settings.frame;
       if (point.x < f.left || point.x > f.right || point.y < f.top || point.y > f.bottom) continue;
       const surface = await depthAt(point);
-      if (surface === null || surface < eye.z - OCCLUSION_TOLERANCE_M) continue;
+      if (surface === null || Math.abs(surface - eye.z) > OCCLUSION_TOLERANCE_M) continue;
       seen.push({ point, z: eye.z });
     }
     if (seen.length === 0 || zCount === 0) continue;

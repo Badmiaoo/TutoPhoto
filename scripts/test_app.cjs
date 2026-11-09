@@ -276,33 +276,41 @@ async function runProfile(browser, name, base) {
       if (detection) await page.check(`#af-dialog input[name="detection"][value="${detection}"]`);
       await page.click("#af-close");
     };
+    // Attend que l'indicateur corresponde au motif et renvoie ce texte-là ; null au bout du délai.
     const waitBadge = (pattern, timeout) =>
       page
-        .waitForFunction((source) => new RegExp(source).test(document.getElementById("af-badge").textContent), pattern.source, { timeout })
-        .then(() => true)
-        .catch(() => false);
+        .waitForFunction(
+          (source) => {
+            const text = document.getElementById("af-badge").textContent;
+            return new RegExp(source).test(text) ? text : null;
+          },
+          pattern.source,
+          { timeout },
+        )
+        .then((handle) => handle.jsonValue())
+        .catch(() => null);
     const startText = await afText();
     check("mise au point : AF-C et point sélectif par défaut", /^AF-C · Point · /.test(startText), startText);
 
     // Zone automatique, vue de départ : le groupe est à environ 6,5 m.
     await setAf("continuous", "auto", "faceEye");
-    const eyeSeen = await waitBadge(/^AF-C · Auto · œil · \d+,\d m$/, 30000);
-    const eyeText = await afText();
+    const eyeText = (await waitBadge(/^AF-C · Auto · œil · \d+,\d m$/, 30000)) ?? (await afText());
     const eyeAt = lockedMetres(eyeText);
     const amber = await page.evaluate(() => document.getElementById("focus-marker").classList.contains("detected"));
-    check("zone automatique : œil détecté dans le groupe", eyeSeen && amber && eyeAt > 5.5 && eyeAt < 7.5, `${eyeText}${amber ? ", repère ambre" : ""}`);
+    check("zone automatique : œil détecté dans le groupe", /œil/.test(eyeText) && amber && eyeAt > 5.5 && eyeAt < 7.5, `${eyeText}${amber ? ", repère ambre" : ""}`);
     if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-zone-auto.png`), timeout: 120000 });
     await setAf("continuous", "auto", "off");
-    const nearestSeen = await waitBadge(/^AF-C · Auto · sujet le plus proche · /, 30000);
-    const nearestText = await afText();
+    const nearestText = (await waitBadge(/^AF-C · Auto · sujet le plus proche · /, 30000)) ?? (await afText());
     check(
       "zone automatique sans détection : sujet le plus proche",
-      nearestSeen && lockedMetres(nearestText) < eyeAt,
+      /sujet le plus proche/.test(nearestText) && lockedMetres(nearestText) < eyeAt,
       `${nearestText} ; œil : ${eyeText}`,
     );
     await setAf("continuous", "auto", "animal");
-    const dogSeen = await waitBadge(/^AF-C · Auto · (œil|visage) · /, 30000);
-    check("détection des animaux : œil ou visage du chien", dogSeen, await afText());
+    // Le chien court entre x = −5 et 5 m, à 9 m de l'appareil, de profil.
+    const dogText = await waitBadge(/^AF-C · Auto · (œil|visage) · /, 30000);
+    const dogAt = dogText ? lockedMetres(dogText) : NaN;
+    check("détection des animaux : œil ou visage du chien", Boolean(dogText) && dogAt > 8 && dogAt < 12, dogText ?? (await afText()));
     await setAf("continuous", "auto", "faceEye");
     await setAf("single", "point");
     const frameBox = await page.locator("#frame").boundingBox();
