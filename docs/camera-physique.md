@@ -302,6 +302,7 @@ Conclusion : le flou a la taille physique à 1 à 3 % près sur ordinateur, et l
 Limites :
 - **Plafond** : 64 px de diamètre (rayon de 32 px).
 - **Mi-résolution** : la transition entre net et flou se fait sur environ deux pixels.
+- **Grain** : les grands flous montrent un léger grain, parce que les échantillons sont peu nombreux et que la spirale démarre sous un angle propre à chaque pixel (choisi pour casser les motifs réguliers).
 - **Fond à 360°** : il est traité comme un fond à 500 m, y compris le sol au-delà de 20 m.
 - **Coût** : la spirale compte au plus environ 170 échantillons par pixel de la passe. Sur le Google Pixel 8 Pro de Julien, la fluidité reste à vérifier au 135 mm à f/1.4, le cas le plus coûteux. En rendu logiciel (tests), une image prend alors plusieurs secondes sur un écran d'ordinateur.
 
