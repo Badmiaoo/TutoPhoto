@@ -12,6 +12,9 @@
 //   à 0,9 × flou / √M sur un disque, flou / M le long d'un mouvement), de 16 à 256, et 5 s au plus.
 // - Lissage : flou résiduel de rayon 0,45 × flou / √M, selon la profondeur de la vue centrale. Le
 //   rayon ne dépendant que de cette profondeur, lisser la moyenne revient à lisser chaque rendu.
+// - Loupe de l'écran de revue : la même photo (même instant, même orientation, même mise au point) est
+//   recalculée sur une fenêtre de l'image, à la définition du capteur. La fenêtre est obtenue en
+//   resserrant la projection : x' = (x − centre) / demi-largeur, en coordonnées normalisées.
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
@@ -66,6 +69,29 @@ export interface PhotoRequest {
   /** Point de mise au point dans le cadre, de 0 à 1 (0, 0 en haut à gauche). */
   focusPoint: { x: number; y: number };
   portrait: boolean;
+  /**
+   * Image à calculer : grand côté de l'image complète, en pixels, et fenêtre de cette image (par défaut, toute
+   * l'image de PHOTO_LONG_SIDE pixels).
+   */
+  view?: { longSide: number; crop?: PhotoWindow };
+  /** Recalcul d'une photo déjà prise (loupe) : même instant, même orientation, même mise au point. */
+  replay?: PhotoReplay;
+}
+
+/** Fenêtre de l'image complète, en pixels, origine en haut à gauche. */
+export interface PhotoWindow {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+export interface PhotoReplay {
+  /** Début du temps de pose, sur l'horloge de la scène. */
+  t0: number;
+  /** Orientation de l'appareil au déclenchement. */
+  rotation: Vector3;
+  focusDistance: number;
 }
 
 export interface PhotoResult {
@@ -76,6 +102,11 @@ export interface PhotoResult {
   plannedSamples: number;
   milliseconds: number;
   focusDistance: number;
+  /** De quoi recalculer une fenêtre de cette photo (loupe). */
+  replay: PhotoReplay;
+  /** Dimensions de l'image complète, en pixels. */
+  fullWidth: number;
+  fullHeight: number;
 }
 
 const ACCUMULATE = `
@@ -101,6 +132,7 @@ uniform float focusDistance;
 uniform float smoothingFactor;
 uniform vec2 texelSize;
 uniform vec2 projectionScale;
+uniform vec2 projectionOffset;
 uniform vec3 upInCamera;
 uniform float eyeHeight;
 uniform float domeDistance;
@@ -110,7 +142,7 @@ void main(void) {
   float z = max(texture2D(depthSampler, vUV).r, 0.001);
   // Le sol de la photo n'est pas dans la carte de profondeur : distance du plan du sol le long du rayon.
   if (z > domeDistance) {
-    vec3 ray = vec3((vUV.x * 2.0 - 1.0) / projectionScale.x, (vUV.y * 2.0 - 1.0) / projectionScale.y, 1.0);
+    vec3 ray = vec3((vUV.x * 2.0 - 1.0 - projectionOffset.x) / projectionScale.x, (vUV.y * 2.0 - 1.0 - projectionOffset.y) / projectionScale.y, 1.0);
     float slope = dot(upInCamera, ray);
     if (slope < 0.0) z = min(z, -eyeHeight / slope);
   }
@@ -139,7 +171,7 @@ void main(void) {
  */
 function groundDepth(projection: Matrix, upInCamera: Vector3, ground: GroundInfo, point: { x: number; y: number }): number {
   const m = projection.asArray();
-  const ray = new Vector3((point.x * 2 - 1) / m[0], (1 - point.y * 2) / m[5], 1);
+  const ray = new Vector3((point.x * 2 - 1 - m[8]) / m[0], (1 - point.y * 2 - m[9]) / m[5], 1);
   const slope = Vector3.Dot(upInCamera, ray);
   return slope < 0 ? Math.min(ground.domeRadius, -ground.eyeHeight / slope) : Infinity;
 }
@@ -154,16 +186,43 @@ export async function takePhoto(
   onProgress: (fraction: number) => void,
 ): Promise<PhotoResult> {
   const started = performance.now();
-  const width = request.portrait ? Math.round((PHOTO_LONG_SIDE * request.body.sensorHeightMm) / request.body.sensorWidthMm) : PHOTO_LONG_SIDE;
-  const height = request.portrait ? PHOTO_LONG_SIDE : Math.round((PHOTO_LONG_SIDE * request.body.sensorHeightMm) / request.body.sensorWidthMm);
-  const t0 = time.now();
+  const longSide = request.view?.longSide ?? PHOTO_LONG_SIDE;
+  const shortSide = Math.round((longSide * request.body.sensorHeightMm) / request.body.sensorWidthMm);
+  const fullWidth = request.portrait ? shortSide : longSide;
+  const fullHeight = request.portrait ? longSide : shortSide;
+  const crop = request.view?.crop ?? { left: 0, top: 0, width: fullWidth, height: fullHeight };
+  const width = crop.width;
+  const height = crop.height;
+  // L'horloge repart de l'instant présent ; une photo recalculée reprend l'instant et l'orientation du déclenchement.
+  const resumeAt = time.now();
+  const t0 = request.replay ? request.replay.t0 : resumeAt;
+  const savedRotation = camera.rotation.clone();
+  if (request.replay) {
+    camera.rotation.copyFrom(request.replay.rotation);
+    camera.getViewMatrix(true);
+  }
   const f = request.focalMm / 1000; // mètres
   const sensorLong = request.body.sensorWidthMm / 1000;
   const sensorShort = request.body.sensorHeightMm / 1000;
 
-  // Projection de la photo : le cadre couvre exactement le capteur.
+  // Projection de la photo : le cadre couvre exactement le capteur ; puis resserrée sur la fenêtre calculée.
   const fovVertical = 2 * Math.atan((request.portrait ? sensorLong : sensorShort) / (2 * f));
-  const base = Matrix.PerspectiveFovLH(fovVertical, width / height, camera.minZ, camera.maxZ, engine.isNDCHalfZRange, 0, engine.useReverseDepthBuffer);
+  const full = Matrix.PerspectiveFovLH(fovVertical, fullWidth / fullHeight, camera.minZ, camera.maxZ, engine.isNDCHalfZRange, 0, engine.useReverseDepthBuffer);
+  const x0 = (crop.left / fullWidth) * 2 - 1;
+  const x1 = ((crop.left + crop.width) / fullWidth) * 2 - 1;
+  const yTop = 1 - (crop.top / fullHeight) * 2;
+  const yBottom = 1 - ((crop.top + crop.height) / fullHeight) * 2;
+  const windowed = (values: ArrayLike<number>): Matrix => {
+    const m = Array.from(values);
+    const sx = (x1 - x0) / 2;
+    const sy = (yTop - yBottom) / 2;
+    m[0] /= sx;
+    m[8] = (m[8] - (x0 + x1) / 2) / sx;
+    m[5] /= sy;
+    m[9] = (m[9] - (yTop + yBottom) / 2) / sy;
+    return Matrix.FromArray(m);
+  };
+  const base = windowed(full.asArray());
   const imageProcessing = scene.imageProcessingConfiguration;
   const processingWasByPostProcess = imageProcessing.applyByPostProcess;
 
@@ -192,7 +251,7 @@ export async function takePhoto(
     name: "photo-finition",
     fragmentShader: FINISH,
     samplers: ["accumulated", "depthSampler", "noiseSampler"],
-    uniforms: ["invSamples", "exposure", "cocScale", "focusDistance", "smoothingFactor", "texelSize", "projectionScale", "upInCamera", "eyeHeight", "domeDistance", ...NOISE_UNIFORMS],
+    uniforms: ["invSamples", "exposure", "cocScale", "focusDistance", "smoothingFactor", "texelSize", "projectionScale", "projectionOffset", "upInCamera", "eyeHeight", "domeDistance", ...NOISE_UNIFORMS],
   });
 
   try {
@@ -221,7 +280,7 @@ export async function takePhoto(
     if (!(measured > camera.minZ) || measured > domeDistance) {
       measured = Math.min(ground.domeRadius, groundDepth(base, upInCamera, ground, request.focusPoint));
     }
-    const focusDistance = Math.max(measured, f * 1.01);
+    const focusDistance = request.replay ? request.replay.focusDistance : Math.max(measured, f * 1.01);
     let nearest = Infinity;
     for (let i = 0; i < depths.length; i += 4) if (depths[i] > camera.minZ) nearest = Math.min(nearest, depths[i]);
     // Le sol de la photo est le plus proche en bas du cadre.
@@ -229,7 +288,7 @@ export async function takePhoto(
 
     // Flou de mise au point en pixels : c = A × f × |D − S| / (D × (S − f)), ramené à la largeur de l'image.
     const A = f / request.aperture;
-    const pxPerMeter = Math.max(width, height) / sensorLong;
+    const pxPerMeter = longSide / sensorLong;
     const cocScale = ((A * f) / (focusDistance - f)) * pxPerMeter; // × |D − S| / D
     const cocAt = (d: number) => (cocScale * Math.abs(d - focusDistance)) / d;
     const cocMax = Math.max(cocScale, Number.isFinite(nearest) ? cocAt(nearest) : 0); // cocScale : flou à l'infini
@@ -267,10 +326,10 @@ export async function takePhoto(
       const dx = r * Math.cos(a);
       const dy = r * Math.sin(a);
       // Projection décentrée : x_ndc = x × m0 / z + m8 ; m8 = dx × m0 / S garde fixe le plan z = S.
-      const m = Array.from(base.asArray());
+      const m = Array.from(full.asArray());
       m[8] += (dx * m[0]) / focusDistance;
       m[9] += (dy * m[5]) / focusDistance;
-      camera.freezeProjectionMatrix(Matrix.FromArray(m));
+      camera.freezeProjectionMatrix(windowed(m));
       time.setEyeOffset(right.scale(dx).add(up.scale(dy)));
       time.setFrozenTime(t0 + request.shutterSeconds * ((((i * stride) % planned) + 0.5) / planned));
       scene.render();
@@ -304,10 +363,11 @@ export async function takePhoto(
       e.setFloat2("texelSize", 1 / width, 1 / height);
       const bm = base.asArray();
       e.setFloat2("projectionScale", bm[0], bm[5]);
+      e.setFloat2("projectionOffset", bm[8], bm[9]);
       e.setFloat3("upInCamera", upInCamera.x, upInCamera.y, upInCamera.z);
       e.setFloat("eyeHeight", ground.eyeHeight);
       e.setFloat("domeDistance", domeDistance);
-      bindNoise(e, scene, noiseParameters(request.body, request.iso, width * height));
+      bindNoise(e, scene, noiseParameters(request.body, request.iso, fullWidth * fullHeight));
     });
     effectRenderer.render(finish, output);
     const pixels = (await output.readPixels()) as Uint8Array;
@@ -335,6 +395,9 @@ export async function takePhoto(
       plannedSamples: planned,
       milliseconds: performance.now() - started,
       focusDistance,
+      replay: { t0, rotation: camera.rotation.clone(), focusDistance },
+      fullWidth,
+      fullHeight,
     };
   } finally {
     scene.disableDepthRenderer(camera);
@@ -342,7 +405,8 @@ export async function takePhoto(
     camera.unfreezeProjectionMatrix();
     imageProcessing.applyByPostProcess = processingWasByPostProcess;
     time.setEyeOffset(null);
-    time.release(t0);
+    camera.rotation.copyFrom(savedRotation);
+    time.release(resumeAt);
     color.dispose();
     for (const texture of accumulation) texture.dispose();
     output.dispose();

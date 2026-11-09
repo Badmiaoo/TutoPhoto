@@ -28,7 +28,7 @@ _Repris de la section 8 de `REPRISE.md` (7 novembre 2026), puis mis à jour le m
   - Ombres de contact sous les objets 3D : réglées à l'œil le 8 novembre 2026.
   - Sol de la photo : projeté sur un plan pour la photo calculée (`docs/camera-physique.md`), donc supposé plat.
 - Photo calculée : sur le téléphone de Julien, 0,8 s avec les réglages par défaut et 2,0 s pour 256 rendus (9 novembre 2026). Reste à mesurer sur les appareils des autres testeurs.
-- Bruit : discret sur une photo de 1500 px (environ 3 % pour le vert dans les tons moyens à ISO 6400 avec le Z 6, contre 8,8 % pour un photosite seul). Tout doit se voir (décision du 9 novembre 2026) : loupe à 100 % dans le viseur et sur l'écran de revue, à faire. Extension des ISO au-delà de 6400 à décider.
+- Bruit : discret sur une photo de 1500 px (environ 3 % pour le vert dans les tons moyens à ISO 6400 avec le Z 6, contre 8,8 % pour un photosite seul). Tout doit se voir (décision du 9 novembre 2026) : loupe à 100 % dans le viseur et sur l'écran de revue depuis la version 0.3.17. À 100 %, le fond à 360° (8192 pixels pour 360°) paraît flou ; une photo de fond plus fine reste à chercher si les testeurs s'en plaignent. Extension des ISO au-delà de 6400 à décider.
 - Personnages et chien de la scène de parc :
   - Fabienne & Percy compte 199 850 triangles (version « 200k » de l'archive) et Dennis 99 964 : charge à mesurer sur téléphone, avec réduction possible.
   - Le chien est stylisé, les personnages réalistes : écart de rendu à juger avec les débutants.

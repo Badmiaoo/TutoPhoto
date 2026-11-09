@@ -9,6 +9,9 @@
 // la moitié pour le vert, un quart pour le rouge et pour le bleu (matrice de Bayer, deux fois plus de
 // verts que de rouges ou de bleus [wikipedia-bayer-filter]). Écart type relatif à la saturation, par canal :
 // σ = √(n + σ_r²) / (e_sat × √(k × part)).
+// Vue à 100 % ou presque (loupe) : moins d'un photosite de la couleur par pixel. Le dématriçage interpole
+// les couleurs manquantes, d'une manière propre à chaque boîtier et non documentée dans les sources lues ;
+// on garde alors le bruit d'un photosite seul : k × part est ramené à 1 au moins.
 
 import type { Scene } from "@babylonjs/core/scene";
 import type { Camera } from "@babylonjs/core/Cameras/camera";
@@ -58,7 +61,7 @@ export function noiseParameters(body: Body, iso: number, imagePixels: number): N
   return {
     saturation: (body.fullWellElectrons * 100) / iso,
     readNoise2: rn * rn,
-    photosites: [k * BAYER_SHARE[0], k * BAYER_SHARE[1], k * BAYER_SHARE[2]],
+    photosites: [Math.max(1, k * BAYER_SHARE[0]), Math.max(1, k * BAYER_SHARE[1]), Math.max(1, k * BAYER_SHARE[2])],
   };
 }
 
