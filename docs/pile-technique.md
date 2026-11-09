@@ -97,3 +97,22 @@ Décidé par Julien le 7 novembre 2026 ; versions et licences lues dans le regis
 ## Recommandation (avant décision)
 
 Option B, Babylon.js, pour la V1 minimale. C'est la seule qui couvre d'origine les deux effets clés de la tranche de parc, profondeur de champ physique et flou de mouvement, sur tous les navigateurs du tableau. Le risque principal, les performances sur téléphone, se mesure dès la preuve du moteur sur la scène de parc. La voie C reste une piste pour une photo de meilleure qualité, si WebGPU se généralise.
+
+## Tests sur ordinateur et sur mobile
+
+Demandé par Julien le 9 novembre 2026 : tester sur ordinateur et sur mobile à chaque fois, et faire le maximum de tests soi-même.
+
+- Script : `node scripts/test_app.cjs --photo`, sur le site construit (`cd app && npm run build`). Il est lancé avant toute pull request qui touche `app/` (`CLAUDE.md`).
+- Outil : Playwright 1.63.0, licence Apache-2.0 (champ `license` de son `package.json`, lu le 9 novembre 2026). Il est installé hors du dépôt et n'est pas une dépendance de l'application.
+- Profils :
+  - ordinateur (1280 × 800) ;
+  - Android (Pixel 7 émulé) ;
+  - iPhone (iPhone 14 émulé, avec l'identification de Safari, que Babylon.js utilise pour iPhone et iPad) ;
+  - ordinateur sans WebGL 2.
+- Contrôles :
+  - chargement complet, sans problème affiché à l'écran ;
+  - bruit du viseur à ISO 6400, et son absence quand l'aperçu est coupé ;
+  - loupe du viseur à 100 % ;
+  - photo calculée et non noire ;
+  - loupe de l'écran de revue.
+- Limites : Chromium seul, en rendu logiciel (SwiftShader). L'émulation ne reproduit ni le processeur graphique d'un téléphone ni le moteur Safari. Le chargement sans fin constaté le 9 novembre 2026 sur le téléphone de Julien ne s'est pas reproduit en émulation : un essai sur un vrai téléphone reste nécessaire.
