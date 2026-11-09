@@ -170,7 +170,13 @@ Vérification du 9 novembre 2026, dans le viseur du site construit. Le bruit ét
 
 À ISO 6400, la mesure atteint 88 à 92 % du modèle, avec le rouge et le bleu plus bruités que le vert d'un facteur proche de √2, comme prévu. À ISO 100, le bruit prévu est inférieur à un niveau : l'arrondi aux niveaux entiers l'efface presque entièrement.
 
-Visibilité. Sur une photo de 1500 px, chaque pixel regroupe environ 16 photosites : le bruit est réduit d'un facteur √16 = 4 par rapport à un agrandissement à 100 %. Pour le Z 6 à ISO 6400, dans une zone moyenne correctement exposée (v ≈ 0,10), le calcul donne environ 3 % de bruit relatif sur la photo et 8,6 % à 100 %. Le bruit reste donc discret à cette échelle, sauf dans les ombres et les photos sous-exposées. Une loupe à 100 % reste à décider.
+Visibilité. Calcul pour le Z 6 à ISO 6400, dans une zone moyenne correctement exposée (v ≈ 0,10) :
+- e_sat = 83 698 × 100 / 6400 ≈ 1308 électrons, n ≈ 131 électrons, σ = √(131 + 1,21²) ≈ 11,5 électrons ;
+- un photosite seul a donc un bruit relatif de 11,5 / 131 ≈ 8,8 % ;
+- sur une photo de 1500 px, chaque pixel regroupe k ≈ 16,3 photosites, dont environ 8,2 verts et 4,1 rouges ou bleus ;
+- le bruit relatif tombe à 8,8 / √8,2 ≈ 3,1 % pour le vert et 8,8 / √4,1 ≈ 4,3 % pour le rouge et le bleu.
+
+Le bruit reste donc discret à cette échelle, sauf dans les ombres et les photos sous-exposées. Décision de Julien du 9 novembre 2026 : c'est un outil d'apprentissage, tout doit se voir dans le viseur et sur la photo ; un interrupteur, au choix de l'utilisateur, coupe l'aperçu dans le viseur, pour s'entraîner. Mise en œuvre à proposer.
 
 ## Plan de mise en œuvre
 
