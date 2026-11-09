@@ -6,8 +6,8 @@
 //   la formule des lentilles minces d'un facteur (S − f) / S ; on élargit donc le disque de S / (S − f)
 //   pour retrouver c = A × f × |D − S| / (D × (S − f)), avec A = f / N.
 // - Flou de mouvement : chaque rendu correspond à un instant du temps de pose (horloge de la scène).
-// - Moyenne en lumière linéaire, en virgule flottante ; puis exposition 2^écart, écrêtage au blanc et
-//   courbe de Babylon (puissance 1/2,2), comme dans le viseur.
+// - Moyenne en lumière linéaire, en virgule flottante ; puis exposition 2^écart, bruit du capteur
+//   (camera/noise.ts), écrêtage au blanc et courbe de Babylon (puissance 1/2,2), comme dans le viseur.
 // - Nombre de rendus : de quoi espacer les copies d'un grand flou de 4 px au plus (espacement estimé
 //   à 0,9 × flou / √M sur un disque, flou / M le long d'un mouvement), de 16 à 256, et 5 s au plus.
 // - Lissage : flou résiduel de rayon 0,45 × flou / √M, selon la profondeur de la vue centrale. Le
@@ -24,6 +24,7 @@ import { EffectRenderer, EffectWrapper } from "@babylonjs/core/Materials/effectR
 import "@babylonjs/core/Shaders/postprocess.vertex";
 import "@babylonjs/core/Rendering/depthRendererSceneComponent";
 import type { Body } from "./bodies";
+import { NOISE_GLSL, NOISE_UNIFORMS, bindNoise, noiseParameters } from "./noise";
 
 /** Hauteur de l'œil au-dessus du sol et rayon de la sphère du fond (scene.ts), en mètres. */
 export interface GroundInfo {
@@ -58,6 +59,8 @@ export interface PhotoRequest {
   focalMm: number;
   aperture: number;
   shutterSeconds: number;
+  /** Sensibilité ISO exacte (camera/exposure.ts). */
+  iso: number;
   /** Multiplicateur d'exposition : 2^écart (camera/exposure.ts). */
   exposure: number;
   /** Point de mise au point dans le cadre, de 0 à 1 (0, 0 en haut à gauche). */
@@ -101,6 +104,7 @@ uniform vec2 projectionScale;
 uniform vec3 upInCamera;
 uniform float eyeHeight;
 uniform float domeDistance;
+${NOISE_GLSL}
 const float GOLDEN_ANGLE = 2.39996323;
 void main(void) {
   float z = max(texture2D(depthSampler, vUV).r, 0.001);
@@ -124,7 +128,8 @@ void main(void) {
     }
     sum /= 16.0;
   }
-  vec3 color = clamp(sum * invSamples * exposure, 0.0, 1.0);
+  // Bruit du capteur, ajouté après le flou optique et avant l'écrêtage, comme sur un capteur.
+  vec3 color = clamp(addSensorNoise(sum * invSamples * exposure, gl_FragCoord.xy), 0.0, 1.0);
   gl_FragColor = vec4(pow(color, vec3(1.0 / 2.2)), 1.0);
 }`;
 
@@ -186,8 +191,8 @@ export async function takePhoto(
     engine,
     name: "photo-finition",
     fragmentShader: FINISH,
-    samplers: ["accumulated", "depthSampler"],
-    uniforms: ["invSamples", "exposure", "cocScale", "focusDistance", "smoothingFactor", "texelSize", "projectionScale", "upInCamera", "eyeHeight", "domeDistance"],
+    samplers: ["accumulated", "depthSampler", "noiseSampler"],
+    uniforms: ["invSamples", "exposure", "cocScale", "focusDistance", "smoothingFactor", "texelSize", "projectionScale", "upInCamera", "eyeHeight", "domeDistance", ...NOISE_UNIFORMS],
   });
 
   try {
@@ -302,6 +307,7 @@ export async function takePhoto(
       e.setFloat3("upInCamera", upInCamera.x, upInCamera.y, upInCamera.z);
       e.setFloat("eyeHeight", ground.eyeHeight);
       e.setFloat("domeDistance", domeDistance);
+      bindNoise(e, scene, noiseParameters(request.body, request.iso, width * height));
     });
     effectRenderer.render(finish, output);
     const pixels = (await output.readPixels()) as Uint8Array;

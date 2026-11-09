@@ -16,11 +16,13 @@ import {
   apertureValue,
   exposureOffset,
   isoLabel,
+  isoValue,
   shutterLabel,
   shutterSeconds,
   type ExposureSettings,
 } from "../camera/exposure";
 import { cameraFov, frameFor, type Frame } from "../camera/viewfinder";
+import type { ViewfinderNoise } from "../camera/noise";
 import { t, type Lang, type MessageKey } from "../i18n";
 
 /** Écart maximal affiché par la cellule, en IL. */
@@ -35,6 +37,7 @@ export interface CurrentSettings {
   focalMm: number;
   aperture: number;
   shutterSeconds: number;
+  iso: number;
   exposure: number;
   frame: Frame;
   /** Réglages tels qu'affichés : « f/8 · 1/100 s · ISO 100 · 50 mm ». */
@@ -64,6 +67,7 @@ export class CameraPanel {
     private readonly camera: UniversalCamera,
     private readonly el: PanelElements,
     lang: Lang,
+    private readonly noise: ViewfinderNoise,
   ) {
     this.lang = lang;
     this.restoreBody();
@@ -95,6 +99,7 @@ export class CameraPanel {
       focalMm: FOCAL_LENGTHS[this.focalIndex],
       aperture: apertureValue(this.settings.aperture),
       shutterSeconds: shutterSeconds(this.settings.shutter),
+      iso: isoValue(this.settings.iso),
       exposure: 2 ** exposureOffset(this.settings),
       frame: this.frame!,
       summary: [this.label("aperture"), this.label("shutter"), `ISO ${this.label("iso")}`, this.label("focal")].join(" · "),
@@ -187,6 +192,8 @@ export class CameraPanel {
     const body = this.body();
     const frame = frameFor(width, height, body);
     this.frame = frame;
+    // Bruit du viseur : chaque pixel du cadre regroupe effectivePixels / (largeur × hauteur) photosites.
+    this.noise.update(body, isoValue(this.settings.iso), frame.width * frame.height);
     const fov = cameraFov(width, height, frame, body, FOCAL_LENGTHS[this.focalIndex]);
     this.camera.fovMode = fov.axis === "vertical" ? Camera.FOVMODE_VERTICAL_FIXED : Camera.FOVMODE_HORIZONTAL_FIXED;
     this.camera.fov = fov.fov;

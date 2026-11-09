@@ -491,12 +491,12 @@ sources:
     used_in: [docs/camera-physique.md]
   - id: nikon-z6-specifications
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, Specifications : capteur 35.9 × 23.9 mm, vitesses 1/8000 – 30 s par pas de 1/3 ou 1/2 IL, ISO 100 – 51200 (lu le 8 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6, Specifications : capteur 35.9 × 23.9 mm, 24.5 millions de pixels effectifs, vitesses 1/8000 – 30 s par pas de 1/3 ou 1/2 IL, ISO 100 – 51200 (lu le 8 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/14_technical_notes_06.html"
     used_in: [docs/camera-physique.md]
   - id: sony-ilce-7m3-help-guide
     group: "Constructeurs : manuels et pages techniques"
-    label: "Sony, Help Guide ILCE-7M3 (PDF), Specifications : capteur 35.6 mm × 23.8 mm, vitesses 1/8 000 s à 30 s, ISO 100 à 51 200 (lu le 8 novembre 2026)"
+    label: "Sony, Help Guide ILCE-7M3 (PDF), Specifications : capteur 35.6 mm × 23.8 mm, environ 24 200 000 pixels effectifs, vitesses 1/8 000 s à 30 s, ISO 100 à 51 200 (lu le 8 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/en/print.pdf"
     used_in: [docs/camera-physique.md]
   - id: nikon-d5600-sensor
@@ -516,6 +516,26 @@ sources:
     used_in: [docs/camera-physique.md]
   - id: canon-eos-2000d-sensor
     group: "Constructeurs : manuels et pages techniques"
-    label: "Canon Royaume-Uni, EOS 2000D, Specifications : capteur d'environ 22,3 × 14,9 mm (extrait de recherche du 8 novembre 2026, page non ouverte)"
+    label: "Canon Royaume-Uni, EOS 2000D, Specifications : capteur d'environ 22,3 × 14,9 mm, 24,1 millions de pixels effectifs (extrait de recherche du 8 novembre 2026, page non ouverte)"
     url: "https://www.canon.co.uk/cameras/eos-2000d/specifications/"
+    used_in: [docs/camera-physique.md]
+  - id: wikipedia-bayer-filter
+    group: "Physique, rendu et technique"
+    label: "Wikipedia, Bayer filter : « twice as many green elements as red or blue » (révision 1384004962, source secondaire, lue le 9 novembre 2026)"
+    url: "https://en.wikipedia.org/w/index.php?title=Bayer_filter&oldid=1384004962"
+    used_in: [docs/camera-physique.md]
+  - id: nikon-d5600-pixels
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Clifton Cameras, fiche Nikon D5600 : 24,2 millions de pixels effectifs (extrait de recherche du 9 novembre 2026, page non ouverte)"
+    url: "https://www.cliftoncameras.co.uk/uploads/downloads/Product%20Specifications/NIKON/Nikon%20D5600%20Body%20Only%20Full%20Spec.pdf"
+    used_in: [docs/camera-physique.md]
+  - id: wikipedia-sony-a6000
+    group: "Physique, rendu et technique"
+    label: "Wikipedia, Sony α6000 : capteur 23.5 × 15.6 mm, « 24.3 MP » (révision 1380408739, source secondaire, lue le 9 novembre 2026)"
+    url: "https://en.wikipedia.org/w/index.php?title=Sony_%CE%B16000&oldid=1380408739"
+    used_in: [docs/camera-physique.md]
+  - id: canon-eos-rp-pixels
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon Royaume-Uni, EOS RP, Specifications : environ 26,2 millions de pixels (extrait de recherche du 8 novembre 2026, page non ouverte)"
+    url: "https://www.canon.co.uk/cameras/eos-rp/specifications/"
     used_in: [docs/camera-physique.md]

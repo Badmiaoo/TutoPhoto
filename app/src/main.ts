@@ -5,6 +5,7 @@ import { loadManifest, renderCredits } from "./credits";
 import { CameraPanel } from "./ui/cameraPanel";
 import { Shutter } from "./ui/shutter";
 import { DOME_RADIUS, EYE_HEIGHT } from "./scene";
+import { ViewfinderNoise } from "./camera/noise";
 import { initialLang, rememberLang, t, type Lang } from "./i18n";
 
 function element<T extends HTMLElement>(id: string): T {
@@ -60,6 +61,7 @@ if (!Engine.isSupported()) {
 } else {
   const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true });
   const { scene, camera, ready, time } = createScene(engine, canvas);
+  const noise = new ViewfinderNoise(scene, camera);
   cameraPanel = new CameraPanel(
     engine,
     scene,
@@ -73,6 +75,7 @@ if (!Engine.isSupported()) {
       bodyDialog: element<HTMLDialogElement>("body-dialog"),
     },
     lang,
+    noise,
   );
   const render = () => scene.render();
   shutter = new Shutter(
@@ -99,6 +102,7 @@ if (!Engine.isSupported()) {
     },
     () => engine.runRenderLoop(render),
     lang,
+    noise,
   );
   ready
     .then(() => {
