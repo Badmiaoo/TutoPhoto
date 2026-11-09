@@ -61,8 +61,11 @@ jobs:
           GITLEAKS_VERSION: "8.30.1"
           # Empreinte publiée dans gitleaks_8.30.1_checksums.txt de la release officielle, relevée le 7 novembre 2026.
           GITLEAKS_SHA256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
+        # Jusqu'à 5 nouvelles tentatives espacées de 10 s : le téléchargement depuis les releases de GitHub a
+        # renvoyé une erreur 504 trois fois le 9 novembre 2026. --retry-all-errors : « Retry all errors (use
+        # with --retry) », aide de curl 8.5.0.
         run: |
-          curl -sSfL -o "$RUNNER_TEMP/gitleaks.tar.gz" \
+          curl -sSfL --retry 5 --retry-delay 10 --retry-all-errors -o "$RUNNER_TEMP/gitleaks.tar.gz" \
             "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
           echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/gitleaks.tar.gz" | sha256sum -c -
           tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP" gitleaks

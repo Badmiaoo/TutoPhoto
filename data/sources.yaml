@@ -544,3 +544,13 @@ sources:
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé d8 Apply Settings to Live View (lu le 9 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d08.html"
     used_in: [docs/camera-physique.md]
+  - id: gustafsson-bokeh-single-pass
+    group: "Physique, rendu et technique"
+    label: "Dennis Gustafsson, « Bokeh depth of field in a single pass », blog tuxedolabs, 4 mai 2018 (copie archivée ; page non ouverte, algorithme lu dans sa reproduction par l'exemple 45-bokeh de bgfx le 9 novembre 2026)"
+    url: "https://web.archive.org/web/20201215123940/https://blog.tuxedolabs.com/2018/05/04/bokeh-depth-of-field-in-single-pass.html"
+    used_in: [docs/camera-physique.md]
+  - id: bgfx-bokeh-example
+    group: "Physique, rendu et technique"
+    label: "bgfx, exemple 45-bokeh (elven cache, 2021, licence BSD à 2 clauses de bgfx) : bokeh_dof.sh reproduit et commente l'algorithme de Gustafsson ; fs_bokeh_dof_combine.sc recompose le flou calculé à résolution réduite (lus le 9 novembre 2026)"
+    url: "https://github.com/bkaradzic/bgfx/tree/master/examples/45-bokeh"
+    used_in: [docs/camera-physique.md]

@@ -136,8 +136,10 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 
 ## 9 novembre 2026 : temps de calcul et bruit
 
-- Mesures de Julien sur son téléphone (modèle non précisé) : photo calculée avec les réglages par défaut en 0,8 s (16 rendus), et un portrait au 135 mm à f/1.4 en 2,0 s (256 rendus). Le plafond de 5 s n'est pas atteint.
+- Mesures de Julien sur son téléphone (Google Pixel 8 Pro, Chrome, précisé le même jour) : photo calculée avec les réglages par défaut en 0,8 s (16 rendus), et un portrait au 135 mm à f/1.4 en 2,0 s (256 rendus). Le plafond de 5 s n'est pas atteint.
 - Bruit numérique : coloré selon la matrice de Bayer, brut (sans réduction de bruit), visible dans le viseur comme sur la photo.
 - Outil d'apprentissage : tout doit se voir dans le viseur et sur la photo. Un interrupteur, au choix de l'utilisateur, coupe l'aperçu dans le viseur, pour s'entraîner.
 - Mise en œuvre : loupe dans le viseur (jusqu'à 100 %) et sur l'écran de revue ; un interrupteur général de l'aperçu et un par effet ; aperçu en marche par défaut.
 - Chargement sans fin sur le téléphone de Julien après les versions 0.3.15 à 0.3.17. Mécanisme reproduit en simulant un shader du bruit qui ne compile pas : Babylon attend les post-traitements de la caméra. Version 0.3.18 : le bruit ne bloque plus le chargement, et les erreurs s'affichent à l'écran pour trouver la cause.
+- Essai de Julien sur son Google Pixel 8 Pro (Chrome) avec la version 0.3.22 : tout se charge, aucun message d'erreur, viseur fluide. Le chargement est lent sur un mauvais réseau, ce qui est cohérent avec les 34 Mo de la scène.
+- Profondeur de champ du viseur : Julien choisit l'option B, un flou en disque de taille physique écrit pour TutoPhoto, à la place de l'effet de Babylon.js (version 0.3.23).

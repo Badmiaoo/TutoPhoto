@@ -140,7 +140,7 @@ Vérifications du 8 novembre 2026, faites dans Chromium sans écran (rendu logic
 
 Limites :
 - **Fond à l'infini.** Le décor de la photo au-dessus du sol (arbres, haie) est vu comme s'il était à 500 m. Son flou est donc un peu surestimé (voir `docs/questions-ouvertes.md`). Le sol photographié est supposé plat.
-- **Temps de calcul.** En rendu logiciel, un rendu de 600 px prend de l'ordre de la seconde, ce qui ne dit rien d'un vrai processeur graphique. Mesures de Julien du 9 novembre 2026, sur son téléphone (modèle non précisé) :
+- **Temps de calcul.** En rendu logiciel, un rendu de 600 px prend de l'ordre de la seconde, ce qui ne dit rien d'un vrai processeur graphique. Mesures de Julien du 9 novembre 2026, sur son téléphone (Google Pixel 8 Pro, Chrome, précisé le même jour) :
   - réglages par défaut : 16 rendus en 0,8 s ;
   - 135 mm à f/1.4, au point sur Sophia : 256 rendus en 2,0 s, sous le plafond de 5 s.
 
@@ -260,43 +260,51 @@ Limites :
 - **Bruit discret, même à 100 %.** Pour le Z 6 à ISO 6400, il est d'environ 3 à 4 niveaux sur 255 dans les tons moyens. C'est ce que donnent les mesures de Claff pour ce boîtier.
 - **Animations grossies.** À 100 %, les petits mouvements des personnages animés sont grossis eux aussi.
 
-## Profondeur de champ du viseur (version 0.3.21)
+## Profondeur de champ du viseur (versions 0.3.22 et 0.3.23)
 
-Décision de Julien du 8 novembre 2026 : le viseur montre une profondeur de champ approchée, avec les effets de Babylon.js ; la photo, calculée au déclenchement, reste exacte. Code : `app/src/camera/viewfinderDof.ts`.
+Décisions de Julien :
+- le viseur montre une profondeur de champ approchée, la photo calculée au déclenchement restant exacte (8 novembre 2026, « avec les effets de Babylon.js ») ;
+- le 9 novembre 2026, après l'essai de l'effet de Babylon (version 0.3.22) et l'explication des deux options, choix de l'option B : un flou en disque de taille physique, écrit pour TutoPhoto (version 0.3.23).
 
-Fonctionnement :
-- **Effet** : effet de profondeur de champ de Babylon.js 9.35.0 (`DepthOfFieldEffect`, niveau `Medium`).
-- **Carte de profondeur propre au viseur** : z dans le repère de la caméra, en mètres. Elle inclut le sol invisible qui reçoit les ombres (40 × 40 m), grâce à `forceDepthWriteTransparentMeshes`.
-- **Mise au point continue** : la profondeur au point choisi est relue toutes les 200 ms. Sur le fond à 360°, on prend la distance du plan du sol le long du rayon, comme pour la photo.
-- **Calage** : Babylon calcule c = (lensSize / N) × f / (S − f) × |S − D| / D, plafonné à 1. Avec lensSize = f × pixels du canevas par mm de capteur × grossissement de la loupe / 24, la valeur 1 correspond à un flou réel de 24 pixels.
-- **Interrupteur** : case « Profondeur de champ (approchée) » de la fenêtre « Aperçu ». Elle est en marche par défaut.
-- **Calcul de la photo** : l'effet et sa carte de profondeur sont retirés pendant le calcul, qui calcule son propre flou.
+Version 0.3.22, effet de Babylon.js (`DepthOfFieldEffect`), remplacé :
+- l'effet mélange l'image nette et des images floutées de taille fixe, à proportion du cercle de confusion, plafonné à 1 ;
+- flou maximal mesuré : 19,75 à 28,5 px selon l'écran et la zone, 24 px retenus pour le calage de `lensSize` ;
+- écart à mi-course : environ 9 % de flou en moins (70 mm à f/2, sur 1200 × 900).
 
-Flou maximal de l'effet, mesuré le 9 novembre 2026, après la correction du viseur déformé (version 0.3.21) :
-- **Méthode** : 135 mm à f/1.4, mise au point sur la personne au centre. Le cercle de confusion du fond est alors largement saturé (environ 150 px réels sur un écran de 1200 × 900). On compare le fond avec et sans l'effet. On cherche par moindres carrés le disque, puis la gaussienne, qui, appliqués à l'image nette, reproduisent l'image floutée.
-- **Zones retenues** : plusieurs zones de fond sont essayées. On ne garde que celles où l'erreur de la gaussienne est inférieure à 30 % de l'erreur sans flou. Les zones écartées contenaient un sujet net (dans le plan de mise au point) ou un sujet qui bouge entre les deux captures, comme le promeneur, le chien ou les personnages animés.
-- **Résultats** :
+Version 0.3.23, flou en disque de taille physique (`app/src/camera/viewfinderDof.ts`) :
+- **Diamètre du flou** : la formule de la photo, c = (f / N) × f / (S − f) × |D − S| / D, multipliée par les pixels du canevas par mm de capteur, loupe comprise. Le rayon est plafonné à 32 px, soit un diamètre de 64 px.
+- **Algorithme** : « scatter-as-gather » en une passe, de Dennis Gustafsson ([« Bokeh depth of field in a single pass », 4 mai 2018, copie archivée](https://web.archive.org/web/20201215123940/https://blog.tuxedolabs.com/2018/05/04/bokeh-depth-of-field-in-single-pass.html)). Le billet n'a pas été ouvert ; l'algorithme a été lu dans sa reproduction commentée par l'[exemple 45-bokeh de bgfx](https://github.com/bkaradzic/bgfx/tree/master/examples/45-bokeh) (elven cache, 2021). Le code de TutoPhoto est écrit d'après cette description, sans copie. Principe :
+  - autour de chaque pixel, des échantillons sont pris sur une spirale (pas de l'angle d'or), de plus en plus espacés ;
+  - un échantillon compte s'il couvre le pixel central, c'est-à-dire si son propre rayon de flou dépasse sa distance au centre ;
+  - un échantillon plus loin que le pixel central voit son flou limité au double de celui du centre : le fond flou ne déborde pas sur un sujet net, alors qu'un premier plan flou déborde sur un fond net, comme sur une vraie photo.
+- **Résolution** : le flou est calculé à mi-résolution, avec environ 170 échantillons par pixel (pas de 0,75 pixel de la passe). L'image est ensuite recomposée en pleine résolution, selon la taille moyenne du flou des échantillons, comme dans l'exemple de bgfx : nette en dessous d'un pixel de flou, floue au-delà de deux.
+- **Carte de profondeur et mise au point** : comme en version 0.3.22. Carte propre au viseur, en z caméra, qui inclut le sol invisible de 40 × 40 m ; mise au point continue sur le point choisi, relue toutes les 200 ms.
+- **Interrupteur et photo** : case « Profondeur de champ (approchée) » de la fenêtre « Aperçu ». L'effet est retiré pendant le calcul de la photo.
 
-  | Écran | Disque équivalent | Gaussienne équivalente |
-  | --- | --- | --- |
-  | 390 × 844 | 23,5 ; 23,75 ; 25,75 px | σ = 6,5 à 7,5 px |
-  | 1200 × 900 | 28,5 px | σ = 8,0 px |
-  | 1800 × 1100 | 19,75 ; 26,75 px | σ = 5,5 à 7,25 px |
+- **Arrêt de la spirale** : la spirale s'arrête au plus grand flou présent dans l'image, celui d'un point à l'infini ou celui du sol en bas du cadre, au lieu du plafond. Aux réglages par défaut (50 mm, f/8), ce flou fait moins de 2 px, et le calcul est presque gratuit. Limite : un objet plus proche que le sol en bas du cadre verrait son flou limité à cette valeur ; il n'y en a pas dans la scène de parc.
+- **Poids du pixel central** : sur la spirale, chaque échantillon représente une couronne de surface 2π × pas, le centre un disque de surface π × pas². Son poids, rapporté à celui d'un échantillon, vaut donc pas / 2, soit 0,375. Avec un poids 1, comme dans l'algorithme d'origine, un flou de 10,9 px attendus mesurait 9,5 à 10 px : les petits flous, qui ont peu d'échantillons, étaient trop nets.
 
-- **Valeur retenue** : 24 px. Sur les six zones retenues, la moyenne vaut 24,7 px et la médiane 24,75 px. La dispersion, de 19,75 à 28,5 px, vient de ce qu'un disque ou une gaussienne ne décrit qu'imparfaitement le flou de Babylon. Ce flou maximal est à peu près fixe en pixels d'écran : les noyaux de Babylon sont définis en texels, sur des images réduites.
+Mesures du 9 novembre 2026, avec la méthode de la version 0.3.22 (disque ajusté par moindres carrés sur des zones de fond sans sujet net ni en mouvement) :
 
-Écart à mi-course, mesuré de la même manière au 70 mm à f/2, mise au point vers 6,6 m, sur un écran de 1200 × 900 :
-- **Flou réel du fond, calculé** : c = (70 / 2) × 70 / (6600 − 70) × (500 000 − 6600) / 500 000 ≈ 0,370 mm. Le cadre fait 1060 px de large, soit 1060 / 35,9 ≈ 29,5 pixels par mm, d'où 10,9 px.
-- **Flou de l'effet** : disque équivalent de 9,5 à 10,25 px selon la zone (quatre zones retenues), 9,9 px en moyenne, soit environ 9 % de moins.
-- **Raison** : Babylon ne floute pas d'une quantité proportionnelle au cercle de confusion. Il mélange l'image nette et des images floutées de taille fixe, à proportion du cercle de confusion (shader `depthOfFieldMerge`, lu dans le paquet).
-- **Mesure antérieure** : faite sur le rendu étiré, elle donnait 8,25 px pour 11,4 px attendus, soit 28 % de moins. Elle n'est plus valable.
+| Réglage | Écran | Flou réel attendu | Mesuré |
+| --- | --- | --- | --- |
+| 70 mm, f/2 | 1200 × 900 | 10,9 px | 10,5 à 11,0 px (quatre zones) |
+| 135 mm, f/1.4 | 1200 × 900 | 58,7 px | 57,25 px (deux zones ; erreur de 0,31 niveau pour un disque, de 1,5 à 1,6 pour une gaussienne) |
+| 135 mm, f/1.4 | 390 × 844 | 25,1 px | 21,5 à 23,5 px, indicatif |
+
+Calcul du flou attendu au 135 mm à f/1.4, mise au point vers 6,6 m, fond à 500 m :
+- c = (135 / 1,4) × 135 / (6600 − 135) × (500 000 − 6600) / 500 000 ≈ 1,99 mm sur le capteur ;
+- × 1060 / 35,9 ≈ 29,5 pixels par mm sur un écran de 1200 × 900, d'où 58,7 px ;
+- × 453 / 35,9 ≈ 12,6 pixels par mm sur un téléphone de 390 × 844 tenu à la verticale, d'où 25,1 px.
+
+Conclusion : le flou a la taille physique à 1 à 3 % près sur ordinateur, et la forme d'un disque. Sur téléphone, les zones de fond libres sont plus étroites que le flou mesuré (moins de 25 px de large) : l'ajustement n'y est pas fiable, et la mesure reste indicative.
 
 Limites :
-- **Plafond de 24 px.** Exemple : portrait au 85 mm à f/1.8, mise au point à 2 m, fond à l'infini. Le flou réel du fond vaut environ 2,1 mm × 29,5 ≈ 62 px sur un écran de 1200 × 900, mais le viseur en montre 24. Sur un téléphone tenu à la verticale, où le cadre mesure 453 px de haut, c'est environ 2,1 × 453 / 35,9 ≈ 26,5 px, proche du plafond.
-- **Écart à mi-course** : environ 9 % de moins, mesuré au 70 mm à f/2.
-- **Halos** autour des silhouettes nettes devant un fond flou, propres au mélange d'images.
-- **Mise au point** relue toutes les 200 ms : un sujet qui bouge vite peut être flou un court instant.
-- **Une alternative est à décider par Julien** : un flou en disque de rayon physique, par un shader écrit pour TutoPhoto, avec un plafond plus haut. Il s'écarterait de la décision « avec les effets de Babylon.js ».
+- **Plafond** : 64 px de diamètre (rayon de 32 px).
+- **Mi-résolution** : la transition entre net et flou se fait sur environ deux pixels.
+- **Grain** : les grands flous montrent un léger grain, parce que les échantillons sont peu nombreux et que la spirale démarre sous un angle propre à chaque pixel (choisi pour casser les motifs réguliers).
+- **Fond à 360°** : il est traité comme un fond à 500 m, y compris le sol au-delà de 20 m.
+- **Coût** : la spirale compte au plus environ 170 échantillons par pixel de la passe. Sur le Google Pixel 8 Pro de Julien, la fluidité reste à vérifier au 135 mm à f/1.4, le cas le plus coûteux. En rendu logiciel (tests), une image prend alors plusieurs secondes sur un écran d'ordinateur.
 
 ## Plan de mise en œuvre
 
@@ -306,7 +314,7 @@ Une pull request par étape :
 2. Photo au déclenchement par accumulation : faite en version 0.3.14 (voir ci-dessus).
 3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus). Interrupteurs de l'aperçu dans le viseur : version 0.3.16.
 4. Loupe dans le viseur et sur l'écran de revue : faite en version 0.3.17 (voir ci-dessus).
-5. Profondeur de champ approchée dans le viseur : faite en version 0.3.21 (voir ci-dessus).
+5. Profondeur de champ approchée dans le viseur : faite en version 0.3.22, puis en flou de taille physique en version 0.3.23 (voir ci-dessus).
 6. Ensuite : mise au point et collimateurs (MAP-04, MAP-05, MAP-06, MAP-09), flou de bougé (BOI-12, MVT-01).
 
 ## Ce que je ne sais pas
