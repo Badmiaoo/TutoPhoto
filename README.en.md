@@ -10,7 +10,7 @@ TutoPhoto is the project name. The application is published on GitHub Pages: htt
 
 - Scope and curriculum v0.2 are a draft, open to challenge: 191 topics in 13 domains, 49 situations, 96 sources.
 - For beginners with a DSLR or mirrorless camera. Scenes are synthetic 3D; we start with a minimal V1 (one park scene, three situations), tested with beginners before going further.
-- Application under construction: the park scene is displayed (360° photo background, bench, trash cans, four people, a running dog), with a minimal virtual camera: aperture, shutter speed, ISO, focal length, light meter and exposure preview, focus by tapping the viewfinder, a photo computed on release (depth of field and motion blur) physically based digital noise and an adjustable viewfinder preview. No camera shake yet. No written content yet: coverage 0 of 191.
+- Application under construction: the park scene is displayed (360° photo background, bench, trash cans, four people, a running dog), with a minimal virtual camera: aperture, shutter speed, ISO, focal length, light meter and exposure preview, focus by tapping the viewfinder, a photo computed on release (depth of field and motion blur) physically based digital noise an adjustable viewfinder preview and a magnifier up to 100%, in the viewfinder and on the photo. No camera shake yet. No written content yet: coverage 0 of 191.
 
 ## Repository layout
 

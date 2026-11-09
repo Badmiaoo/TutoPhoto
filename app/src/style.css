@@ -341,9 +341,20 @@ dialog fieldset label {
   display: none;
 }
 
-/* Calcul de la photo. */
+.loupe-badge {
+  top: auto;
+  bottom: 0.5rem;
+}
+
+.body-button[aria-pressed="true"] {
+  background: var(--texte);
+  color: var(--fond);
+}
+
+/* Calcul de la photo, au-dessus de l'écran de revue pendant le calcul de la loupe. */
 .progress {
   position: absolute;
+  z-index: 2;
   left: 50%;
   bottom: 1rem;
   width: min(20rem, calc(100% - 2rem));
@@ -384,6 +395,7 @@ dialog fieldset label {
 }
 
 .review img {
+  cursor: zoom-in;
   max-width: 100%;
   max-height: calc(100% - 6rem);
   width: auto;
@@ -422,6 +434,9 @@ dialog fieldset label {
 
 /* L'attribut hidden doit l'emporter sur les display ci-dessus. */
 .review[hidden],
-.progress[hidden] {
+.progress[hidden],
+.review-actions button[hidden],
+.review-caption[hidden],
+.focus-marker[hidden] {
   display: none;
 }

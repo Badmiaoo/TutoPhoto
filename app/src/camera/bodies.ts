@@ -58,6 +58,15 @@ export const BODIES: readonly Body[] = [
     readNoise: [[100, 10.27], [200, 5.39], [400, 3.07], [800, 2.03], [1600, 1.55], [3200, 1.27], [6400, 1.1]] },
 ];
 
+/**
+ * Définition du capteur en pixels, le long de ses deux côtés : √(pixels effectifs × grand côté / petit côté)
+ * et son complément. Approximation : la forme exacte de l'image n'est pas lue dans les sources.
+ */
+export function sensorPixels(body: Body): { long: number; short: number } {
+  const long = Math.sqrt((body.effectivePixels * body.sensorWidthMm) / body.sensorHeightMm);
+  return { long, short: body.effectivePixels / long };
+}
+
 export function findBody(brand: Brand, format: Format): Body {
   const body = BODIES.find((b) => b.brand === brand && b.format === format);
   if (!body) throw new Error(`Boîtier inconnu : ${brand} ${format}`);

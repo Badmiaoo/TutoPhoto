@@ -208,6 +208,44 @@ Le rapport mesuré, de 2,8 à 2,9, est proche du rapport attendu, calculé ainsi
 
 L'écart restant, de 3 à 7 %, n'est pas expliqué ; l'arrondi aux niveaux entiers en est une cause possible.
 
+## Loupe (version 0.3.17)
+
+Les hybrides grossissent l'image pour vérifier la mise au point, avant la prise de vue comme à la relecture. Exemples dans le [guide d'aide Sony ILCE-7M3](https://helpguide.sony.net/ilc/1720/v1/en/print.pdf), lu :
+- « Focus Magnifier » : « You can check the focus by enlarging the image before shooting » ;
+- « Enlarge Image » : « Enlarges the image being played back. Use this function to check the focus of the image ».
+
+**100 %** veut dire ici un pixel de l'image pour un photosite du capteur, affiché sur un pixel CSS. La définition du capteur le long de ses côtés est calculée par Claude : √(pixels effectifs × grand côté / petit côté), puis son complément. Par exemple, 6066 × 4039 pour le Nikon Z 6. C'est une approximation : la forme exacte de l'image n'est pas lue dans les sources.
+
+Loupe du viseur (bouton « Loupe ») :
+- **Crans** : sans loupe, 50 %, 100 %, puis retour. Le cran de 50 % est sauté s'il grossit moins de 1,25 fois.
+- **Grossissement à 100 %** : définition du capteur / grand côté du cadre, en pixels du canevas. Par exemple, 6066 / 1109 ≈ 5,5 pour le Z 6 sur un écran de 1200 × 900.
+- **Position** : la zone grossie est centrée sur le point de mise au point et reste dans le cadre. Toucher le viseur déplace le point, et la loupe le suit.
+- **Rotation** : l'appareil tourne plus lentement, d'un facteur égal au grossissement.
+- **Bruit** : il suit le grossissement, avec k = pixels effectifs / (pixels du cadre × grossissement²), soit environ 1 à 100 %.
+- **La photo couvre toujours tout le cadre.** La loupe ne change que l'affichage.
+
+Loupe de l'écran de revue : toucher la photo recalcule une fenêtre à 100 % autour du point touché. La fenêtre a la taille de la zone d'affichage, avec 1500 pixels au plus de côté.
+- **Même photo** : même instant, même orientation de l'appareil, même distance de mise au point. Seule la projection change, resserrée sur la fenêtre : x' = (x − centre) / demi-largeur, en coordonnées normalisées.
+- **Nouveau calcul** : la fenêtre est recalculée par accumulation (rendus, flou, bruit), avec la même limite de 256 rendus et de 5 s. Ce n'est pas un agrandissement de la photo de 1500 px.
+- **Navigation** : toucher la fenêtre la recentre ; « Photo entière » revient à la photo. « Enregistrer la photo » enregistre toujours la photo entière.
+
+Bruit à 100 % : moins d'un photosite de chaque couleur par pixel. Le dématriçage interpole les couleurs manquantes, d'une manière propre à chaque boîtier et non documentée dans les sources lues. Le modèle garde donc le bruit d'un photosite seul : k × part est ramené à 1 au moins.
+
+Vérification du 9 novembre 2026, dans le site construit, sur une zone de fond immobile (Nikon Z 6, ISO 6400, f/10, 1/4000 s, écran de 1200 × 900) :
+
+| Vue | k | Mesuré, en niveaux (rouge, vert, bleu) | Prévu |
+| --- | --- | --- | --- |
+| Sans loupe | 31,3 | 1,05 ; 1,05 ; 1,05 (écart absolu médian, arrondi aux niveaux) | 1,29 ; 0,94 ; 1,48 (médiane) |
+| Loupe 50 % | 4,2 | 4,19 ; 3,15 ; 4,19 (écart absolu médian) | 3,71 ; 2,65 ; 4,03 (médiane) |
+| Loupe 100 % | 1,05 | 2,94 ; 3,05 ; 3,48 (écart type) | 3,52 ; 3,64 ; 4,24 |
+
+À 100 %, la mesure atteint 82 à 84 % du modèle, et les trois couleurs ont un bruit voisin, puisque chacune vaut un photosite seul. Sur la loupe de l'écran de revue, la fenêtre a été vérifiée (taille, position, légende), mais son bruit n'a pas été mesuré.
+
+Limites :
+- **Fond flou à 100 %.** La photo à 360° du fond fait 8192 pixels pour 360°, soit environ 22,8 pixels par degré. Le Z 6 à 100 % en demande 6066 / 39,5° ≈ 154 par degré au 50 mm : le fond est agrandi environ 6,8 fois et paraît flou. Il l'est déjà un peu sur la photo de 1500 px (environ 38 pixels par degré au 50 mm).
+- **Bruit discret, même à 100 %.** Pour le Z 6 à ISO 6400, il est d'environ 3 à 4 niveaux sur 255 dans les tons moyens. C'est ce que donnent les mesures de Claff pour ce boîtier.
+- **Animations grossies.** À 100 %, les petits mouvements des personnages animés sont grossis eux aussi.
+
 ## Plan de mise en œuvre
 
 Une pull request par étape :
@@ -215,7 +253,7 @@ Une pull request par étape :
 1. Boîtier virtuel minimal et exposition : fait en version 0.3.13 (voir ci-dessus).
 2. Photo au déclenchement par accumulation : faite en version 0.3.14 (voir ci-dessus).
 3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus). Interrupteurs de l'aperçu dans le viseur : version 0.3.16.
-4. Loupe dans le viseur et sur l'écran de revue.
+4. Loupe dans le viseur et sur l'écran de revue : faite en version 0.3.17 (voir ci-dessus).
 5. Profondeur de champ approchée dans le viseur.
 6. Ensuite : mise au point et collimateurs (MAP-04, MAP-05, MAP-06, MAP-09), flou de bougé (BOI-12, MVT-01).
 

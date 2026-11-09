@@ -4,12 +4,17 @@
 // Aperçu dans le viseur (décision du 9 novembre 2026) : un interrupteur général et un par effet
 // (luminosité, bruit), en marche par défaut. Coupé, le viseur reste correctement exposé et sans bruit ;
 // la photo garde toujours tous les effets.
+// Loupe du viseur (même décision) : grossit l'image autour du point de mise au point, jusqu'à 100 % (un
+// pixel du canevas pour un photosite), comme la fonction de grossissement des hybrides. Elle ne change
+// que l'affichage : la photo couvre toujours tout le cadre.
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
 import type { UniversalCamera } from "@babylonjs/core/Cameras/universalCamera";
 import { Camera } from "@babylonjs/core/Cameras/camera";
-import { BODIES, findBody, type Body, type Brand, type Format } from "../camera/bodies";
+import type { FreeCameraTouchInput } from "@babylonjs/core/Cameras/Inputs/freeCameraTouchInput";
+import { Matrix } from "@babylonjs/core/Maths/math.vector";
+import { BODIES, findBody, sensorPixels, type Body, type Brand, type Format } from "../camera/bodies";
 import {
   DEFAULT_FOCAL_INDEX,
   DEFAULT_SETTINGS,
@@ -32,6 +37,9 @@ import { t, type Lang, type MessageKey } from "../i18n";
 const METER_RANGE = 3;
 const STORAGE_KEY = "tutophoto.boitier";
 const PREVIEW_STORAGE_KEY = "tutophoto.apercu";
+/** Grossissements de la loupe, en fraction de la vue à 100 % ; un cran trop proche de 1 est sauté. */
+const LOUPE_LEVELS = [0.5, 1] as const;
+const LOUPE_MIN_ZOOM = 1.25;
 
 /** Interrupteurs de l'aperçu dans le viseur. */
 interface Preview {
@@ -65,7 +73,11 @@ interface PanelElements {
   previewButton: HTMLButtonElement;
   previewDialog: HTMLDialogElement;
   previewBadge: HTMLElement;
+  loupeButton: HTMLButtonElement;
+  loupeBadge: HTMLElement;
 }
+
+type Point = { x: number; y: number };
 
 export class CameraPanel {
   private settings: ExposureSettings = { ...DEFAULT_SETTINGS };
@@ -75,6 +87,19 @@ export class CameraPanel {
   private lang: Lang;
   private frame: Frame | null = null;
   private preview: Preview = { all: true, brightness: true, noise: true };
+  /** Cran de la loupe dans LOUPE_LEVELS ; -1 : pas de loupe. */
+  private loupeLevel = -1;
+  private loupeZoom = 1;
+  /** Centre de la zone grossie, en coordonnées normalisées du canevas (de -1 à 1, y vers le haut). */
+  private loupeCenter: Point = { x: 0, y: 0 };
+  /** Point de mise au point, dans le cadre complet (de 0 à 1, origine en haut à gauche). */
+  private focusPoint: Point = { x: 0.5, y: 0.5 };
+  private canvasSize = { width: 1, height: 1 };
+  private readonly baseAngularSensibility: number;
+  private readonly baseTouchSensibility: number | null;
+  private readonly viewListeners: (() => void)[] = [];
+  /** Faux pendant le calcul d'une photo, qui a sa propre projection : la loupe n'y touche pas. */
+  private enabled = true;
 
   constructor(
     private readonly engine: Engine,
@@ -85,6 +110,10 @@ export class CameraPanel {
     private readonly noise: ViewfinderNoise,
   ) {
     this.lang = lang;
+    this.baseAngularSensibility = camera.angularSensibility;
+    const touch = camera.inputs.attached["touch"] as FreeCameraTouchInput | undefined;
+    this.baseTouchSensibility = touch ? touch.touchAngularSensibility : null;
+    el.loupeButton.addEventListener("click", () => this.cycleLoupe());
     this.restoreBody();
     this.restorePreview();
     for (const button of el.panel.querySelectorAll<HTMLButtonElement>("button[data-dial]")) {
@@ -130,8 +159,39 @@ export class CameraPanel {
     };
   }
 
+  /** Appelé à chaque changement du viseur (taille, focale, boîtier, loupe). */
+  onViewChange(listener: () => void): void {
+    this.viewListeners.push(listener);
+  }
+
+  /** Point de mise au point choisi : la loupe se centre dessus. */
+  setFocusPoint(point: Point): void {
+    this.focusPoint = point;
+    this.applyView();
+  }
+
+  /** Remet la projection du viseur (et la loupe) après le calcul d'une photo, qui la remplace. */
+  restoreView(): void {
+    this.applyView();
+  }
+
+  /** Point touché dans le cadre affiché (de 0 à 1) vers le point correspondant du cadre complet. */
+  displayedToFrame(point: Point): Point {
+    if (this.loupeZoom <= 1) return point;
+    const ndc = this.frameToNdc(point);
+    return this.ndcToFrame({ x: ndc.x / this.loupeZoom + this.loupeCenter.x, y: ndc.y / this.loupeZoom + this.loupeCenter.y });
+  }
+
+  /** Point du cadre complet vers sa position dans le cadre affiché (hors de 0 à 1 s'il n'est pas visible). */
+  frameToDisplayed(point: Point): Point {
+    if (this.loupeZoom <= 1) return point;
+    const ndc = this.frameToNdc(point);
+    return this.ndcToFrame({ x: (ndc.x - this.loupeCenter.x) * this.loupeZoom, y: (ndc.y - this.loupeCenter.y) * this.loupeZoom });
+  }
+
   /** Grise les réglages pendant le calcul d'une photo. */
   setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
     for (const button of this.el.panel.querySelectorAll<HTMLButtonElement>("button")) button.disabled = !enabled;
   }
 
@@ -178,6 +238,7 @@ export class CameraPanel {
       box.querySelector<HTMLButtonElement>('[data-step="1"]')!.setAttribute("aria-label", `${tr(dial)}${colon}${tr("increase")}`);
     }
 
+    this.el.loupeButton.title = tr("loupeHelp");
     const offset = exposureOffset(this.settings);
     const shown = Math.max(-METER_RANGE, Math.min(METER_RANGE, offset));
     this.el.meterNeedle.style.left = `${((shown + METER_RANGE) / (2 * METER_RANGE)) * 100}%`;
@@ -219,18 +280,94 @@ export class CameraPanel {
     const body = this.body();
     const frame = frameFor(width, height, body);
     this.frame = frame;
-    // Bruit du viseur : chaque pixel du cadre regroupe effectivePixels / (largeur × hauteur) photosites.
-    const gain = this.showsBrightness() ? 1 : 2 ** exposureOffset(this.settings);
-    this.noise.update(body, isoValue(this.settings.iso), frame.width * frame.height, gain);
+    this.canvasSize = { width, height };
     const fov = cameraFov(width, height, frame, body, FOCAL_LENGTHS[this.focalIndex]);
     this.camera.fovMode = fov.axis === "vertical" ? Camera.FOVMODE_VERTICAL_FIXED : Camera.FOVMODE_HORIZONTAL_FIXED;
     this.camera.fov = fov.fov;
+    if (this.enabled) this.applyLoupe(frame, body);
+    // Bruit du viseur : chaque pixel du cadre regroupe effectivePixels / (largeur × hauteur × grossissement²)
+    // photosites.
+    const gain = this.showsBrightness() ? 1 : 2 ** exposureOffset(this.settings);
+    this.noise.update(body, isoValue(this.settings.iso), frame.width * frame.height * this.loupeZoom ** 2, gain);
     // Le canevas peut être dessiné à une autre résolution que sa taille à l'écran : on passe en pourcentages.
     const style = this.el.frame.style;
     style.left = `${(frame.left / width) * 100}%`;
     style.top = `${(frame.top / height) * 100}%`;
     style.width = `${(frame.width / width) * 100}%`;
     style.height = `${(frame.height / height) * 100}%`;
+    for (const listener of this.viewListeners) listener();
+  }
+
+  /** Grossissement de la loupe au cran donné : 100 % = définition du capteur / grand côté du cadre. */
+  private zoomAt(level: number, frame: Frame, body: Body): number {
+    const full = sensorPixels(body).long / Math.max(frame.width, frame.height);
+    return Math.max(1, LOUPE_LEVELS[level] * full);
+  }
+
+  /** Crans successifs : pas de loupe, 50 % (si assez grossi), 100 %, puis retour sans loupe. */
+  private cycleLoupe(): void {
+    if (!this.frame) this.applyView();
+    const frame = this.frame!;
+    const body = this.body();
+    let next = this.loupeLevel + 1;
+    while (next < LOUPE_LEVELS.length - 1 && this.zoomAt(next, frame, body) < LOUPE_MIN_ZOOM) next++;
+    this.loupeLevel = next >= LOUPE_LEVELS.length ? -1 : next;
+    this.applyView();
+  }
+
+  /**
+   * Projection du viseur grossie autour du point de mise au point : x' = (x − centre) × grossissement, en
+   * coordonnées normalisées, soit m0 et m5 multipliés et m8, m9 décalés. La zone grossie reste dans le cadre.
+   */
+  private applyLoupe(frame: Frame, body: Body): void {
+    const tr = (key: MessageKey) => t(this.lang, key);
+    this.camera.unfreezeProjectionMatrix();
+    this.loupeZoom = this.loupeLevel < 0 ? 1 : this.zoomAt(this.loupeLevel, frame, body);
+    const touch = this.camera.inputs.attached["touch"] as FreeCameraTouchInput | undefined;
+    // On tourne plus lentement quand l'image est grossie.
+    this.camera.angularSensibility = this.baseAngularSensibility * this.loupeZoom;
+    if (touch && this.baseTouchSensibility !== null) touch.touchAngularSensibility = this.baseTouchSensibility * this.loupeZoom;
+    const percent = this.loupeLevel < 0 ? 0 : Math.round(LOUPE_LEVELS[this.loupeLevel] * 100);
+    this.el.loupeButton.textContent = this.loupeLevel < 0 ? tr("loupe") : `${tr("loupe")} ${percent}${tr("percent")}`;
+    this.el.loupeButton.setAttribute("aria-pressed", String(this.loupeLevel >= 0));
+    this.el.loupeBadge.hidden = this.loupeLevel < 0;
+    this.el.loupeBadge.textContent = `${tr("loupe")} ${percent}${tr("percent")}`;
+    if (this.loupeZoom <= 1) {
+      this.loupeCenter = { x: 0, y: 0 };
+      return;
+    }
+    const zoom = this.loupeZoom;
+    const halfX = frame.width / this.canvasSize.width;
+    const halfY = frame.height / this.canvasSize.height;
+    const target = this.frameToNdc(this.focusPoint);
+    const limit = (half: number) => half - half / zoom;
+    const clamp = (value: number, max: number) => Math.min(max, Math.max(-max, value));
+    this.loupeCenter = { x: clamp(target.x, limit(halfX)), y: clamp(target.y, limit(halfY)) };
+    const m = Array.from(this.camera.getProjectionMatrix(true).asArray());
+    m[0] *= zoom;
+    m[5] *= zoom;
+    m[8] = (m[8] - this.loupeCenter.x) * zoom;
+    m[9] = (m[9] - this.loupeCenter.y) * zoom;
+    this.camera.freezeProjectionMatrix(Matrix.FromArray(m));
+  }
+
+  /** Point du cadre (de 0 à 1, origine en haut à gauche) vers les coordonnées normalisées du canevas. */
+  private frameToNdc(point: Point): Point {
+    const frame = this.frame!;
+    const { width, height } = this.canvasSize;
+    return {
+      x: ((frame.left + point.x * frame.width) / width) * 2 - 1,
+      y: 1 - ((frame.top + point.y * frame.height) / height) * 2,
+    };
+  }
+
+  private ndcToFrame(ndc: Point): Point {
+    const frame = this.frame!;
+    const { width, height } = this.canvasSize;
+    return {
+      x: (((ndc.x + 1) / 2) * width - frame.left) / frame.width,
+      y: (((1 - ndc.y) / 2) * height - frame.top) / frame.height,
+    };
   }
 
   private showsBrightness(): boolean {
