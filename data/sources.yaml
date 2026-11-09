@@ -496,7 +496,7 @@ sources:
     used_in: [docs/camera-physique.md]
   - id: sony-ilce-7m3-help-guide
     group: "Constructeurs : manuels et pages techniques"
-    label: "Sony, Help Guide ILCE-7M3 (PDF), Specifications : capteur 35.6 mm × 23.8 mm, environ 24 200 000 pixels effectifs, vitesses 1/8 000 s à 30 s, ISO 100 à 51 200 (lu le 8 novembre 2026) ; Live View Display, Setting Effect ON/OFF, et Focus Magnifier (lus le 9 novembre 2026)"
+    label: "Sony, Help Guide ILCE-7M3 (PDF), Specifications : capteur 35.6 mm × 23.8 mm, environ 24 200 000 pixels effectifs, vitesses 1/8 000 s à 30 s, ISO 100 à 51 200 (lu le 8 novembre 2026) ; Live View Display, Setting Effect ON/OFF, Focus Magnifier, Focus Mode, Focus Area, Face/Eye AF Set., Metering Mode, Spot Metering Point, White Balance, Grid Line et Histogram (lus le 9 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/en/print.pdf"
     used_in: [docs/camera-physique.md]
   - id: nikon-d5600-sensor

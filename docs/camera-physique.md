@@ -306,6 +306,43 @@ Limites :
 - **Fond à 360°** : il est traité comme un fond à 500 m, y compris le sol au-delà de 20 m.
 - **Coût** : la spirale compte au plus environ 170 échantillons par pixel de la passe. Sur le Google Pixel 8 Pro de Julien, la fluidité reste à vérifier au 135 mm à f/1.4, le cas le plus coûteux. En rendu logiciel (tests), une image prend alors plusieurs secondes sur un écran d'ordinateur.
 
+## Fonctions demandées par Julien le 9 novembre 2026
+
+Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 minimale (`data/jalons.yaml`), qui ne contient que les notions clés de SIT-01, SIT-05 et SIT-06. `CLAUDE.md` demande de ne pas étendre la V1 minimale avant de l'avoir testée avec des débutants : leur place, avant ou après ces tests, reste à décider par Julien. Les équivalents cités viennent du [guide d'aide Sony ILCE-7M3](https://helpguide.sony.net/ilc/1720/v1/en/print.pdf), lu le 9 novembre 2026.
+
+### Balance des blancs (COU-01, COU-02)
+
+- Sur le Sony A7 III, elle « corrects the tone effect of the ambient light condition to record a neutral white subject in white ». Elle propose :
+  - un mode automatique et des préréglages par source (Daylight, Shade, Cloudy, Incandescent, quatre fluorescents, Flash, Underwater Auto) ;
+  - une température de couleur avec filtre (« C.Temp./Filter ») ;
+  - des réglages personnalisés mesurés sur la scène (« Custom Setup »).
+- Principe envisagé, à détailler avant de produire : des gains par canal appliqués à l'image en lumière linéaire, avant le bruit et la courbe, dans le viseur comme sur la photo.
+- Ce qui manque : la couleur de la lumière de la scène. La température de couleur de la photo à 360° et de l'éclairage HDR n'est pas documentée dans les sources lues ; elle serait à mesurer sur une zone neutre de la scène.
+
+### Grilles de composition (CMP-02)
+
+- Sur le Sony A7 III, « Grid Line » propose « Rule of 3rds Grid », « Square Grid » et « Diag. + Square Grid ».
+- Principe : un calque au-dessus du cadre du viseur, choisi dans le boîtier. Il ne change pas la photo.
+
+### Histogramme (MES-06)
+
+- Sur le Sony A7 III, l'affichage « Histogram » « displays the luminance distribution graphically », en prise de vue comme en lecture.
+- Principe : histogramme calculé sur l'image du viseur réduite, quelques fois par seconde, et sur la photo ; luminance et couches rouge, verte et bleue, avec la part écrêtée.
+- Coût : lire les pixels de l'image du viseur peut ralentir un téléphone, à mesurer.
+
+### Corriger la photo après la prise (V2 ; RET-01, RET-02)
+
+- Décision de Julien : en V2.
+- Des curseurs (exposition, hautes lumières, ombres, blancs, noirs, contraste) appliqués à la photo calculée, pour montrer qu'une photo mal prise se rattrape, et dans quelles limites : des hautes lumières écrêtées ne reviennent pas, et le bruit remonte avec les ombres. Ce sont les leviers de RET-01 (« exposition, hautes lumières, ombres, blancs, noirs ») et de RET-02 (contraste et courbes).
+- Base possible : le calcul de la photo fait déjà sa somme en virgule flottante, avant l'écrêtage. Il faudrait la garder, comme un équivalent du RAW, au lieu de la jeter après la finition.
+
+### En discussion avec Julien
+
+- Un indicateur de l'« équilibre » entre ouverture, vitesse et ISO, selon le point visé.
+- Les modes de mise au point autres qu'un collimateur unique (MAP-04, MAP-05, MAP-09, dans la V1 minimale).
+
+Voir `docs/questions-ouvertes.md`.
+
 ## Plan de mise en œuvre
 
 Une pull request par étape :
@@ -315,7 +352,8 @@ Une pull request par étape :
 3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus). Interrupteurs de l'aperçu dans le viseur : version 0.3.16.
 4. Loupe dans le viseur et sur l'écran de revue : faite en version 0.3.17 (voir ci-dessus).
 5. Profondeur de champ approchée dans le viseur : faite en version 0.3.22, puis en flou de taille physique en version 0.3.23 (voir ci-dessus).
-6. Ensuite : mise au point et collimateurs (MAP-04, MAP-05, MAP-06, MAP-09), flou de bougé (BOI-12, MVT-01).
+6. Ensuite : mise au point et collimateurs (MAP-04, MAP-05, MAP-06, MAP-09), flou de bougé et de sujet (MVT-01), modes d'entraînement (BOI-12). Les modes de mise au point sont en discussion avec Julien (voir ci-dessus).
+7. Selon la décision de Julien : balance des blancs, grilles de composition, histogramme (voir ci-dessus). En V2 : correction de la photo après la prise.
 
 ## Ce que je ne sais pas
 
