@@ -8,6 +8,7 @@ Archive de reprise : `REPRISE.md`.
 `REPRISE.md`, et `docs/` qui en est copié, sont un brouillon : probablement incomplet, mal écrit par endroits, avec des erreurs. Tout peut être remis en question, arguments et sources à l'appui ; Julien tranche.
 
 ## Règles
+- Mot d'ordre partout : le réalisme. TutoPhoto est une sandbox de simulation pour s'entraîner ; à chaque choix de simulation, retenir le comportement le plus réaliste, sourcé, et dire ce qui ne l'est pas (Julien, 9 novembre 2026).
 - Français, tutoiement, direct et structuré. Pas d'emoji, pas de formules emphatiques.
 - Ne jamais inventer, extrapoler ou deviner. Information invérifiable : « Je ne sais pas ».
 - Toute affirmation factuelle est sourcée (auteur, date, lien) ; les sources vont dans `data/sources.yaml`.
