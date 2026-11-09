@@ -88,6 +88,10 @@ Décidé par Julien le 7 novembre 2026 ; versions et licences lues dans le regis
 
 - Code de l'application en TypeScript, dans `app/` : [TypeScript](https://www.npmjs.com/package/typescript) 7.0.2, licence Apache-2.0, outil de développement seulement (absent du site publié).
 - Construction avec [Vite](https://www.npmjs.com/package/vite) 8.3.6, licence MIT, outil de développement seulement ; le polyfill de préchargement de Vite est désactivé, si bien que le site publié ne contient que notre code et celui de Babylon.js.
+- Un seul fichier JavaScript depuis la version 0.3.25 (`inlineDynamicImports` dans `app/vite.config.ts`).
+  - Avant, le site comptait 324 fichiers JavaScript, que Babylon.js chargeait à la demande, notamment ses shaders. Le 9 novembre 2026, sur le téléphone de Julien, un seul de ces fichiers n'a pas été reçu (`rgbdDecode.fragment`), et la scène est restée bloquée au chargement.
+  - Ce fichier faisait pourtant partie de la version publiée : la cause la plus probable est une coupure du réseau, que nous ne pouvons pas vérifier.
+  - Coût : un fichier de 4,1 Mo, environ 950 ko compressé, dont environ 0,5 Mo compressé de code inutilisé. C'est peu face aux 34 Mo de la scène.
 - Moteur : [@babylonjs/core](https://www.npmjs.com/package/@babylonjs/core) 9.35.0, licence Apache-2.0. Sa licence et son `NOTICE.md` sont recopiés dans le site construit (`licences/`), avec les licences du projet.
 - Chargement des modèles glTF : [@babylonjs/loaders](https://www.npmjs.com/package/@babylonjs/loaders) 9.35.0, licence Apache-2.0, ajouté le 8 novembre 2026 ; il dépend de [babylonjs-gltf2interface](https://www.npmjs.com/package/babylonjs-gltf2interface) 9.35.0 (Apache-2.0, déclarations de types seulement). Versions et licences lues dans le registre npm le 7 novembre 2026.
 - Scène de parc (8 novembre 2026) : fond `PhotoDome` (photo à 360°), éclairage par `HDRCubeTexture`, sol invisible en `BackgroundMaterial` qui ne reçoit que les ombres. Code dans `app/src/scene.ts` ; fichiers et crédits dans `app/public/scenes/parc/`.

@@ -288,7 +288,7 @@ Mesures du 9 novembre 2026, avec la méthode de la version 0.3.22 (disque ajust�
 
 | Réglage | Écran | Flou réel attendu | Mesuré |
 | --- | --- | --- | --- |
-| 70 mm, f/2 | 1200 × 900 | 10,9 px | 10,5 à 11,0 px (quatre zones) |
+| 70 mm, f/2 | 1200 × 900 | 10,9 px | 10,5 à 11,0 px (quatre zones) ; 11,5 à 11,75 px depuis la version 0.3.25 |
 | 135 mm, f/1.4 | 1200 × 900 | 58,7 px | 57,25 px (deux zones ; erreur de 0,31 niveau pour un disque, de 1,5 à 1,6 pour une gaussienne) |
 | 135 mm, f/1.4 | 390 × 844 | 25,1 px | 21,5 à 23,5 px, indicatif |
 
@@ -297,12 +297,21 @@ Calcul du flou attendu au 135 mm à f/1.4, mise au point vers 6,6 m, fond à 500
 - × 1060 / 35,9 ≈ 29,5 pixels par mm sur un écran de 1200 × 900, d'où 58,7 px ;
 - × 453 / 35,9 ≈ 12,6 pixels par mm sur un téléphone de 390 × 844 tenu à la verticale, d'où 25,1 px.
 
-Conclusion : le flou a la taille physique à 1 à 3 % près sur ordinateur, et la forme d'un disque. Sur téléphone, les zones de fond libres sont plus étroites que le flou mesuré (moins de 25 px de large) : l'ajustement n'y est pas fiable, et la mesure reste indicative.
+Conclusion (version 0.3.23) : le flou a la taille physique à 1 à 3 % près sur ordinateur, et la forme d'un disque.
+
+Version 0.3.25 :
+- **Grain supprimé** : au moins 64 échantillons, et une même spirale pour tous les pixels (voir les limites).
+- **Taille des petits flous** : avec plus d'échantillons, un flou de 10,9 px attendus mesurait 12,0 à 12,25 px, soit environ 12 % de trop. Une partie vient du passage par la mi-résolution, qui ajoute son propre flou :
+  - lecture par blocs de 2 × 2 pixels : variance (2² − 1) / 12 = 0,25 pixel² par axe ;
+  - agrandissement bilinéaire : 2² / 6 ≈ 0,67 pixel² par axe.
+  Un disque de diamètre D ayant une variance de D² / 16 par axe, ces 0,92 pixel² portent un disque de 10,9 px à environ 11,55 px.
+- **Compensation** : le disque calculé est réduit d'autant (r² − 0,92, en rayon de la passe). Mesure après compensation : 11,5 à 11,75 px, soit environ 7 % de trop. Le reste de l'écart n'est pas expliqué ; la distance de mise au point retenue pour le calcul attendu (6,6 m) n'a pas été relevée dans le viseur.
+- **Grands flous** : la compensation y est négligeable (environ 0,2 % au plafond), et le pas de la spirale y est inchangé. Ils n'ont pas été remesurés : les personnages bougeaient dans les zones de fond utilisables. Sur téléphone, les zones de fond libres sont plus étroites que le flou mesuré (moins de 25 px de large) : l'ajustement n'y est pas fiable, et la mesure reste indicative.
 
 Limites :
 - **Plafond** : 64 px de diamètre (rayon de 32 px).
 - **Mi-résolution** : la transition entre net et flou se fait sur environ deux pixels.
-- **Grain** : les grands flous montrent un léger grain, parce que les échantillons sont peu nombreux et que la spirale démarre sous un angle propre à chaque pixel (choisi pour casser les motifs réguliers).
+- **Grain** (corrigé en version 0.3.25) : les flous moyens montraient un grain à l'échelle du pixel, surtout sur les petits écrans. Il y avait peu d'échantillons (environ 20 pour un flou de 22 px sur un écran de 390 px), et la spirale démarrait sous un angle propre à chaque pixel. Désormais, le pas de la spirale est réduit pour garder au moins 64 échantillons, sans dépasser 170, et tous les pixels partagent la même spirale.
 - **Fond à 360°** : il est traité comme un fond à 500 m, y compris le sol au-delà de 20 m.
 - **Coût** : la spirale compte au plus environ 170 échantillons par pixel de la passe. Sur le Google Pixel 8 Pro de Julien, la fluidité reste à vérifier au 135 mm à f/1.4, le cas le plus coûteux. En rendu logiciel (tests), une image prend alors plusieurs secondes sur un écran d'ordinateur.
 
