@@ -84,7 +84,12 @@ if (!Engine.isSupported()) {
   applyLang();
 } else {
   const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true });
-  const { scene, camera, ready, time } = createScene(engine, canvas);
+  const { scene, camera, ready, time, subjects } = createScene(engine, canvas);
+  // Serveur de développement seulement (absent du site construit) : accès pour les mesures sur la scène.
+  if (import.meta.env.DEV) {
+    void import("@babylonjs/core/Culling/ray");
+    Object.assign(window, { __tutophoto: { scene, camera, time } });
+  }
   const noise = new ViewfinderNoise(scene, camera, (message) => report("problemNoise", message));
   cameraPanel = new CameraPanel(
     engine,
@@ -113,7 +118,7 @@ if (!Engine.isSupported()) {
   );
   const panel = cameraPanel;
   const ground = { eyeHeight: EYE_HEIGHT, domeRadius: DOME_RADIUS };
-  const autofocus = new Autofocus(scene, camera, ground, () => panel.focusArea());
+  const autofocus = new Autofocus(scene, camera, ground, () => panel.focusArea(), subjects);
   panel.attachAutofocus(autofocus);
   const dof = new ViewfinderDepthOfField(
     scene,

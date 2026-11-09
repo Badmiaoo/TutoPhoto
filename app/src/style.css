@@ -379,6 +379,11 @@ dialog fieldset label {
   border-color: #3ddc4a;
 }
 
+/* Visage ou œil détecté en zone automatique : repère ambre, comme sur le Z 6. */
+.focus-marker.detected {
+  border-color: #ffb000;
+}
+
 .body-button[aria-pressed="true"] {
   background: var(--texte);
   color: var(--fond);

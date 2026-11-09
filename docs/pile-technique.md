@@ -120,5 +120,7 @@ Demandé par Julien le 9 novembre 2026 : tester sur ordinateur et sur mobile à 
   - bruit du viseur à ISO 6400, et son absence quand l'aperçu est coupé ;
   - loupe du viseur à 100 % ;
   - photo calculée et non noire ;
-  - loupe de l'écran de revue.
+  - loupe de l'écran de revue ;
+  - mise au point (depuis les versions 0.3.26 à 0.3.29) : verrou en AF-S, zone large, zone automatique (œil détecté, sujet le plus proche sans détection, œil du chien), suivi en AF-C.
+- Mesures sur la scène : sur le serveur de développement seulement (`npm run dev`), `window.__tutophoto` donne la scène, la caméra et l'horloge, et charge le module de visée de Babylon (`Culling/ray`). Le site construit n'en contient rien. Il a servi le 9 novembre 2026 à placer les yeux des modèles sans squelette.
 - Limites : Chromium seul, en rendu logiciel (SwiftShader). L'émulation ne reproduit ni le processeur graphique d'un téléphone ni le moteur Safari. Le chargement sans fin constaté le 9 novembre 2026 sur le téléphone de Julien ne s'est pas reproduit en émulation : un essai sur un vrai téléphone reste nécessaire.
