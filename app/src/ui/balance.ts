@@ -41,6 +41,7 @@ type Status = "ok" | "warn" | "bad" | "neutral";
 
 interface BalanceElements {
   root: HTMLElement;
+  toggle: HTMLButtonElement;
   title: HTMLElement;
   aperture: SVGElement;
   shutter: SVGElement;
@@ -67,6 +68,17 @@ export class BalanceIndicator {
     private lang: Lang,
   ) {
     setInterval(() => void this.refresh(), REFRESH_MS);
+    // Petit écran : le triangle seul au départ ; un toucher affiche ou masque les lignes.
+    let collapsed = window.matchMedia("(max-width: 700px)").matches;
+    const apply = () => {
+      el.root.classList.toggle("collapsed", collapsed);
+      el.toggle.setAttribute("aria-expanded", String(!collapsed));
+    };
+    el.toggle.addEventListener("click", () => {
+      collapsed = !collapsed;
+      apply();
+    });
+    apply();
     this.setLang(lang);
   }
 
@@ -74,14 +86,10 @@ export class BalanceIndicator {
     this.lang = lang;
     this.el.title.textContent = t(lang, "balanceTitle");
     this.el.note.textContent = t(lang, "balanceNote");
-    const label = (id: string, key: MessageKey) => {
-      const node = this.el.root.querySelector(`#${id}`);
-      if (node) node.textContent = t(lang, key);
-    };
-    label("balance-label-aperture", "balanceAperture");
-    label("balance-label-shutter", "balanceShutter");
-    label("balance-label-iso", "balanceIso");
-    label("balance-limits", "balanceLimits");
+    const limits = this.el.root.querySelector("#balance-limits");
+    if (limits) limits.textContent = t(lang, "balanceLimits");
+    this.el.toggle.setAttribute("aria-label", t(lang, "balanceToggle"));
+    this.el.toggle.title = t(lang, "balanceToggle");
   }
 
   /** Interrupteur de l'indicateur, dans la fenêtre « Aperçu ». */

@@ -16,8 +16,10 @@
 // - à ISO 6400, le bruit du viseur varie d'une image à l'autre ; aperçu coupé, il disparaît ;
 // - au 135 mm à f/1.4, la profondeur de champ du viseur floute le fond ; coupée, le fond redevient net ;
 // - la loupe passe à 100 % et l'indique ;
-// - indicateur d'équilibre : zone nette et bruit excellent aux réglages par défaut, bruit sous 40:1 à ISO 6400,
-//   traînée du chien évaluée quand il est visé ;
+// - le viseur garde au moins 35 % de la hauteur de la fenêtre (iPhone : 41 % avant l'indicateur d'équilibre) ;
+// - indicateur d'équilibre : zone nette et bruit excellent aux réglages par défaut ; au même point du sol,
+//   immobile, le rapport signal/bruit à ISO 6400 tombe sous 40 % de celui à ISO 100 (environ 17 % attendus :
+//   6 IL de sensibilité en plus, 0,87 IL d'exposition en plus, bruit photonique) ; traînée du chien évaluée ;
 // - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne ;
 // - mise au point (MAP-04, MAP-05, MAP-09), en fin de test parce que la vue change : AF-C et point sélectif par
 //   défaut ; en zone automatique, un œil est détecté dans le groupe ; détection coupée, l'appareil prend le
@@ -190,6 +192,9 @@ async function runProfile(browser, name, base) {
     check("rendu à la taille affichée", Math.abs(geometry.rw - geometry.cw) <= 1 && Math.abs(geometry.rh - geometry.ch) <= 1, `${geometry.rw}×${geometry.rh} rendu, ${geometry.cw}×${geometry.ch} affiché`);
     check("cadre aux proportions du capteur", Math.abs(geometry.ratio - 35.9 / 23.9) < 0.02, `rapport ${geometry.ratio.toFixed(3)}, attendu ${(35.9 / 23.9).toFixed(3)}`);
 
+    const viewfinder = await page.evaluate(() => ({ h: document.getElementById("scene").clientHeight, vh: window.innerHeight }));
+    check("viseur assez grand", viewfinder.h >= 0.35 * viewfinder.vh, `${viewfinder.h} px de haut, fenêtre de ${viewfinder.vh} px`);
+
     // Indicateur d'équilibre, réglages par défaut (50 mm, f/8, 1/100 s, ISO 100).
     const balanceLine = (id, pattern) =>
       page
@@ -210,6 +215,15 @@ async function runProfile(browser, name, base) {
       /zone nette : \d+,\d m – (\d+,\d m|∞)/.test(dofDefault) && /ISO 100 · bruit excellent/.test(noiseDefault),
       `${dofDefault} | ${noiseDefault}`,
     );
+    // Point de mise au point sur le sol, immobile, en bas du cadre, pour comparer le bruit à deux ISO.
+    const snrOf = (text) => {
+      const m = /signal\/bruit (\d+):1/.exec(text ?? "");
+      return m ? Number(m[1]) : NaN;
+    };
+    const groundBox = await page.locator("#frame").boundingBox();
+    await page.mouse.click(groundBox.x + groundBox.width / 2, groundBox.y + 0.95 * groundBox.height);
+    await page.waitForTimeout(2000);
+    const groundLow = await page.evaluate(() => document.getElementById("balance-noise").textContent);
 
     // Profondeur de champ : 135 mm, f/1.4, vitesse ajustée pour rester près de l'exposition correcte. Les
     // réglages se font effet coupé, puis l'effet reste coupé : en rendu logiciel, il ralentit chaque image.
@@ -241,8 +255,14 @@ async function runProfile(browser, name, base) {
     await page.waitForTimeout(800);
     const noisy = await frameNoise(page);
     check("bruit du viseur à ISO 6400", Math.max(...noisy) > 0.3, noisy.map((v) => v.toFixed(2)).join(" / "));
-    const noiseHigh = (await balanceLine("balance-noise", /ISO 6400 · bruit (acceptable|insuffisant)/)) ?? (await page.evaluate(() => document.getElementById("balance-noise").textContent));
-    check("indicateur : bruit sous 40:1 à ISO 6400", /ISO 6400 · bruit (acceptable|insuffisant)/.test(noiseHigh), noiseHigh);
+    const noiseHigh = (await balanceLine("balance-noise", /ISO 6400 · bruit /)) ?? (await page.evaluate(() => document.getElementById("balance-noise").textContent));
+    const snrRatio = snrOf(noiseHigh) / snrOf(groundLow);
+    check(
+      "indicateur : bruit au même point du sol, ISO 6400 contre ISO 100",
+      /ISO 100 · bruit excellent/.test(groundLow) && snrRatio < 0.4,
+      `${groundLow} → ${noiseHigh} (rapport ${snrRatio.toFixed(2)})`,
+    );
+    await page.mouse.click(groundBox.x + groundBox.width / 2, groundBox.y + groundBox.height / 2);
     await page.click("#preview-button");
     await page.uncheck('#preview-dialog input[value="all"]');
     await page.click("#preview-close");

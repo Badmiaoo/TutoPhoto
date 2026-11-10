@@ -171,6 +171,7 @@ if (!Engine.isSupported()) {
     panel,
     {
       root: element("balance"),
+      toggle: element<HTMLButtonElement>("balance-toggle"),
       title: element("balance-title"),
       aperture: document.getElementById("balance-aperture") as unknown as SVGElement,
       shutter: document.getElementById("balance-shutter") as unknown as SVGElement,

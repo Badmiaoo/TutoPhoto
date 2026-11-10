@@ -20,9 +20,10 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
   - ouverture : zone nette, sans jugement, tirée de la formule du cercle de confusion avec le flou acceptable d/1500 ;
   - vitesse : traînée du sujet visé (chien, promeneur) comparée au même flou acceptable ;
   - ISO : rapport signal sur bruit au point visé, seuils 40:1 (excellent) et 10:1 (acceptable) de la norme des sensibilités numériques ;
-  - le point part vers le réglage qui dépasse ; bloc repliable « Limites et lecture » ; interrupteur dans la fenêtre « Aperçu ».
+  - le point part vers le réglage qui dépasse ; bloc repliable « Limites et lecture » ; interrupteur dans la fenêtre « Aperçu » ;
+  - dans le viseur, en haut à gauche ; sur petit écran, le triangle seul, et les lignes au toucher.
 - Source `wikipedia-circle-of-confusion` ; `wikipedia-film-speed` complétée (vitesse fondée sur le bruit).
-- Routine de test : indicateur aux réglages par défaut, bruit sous 40:1 à ISO 6400, traînée du chien évaluée.
+- Routine de test : viseur d'au moins 35 % de la hauteur de la fenêtre ; indicateur aux réglages par défaut ; bruit au même point du sol à ISO 100 puis à ISO 6400 ; traînée du chien évaluée.
 
 ### Modifié
 
