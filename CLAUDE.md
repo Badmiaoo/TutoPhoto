@@ -9,6 +9,7 @@ Archive de reprise : `REPRISE.md`.
 
 ## Règles
 - Mot d'ordre partout : le réalisme. TutoPhoto est une sandbox de simulation pour s'entraîner ; à chaque choix de simulation, retenir le comportement le plus réaliste, sourcé, et dire ce qui ne l'est pas (Julien, 9 novembre 2026).
+- On n'implémente que ce qui est sourcé. Le but : que des débutants découvrent la photo et maîtrisent leur boîtier et les bases (savoir ce qu'ils font, comprendre leurs erreurs, savoir régler et s'adapter), sans formations hors de prix ni informations glanées à droite et à gauche ; pas en faire des professionnels. Ce critère tranche les questions de conception (Julien, 10 novembre 2026 ; `docs/cadrage.md`).
 - Français, tutoiement, direct et structuré. Pas d'emoji, pas de formules emphatiques.
 - Ne jamais inventer, extrapoler ou deviner. Information invérifiable : « Je ne sais pas ».
 - Toute affirmation factuelle est sourcée (auteur, date, lien) ; les sources vont dans `data/sources.yaml`.
