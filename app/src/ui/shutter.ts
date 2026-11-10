@@ -112,17 +112,24 @@ export class Shutter {
     private readonly dof: ViewfinderDepthOfField,
     private readonly autofocus: Autofocus,
   ) {
+    // Durée du toucher d'après l'horodatage des événements : une image longue entre l'appui et le relâchement
+    // ne transforme pas un toucher en glissé.
     let down: { x: number; y: number; at: number } | null = null;
-    el.canvas.addEventListener("pointerdown", (e) => (down = { x: e.clientX, y: e.clientY, at: performance.now() }));
+    el.canvas.addEventListener("pointerdown", (e) => (down = { x: e.clientX, y: e.clientY, at: e.timeStamp }));
     el.canvas.addEventListener("pointerup", (e) => {
       if (!down) return;
       const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y);
-      if (moved < TAP_MAX_MOVE_PX && performance.now() - down.at < TAP_MAX_MS) this.choosePoint(e.clientX, e.clientY);
+      if (moved < TAP_MAX_MOVE_PX && e.timeStamp - down.at < TAP_MAX_MS) this.choosePoint(e.clientX, e.clientY);
       down = null;
     });
-    // Déclencheur : appui et relâchement (rafale) ; au clavier, un clic sans pointeur vaut un appui bref.
-    el.button.addEventListener("pointerdown", () => this.pressStart());
-    for (const type of ["pointerup", "pointercancel", "pointerleave"]) el.button.addEventListener(type, () => void this.pressEnd());
+    // Déclencheur : appui et relâchement (rafale) ; au clavier, un clic sans pointeur vaut un appui bref. Le
+    // pointeur est capturé à l'appui : le relâchement arrive au bouton même si celui-ci change de taille sous le
+    // doigt ou le curseur (son texte affiche le nombre de vues pendant la rafale).
+    el.button.addEventListener("pointerdown", (e) => {
+      el.button.setPointerCapture(e.pointerId);
+      this.pressStart();
+    });
+    for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) el.button.addEventListener(type, () => void this.pressEnd());
     el.button.addEventListener("click", (e) => {
       if (e.detail !== 0) return;
       this.pressStart();

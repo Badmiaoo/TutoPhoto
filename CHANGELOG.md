@@ -25,7 +25,8 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 ### Modifié
 
-- Le déclencheur réagit à l'appui (et non plus au clic) ; au clavier, un clic vaut un appui bref.
+- Le déclencheur réagit à l'appui (et non plus au clic), avec capture du pointeur : le relâchement arrive au bouton même si son texte (nombre de vues) change sa taille sous le curseur, ce qui coupait la rafale à une vue sur le profil iPhone. Au clavier, un clic vaut un appui bref.
+- Toucher du viseur : sa durée se mesure avec l'horodatage des événements, pour qu'une image longue entre l'appui et le relâchement ne le change pas en glissé (échec ponctuel de la routine sur Android).
 - `docs/camera-physique.md` (section « Modes de déclenchement »), `docs/historique.md`, README.
 
 ## [0.3.32] - 2026-11-10
