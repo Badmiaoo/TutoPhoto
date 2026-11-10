@@ -356,9 +356,15 @@ async function runProfile(browser, name, base) {
     const dogText = await waitBadge(/^AF-C · Auto · (œil|visage) · /, 30000);
     const dogAt = dogText ? lockedMetres(dogText) : NaN;
     check("détection des animaux : œil ou visage du chien", Boolean(dogText) && dogAt > 8 && dogAt < 12, dogText ?? (await afText()));
-    // À 1/4000 s, le chien (3,5 m/s à 9 m, 50 mm) laisse 50 × 3,5 × 0,00025 / 9 ≈ 0,005 mm, sous la limite.
+    // À 1/4000 s, le chien (3,5 m/s à 9 m, 50 mm) laisse 50 × 3,5 × 0,00025 / 9 ≈ 0,005 mm, sous la limite,
+    // soit 0,005 × 1500 / 35,9 ≈ 0,2 px sur la photo.
     const dogMotion = await balanceLine("balance-motion", /chien : /);
-    check("indicateur : traînée du chien évaluée", /1\/4000 s · chien : net/.test(dogMotion ?? ""), dogMotion ?? "chien non visé");
+    const dogPixels = /\((\d+(?:,\d)?) px sur la photo\)/.exec(dogMotion ?? "");
+    check(
+      "indicateur : traînée du chien évaluée, en pixels",
+      /1\/4000 s · chien : net/.test(dogMotion ?? "") && Boolean(dogPixels) && Number(dogPixels[1].replace(",", ".")) < 1,
+      dogMotion ?? "chien non visé",
+    );
     await setAf("continuous", "auto", "faceEye");
     await setAf("single", "point");
     const frameBox = await page.locator("#frame").boundingBox();
