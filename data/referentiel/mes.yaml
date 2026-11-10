@@ -42,6 +42,7 @@ notions:
     situations: [SIT-03, SIT-13]
     todo:
       - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+    sources: [nikon-z6-exposure-compensation, nikon-z6-exposure-compensation-fr]
     since: v0.1
   - id: MES-05
     title: {fr: "Mémorisation d'exposition", en: "AE lock"}
@@ -97,6 +98,7 @@ notions:
       simulator: "Menu ISO auto, l'appareil explique son choix"
       exercise: "Régler l'ISO auto pour un enfant qui court en fin de journée"
     situations: [SIT-06, SIT-07, SIT-34, SIT-35, SIT-37, SIT-39]
+    sources: [nikon-z6-iso-button, nikon-z6-iso-settings, nikon-z6-iso-settings-fr, nikon-z6-defaults, nikon-d850-auto-iso]
     since: v0.1
   - id: MES-11
     title: {fr: "Mesure incidente", en: "incident metering"}

@@ -276,6 +276,30 @@ dialog a {
   font-variant-numeric: tabular-nums;
 }
 
+/* Réglage choisi par l'appareil (vitesse en A, ouverture en S, ISO auto). */
+.dial-row output.by-camera {
+  font-style: italic;
+}
+
+/* Hors des limites de l'appareil, la vitesse (A) ou l'ouverture (S) clignote avec l'indicateur, comme sur le
+   Nikon Z 6 ; sans animation si l'utilisateur la refuse. */
+.flashing {
+  color: var(--erreur);
+  animation: clignote 1s steps(2, start) infinite;
+}
+
+@keyframes clignote {
+  to {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flashing {
+    animation: none;
+  }
+}
+
 .body-button {
   padding: 0.25rem 0.6rem;
   font-size: 0.9rem;

@@ -15,6 +15,9 @@
 // comme le point AF du Nikon Z 6 [nikon-z6-focus].
 // Collimateurs (MAP-06, version 0.3.34) : le point et les zones restent dans la zone couverte par l'autofocus
 // (AF_COVERAGE), affichée en pointillés dans le viseur.
+// Exposition (BOI-07, BOI-08, MES-04, MES-10, version 0.3.36) : modes M, A et S, correction d'exposition et ISO auto,
+// dans la fenêtre « Exposition » ouverte par l'indicateur ; l'appareil choisit ce que le mode lui laisse
+// (camera/exposureModes.ts), et tout le reste (viseur, bruit, profondeur de champ, photo) suit ses réglages.
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
@@ -30,13 +33,14 @@ import {
   SCALES,
   apertureLabel,
   apertureValue,
-  exposureOffset,
   isoLabel,
   isoValue,
+  shutterIndexOf,
   shutterLabel,
   shutterSeconds,
   type ExposureSettings,
 } from "../camera/exposure";
+import { COMPENSATION_RANGE, resolveExposure, type ExposureMode, type ResolvedExposure } from "../camera/exposureModes";
 import { cameraFov, frameFor, type Frame } from "../camera/viewfinder";
 import type { ViewfinderNoise } from "../camera/noise";
 import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
@@ -63,8 +67,8 @@ const AF_MARGIN = (1 - AF_COVERAGE) / 2;
  * Mode de déclenchement (BOI-12), d'après le manuel du Nikon Z 6 (« The Release Mode/Self-Timer Button »,
  * lu le 10 novembre 2026) [nikon-z6-release-mode]
  * https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_04.html : vue par vue ; Continu L, 1 à 5 vues par seconde ; Continu H,
- * jusqu'à environ 5,5 ; Continu H (étendu), 12 au Z 6 en JPEG ; retardateur de 2, 5, 10 ou 20 s. Les pages lues
- * ne donnent pas les réglages par défaut : 3 vues par seconde et 10 s, choisis.
+ * jusqu'à environ 5,5 ; Continu H (étendu), 12 au Z 6 en JPEG ; retardateur de 2, 5, 10 ou 20 s. Réglages par
+ * défaut du Z 6 (« Defaults », lu le 10 novembre 2026) [nikon-z6-defaults] : 3 vues par seconde (d1), 10 s (c2).
  */
 export type ReleaseKind = "single" | "cl" | "ch" | "chx" | "timer";
 export interface ReleaseMode {
@@ -75,6 +79,17 @@ export interface ReleaseMode {
   delay: number;
 }
 const RELEASE_FPS: Record<"ch" | "chx", number> = { ch: 5.5, chx: 12 };
+const EXPOSURE_MODES: readonly ExposureMode[] = ["M", "A", "S"];
+/** Sensibilité maximale de l'ISO auto : de ISO 200 (Z 6) au haut de l'échelle de TutoPhoto, ISO 6400. */
+const MAX_ISO_FIRST = 3;
+/**
+ * Vitesse minimale par défaut. Le Z 6 a « Auto » par défaut [nikon-z6-defaults], selon la focale, sans règle
+ * publiée ; le manuel du D850 fixe 1/30 s quand « Auto » ne peut pas fonctionner (objectif sans données)
+ * [nikon-d850-auto-iso].
+ *   https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html
+ *   https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_02.html
+ */
+const DEFAULT_MIN_SHUTTER = "1/30";
 const CL_RATES = [1, 2, 3, 4, 5] as const;
 const TIMER_DELAYS = [2, 5, 10, 20] as const;
 import { t, type Lang, type MessageKey } from "../i18n";
@@ -146,6 +161,7 @@ interface PanelElements {
   afDialog: HTMLDialogElement;
   releaseButton: HTMLButtonElement;
   releaseDialog: HTMLDialogElement;
+  exposureDialog: HTMLDialogElement;
   afBadge: HTMLElement;
   focusMarker: HTMLElement;
   afCoverage: HTMLElement;
@@ -155,7 +171,15 @@ interface PanelElements {
 type Point = { x: number; y: number };
 
 export class CameraPanel {
+  /** Réglages choisis avec les molettes ; l'appareil peut en changer certains (resolved). */
   private settings: ExposureSettings = { ...DEFAULT_SETTINGS };
+  private exposureMode: ExposureMode = "M";
+  /** Correction d'exposition, en tiers d'IL. */
+  private compensation = 0;
+  /** Contrôle de la sensibilité auto : activé par défaut sur le Z 6 [nikon-z6-defaults]. */
+  private autoIso = true;
+  private maxIso = SCALES.iso - 1;
+  private minShutter = shutterIndexOf(DEFAULT_MIN_SHUTTER);
   private focalIndex = DEFAULT_FOCAL_INDEX;
   private brand: Brand = "nikon";
   private format: Format = "ff";
@@ -165,9 +189,12 @@ export class CameraPanel {
   private balance: BalanceIndicator | null = null;
   private dof: ViewfinderDepthOfField | null = null;
   private autofocus: Autofocus | null = null;
-  private focusMode: FocusMode = "continuous";
+  /**
+   * Réglages par défaut du Z 6 [nikon-z6-defaults] : AF ponctuel (« Single AF »), AF point sélectif, détection des
+   * visages et des yeux (a4). AF-S depuis la version 0.3.36 ; AF-C avant, choisi faute d'avoir lu cette page.
+   */
+  private focusMode: FocusMode = "single";
   private areaMode: AreaMode = "point";
-  /** Réglage a4 du Z 6 ; le manuel lu ne donne pas le réglage par défaut. */
   private detection: Detection = "faceEye";
   private releaseKind: ReleaseKind = "single";
   private clRate = 3;
@@ -201,6 +228,18 @@ export class CameraPanel {
     el.loupeButton.addEventListener("click", () => this.cycleLoupe());
     el.afButton.addEventListener("click", () => el.afDialog.showModal());
     el.releaseButton.addEventListener("click", () => el.releaseDialog.showModal());
+    el.meterValue.addEventListener("click", () => el.exposureDialog.showModal());
+    for (const input of el.exposureDialog.querySelectorAll<HTMLInputElement | HTMLSelectElement>("input, select")) {
+      input.addEventListener("change", () => {
+        if (input.name === "exposureMode") this.exposureMode = input.value as ExposureMode;
+        if (input.name === "compensation") this.compensation = Number(input.value);
+        if (input.name === "autoIso") this.autoIso = (input as HTMLInputElement).checked;
+        if (input.name === "maxIso") this.maxIso = Number(input.value);
+        if (input.name === "minShutter") this.minShutter = Number(input.value);
+        this.saveBody();
+        this.update();
+      });
+    }
     for (const input of el.releaseDialog.querySelectorAll<HTMLInputElement | HTMLSelectElement>("input[type=radio], select")) {
       input.addEventListener("change", () => {
         if (input.name === "release") this.releaseKind = input.value as ReleaseKind;
@@ -254,16 +293,46 @@ export class CameraPanel {
 
   current(): CurrentSettings {
     if (!this.frame) this.applyView();
+    const resolved = this.resolved();
     return {
       body: this.body(),
       focalMm: FOCAL_LENGTHS[this.focalIndex],
-      aperture: apertureValue(this.settings.aperture),
-      shutterSeconds: shutterSeconds(this.settings.shutter),
-      iso: isoValue(this.settings.iso),
-      exposure: 2 ** exposureOffset(this.settings),
+      aperture: apertureValue(resolved.settings.aperture),
+      shutterSeconds: shutterSeconds(resolved.settings.shutter),
+      iso: isoValue(resolved.settings.iso),
+      exposure: 2 ** resolved.offset,
       frame: this.frame!,
-      summary: [this.label("aperture"), this.label("shutter"), `ISO ${this.label("iso")}`, this.label("focal")].join(" · "),
+      summary: this.summary(resolved),
     };
+  }
+
+  /** Réglages retenus par l'appareil, selon le mode, la correction et l'ISO auto. */
+  private resolved(): ResolvedExposure {
+    return resolveExposure({
+      mode: this.exposureMode,
+      chosen: this.settings,
+      compensation: this.compensation,
+      autoIso: this.autoIso,
+      maxIso: this.maxIso,
+      minShutter: this.minShutter,
+    });
+  }
+
+  /** « A · f/4 · 1/200 s · ISO 100 (auto) · corr. +1,0 IL · 50 mm ». */
+  private summary(resolved: ResolvedExposure): string {
+    const tr = (key: MessageKey) => t(this.lang, key);
+    const iso = `ISO ${this.label("iso", resolved)}${this.autoIso ? ` (${tr("setByCamera")})` : ""}`;
+    const parts = [this.exposureMode, this.label("aperture", resolved), this.label("shutter", resolved), iso];
+    if (this.compensation !== 0) parts.push(`${tr("compensationShort")} ${this.compensationText(this.compensation)} ${tr("meterUnit")}`);
+    parts.push(this.label("focal", resolved));
+    return parts.join(" · ");
+  }
+
+  /** Correction en IL, avec un chiffre après la virgule, comme l'affiche le Z 6 (« ±0.0 »). */
+  private compensationText(thirds: number): string {
+    const value = (Math.abs(thirds) / 3).toFixed(1);
+    const sign = thirds > 0 ? "+" : thirds < 0 ? "−" : "±";
+    return `${sign}${this.lang === "fr" ? value.replace(".", ",") : value}`;
   }
 
   /** Indicateur d'équilibre, créé après le panneau. */
@@ -274,7 +343,7 @@ export class CameraPanel {
 
   /** Rapport entre l'image réelle et l'image affichée : 2^écart quand l'aperçu de la luminosité est coupé. */
   displayGain(): number {
-    return this.showsBrightness() ? 1 : 2 ** exposureOffset(this.settings);
+    return this.showsBrightness() ? 1 : 2 ** this.resolved().offset;
   }
 
   /** Autofocus du viseur, créé après le panneau (il lit le point de mise au point). */
@@ -405,6 +474,45 @@ export class CameraPanel {
     delay.replaceChildren(...TIMER_DELAYS.map((d) => new Option(`${d} s`, String(d), false, d === this.timerDelay)));
   }
 
+  /** Pourquoi la vitesse (A) ou l'ouverture (S) clignote : trop ou pas assez de lumière. */
+  private limitText(resolved: ResolvedExposure): string {
+    return t(this.lang, resolved.offset - this.compensation / 3 > 0 ? "tooBright" : "tooDark");
+  }
+
+  /** Fenêtre « Exposition » : mode, correction, ISO auto. */
+  private updateExposureDialog(tr: (key: MessageKey) => string): void {
+    const dialog = this.el.exposureDialog;
+    dialog.querySelector("#exposure-title")!.textContent = tr("exposureTitle");
+    dialog.querySelector("#exposure-mode-legend")!.textContent = tr("exposureModeLegend");
+    dialog.querySelector("#exposure-m-label")!.textContent = tr("modeM");
+    dialog.querySelector("#exposure-a-label")!.textContent = tr("modeA");
+    dialog.querySelector("#exposure-s-label")!.textContent = tr("modeS");
+    dialog.querySelector("#exposure-comp-label")!.textContent = tr("compensation");
+    dialog.querySelector("#exposure-auto-legend")!.textContent = tr("autoIsoLegend");
+    dialog.querySelector("#exposure-auto-label")!.textContent = tr("autoIsoOn");
+    dialog.querySelector("#exposure-max-label")!.textContent = tr("maxIso");
+    dialog.querySelector("#exposure-min-label")!.textContent = tr("minShutter");
+    dialog.querySelector("#exposure-note")!.textContent = tr("exposureNote");
+    dialog.querySelector("#exposure-close")!.textContent = tr("close");
+    for (const input of dialog.querySelectorAll<HTMLInputElement>("input[name=exposureMode]")) input.checked = input.value === this.exposureMode;
+    dialog.querySelector<HTMLInputElement>("input[name=autoIso]")!.checked = this.autoIso;
+    const unit = tr("meterUnit");
+    const compensation = dialog.querySelector<HTMLSelectElement>("select[name=compensation]")!;
+    const steps = Array.from({ length: 2 * COMPENSATION_RANGE + 1 }, (_, k) => COMPENSATION_RANGE - k);
+    compensation.replaceChildren(...steps.map((c) => new Option(`${this.compensationText(c)} ${unit}`, String(c), false, c === this.compensation)));
+    const maxIso = dialog.querySelector<HTMLSelectElement>("select[name=maxIso]")!;
+    const isoSteps = Array.from({ length: SCALES.iso - MAX_ISO_FIRST }, (_, k) => MAX_ISO_FIRST + k);
+    maxIso.replaceChildren(...isoSteps.map((i) => new Option(`ISO ${isoLabel(i)}`, String(i), false, i === this.maxIso)));
+    maxIso.disabled = !this.autoIso;
+    const minShutter = dialog.querySelector<HTMLSelectElement>("select[name=minShutter]")!;
+    // Du plus rapide au plus lent, comme la liste du Z 6 (« from 1/4000 s to 30 s »).
+    const shutterSteps = Array.from({ length: SCALES.shutter }, (_, k) => SCALES.shutter - 1 - k);
+    minShutter.replaceChildren(
+      ...shutterSteps.map((k) => new Option(this.label("shutter", { settings: { ...this.settings, shutter: k } }), String(k), false, k === this.minShutter)),
+    );
+    minShutter.disabled = !this.autoIso;
+  }
+
   /** Mode de zone AF, pour la légende de la photo. */
   area(): AreaMode {
     return this.areaMode;
@@ -451,6 +559,8 @@ export class CameraPanel {
   setEnabled(enabled: boolean): void {
     this.enabled = enabled;
     for (const button of this.el.panel.querySelectorAll<HTMLButtonElement>("button")) button.disabled = !enabled;
+    // Les molettes que l'appareil règle lui-même (vitesse en A, ouverture en S) restent grisées.
+    if (enabled) this.update();
   }
 
   private body() {
@@ -460,25 +570,28 @@ export class CameraPanel {
   /** « + » augmente la valeur affichée : nombre f, durée de pose, ISO, focale. */
   private step(dial: Dial, delta: number): void {
     const clamp = (value: number, size: number) => Math.min(size - 1, Math.max(0, value));
-    if (dial === "aperture") this.settings.aperture = clamp(this.settings.aperture + delta, SCALES.aperture);
+    // En S, l'appareil choisit l'ouverture ; en A, la vitesse.
+    if (dial === "aperture" && this.exposureMode !== "S") this.settings.aperture = clamp(this.settings.aperture + delta, SCALES.aperture);
     // L'échelle des vitesses va de 30 s à 1/4000 s : une pose plus longue est un indice plus petit.
-    if (dial === "shutter") this.settings.shutter = clamp(this.settings.shutter - delta, SCALES.shutter);
+    if (dial === "shutter" && this.exposureMode !== "A") this.settings.shutter = clamp(this.settings.shutter - delta, SCALES.shutter);
     if (dial === "iso") this.settings.iso = clamp(this.settings.iso + delta, SCALES.iso);
     if (dial === "focal") this.focalIndex = clamp(this.focalIndex + delta, FOCAL_LENGTHS.length);
     this.update();
   }
 
-  private label(dial: Dial): string {
+  /** Libellé d'un réglage retenu par l'appareil (ou choisi, pour les listes de la fenêtre « Exposition »). */
+  private label(dial: Dial, resolved: { settings: ExposureSettings } = this.resolved()): string {
     const decimal = (text: string) => (this.lang === "fr" ? text.replace(".", ",") : text);
+    const settings = resolved.settings;
     switch (dial) {
       case "aperture":
-        return `f/${decimal(apertureLabel(this.settings.aperture))}`;
+        return `f/${decimal(apertureLabel(settings.aperture))}`;
       case "shutter": {
-        const label = shutterLabel(this.settings.shutter);
+        const label = shutterLabel(settings.shutter);
         return label.includes("/") ? `${label} s` : `${decimal(label)} s`;
       }
       case "iso":
-        return isoLabel(this.settings.iso);
+        return isoLabel(settings.iso);
       case "focal":
         return `${FOCAL_LENGTHS[this.focalIndex]} mm`;
     }
@@ -487,25 +600,40 @@ export class CameraPanel {
   private update(): void {
     const tr = (key: MessageKey) => t(this.lang, key);
     const colon = this.lang === "fr" ? " : " : ": ";
+    const resolved = this.resolved();
     for (const dial of ["aperture", "shutter", "iso", "focal"] as const) {
       const box = this.el.panel.querySelector<HTMLElement>(`[data-box="${dial}"]`);
       if (!box) continue;
-      box.querySelector(".dial-name")!.textContent = tr(dial);
-      box.querySelector("output")!.textContent = this.label(dial);
-      box.querySelector<HTMLButtonElement>('[data-step="-1"]')!.setAttribute("aria-label", `${tr(dial)}${colon}${tr("decrease")}`);
-      box.querySelector<HTMLButtonElement>('[data-step="1"]')!.setAttribute("aria-label", `${tr(dial)}${colon}${tr("increase")}`);
+      const byCamera = (dial === "aperture" && this.exposureMode === "S") || (dial === "shutter" && this.exposureMode === "A");
+      const name = dial === "iso" && this.autoIso ? tr("isoAuto") : byCamera ? `${tr(dial)} (${tr("setByCamera")})` : tr(dial);
+      box.querySelector(".dial-name")!.textContent = name;
+      const output = box.querySelector("output")!;
+      output.textContent = this.label(dial, resolved);
+      output.classList.toggle("by-camera", byCamera || (dial === "iso" && resolved.isoAltered));
+      output.classList.toggle("flashing", resolved.flashing === dial);
+      output.title =
+        dial === "iso" && resolved.isoAltered ? `${tr("isoChosen")}${colon}${isoLabel(this.settings.iso)}` : resolved.flashing === dial ? this.limitText(resolved) : "";
+      for (const button of box.querySelectorAll<HTMLButtonElement>("button[data-step]")) button.disabled = !this.enabled || byCamera;
+      box.querySelector<HTMLButtonElement>('[data-step="-1"]')!.setAttribute("aria-label", `${name}${colon}${tr("decrease")}`);
+      box.querySelector<HTMLButtonElement>('[data-step="1"]')!.setAttribute("aria-label", `${name}${colon}${tr("increase")}`);
     }
 
     this.el.loupeButton.title = tr("loupeHelp");
     this.updateFocus();
     this.updateRelease();
-    const offset = exposureOffset(this.settings);
-    const shown = Math.max(-METER_RANGE, Math.min(METER_RANGE, offset));
+    const offset = resolved.offset;
+    // Indicateur d'exposition : en M, écart à l'exposition visée ; en A et S, il montre la correction.
+    const indicator = resolved.indicator;
+    const shown = Math.max(-METER_RANGE, Math.min(METER_RANGE, indicator));
     this.el.meterNeedle.style.left = `${((shown + METER_RANGE) / (2 * METER_RANGE)) * 100}%`;
-    const sign = offset > 0.05 ? "+" : offset < -0.05 ? "−" : "";
-    const amount = Math.abs(offset).toFixed(1);
-    this.el.meterValue.textContent = `${tr("meter")} ${sign}${this.lang === "fr" ? amount.replace(".", ",") : amount} ${tr("meterUnit")}`;
-    this.el.meterValue.title = tr("meterHelp");
+    this.el.meterNeedle.classList.toggle("flashing", resolved.flashing !== null);
+    const sign = indicator > 0.05 ? "+" : indicator < -0.05 ? "−" : "";
+    const amount = Math.abs(indicator).toFixed(1);
+    const correction = this.compensation !== 0 ? ` · ${tr("compensationShort")} ${this.compensationText(this.compensation)}` : "";
+    this.el.meterValue.textContent = `${this.exposureMode} · ${sign}${this.lang === "fr" ? amount.replace(".", ",") : amount} ${tr("meterUnit")}${correction}`;
+    this.el.meterValue.classList.toggle("flashing", resolved.flashing !== null);
+    this.el.meterValue.title = `${tr("exposureButtonTitle")}. ${tr("meterHelp")}${resolved.flashing ? ` ${this.limitText(resolved)}.` : ""}`;
+    this.updateExposureDialog(tr);
     // Aperçu de la luminosité coupé : exposition correcte quels que soient les réglages.
     this.scene.imageProcessingConfiguration.exposure = this.showsBrightness() ? 2 ** offset : 1;
     this.noise.setEnabled(this.showsNoise());
@@ -549,12 +677,13 @@ export class CameraPanel {
     if (this.enabled) this.applyLoupe(frame, body);
     // Bruit du viseur : chaque pixel du cadre regroupe effectivePixels / (largeur × hauteur × grossissement²)
     // photosites.
-    const gain = this.showsBrightness() ? 1 : 2 ** exposureOffset(this.settings);
-    this.noise.update(body, isoValue(this.settings.iso), frame.width * frame.height * this.loupeZoom ** 2, gain);
+    const resolved = this.resolved();
+    const gain = this.showsBrightness() ? 1 : 2 ** resolved.offset;
+    this.noise.update(body, isoValue(resolved.settings.iso), frame.width * frame.height * this.loupeZoom ** 2, gain);
     // Profondeur de champ : pixels du canevas par millimètre de capteur, loupe comprise.
     this.dof?.update({
       focalMm: FOCAL_LENGTHS[this.focalIndex],
-      aperture: apertureValue(this.settings.aperture),
+      aperture: apertureValue(resolved.settings.aperture),
       pixelsPerMm: (Math.max(frame.width, frame.height) / body.sensorWidthMm) * this.loupeZoom,
     });
     // Le canevas peut être dessiné à une autre résolution que sa taille à l'écran : on passe en pourcentages.
@@ -778,6 +907,11 @@ export class CameraPanel {
         release?: string;
         clRate?: number;
         timerDelay?: number;
+        exposureMode?: string;
+        compensation?: number;
+        autoIso?: boolean;
+        maxIso?: number;
+        minShutter?: number;
       } | null;
       if (saved && BODIES.some((b) => b.brand === saved.brand && b.format === saved.format)) {
         this.brand = saved.brand as Brand;
@@ -789,6 +923,13 @@ export class CameraPanel {
       if (["single", "cl", "ch", "chx", "timer"].includes(saved?.release ?? "")) this.releaseKind = saved!.release as ReleaseKind;
       if ((CL_RATES as readonly number[]).includes(saved?.clRate ?? 0)) this.clRate = saved!.clRate!;
       if ((TIMER_DELAYS as readonly number[]).includes(saved?.timerDelay ?? 0)) this.timerDelay = saved!.timerDelay!;
+      // La correction d'exposition ne se remet pas à zéro à l'extinction du Z 6 [nikon-z6-exposure-compensation].
+      if (EXPOSURE_MODES.includes(saved?.exposureMode as ExposureMode)) this.exposureMode = saved!.exposureMode as ExposureMode;
+      const isIndex = (value: unknown, min: number, max: number) => Number.isInteger(value) && (value as number) >= min && (value as number) <= max;
+      if (isIndex(saved?.compensation, -COMPENSATION_RANGE, COMPENSATION_RANGE)) this.compensation = saved!.compensation!;
+      if (typeof saved?.autoIso === "boolean") this.autoIso = saved.autoIso;
+      if (isIndex(saved?.maxIso, MAX_ISO_FIRST, SCALES.iso - 1)) this.maxIso = saved!.maxIso!;
+      if (isIndex(saved?.minShutter, 0, SCALES.shutter - 1)) this.minShutter = saved!.minShutter!;
     } catch {
       // Stockage indisponible : boîtier par défaut.
     }
@@ -805,6 +946,11 @@ export class CameraPanel {
         release: this.releaseKind,
         clRate: this.clRate,
         timerDelay: this.timerDelay,
+        exposureMode: this.exposureMode,
+        compensation: this.compensation,
+        autoIso: this.autoIso,
+        maxIso: this.maxIso,
+        minShutter: this.minShutter,
       };
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
     } catch {

@@ -12,6 +12,25 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.36] - 2026-11-10
+
+### Ajouté
+
+- Modes d'exposition, correction d'exposition et ISO auto (BOI-07, BOI-08, MES-04, MES-10), décision de Julien du 10 novembre 2026, d'après le manuel du Nikon Z 6 :
+  - fenêtre « Exposition », ouverte en touchant l'indicateur d'exposition : sélecteur de mode M, A (Auto à priorité ouverture), S (Auto à priorité vitesse), correction de −5 à +5 IL par tiers, contrôle de la sensibilité auto, sensibilité maximale, vitesse d'obturation minimale ;
+  - en A et S, l'appareil choisit la vitesse ou l'ouverture ; hors de ses limites, elle clignote avec l'indicateur ;
+  - ISO auto : en M, exposition visée de ISO 100 au plafond ; en A, hausse seulement sous la vitesse minimale ; en S, quand l'ouverture ne suffit plus ; plancher et règle en A tirés du manuel du D850, le manuel du Z 6 ne les donnant pas ;
+  - en M, la correction ne déplace que l'indicateur, sauf avec l'ISO auto ;
+  - légende de la photo : mode, réglages retenus, ISO auto et correction.
+- Sources `nikon-z6-mode-dial`, `nikon-z6-mode-dial-fr`, `nikon-z6-indicators`, `nikon-z6-exposure-compensation`, `nikon-z6-exposure-compensation-fr`, `nikon-z6-iso-button`, `nikon-z6-iso-settings`, `nikon-z6-iso-settings-fr`, `nikon-z6-defaults`, `nikon-d850-auto-iso`, rattachées à BOI-07, BOI-08, MES-04 et MES-10.
+- Routine de test : exposition par défaut (M, ISO auto), mode A (vitesse qui suit l'ouverture, qui clignote au-delà de 1/4000 s), mode S (ouverture qui clignote à f/1.4, puis ISO auto), M avec ISO auto et correction, légende de la photo.
+
+### Modifié
+
+- Réglages par défaut du Z 6 (page « Defaults » du manuel) : ISO auto activé ; AF-S au lieu d'AF-C ; Continu L à 3 vues par seconde, retardateur de 10 s et détection des visages et des yeux, déjà retenus, désormais sourcés.
+- L'indicateur d'exposition devient un bouton (« M · −0,2 IL ») : il ouvre la fenêtre « Exposition » sans ajouter de bouton, qui réduirait le viseur sur téléphone.
+- `docs/camera-physique.md` (section « Modes d'exposition, correction et ISO auto », mise au point, détection, déclenchement), `docs/historique.md`, README.
+
 ## [0.3.35] - 2026-11-10
 
 ### Modifié
@@ -563,6 +582,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.36]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.35...v0.3.36
 [0.3.35]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.34...v0.3.35
 [0.3.34]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.33...v0.3.34
 [0.3.33]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.32...v0.3.33

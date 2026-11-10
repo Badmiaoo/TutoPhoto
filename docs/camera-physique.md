@@ -327,7 +327,7 @@ Ce que disent les manuels, lus le 9 novembre 2026 :
 - Sony α9, « Focus Mode » ([guide d'aide](https://helpguide.sony.net/ilc/1650/v1/en/contents/TP0001486782.html)) : AF-S « locks the focus once focusing is complete » ; AF-C « continues to focus while the shutter button is pressed and held halfway down ».
 
 Dans TutoPhoto (`app/src/camera/autofocus.ts`) :
-- **Choix du mode** : bouton « AF-S / AF-C » du boîtier, remplacé en version 0.3.27 par la fenêtre « Mise au point ». AF-C par défaut, ce qui garde le comportement des versions précédentes. Le choix est mémorisé avec le boîtier.
+- **Choix du mode** : bouton « AF-S / AF-C » du boîtier, remplacé en version 0.3.27 par la fenêtre « Mise au point ». AF-C par défaut jusqu'à la version 0.3.35, ce qui gardait le comportement des versions précédentes ; AF-S depuis la version 0.3.36, réglage par défaut du Z 6 (« Single AF », page [« Defaults »](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html) du manuel, lue le 10 novembre 2026). Le choix est mémorisé avec le boîtier.
 - **Mi-course** : un écran tactile n'a pas de déclencheur à mi-course ; toucher le viseur en tient lieu.
 - **AF-S** :
   - toucher le viseur mesure la distance au point touché et la verrouille jusqu'au toucher suivant, comme si le déclencheur restait à mi-course entre les photos ;
@@ -375,7 +375,7 @@ Décision de Julien du 9 novembre 2026 : les cinq points proposés sont validés
 Ce que dit le manuel du Z 6, lu le 9 novembre 2026 :
 - [« Focus »](https://onlinemanual.nikonimglib.com/z7_z6/en/05_basic_settings_01.html), AF zone automatique : « The camera automatically detects the subject and selects the focus area. » Visage ou œil détecté : bordure ambre en AF-C, verte une fois la mise au point faite en AF-S. Si le sujet détourne la tête, « the focus point will move to track their motion ». La détection peut échouer si « the subject's face occupies a very large or very small proportion of the frame », ou si les yeux sont cachés.
 - Déclencheur tactile, en zone automatique : « the camera will track the selected subject as it moves through the frame. To switch to a different subject, tap it in the display », et elle fait le point sur « the face or eye closest to the selected point ».
-- [Réglage a4](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_a04.html) ([en français](https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_a04.html), « Détect. visage-yeux AF zone auto ») : visages et yeux, visages seulement, chiens et chats, ou désactivé. Personnes et animaux ne sont pas détectés en même temps. Le réglage par défaut n'est pas donné sur cette page.
+- [Réglage a4](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_a04.html) ([en français](https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_a04.html), « Détect. visage-yeux AF zone auto ») : visages et yeux, visages seulement, chiens et chats, ou désactivé. Personnes et animaux ne sont pas détectés en même temps. Le réglage par défaut n'est pas donné sur cette page ; celle des réglages par défaut (« Defaults », lue le 10 novembre 2026) donne « Face and eye detection on », le réglage retenu par TutoPhoto.
 - Rien sur le cas sans visage. Le seul texte de constructeur trouvé est celui du compact Nikon COOLPIX P1100 ([« AF area mode »](https://onlinemanual.nikonimglib.com/p1100/en/08-31.html)) : sans visage, « the camera automatically selects one or more of the nine focus areas containing the subject closest to the camera ». C'est aussi la règle de la zone large du Z 6. Elle est retenue, faute de mieux, et présentée comme telle.
 
 Dans TutoPhoto (`app/src/camera/faces.ts`, `app/src/camera/autofocus.ts`) :
@@ -429,10 +429,10 @@ Ce que dit le manuel du Z 6 ([« The Release Mode/Self-Timer Button »](https://
 - **Continu H** : jusqu'à environ 5,5 vues par seconde.
 - **Continu H (étendu)** : 12 vues par seconde au Z 6 (table des cadences : 12 en JPEG).
 - **Retardateur** : délai de 2, 5, 10 ou 20 s (fiche technique), et de 1 à 9 vues (réglage c2).
-- **Nombre de vues par rafale** : de 1 à 200 (réglage d2). Les pages lues ne donnent pas les réglages par défaut.
+- **Nombre de vues par rafale** : de 1 à 200 (réglage d2). Ces pages ne donnent pas les réglages par défaut ; la page « Defaults » du manuel, lue ensuite le 10 novembre 2026, donne 3 vues par seconde en Continu L (d1) et 10 s pour le retardateur (c2).
 
 Dans TutoPhoto (`app/src/ui/cameraPanel.ts`, `app/src/ui/shutter.ts`) :
-- **Bouton « Mode de déclenchement »** : vue par vue (par défaut, comme avant), Continu L (1 à 5 vues par seconde, 3 par défaut, valeur choisie), Continu H, Continu H (étendu), retardateur (2, 5, 10 ou 20 s, 10 par défaut, valeur choisie).
+- **Bouton « Mode de déclenchement »** : vue par vue (par défaut, comme avant), Continu L (1 à 5 vues par seconde, 3 par défaut), Continu H, Continu H (étendu), retardateur (2, 5, 10 ou 20 s, 10 par défaut). Ces deux valeurs par défaut, d'abord choisies, sont celles du Z 6 (page « Defaults »).
 - **Rafale** : tant que le déclencheur reste appuyé, une vue par intervalle de 1 / cadence. L'intervalle n'est jamais plus court que la durée de pose : on ne peut pas prendre plus de vues que de poses. Chaque vue est calculée à son instant, sur l'horloge de la scène, avec l'orientation de l'appareil relevée à cet instant : suivre le chien pendant la rafale donne un filé.
 - **Mise au point en rafale** : en AF-C, elle est refaite à chaque vue, à l'instant de la vue, avec le mode de zone et le suivi de la zone automatique. En AF-S, elle reste celle de la première vue, verrouillée « while the shutter-release button is pressed halfway ».
 - **Série à trier** : l'écran de revue fait défiler les vues (« Vue 2/5 · +0,20 s »), chacune avec sa loupe et son enregistrement.
@@ -461,6 +461,40 @@ Dans TutoPhoto (`app/src/ui/cameraPanel.ts`) :
 - **Routine de test** : un toucher dans le coin haut droit du cadre place le point à 95 % × 5 % du cadre, et la zone tracée fait 90 % × 90 % du cadre.
 
 Non simulé : la grille des 273 points, la couverture des autres boîtiers, et celle des autres formats d'image du Z 6 (la note de Nikon ne vaut que pour le format FX), le déplacement du point aux sélecteurs, le réglage a5.
+
+## Modes d'exposition, correction et ISO auto (version 0.3.36)
+
+Décision de Julien du 10 novembre 2026 : l'ISO auto (MES-10) avec la priorité à l'ouverture (BOI-07), la priorité à la vitesse (BOI-08) et la correction d'exposition (MES-04).
+
+Ce que dit le manuel du Z 6, lu le 10 novembre 2026 (termes français du manuel en français) :
+- [« The Mode Dial »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_01.html) ([« Sélecteur de mode »](https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_01.html)) :
+  - S, « Auto à priorité vitesse » : « you choose the shutter speed while the camera automatically selects the aperture that will produce the optimal exposure » ;
+  - A, « Auto à priorité ouverture » : l'inverse ;
+  - M, « Manuel » : « you control both shutter speed and aperture » ; avec l'ISO auto, « ISO sensitivity will automatically be adjusted for optimal exposure at the selected shutter speed and aperture ».
+- [« Indicators and Error Messages »](https://onlinemanual.nikonimglib.com/z7_z6/en/13_troubleshooting_02.html) : hors des limites de l'appareil, « Exposure indicators and shutter speed or aperture display flash », avec « Subject too bright; photo will be overexposed » ou « Subject too dark ».
+- [« The E (Exposure Compensation) Button »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_03.html) ([en français](https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_03.html)) : de −5 à +5 IL par tiers ; elle ne se remet pas à zéro à l'extinction ; « In mode M, exposure compensation affects only the exposure indicator », mais l'ISO auto en tient compte.
+- [« The S (ISO Sensitivity) Button »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_02.html) et [« ISO sensitivity settings »](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_03_08.html) ([« Réglage de la sensibilité »](https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_03_08.html)) :
+  - l'ISO auto agit « if optimal exposure cannot be achieved at the value selected » ;
+  - « Sensibilité maximale » : de ISO 200 à Hi 2 au Z 6 ; si la valeur choisie est plus haute, c'est elle qui sert ;
+  - « Vitesse d'obturation minimale », en P et A seulement : de 1/4000 s à 30 s, ou « Automatique », selon la focale, sans règle publiée ; la vitesse peut descendre sous ce minimum quand la sensibilité maximale ne suffit pas ;
+  - l'affichage indique « ISO AUTO », et la valeur retenue quand elle diffère de celle choisie.
+- [« Defaults »](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html) : ISO auto activé, sensibilité maximale 51 200, vitesse minimale « Auto ».
+- Le manuel du Z 6 ne dit pas jusqu'où l'ISO auto descend, ni s'il baisse la sensibilité en A. Celui du [D850](https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_02.html) le dit : « the minimum value for auto ISO sensitivity is automatically set to ISO 64 », sa sensibilité la plus basse, et, en P et A, « sensitivity will only be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed ». Retenu pour TutoPhoto, faute de mieux, et présenté comme tel.
+
+Dans TutoPhoto (`app/src/camera/exposureModes.ts`, `app/src/ui/cameraPanel.ts`) :
+- **Fenêtre « Exposition »**, ouverte en touchant l'indicateur d'exposition (« M · −0,2 IL ») : sélecteur de mode (M, A, S), correction d'exposition, contrôle de la sensibilité auto, sensibilité maximale, vitesse d'obturation minimale. Toucher l'indicateur évite un bouton de plus, qui réduirait le viseur sur téléphone.
+- **Par défaut** : mode M, comme avant ; ISO auto activé, comme sur le Z 6 ; sensibilité maximale ISO 6400, haut de l'échelle de TutoPhoto ; vitesse minimale 1/30 s, valeur que le manuel du D850 retient quand « Auto » ne peut pas fonctionner (objectif sans données). Aux réglages de départ (f/8, 1/100 s), l'ISO auto donne ISO 100 : la vue de départ ne change pas.
+- **A et S** : la molette réglée par l'appareil est grisée, sa valeur en italique, son nom suivi de « (auto) ». Hors des limites, la valeur clignote avec l'indicateur (en rouge et sans clignoter si le système demande moins d'animations).
+- **ISO auto** : la molette ISO s'appelle « ISO auto » et montre la valeur retenue ; elle règle toujours la valeur choisie, qui sert de plafond si elle dépasse la sensibilité maximale.
+  - En M : la sensibilité donne l'exposition visée, de ISO 100 au plafond.
+  - En A : elle ne monte que si la vitesse passerait sous la vitesse minimale.
+  - En S : elle change quand l'ouverture ne suffit plus, dans un sens ou dans l'autre.
+- **Indicateur d'exposition** : en M, écart à l'exposition visée, correction comprise ; en A et S, écart à l'exposition mesurée, qui montre donc la correction, comme le Z 6 affiche l'indicateur quand une correction est réglée.
+- **Calcul** : en indices des échelles (tiers d'IL), EV₁₀₀ = (a + s − i − 12) / 3, avec a l'ouverture (0 pour f/1.4), s la vitesse (0 pour 30 s), i la sensibilité (0 pour ISO 100). L'exposition optimale avec une correction de c tiers d'IL demande a + s − i = 3 × 12,5 + 12 − c = 49,5 − c. Exemple : en A à f/4 (a = 9) et ISO 100, s = 40,5 ; l'appareil prend 1/400 s (s = 41).
+- **Choix de TutoPhoto, non sourcés** : l'appareil choisit par tiers d'IL, sur les échelles du boîtier virtuel ; à égalité entre deux crans, ce qui arrive avec une scène à 12,5 IL, il prend celui qui assombrit la photo.
+- **Légende de la photo** : mode, réglages retenus, ISO auto et correction (« A · f/4 · 1/200 s · ISO 100 (auto) · corr. +1,0 IL · 50 mm » : avec +1 IL, s = 49,5 − 3 − 9 = 37,5, d'où 1/200 s).
+
+Non simulés : le mode P (BOI-06, hors de la décision), l'option « Automatique » de la vitesse minimale, la sensibilité maximale au flash, les poses longues (« Bulb », « Time ») et les ISO au-delà de 6400.
 
 ## Fonctions demandées par Julien le 9 novembre 2026
 
@@ -508,7 +542,7 @@ Une pull request par étape :
 3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus). Interrupteurs de l'aperçu dans le viseur : version 0.3.16.
 4. Loupe dans le viseur et sur l'écran de revue : faite en version 0.3.17 (voir ci-dessus).
 5. Profondeur de champ approchée dans le viseur : faite en version 0.3.22, puis en flou de taille physique en version 0.3.23 (voir ci-dessus).
-6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Indicateur d'équilibre : version 0.3.31. Traînée en pixels (MVT-01) : version 0.3.32. Modes de déclenchement (BOI-12) : version 0.3.33. Collimateurs (MAP-06) : version 0.3.34. Ensuite : modes d'exposition A et S, correction d'exposition et ISO auto (BOI-07, BOI-08, MES-04, MES-10, décision de Julien du 10 novembre 2026), profondeur de champ en vue de dessus (NET-01), appareil déplaçable (NET-06). LUM-02 : simulateur en V2.
+6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Indicateur d'équilibre : version 0.3.31. Traînée en pixels (MVT-01) : version 0.3.32. Modes de déclenchement (BOI-12) : version 0.3.33. Collimateurs (MAP-06) : version 0.3.34. Modes d'exposition A et S, correction d'exposition et ISO auto (BOI-07, BOI-08, MES-04, MES-10, décision de Julien du 10 novembre 2026) : version 0.3.36, avec les réglages par défaut du Z 6. Ensuite : profondeur de champ en vue de dessus (NET-01), appareil déplaçable (NET-06). LUM-02 : simulateur en V2.
 7. Après les tests de la V1 minimale : balance des blancs, grilles de composition, histogramme (voir ci-dessus). En V2 : correction de la photo après la prise.
 
 ## Ce que je ne sais pas

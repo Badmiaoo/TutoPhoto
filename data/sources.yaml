@@ -580,6 +580,56 @@ sources:
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande mode de déclenchement/retardateur : termes « Vue par vue », « Continu L », « Continu H », « Continu H (étendu) », « Retardateur » (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_04.html"
     used_in: [docs/camera-physique.md]
+  - id: nikon-z6-mode-dial
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, The Mode Dial : P, S (« you choose the shutter speed while the camera automatically selects the aperture that will produce the optimal exposure »), A (l'inverse), M ; en M avec l'ISO auto, « ISO sensitivity will automatically be adjusted for optimal exposure at the selected shutter speed and aperture » ; indicateurs d'exposition par tiers d'IL (lu le 10 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_01.html"
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts]
+  - id: nikon-z6-mode-dial-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Sélecteur de mode : termes « Auto à priorité vitesse », « Auto à priorité ouverture », « Manuel » (lu le 10 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_01.html"
+    used_in: [docs/camera-physique.md]
+  - id: nikon-z6-indicators
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, Indicators and Error Messages : « Exposure indicators and shutter speed or aperture display flash », « Subject too bright; photo will be overexposed », « Subject too dark; photo will be underexposed » (lu le 10 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/13_troubleshooting_02.html"
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts]
+  - id: nikon-z6-exposure-compensation
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, The E (Exposure Compensation) Button : de −5 à +5 IL par tiers ; « Exposure compensation is not reset when the camera is turned off » ; « In mode M, exposure compensation affects only the exposure indicator », l'ISO auto en tenant compte (lu le 10 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_03.html"
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts]
+  - id: nikon-z6-exposure-compensation-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande E (correction d'exposition) : terme « correction d'exposition » (lu le 10 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_03.html"
+    used_in: [docs/camera-physique.md]
+  - id: nikon-z6-iso-button
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, The S (ISO Sensitivity) Button : l'ISO auto agit « if optimal exposure cannot be achieved at the value selected » ; sensibilité maximale de ISO 200 (Z 6) à Hi 2 ; « ISO AUTO » affiché, et la valeur modifiée ; une valeur choisie plus haute que le maximum sert à sa place (lu le 10 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_02.html"
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts]
+  - id: nikon-z6-iso-settings
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, ISO sensitivity settings : Maximum sensitivity ; Minimum shutter speed, « below which auto ISO sensitivity control will kick in to prevent underexposure in modes P and A », de 1/4000 s à 30 s ou Auto selon la focale ; vitesse sous le minimum si la sensibilité maximale ne suffit pas (lu le 10 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_03_08.html"
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts]
+  - id: nikon-z6-iso-settings-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Réglage de la sensibilité : termes « Contrôle de la sensibilité auto. », « Sensibilité maximale », « Vitesse d'obturation minimale » (lu le 10 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_03_08.html"
+    used_in: [docs/camera-physique.md]
+  - id: nikon-z6-defaults
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, Defaults : ISO 100 en P, S, A, M, contrôle de la sensibilité auto activé, sensibilité maximale 51200 (Z 6), vitesse minimale Auto ; Focus mode Single AF, AF-area mode Single-point AF ; a4 Face and eye detection on ; c2 retardateur 10 s ; d1 Continu L 3 vps (lu le 10 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html"
+    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts]
+  - id: nikon-d850-auto-iso
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne D850, Auto ISO Sensitivity Control : « the minimum value for auto ISO sensitivity is automatically set to ISO 64 » ; en P et A, « sensitivity will only be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed » ; vitesse minimale fixée à 1/30 s avec un objectif sans données (lu le 10 novembre 2026). Autre boîtier que le Z 6 : retenu là où le manuel du Z 6 ne dit rien."
+    url: "https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_02.html"
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, app/src/ui/cameraPanel.ts]
   - id: nikon-z6-launch-2018
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, communiqué du 23 août 2018, « Nikon introduces the new Nikon Z mount system, and releases two full-frame mirrorless cameras: the Nikon Z 7 and Nikon Z 6 » : « the Z 6 has 273 focus points*, enabling broad coverage of approximately 90% of the imaging area both horizontally and vertically », « * With FX (36x24) format and single-point AF » (lu le 10 novembre 2026)"
