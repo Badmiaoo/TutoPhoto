@@ -251,21 +251,36 @@ async function runProfile(browser, name, base) {
       const m = /(\d+[,.]\d) m$/.exec(await page.evaluate(() => document.getElementById("af-badge").textContent));
       return m ? Number(m[1].replace(",", ".")) : NaN;
     };
+    // Attend que la distance affichée en AF-C vérifie la condition (le rendu logiciel peut être lent) ; au plus 30 s.
+    // « group » : le groupe, à moins de 9 m ; « farther » : plus de v + 3 m ; « back » : à 0,3 m près de v.
+    const waitMetres = (kind, arg) =>
+      page
+        .waitForFunction(
+          ([mode, value]) => {
+            const m = /^AF-C · Point · (\d+[,.]\d) m$/.exec(document.getElementById("af-badge").textContent);
+            if (!m) return false;
+            const d = Number(m[1].replace(",", "."));
+            return mode === "group" ? d < 9 : mode === "farther" ? d > value + 3 : Math.abs(d - value) < 0.3;
+          },
+          [kind, arg],
+          { timeout: 30000 },
+        )
+        .catch(() => undefined);
     const topCollapsed = !(await page.locator("#top-view-map").isVisible());
     if (topCollapsed) await page.click("#top-view-toggle");
     await page.click("#af-button");
     await page.check('#af-dialog input[name="focusMode"][value="continuous"]');
     await page.click("#af-close");
-    await page.waitForTimeout(2000);
+    await waitMetres("group", 0);
     const fromStart = await badgeMetres();
     const sharpCount = await page.evaluate(() => document.querySelectorAll("#top-view-map .top-things .sharp").length);
     const map = await page.locator("#top-view-map").boundingBox();
     await page.mouse.click(map.x + ((0 + 8) / 16) * map.width, map.y + ((4 + 15) / 22) * map.height);
-    await page.waitForTimeout(2000);
+    await waitMetres("farther", fromStart);
     const fromBack = await badgeMetres();
     if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-vue-de-dessus.png`), timeout: 120000 });
     await page.click("#top-view-reset");
-    await page.waitForTimeout(2000);
+    await waitMetres("back", fromStart);
     const fromReset = await badgeMetres();
     check(
       "vue de dessus : appareil reculé de 4 m, puis ramené",
