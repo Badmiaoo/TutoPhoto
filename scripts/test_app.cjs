@@ -244,6 +244,39 @@ async function runProfile(browser, name, base) {
     check("exposition par défaut : M et ISO auto (Z 6)", /^M · /.test(meterDefault) && isoDefault.name === "ISO auto" && isoDefault.value === "100", `${meterDefault} ; ${isoDefault.name} ${isoDefault.value}`);
     await setExposure({ autoIso: false });
 
+    // Vue de dessus (NET-01) et appareil déplaçable (NET-06). AF-C, point au centre : le groupe vers 6,5 m. Reculé
+    // de 4 m en touchant la carte (x = 0, z = −4), l'appareil mesure environ 4 m de plus ; « Retour au départ »
+    // le ramène. Carte : x de −8 à 8 m, z de 15 m (en haut) à −7 m (en bas).
+    const badgeMetres = async () => {
+      const m = /(\d+[,.]\d) m$/.exec(await page.evaluate(() => document.getElementById("af-badge").textContent));
+      return m ? Number(m[1].replace(",", ".")) : NaN;
+    };
+    const topCollapsed = !(await page.locator("#top-view-map").isVisible());
+    if (topCollapsed) await page.click("#top-view-toggle");
+    await page.click("#af-button");
+    await page.check('#af-dialog input[name="focusMode"][value="continuous"]');
+    await page.click("#af-close");
+    await page.waitForTimeout(2000);
+    const fromStart = await badgeMetres();
+    const sharpCount = await page.evaluate(() => document.querySelectorAll("#top-view-map .top-things .sharp").length);
+    const map = await page.locator("#top-view-map").boundingBox();
+    await page.mouse.click(map.x + ((0 + 8) / 16) * map.width, map.y + ((4 + 15) / 22) * map.height);
+    await page.waitForTimeout(2000);
+    const fromBack = await badgeMetres();
+    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-vue-de-dessus.png`), timeout: 120000 });
+    await page.click("#top-view-reset");
+    await page.waitForTimeout(2000);
+    const fromReset = await badgeMetres();
+    check(
+      "vue de dessus : appareil reculé de 4 m, puis ramené",
+      sharpCount > 0 && fromBack - fromStart > 3.5 && fromBack - fromStart < 4.5 && Math.abs(fromReset - fromStart) < 0.3,
+      `${fromStart} m au départ, ${fromBack} m reculé, ${fromReset} m ramené ; ${sharpCount} sujets dans la zone nette`,
+    );
+    await page.click("#af-button");
+    await page.check('#af-dialog input[name="focusMode"][value="single"]');
+    await page.click("#af-close");
+    if (topCollapsed) await page.click("#top-view-toggle");
+
     // Point de mise au point sur le sol, immobile, en bas du cadre, pour comparer le bruit à deux ISO.
     const snrOf = (text) => {
       const m = /signal\/bruit (\d+):1/.exec(text ?? "");

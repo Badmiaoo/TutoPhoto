@@ -569,7 +569,7 @@ sources:
     group: "Physique, rendu et technique"
     label: "Wikipedia, Circle of confusion : flou acceptable d/1500 (0,029 mm en plein format) ; diamètre du flou c = A × |S₂ − S₁| / S₂ × f / (S₁ − f) (révision 1335590423, source secondaire, lue le 10 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Circle_of_confusion&oldid=1335590423"
-    used_in: [docs/camera-physique.md, app/src/ui/balance.ts]
+    used_in: [docs/camera-physique.md, app/src/ui/balance.ts, app/src/camera/sharpZone.ts]
   - id: nikon-z6-release-mode
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The Release Mode/Self-Timer Button : Single frame, Continuous L (1–5 vps), Continuous H (environ 5,5 vps), Continuous H (extended) (12 vps au Z 6), Self-timer ; table des cadences maximales (12 vps en JPEG en Continuous H (extended)) (lu le 10 novembre 2026). Réglages d2 (Max. Continuous Release, de 1 à 200 vues) et c2 (Self-Timer) lus le même jour."

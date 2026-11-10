@@ -42,6 +42,33 @@ export const DOME_RADIUS = 500;
  */
 const DOME_ROTATION = Math.PI / 2;
 
+/** Repère de la vue de dessus (ui/topView.ts) : objet ou personnage immobile, position au sol en mètres. */
+export interface Landmark {
+  id: string;
+  kind: "person" | "object";
+  x: number;
+  z: number;
+}
+
+/**
+ * Objets et personnages immobiles de la scène, aux positions où ils sont chargés. Le promeneur et le chien
+ * bougent : leur position vient de time.movers().
+ */
+export const LANDMARKS: readonly Landmark[] = [
+  { id: "bench", kind: "object", x: -3.4, z: 8 },
+  { id: "bin", kind: "object", x: 3.2, z: 10.5 },
+  { id: "dennis", kind: "person", x: -1.0, z: 6.5 },
+  { id: "sophia", kind: "person", x: -0.2, z: 6.6 },
+  { id: "fabienne-percy", kind: "person", x: 0.75, z: 6.5 },
+];
+const place = (id: string): Landmark => LANDMARKS.find((l) => l.id === id)!;
+
+/** Position de l'appareil au sol (NET-06), en mètres ; l'œil reste à EYE_HEIGHT. */
+export interface EyeControl {
+  get(): { x: number; z: number };
+  set(x: number, z: number): void;
+}
+
 export interface ParkScene {
   scene: Scene;
   /** Caméra 3D de l'appareil : son champ de vue est réglé par le boîtier virtuel (camera/viewfinder.ts). */
@@ -53,6 +80,8 @@ export interface ParkScene {
   time: SceneTimeControl;
   /** Visages et yeux des personnages et du chien, pour l'AF zone automatique (camera/faces.ts). */
   subjects: FaceSubject[];
+  /** Déplacement de l'appareil sur le sol (vue de dessus). */
+  eye: EyeControl;
 }
 
 /** Délai au-delà duquel la scène s'affiche même si Babylon ne la déclare pas prête, en millisecondes. */
@@ -239,21 +268,21 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
   };
 
   const ready = Promise.all([
-    load("painted_wooden_bench/painted_wooden_bench_1k.gltf", -3.4, 8, 0.35 - Math.PI),
-    load("metal_trash_can/metal_trash_can_1k.gltf", 3.2, 10.5, -0.3),
+    load("painted_wooden_bench/painted_wooden_bench_1k.gltf", place("bench").x, place("bench").z, 0.35 - Math.PI),
+    load("metal_trash_can/metal_trash_can_1k.gltf", place("bin").x, place("bin").z, -0.3),
     // Groupe (SIT-05) et portrait (SIT-01), face à l'appareil.
-    load("dennis_posed_004/scene.gltf", -1.0, 6.5, Math.PI, CM).then(({ holder }) => {
+    load("dennis_posed_004/scene.gltf", place("dennis").x, place("dennis").z, Math.PI, CM).then(({ holder }) => {
       const eyes = localEyes(holder, [
         [5.602, 169.306, 18.183],
         [-0.48, 168.615, 20.398],
       ]);
       subjects.push({ id: "dennis", kind: "human", eyes, eyeSpacing: spacing(eyes()) });
     }),
-    load("sophia_animated_003/scene.gltf", -0.2, 6.6, Math.PI, CM).then(({ result }) => {
+    load("sophia_animated_003/scene.gltf", place("sophia").x, place("sophia").z, Math.PI, CM).then(({ result }) => {
       for (const group of result.animationGroups) animate(group);
       boneEyes("sophia", result.transformNodes);
     }),
-    load("fabienne_percy_posed_001/scene.gltf", 0.75, 6.5, Math.PI, CM).then(({ holder }) => {
+    load("fabienne_percy_posed_001/scene.gltf", place("fabienne-percy").x, place("fabienne-percy").z, Math.PI, CM).then(({ holder }) => {
       subjects.push({ id: "fabienne", kind: "human", eyes: localEyes(holder, [[10.071, 151.36, 9.096]]), eyeSpacing: ADULT_SPACING });
       const percy = localEyes(holder, [
         [4.106, 152.09, 15.159],
@@ -300,5 +329,12 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
     }),
   ]).then(() => readyOrLate(scene));
 
-  return { scene, camera, ready, time, subjects };
+  const eyeControl: EyeControl = {
+    get: () => ({ x: eye.x, z: eye.z }),
+    set(x, z) {
+      eye.x = x;
+      eye.z = z;
+    },
+  };
+  return { scene, camera, ready, time, subjects, eye: eyeControl };
 }

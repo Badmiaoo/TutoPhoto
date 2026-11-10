@@ -3,7 +3,7 @@ domain:
   id: NET
   title: {fr: "Netteté et profondeur de champ", en: "sharpness and depth of field"}
   intro: "Neuf notions. La profondeur de champ dépend de l'ouverture, de la focale, de la distance et de la taille du capteur."
-  sources: [pl-lens-compression]
+  sources: [pl-lens-compression, wikipedia-circle-of-confusion]
 notions:
   - id: NET-01
     title: {fr: "Profondeur de champ", en: "depth of field"}
@@ -65,6 +65,7 @@ notions:
       simulator: "Sujet et appareil déplaçables"
       exercise: "Placer un portrait pour flouter le fond à f/4"
     situations: [SIT-01, SIT-V2-02]
+    sources: [wikipedia-circle-of-confusion]
     since: v0.1
   - id: NET-07
     title: {fr: "Pourquoi c'est flou", en: "diagnosing blur"}
