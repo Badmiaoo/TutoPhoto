@@ -21,8 +21,8 @@
 //   immobile, le rapport signal/bruit à ISO 6400 tombe sous 40 % de celui à ISO 100 (environ 17 % attendus :
 //   6 IL de sensibilité en plus, 0,87 IL d'exposition en plus, bruit photonique) ; traînée du chien évaluée ;
 // - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne ;
-// - avec --photo, rafale (BOI-12) : en Continu L à 5 vues par seconde, déclencheur tenu 1 s, au moins deux vues
-//   espacées de 0,2 s sur l'horloge de la scène, que l'écran de revue fait défiler ;
+// - avec --photo, rafale (BOI-12) : en Continu L à 5 vues par seconde, déclencheur tenu jusqu'à deux vues au
+//   moins, espacées de 0,2 s sur l'horloge de la scène, que l'écran de revue fait défiler ;
 // - mise au point (MAP-04, MAP-05, MAP-09), en fin de test parce que la vue change : AF-C et point sélectif par
 //   défaut ; en zone automatique, un œil est détecté dans le groupe ; détection coupée, l'appareil prend le
 //   sujet le plus proche ; en détection des animaux, l'œil du chien est détecté quand il passe (au plus 30 s) ;
@@ -431,8 +431,9 @@ async function runProfile(browser, name, base) {
     check("AF-C : la distance suit la zone", followed, `${await afText()} ; avant : ${lockedText}`);
 
     if (withPhoto) {
-      // Rafale : Continu L à 5 vues par seconde, déclencheur tenu 1 s. En rendu logiciel, l'horloge de la
-      // scène avance moins vite que le temps réel (100 ms au plus par image) : au moins deux vues attendues.
+      // Rafale : Continu L à 5 vues par seconde. En rendu logiciel, l'horloge de la scène avance moins vite que
+      // le temps réel (100 ms au plus par image) : le déclencheur est relâché quand le bouton annonce au moins
+      // deux vues, et non au bout d'une durée fixe (une seconde ne suffisait pas sur les profils mobiles).
       await page.click("#release-button");
       await page.check('#release-dialog input[name="release"][value="cl"]');
       await page.selectOption('#release-dialog select[name="clRate"]', "5");
@@ -440,7 +441,7 @@ async function runProfile(browser, name, base) {
       const shutterBox = await page.locator("#shutter-button").boundingBox();
       await page.mouse.move(shutterBox.x + shutterBox.width / 2, shutterBox.y + shutterBox.height / 2);
       await page.mouse.down();
-      await page.waitForTimeout(1000);
+      await page.waitForFunction(() => /Rafale : ([2-9]|\d\d) vues/.test(document.getElementById("shutter-button").textContent), null, { timeout: 60000 });
       await page.mouse.up();
       await page.waitForFunction(() => !document.getElementById("review").hidden && !document.getElementById("review-series").hidden, null, { timeout: 300000 });
       const first = await page.evaluate(() => ({ count: document.getElementById("review-count").textContent, caption: document.getElementById("review-caption").textContent }));
