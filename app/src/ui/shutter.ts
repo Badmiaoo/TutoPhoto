@@ -4,13 +4,21 @@
 // Mise au point (camera/autofocus.ts) : en AF-S, la photo prend la distance verrouillée ; sans verrou,
 // l'autofocus fait le point au déclenchement, avec le mode de zone choisi, et cette distance est verrouillée.
 // En AF-C, il fait le point au déclenchement.
+// Mode de déclenchement (BOI-12, ui/cameraPanel.ts) : vue par vue au toucher ; en rafale, des vues tant que le
+// déclencheur reste appuyé, une par intervalle (1 / cadence, jamais moins que la durée de pose), chacune
+// calculée à son instant et avec l'orientation de l'appareil à cet instant (on peut suivre le sujet). En AF-C,
+// la mise au point est refaite à chaque vue ; en AF-S, elle reste celle de la première (verrouillée à
+// mi-course, manuel du Z 6). Au plus MAX_BURST vues, pour le temps de calcul. Retardateur : une vue après le
+// délai. L'écran de revue fait défiler la série, pour la trier.
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
+import type { Observer } from "@babylonjs/core/Misc/observable";
+import type { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import type { Scene } from "@babylonjs/core/scene";
 import type { UniversalCamera } from "@babylonjs/core/Cameras/universalCamera";
 import { takePhoto, type GroundInfo, type PhotoRequest, type PhotoResult, type SceneTimeControl } from "../camera/photo";
 import { sensorPixels } from "../camera/bodies";
-import type { CameraPanel, CurrentSettings } from "./cameraPanel";
+import type { CameraPanel, CurrentSettings, ReleaseMode } from "./cameraPanel";
 import type { ViewfinderNoise } from "../camera/noise";
 import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
 import type { AreaMode, Autofocus, FocusMode } from "../camera/autofocus";
@@ -21,6 +29,8 @@ const TAP_MAX_MOVE_PX = 6;
 const TAP_MAX_MS = 400;
 /** Plus grand côté de la fenêtre de la loupe, en pixels. */
 const LOUPE_MAX_SIDE = 1500;
+/** Vues calculées au plus par rafale (limite de TutoPhoto, pour le temps de calcul ; le Z 6 va jusqu'à 200). */
+const MAX_BURST = 20;
 
 interface ShutterElements {
   canvas: HTMLCanvasElement;
@@ -37,6 +47,16 @@ interface ShutterElements {
   reviewBack: HTMLButtonElement;
   reviewWhole: HTMLButtonElement;
   reviewSave: HTMLAnchorElement;
+  reviewSeries: HTMLElement;
+  reviewPrev: HTMLButtonElement;
+  reviewNext: HTMLButtonElement;
+  reviewCount: HTMLElement;
+}
+
+/** Instant d'une vue : début de la pose sur l'horloge de la scène, et orientation de l'appareil alors. */
+interface Moment {
+  t0: number;
+  rotation: Vector3;
 }
 
 /** Dernière photo : réglages, demande et résultat, pour la loupe ; mode de mise au point et verrou. */
@@ -49,6 +69,8 @@ interface Shot {
   focusLocked: boolean;
   /** Zone automatique : œil, visage, sujet le plus proche ou point touché. */
   target: "eye" | "face" | "nearest" | "point" | null;
+  /** Vue d'une rafale : rang, nombre de vues, écart au début de la rafale en secondes. */
+  frame: { index: number; count: number; offset: number } | null;
 }
 
 /** Fenêtre affichée par la loupe, dans l'image à la définition du capteur. */
@@ -66,7 +88,13 @@ export class Shutter {
   /** Point de mise au point dans le cadre, de 0 à 1, origine en haut à gauche ; centre par défaut. */
   private focusPoint = { x: 0.5, y: 0.5 };
   private busy = false;
-  private shot: Shot | null = null;
+  /** Prise de vue en cours (une vue, une rafale ou un retardateur). */
+  private shooting = false;
+  private shots: Shot[] = [];
+  private shotIndex = 0;
+  /** Déclencheur tenu en rafale : début, orientations relevées à chaque image, observateur. */
+  private press: { start: number; samples: Moment[]; observer: Observer<Scene> | null; mode: ReleaseMode } | null = null;
+  private countdown: number | null = null;
   private loupe: LoupeView | null = null;
   private lastCaption: (() => string) | null = null;
 
@@ -92,7 +120,16 @@ export class Shutter {
       if (moved < TAP_MAX_MOVE_PX && performance.now() - down.at < TAP_MAX_MS) this.choosePoint(e.clientX, e.clientY);
       down = null;
     });
-    el.button.addEventListener("click", () => void this.release());
+    // Déclencheur : appui et relâchement (rafale) ; au clavier, un clic sans pointeur vaut un appui bref.
+    el.button.addEventListener("pointerdown", () => this.pressStart());
+    for (const type of ["pointerup", "pointercancel", "pointerleave"]) el.button.addEventListener(type, () => void this.pressEnd());
+    el.button.addEventListener("click", (e) => {
+      if (e.detail !== 0) return;
+      this.pressStart();
+      void this.pressEnd();
+    });
+    el.reviewPrev.addEventListener("click", () => this.showFrame(this.shotIndex - 1));
+    el.reviewNext.addEventListener("click", () => this.showFrame(this.shotIndex + 1));
     el.reviewBack.addEventListener("click", () => this.closeReview());
     el.reviewWhole.addEventListener("click", () => this.showWhole());
     el.reviewImage.addEventListener("click", (e) => void this.magnify(e));
@@ -112,6 +149,9 @@ export class Shutter {
     this.el.reviewWhole.textContent = tr("reviewWhole");
     this.el.reviewHint.textContent = tr("reviewHint");
     this.el.reviewSave.textContent = tr("save");
+    this.el.reviewPrev.textContent = tr("reviewPrev");
+    this.el.reviewNext.textContent = tr("reviewNext");
+    if (this.shots.length > 1) this.el.reviewCount.textContent = `${tr("reviewFrame")} ${this.shotIndex + 1}/${this.shots.length}`;
     if (this.lastCaption) this.el.reviewCaption.textContent = this.lastCaption();
   }
 
@@ -159,9 +199,12 @@ export class Shutter {
   }
 
   /** Calcul sans affichage du viseur : boucle de rendu arrêtée, bruit du viseur retiré, réglages grisés. */
-  private async compute(request: PhotoRequest): Promise<PhotoResult> {
+  private async compute(request: PhotoRequest, frame: { index: number; count: number } | null = null): Promise<PhotoResult> {
     this.busy = true;
     this.panel.setEnabled(false);
+    this.el.progressLabel.textContent = frame
+      ? `${t(this.lang, "computingFrame")} ${frame.index + 1}/${frame.count}…`
+      : t(this.lang, "computing");
     this.el.progress.hidden = false;
     this.el.progressBar.style.width = "0%";
     this.engine.stopRenderLoop();
@@ -185,53 +228,156 @@ export class Shutter {
     }
   }
 
-  private async release(): Promise<void> {
-    if (this.busy) return;
-    // Un toucher juste avant : sa mesure se termine avant le déclenchement. Sans verrou, l'autofocus fait le
-    // point maintenant, avec le mode de zone ; s'il échoue, la photo mesure elle-même la distance au point.
-    this.busy = true;
-    let measured = false;
-    try {
-      await this.autofocus.settled();
-      measured = this.autofocus.locked() || (await this.autofocus.measureNow());
-    } finally {
-      this.busy = false;
+  /** Appui sur le déclencheur : vue par vue tout de suite, rafale jusqu'au relâchement, ou retardateur. */
+  private pressStart(): void {
+    if (this.busy || this.shooting || this.press || this.countdown !== null) return;
+    const mode = this.panel.releaseMode();
+    if (mode.kind === "timer") {
+      this.startCountdown(mode.delay);
+      return;
     }
+    const start = this.time.now();
+    const samples: Moment[] = [{ t0: start, rotation: this.camera.rotation.clone() }];
+    let observer: Observer<Scene> | null = null;
+    if (mode.kind !== "single") {
+      const interval = this.interval(mode);
+      observer = this.scene.onBeforeRenderObservable.add(() => {
+        const now = this.time.now();
+        samples.push({ t0: now, rotation: this.camera.rotation.clone() });
+        const count = Math.min(MAX_BURST, 1 + Math.floor((now - start) / interval + 1e-9));
+        this.el.button.textContent = `${t(this.lang, "burstCount")} ${count} ${t(this.lang, count === 1 ? "burstFrame" : "burstFrames")}`;
+      });
+    }
+    this.press = { start, samples, observer, mode };
+    if (mode.kind === "single") void this.pressEnd();
+  }
+
+  /** Relâchement : les instants des vues, puis leur calcul. */
+  private async pressEnd(): Promise<void> {
+    const press = this.press;
+    if (!press) return;
+    this.press = null;
+    if (press.observer) this.scene.onBeforeRenderObservable.remove(press.observer);
+    this.el.button.textContent = t(this.lang, "shutterButton");
+    if (press.mode.kind === "single") {
+      await this.shootSeries([press.samples[0]], null);
+      return;
+    }
+    const end = this.time.now();
+    const interval = this.interval(press.mode);
+    const count = Math.min(MAX_BURST, 1 + Math.floor((end - press.start) / interval + 1e-9));
+    const moments: Moment[] = [];
+    for (let i = 0; i < count; i++) {
+      const t0 = press.start + i * interval;
+      // Orientation relevée la plus récente à cet instant.
+      let rotation = press.samples[0].rotation;
+      for (const sample of press.samples) if (sample.t0 <= t0 + 1e-9) rotation = sample.rotation;
+      moments.push({ t0, rotation: rotation.clone() });
+    }
+    await this.shootSeries(moments, Math.max(end, press.start + (count - 1) * interval));
+  }
+
+  /** Intervalle entre deux vues d'une rafale : 1 / cadence, et jamais moins que la durée de pose. */
+  private interval(mode: ReleaseMode): number {
+    return Math.max(1 / mode.fps, this.panel.current().shutterSeconds);
+  }
+
+  /** Retardateur : compte à rebours en secondes, puis une vue. */
+  private startCountdown(delay: number): void {
+    let left = delay;
+    const show = () => (this.el.button.textContent = `${t(this.lang, "timerCountdown")} ${left} s`);
+    show();
+    const tick = () => {
+      left--;
+      if (left > 0) {
+        show();
+        this.countdown = window.setTimeout(tick, 1000);
+        return;
+      }
+      this.countdown = null;
+      this.el.button.textContent = t(this.lang, "shutterButton");
+      void this.shootSeries([{ t0: this.time.now(), rotation: this.camera.rotation.clone() }], null);
+    };
+    this.countdown = window.setTimeout(tick, 1000);
+  }
+
+  /**
+   * Calcule les vues aux instants donnés. Mise au point : verrou AF-S tel quel ; sinon mesure à l'instant de
+   * la vue (horloge figée, appareil orienté comme alors), avec le mode de zone, puis verrou en AF-S. Si la
+   * mesure échoue, la photo mesure elle-même la distance au point. resumeAt : instant où l'horloge repart.
+   */
+  private async shootSeries(moments: Moment[], resumeAt: number | null): Promise<void> {
+    if (this.busy || this.shooting) return;
+    this.shooting = true;
     const settings = this.panel.current();
     const focusMode = this.autofocus.mode();
     const areaMode = this.panel.area();
-    const focusLocked = this.autofocus.locked();
-    const request: PhotoRequest = {
-      body: settings.body,
-      focalMm: settings.focalMm,
-      aperture: settings.aperture,
-      shutterSeconds: settings.shutterSeconds,
-      iso: settings.iso,
-      exposure: settings.exposure,
-      focusPoint: { ...this.focusPoint },
-      focusDistance: measured ? this.autofocus.distance() : undefined,
-      portrait: settings.frame.portrait,
-    };
+    const current = this.camera.rotation.clone();
+    const shots: Shot[] = [];
     try {
-      const photo = await this.compute(request);
-      if (focusMode === "single" && !focusLocked) this.autofocus.lockAt(photo.focusDistance);
-      if (this.shot) URL.revokeObjectURL(this.shot.photo.url);
-      this.dropLoupe();
-      const target = areaMode === "auto" ? (this.autofocus.target()?.kind ?? null) : null;
-      this.shot = { settings, request, photo, focusMode, areaMode, focusLocked, target };
-      this.el.reviewSave.href = photo.url;
-      this.showWhole();
+      await this.autofocus.settled();
+      for (let i = 0; i < moments.length; i++) {
+        const moment = moments[i];
+        const focusLocked = this.autofocus.locked();
+        let measured = focusLocked;
+        if (!focusLocked) {
+          this.time.setFrozenTime(moment.t0);
+          this.camera.rotation.copyFrom(moment.rotation);
+          measured = await this.autofocus.measureNow();
+        }
+        const request: PhotoRequest = {
+          body: settings.body,
+          focalMm: settings.focalMm,
+          aperture: settings.aperture,
+          shutterSeconds: settings.shutterSeconds,
+          iso: settings.iso,
+          exposure: settings.exposure,
+          focusPoint: { ...this.focusPoint },
+          focusDistance: measured ? this.autofocus.distance() : undefined,
+          portrait: settings.frame.portrait,
+          moment,
+        };
+        const series = moments.length > 1 ? { index: i, count: moments.length } : null;
+        const photo = await this.compute(request, series);
+        if (focusMode === "single" && !focusLocked) this.autofocus.lockAt(photo.focusDistance);
+        const target = areaMode === "auto" ? (this.autofocus.target()?.kind ?? null) : null;
+        const frame = series ? { ...series, offset: moment.t0 - moments[0].t0 } : null;
+        shots.push({ settings, request, photo, focusMode, areaMode, focusLocked, target, frame });
+      }
     } catch (error) {
       console.error(error);
       this.showError(error);
+    } finally {
+      this.camera.rotation.copyFrom(current);
+      if (resumeAt !== null) this.time.release(resumeAt);
+      this.shooting = false;
     }
+    if (shots.length === 0) return;
+    for (const old of this.shots) URL.revokeObjectURL(old.photo.url);
+    this.shots = shots;
+    this.showFrame(0);
+  }
+
+  /** Vue de la série à afficher, avec les boutons de la série. */
+  private showFrame(index: number): void {
+    if (index < 0 || index >= this.shots.length) return;
+    this.shotIndex = index;
+    this.dropLoupe();
+    const shot = this.shots[index];
+    this.el.reviewSave.href = shot.photo.url;
+    const many = this.shots.length > 1;
+    this.el.reviewSeries.hidden = !many;
+    this.el.reviewCount.textContent = many ? `${t(this.lang, "reviewFrame")} ${index + 1}/${this.shots.length}` : "";
+    this.el.reviewPrev.disabled = index === 0;
+    this.el.reviewNext.disabled = index === this.shots.length - 1;
+    this.showWhole();
   }
 
   /** Photo entière : réglages, mode et distance de mise au point, rendus et durée du calcul. */
   private showWhole(): void {
-    const shot = this.shot;
+    const shot = this.shots[this.shotIndex];
     if (!shot) return;
-    const { photo, settings, focusMode, areaMode, focusLocked, target } = shot;
+    const { photo, settings, focusMode, areaMode, focusLocked, target, frame } = shot;
     this.setImage(photo.url, photo.width, photo.height);
     this.el.reviewWhole.hidden = true;
     this.el.reviewHint.hidden = false;
@@ -242,15 +388,16 @@ export class Shutter {
       const what = target ? ` · ${tr(targetKeys[target])}` : "";
       const mode = `${focusMode === "single" ? "AF-S" : "AF-C"} · ${tr(areaKeys[areaMode])}${what}`;
       const focus = `${tr(focusLocked ? "focusLockedAt" : "focusedAt")} ${this.decimal(photo.focusDistance, 1)} m`;
-      return `${settings.summary} · ${settings.body.model} · ${mode} · ${focus} · ${this.computedText(photo)}`;
+      const series = frame ? `${tr("reviewFrame")} ${frame.index + 1}/${frame.count} · +${this.decimal(frame.offset, 2)} s · ` : "";
+      return `${series}${settings.summary} · ${settings.body.model} · ${mode} · ${focus} · ${this.computedText(photo)}`;
     };
     this.showCaption();
   }
 
   /** Toucher la photo, ou la fenêtre de la loupe : fenêtre à 100 % centrée sur le point touché. */
   private async magnify(event: MouseEvent): Promise<void> {
-    const shot = this.shot;
-    if (!shot || this.busy) return;
+    const shot = this.shots[this.shotIndex];
+    if (!shot || this.busy || this.shooting) return;
     const image = this.el.reviewImage;
     const u = event.offsetX / image.clientWidth;
     const v = event.offsetY / image.clientHeight;

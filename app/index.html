@@ -53,6 +53,11 @@
         <img id="review-image" alt="" />
         <p id="review-caption" class="review-caption"></p>
         <p id="review-hint" class="review-caption"></p>
+        <div id="review-series" class="review-actions" hidden>
+          <button id="review-prev" type="button"></button>
+          <span id="review-count"></span>
+          <button id="review-next" type="button"></button>
+        </div>
         <div class="review-actions">
           <button id="review-whole" type="button" hidden></button>
           <button id="review-back" type="button"></button>
@@ -111,6 +116,7 @@
         <button id="body-button" type="button" class="body-button"></button>
         <button id="preview-button" type="button" class="body-button"></button>
         <button id="af-button" type="button" class="body-button"></button>
+        <button id="release-button" type="button" class="body-button"></button>
         <button id="loupe-button" type="button" class="body-button" aria-pressed="false"></button>
         <button id="shutter-button" type="button" class="shutter-button"></button>
       </div>
@@ -173,6 +179,22 @@
       <p id="af-note" class="note"></p>
       <form method="dialog">
         <button id="af-close" type="submit"></button>
+      </form>
+    </dialog>
+    <dialog id="release-dialog" aria-labelledby="release-title">
+      <h2 id="release-title"></h2>
+      <fieldset>
+        <label><input type="radio" name="release" value="single" /> <span id="release-single-label"></span></label>
+        <label><input type="radio" name="release" value="cl" /> <span id="release-cl-label"></span></label>
+        <label><input type="radio" name="release" value="ch" /> <span id="release-ch-label"></span></label>
+        <label><input type="radio" name="release" value="chx" /> <span id="release-chx-label"></span></label>
+        <label><input type="radio" name="release" value="timer" /> <span id="release-timer-label"></span></label>
+      </fieldset>
+      <p class="release-select"><label><span id="release-cl-rate-label"></span> <select name="clRate"></select></label></p>
+      <p class="release-select"><label><span id="release-delay-label"></span> <select name="timerDelay"></select></label></p>
+      <p id="release-note" class="note"></p>
+      <form method="dialog">
+        <button id="release-close" type="submit"></button>
       </form>
     </dialog>
     <dialog id="credits-dialog" aria-labelledby="credits-title">

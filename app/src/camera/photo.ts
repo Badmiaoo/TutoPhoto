@@ -81,6 +81,11 @@ export interface PhotoRequest {
   view?: { longSide: number; crop?: PhotoWindow };
   /** Recalcul d'une photo déjà prise (loupe) : même instant, même orientation, même mise au point. */
   replay?: PhotoReplay;
+  /**
+   * Vue d'une rafale (ui/shutter.ts) : début du temps de pose sur l'horloge de la scène, et orientation de
+   * l'appareil relevée à cet instant. Absent : l'instant présent et l'orientation courante.
+   */
+  moment?: { t0: number; rotation: Vector3 };
 }
 
 /** Fenêtre de l'image complète, en pixels, origine en haut à gauche. */
@@ -219,10 +224,11 @@ export async function takePhoto(
   const height = crop.height;
   // L'horloge repart de l'instant présent ; une photo recalculée reprend l'instant et l'orientation du déclenchement.
   const resumeAt = time.now();
-  const t0 = request.replay ? request.replay.t0 : resumeAt;
+  const t0 = request.replay ? request.replay.t0 : (request.moment?.t0 ?? resumeAt);
   const savedRotation = camera.rotation.clone();
-  if (request.replay) {
-    camera.rotation.copyFrom(request.replay.rotation);
+  const rotation = request.replay?.rotation ?? request.moment?.rotation;
+  if (rotation) {
+    camera.rotation.copyFrom(rotation);
     camera.getViewMatrix(true);
   }
   const f = request.focalMm / 1000; // mètres

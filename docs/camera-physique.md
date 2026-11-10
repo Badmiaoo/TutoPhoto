@@ -419,6 +419,28 @@ Il s'affiche dans le viseur, en haut à gauche, comme les informations d'un vise
 
 Non simulé : le bougé de la main ; un jugement sur la profondeur de champ (il dépend de l'intention, qui n'a pas de critère sourcé).
 
+## Modes de déclenchement (version 0.3.33)
+
+Demande de Julien du 10 novembre 2026 : enchaîner sur les modes d'entraînement (BOI-12 ; fiche du référentiel : « Rafale qui produit une série à trier »).
+
+Ce que dit le manuel du Z 6 ([« The Release Mode/Self-Timer Button »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_04.html), [en français](https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_04.html)), lu le 10 novembre 2026 :
+- **Vue par vue** : « The camera takes one photograph each time the shutter-release button is pressed. »
+- **Continu L** : « While the shutter-release button is held down, the camera records 1–5 frames per second » ; la cadence se règle (réglage d1).
+- **Continu H** : jusqu'à environ 5,5 vues par seconde.
+- **Continu H (étendu)** : 12 vues par seconde au Z 6 (table des cadences : 12 en JPEG).
+- **Retardateur** : délai de 2, 5, 10 ou 20 s (fiche technique), et de 1 à 9 vues (réglage c2).
+- **Nombre de vues par rafale** : de 1 à 200 (réglage d2). Les pages lues ne donnent pas les réglages par défaut.
+
+Dans TutoPhoto (`app/src/ui/cameraPanel.ts`, `app/src/ui/shutter.ts`) :
+- **Bouton « Mode de déclenchement »** : vue par vue (par défaut, comme avant), Continu L (1 à 5 vues par seconde, 3 par défaut, valeur choisie), Continu H, Continu H (étendu), retardateur (2, 5, 10 ou 20 s, 10 par défaut, valeur choisie).
+- **Rafale** : tant que le déclencheur reste appuyé, une vue par intervalle de 1 / cadence. L'intervalle n'est jamais plus court que la durée de pose : on ne peut pas prendre plus de vues que de poses. Chaque vue est calculée à son instant, sur l'horloge de la scène, avec l'orientation de l'appareil relevée à cet instant : suivre le chien pendant la rafale donne un filé.
+- **Mise au point en rafale** : en AF-C, elle est refaite à chaque vue, à l'instant de la vue, avec le mode de zone et le suivi de la zone automatique. En AF-S, elle reste celle de la première vue, verrouillée « while the shutter-release button is pressed halfway ».
+- **Série à trier** : l'écran de revue fait défiler les vues (« Vue 2/5 · +0,20 s »), chacune avec sa loupe et son enregistrement.
+- **Limite de TutoPhoto** : 20 vues au plus par rafale, pour le temps de calcul (0,8 s par photo sur le téléphone de Julien aux réglages par défaut, mesure du 9 novembre 2026).
+- **Retardateur** : une vue à la fin du compte à rebours.
+
+Non simulé : la mémoire tampon et le ralentissement quand elle est pleine ; l'exposition qui « may vary erratically » en Continu H (étendu) ; le mode silencieux ; plusieurs vues au retardateur.
+
 ## Fonctions demandées par Julien le 9 novembre 2026
 
 Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 minimale (`data/jalons.yaml`), qui ne contient que les notions clés de SIT-01, SIT-05 et SIT-06. `CLAUDE.md` demande de ne pas étendre la V1 minimale avant de l'avoir testée avec des débutants. Julien laisse à Claude le choix du moment (« quand tu estimes que c'est le meilleur moment », 9 novembre 2026) : balance des blancs, grilles de composition et histogramme viendront après les tests de la V1 minimale. Les équivalents cités viennent du [guide d'aide Sony ILCE-7M3](https://helpguide.sony.net/ilc/1720/v1/en/print.pdf), lu le 9 novembre 2026.
@@ -465,7 +487,7 @@ Une pull request par étape :
 3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus). Interrupteurs de l'aperçu dans le viseur : version 0.3.16.
 4. Loupe dans le viseur et sur l'écran de revue : faite en version 0.3.17 (voir ci-dessus).
 5. Profondeur de champ approchée dans le viseur : faite en version 0.3.22, puis en flou de taille physique en version 0.3.23 (voir ci-dessus).
-6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Indicateur d'équilibre : version 0.3.31. Ensuite : collimateurs (MAP-06), flou de bougé et de sujet (MVT-01), modes d'entraînement (BOI-12).
+6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Indicateur d'équilibre : version 0.3.31. Traînée en pixels (MVT-01) : version 0.3.32. Modes de déclenchement (BOI-12) : version 0.3.33. Ensuite : collimateurs (MAP-06), ISO auto (MES-10), profondeur de champ en vue de dessus (NET-01).
 7. Après les tests de la V1 minimale : balance des blancs, grilles de composition, histogramme (voir ci-dessus). En V2 : correction de la photo après la prise.
 
 ## Ce que je ne sais pas

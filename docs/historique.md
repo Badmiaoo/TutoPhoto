@@ -161,3 +161,4 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Version 0.3.31 : indicateur d'équilibre, triangle et trois lignes au point visé (zone nette, traînée du sujet, bruit), seuils sourcés.
 - Essai de Julien sur son Google Pixel 8 Pro : « La fluidité semble bonne. » Il demande d'enchaîner : figer le mouvement (MVT-01), modes d'entraînement (BOI-12), collimateurs (MAP-06).
 - Version 0.3.32 : traînée du sujet visé en pixels de la photo (MVT-01).
+- Version 0.3.33 : modes de déclenchement (BOI-12), vue par vue, rafales Continu L, H et H (étendu) du Z 6, retardateur ; série à trier dans l'écran de revue.
