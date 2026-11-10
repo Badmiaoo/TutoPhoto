@@ -538,6 +538,14 @@ dialog fieldset label {
   color: var(--discret);
 }
 
+.review-actions[hidden] {
+  display: none;
+}
+
+.release-select {
+  margin: 0.4rem 0;
+}
+
 .review-actions {
   display: flex;
   flex-wrap: wrap;

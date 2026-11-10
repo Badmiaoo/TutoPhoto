@@ -113,6 +113,7 @@ notions:
       simulator: "Rafale qui produit une série à trier"
       exercise: "Capter le sommet d'un saut"
     situations: [SIT-06, SIT-28, SIT-37]
+    sources: [nikon-z6-release-mode, nikon-z6-release-mode-fr]
     since: v0.1
   - id: BOI-13
     title: {fr: "Mémoire tampon et cartes", en: "buffer, card speed"}

@@ -41,6 +41,25 @@ import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
 import type { AreaMode, Autofocus, FocusArea, FocusMode } from "../camera/autofocus";
 import type { Detection } from "../camera/faces";
 import type { BalanceIndicator } from "./balance";
+
+/**
+ * Mode de déclenchement (BOI-12), d'après le manuel du Nikon Z 6 (« The Release Mode/Self-Timer Button »,
+ * lu le 10 novembre 2026) [nikon-z6-release-mode]
+ * https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_04.html : vue par vue ; Continu L, 1 à 5 vues par seconde ; Continu H,
+ * jusqu'à environ 5,5 ; Continu H (étendu), 12 au Z 6 en JPEG ; retardateur de 2, 5, 10 ou 20 s. Les pages lues
+ * ne donnent pas les réglages par défaut : 3 vues par seconde et 10 s, choisis.
+ */
+export type ReleaseKind = "single" | "cl" | "ch" | "chx" | "timer";
+export interface ReleaseMode {
+  kind: ReleaseKind;
+  /** Vues par seconde au plus, en rafale. */
+  fps: number;
+  /** Délai du retardateur, en secondes. */
+  delay: number;
+}
+const RELEASE_FPS: Record<"ch" | "chx", number> = { ch: 5.5, chx: 12 };
+const CL_RATES = [1, 2, 3, 4, 5] as const;
+const TIMER_DELAYS = [2, 5, 10, 20] as const;
 import { t, type Lang, type MessageKey } from "../i18n";
 
 /** Écart maximal affiché par la cellule, en IL. */
@@ -108,6 +127,8 @@ interface PanelElements {
   loupeBadge: HTMLElement;
   afButton: HTMLButtonElement;
   afDialog: HTMLDialogElement;
+  releaseButton: HTMLButtonElement;
+  releaseDialog: HTMLDialogElement;
   afBadge: HTMLElement;
   focusMarker: HTMLElement;
   focusHint: HTMLElement;
@@ -130,6 +151,9 @@ export class CameraPanel {
   private areaMode: AreaMode = "point";
   /** Réglage a4 du Z 6 ; le manuel lu ne donne pas le réglage par défaut. */
   private detection: Detection = "faceEye";
+  private releaseKind: ReleaseKind = "single";
+  private clRate = 3;
+  private timerDelay = 10;
   /** Cran de la loupe dans LOUPE_LEVELS ; -1 : pas de loupe. */
   private loupeLevel = -1;
   private loupeZoom = 1;
@@ -158,6 +182,16 @@ export class CameraPanel {
     this.baseTouchSensibility = touch ? touch.touchAngularSensibility : null;
     el.loupeButton.addEventListener("click", () => this.cycleLoupe());
     el.afButton.addEventListener("click", () => el.afDialog.showModal());
+    el.releaseButton.addEventListener("click", () => el.releaseDialog.showModal());
+    for (const input of el.releaseDialog.querySelectorAll<HTMLInputElement | HTMLSelectElement>("input[type=radio], select")) {
+      input.addEventListener("change", () => {
+        if (input.name === "release") this.releaseKind = input.value as ReleaseKind;
+        if (input.name === "clRate") this.clRate = Number(input.value);
+        if (input.name === "timerDelay") this.timerDelay = Number(input.value);
+        this.saveBody();
+        this.updateRelease();
+      });
+    }
     for (const input of el.afDialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) {
       input.addEventListener("change", () => {
         if (input.name === "focusMode") this.focusMode = input.value as FocusMode;
@@ -301,6 +335,43 @@ export class CameraPanel {
     return { width: side / this.canvasSize.width, height: side / this.canvasSize.height };
   }
 
+  /** Mode de déclenchement courant. */
+  releaseMode(): ReleaseMode {
+    const fps = this.releaseKind === "cl" ? this.clRate : this.releaseKind === "ch" || this.releaseKind === "chx" ? RELEASE_FPS[this.releaseKind] : 1;
+    return { kind: this.releaseKind, fps, delay: this.timerDelay };
+  }
+
+  /** Bouton et fenêtre « Mode de déclenchement ». */
+  private updateRelease(): void {
+    const tr = (key: MessageKey) => t(this.lang, key);
+    const fpsText = (fps: number) => `${this.lang === "fr" ? String(fps).replace(".", ",") : fps} ${tr("releaseFpsShort")}`;
+    const labels: Record<ReleaseKind, string> = {
+      single: tr("releaseSingle"),
+      cl: `${tr("releaseCL")} · ${fpsText(this.clRate)}`,
+      ch: `${tr("releaseCH")} · ${fpsText(RELEASE_FPS.ch)}`,
+      chx: `${tr("releaseCHX")} · ${fpsText(RELEASE_FPS.chx)}`,
+      timer: `${tr("releaseTimer")} · ${this.timerDelay} s`,
+    };
+    this.el.releaseButton.textContent = labels[this.releaseKind];
+    this.el.releaseButton.title = tr("releaseTitle");
+    const dialog = this.el.releaseDialog;
+    dialog.querySelector("#release-title")!.textContent = tr("releaseTitle");
+    dialog.querySelector("#release-single-label")!.textContent = tr("releaseSingle");
+    dialog.querySelector("#release-cl-label")!.textContent = tr("releaseCL");
+    dialog.querySelector("#release-ch-label")!.textContent = `${tr("releaseCH")} (${fpsText(RELEASE_FPS.ch)})`;
+    dialog.querySelector("#release-chx-label")!.textContent = `${tr("releaseCHX")} (${fpsText(RELEASE_FPS.chx)})`;
+    dialog.querySelector("#release-timer-label")!.textContent = tr("releaseTimer");
+    dialog.querySelector("#release-cl-rate-label")!.textContent = tr("releaseClRate");
+    dialog.querySelector("#release-delay-label")!.textContent = tr("releaseDelay");
+    dialog.querySelector("#release-note")!.textContent = tr("releaseNote");
+    dialog.querySelector("#release-close")!.textContent = tr("close");
+    for (const input of dialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) input.checked = input.value === this.releaseKind;
+    const rate = dialog.querySelector<HTMLSelectElement>("select[name=clRate]")!;
+    const delay = dialog.querySelector<HTMLSelectElement>("select[name=timerDelay]")!;
+    rate.replaceChildren(...CL_RATES.map((r) => new Option(fpsText(r), String(r), false, r === this.clRate)));
+    delay.replaceChildren(...TIMER_DELAYS.map((d) => new Option(`${d} s`, String(d), false, d === this.timerDelay)));
+  }
+
   /** Mode de zone AF, pour la légende de la photo. */
   area(): AreaMode {
     return this.areaMode;
@@ -388,6 +459,7 @@ export class CameraPanel {
 
     this.el.loupeButton.title = tr("loupeHelp");
     this.updateFocus();
+    this.updateRelease();
     const offset = exposureOffset(this.settings);
     const shown = Math.max(-METER_RANGE, Math.min(METER_RANGE, offset));
     this.el.meterNeedle.style.left = `${((shown + METER_RANGE) / (2 * METER_RANGE)) * 100}%`;
@@ -654,6 +726,9 @@ export class CameraPanel {
         focusMode?: string;
         areaMode?: string;
         detection?: string;
+        release?: string;
+        clRate?: number;
+        timerDelay?: number;
       } | null;
       if (saved && BODIES.some((b) => b.brand === saved.brand && b.format === saved.format)) {
         this.brand = saved.brand as Brand;
@@ -662,6 +737,9 @@ export class CameraPanel {
       if (saved?.focusMode === "single" || saved?.focusMode === "continuous") this.focusMode = saved.focusMode;
       if (saved?.areaMode && Object.prototype.hasOwnProperty.call(AREA_KEYS, saved.areaMode)) this.areaMode = saved.areaMode as AreaMode;
       if (DETECTIONS.includes(saved?.detection as Detection)) this.detection = saved!.detection as Detection;
+      if (["single", "cl", "ch", "chx", "timer"].includes(saved?.release ?? "")) this.releaseKind = saved!.release as ReleaseKind;
+      if ((CL_RATES as readonly number[]).includes(saved?.clRate ?? 0)) this.clRate = saved!.clRate!;
+      if ((TIMER_DELAYS as readonly number[]).includes(saved?.timerDelay ?? 0)) this.timerDelay = saved!.timerDelay!;
     } catch {
       // Stockage indisponible : boîtier par défaut.
     }
@@ -669,7 +747,17 @@ export class CameraPanel {
 
   private saveBody(): void {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ brand: this.brand, format: this.format, focusMode: this.focusMode, areaMode: this.areaMode, detection: this.detection }));
+      const saved = {
+        brand: this.brand,
+        format: this.format,
+        focusMode: this.focusMode,
+        areaMode: this.areaMode,
+        detection: this.detection,
+        release: this.releaseKind,
+        clRate: this.clRate,
+        timerDelay: this.timerDelay,
+      };
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
     } catch {
       // Sans stockage, le choix vaut pour la page en cours seulement.
     }
