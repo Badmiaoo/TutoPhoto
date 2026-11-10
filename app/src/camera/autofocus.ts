@@ -70,6 +70,8 @@ export interface FocusArea {
 /** Ce sur quoi la zone automatique a fait le point, pour le repère du viseur. */
 export interface FocusTarget {
   kind: "eye" | "face" | "nearest" | "point";
+  /** Sujet du visage retenu (camera/faces.ts), pour l'œil ou le visage. */
+  id?: string;
   point: CanvasPoint;
   /** Côté du repère, en fraction de la largeur du canevas ; 0 : taille de la feuille de style. */
   size: number;
@@ -305,7 +307,10 @@ export class Autofocus {
       const distance = await this.depthAt(face.point);
       if (distance === null) return null;
       // Repère autour de l'œil (0,8 écart des yeux) ou du visage (2,5 écarts) : tailles choisies pour l'affichage.
-      return { distance, target: { kind: face.target, point: face.point, size: face.spacing * (face.target === "eye" ? 0.8 : 2.5) } };
+      return {
+        distance,
+        target: { kind: face.target, id: face.id, point: face.point, size: face.spacing * (face.target === "eye" ? 0.8 : 2.5) },
+      };
     }
     if (reselect) this.touchedWithoutFace = true;
     if (this.touchedWithoutFace) {

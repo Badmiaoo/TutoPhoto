@@ -54,7 +54,7 @@ export interface SceneTimeControl {
   /** Décalage de l'œil dans le repère monde, en mètres (null : œil au centre de l'objectif). */
   setEyeOffset(offset: Vector3 | null): void;
   /** Sujets en mouvement : position et vitesse, pour estimer le flou de mouvement. */
-  movers(): { position: Vector3; speed: number }[];
+  movers(): { id: string; position: Vector3; speed: number; velocity: Vector3 }[];
 }
 
 export interface PhotoRequest {

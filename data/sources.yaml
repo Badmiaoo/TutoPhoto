@@ -487,9 +487,9 @@ sources:
     used_in: [docs/camera-physique.md]
   - id: wikipedia-film-speed
     group: "Physique, rendu et technique"
-    label: "Wikipedia, Film speed, tableau des valeurs ISO par tiers (révision 1383727213, source secondaire, lue le 8 novembre 2026)"
+    label: "Wikipedia, Film speed, tableau des valeurs ISO par tiers (révision 1383727213, source secondaire, lue le 8 novembre 2026) ; vitesse fondée sur le bruit : rapports signal sur bruit par pixel de 40:1 (« excellent image quality ») et 10:1 (« acceptable image quality »), pour 70 pixels par cm vus à 25 cm (lu le 10 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213"
-    used_in: [docs/camera-physique.md]
+    used_in: [docs/camera-physique.md, app/src/ui/balance.ts]
   - id: nikon-z6-specifications
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Specifications : capteur 35.9 × 23.9 mm, 24.5 millions de pixels effectifs, vitesses 1/8000 – 30 s par pas de 1/3 ou 1/2 IL, ISO 100 – 51200 (lu le 8 novembre 2026)"
@@ -565,6 +565,11 @@ sources:
     label: "Nikon, manuel en ligne COOLPIX P1100, AF area mode : sans visage détecté, « the camera automatically selects one or more of the nine focus areas containing the subject closest to the camera » (compact, pas un hybride ; lu le 9 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/p1100/en/08-31.html"
     used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts]
+  - id: wikipedia-circle-of-confusion
+    group: "Physique, rendu et technique"
+    label: "Wikipedia, Circle of confusion : flou acceptable d/1500 (0,029 mm en plein format) ; diamètre du flou c = A × |S₂ − S₁| / S₂ × f / (S₁ − f) (révision 1335590423, source secondaire, lue le 10 novembre 2026)"
+    url: "https://en.wikipedia.org/w/index.php?title=Circle_of_confusion&oldid=1335590423"
+    used_in: [docs/camera-physique.md, app/src/ui/balance.ts]
   - id: nikon-z6-apply-settings-live-view
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé d8 Apply Settings to Live View (lu le 9 novembre 2026)"

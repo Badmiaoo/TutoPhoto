@@ -379,6 +379,95 @@ dialog fieldset label {
   border-color: #3ddc4a;
 }
 
+/* Indicateur d'équilibre (ui/balance.ts) : dans le viseur, en haut à gauche, comme les informations d'un
+   viseur ; sur petit écran, le triangle seul, et les lignes au toucher. */
+.balance {
+  position: absolute;
+  z-index: 1;
+  top: 0.5rem;
+  left: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  max-width: min(23rem, calc(100% - 1rem));
+  padding: 0.3rem 0.45rem;
+  border-radius: 6px;
+  background: rgb(0 0 0 / 0.6);
+  color: #fff;
+  font-size: 0.78rem;
+}
+
+.balance[hidden],
+.balance.collapsed .balance-text {
+  display: none;
+}
+
+.balance-toggle {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.balance-triangle {
+  display: block;
+  width: 2.6rem;
+  height: auto;
+}
+
+.balance-shape {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.8);
+  stroke-width: 4;
+}
+
+.balance-vertex.neutral {
+  fill: #b9b9b4;
+}
+
+.balance-vertex.ok,
+.balance-point.ok {
+  fill: #3ddc4a;
+}
+
+.balance-vertex.warn,
+.balance-point.warn {
+  fill: #ffb000;
+}
+
+.balance-vertex.bad,
+.balance-point.bad {
+  fill: #ff4b3e;
+}
+
+.balance-point {
+  stroke: #fff;
+  stroke-width: 3;
+}
+
+.balance-text {
+  min-width: 0;
+}
+
+.balance-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.balance-lines {
+  margin: 0.1rem 0 0;
+  padding-left: 1rem;
+}
+
+.balance-details summary {
+  cursor: pointer;
+}
+
+.balance-note {
+  margin: 0.2rem 0 0;
+}
+
 /* Visage ou œil détecté en zone automatique : repère ambre, comme sur le Z 6. */
 .focus-marker.detected {
   border-color: #ffb000;

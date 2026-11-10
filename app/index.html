@@ -22,6 +22,29 @@
       <p id="preview-badge" class="preview-badge" hidden></p>
       <p id="loupe-badge" class="preview-badge loupe-badge" hidden></p>
       <p id="af-badge" class="preview-badge af-badge" hidden></p>
+      <div id="balance" class="balance">
+        <button id="balance-toggle" type="button" class="balance-toggle" aria-expanded="true">
+          <svg class="balance-triangle" viewBox="0 0 120 106" aria-hidden="true">
+            <polygon class="balance-shape" points="60,10 10,96 110,96" />
+            <circle id="balance-aperture" class="balance-vertex neutral" cx="60" cy="10" r="7" />
+            <circle id="balance-shutter" class="balance-vertex neutral" cx="10" cy="96" r="7" />
+            <circle id="balance-iso" class="balance-vertex neutral" cx="110" cy="96" r="7" />
+            <circle id="balance-point" class="balance-point ok" cx="60" cy="67" r="8" />
+          </svg>
+        </button>
+        <div class="balance-text">
+          <p id="balance-title" class="balance-title"></p>
+          <ul class="balance-lines">
+            <li id="balance-dof"></li>
+            <li id="balance-motion"></li>
+            <li id="balance-noise"></li>
+          </ul>
+          <details class="balance-details">
+            <summary id="balance-limits"></summary>
+            <p id="balance-note" class="balance-note"></p>
+          </details>
+        </div>
+      </div>
       <div id="progress" class="progress" hidden>
         <p id="progress-label"></p>
         <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
@@ -119,6 +142,7 @@
         <label class="toggle"><input type="checkbox" value="brightness" /> <span id="preview-brightness-label"></span></label>
         <label class="toggle"><input type="checkbox" value="noise" /> <span id="preview-noise-label"></span></label>
         <label class="toggle"><input type="checkbox" value="depthOfField" /> <span id="preview-dof-label"></span></label>
+        <label class="toggle"><input type="checkbox" value="balance" /> <span id="preview-balance-label"></span></label>
       </div>
       <p id="preview-note" class="note"></p>
       <form method="dialog">

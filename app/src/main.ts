@@ -8,6 +8,7 @@ import { DOME_RADIUS, EYE_HEIGHT } from "./scene";
 import { ViewfinderNoise } from "./camera/noise";
 import { ViewfinderDepthOfField } from "./camera/viewfinderDof";
 import { Autofocus } from "./camera/autofocus";
+import { BalanceIndicator } from "./ui/balance";
 import { initialLang, rememberLang, t, type Lang } from "./i18n";
 
 function element<T extends HTMLElement>(id: string): T {
@@ -28,6 +29,7 @@ let lang: Lang = initialLang();
 let statusKey: "loading" | "loadError" | null = "loading";
 let cameraPanel: CameraPanel | null = null;
 let shutter: Shutter | null = null;
+let balance: BalanceIndicator | null = null;
 
 // Problèmes affichés à l'écran, pour diagnostiquer sur un téléphone sans console : erreurs JavaScript,
 // shader du bruit qui ne compile pas, scène affichée avant d'être prête.
@@ -65,6 +67,7 @@ function applyLang(): void {
   manifest.then((m) => renderCredits(creditsList, m, lang)).catch(() => undefined);
   cameraPanel?.setLang(lang);
   shutter?.setLang(lang);
+  balance?.setLang(lang);
   renderProblems();
 }
 
@@ -159,6 +162,29 @@ if (!Engine.isSupported()) {
     dof,
     autofocus,
   );
+  balance = new BalanceIndicator(
+    engine,
+    scene,
+    camera,
+    time,
+    autofocus,
+    panel,
+    {
+      root: element("balance"),
+      toggle: element<HTMLButtonElement>("balance-toggle"),
+      title: element("balance-title"),
+      aperture: document.getElementById("balance-aperture") as unknown as SVGElement,
+      shutter: document.getElementById("balance-shutter") as unknown as SVGElement,
+      iso: document.getElementById("balance-iso") as unknown as SVGElement,
+      point: document.getElementById("balance-point") as unknown as SVGElement,
+      dof: element("balance-dof"),
+      motion: element("balance-motion"),
+      noise: element("balance-noise"),
+      note: element("balance-note"),
+    },
+    lang,
+  );
+  panel.attachBalance(balance);
   ready
     .then((waiting) => {
       statusKey = null;
