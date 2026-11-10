@@ -40,6 +40,7 @@ _Repris de la section 8 de `REPRISE.md` (7 novembre 2026), puis mis à jour le m
   - Fabienne & Percy compte 199 850 triangles (version « 200k » de l'archive) et Dennis 99 964 : charge à mesurer sur téléphone, avec réduction possible.
   - Le chien est stylisé, les personnages réalistes : écart de rendu à juger avec les débutants.
   - Vitesse du chien (3,5 m/s) estimée dans son animation, de façon imprécise ; elle compte pour le flou de bougé de SIT-06.
+- LUM-02 (lumière dure ou douce) : simulateur en V2, décision de Julien du 10 novembre 2026. Le fond de la scène de parc est une photo à 360° prise par ciel couvert, qu'un soleil direct contredirait ; en V1, une activité interactive le remplace.
 - Rendu, au choix du moteur : flou d'un premier plan qui déborde sur le sujet, flou de mouvement et poses longues, flash (chantiers des domaines MAP, MVT et LUM).
 - Niveaux des situations : la règle de la médiane est un choix par défaut de la v0.2, à confirmer en écrivant les premiers défis.
 - Lisibilité sur téléphone, demandée par l'audit indépendant : intitulé anglais à la ligne, codes cliquables, textes lisibles. À appliquer dans la maquette.
@@ -66,7 +67,7 @@ On n'étend au-delà de la V1 minimale qu'après l'avoir testée avec des début
 1. Verser le référentiel dans le dépôt : fait le 7 novembre 2026 (version 0.2.0), à l'état de brouillon à remettre en question.
 2. Trancher les questions ouvertes, au fil des étapes.
 3. Proposer la pile technique de la maquette et du moteur de rendu 3D : deux ou trois options comparées sur le réalisme, la profondeur de champ, le flou de mouvement, le bruit, le flash, les performances sur téléphone et les licences. Julien choisit.
-4. Maquetter les écrans clés de la V1 minimale, lisibles sur téléphone : accueil et trois portes, questionnaire de situation, recette expliquée, boîtier virtuel et viseur avec collimateurs, simulation et bulletin, fiche notion.
+4. Maquetter les écrans clés de la V1 minimale, lisibles sur téléphone : accueil et trois portes, questionnaire de situation, recette expliquée, boîtier virtuel et viseur avec collimateurs, simulation et bulletin, fiche notion. Depuis le 10 novembre 2026, le solveur de situations est en V2 : la recette des trois situations est écrite à la main dans leur fiche (`docs/cadrage.md`).
 5. Prouver le moteur de rendu sur la scène de parc : exposition, mise au point, profondeur de champ, bruit, flou de bougé et de sujet.
 6. Rédiger en français et en anglais les contenus des notions et des situations de la V1 minimale, sources à l'appui, en relevant les termes des manuels des constructeurs.
 7. Tester avec des débutants, corriger, puis étendre aux autres situations.

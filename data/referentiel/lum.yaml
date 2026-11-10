@@ -18,11 +18,14 @@ notions:
   - id: LUM-02
     title: {fr: "Lumière dure ou douce", en: "hard, soft light"}
     level: N1
+    activity: true
     spec:
       explanation: "La douceur dépend de la taille apparente de la source"
-      simulator: "Taille de la source réglable, du soleil direct au ciel couvert"
+      simulator: "Activité interactive en V1 ; en V2, simulateur : taille de la source réglable, du soleil direct au ciel couvert"
       exercise: "Choisir le lieu ou l'heure d'un portrait doux"
     situations: [SIT-01, SIT-02, SIT-V2-01]
+    notes:
+      - "Simulateur reporté en V2 (décision de Julien du 10 novembre 2026) : le fond de la scène de parc est une photo à 360° prise par ciel couvert, qu'un soleil direct contredirait. En V1, une activité interactive le remplace."
     since: v0.1
   - id: LUM-03
     title: {fr: "Direction de la lumière", en: "front light, side light, backlight"}

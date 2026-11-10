@@ -13,6 +13,13 @@ Ce que ça tranche :
 - **Le public est débutant.** Le but est la compréhension et la maîtrise du boîtier et des bases, pas le niveau professionnel.
 - **Premiers effets sur l'indicateur d'équilibre** : la profondeur de champ est montrée telle qu'elle est (zone nette, sujets nets ou flous), sans jugement sans source. Le bougé de la main en reste exclu tant qu'il n'est ni sourcé ni simulé.
 
+## Découpage du 10 novembre 2026
+
+Décisions de Julien, sur le bilan de la V1 minimale :
+- BOI-07 (priorité à l'ouverture), BOI-08 (priorité à la vitesse) et MES-04 (correction d'exposition) entrent dans la V1 minimale, avec l'ISO auto (MES-10).
+- LUM-02 (lumière dure ou douce) : simulateur en V2 ; en V1, une activité interactive le remplace.
+- Solveur de situations : en V2 ; les recettes des trois situations de la V1 minimale sont écrites à la main dans leur fiche.
+
 ## Décisions du 7 novembre 2026
 
 - Public : débutants avec un boîtier reflex ou hybride. La photo au smartphone, les compacts et les bridges sont hors périmètre.

@@ -163,3 +163,12 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Version 0.3.32 : traînée du sujet visé en pixels de la photo (MVT-01).
 - Version 0.3.33 : modes de déclenchement (BOI-12), vue par vue, rafales Continu L, H et H (étendu) du Z 6, retardateur ; série à trier dans l'écran de revue.
 - Version 0.3.34 : collimateurs (MAP-06). Le point et les zones de mise au point restent dans la zone couverte par l'autofocus du Z 6, environ 90 % du cadre en largeur et en hauteur d'après Nikon, tracée dans le viseur. La disposition des 273 points n'est pas sourcée : pas de grille.
+
+## 10 novembre 2026 : bilan de la V1 minimale et découpage
+
+- Julien demande, pour l'ISO auto (MES-10), l'option la plus large : priorité à l'ouverture (BOI-07), correction d'exposition (MES-04) « + la priorité vitesse » (BOI-08). Les trois notions entrent dans le jalon `v1-min`.
+- Bilan présenté par Claude : simulateur fait pour 9 des 13 notions du jalon, NET-01 en partie ; produit presque entièrement à faire (écrans, fiches, défis, bulletin, solveur) ; couverture 0 sur 13.
+- Décisions de Julien (« Oui ») :
+  - LUM-02 : simulateur en V2, le fond de la scène de parc étant une photo par ciel couvert ; en V1, une activité interactive le remplace (`activity: true`) ;
+  - solveur de situations : en V2 ; pour les trois situations de la V1 minimale, la recette est écrite à la main dans leur fiche.
+- « Je vais me coucher, traite tout ce que tu peux sans moi sans attendre mon go » : Claude enchaîne les modes d'exposition et l'ISO auto, puis la vue de dessus de NET-01 et le déplacement de l'appareil de NET-06.
