@@ -118,7 +118,7 @@ export class BalanceIndicator {
       const near = S1 / (1 + q);
       const far = q < 1 ? S1 / (1 - q) : Infinity;
       const farText = Number.isFinite(far) ? `${this.decimal(far, 1)} m` : "∞";
-      this.el.dof.textContent = `${s.summary.split(" · ")[0]} · ${tr("balanceDof")} ${this.decimal(near, 1)} m – ${farText}`;
+      this.el.dof.textContent = `${s.labels.aperture} · ${tr("balanceDof")} ${this.decimal(near, 1)} m – ${farText}`;
 
       // Point visé : œil ou visage suivi, sinon point de mise au point ; position dans la caméra et la scène.
       const target = this.autofocus.target();
@@ -142,7 +142,7 @@ export class BalanceIndicator {
         }
       }
       let motion: Status = "neutral";
-      const shutterText = s.summary.split(" · ")[1];
+      const shutterText = s.labels.shutter;
       if (mover) {
         const v = Vector3.TransformNormal(mover.velocity, view);
         const dx = ((f * (v.x * aimed.z - aimed.x * v.z)) / (aimed.z * aimed.z)) * tSec;
@@ -162,7 +162,7 @@ export class BalanceIndicator {
       }
 
       // ISO : rapport signal sur bruit au point visé.
-      const isoText = s.summary.split(" · ")[2];
+      const isoText = s.labels.iso;
       const green = await this.greenAt(point);
       let noise: Status = "neutral";
       if (green === null) {

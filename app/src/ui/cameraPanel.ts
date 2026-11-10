@@ -141,8 +141,10 @@ export interface CurrentSettings {
   iso: number;
   exposure: number;
   frame: Frame;
-  /** Réglages tels qu'affichés : « f/8 · 1/100 s · ISO 100 · 50 mm ». */
+  /** Réglages tels qu'affichés : « M · f/8 · 1/100 s · ISO 100 · 50 mm ». */
   summary: string;
+  /** Libellés des réglages retenus, un par un : « f/8 », « 1/100 s », « ISO 100 », « 50 mm ». */
+  labels: { aperture: string; shutter: string; iso: string; focal: string };
 }
 
 interface PanelElements {
@@ -303,6 +305,12 @@ export class CameraPanel {
       exposure: 2 ** resolved.offset,
       frame: this.frame!,
       summary: this.summary(resolved),
+      labels: {
+        aperture: this.label("aperture", resolved),
+        shutter: this.label("shutter", resolved),
+        iso: `ISO ${this.label("iso", resolved)}`,
+        focal: this.label("focal", resolved),
+      },
     };
   }
 
