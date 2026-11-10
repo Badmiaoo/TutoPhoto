@@ -158,3 +158,4 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 
 - Principe de Julien : n'implémenter que ce qui est sourcé, pour un simulateur au plus près de la réalité, au service de débutants qui veulent comprendre la photo et maîtriser leur boîtier. Texte complet dans `docs/cadrage.md` ; règle ajoutée à `CLAUDE.md` (version 0.3.30).
 - Conséquences pour l'indicateur d'équilibre : profondeur de champ montrée sans jugement sans source ; bougé de la main exclu tant qu'il n'est ni sourcé ni simulé.
+- Version 0.3.31 : indicateur d'équilibre, triangle et trois lignes au point visé (zone nette, traînée du sujet, bruit), seuils sourcés.

@@ -93,7 +93,7 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
   let frozen = false;
   let eyeOffset: Vector3 | null = null;
   const animations: { group: AnimationGroup; from: number; to: number; fps: number }[] = [];
-  const walkers: { holder: TransformNode; speed: number; minX: number; maxX: number; phase: number }[] = [];
+  const walkers: { id: string; holder: TransformNode; speed: number; minX: number; maxX: number; phase: number }[] = [];
 
   /** Aller-retour à vitesse constante entre minX et maxX : position et sens à l'instant donné. */
   const applyTime = (time: number): void => {
@@ -138,7 +138,14 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
     setEyeOffset(offset) {
       eyeOffset = offset;
     },
-    movers: () => walkers.map((w) => ({ position: w.holder.position.clone(), speed: w.speed })),
+    // Sens de marche : le porteur est tourné de +π/2 vers les x croissants, de −π/2 vers les x décroissants.
+    movers: () =>
+      walkers.map((w) => ({
+        id: w.id,
+        position: w.holder.position.clone(),
+        speed: w.speed,
+        velocity: new Vector3(Math.sign(w.holder.rotation.y) * w.speed, 0, 0),
+      })),
   };
 
   // Fond : la photo à 360° en 8192 × 4096 px. Babylon la réduit si l'appareil n'accepte pas cette taille.
@@ -258,7 +265,7 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
     // l'appui, le pied posé recule de 1,23 à 1,27 m/s selon le pied et le point mesuré.
     load("nathan_animated_003/scene.gltf", -4, 12.5, Math.PI / 2, CM).then(({ holder, result }) => {
       for (const group of result.animationGroups) animate(group);
-      walkers.push({ holder, speed: 1.25, minX: -5, maxX: 5, phase: 1 });
+      walkers.push({ id: "nathan", holder, speed: 1.25, minX: -5, maxX: 5, phase: 1 });
       boneEyes("nathan", result.transformNodes);
     }),
     // Chien qui court (SIT-06). Le fichier contient deux chiens : on ne garde que « Jim », qui galope.
@@ -276,7 +283,7 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
         if (group.name === "Jim canter") animate(group);
         else group.dispose();
       }
-      walkers.push({ holder, speed: 3.5, minX: -5, maxX: 5, phase: 0 });
+      walkers.push({ id: "jim", holder, speed: 3.5, minX: -5, maxX: 5, phase: 0 });
       // Os de la tête de Jim (nommé « Ethan_Head_013 » dans le fichier, sous la cible de tête de Jim).
       const head = result.transformNodes.find((node) => node.name === "Ethan_Head_013");
       if (head) {

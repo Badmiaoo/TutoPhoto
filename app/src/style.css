@@ -379,6 +379,85 @@ dialog fieldset label {
   border-color: #3ddc4a;
 }
 
+/* Indicateur d'équilibre (ui/balance.ts) : triangle, point, et une ligne par réglage. */
+.balance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  margin-top: 0.6rem;
+}
+
+.balance[hidden] {
+  display: none;
+}
+
+.balance-triangle {
+  width: 8.5rem;
+  height: auto;
+  flex: none;
+}
+
+.balance-shape {
+  fill: none;
+  stroke: var(--discret);
+  stroke-width: 2;
+}
+
+.balance-vertex.neutral {
+  fill: var(--discret);
+}
+
+.balance-vertex.ok,
+.balance-point.ok {
+  fill: #2e9e44;
+}
+
+.balance-vertex.warn,
+.balance-point.warn {
+  fill: #e09b00;
+}
+
+.balance-vertex.bad,
+.balance-point.bad {
+  fill: #d03a2f;
+}
+
+.balance-point {
+  stroke: var(--texte);
+  stroke-width: 2;
+}
+
+.balance-label {
+  fill: var(--texte);
+  font-size: 11px;
+}
+
+.balance-text {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.balance-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.balance-lines {
+  margin: 0.2rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.balance-details {
+  flex-basis: 100%;
+  font-size: 0.85rem;
+}
+
+.balance-note {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+}
+
 /* Visage ou œil détecté en zone automatique : repère ambre, comme sur le Z 6. */
 .focus-marker.detected {
   border-color: #ffb000;

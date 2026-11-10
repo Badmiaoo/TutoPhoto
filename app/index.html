@@ -92,6 +92,30 @@
         <button id="shutter-button" type="button" class="shutter-button"></button>
       </div>
       <p id="focus-hint" class="note focus-hint"></p>
+      <div id="balance" class="balance">
+        <svg class="balance-triangle" viewBox="-34 -6 188 124" aria-hidden="true">
+          <polygon class="balance-shape" points="60,10 10,96 110,96" />
+          <circle id="balance-aperture" class="balance-vertex neutral" cx="60" cy="10" r="6" />
+          <circle id="balance-shutter" class="balance-vertex neutral" cx="10" cy="96" r="6" />
+          <circle id="balance-iso" class="balance-vertex neutral" cx="110" cy="96" r="6" />
+          <circle id="balance-point" class="balance-point ok" cx="60" cy="67" r="5" />
+          <text id="balance-label-aperture" class="balance-label" x="72" y="14"></text>
+          <text id="balance-label-shutter" class="balance-label" x="10" y="114" text-anchor="middle"></text>
+          <text id="balance-label-iso" class="balance-label" x="110" y="114" text-anchor="middle"></text>
+        </svg>
+        <div class="balance-text">
+          <p id="balance-title" class="balance-title"></p>
+          <ul class="balance-lines">
+            <li id="balance-dof"></li>
+            <li id="balance-motion"></li>
+            <li id="balance-noise"></li>
+          </ul>
+        </div>
+        <details class="balance-details">
+          <summary id="balance-limits"></summary>
+          <p id="balance-note" class="note balance-note"></p>
+        </details>
+      </div>
     </section>
     <dialog id="body-dialog" aria-labelledby="body-title">
       <h2 id="body-title"></h2>
@@ -119,6 +143,7 @@
         <label class="toggle"><input type="checkbox" value="brightness" /> <span id="preview-brightness-label"></span></label>
         <label class="toggle"><input type="checkbox" value="noise" /> <span id="preview-noise-label"></span></label>
         <label class="toggle"><input type="checkbox" value="depthOfField" /> <span id="preview-dof-label"></span></label>
+        <label class="toggle"><input type="checkbox" value="balance" /> <span id="preview-balance-label"></span></label>
       </div>
       <p id="preview-note" class="note"></p>
       <form method="dialog">

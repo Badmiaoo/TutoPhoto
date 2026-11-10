@@ -16,6 +16,8 @@
 // - à ISO 6400, le bruit du viseur varie d'une image à l'autre ; aperçu coupé, il disparaît ;
 // - au 135 mm à f/1.4, la profondeur de champ du viseur floute le fond ; coupée, le fond redevient net ;
 // - la loupe passe à 100 % et l'indique ;
+// - indicateur d'équilibre : zone nette et bruit excellent aux réglages par défaut, bruit sous 40:1 à ISO 6400,
+//   traînée du chien évaluée quand il est visé ;
 // - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne ;
 // - mise au point (MAP-04, MAP-05, MAP-09), en fin de test parce que la vue change : AF-C et point sélectif par
 //   défaut ; en zone automatique, un œil est détecté dans le groupe ; détection coupée, l'appareil prend le
@@ -188,6 +190,27 @@ async function runProfile(browser, name, base) {
     check("rendu à la taille affichée", Math.abs(geometry.rw - geometry.cw) <= 1 && Math.abs(geometry.rh - geometry.ch) <= 1, `${geometry.rw}×${geometry.rh} rendu, ${geometry.cw}×${geometry.ch} affiché`);
     check("cadre aux proportions du capteur", Math.abs(geometry.ratio - 35.9 / 23.9) < 0.02, `rapport ${geometry.ratio.toFixed(3)}, attendu ${(35.9 / 23.9).toFixed(3)}`);
 
+    // Indicateur d'équilibre, réglages par défaut (50 mm, f/8, 1/100 s, ISO 100).
+    const balanceLine = (id, pattern) =>
+      page
+        .waitForFunction(
+          ([lineId, source]) => {
+            const text = document.getElementById(lineId).textContent;
+            return new RegExp(source).test(text) ? text : null;
+          },
+          [id, pattern.source],
+          { timeout: 30000 },
+        )
+        .then((handle) => handle.jsonValue())
+        .catch(() => null);
+    const noiseDefault = (await balanceLine("balance-noise", /bruit /)) ?? (await page.evaluate(() => document.getElementById("balance-noise").textContent));
+    const dofDefault = await page.evaluate(() => document.getElementById("balance-dof").textContent);
+    check(
+      "indicateur d'équilibre aux réglages par défaut",
+      /zone nette : \d+,\d m – (\d+,\d m|∞)/.test(dofDefault) && /ISO 100 · bruit excellent/.test(noiseDefault),
+      `${dofDefault} | ${noiseDefault}`,
+    );
+
     // Profondeur de champ : 135 mm, f/1.4, vitesse ajustée pour rester près de l'exposition correcte. Les
     // réglages se font effet coupé, puis l'effet reste coupé : en rendu logiciel, il ralentit chaque image.
     const clicks = async (selector, n) => { for (let i = 0; i < n; i++) await page.click(selector); };
@@ -218,6 +241,8 @@ async function runProfile(browser, name, base) {
     await page.waitForTimeout(800);
     const noisy = await frameNoise(page);
     check("bruit du viseur à ISO 6400", Math.max(...noisy) > 0.3, noisy.map((v) => v.toFixed(2)).join(" / "));
+    const noiseHigh = (await balanceLine("balance-noise", /ISO 6400 · bruit (acceptable|insuffisant)/)) ?? (await page.evaluate(() => document.getElementById("balance-noise").textContent));
+    check("indicateur : bruit sous 40:1 à ISO 6400", /ISO 6400 · bruit (acceptable|insuffisant)/.test(noiseHigh), noiseHigh);
     await page.click("#preview-button");
     await page.uncheck('#preview-dialog input[value="all"]');
     await page.click("#preview-close");
@@ -311,6 +336,9 @@ async function runProfile(browser, name, base) {
     const dogText = await waitBadge(/^AF-C · Auto · (œil|visage) · /, 30000);
     const dogAt = dogText ? lockedMetres(dogText) : NaN;
     check("détection des animaux : œil ou visage du chien", Boolean(dogText) && dogAt > 8 && dogAt < 12, dogText ?? (await afText()));
+    // À 1/4000 s, le chien (3,5 m/s à 9 m, 50 mm) laisse 50 × 3,5 × 0,00025 / 9 ≈ 0,005 mm, sous la limite.
+    const dogMotion = await balanceLine("balance-motion", /chien : /);
+    check("indicateur : traînée du chien évaluée", /1\/4000 s · chien : net/.test(dogMotion ?? ""), dogMotion ?? "chien non visé");
     await setAf("continuous", "auto", "faceEye");
     await setAf("single", "point");
     const frameBox = await page.locator("#frame").boundingBox();

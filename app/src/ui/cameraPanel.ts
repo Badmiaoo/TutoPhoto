@@ -40,6 +40,7 @@ import type { ViewfinderNoise } from "../camera/noise";
 import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
 import type { AreaMode, Autofocus, FocusArea, FocusMode } from "../camera/autofocus";
 import type { Detection } from "../camera/faces";
+import type { BalanceIndicator } from "./balance";
 import { t, type Lang, type MessageKey } from "../i18n";
 
 /** Écart maximal affiché par la cellule, en IL. */
@@ -74,6 +75,8 @@ interface Preview {
   brightness: boolean;
   noise: boolean;
   depthOfField: boolean;
+  /** Indicateur d'équilibre (ui/balance.ts) : une aide, que l'on peut couper pour s'entraîner. */
+  balance: boolean;
 }
 
 type Dial = "aperture" | "shutter" | "iso" | "focal";
@@ -119,7 +122,8 @@ export class CameraPanel {
   private format: Format = "ff";
   private lang: Lang;
   private frame: Frame | null = null;
-  private preview: Preview = { all: true, brightness: true, noise: true, depthOfField: true };
+  private preview: Preview = { all: true, brightness: true, noise: true, depthOfField: true, balance: true };
+  private balance: BalanceIndicator | null = null;
   private dof: ViewfinderDepthOfField | null = null;
   private autofocus: Autofocus | null = null;
   private focusMode: FocusMode = "continuous";
@@ -208,6 +212,17 @@ export class CameraPanel {
       frame: this.frame!,
       summary: [this.label("aperture"), this.label("shutter"), `ISO ${this.label("iso")}`, this.label("focal")].join(" · "),
     };
+  }
+
+  /** Indicateur d'équilibre, créé après le panneau. */
+  attachBalance(balance: BalanceIndicator): void {
+    this.balance = balance;
+    this.update();
+  }
+
+  /** Rapport entre l'image réelle et l'image affichée : 2^écart quand l'aperçu de la luminosité est coupé. */
+  displayGain(): number {
+    return this.showsBrightness() ? 1 : 2 ** exposureOffset(this.settings);
   }
 
   /** Autofocus du viseur, créé après le panneau (il lit le point de mise au point). */
@@ -384,6 +399,7 @@ export class CameraPanel {
     this.scene.imageProcessingConfiguration.exposure = this.showsBrightness() ? 2 ** offset : 1;
     this.noise.setEnabled(this.showsNoise());
     this.dof?.setEnabled(this.showsDepthOfField());
+    this.balance?.setEnabled(this.showsBalance());
     this.updatePreview(tr, colon);
 
     const body = this.body();
@@ -578,6 +594,10 @@ export class CameraPanel {
     return this.preview.all && this.preview.depthOfField;
   }
 
+  private showsBalance(): boolean {
+    return this.preview.all && this.preview.balance;
+  }
+
   /** Textes de la fenêtre de l'aperçu, cases cochées, et rappel dans le viseur de ce qui n'est pas montré. */
   private updatePreview(tr: (key: MessageKey) => string, colon: string): void {
     const dialog = this.el.previewDialog;
@@ -588,6 +608,7 @@ export class CameraPanel {
     dialog.querySelector("#preview-brightness-label")!.textContent = tr("previewBrightness");
     dialog.querySelector("#preview-noise-label")!.textContent = tr("previewNoise");
     dialog.querySelector("#preview-dof-label")!.textContent = tr("previewDepthOfField");
+    dialog.querySelector("#preview-balance-label")!.textContent = tr("previewBalance");
     dialog.querySelector("#preview-note")!.textContent = tr("previewNote");
     dialog.querySelector("#preview-close")!.textContent = tr("close");
     for (const input of dialog.querySelectorAll<HTMLInputElement>("input[type=checkbox]")) {
@@ -598,6 +619,7 @@ export class CameraPanel {
     if (!this.showsBrightness()) hidden.push(tr("previewBrightnessShort"));
     if (!this.showsNoise()) hidden.push(tr("previewNoiseShort"));
     if (!this.showsDepthOfField()) hidden.push(tr("previewDepthOfFieldShort"));
+    if (!this.showsBalance()) hidden.push(tr("previewBalanceShort"));
     this.el.previewBadge.hidden = hidden.length === 0;
     const list = hidden.length > 1 ? `${hidden.slice(0, -1).join(", ")}${tr("and")}${hidden[hidden.length - 1]}` : hidden.join("");
     this.el.previewBadge.textContent = `${tr("previewOff")}${colon}${list}`;
@@ -607,7 +629,7 @@ export class CameraPanel {
     try {
       const saved = JSON.parse(window.localStorage.getItem(PREVIEW_STORAGE_KEY) ?? "null") as Partial<Preview> | null;
       if (saved) {
-        for (const key of ["all", "brightness", "noise", "depthOfField"] as const) {
+        for (const key of ["all", "brightness", "noise", "depthOfField", "balance"] as const) {
           if (typeof saved[key] === "boolean") this.preview[key] = saved[key];
         }
       }

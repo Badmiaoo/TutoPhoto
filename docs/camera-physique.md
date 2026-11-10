@@ -405,6 +405,20 @@ Non simulé :
 - **Sujets autres que des visages** : ils ne sont pas suivis.
 - **Choix d'un autre visage au sélecteur** : non simulé ; on touche le visage voulu.
 
+## Indicateur d'équilibre (version 0.3.31)
+
+Décisions de Julien :
+- forme B, un triangle dans lequel un point bouge (9 novembre 2026) ;
+- n'implémenter que ce qui est sourcé (10 novembre 2026, `docs/cadrage.md`).
+
+Il se trouve sous le viseur, dans le panneau du boîtier (`app/src/ui/balance.ts`), et se coupe dans la fenêtre « Aperçu » pour s'entraîner. Il donne une ligne par réglage, au point visé : œil ou visage suivi en zone automatique, sinon point de mise au point.
+- **Ouverture : zone nette**, sans jugement. Formule du diamètre du flou ([Wikipedia, « Circle of confusion », révision 1335590423](https://en.wikipedia.org/w/index.php?title=Circle_of_confusion&oldid=1335590423)) : c = A × |S₂ − S₁| / S₂ × f / (S₁ − f), avec A = f / N. On pose c égal au flou acceptable courant, d / 1500 (d : diagonale du capteur), soit 0,029 mm en plein format. Avec q = c × N × (S₁ − f) / f², la limite proche vaut S₁ / (1 + q), la limite lointaine S₁ / (1 − q), ou l'infini si q ≥ 1. Exemple : 50 mm, f/8, mise au point à 6,6 m. q = 0,0287 × 8 × 6550 / 2500 ≈ 0,60, d'où une zone nette de 4,1 m à 16,6 m.
+- **Vitesse : traînée du sujet visé**, comparée au même flou acceptable. Un point (X, Y, Z) de la caméra se projette en x = f X / Z ; un sujet de vitesse v se déplace sur le capteur de f (vX Z − X vZ) / Z² × t (et de même en y). Exemple : le chien (3,5 m/s, de profil, à 9 m) au 50 mm et à 1/100 s laisse 50 × 3,5 × 0,01 / 9 ≈ 0,19 mm, soit 6,6 à 6,8 fois la limite (6,6 mesuré dans le navigateur de test). À 1/4000 s, c'est 0,005 mm, sous la limite. Les sujets immobiles n'ont pas de traînée. Le bougé de la main n'est ni sourcé ni simulé : il n'est pas compté.
+- **ISO : bruit au point visé**, en rapport signal sur bruit d'un pixel de la photo (1500 px de grand côté), avec le modèle de bruit du viseur. Seuils de la norme des sensibilités numériques ([Wikipedia, « Film speed », révision 1383727213](https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213)) : 40:1 pour une « excellent image quality », 10:1 pour une « acceptable image quality ». Ils sont définis pour 70 pixels par cm vus à 25 cm ; une photo de 1500 px y fait environ 21 cm de large. La valeur au point visé est lue dans l'image du viseur, en moyenne sur 5 × 5 pixels pour lisser le bruit affiché. Approximation : canal vert seul, la norme pondérant luminance et couleur d'une façon que l'article ne détaille pas. Hautes lumières écrêtées : indiqué tel quel. Mesures du 10 novembre 2026, au point visé par défaut : 160:1 à ISO 100 (excellent), 27:1 à ISO 6400 et 1/4000 s (acceptable).
+- **Le point** : au centre quand rien ne dépasse. Il part vers l'ISO si le bruit passe sous 40:1 (un peu) ou sous 10:1 (beaucoup), et vers la vitesse si la traînée dépasse le flou acceptable. Sommets et point prennent la couleur de l'état : vert, orange, rouge, ou gris sans jugement. La géométrie est un choix d'affichage ; les seuils, eux, sont sourcés.
+
+Non simulé : le bougé de la main ; un jugement sur la profondeur de champ (il dépend de l'intention, qui n'a pas de critère sourcé).
+
 ## Fonctions demandées par Julien le 9 novembre 2026
 
 Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 minimale (`data/jalons.yaml`), qui ne contient que les notions clés de SIT-01, SIT-05 et SIT-06. `CLAUDE.md` demande de ne pas étendre la V1 minimale avant de l'avoir testée avec des débutants. Julien laisse à Claude le choix du moment (« quand tu estimes que c'est le meilleur moment », 9 novembre 2026) : balance des blancs, grilles de composition et histogramme viendront après les tests de la V1 minimale. Les équivalents cités viennent du [guide d'aide Sony ILCE-7M3](https://helpguide.sony.net/ilc/1720/v1/en/print.pdf), lu le 9 novembre 2026.
@@ -451,7 +465,7 @@ Une pull request par étape :
 3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus). Interrupteurs de l'aperçu dans le viseur : version 0.3.16.
 4. Loupe dans le viseur et sur l'écran de revue : faite en version 0.3.17 (voir ci-dessus).
 5. Profondeur de champ approchée dans le viseur : faite en version 0.3.22, puis en flou de taille physique en version 0.3.23 (voir ci-dessus).
-6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Ensuite : collimateurs (MAP-06), indicateur d'équilibre, flou de bougé et de sujet (MVT-01), modes d'entraînement (BOI-12).
+6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Indicateur d'équilibre : version 0.3.31. Ensuite : collimateurs (MAP-06), flou de bougé et de sujet (MVT-01), modes d'entraînement (BOI-12).
 7. Après les tests de la V1 minimale : balance des blancs, grilles de composition, histogramme (voir ci-dessus). En V2 : correction de la photo après la prise.
 
 ## Ce que je ne sais pas
