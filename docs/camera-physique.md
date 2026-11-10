@@ -361,7 +361,7 @@ Ce que dit le manuel du Z 6 ([« Focus »](https://onlinemanual.nikonimglib.com/
 Dans TutoPhoto :
 - **Fenêtre « Mise au point »**, ouverte par le bouton du boîtier (« AF-C · Point ») : mode de mise au point (AF-S, AF-C) et mode de zone AF, avec les termes du manuel en français.
 - **Zone large** : l'autofocus lit toute la zone dans la carte de profondeur du viseur et retient la plus petite distance. Sur le fond à 360°, chaque pixel prend la distance du plan du sol le long de son rayon.
-- **Taille des zones** : le manuel ne la donne pas, et les recherches du 9 novembre 2026 ne l'ont pas trouvée pour le Z 6. Elle est choisie pour TutoPhoto : des carrés de 10 % (S) et de 20 % (L) du grand côté du cadre. La zone est rognée au cadre, et le repère montre la zone réellement mesurée.
+- **Taille des zones** : le manuel ne la donne pas, et les recherches du 9 novembre 2026 ne l'ont pas trouvée pour le Z 6. Elle est choisie pour TutoPhoto : des carrés de 10 % (S) et de 20 % (L) du grand côté du cadre. La zone est rognée au cadre (à la zone couverte par l'autofocus depuis la version 0.3.34, voir « Collimateurs »), et le repère montre la zone réellement mesurée.
 - **Photo** : sans verrou, l'autofocus du viseur fait le point au déclenchement, avec le mode de zone choisi, et la photo prend cette distance. La photo ne mesure elle-même la distance au point que si cette mesure échoue.
 - **Affichage** : le viseur et la légende de la photo indiquent la zone (« AF-S · Zone L · verrouillée à 5,4 m »).
 - **Exemple mesuré** le 9 novembre 2026 dans le navigateur de test, sur ordinateur : au même point, en bas du cadre, 6,2 m en point sélectif et 5,4 m en zone large (L), où le sol en bas du cadre est le sujet le plus proche (4,4 m et 3,8 m sur le profil Android, tenu à la verticale). C'est le piège de la zone large : ce qui est proche dans la zone prend la mise au point.
@@ -389,7 +389,7 @@ Dans TutoPhoto (`app/src/camera/faces.ts`, `app/src/camera/autofocus.ts`) :
 - **Taille du visage**, seuils choisis pour TutoPhoto, le manuel n'en donnant pas : écart entre les yeux rapporté au grand côté du cadre, sans la loupe. Visage détecté de 0,4 % à 25 %, yeux à partir de 0,8 %. Calcul pour Dennis au 50 mm, en plein format : 50 × 0,065 / (D × 35,9), d'où des yeux détectés jusqu'à 11,3 m et un visage jusqu'à 22,6 m. Au 18 mm, c'est 4,1 m et 8,1 m ; au 135 mm, des yeux jusqu'à 30,6 m.
 - **Œil retenu** : le plus proche de l'appareil parmi les yeux vus. Le manuel dit seulement « one or the other of the subject's eyes ».
 - **Choix du sujet** : sans toucher, le visage le plus proche du point de mise au point (le centre au départ), puis suivi. Toucher le viseur choisit le visage le plus proche du point touché, puis le suit. Si le visage suivi n'est plus détecté, l'appareil passe au visage le plus proche du point.
-- **Sans visage** : le sujet le plus proche dans tout le cadre (règle du P1100). Le cadre entier est lu, le manuel ne donnant pas la couverture de l'autofocus. Appareil horizontal, c'est souvent le sol en bas du cadre : le piège est le même qu'en zone large. Après un toucher sans visage détecté : le point touché, comme le déclencheur tactile du Z 6.
+- **Sans visage** : le sujet le plus proche dans tout le cadre (règle du P1100). Le cadre entier était lu, le manuel ne donnant pas la couverture de l'autofocus ; depuis la version 0.3.34, c'est la zone couverte, d'après les communiqués de Nikon (voir « Collimateurs »). Appareil horizontal, c'est souvent le sol en bas du cadre : le piège est le même qu'en zone large. Après un toucher sans visage détecté : le point touché, comme le déclencheur tactile du Z 6.
 - **Affichage** : repère ambre autour de l'œil ou du visage, vert une fois verrouillé en AF-S. Le viseur et la légende de la photo indiquent ce qui a été retenu (« AF-C · Auto · œil · 6,6 m »).
 - **Mesures du 9 novembre 2026 dans le navigateur de test**, vue de départ, sur ordinateur :
   - œil de Sophia à 6,6 m, suivi ;
@@ -441,6 +441,27 @@ Dans TutoPhoto (`app/src/ui/cameraPanel.ts`, `app/src/ui/shutter.ts`) :
 
 Non simulé : la mémoire tampon et le ralentissement quand elle est pleine ; l'exposition qui « may vary erratically » en Continu H (étendu) ; le mode silencieux ; plusieurs vues au retardateur.
 
+## Collimateurs (version 0.3.34)
+
+Demande de Julien du 10 novembre 2026 : enchaîner sur les collimateurs (MAP-06 ; fiche du référentiel : « Choisir soi-même le collimateur, le déplacer vite, connaître sa couverture » ; simulateur : « Grille de collimateurs ; la netteté suit la profondeur sous le point choisi »).
+
+Ce que dit Nikon du Z 6, lu le 10 novembre 2026 :
+- [communiqué du 23 août 2018](https://www.nikon.com/news/2018/0823_mirrorless_01.htm) : « the Z 6 has 273 focus points*, enabling broad coverage of approximately 90% of the imaging area both horizontally and vertically », avec la note « * With FX (36x24) format and single-point AF » ;
+- [communiqué du 15 août 2019](https://www.nikon.com/news/2019/0815_award_01.htm), sur les prix EISA : « 273*2 focus points that provide good coverage of the imaging area — approximately 90% both horizontally and vertically » ;
+- [page du produit](https://imaging.nikon.com/imaging/lineup/mirrorless/z_6/) : « 273-point hybrid AF system offering accurate focus across 90% of the frame » ; sa fiche technique : « Focus points (in photo mode, FX format, single-point AF) 273 (single-point AF) ».
+- Aucune de ces pages ne donne la disposition des 273 points, ni ce que l'appareil affiche de cette couverture.
+
+Dans TutoPhoto (`app/src/ui/cameraPanel.ts`) :
+- **Zone couverte** : environ 90 % du cadre en largeur et en hauteur, au centre, soit une marge de 5 % de chaque côté. Elle est tracée en pointillés discrets dans le viseur, loupe comprise : c'est une aide de TutoPhoto, pas un affichage sourcé du Z 6.
+- **Point sélectif** : le point se place partout dans la zone couverte. Un toucher hors de cette zone ramène le point au plus près, sur son bord (choix de TutoPhoto : les pages lues ne disent pas ce que fait l'écran tactile du Z 6 hors de la zone).
+- **Zone large et zone automatique** : la zone mesurée est rognée à la zone couverte, et la détection des yeux ne retient que les yeux qui s'y trouvent. Nikon donne la couverture pour le point sélectif ; elle est appliquée aux autres modes de zone faute d'autre chiffre.
+- **Grille** : la fiche du référentiel prévoit une grille de collimateurs. Sa disposition n'est pas sourcée : elle n'est pas simulée, et le point se déplace en continu dans la zone couverte.
+- **Boîtiers** : la couverture du Z 6 est appliquée aux six boîtiers de référence, comme les modes de zone du Z 6. Celle des cinq autres n'a pas été lue.
+- **Déplacer vite** : le toucher du viseur. Le manuel du Z 6 ([« Focus »](https://onlinemanual.nikonimglib.com/z7_z6/en/05_basic_settings_01.html), relu le 10 novembre 2026) indique aussi : « The focus point can be positioned using the sub-selector or multi-selector », et le réglage a5 (« Every other point ») n'utilise qu'un quart des points pour aller plus vite. Ni les sélecteurs ni ce réglage ne sont simulés.
+- **Routine de test** : un toucher dans le coin haut droit du cadre place le point à 95 % × 5 % du cadre, et la zone tracée fait 90 % × 90 % du cadre.
+
+Non simulé : la grille des 273 points, la couverture des autres boîtiers, et celle des autres formats d'image du Z 6 (la note de Nikon ne vaut que pour le format FX), le déplacement du point aux sélecteurs, le réglage a5.
+
 ## Fonctions demandées par Julien le 9 novembre 2026
 
 Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 minimale (`data/jalons.yaml`), qui ne contient que les notions clés de SIT-01, SIT-05 et SIT-06. `CLAUDE.md` demande de ne pas étendre la V1 minimale avant de l'avoir testée avec des débutants. Julien laisse à Claude le choix du moment (« quand tu estimes que c'est le meilleur moment », 9 novembre 2026) : balance des blancs, grilles de composition et histogramme viendront après les tests de la V1 minimale. Les équivalents cités viennent du [guide d'aide Sony ILCE-7M3](https://helpguide.sony.net/ilc/1720/v1/en/print.pdf), lu le 9 novembre 2026.
@@ -487,7 +508,7 @@ Une pull request par étape :
 3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus). Interrupteurs de l'aperçu dans le viseur : version 0.3.16.
 4. Loupe dans le viseur et sur l'écran de revue : faite en version 0.3.17 (voir ci-dessus).
 5. Profondeur de champ approchée dans le viseur : faite en version 0.3.22, puis en flou de taille physique en version 0.3.23 (voir ci-dessus).
-6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Indicateur d'équilibre : version 0.3.31. Traînée en pixels (MVT-01) : version 0.3.32. Modes de déclenchement (BOI-12) : version 0.3.33. Ensuite : collimateurs (MAP-06), ISO auto (MES-10), profondeur de champ en vue de dessus (NET-01).
+6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Indicateur d'équilibre : version 0.3.31. Traînée en pixels (MVT-01) : version 0.3.32. Modes de déclenchement (BOI-12) : version 0.3.33. Collimateurs (MAP-06) : version 0.3.34. Ensuite : ISO auto (MES-10), profondeur de champ en vue de dessus (NET-01).
 7. Après les tests de la V1 minimale : balance des blancs, grilles de composition, histogramme (voir ci-dessus). En V2 : correction de la photo après la prise.
 
 ## Ce que je ne sais pas
@@ -496,3 +517,4 @@ Une pull request par étape :
 - Le temps de calcul d'une photo par accumulation sur téléphone.
 - Le modèle du tremblement de la main pour le flou de bougé.
 - La fiabilité des capacités dérivées des mesures de DxOMark, que leur auteur juge lui-même peu sûres pour les petits capteurs.
+- La disposition des 273 collimateurs du Z 6, ce que le Z 6 affiche de leur couverture, et la couverture de l'autofocus des cinq autres boîtiers de référence.

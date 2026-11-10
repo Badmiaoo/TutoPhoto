@@ -116,6 +116,7 @@ if (!Engine.isSupported()) {
       releaseDialog: element<HTMLDialogElement>("release-dialog"),
       afBadge: element("af-badge"),
       focusMarker: element("focus-marker"),
+      afCoverage: element("af-coverage"),
       focusHint: element("focus-hint"),
     },
     lang,

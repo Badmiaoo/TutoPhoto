@@ -162,3 +162,4 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Essai de Julien sur son Google Pixel 8 Pro : « La fluidité semble bonne. » Il demande d'enchaîner : figer le mouvement (MVT-01), modes d'entraînement (BOI-12), collimateurs (MAP-06).
 - Version 0.3.32 : traînée du sujet visé en pixels de la photo (MVT-01).
 - Version 0.3.33 : modes de déclenchement (BOI-12), vue par vue, rafales Continu L, H et H (étendu) du Z 6, retardateur ; série à trier dans l'écran de revue.
+- Version 0.3.34 : collimateurs (MAP-06). Le point et les zones de mise au point restent dans la zone couverte par l'autofocus du Z 6, environ 90 % du cadre en largeur et en hauteur d'après Nikon, tracée dans le viseur. La disposition des 273 points n'est pas sourcée : pas de grille.

@@ -12,6 +12,23 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.34] - 2026-11-10
+
+### Ajouté
+
+- Collimateurs (MAP-06), demande de Julien du 10 novembre 2026, d'après Nikon pour le Z 6 (273 points en point sélectif, couverture d'environ 90 % du cadre en largeur et en hauteur) :
+  - le point de mise au point reste dans la zone couverte ; un toucher hors de cette zone le ramène sur son bord ;
+  - zones larges et zone automatique rognées à la zone couverte ; la détection ne retient que les yeux qui s'y trouvent ;
+  - zone couverte tracée en pointillés dans le viseur, loupe comprise (aide de TutoPhoto) ;
+  - pas de grille : la disposition des 273 points n'est pas sourcée.
+- Sources `nikon-z6-launch-2018`, `nikon-z6-eisa-2019` et `nikon-z6-product`, rattachées à MAP-06 avec `nikon-z6-focus`.
+- Routine de test : un toucher dans le coin du cadre place le point à 5 % des bords, et la zone tracée fait 90 % × 90 % du cadre.
+
+### Modifié
+
+- Source `nikon-z6-focus` : déplacement du point au sélecteur secondaire ou multidirectionnel, réglage a5 (non simulés).
+- `docs/camera-physique.md` (section « Collimateurs », zones larges et zone automatique), `docs/historique.md`, README.
+
 ## [0.3.33] - 2026-11-10
 
 ### Ajouté
@@ -536,6 +553,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.34]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.33...v0.3.34
 [0.3.33]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.32...v0.3.33
 [0.3.32]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.31...v0.3.32
 [0.3.31]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.30...v0.3.31

@@ -430,6 +430,28 @@ async function runProfile(browser, name, base) {
       .catch(() => false);
     check("AF-C : la distance suit la zone", followed, `${await afText()} ; avant : ${lockedText}`);
 
+    // Collimateurs (MAP-06) : la couverture de l'AF du Z 6 est d'environ 90 % du cadre en largeur et en
+    // hauteur. Un toucher dans le coin haut droit du cadre (l'indicateur d'équilibre occupe le coin haut gauche)
+    // ramène le point au bord de la zone couverte, à 5 % des bords.
+    await setAf("continuous", "point");
+    await page.mouse.click(frameBox.x + 0.99 * frameBox.width, frameBox.y + 0.01 * frameBox.height);
+    await page.waitForTimeout(500);
+    const coverage = await page.locator("#af-coverage").boundingBox();
+    const marker = await page.locator("#focus-marker").boundingBox();
+    const at = (box) => ({
+      x: (box.x + box.width / 2 - frameBox.x) / frameBox.width,
+      y: (box.y + box.height / 2 - frameBox.y) / frameBox.height,
+    });
+    const markerAt = marker ? at(marker) : { x: NaN, y: NaN };
+    const coverageShare = coverage ? { x: coverage.width / frameBox.width, y: coverage.height / frameBox.height } : { x: NaN, y: NaN };
+    check(
+      "collimateurs : point ramené dans la zone couverte (90 %)",
+      Math.abs(markerAt.x - 0.95) < 0.01 && Math.abs(markerAt.y - 0.05) < 0.01 && Math.abs(coverageShare.x - 0.9) < 0.01 && Math.abs(coverageShare.y - 0.9) < 0.01,
+      `repère à ${(markerAt.x * 100).toFixed(1)} % × ${(markerAt.y * 100).toFixed(1)} % du cadre ; zone couverte ${(coverageShare.x * 100).toFixed(1)} % × ${(coverageShare.y * 100).toFixed(1)} %`,
+    );
+    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-collimateurs.png`), timeout: 120000 });
+    await page.mouse.click(frameBox.x + frameBox.width / 2, frameBox.y + frameBox.height / 2);
+
     if (withPhoto) {
       // Rafale : Continu L à 5 vues par seconde. En rendu logiciel, l'horloge de la scène avance moins vite que
       // le temps réel (100 ms au plus par image) : le déclencheur est relâché quand le bouton annonce au moins

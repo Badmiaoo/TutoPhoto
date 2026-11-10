@@ -168,9 +168,8 @@ export class Shutter {
     const x = (clientX - rect.left) / rect.width;
     const y = (clientY - rect.top) / rect.height;
     if (x < 0 || x > 1 || y < 0 || y > 1) return;
-    const point = this.panel.displayedToFrame({ x, y });
-    this.focusPoint = { x: Math.min(1, Math.max(0, point.x)), y: Math.min(1, Math.max(0, point.y)) };
-    this.panel.setFocusPoint(this.focusPoint);
+    // Hors de la zone couverte par l'autofocus, le point est ramené au bord de cette zone (cameraPanel.ts).
+    this.focusPoint = this.panel.setFocusPoint(this.panel.displayedToFrame({ x, y }));
   }
 
   /** Le repère du point suit le cadre (en pourcentage du canevas, comme le cadre) et la loupe. */
@@ -196,7 +195,7 @@ export class Shutter {
       style.height = side ? `${side * area.auto.canvasWidth * (100 / area.auto.canvasHeight)}%` : "";
       return;
     }
-    // Zone large : le repère montre la zone mesurée, rognée au cadre ; point sélectif : un carré centré sur le
+    // Zone large : le repère montre la zone mesurée, rognée à la zone couverte par l'autofocus ; point sélectif : un carré centré sur le
     // point, à la taille de la feuille de style.
     const zone = area.zone;
     style.left = zone ? `${((zone.left + zone.right) / 2) * 100}%` : `${left + shown.x * width}%`;
