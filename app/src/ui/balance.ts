@@ -10,6 +10,8 @@
 // - Vitesse : traînée du sujet visé pendant la pose, sur le capteur, comparée au même flou acceptable.
 //   Projection d'un point (X, Y, Z) de la caméra : x = f X / Z ; un sujet de vitesse (vX, vY, vZ) se déplace
 //   de f (vX Z − X vZ) / Z² × t (et de même en y). Sujets en mouvement de la scène : le promeneur et le chien.
+//   Traînée aussi donnée en pixels de la photo (MVT-01, « traînée mesurée en pixels ») : traînée sur le capteur
+//   × 1500 / largeur du capteur, la photo faisant 1500 px sur le grand côté du capteur.
 // - ISO : rapport signal sur bruit d'un pixel de la photo (1500 px de grand côté) au point visé, avec le
 //   modèle de bruit du viseur (camera/noise.ts). Seuils de la norme des sensibilités numériques : 40:1,
 //   « excellent image quality », et 10:1, « acceptable image quality », définis pour 70 pixels par cm vus à
@@ -148,11 +150,13 @@ export class BalanceIndicator {
         const trail = Math.hypot(dx, dy);
         const ratio = trail / blurLimit;
         const who = tr(mover.id === "jim" ? "balanceDog" : "balanceWalker");
+        const pixels = (trail * PHOTO_LONG_SIDE) / body.sensorWidthMm;
+        const pixelText = `${this.decimal(pixels, pixels < 10 ? 1 : 0)} ${tr("balancePixels")}`;
         motion = ratio <= 1 ? "ok" : "bad";
         this.el.motion.textContent =
           ratio <= 1
-            ? `${shutterText} · ${who}${tr("balanceColon")}${tr("balanceSharp")}`
-            : `${shutterText} · ${who}${tr("balanceColon")}${tr("balanceTrail")} ${this.decimal(ratio, 1)} ${tr("balanceTimesLimit")}`;
+            ? `${shutterText} · ${who}${tr("balanceColon")}${tr("balanceSharp")} (${pixelText})`
+            : `${shutterText} · ${who}${tr("balanceColon")}${tr("balanceTrail")} ${this.decimal(ratio, 1)} ${tr("balanceTimesLimit")} (${pixelText})`;
       } else {
         this.el.motion.textContent = `${shutterText} · ${tr("balanceStill")}`;
       }
