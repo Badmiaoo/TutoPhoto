@@ -22,3 +22,11 @@ jalons:
       - MVT-01
       - MES-10
       - BOI-12
+      # Ajoutées le 10 novembre 2026 (Julien) : priorité à l'ouverture, priorité à la vitesse et correction
+      # d'exposition, avec l'ISO auto.
+      - BOI-07
+      - BOI-08
+      - MES-04
+    notes:
+      - "LUM-02 : activité interactive en V1, simulateur en V2 (décision de Julien du 10 novembre 2026)."
+      - "Solveur de situations : en V2. Pour les trois situations de la V1 minimale, la recette est écrite à la main dans leur fiche (décision de Julien du 10 novembre 2026)."

@@ -12,6 +12,16 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.35] - 2026-11-10
+
+### Modifié
+
+- Découpage de la V1 minimale, décisions de Julien du 10 novembre 2026 sur le bilan présenté par Claude :
+  - BOI-07 (priorité à l'ouverture), BOI-08 (priorité à la vitesse) et MES-04 (correction d'exposition) entrent dans le jalon `v1-min`, avec l'ISO auto (MES-10) ;
+  - LUM-02 : simulateur en V2, activité interactive en V1 (`activity: true`), le fond de la scène de parc étant une photo par ciel couvert ;
+  - solveur de situations en V2 : les recettes des trois situations sont écrites à la main dans leur fiche (notes du jalon).
+- `docs/cadrage.md` (section « Découpage du 10 novembre 2026 »), `docs/historique.md`, `docs/questions-ouvertes.md`, `docs/camera-physique.md` (plan).
+
 ## [0.3.34] - 2026-11-10
 
 ### Ajouté
@@ -553,6 +563,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.35]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.34...v0.3.35
 [0.3.34]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.33...v0.3.34
 [0.3.33]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.32...v0.3.33
 [0.3.32]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.31...v0.3.32
