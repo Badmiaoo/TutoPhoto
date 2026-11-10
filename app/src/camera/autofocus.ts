@@ -50,7 +50,7 @@ export type FocusMode = "single" | "continuous";
 /** Mode de zone AF : point sélectif, zone large (S) ou (L), zone automatique. */
 export type AreaMode = "point" | "wideS" | "wideL" | "auto";
 
-interface Rect {
+export interface Rect {
   left: number;
   top: number;
   right: number;
@@ -61,7 +61,10 @@ interface Rect {
 export interface FocusArea {
   /** Point de mise au point. */
   point: CanvasPoint;
-  /** Zone large, ou tout le cadre en zone automatique, rognée au cadre ; null pour le point sélectif. */
+  /**
+   * Zone large, ou toute la zone couverte par l'autofocus en zone automatique, rognée à cette couverture ;
+   * null pour le point sélectif.
+   */
   zone: Rect | null;
   /** Zone automatique : réglage de détection et échelle du cadre ; null pour les autres modes. */
   auto: DetectionView | null;

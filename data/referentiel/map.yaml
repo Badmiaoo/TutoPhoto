@@ -64,6 +64,7 @@ notions:
       simulator: "Grille de collimateurs ; la netteté suit la profondeur sous le point choisi"
       exercise: "Point sur l'œil le plus proche à f/1.8, sujet décentré"
     situations: [SIT-01, SIT-04]
+    sources: [nikon-z6-launch-2018, nikon-z6-eisa-2019, nikon-z6-product, nikon-z6-focus]
     since: v0.1
   - id: MAP-07
     title: {fr: "Quand l'appareil choisit", en: "auto-area pitfalls"}

@@ -13,6 +13,8 @@
 // visages et des yeux (réglage a4 du Z 6), choisis dans la fenêtre « Mise au point ». Le
 // viseur indique le mode, la zone et la distance ; le repère passe au vert quand la distance est verrouillée,
 // comme le point AF du Nikon Z 6 [nikon-z6-focus].
+// Collimateurs (MAP-06, version 0.3.34) : le point et les zones restent dans la zone couverte par l'autofocus
+// (AF_COVERAGE), affichée en pointillés dans le viseur.
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
@@ -38,9 +40,24 @@ import {
 import { cameraFov, frameFor, type Frame } from "../camera/viewfinder";
 import type { ViewfinderNoise } from "../camera/noise";
 import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
-import type { AreaMode, Autofocus, FocusArea, FocusMode } from "../camera/autofocus";
+import type { AreaMode, Autofocus, FocusArea, FocusMode, Rect } from "../camera/autofocus";
 import type { Detection } from "../camera/faces";
 import type { BalanceIndicator } from "./balance";
+
+/**
+ * Couverture de l'autofocus (MAP-06) : environ 90 % du cadre en largeur et en hauteur, au centre. Nikon, pour
+ * le Z 6 : « 273 focus points*, enabling broad coverage of approximately 90% of the imaging area both
+ * horizontally and vertically », avec « * With FX (36x24) format and single-point AF » (communiqué du
+ * 23 août 2018) [nikon-z6-launch-2018] ; même chiffre dans le communiqué du 15 août 2019 [nikon-z6-eisa-2019]
+ * et sur la page du produit [nikon-z6-product]. Appliquée à tous les modes de zone et aux six boîtiers : la
+ * couverture des cinq autres n'a pas été lue. La disposition des 273 points n'est pas dans ces sources : le
+ * point se place partout dans la zone couverte, sans grille.
+ *   https://www.nikon.com/news/2018/0823_mirrorless_01.htm
+ *   https://www.nikon.com/news/2019/0815_award_01.htm
+ *   https://imaging.nikon.com/imaging/lineup/mirrorless/z_6/
+ */
+export const AF_COVERAGE = 0.9;
+const AF_MARGIN = (1 - AF_COVERAGE) / 2;
 
 /**
  * Mode de déclenchement (BOI-12), d'après le manuel du Nikon Z 6 (« The Release Mode/Self-Timer Button »,
@@ -131,6 +148,7 @@ interface PanelElements {
   releaseDialog: HTMLDialogElement;
   afBadge: HTMLElement;
   focusMarker: HTMLElement;
+  afCoverage: HTMLElement;
   focusHint: HTMLElement;
 }
 
@@ -285,21 +303,16 @@ export class CameraPanel {
   }
 
   /**
-   * Point et zone de mise au point dans le canevas, loupe comprise : zone large rognée au cadre, ou tout le
-   * cadre et le réglage de détection en zone automatique.
+   * Point et zone de mise au point dans le canevas, loupe comprise : zone large rognée à la zone couverte par
+   * l'autofocus, ou toute cette zone et le réglage de détection en zone automatique.
    */
   focusArea(): FocusArea {
     const point = this.focusOnCanvas();
-    if (!this.frame) return { point, zone: null, auto: null };
+    const bounds = this.coverageOnCanvas();
+    if (!this.frame || !bounds) return { point, zone: null, auto: null };
     const frame = this.frame;
     const { width, height } = this.canvasSize;
     const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
-    const bounds = {
-      left: frame.left / width,
-      top: frame.top / height,
-      right: (frame.left + frame.width) / width,
-      bottom: (frame.top + frame.height) / height,
-    };
     if (this.areaMode === "auto") {
       return {
         point,
@@ -326,6 +339,26 @@ export class CameraPanel {
       },
       auto: null,
     };
+  }
+
+  /**
+   * Zone couverte par l'autofocus dans le canevas (fractions), loupe comprise, rognée à la partie visible du
+   * cadre ; null avant la première mise en page.
+   */
+  coverageOnCanvas(): Rect | null {
+    if (!this.frame) return null;
+    const frame = this.frame;
+    const { width, height } = this.canvasSize;
+    const onCanvas = (point: Point) => {
+      const shown = this.frameToDisplayed(point);
+      return {
+        x: (frame.left + Math.min(1, Math.max(0, shown.x)) * frame.width) / width,
+        y: (frame.top + Math.min(1, Math.max(0, shown.y)) * frame.height) / height,
+      };
+    };
+    const start = onCanvas({ x: AF_MARGIN, y: AF_MARGIN });
+    const end = onCanvas({ x: 1 - AF_MARGIN, y: 1 - AF_MARGIN });
+    return { left: start.x, top: start.y, right: end.x, bottom: end.y };
   }
 
   /** Taille de la zone large dans le canevas (fractions de sa largeur et de sa hauteur) ; null pour un point. */
@@ -382,11 +415,17 @@ export class CameraPanel {
     this.viewListeners.push(listener);
   }
 
-  /** Point de mise au point choisi : la loupe se centre dessus ; en AF-S, le toucher fait le point. */
-  setFocusPoint(point: Point): void {
-    this.focusPoint = point;
+  /**
+   * Point de mise au point choisi, dans le cadre complet : ramené dans la zone couverte par l'autofocus (le plus
+   * près du point touché), puis la loupe se centre dessus ; en AF-S, le toucher fait le point. Renvoie le point
+   * retenu.
+   */
+  setFocusPoint(point: Point): Point {
+    const clamp = (value: number) => Math.min(1 - AF_MARGIN, Math.max(AF_MARGIN, value));
+    this.focusPoint = { x: clamp(point.x), y: clamp(point.y) };
     this.applyView();
     void this.autofocus?.touch();
+    return { ...this.focusPoint };
   }
 
   /** Remet la projection du viseur (et la loupe) après le calcul d'une photo, qui la remplace. */
@@ -524,6 +563,16 @@ export class CameraPanel {
     style.top = `${(frame.top / height) * 100}%`;
     style.width = `${(frame.width / width) * 100}%`;
     style.height = `${(frame.height / height) * 100}%`;
+    // Zone couverte par l'autofocus, loupe comprise : une aide de TutoPhoto, le manuel lu ne dit pas si le Z 6
+    // l'affiche.
+    const coverage = this.coverageOnCanvas();
+    const covered = this.el.afCoverage.style;
+    if (coverage) {
+      covered.left = `${coverage.left * 100}%`;
+      covered.top = `${coverage.top * 100}%`;
+      covered.width = `${(coverage.right - coverage.left) * 100}%`;
+      covered.height = `${(coverage.bottom - coverage.top) * 100}%`;
+    }
     for (const listener of this.viewListeners) listener();
   }
 

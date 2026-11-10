@@ -173,6 +173,15 @@ dialog a {
   outline: 1px solid rgb(255 255 255 / 0.6);
 }
 
+/* Zone couverte par l'autofocus (MAP-06) : environ 90 % du cadre en largeur et en hauteur, en pointillés
+   discrets. */
+.af-coverage {
+  position: absolute;
+  pointer-events: none;
+  border: 1px dashed rgb(255 255 255 / 0.4);
+  box-sizing: border-box;
+}
+
 /* Boîtier virtuel. */
 .panel {
   padding: 0.5rem 0.75rem 0.75rem;

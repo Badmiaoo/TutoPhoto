@@ -11,9 +11,10 @@
 //   frame » ou si les yeux sont cachés.
 //
 // Simulation (le manuel ne donne ni seuils ni règle de choix ; valeurs choisies pour TutoPhoto) :
-// - un œil est vu s'il est dans le cadre et si la carte de profondeur, à son pixel, montre une surface à moins
-//   de 4 cm de l'œil : ni obstacle devant (nez, autre personne), ni fond derrière quand le pixel tombe à côté
-//   de l'œil (le centre de l'œil d'un squelette est environ 1 cm derrière la surface) ;
+// - un œil est vu s'il est dans la zone couverte par l'autofocus (MAP-06, ui/cameraPanel.ts) et si la carte
+//   de profondeur, à son pixel, montre une surface à moins de 4 cm de l'œil : ni obstacle devant (nez, autre
+//   personne), ni fond derrière quand le pixel tombe à côté de l'œil (le centre de l'œil d'un squelette est
+//   environ 1 cm derrière la surface) ;
 // - taille du visage : écart entre les yeux, rapporté au grand côté du cadre, sans la loupe ; visage
 //   détecté de 0,4 % à 25 %, yeux détectés à partir de 0,8 % ;
 // - œil retenu : le plus proche de l'appareil parmi les yeux vus.
@@ -52,7 +53,7 @@ export interface DetectedFace {
 
 export interface DetectionView {
   detection: Detection;
-  /** Cadre dans le canevas, en fractions. */
+  /** Zone couverte par l'autofocus dans le canevas, en fractions : les yeux hors de cette zone ne sont pas vus. */
   frame: { left: number; top: number; right: number; bottom: number };
   /** Grand côté du cadre, en pixels du canevas, sans la loupe. */
   frameLongSidePx: number;
