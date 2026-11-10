@@ -113,7 +113,7 @@
           <span class="meter-tick" style="left: 100%">+3</span>
           <span id="meter-needle" class="meter-needle"></span>
         </div>
-        <p id="meter-value" class="meter-value" aria-live="polite"></p>
+        <button id="meter-value" type="button" class="body-button meter-value" aria-live="polite"></button>
         <button id="body-button" type="button" class="body-button"></button>
         <button id="preview-button" type="button" class="body-button"></button>
         <button id="af-button" type="button" class="body-button"></button>
@@ -180,6 +180,26 @@
       <p id="af-note" class="note"></p>
       <form method="dialog">
         <button id="af-close" type="submit"></button>
+      </form>
+    </dialog>
+    <dialog id="exposure-dialog" aria-labelledby="exposure-title">
+      <h2 id="exposure-title"></h2>
+      <fieldset>
+        <legend id="exposure-mode-legend"></legend>
+        <label><input type="radio" name="exposureMode" value="M" /> <span id="exposure-m-label"></span></label>
+        <label><input type="radio" name="exposureMode" value="A" /> <span id="exposure-a-label"></span></label>
+        <label><input type="radio" name="exposureMode" value="S" /> <span id="exposure-s-label"></span></label>
+      </fieldset>
+      <p class="release-select"><label><span id="exposure-comp-label"></span> <select name="compensation"></select></label></p>
+      <fieldset>
+        <legend id="exposure-auto-legend"></legend>
+        <label><input type="checkbox" name="autoIso" /> <span id="exposure-auto-label"></span></label>
+        <p class="release-select"><label><span id="exposure-max-label"></span> <select name="maxIso"></select></label></p>
+        <p class="release-select"><label><span id="exposure-min-label"></span> <select name="minShutter"></select></label></p>
+      </fieldset>
+      <p id="exposure-note" class="note"></p>
+      <form method="dialog">
+        <button id="exposure-close" type="submit"></button>
       </form>
     </dialog>
     <dialog id="release-dialog" aria-labelledby="release-title">

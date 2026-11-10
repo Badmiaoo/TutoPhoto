@@ -59,6 +59,8 @@ export const isoValue = (index: number): number => 100 * 2 ** (index / 3);
 export const apertureLabel = (index: number): string => APERTURE_LABELS[index];
 export const shutterLabel = (index: number): string => SHUTTER_LABELS[index];
 export const isoLabel = (index: number): string => ISO_LABELS[index];
+/** Position d'un libellé dans l'échelle des vitesses (−1 s'il n'y est pas). */
+export const shutterIndexOf = (label: string): number => (SHUTTER_LABELS as readonly string[]).indexOf(label);
 
 /** EV₁₀₀ des réglages : log₂(N²/t) − log₂(S/100) (Filament [filament-pbr]). */
 export function settingsEv100(s: ExposureSettings): number {

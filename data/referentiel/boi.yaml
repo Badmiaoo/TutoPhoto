@@ -67,6 +67,7 @@ notions:
       simulator: "Alerte de vitesse trop lente"
       exercise: "Portrait fond flou sans bougé"
     situations: [SIT-01, SIT-11]
+    sources: [nikon-z6-mode-dial, nikon-z6-mode-dial-fr, nikon-z6-indicators]
     since: v0.1
   - id: BOI-08
     title: {fr: "Priorité à la vitesse", en: "shutter priority, S/Tv"}
@@ -76,6 +77,7 @@ notions:
       simulator: "Ouverture qui atteint sa limite et clignote"
       exercise: "Figer un enfant qui court en fin de journée"
     situations: [SIT-06, SIT-09]
+    sources: [nikon-z6-mode-dial, nikon-z6-mode-dial-fr, nikon-z6-indicators]
     since: v0.1
   - id: BOI-09
     title: {fr: "Mode manuel", en: "manual, M"}

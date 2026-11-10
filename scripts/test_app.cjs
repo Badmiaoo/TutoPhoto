@@ -217,6 +217,33 @@ async function runProfile(browser, name, base) {
       /zone nette : \d+,\d m – (\d+,\d m|∞)/.test(dofDefault) && /ISO 100 · bruit excellent/.test(noiseDefault),
       `${dofDefault} | ${noiseDefault}`,
     );
+    // Exposition (BOI-07, BOI-08, MES-04, MES-10) : M et ISO auto par défaut, comme le Z 6. L'ISO auto est coupé
+    // pour les contrôles suivants, qui règlent l'ISO à la main.
+    const setExposure = async ({ mode, autoIso, compensation }) => {
+      await page.click("#meter-value");
+      if (mode) await page.check(`#exposure-dialog input[name="exposureMode"][value="${mode}"]`);
+      if (autoIso === true) await page.check('#exposure-dialog input[name="autoIso"]');
+      if (autoIso === false) await page.uncheck('#exposure-dialog input[name="autoIso"]');
+      if (compensation !== undefined) await page.selectOption('#exposure-dialog select[name="compensation"]', String(compensation));
+      await page.click("#exposure-close");
+    };
+    const dialState = (dial) =>
+      page.evaluate((d) => {
+        const box = document.querySelector(`[data-box="${d}"]`);
+        const out = box.querySelector("output");
+        return {
+          name: box.querySelector(".dial-name").textContent,
+          value: out.textContent,
+          flashing: out.classList.contains("flashing"),
+          disabled: box.querySelector("button[data-step]").disabled,
+        };
+      }, dial);
+    const meterText = () => page.evaluate(() => document.getElementById("meter-value").textContent);
+    const isoDefault = await dialState("iso");
+    const meterDefault = await meterText();
+    check("exposition par défaut : M et ISO auto (Z 6)", /^M · /.test(meterDefault) && isoDefault.name === "ISO auto" && isoDefault.value === "100", `${meterDefault} ; ${isoDefault.name} ${isoDefault.value}`);
+    await setExposure({ autoIso: false });
+
     // Point de mise au point sur le sol, immobile, en bas du cadre, pour comparer le bruit à deux ISO.
     const snrOf = (text) => {
       const m = /signal\/bruit (\d+):1/.exec(text ?? "");
@@ -275,6 +302,52 @@ async function runProfile(browser, name, base) {
     await page.check('#preview-dialog input[value="all"]');
     await page.click("#preview-close");
 
+    // Modes d'exposition, réglages de départ f/8, 1/4000 s, ISO 6400 sans ISO auto. Scène à 12,5 IL : en indices
+    // d'échelle (tiers d'IL), ouverture + vitesse − ISO = 49,5 − correction (camera/exposureModes.ts).
+    // A à ISO 6400 : vitesse 49,5 − 15 + 18 = 52,5, au-delà de 1/4000 s : elle clignote (trop de lumière).
+    await setExposure({ mode: "A" });
+    const aBright = await dialState("shutter");
+    check(
+      "mode A : vitesse au-delà de 1/4000 s, qui clignote",
+      aBright.value === "1/4000 s" && aBright.flashing && aBright.disabled && /\(auto\)/.test(aBright.name),
+      `${aBright.name} ${aBright.value}${aBright.flashing ? ", clignote" : ""}${aBright.disabled ? ", molette grisée" : ""}`,
+    );
+    // ISO 100 puis f/4 : vitesse 34,5 → 1/100 s, puis 40,5 → 1/400 s (à égalité, le cran qui assombrit).
+    await clicks('[data-dial="iso"][data-step="-1"]', 18);
+    const a8 = await dialState("shutter");
+    await clicks('[data-dial="aperture"][data-step="-1"]', 6);
+    const a4 = await dialState("shutter");
+    check("mode A : la vitesse suit l'ouverture", a8.value === "1/100 s" && a4.value === "1/400 s" && !a4.flashing, `f/8 : ${a8.value} ; f/4 : ${a4.value}`);
+    await clicks('[data-dial="aperture"][data-step="1"]', 6);
+    // S à 1/4000 s, ISO 100 : ouverture −1,5, plus grande que f/1.4 : elle clignote (pas assez de lumière). Avec
+    // l'ISO auto, ISO 125 et f/1.4.
+    await setExposure({ mode: "S" });
+    const sDark = await dialState("aperture");
+    await setExposure({ autoIso: true });
+    const sAuto = await dialState("aperture");
+    const sIso = await dialState("iso");
+    check(
+      "mode S : ouverture à f/1.4 qui clignote, puis ISO auto",
+      sDark.value === "f/1,4" && sDark.flashing && !sAuto.flashing && sIso.name === "ISO auto" && sIso.value === "125",
+      `${sDark.value}${sDark.flashing ? " clignote" : ""} ; ISO auto : ${sAuto.value}, ${sIso.name} ${sIso.value}`,
+    );
+    // M, 1/100 s, ISO auto, correction +1 IL : ISO 15 + 35 − 46,5 = 3,5 → ISO 200 ; l'indicateur montre l'écart à
+    // l'exposition visée, −0,2 IL.
+    await clicks('[data-dial="shutter"][data-step="1"]', 16);
+    await setExposure({ mode: "M", compensation: 3 });
+    const mIso = await dialState("iso");
+    const mMeter = await meterText();
+    check(
+      "mode M : ISO auto avec correction d'exposition",
+      mIso.value === "200" && /^M · −0,2 IL · corr\. \+1,0$/.test(mMeter),
+      `${mIso.name} ${mIso.value} ; ${mMeter}`,
+    );
+    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-exposition.png`), timeout: 120000 });
+    // Retour aux réglages d'avant : M, sans correction ni ISO auto, f/8, 1/4000 s, ISO 6400.
+    await setExposure({ compensation: 0, autoIso: false });
+    await clicks('[data-dial="shutter"][data-step="-1"]', 16);
+    await clicks('[data-dial="iso"][data-step="1"]', 18);
+
     await page.click("#loupe-button");
     await page.click("#loupe-button");
     const loupe = await page.evaluate(() => document.getElementById("loupe-badge").textContent);
@@ -299,6 +372,7 @@ async function runProfile(browser, name, base) {
         return { mean: s / (d.length / 4), size: `${c.width}×${c.height}`, caption: document.getElementById("review-caption").textContent };
       });
       check("photo calculée, pas noire", photo.mean > 5, `${photo.size ?? "-"}, niveau moyen ${photo.mean.toFixed(1)} ; ${photo.caption}`);
+      check("légende : mode et réglages retenus", /^M · f\/8 · 1\/4000 s · ISO 6400 · 50 mm · /.test(photo.caption), photo.caption.slice(0, 60));
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-photo.png`), timeout: 120000 });
       const box = await page.locator("#review-image").boundingBox();
       await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
@@ -337,7 +411,7 @@ async function runProfile(browser, name, base) {
         .then((handle) => handle.jsonValue())
         .catch(() => null);
     const startText = await afText();
-    check("mise au point : AF-C et point sélectif par défaut", /^AF-C · Point · /.test(startText), startText);
+    check("mise au point : AF-S et point sélectif par défaut (Z 6)", /^AF-S · Point · /.test(startText), startText);
 
     // Zone automatique, vue de départ : le groupe est à environ 6,5 m.
     await setAf("continuous", "auto", "faceEye");

@@ -114,6 +114,7 @@ if (!Engine.isSupported()) {
       afDialog: element<HTMLDialogElement>("af-dialog"),
       releaseButton: element<HTMLButtonElement>("release-button"),
       releaseDialog: element<HTMLDialogElement>("release-dialog"),
+      exposureDialog: element<HTMLDialogElement>("exposure-dialog"),
       afBadge: element("af-badge"),
       focusMarker: element("focus-marker"),
       afCoverage: element("af-coverage"),
