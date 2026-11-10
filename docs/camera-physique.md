@@ -437,7 +437,7 @@ Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 mi
 
 ### Décisions de Julien du 9 novembre 2026
 
-- Indicateur de l'« équilibre » entre ouverture, vitesse et ISO, selon le point visé : forme B, un triangle dans lequel un point bouge selon les réglages. Les seuils de « trop » et de « pas assez » (exposition au point visé, traînée du sujet, profondeur de champ, bruit) sont à proposer à Julien avant de produire.
+- Indicateur de l'« équilibre » entre ouverture, vitesse et ISO, selon le point visé : forme B, un triangle dans lequel un point bouge selon les réglages. Le 10 novembre 2026, le principe de Julien (`docs/cadrage.md`) tranche : seuls des critères sourcés ; profondeur de champ montrée sans jugement ; bougé de la main exclu tant qu'il n'est ni sourcé ni simulé.
 - Modes de mise au point autres qu'un collimateur unique : « suivons ta reco », soit AF ponctuel ou continu (fait en version 0.3.26, voir « Mise au point »), puis modes de zone (MAP-05, faits en version 0.3.27, voir « Modes de zone AF »), puis détection des yeux (MAP-09, faite en version 0.3.29, voir « Détection des yeux et zone automatique »). Les trois notions sont dans la V1 minimale.
 
 Voir `docs/questions-ouvertes.md`.

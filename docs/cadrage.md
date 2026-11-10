@@ -4,6 +4,15 @@ _Repris de la section 1 de `REPRISE.md` (7 novembre 2026), puis mis à jour le m
 
 Un simulateur en 3D de synthèse apprend aux débutants à se servir d'un boîtier reflex ou hybride, avec les situations au centre. On commence par une V1 minimale, testée avec des débutants avant d'étendre.
 
+## Principe du 10 novembre 2026
+
+Julien, mot pour mot : « La règles est simple. On implemente que ce qui est source de façon à avoir le simulateur le plus proche de la réalité possible a des fins d'entraînement et de compréhension de la photo. Ça s'adresse à des débutants/néophyte. Le but étant d'éviter de faire un million de formation hors de prix ou de choper des morceaux d'info par-ci par la et de tout compiler eux même. Je veux faire gagner du temps et de l'argent au gens et surtout, mais surtout leurs permettre de découvrir la photo facilement, découvrir le fonctionnement et les boitiers afin de leurs donner les clés pour kiffer en photo. Je ne veux pas transformer les gens en professionnel de la photo, mais en des gens qui maîtrise le fonctionnement du boîtier et des bases de la photographie. Avoir assez d'informations pour être en maîtrise de ces photos, de ces compositions, savoir ce qu'on fait, comprendre nos erreurs savoir comment réagir, savoir comment régler savoir comment adapter ect. »
+
+Ce que ça tranche :
+- **N'entre dans le simulateur que ce qui est sourcé.** Le reste est dit, ou attend une source.
+- **Le public est débutant.** Le but est la compréhension et la maîtrise du boîtier et des bases, pas le niveau professionnel.
+- **Premiers effets sur l'indicateur d'équilibre** : la profondeur de champ est montrée telle qu'elle est (zone nette, sujets nets ou flous), sans jugement sans source. Le bougé de la main en reste exclu tant qu'il n'est ni sourcé ni simulé.
+
 ## Décisions du 7 novembre 2026
 
 - Public : débutants avec un boîtier reflex ou hybride. La photo au smartphone, les compacts et les bridges sont hors périmètre.

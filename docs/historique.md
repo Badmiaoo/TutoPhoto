@@ -153,3 +153,8 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Modes de zone AF : Julien valide les quatre points proposés (point sélectif ; zone large S et L, priorité au sujet le plus proche ; zone automatique avec la détection des yeux ; pinpoint et zone dynamique laissés de côté). Version 0.3.27.
 - Détection des yeux et zone automatique (MAP-09) : Julien valide les cinq points proposés et le placement à la main des yeux des modèles sans squelette et du chien. Pour la zone automatique sans visage : « fais ce qu'il y a de plus réaliste, ça reste une sandbox de simulation pour entraînement. Ça doit être le mot d'ordre partout. » Le mot d'ordre entre dans `CLAUDE.md` (version 0.3.28).
 - Version 0.3.29 : AF zone automatique avec détection des visages et des yeux (personnes, ou chien), suivi du sujet touché, et repli sur le sujet le plus proche sans visage. Yeux des modèles figés et du chien placés par visée sur le modèle.
+
+## 10 novembre 2026 : principe de conception
+
+- Principe de Julien : n'implémenter que ce qui est sourcé, pour un simulateur au plus près de la réalité, au service de débutants qui veulent comprendre la photo et maîtriser leur boîtier. Texte complet dans `docs/cadrage.md` ; règle ajoutée à `CLAUDE.md` (version 0.3.30).
+- Conséquences pour l'indicateur d'équilibre : profondeur de champ montrée sans jugement sans source ; bougé de la main exclu tant qu'il n'est ni sourcé ni simulé.
