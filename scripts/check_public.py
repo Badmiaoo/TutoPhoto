@@ -2,6 +2,7 @@
 """Vérifie qu'aucune information à ne pas publier n'entre dans le dépôt public.
 
 Usage : python3 scripts/check_public.py [--commits all|BASE..HEAD]
+        python3 scripts/check_public.py --env NOM [--env NOM…]
 
 Contrôles, tous bloquants :
 - fichiers suivis par git : clés privées, jetons d'API aux formats connus, mots de passe ou secrets écrits
@@ -11,12 +12,16 @@ Contrôles, tous bloquants :
 - commits (avec --commits) : adresses des auteurs et des committers, qui doivent être des adresses
   « noreply », et messages, soumis aux mêmes contrôles que les fichiers. Seule exception : les commits
   listés dans scripts/check_public_historique.txt, publiés avec un lien vers une session Claude dans
-  leur message, tolérés pour ce seul problème (fuite signalée, historique non réécrit).
+  leur message, tolérés pour ce seul problème (fuite signalée, historique non réécrit) ;
+- textes passés par variables d'environnement (avec --env, sans les fichiers ni les commits) : le titre et la
+  description d'une pull request, contrôlés par le workflow .github/workflows/description.yml. Ils ne sont pas
+  dans git ; l'outil GitHub de Claude y met un lien de session à la création (docs/publication.md).
 
 Les secrets dans tout l'historique sont aussi cherchés par gitleaks, dans la CI.
 Les valeurs trouvées ne sont jamais affichées en entier.
 """
 import argparse
+import os
 import re
 import subprocess
 import sys
@@ -123,8 +128,17 @@ def scan_commits(spec, problems):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--commits", help="« all », ou une plage BASE..HEAD, pour contrôler les adresses des commits")
+    parser.add_argument("--env", action="append", metavar="NOM",
+                        help="variable d'environnement dont le texte est contrôlé seul (répétable)")
     args = parser.parse_args()
     problems = []
+    if args.env:
+        for name in args.env:
+            scan_text(name, os.environ.get(name, ""), problems)
+        for p in problems:
+            print(f"ERREUR : {p}")
+        print(f"{len(args.env)} texte(s) contrôlé(s) : {len(problems)} problème(s)")
+        return 1 if problems else 0
     files = scan_files(problems)
     commits = scan_commits(args.commits, problems) if args.commits else 0
     for p in problems:

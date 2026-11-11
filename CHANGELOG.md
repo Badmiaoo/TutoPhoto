@@ -12,6 +12,18 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.44] - 2026-11-11
+
+### Ajouté
+
+- Workflow `description.yml` : le titre et la description de chaque pull request passent par `scripts/check_public.py`, à chaque création ou modification. Ils ne sont pas dans git, et l'outil GitHub de Claude met un lien de session dans le pied de la description à la création.
+- Option `--env` de `scripts/check_public.py` : contrôle le texte de variables d'environnement.
+- `docs/publication.md` : constat du 11 novembre 2026. 21 descriptions de pull requests (#15 à #49) contenaient le lien de la session ; il en a été retiré sur décision de Julien.
+
+### Modifié
+
+- `CLAUDE.md` : réécrire la description de chaque pull request aussitôt après sa création.
+
 ## [0.3.43] - 2026-11-11
 
 ### Ajouté
@@ -669,6 +681,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.44]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.43...v0.3.44
 [0.3.43]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.42...v0.3.43
 [0.3.42]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.41...v0.3.42
 [0.3.41]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.40...v0.3.41

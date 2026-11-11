@@ -20,6 +20,7 @@ Archive de reprise : `REPRISE.md`.
 ## Dépôt public : rien ne doit filtrer (`docs/publication.md`)
 - Ne jamais écrire dans un fichier, un message de commit, une pull request ou un commentaire : secret (jeton, clé, mot de passe, clé privée), donnée personnelle (adresse électronique hors « noreply », téléphone, adresse postale), lien vers une ressource privée (Claude, Google Docs ou Drive, Dropbox, Notion), chemin local qui révèle un nom d'utilisateur. Seules exceptions : le nom de Julien comme auteur des commits et comme titulaire du copyright dans `LICENSE`.
 - Commits uniquement avec une adresse « noreply ». Ni ligne « Claude-Session » ni lien vers une session Claude dans les commits et les pull requests (fuite du 8 novembre 2026, `docs/publication.md`).
+- À la création d'une pull request, l'outil GitHub de Claude remplace le pied de la description par un pied avec le lien de la session : réécrire la description aussitôt, sans le lien. Le contrôle `description` de la CI échoue tant que le lien y est (11 novembre 2026, `docs/publication.md`).
 - Un secret nécessaire à un workflow va dans les secrets GitHub du dépôt, jamais dans un fichier.
 - `python3 scripts/check_public.py --commits all` avant toute pull request ; la CI le lance, avec gitleaks sur tout l'historique.
 - Si quelque chose a fuité : le dire à Julien tout de suite ; un secret se révoque chez son émetteur, l'historique publié ne se réécrit pas.
