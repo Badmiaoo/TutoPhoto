@@ -1,8 +1,12 @@
 # Propositions à trancher
 
-Rédigées par Claude le 11 novembre 2026, pendant que Julien était absent. Il avait demandé de continuer seul pour compléter la V1, puis de préparer la V2. `CLAUDE.md` demande de proposer avant de produire : rien de ce qui suit n'est construit. Julien tranche.
+Rédigées par Claude le 11 novembre 2026, pendant que Julien était absent. Il avait demandé de continuer seul pour compléter la V1, puis de préparer la V2. `CLAUDE.md` demande de proposer avant de produire : rien de ce qui suit n'était construit.
+
+**Décisions de Julien, le 11 novembre 2026 au soir** : les quatre points sont tranchés (détail en tête de chaque section). Activité de LUM-02 en schéma 2D ; protocole de test tel quel ; pour étendre, **tous** les testeurs doivent réussir chaque défi sans aide et mieux répondre après qu'avant ; ordre de travail après les tests tel quel.
 
 ## 1. Activité interactive de LUM-02 (lumière dure ou douce)
+
+**Tranché le 11 novembre 2026 : option A, le schéma interactif en 2D.**
 
 **Contexte.** Le 10 novembre 2026, Julien a placé le simulateur de LUM-02 en V2, et prévu une activité interactive pour la V1 (`docs/cadrage.md`). La fiche propose pour l'instant une activité à faire chez soi, avec une lampe, un objet et un mur blanc. Il manque l'activité dans TutoPhoto.
 
@@ -21,6 +25,8 @@ Rédigées par Claude le 11 novembre 2026, pendant que Julien était absent. Il 
 **Recommandation : A.** Si Julien la retient, un préréglage « soleil » demande la taille apparente du soleil. [Wikipedia, « Angular diameter », révision 1368815265](https://en.wikipedia.org/w/index.php?title=Angular_diameter&oldid=1368815265) donne de 31′27″ à 32′32″, mais ce n'est qu'une source secondaire : je chercherai une source primaire avant de l'utiliser.
 
 ## 2. Protocole de test avec les débutants
+
+**Tranché le 11 novembre 2026 : protocole retenu tel quel, avec 5 testeurs.**
 
 **Déjà tranché** (7 novembre 2026) : les testeurs sont des débutants de l'entourage de Julien. **Restent** le nombre, le déroulé et les critères pour décider d'étendre.
 
@@ -44,13 +50,15 @@ Rédigées par Claude le 11 novembre 2026, pendant que Julien était absent. Il 
 
 **Relevé.** Une grille par testeur, sans nom : appareil et navigateur, chargement réussi ou non, défis réussis et nombre d'essais, blocages, réponses avant et après. Seule une synthèse anonyme entre dans le dépôt, qui est public (`docs/publication.md`).
 
-**Critères pour étendre (à fixer par Julien).**
+**Critères pour étendre.** Tranché le 11 novembre 2026 : « la plupart » devient **tous les testeurs**. Les quatre critères :
 - Aucun blocage technique sur les appareils des testeurs : la scène se charge et la photo se calcule.
-- Chaque défi est réussi par la plupart des testeurs sans aide extérieure, fiches comprises.
-- Les réponses d'après sont meilleures que celles d'avant pour la plupart des testeurs.
+- Chaque défi est réussi par tous les testeurs sans aide extérieure, fiches comprises.
+- Les réponses d'après sont meilleures que celles d'avant pour tous les testeurs.
 - Les problèmes relevés sont corrigés.
 
 ## 3. Après la V1 minimale
+
+**Tranché le 11 novembre 2026 : ordre de travail retenu tel quel.**
 
 **Vocabulaire.** Depuis le 7 novembre 2026, toute la V1 est le référentiel entier : 191 notions et 49 situations (`docs/cadrage.md`). La V1 minimale (le parc, SIT-01, SIT-05, SIT-06) en est la première tranche. La V2 regroupe ce que Julien a renvoyé à plus tard.
 
@@ -62,7 +70,7 @@ Rédigées par Claude le 11 novembre 2026, pendant que Julien était absent. Il 
 
 **Placé après les tests de la V1 minimale** (Julien a laissé le moment à Claude le 9 novembre 2026) : balance des blancs (COU-02), grilles de composition (CMP-02), histogramme (MES-06).
 
-**Ordre proposé, une fois les tests faits :**
+**Ordre retenu, une fois les tests faits :**
 1. Corriger ce que les tests révèlent, et finir la relecture des 19 fiches.
 2. Balance des blancs, grilles et histogramme : ils servent dans presque toutes les situations, et leurs sources sont en partie lues (`docs/camera-physique.md`).
 3. Situations qui pourraient réutiliser la scène de parc (extérieur, jour, personnes ou chien). C'est une estimation de Claude, à vérifier situation par situation :
