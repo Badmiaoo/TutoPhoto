@@ -625,31 +625,39 @@ async function runProfile(browser, name, base) {
       `repère à ${(markerAt.x * 100).toFixed(1)} % × ${(markerAt.y * 100).toFixed(1)} % du cadre ; zone couverte ${(coverageShare.x * 100).toFixed(1)} % × ${(coverageShare.y * 100).toFixed(1)} %`,
     );
     if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-collimateurs.png`), timeout: 120000 });
-    // Canon EOS RP : « 88% horizontal and 100% vertical coverage » (fiche de Canon) ; en cadre vertical (profil
-    // Android), grand et petit côtés du capteur sont échangés.
+    // Couverture par boîtier : un toucher en (99 % ; 1 %) du cadre est ramené au bord de la zone couverte. En cadre
+    // vertical (profil Android), grand et petit côtés du capteur sont échangés.
     const setBody = async (brand) => {
       await page.click("#body-button");
       await page.check(`#body-dialog input[name="brand"][value="${brand}"]`);
       await page.check('#body-dialog input[name="format"][value="ff"]');
       await page.click("#body-close");
     };
-    await setBody("canon");
-    const rpFrame = await page.locator("#frame").boundingBox();
-    await page.mouse.click(rpFrame.x + 0.99 * rpFrame.width, rpFrame.y + 0.01 * rpFrame.height);
-    await page.waitForTimeout(500);
-    const rpCoverage = await page.locator("#af-coverage").boundingBox();
-    const rpMarker = await page.locator("#focus-marker").boundingBox();
-    const rpAt = rpMarker
-      ? { x: (rpMarker.x + rpMarker.width / 2 - rpFrame.x) / rpFrame.width, y: (rpMarker.y + rpMarker.height / 2 - rpFrame.y) / rpFrame.height }
-      : { x: NaN, y: NaN };
-    const rpShare = rpCoverage ? { x: rpCoverage.width / rpFrame.width, y: rpCoverage.height / rpFrame.height } : { x: NaN, y: NaN };
-    const vertical = rpFrame.height > rpFrame.width;
-    const expected = vertical ? { x: 0.99, y: 0.06, w: 1, h: 0.88 } : { x: 0.94, y: 0.01, w: 0.88, h: 1 };
-    check(
-      "collimateurs : couverture du Canon EOS RP (88 % × 100 %)",
-      Math.abs(rpAt.x - expected.x) < 0.01 && Math.abs(rpAt.y - expected.y) < 0.01 && Math.abs(rpShare.x - expected.w) < 0.01 && Math.abs(rpShare.y - expected.h) < 0.01,
-      `cadre ${vertical ? "vertical" : "horizontal"} ; repère à ${(rpAt.x * 100).toFixed(1)} % × ${(rpAt.y * 100).toFixed(1)} % ; zone couverte ${(rpShare.x * 100).toFixed(1)} % × ${(rpShare.y * 100).toFixed(1)} %`,
-    );
+    const checkBodyCoverage = async (brand, label, long, short) => {
+      await setBody(brand);
+      const box = await page.locator("#frame").boundingBox();
+      await page.mouse.click(box.x + 0.99 * box.width, box.y + 0.01 * box.height);
+      await page.waitForTimeout(500);
+      const zone = await page.locator("#af-coverage").boundingBox();
+      const mark = await page.locator("#focus-marker").boundingBox();
+      const got = mark
+        ? { x: (mark.x + mark.width / 2 - box.x) / box.width, y: (mark.y + mark.height / 2 - box.y) / box.height }
+        : { x: NaN, y: NaN };
+      const share = zone ? { x: zone.width / box.width, y: zone.height / box.height } : { x: NaN, y: NaN };
+      const vertical = box.height > box.width;
+      const w = vertical ? short : long;
+      const h = vertical ? long : short;
+      const expected = { x: Math.min(0.99, 1 - (1 - w) / 2), y: Math.max(0.01, (1 - h) / 2), w, h };
+      check(
+        label,
+        Math.abs(got.x - expected.x) < 0.01 && Math.abs(got.y - expected.y) < 0.01 && Math.abs(share.x - expected.w) < 0.01 && Math.abs(share.y - expected.h) < 0.01,
+        `cadre ${vertical ? "vertical" : "horizontal"} ; repère à ${(got.x * 100).toFixed(1)} % × ${(got.y * 100).toFixed(1)} % ; zone couverte ${(share.x * 100).toFixed(1)} % × ${(share.y * 100).toFixed(1)} %`,
+      );
+    };
+    // Canon EOS RP : « 88% horizontal and 100% vertical coverage » (fiche de Canon).
+    await checkBodyCoverage("canon", "collimateurs : couverture du Canon EOS RP (88 % × 100 %)", 0.88, 1);
+    // Sony A7 III : « approx. 93% of image area » (page de Sony), partagés également : √0,93 ≈ 96,4 % par côté.
+    await checkBodyCoverage("sony", "collimateurs : couverture du Sony A7 III (93 % de la surface, 96,4 % × 96,4 %)", Math.sqrt(0.93), Math.sqrt(0.93));
     await setBody("nikon");
     await page.mouse.click(frameBox.x + frameBox.width / 2, frameBox.y + frameBox.height / 2);
 

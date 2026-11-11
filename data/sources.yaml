@@ -547,6 +547,11 @@ sources:
     label: "Canon Royaume-Uni, EOS RP, Specifications, autofocus : « Phase-difference detection system with image sensor (Dual Pixel CMOS AF) », « Coverage: 88% horizontal and 100% vertical coverage », note « Coverage vary depending on the lens used » ; « 4779 AF positions available » en sélection manuelle d'un point (page relevée par Julien le 11 novembre 2026, le site refusant les lectures automatiques)"
     url: "https://www.canon.co.uk/cameras/eos-rp/specifications/"
     used_in: [docs/camera-physique.md, app/src/camera/bodies.ts, content/fr/notions/MAP-06.md, content/en/notions/MAP-06.md]
+  - id: sony-ilce-7m3-af
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony Inde, α7 III, page des fonctions (4D FOCUS) : « This camera features 693 phase-detection AF points covering approx. 93% of image area plus 425 densely positioned contrast-detection AF points », sans répartition entre largeur et hauteur (page relevée par Julien le 11 novembre 2026, le site refusant les lectures automatiques)"
+    url: "https://www.sony.co.in/interchangeable-lens-cameras/products/ilce-7m3-body-kit/feature2"
+    used_in: [docs/camera-physique.md, app/src/camera/bodies.ts, content/fr/notions/MAP-06.md, content/en/notions/MAP-06.md]
   - id: sony-ilce-6000-af
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony Moyen-Orient et Afrique, α6000, page du produit : « 179 phase detection points (covering almost the entire image) », sans pourcentage (page relevée par Julien le 11 novembre 2026, le site refusant les lectures automatiques)"

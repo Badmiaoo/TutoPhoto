@@ -12,6 +12,18 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.45] - 2026-11-11
+
+### Ajouté
+
+- Couverture de l'autofocus du Sony A7 III (MAP-06). Sony donne seulement « 693 phase-detection AF points covering approx. 93% of image area » (page de Sony Inde relevée par Julien), sans répartition entre largeur et hauteur. TutoPhoto partage cette surface également : √0,93 ≈ 96,4 % de chaque côté. Ce partage n'est pas sourcé ; Julien l'a retenu le 11 novembre 2026.
+- Source `sony-ilce-7m3-af`, rattachée à MAP-06.
+- Routine de test : couverture du Sony A7 III, en cadre horizontal et vertical ; un seul contrôle sert désormais aux deux boîtiers.
+
+### Modifié
+
+- Fiche MAP-06 (FR et EN), `docs/camera-physique.md` (les phrases qui disaient la couverture des cinq autres boîtiers non lue), `docs/questions-ouvertes.md`, `docs/historique.md`.
+
 ## [0.3.44] - 2026-11-11
 
 ### Ajouté
@@ -681,6 +693,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.45]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.44...v0.3.45
 [0.3.44]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.43...v0.3.44
 [0.3.43]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.42...v0.3.43
 [0.3.42]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.41...v0.3.42
