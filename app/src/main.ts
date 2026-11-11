@@ -67,7 +67,13 @@ function loadingProgress(): string {
   }
   return text;
 }
-manifest.then((m) => (sceneFiles = m.assets.flatMap((asset) => asset.files ?? []))).catch(() => undefined);
+// Les textes de licence du manifeste (license.txt) ne sont pas chargés par la scène : comptés, ils restaient « en
+// attente » pour toujours, et « préparation » ne s'affichait jamais (corrigé en version 0.3.55 ; constaté dans
+// Chromium : après le chargement, ces fichiers sont les seuls absents de la Resource Timing API). Même règle que le
+// pré-téléchargement de l'accueil (app/scripts/build-pages.mjs).
+manifest
+  .then((m) => (sceneFiles = m.assets.flatMap((asset) => asset.files ?? []).filter((f) => !f.path.endsWith(".txt"))))
+  .catch(() => undefined);
 // Mise à jour de la progression chaque seconde, tant que la scène se charge.
 const loadingTimer = window.setInterval(() => {
   if (statusKey !== "loading") window.clearInterval(loadingTimer);

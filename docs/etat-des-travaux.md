@@ -16,7 +16,7 @@ Ce que Claude en fait :
 
 ## Où on en est
 
-- En ligne après la fusion de cette pull request : version 0.3.54.
+- En ligne après la fusion de cette pull request : version 0.3.55.
 - Version 0.3.53 (densité du viseur plafonnée à 2) : fusionnée ; Julien doit la juger sur son téléphone (netteté et fluidité).
 - Interruption de la nuit : trois séries d'agents lancées en parallèle (carte du code, dossiers de sources) ont épuisé la limite d'usage de 5 heures en vingt minutes, vers 23 h 40 UTC le 11 novembre. La session est restée suspendue jusqu'à 5 h 50 UTC le 12. Depuis : un ou deux agents à la fois, et d'abord publier ce qui est prêt.
 
@@ -28,7 +28,7 @@ Dans l'ordre. « Écrit » : le code existe sur la machine de Claude, pas encore
 | --- | --- | --- | --- | --- |
 | 1 | Densité du viseur plafonnée à 2 | | Fait, 0.3.53 | |
 | 2 | Routine de test dans la CI ; ce fichier | | Fait, 0.3.54 | |
-| 3 | Progression du chargement sans les textes de licence | | Écrit, prévu en 0.3.55 | `app/src/main.ts` : retirer les `.txt` de `sceneFiles`. `scripts/test_app.cjs` : le contrôle de la progression rend le texte par l'attente elle-même (`waitForFunction` qui renvoie le texte), et un contrôle vérifie que tout fichier compté est chargé par la scène. |
+| 3 | Progression du chargement sans les textes de licence | | Fait, 0.3.55 | |
 | 4 | Grilles de cadrage dans le viseur | CMP-02 | À faire | Dossier `docs/dossiers/viseur-aides.md`, écrit, à relire à la source. |
 | 5 | Histogramme (viseur et revue), alerte des hautes lumières | MES-06, MES-07 | À faire | Même dossier. |
 | 6 | Balance des blancs | COU-01, COU-02, COU-04 | À faire | Dossier `docs/dossiers/balance-des-blancs.md`, écrit, à relire à la source. Babylon.js 9.35.0 a déjà une balance (`imageProcessingConfiguration.whiteBalanceEnabled`, `temperature`, `tint`) ; la photo calculée ne passe pas par elle. |
@@ -40,6 +40,7 @@ Dans l'ordre. « Écrit » : le code existe sur la machine de Claude, pas encore
 À côté de la file :
 - quatre notions du jalon de la V1 minimale n'ont pas leur brique « situation réelle » (`python3 scripts/coverage.py` : 12 sur 16) : EXP-04, EXP-05, EXP-06 et MES-04 renvoient à des situations non rédigées. Les recettes de SIT-01 et de SIT-06 utilisent pourtant l'ouverture, la vitesse et l'ISO : ajouter ces renvois au référentiel est à proposer à Julien ; MES-04 attend une scène claire ou à contre-jour ;
 - mise en page à corriger : sur un écran étroit, avec une police plus large que celle de la machine de Claude (DejaVu Sans), l'aide de la mise au point prend une ligne de plus en AF-S qu'en AF-C, et le viseur change de hauteur (238 ou 254 pixels sur l'iPhone 14 émulé). Trouvé au premier passage de la routine dans la CI, le 12 novembre 2026 ; le contrôle des collimateurs mesure maintenant le cadre au moment où il s'en sert ;
+- routine de test dans la CI, échec non expliqué : au deuxième passage de la pull request de la version 0.3.54, le profil ordinateur s'est arrêté sur un délai dépassé à l'entrée du mode S (`page.check: Timeout 300000ms exceeded`). Non reproduit sur la machine de Claude avec la police de la CI, ni au quatrième passage. La routine garde depuis le journal d'appel de Playwright et l'état de la page : si l'échec revient, lire ce message avant toute relance. Les durées varient beaucoup d'un passage à l'autre (de 7 à 23 minutes par profil) ;
 - grille de relevé pour les tests avec les débutants (`docs/propositions.md`, section 2) : à écrire ;
 - bougé de la main : dossier de sources à faire ; rien n'est simulé tant qu'aucun modèle n'est sourcé ;
 - carte du code (points d'extension pour chaque fonction de la file) et classement des notions des domaines EXP, MES et BOI : faits cette nuit sur la machine de Claude, à refaire au besoin ; constat utile : le simulateur n'a aucune mesure de la lumière, et la photo calculée ne passe pas par le traitement d'image de Babylon.js.

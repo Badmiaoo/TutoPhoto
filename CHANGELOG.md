@@ -12,6 +12,20 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.55] - 2026-11-12
+
+### Corrigé
+
+- Progression du chargement du simulateur : les cinq textes de licence du manifeste (`license.txt`), que la scène ne charge pas, étaient comptés parmi les fichiers attendus. Tous les autres fichiers reçus, le message restait sur « 34 / 34 Mio reçus » au lieu de « fichiers reçus, préparation », et après une minute la liste des fichiers en attente pouvait nommer ces textes. Ils ne sont plus comptés, comme dans le pré-téléchargement de l'accueil.
+
+### Ajouté
+
+- Routine de test : tout fichier compté par la progression doit avoir été chargé par la scène.
+
+### Modifié
+
+- `docs/pile-technique.md`, `docs/historique.md`, `docs/etat-des-travaux.md`.
+
 ## [0.3.54] - 2026-11-12
 
 ### Ajouté
@@ -817,6 +831,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.55]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.54...v0.3.55
 [0.3.54]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.53...v0.3.54
 [0.3.53]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.52...v0.3.53
 [0.3.52]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.51...v0.3.52

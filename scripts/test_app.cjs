@@ -21,7 +21,7 @@
 // - le simulateur (simulateur/) a un lien vers l'accueil ;
 // - la fiche SIT-05 a un bouton « Jouer le défi » (simulateur/?defi=SIT-05), et le simulateur ouvert à l'adresse
 //   simulateur?defi=SIT-06, sans la barre finale, ajoute la barre, montre la progression du chargement et a le
-//   défi SIT-06 choisi ;
+//   défi SIT-06 choisi ; tout fichier compté par la progression est chargé par la scène (version 0.3.55) ;
 // - l'activité LUM-02 (activites/LUM-02/) : la fiche y mène ; l'exemple « Grande fenêtre » (120 cm à 200 cm) donne une
 //   pénombre de 120 × 50 / 200 = 30 cm ; la bonne réponse à la première question est saluée ; pas de défilement horizontal ;
 // - avec --photo : les notions « À revoir » du bulletin et le bouton « Fiche » de la fenêtre « Défis » ouvrent la
@@ -887,6 +887,20 @@ async function runProfile(browser, name, base) {
       "adresse sans barre finale, défi choisi par l'adresse, progression du chargement",
       /SIT-06$/.test(chosen.text) && chosen.path === "/simulateur/" && /Mio reçus|préparation/.test(progress) && !/^attente échouée/.test(progress),
       `${chosen.path} ; ${chosen.text} ; pendant le chargement : « ${progress} »`,
+    );
+    // Progression du chargement (version 0.3.55) : tout fichier compté par la progression (ceux du manifeste, sauf
+    // les textes de licence) doit avoir été chargé par la scène, sinon elle n'atteint jamais « préparation ».
+    await page.waitForTimeout(1500);
+    const counted = await page.evaluate(async () => {
+      const manifest = await (await fetch("../scenes/parc/scene.json")).json();
+      const files = manifest.assets.flatMap((asset) => asset.files ?? []).filter((f) => !f.path.endsWith(".txt"));
+      const loaded = performance.getEntriesByType("resource").map((e) => decodeURIComponent(new URL(e.name).pathname));
+      return { count: files.length, missing: files.filter((f) => !loaded.some((name) => name.endsWith(`/scenes/parc/${f.path}`))).map((f) => f.path) };
+    });
+    check(
+      "progression du chargement : tous les fichiers comptés sont chargés par la scène",
+      counted.count > 0 && counted.missing.length === 0,
+      `${counted.count} fichiers comptés ; jamais chargés : ${counted.missing.join(", ") || "aucun"}`,
     );
   } catch (error) {
     // Dans la CI, il n'y a ni écran ni capture : le message garde le journal d'appel de Playwright (ce qu'il
