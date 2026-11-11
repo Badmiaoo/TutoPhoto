@@ -6,7 +6,7 @@ Rédigées par Claude le 11 novembre 2026, pendant que Julien était absent. Il 
 
 ## 1. Activité interactive de LUM-02 (lumière dure ou douce)
 
-**Tranché le 11 novembre 2026 : option A, le schéma interactif en 2D.**
+**Tranché le 11 novembre 2026 : option A, le schéma interactif en 2D.** Construit en version 0.3.50 (`activites/LUM-02/`), sans préréglage « soleil » : il attend une source primaire.
 
 **Contexte.** Le 10 novembre 2026, Julien a placé le simulateur de LUM-02 en V2, et prévu une activité interactive pour la V1 (`docs/cadrage.md`). La fiche propose pour l'instant une activité à faire chez soi, avec une lampe, un objet et un mur blanc. Il manque l'activité dans TutoPhoto.
 

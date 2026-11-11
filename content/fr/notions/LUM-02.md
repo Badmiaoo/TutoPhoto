@@ -8,7 +8,11 @@ Ce qui compte, c'est la taille apparente, vue du sujet : une grande source très
 
 ## Activité
 
-Le simulateur de lumière est prévu en V2 et l'activité interactive dans TutoPhoto reste à construire. En attendant, une activité à faire chez soi, tirée des mêmes sources :
+Dans TutoPhoto, un schéma vu de côté : une source de lumière, un objet, un mur. Fais varier la taille de la source et sa distance à l'objet, et regarde l'ombre sur le mur : l'ombre pleine au centre, et la pénombre sur ses bords, là où la source n'est cachée qu'en partie ([Wikipedia, « Umbra, penumbra and antumbra », révision 1379008615](https://en.wikipedia.org/w/index.php?title=Umbra,_penumbra_and_antumbra&oldid=1379008615), source secondaire, lue le 11 novembre 2026). Les rayons vont en ligne droite : par triangles semblables, la pénombre mesure taille de la source × distance objet–mur ÷ distance source–objet. Plus la source paraît grande vue de l'objet, plus la pénombre est large et le bord de l'ombre doux. Deux questions terminent l'activité.
+
+Le schéma est une coupe en 2D : la largeur de la pénombre est juste, la forme exacte du dégradé est simplifiée, et les exemples (petite lampe, grande fenêtre, réflecteur) sont des valeurs choisies pour l'activité. Le simulateur de lumière reste prévu en V2.
+
+À faire aussi chez soi, d'après les mêmes sources :
 - pose un objet sur une table et éclaire-le avec une petite lampe sans abat-jour : regarde le bord de son ombre ;
 - rapproche la lampe, puis éloigne-la : le bord change-t-il ?
 - renvoie la lumière sur un grand mur ou un carton blanc, pour qu'il devienne la source : le bord de l'ombre s'adoucit.

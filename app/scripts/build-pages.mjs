@@ -11,7 +11,7 @@
 // Les pages se lisent sans JavaScript ; un petit script retient la langue choisie, au même endroit que le simulateur
 // (clé « tutophoto.lang », app/src/i18n.ts).
 
-import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -39,6 +39,7 @@ const TEXT = {
     learnIntro: "Chaque notion a une explication, ce qu'en montre le simulateur et un exercice.",
     openSimulator: "Ouvrir le simulateur",
     playChallenge: "Jouer le défi",
+    doActivity: "Faire l'activité",
     simulator: "Simulateur",
     reviewMark: "en relecture",
     reviewLegend: "Une fiche marquée « en relecture » n'a pas encore été vérifiée.",
@@ -62,6 +63,7 @@ const TEXT = {
     learnIntro: "Each notion has an explanation, what the simulator shows of it, and an exercise.",
     openSimulator: "Open the simulator",
     playChallenge: "Play the challenge",
+    doActivity: "Do the activity",
     simulator: "Simulator",
     reviewMark: "under review",
     reviewLegend: "A page marked “under review” has not been checked yet.",
@@ -304,9 +306,17 @@ function fichePage(lang, id, fiche, ctx) {
   const door = fiche.kind === "notions" ? [t.learnDoor, t.anchors.learn] : [t.situationDoor, t.anchors.situation];
   // Une situation qui a une section « Défi » ouvre le simulateur avec ce défi (simulateur/?defi=…, version 0.3.47).
   const hasChallenge = fiche.kind === "situations" && fiche.sections.some((s) => s.title === SECTIONS.situations[lang][2]);
+  // Une notion qui a une section « Activité » et une page d'activité construite par Vite (activites/<ID>/, version
+  // 0.3.50) propose l'activité à la place du simulateur.
+  const hasActivity =
+    fiche.kind === "notions" &&
+    fiche.sections.some((s) => s.title === SECTIONS.notions[lang][2]) &&
+    existsSync(join(dist, "activites", id, "index.html"));
   const action = hasChallenge
     ? `<a class="button" href="../../simulateur/?lang=${lang}&amp;defi=${id}">${t.playChallenge}</a>`
-    : `<a class="button" href="../../simulateur/?lang=${lang}">${t.openSimulator}</a>`;
+    : hasActivity
+      ? `<a class="button" href="../../activites/${id}/?lang=${lang}">${t.doActivity}</a>`
+      : `<a class="button" href="../../simulateur/?lang=${lang}">${t.openSimulator}</a>`;
   const crumb = `<a href="../../?lang=${lang}#${door[1]}">${door[0]}</a>${domain ? ` · ${escapeHtml(capitalize(domain))}` : ""}`;
   const body = `<header class="bar">
   <a class="brand" href="../../?lang=${lang}">TutoPhoto</a>

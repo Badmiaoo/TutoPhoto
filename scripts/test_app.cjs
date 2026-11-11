@@ -20,6 +20,8 @@
 // - le simulateur (simulateur/) a un lien vers l'accueil ;
 // - la fiche SIT-05 a un bouton « Jouer le défi » (simulateur/?defi=SIT-05), et le simulateur ouvert ainsi a le défi
 //   SIT-06 choisi (simulateur/?defi=SIT-06) ;
+// - l'activité LUM-02 (activites/LUM-02/) : la fiche y mène ; l'exemple « Grande fenêtre » (120 cm à 200 cm) donne une
+//   pénombre de 120 × 50 / 200 = 30 cm ; la bonne réponse à la première question est saluée ; pas de défilement horizontal ;
 // - avec --photo : les notions « À revoir » du bulletin et le bouton « Fiche » de la fenêtre « Défis » ouvrent la
 //   fiche par-dessus le simulateur, et un lien de la fiche vers une autre fiche reste dans la fenêtre ;
 // - la scène se charge (le message de chargement disparaît) et aucun problème ne s'affiche à l'écran ;
@@ -243,6 +245,21 @@ async function checkPages(page, base, name, check) {
     return { text: a?.textContent ?? "", href: a?.getAttribute("href") ?? "" };
   });
   check("fiche SIT-05 : bouton « Jouer le défi »", play.text === "Jouer le défi" && play.href === "../../simulateur/?lang=fr&defi=SIT-05", `« ${play.text} » → ${play.href}`);
+  // Activité LUM-02 (version 0.3.50).
+  await page.goto(`${base}/fiches/fr/LUM-02.html`);
+  const toActivity = await page.evaluate(() => document.querySelector(".actions a")?.getAttribute("href") ?? "");
+  await page.goto(`${base}/activites/LUM-02/?lang=fr`);
+  await page.click('[data-preset="window"]');
+  const penumbra = await page.evaluate(() => document.getElementById("act-penumbra").textContent);
+  await page.click('[data-question="0"][data-answer="0"]');
+  const feedback = await page.evaluate(() => document.querySelector(".act-feedback")?.className ?? "");
+  const activityOverflow = await overflow();
+  check(
+    "activité LUM-02 : pénombre et question",
+    toActivity === "../../activites/LUM-02/?lang=fr" && /30,0 cm/.test(penumbra) && /passed/.test(feedback) && activityOverflow <= 0,
+    `fiche → ${toActivity} ; ${penumbra} ; réponse : ${feedback} ; débordement ${activityOverflow} px`,
+  );
+  if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-activite-LUM-02.png`), fullPage: true });
 }
 
 async function runProfile(browser, name, base) {
