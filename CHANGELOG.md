@@ -12,6 +12,22 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.51] - 2026-11-11
+
+### Ajouté
+
+- Progression du chargement dans le simulateur : « Chargement de la scène… 12 / 34 Mio reçus · 45 s », puis, après une minute, les fichiers encore attendus. Suite au chargement sans fin signalé par Julien le 11 novembre 2026, en données mobiles.
+- Bouton « Télécharger les ressources du simulateur » sur l'accueil (proposé par Julien) : barre de progression en direct, Mio reçus, pourcentage, temps, débit mesuré en Mbit/s, puis un bilan avec les fichiers en échec et un bouton pour les réessayer. Les fichiers vont dans le cache ordinaire du navigateur (option A, choisie par Julien).
+- Routine de test : le bouton de l'accueil ; le simulateur ouvert à une adresse sans barre finale, avec sa progression.
+
+### Corrigé
+
+- Une adresse sans barre finale (`…/simulateur`, `…/activites/LUM-02`) laissait la page sans code ni scène quand le serveur ne redirigeait pas : la page ajoute la barre elle-même.
+
+### Modifié
+
+- `docs/pile-technique.md`, `docs/questions-ouvertes.md`, `docs/historique.md`.
+
 ## [0.3.50] - 2026-11-11
 
 ### Ajouté
@@ -764,6 +780,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.51]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.50...v0.3.51
 [0.3.50]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.49...v0.3.50
 [0.3.49]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.48...v0.3.49
 [0.3.48]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.47...v0.3.48

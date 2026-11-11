@@ -3,6 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+      // Adresse sans barre finale (…/simulateur) : les chemins relatifs du site viseraient le dossier parent, et
+      // la page resterait sans code ni scène. On ajoute la barre avant tout chargement (version 0.3.51).
+      if (!location.pathname.endsWith("/")) location.replace(location.pathname + "/" + location.search + location.hash);
+    </script>
     <title>TutoPhoto</title>
   </head>
   <body>
