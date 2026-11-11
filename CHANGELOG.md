@@ -12,6 +12,17 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.49] - 2026-11-11
+
+### Modifié
+
+- Décisions de Julien du 11 novembre 2026 sur les propositions, consignées dans `docs/propositions.md` et `docs/questions-ouvertes.md` :
+  - activité de LUM-02 en schéma interactif 2D ;
+  - protocole de test tel quel, avec 5 testeurs ;
+  - extension seulement si tous les testeurs réussissent chaque défi sans aide et répondent mieux après qu'avant ;
+  - ordre de travail après les tests tel quel.
+- `docs/historique.md`.
+
 ## [0.3.48] - 2026-11-11
 
 ### Ajouté
@@ -734,6 +745,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.49]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.48...v0.3.49
 [0.3.48]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.47...v0.3.48
 [0.3.47]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.46...v0.3.47
 [0.3.46]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.45...v0.3.46
