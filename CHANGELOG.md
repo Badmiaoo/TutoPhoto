@@ -12,6 +12,21 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.46] - 2026-11-11
+
+### Ajouté
+
+- Accueil à la racine du site, avec les trois portes d'entrée : « Je suis en situation » (les trois situations et leurs fiches), « Je m'entraîne » (le simulateur, avec le poids de la scène calculé d'après son manifeste) et « J'apprends » (les seize notions, par domaine).
+- Fiches des notions et des situations publiées sur le site, en français et en anglais (`fiches/fr/`, `fiches/en/`), produites à la construction depuis `content/` par `app/scripts/build-pages.mjs`. Les codes de notions et de situations deviennent des liens ; la fiche d'une notion liste ses situations.
+- Bandeau « Fiche en cours de relecture » sur chaque fiche non relue, et marque « en relecture » sur l'accueil (décision de Julien du 11 novembre 2026). `data/relecture.yaml` liste les fiches relues ; son schéma et sa cohérence sont contrôlés par `scripts/validate.py`.
+- Lien « Accueil » dans l'en-tête du simulateur.
+- Routine de test : liens internes de toutes les pages, accueil (langue, bouton de langue), fiche NET-01 (bandeau, bouton du simulateur), sans défilement horizontal, sur les quatre profils.
+
+### Modifié
+
+- Le simulateur passe sous `simulateur/` (décision de Julien du 11 novembre 2026) ; ses chemins vers la scène et les licences sont relatifs à ce dossier.
+- `docs/contenus.md`, `docs/pile-technique.md`, `docs/questions-ouvertes.md`, `docs/historique.md`, README.
+
 ## [0.3.45] - 2026-11-11
 
 ### Ajouté
@@ -693,6 +708,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.46]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.45...v0.3.46
 [0.3.45]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.44...v0.3.45
 [0.3.44]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.43...v0.3.44
 [0.3.43]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.42...v0.3.43

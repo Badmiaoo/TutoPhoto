@@ -36,6 +36,7 @@ class Referentiel:
     situations_file: tuple = None
     sources_file: tuple = None
     jalons_file: tuple = None
+    relecture_file: tuple = None
 
     @property
     def domains(self):
@@ -66,6 +67,10 @@ class Referentiel:
     def jalons(self):
         return self.jalons_file[1]["jalons"]
 
+    @property
+    def relues(self):
+        return self.relecture_file[1]["relues"]
+
     def rel(self, path):
         return pathlib.Path(path).relative_to(self.root).as_posix()
 
@@ -87,6 +92,7 @@ def load(root=ROOT):
     ref.situations_file = (root / "data" / "situations.yaml", load_yaml(root / "data" / "situations.yaml"))
     ref.sources_file = (root / "data" / "sources.yaml", load_yaml(root / "data" / "sources.yaml"))
     ref.jalons_file = (root / "data" / "jalons.yaml", load_yaml(root / "data" / "jalons.yaml"))
+    ref.relecture_file = (root / "data" / "relecture.yaml", load_yaml(root / "data" / "relecture.yaml"))
     return ref
 
 

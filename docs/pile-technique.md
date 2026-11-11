@@ -95,6 +95,11 @@ Décidé par Julien le 7 novembre 2026 ; versions et licences lues dans le regis
 - Moteur : [@babylonjs/core](https://www.npmjs.com/package/@babylonjs/core) 9.35.0, licence Apache-2.0. Sa licence et son `NOTICE.md` sont recopiés dans le site construit (`licences/`), avec les licences du projet.
 - Chargement des modèles glTF : [@babylonjs/loaders](https://www.npmjs.com/package/@babylonjs/loaders) 9.35.0, licence Apache-2.0, ajouté le 8 novembre 2026 ; il dépend de [babylonjs-gltf2interface](https://www.npmjs.com/package/babylonjs-gltf2interface) 9.35.0 (Apache-2.0, déclarations de types seulement). Versions et licences lues dans le registre npm le 7 novembre 2026.
 - Scène de parc (8 novembre 2026) : fond `PhotoDome` (photo à 360°), éclairage par `HDRCubeTexture`, sol invisible en `BackgroundMaterial` qui ne reçoit que les ombres. Code dans `app/src/scene.ts` ; fichiers et crédits dans `app/public/scenes/parc/`.
+- Organisation du site (version 0.3.46, décisions de Julien du 11 novembre 2026) :
+  - l'accueil à la racine, avec les trois portes d'entrée ; le simulateur sous `simulateur/` (entrée Vite `app/simulateur/index.html`) ;
+  - les fiches des notions et des situations sous `fiches/fr/` et `fiches/en/`, une page HTML statique par fiche, lisible sans charger la scène 3D ;
+  - accueil et fiches produits après Vite par `app/scripts/build-pages.mjs`, à partir de `content/` : un convertisseur écrit pour TutoPhoto, qui ne reconnaît que le balisage des fiches et fait échouer la construction sur tout le reste (`docs/contenus.md`) ;
+  - même mémoire de la langue partout (clé `tutophoto.lang` du navigateur).
 - Publication sur GitHub Pages à chaque fusion sur `main`, par le workflow `.github/workflows/pages.yml`. GitHub Pages doit être activé dans les réglages du dépôt, avec la source « GitHub Actions ».
 - La CI des pull requests vérifie les types et construit le site (`.github/workflows/validate.yml`, job `app`).
 

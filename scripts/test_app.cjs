@@ -10,7 +10,14 @@
 // d'écran, le toucher et l'identification du navigateur (Babylon.js change de comportement sur iPhone et
 // iPad), mais pas le processeur graphique ni le moteur Safari : un vrai téléphone reste nécessaire.
 //
+// Contrôles des pages statiques (version 0.3.46), une fois : chaque lien interne de chaque page HTML du site
+// construit mène à un fichier qui existe, et chaque ancre à un élément de la page visée.
+//
 // Contrôles, pour chaque profil :
+// - l'accueil s'affiche dans la langue demandée, sans défilement horizontal, et le bouton de langue change de bloc ;
+// - une fiche (NET-01) s'affiche sans défilement horizontal, avec le bandeau de relecture tant qu'elle n'est pas
+//   listée dans data/relecture.yaml, et son bouton mène au simulateur ;
+// - le simulateur (simulateur/) a un lien vers l'accueil ;
 // - la scène se charge (le message de chargement disparaît) et aucun problème ne s'affiche à l'écran ;
 // - le rendu a la taille affichée et le cadre les proportions du capteur ;
 // - à ISO 6400, le bruit du viseur varie d'une image à l'autre ; aperçu coupé, il disparaît ;
@@ -147,6 +154,87 @@ async function sharpness(page) {
   );
 }
 
+/** Liens internes des pages HTML du site construit : fichier visé présent, ancre présente dans la page visée. */
+function checkLinks(root) {
+  const pages = [];
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name.endsWith(".html")) pages.push(full);
+    }
+  };
+  walk(root);
+  const broken = [];
+  let links = 0;
+  for (const file of pages) {
+    const html = fs.readFileSync(file, "utf8");
+    for (const m of html.matchAll(/\s(?:href|src)="([^"]+)"/g)) {
+      const target = m[1];
+      if (/^(https?:|mailto:|data:)/.test(target) || target.startsWith("/src/")) continue;
+      links++;
+      const [pathAndQuery, anchor] = target.split("#");
+      const rel = pathAndQuery.split("?")[0];
+      let dest = rel === "" ? file : path.resolve(path.dirname(file), rel);
+      if (fs.existsSync(dest) && fs.statSync(dest).isDirectory()) dest = path.join(dest, "index.html");
+      const where = `${path.relative(root, file)} → ${target}`;
+      if (!fs.existsSync(dest)) broken.push(where);
+      else if (anchor && !fs.readFileSync(dest, "utf8").includes(`id="${anchor}"`)) broken.push(`${where} (ancre)`);
+    }
+  }
+  return [{
+    label: "liens internes des pages",
+    ok: broken.length === 0 && links > 0,
+    detail: broken.length ? `${broken.length} cassé(s) : ${broken.slice(0, 5).join(" ; ")}` : `${pages.length} pages, ${links} liens`,
+  }];
+}
+
+/** Fiche relue dans data/relecture.yaml (même forme de ligne que app/scripts/build-pages.mjs). */
+function isReviewed(id, lang) {
+  const text = fs.readFileSync(path.join(__dirname, "..", "data", "relecture.yaml"), "utf8");
+  return new RegExp(`^  - \\{fiche: ${id}, langue: ${lang}, date: `, "m").test(text);
+}
+
+/** Accueil et fiche, avant le simulateur. */
+async function checkPages(page, base, name, check) {
+  const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  await page.goto(`${base}/?lang=fr`);
+  const home = await page.evaluate(() => {
+    const shown = [...document.querySelectorAll("[data-lang-block]")].filter((b) => !b.hidden).map((b) => b.dataset.langBlock);
+    const block = document.querySelector("[data-lang-block]:not([hidden])");
+    return { shown, lang: document.documentElement.lang, items: block ? block.querySelectorAll("li a[href^='fiches/']").length : 0 };
+  });
+  const homeOverflow = await overflow();
+  check(
+    "accueil en français",
+    home.shown.join() === "fr" && home.lang === "fr" && home.items > 0 && homeOverflow <= 0,
+    `bloc ${home.shown.join()}, ${home.items} fiches listées, débordement ${homeOverflow} px`,
+  );
+  if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-accueil.png`), fullPage: true });
+  await page.click("[data-lang-block='fr'] .lang-switch");
+  const switched = await page.evaluate(() => ({
+    shown: [...document.querySelectorAll("[data-lang-block]")].filter((b) => !b.hidden).map((b) => b.dataset.langBlock).join(),
+    saved: localStorage.getItem("tutophoto.lang"),
+  }));
+  check("accueil : bouton de langue", switched.shown === "en" && switched.saved === "en", `bloc ${switched.shown}, langue retenue ${switched.saved}`);
+  await page.goto(`${base}/fiches/fr/NET-01.html`);
+  const fiche = await page.evaluate(() => ({
+    title: document.querySelector("h1")?.textContent ?? "",
+    banner: document.querySelectorAll(".banner").length,
+    sections: [...document.querySelectorAll("h2")].map((h) => h.textContent).join(", "),
+    simulator: document.querySelector(".actions a")?.getAttribute("href") ?? "",
+    saved: localStorage.getItem("tutophoto.lang"),
+  }));
+  const ficheOverflow = await overflow();
+  const banner = isReviewed("NET-01", "fr") ? 0 : 1;
+  check(
+    "fiche NET-01 en français",
+    fiche.title.startsWith("NET-01") && fiche.banner === banner && fiche.simulator === "../../simulateur/?lang=fr" && fiche.saved === "fr" && ficheOverflow <= 0,
+    `${fiche.title} ; bandeau de relecture : ${fiche.banner ? "oui" : "non"} ; sections : ${fiche.sections} ; débordement ${ficheOverflow} px`,
+  );
+  if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-fiche.png`), fullPage: true });
+}
+
 async function runProfile(browser, name, base) {
   const profile = PROFILES[name];
   if (!profile) throw new Error(`Profil inconnu : ${name}`);
@@ -171,12 +259,15 @@ async function runProfile(browser, name, base) {
   const check = (label, ok, detail = "") => checks.push({ label, ok, detail });
   const started = Date.now();
   try {
-    await page.goto(`${base}/?lang=fr`);
+    await checkPages(page, base, name, check);
+    await page.goto(`${base}/simulateur/?lang=fr`);
     const loaded = await page
       .waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 })
       .then(() => true)
       .catch(() => false);
     check("chargement", loaded, `${Math.round((Date.now() - started) / 1000)} s`);
+    const home = await page.evaluate(() => ({ text: document.getElementById("home")?.textContent ?? "", href: document.getElementById("home")?.getAttribute("href") ?? "" }));
+    check("simulateur : lien vers l'accueil", home.text === "Accueil" && home.href === "../", `« ${home.text} » → ${home.href}`);
     const diagnostic = await page.evaluate(() => {
       const d = document.getElementById("diagnostic");
       return d && !d.hidden ? d.textContent : "";
@@ -698,7 +789,7 @@ async function runProfile(browser, name, base) {
 }
 
 (async () => {
-  if (!fs.existsSync(path.join(dist, "index.html"))) {
+  if (!fs.existsSync(path.join(dist, "simulateur", "index.html")) || !fs.existsSync(path.join(dist, "index.html"))) {
     console.error(`Site construit introuvable dans ${dist} : lancez d'abord cd app && npm run build.`);
     process.exit(2);
   }
@@ -706,6 +797,11 @@ async function runProfile(browser, name, base) {
   const base = `http://127.0.0.1:${server.address().port}`;
   const browser = await chromium.launch({ args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
   let failed = 0;
+  console.log("\n== pages");
+  for (const c of checkLinks(dist)) {
+    if (!c.ok) failed++;
+    console.log(`${c.ok ? "ok    " : "ÉCHEC "} ${c.label}${c.detail ? ` : ${c.detail}` : ""}`);
+  }
   for (const name of profileNames) {
     const result = await runProfile(browser, name, base);
     console.log(`\n== ${name}`);

@@ -26,7 +26,8 @@ const creditsDialog = element<HTMLDialogElement>("credits-dialog");
 const creditsList = element<HTMLUListElement>("credits-list");
 const status = element<HTMLParagraphElement>("status");
 const diagnostic = element<HTMLParagraphElement>("diagnostic");
-const manifest = loadManifest("scenes/parc/scene.json");
+// Le simulateur est sous simulateur/ depuis la version 0.3.46 : la scène est un dossier plus haut.
+const manifest = loadManifest("../scenes/parc/scene.json");
 let lang: Lang = initialLang();
 let statusKey: "loading" | "loadError" | null = "loading";
 let cameraPanel: CameraPanel | null = null;
@@ -59,6 +60,7 @@ function applyLang(): void {
   document.documentElement.lang = lang;
   element("subtitle").textContent = t(lang, "subtitle");
   element("licences").textContent = t(lang, "licences");
+  element("home").textContent = t(lang, "home");
   creditsButton.textContent = t(lang, "credits");
   element("credits-title").textContent = t(lang, "creditsTitle");
   element("credits-intro").textContent = t(lang, "creditsIntro");

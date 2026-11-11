@@ -27,7 +27,8 @@ import "@babylonjs/loaders/glTF/2.0";
 // Effet de bord requis par Babylon (matériau par défaut des maillages).
 import "@babylonjs/core/Materials/standardMaterial";
 
-const SCENE_URL = "scenes/parc/";
+// Relatif au simulateur (simulateur/index.html, version 0.3.46) : la scène est dans scenes/ à la racine du site.
+const SCENE_URL = "../scenes/parc/";
 
 /** Hauteur de l'œil, en mètres. Poly Haven ne publie pas la hauteur de prise de vue : valeur supposée. */
 export const EYE_HEIGHT = 1.6;
