@@ -2,7 +2,7 @@
 """Vérifie qu'aucune information à ne pas publier n'entre dans le dépôt public.
 
 Usage : python3 scripts/check_public.py [--commits all|BASE..HEAD]
-        python3 scripts/check_public.py --env NOM [--env NOM…]
+        python3 scripts/check_public.py --pull-request FICHIER
 
 Contrôles, tous bloquants :
 - fichiers suivis par git : clés privées, jetons d'API aux formats connus, mots de passe ou secrets écrits
@@ -13,15 +13,17 @@ Contrôles, tous bloquants :
   « noreply », et messages, soumis aux mêmes contrôles que les fichiers. Seule exception : les commits
   listés dans scripts/check_public_historique.txt, publiés avec un lien vers une session Claude dans
   leur message, tolérés pour ce seul problème (fuite signalée, historique non réécrit) ;
-- textes passés par variables d'environnement (avec --env, sans les fichiers ni les commits) : le titre et la
-  description d'une pull request, contrôlés par le workflow .github/workflows/description.yml. Ils ne sont pas
-  dans git ; l'outil GitHub de Claude y met un lien de session à la création (docs/publication.md).
+- titre et description d'une pull request (avec --pull-request, sans les fichiers ni les commits), lus dans le
+  fichier JSON de l'événement GitHub ($GITHUB_EVENT_PATH), par le workflow .github/workflows/description.yml.
+  Ils ne sont pas dans git ; l'outil GitHub de Claude met un lien de session dans la description à la création
+  (docs/publication.md). Le fichier est lu plutôt que des variables d'environnement, qu'Actions écrit en clair
+  dans le journal de l'étape.
 
 Les secrets dans tout l'historique sont aussi cherchés par gitleaks, dans la CI.
 Les valeurs trouvées ne sont jamais affichées en entier.
 """
 import argparse
-import os
+import json
 import re
 import subprocess
 import sys
@@ -128,16 +130,17 @@ def scan_commits(spec, problems):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--commits", help="« all », ou une plage BASE..HEAD, pour contrôler les adresses des commits")
-    parser.add_argument("--env", action="append", metavar="NOM",
-                        help="variable d'environnement dont le texte est contrôlé seul (répétable)")
+    parser.add_argument("--pull-request", metavar="FICHIER",
+                        help="événement GitHub (JSON) dont le titre et la description de la pull request sont contrôlés seuls")
     args = parser.parse_args()
     problems = []
-    if args.env:
-        for name in args.env:
-            scan_text(name, os.environ.get(name, ""), problems)
+    if args.pull_request:
+        pr = json.loads(Path(args.pull_request).read_text(encoding="utf-8")).get("pull_request") or {}
+        for label, key in (("titre", "title"), ("description", "body")):
+            scan_text(label, pr.get(key) or "", problems)
         for p in problems:
             print(f"ERREUR : {p}")
-        print(f"{len(args.env)} texte(s) contrôlé(s) : {len(problems)} problème(s)")
+        print(f"titre et description contrôlés : {len(problems)} problème(s)")
         return 1 if problems else 0
     files = scan_files(problems)
     commits = scan_commits(args.commits, problems) if args.commits else 0

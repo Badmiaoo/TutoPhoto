@@ -14,7 +14,7 @@ Exceptions acceptées par Julien : son nom, comme auteur des commits de fusion a
 ## Contrôles
 
 - `scripts/check_public.py` cherche ces informations dans tous les fichiers suivis par git et dans les messages de tous les commits, et vérifie les adresses des auteurs et des committers. Il tourne dans la CI de chaque pull request et de `main`, sur tout l'historique des commits (`--commits all`). Les messages de commit ne sont contrôlés que depuis le 8 novembre 2026 (voir ci-dessous).
-- Le titre et la description de chaque pull request, qui ne sont pas dans git, passent par le même script (`--env`), dans le workflow `.github/workflows/description.yml`, à chaque création ou modification. Ajouté le 11 novembre 2026 (voir ci-dessous).
+- Le titre et la description de chaque pull request, qui ne sont pas dans git, passent par le même script (`--pull-request`, qui lit le fichier de l'événement GitHub), dans le workflow `.github/workflows/description.yml`, à chaque création ou modification. Ajouté le 11 novembre 2026 (voir ci-dessous).
 - [gitleaks](https://github.com/gitleaks/gitleaks/tree/v8.30.1) 8.30.1 (licence MIT) cherche les secrets dans tout l'historique git, dans la même CI. Le binaire est téléchargé depuis la release officielle et vérifié par son empreinte SHA-256 avant d'être lancé.
 - Côté GitHub, pour un dépôt public : la recherche de secrets (secret scanning) tourne automatiquement et gratuitement ([documentation](https://docs.github.com/en/code-security/concepts/secret-security/secret-scanning)), et la protection des pushes pour les utilisateurs est active par défaut ([documentation](https://docs.github.com/en/code-security/how-tos/secure-your-secrets/prevent-future-leaks/manage-user-push-protection)). Sources lues dans le dépôt `github/docs`, commit `8cd1075` du 6 novembre 2026.
 
@@ -38,6 +38,7 @@ Un dépôt public peut être copié dès qu'un commit est poussé : effacer le f
 - Signalé à Julien le 11 novembre 2026. Ses décisions, le même jour :
   - retirer le lien des 21 descriptions. C'est fait le jour même : seul le pied a changé, et une relecture confirme que chaque description enregistrée est identique au texte voulu. Le lien reste dans l'historique d'édition (voir la documentation GitHub citée plus haut). Les #1 à #14 restent en l'état, selon la décision du 8 novembre ;
   - pour les pull requests suivantes : Claude les crée, puis réécrit aussitôt la description sans le lien. Le workflow `description.yml` échoue tant que le lien y est. Une pull request n'est donc jamais fusionnée avec ce lien, mais il reste dans l'historique d'édition de chacune.
+- Premier essai du contrôle, sur la #50 : il a échoué sur la description créée, puis réussi sur la description réécrite. Mais sa première version passait le titre et la description à l'étape par « env: », et Actions écrit ces variables en clair au début du journal de l'étape. Le journal de ce premier passage, public pour ce dépôt, contenait donc le lien. Claude a supprimé ce journal le jour même, comme le prévoit la décision de retirer le lien, et a vérifié qu'il n'est plus lisible. Le script lit désormais le fichier de l'événement (`$GITHUB_EVENT_PATH`), qu'Actions n'affiche pas.
 
 ## Avant le passage en public
 

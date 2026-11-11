@@ -24,8 +24,6 @@ jobs:
         with:
           python-version: "3.13"
       - name: Titre et description sans information privée
-        # Passés par l'environnement, jamais insérés dans la commande : le texte reste une donnée.
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: python scripts/check_public.py --env PR_TITLE --env PR_BODY
+        # Lus dans le fichier de l'événement, jamais insérés dans la commande ni passés par « env: » : Actions écrit
+        # les variables d'une étape en clair dans son journal, public pour ce dépôt (constaté le 11 novembre 2026).
+        run: python scripts/check_public.py --pull-request "$GITHUB_EVENT_PATH"

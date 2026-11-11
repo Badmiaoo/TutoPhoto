@@ -17,8 +17,8 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 ### Ajouté
 
 - Workflow `description.yml` : le titre et la description de chaque pull request passent par `scripts/check_public.py`, à chaque création ou modification. Ils ne sont pas dans git, et l'outil GitHub de Claude met un lien de session dans le pied de la description à la création.
-- Option `--env` de `scripts/check_public.py` : contrôle le texte de variables d'environnement.
-- `docs/publication.md` : constat du 11 novembre 2026. 21 descriptions de pull requests (#15 à #49) contenaient le lien de la session ; il en a été retiré sur décision de Julien.
+- Option `--pull-request` de `scripts/check_public.py` : contrôle le titre et la description lus dans le fichier de l'événement GitHub. Les passer par des variables d'environnement les aurait écrits en clair dans le journal d'Actions, public.
+- `docs/publication.md` : constat du 11 novembre 2026. 21 descriptions de pull requests (#15 à #49) contenaient le lien de la session ; il en a été retiré sur décision de Julien. Le journal du premier passage du contrôle, qui l'affichait, a été supprimé.
 
 ### Modifié
 
