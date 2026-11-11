@@ -421,6 +421,8 @@ async function runProfile(browser, name, base) {
       });
       check("photo calculée, pas noire", photo.mean > 5, `${photo.size ?? "-"}, niveau moyen ${photo.mean.toFixed(1)} ; ${photo.caption}`);
       check("légende : mode et réglages retenus", /^M · f\/8 · 1\/4000 s · ISO 6400 · 50 mm · /.test(photo.caption), photo.caption.slice(0, 60));
+      const bulletinText = await page.evaluate(() => document.getElementById("review-bulletin").innerText);
+      check("bulletin sous la photo", /Exposition : /.test(bulletinText) && /Zone nette : /.test(bulletinText), bulletinText.split("\n").slice(0, 3).join(" | "));
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-photo.png`), timeout: 120000 });
       const box = await page.locator("#review-image").boundingBox();
       await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
@@ -429,6 +431,46 @@ async function runProfile(browser, name, base) {
       check("loupe de l'écran de revue", /100/.test(caption), caption);
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-loupe.png`), timeout: 120000 });
       await page.click("#review-back");
+    }
+
+    if (withPhoto) {
+      // Défis (SIT-05, SIT-01), zone automatique avec détection des yeux : mise au point sur l'œil de Sophia, vers
+      // 6,6 m. À f/8 et 50 mm, zone nette d'environ 4 m à 17 m : le groupe y est (SIT-05 réussi), mais aussi la
+      // poubelle à 10,5 m, derrière Sophia et dans le cadre (SIT-01 à reprendre).
+      const challengeShot = async (id) => {
+        await page.click("#challenge-button");
+        await page.check(`#challenge-dialog input[name="challenge"][value="${id}"]`);
+        await page.click("#challenge-close");
+        await page.click("#shutter-button");
+        await page.waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden && !document.getElementById("review-bulletin").hidden, null, { timeout: 300000 });
+        const text = await page.evaluate(() => document.getElementById("review-bulletin").innerText);
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-defi-${id}.png`), timeout: 120000 });
+        await page.click("#review-back");
+        return text;
+      };
+      await page.click("#af-button");
+      await page.check('#af-dialog input[name="focusMode"][value="continuous"]');
+      await page.check('#af-dialog input[name="areaMode"][value="auto"]');
+      await page.check('#af-dialog input[name="detection"][value="faceEye"]');
+      await page.click("#af-close");
+      await page
+        .waitForFunction(() => /^AF-C · Auto · œil · /.test(document.getElementById("af-badge").textContent), null, { timeout: 30000 })
+        .catch(() => undefined);
+      const group = await challengeShot("SIT-05");
+      check("défi SIT-05 : groupe net, réussi", /Défi SIT-05 · Photo de groupe : réussi/.test(group), group.split("\n").filter((l) => /Défi|Réussi|Manqué/.test(l)).join(" | "));
+      const portrait = await challengeShot("SIT-01");
+      check(
+        "défi SIT-01 à f/8 : fond encore net, à reprendre",
+        /Défi SIT-01 · .* : à reprendre/.test(portrait) && /Manqué : fond derrière Sophia hors de la zone nette : encore net : .*la poubelle/.test(portrait) && /À revoir : NET-01/.test(portrait),
+        portrait.split("\n").filter((l) => /Défi|Réussi|Manqué|À revoir/.test(l)).join(" | "),
+      );
+      await page.click("#challenge-button");
+      await page.check('#challenge-dialog input[name="challenge"][value="none"]');
+      await page.click("#challenge-close");
+      await page.click("#af-button");
+      await page.check('#af-dialog input[name="focusMode"][value="single"]');
+      await page.check('#af-dialog input[name="areaMode"][value="point"]');
+      await page.click("#af-close");
     }
 
     // Mise au point. Le bas du cadre montre le sol, proche ; relever l'appareil y amène le sol lointain ou le

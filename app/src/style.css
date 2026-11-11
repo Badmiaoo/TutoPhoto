@@ -3,6 +3,7 @@
   --texte: #1d1d1b;
   --discret: #5b5b57;
   --erreur: #9b1c1c;
+  --reussi: #1d6b2a;
   color-scheme: light dark;
 }
 
@@ -12,6 +13,7 @@
     --texte: #ececea;
     --discret: #a4a49f;
     --erreur: #f19a9a;
+    --reussi: #7ee08a;
   }
 }
 
@@ -648,10 +650,41 @@ dialog fieldset label {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.5rem;
   padding: 0.75rem;
+  /* Le bulletin peut dépasser la hauteur du viseur sur téléphone : l'écran de revue défile. */
+  overflow-y: auto;
   background: var(--fond);
+}
+
+/* Centré quand il y a la place, sans couper le haut quand l'écran de revue défile. */
+.review > :first-child {
+  margin-top: auto;
+}
+
+.review > :last-child {
+  margin-bottom: auto;
+}
+
+/* Bulletin de la photo (ui/challenges.ts). */
+.review-bulletin {
+  max-width: 42rem;
+  margin: 0;
+  padding: 0 0 0 1.2rem;
+  font-size: 0.85rem;
+}
+
+.review-bulletin .passed {
+  color: var(--reussi);
+}
+
+.review-bulletin .failed {
+  color: var(--erreur);
+}
+
+.review-bulletin[hidden] {
+  display: none;
 }
 
 .review img {

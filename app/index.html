@@ -11,6 +11,7 @@
       <p id="subtitle" class="subtitle"></p>
       <nav class="links">
         <button id="lang" type="button"></button>
+        <button id="challenge-button" type="button"></button>
         <button id="credits" type="button"></button>
         <a id="licences" href="licences/"></a>
       </nav>
@@ -59,6 +60,7 @@
       <section id="review" class="review" hidden>
         <img id="review-image" alt="" />
         <p id="review-caption" class="review-caption"></p>
+        <ul id="review-bulletin" class="review-bulletin" hidden></ul>
         <p id="review-hint" class="review-caption"></p>
         <div id="review-series" class="review-actions" hidden>
           <button id="review-prev" type="button"></button>
@@ -186,6 +188,19 @@
       <p id="af-note" class="note"></p>
       <form method="dialog">
         <button id="af-close" type="submit"></button>
+      </form>
+    </dialog>
+    <dialog id="challenge-dialog" aria-labelledby="challenge-title">
+      <h2 id="challenge-title"></h2>
+      <fieldset>
+        <label><input type="radio" name="challenge" value="none" /> <span id="challenge-none-label"></span></label>
+        <label><input type="radio" name="challenge" value="SIT-01" /> <span id="challenge-SIT-01-label"></span></label>
+        <label><input type="radio" name="challenge" value="SIT-05" /> <span id="challenge-SIT-05-label"></span></label>
+        <label><input type="radio" name="challenge" value="SIT-06" /> <span id="challenge-SIT-06-label"></span></label>
+      </fieldset>
+      <p id="challenge-note" class="note"></p>
+      <form method="dialog">
+        <button id="challenge-close" type="submit"></button>
       </form>
     </dialog>
     <dialog id="exposure-dialog" aria-labelledby="exposure-title">

@@ -513,6 +513,31 @@ Non simulé ou approché :
 - le fond photo à 360° est pris d'un seul point : ce qu'il montre (arbres, bâtiments) ne change pas de perspective quand l'appareil se déplace, et son sol est projeté sur un plan ;
 - la vue de dessus est une aide de TutoPhoto, pas un affichage d'appareil.
 
+## Défis et bulletin (version 0.3.38)
+
+Proposés le 10 novembre 2026 avec le bilan de la V1 minimale, validés par Julien le 11 novembre (« Suivons tes propositions ») : un défi par situation, vérifié sur la photo, et un bulletin après chaque photo.
+
+Dans TutoPhoto (`app/src/camera/bulletin.ts`, `app/src/ui/challenges.ts`) :
+- **Fenêtre « Défis »**, ouverte par le bouton de l'en-tête : aucun défi (entraînement libre), ou l'un des trois défis. Le choix est mémorisé.
+- **Les défis**, tirés des intentions des situations (`data/situations.yaml`) :
+  - SIT-01, portrait (« Isoler le sujet, regard net ») : l'œil de Sophia dans le cadre et dans la zone nette ; le fond derrière elle hors de la zone nette. Est « derrière » ce qui est à plus de 1 m derrière son œil et dans le cadre : banc, poubelle, promeneur, chien ; le fond photo à 360° compte comme un fond à 500 m.
+  - SIT-05, photo de groupe (« Tout le monde net ») : les yeux de Dennis, Sophia, Fabienne et Percy dans le cadre et dans la zone nette.
+  - SIT-06, chien qui court (« Figer un sujet net ») : le chien dans le cadre, dans la zone nette, et figé.
+- **Critères**, tous déjà sourcés :
+  - zone nette : limites de `camera/sharpZone.ts`, flou acceptable d / 1500 ([Wikipedia, « Circle of confusion »](https://en.wikipedia.org/w/index.php?title=Circle_of_confusion&oldid=1335590423)) ; la distance est la profondeur le long de l'axe, celle de la mise au point ;
+  - sujet figé : traînée pendant la pose au plus égale au même flou acceptable, comme l'indicateur d'équilibre ;
+  - dans le cadre : le point se projette dans le capteur, x = f X / Z et y = f Y / Z, dans les dimensions du capteur.
+- **Bulletin**, sous chaque photo, défi ou non :
+  - exposition (écart à l'exposition correcte de la scène, en IL) ;
+  - zone nette et distance de mise au point ;
+  - bruit au point visé, lu par l'indicateur d'équilibre dans le viseur au déclenchement (approximation : en rafale, la même valeur pour toutes les vues) ; absent si l'indicateur est coupé ;
+  - traînée du promeneur et du chien s'ils sont dans le cadre, en pixels de la photo, et la limite : le flou acceptable en pixels d'une photo de 1500 px, (d / 1500) × 1500 / grand côté du capteur = d / grand côté, soit 43,1 / 35,9 ≈ 1,2 px pour le Z 6 ;
+  - avec un défi : réussi ou à reprendre, chaque critère, et les notions à revoir pour les critères manqués.
+- **Mesures** : elles sont faites à l'instant de chaque vue, horloge figée et appareil orienté comme alors (en rafale, vue par vue), sur les yeux des personnages et du chien, et sur le banc et la poubelle.
+- **Exemple de la routine de test**, zone automatique sur l'œil de Sophia vers 6,6 m, 50 mm à f/8 : la zone nette va d'environ 4 m à 17 m. Le groupe y est (SIT-05 réussi), mais aussi la poubelle à 10,5 m, derrière Sophia et dans le cadre (SIT-01 à reprendre, « À revoir : NET-01, NET-06 »). À f/1.4, la limite lointaine tombe à 7,4 m (q = 0,0287 × 1,4 × 6550 / 2500 ≈ 0,105 ; 6,6 / (1 − 0,105) ≈ 7,4 m) : le fond sort de la zone nette.
+
+Non simulé ou choisi : le seuil de 1 m pour « derrière » ; aucun jugement sur l'exposition ni sur le bruit dans les défis, faute de critère sourcé propre à ces situations ; les défis ne sont pas encore reliés aux fiches des notions, qui restent à rédiger.
+
 ## Fonctions demandées par Julien le 9 novembre 2026
 
 Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 minimale (`data/jalons.yaml`), qui ne contient que les notions clés de SIT-01, SIT-05 et SIT-06. `CLAUDE.md` demande de ne pas étendre la V1 minimale avant de l'avoir testée avec des débutants. Julien laisse à Claude le choix du moment (« quand tu estimes que c'est le meilleur moment », 9 novembre 2026) : balance des blancs, grilles de composition et histogramme viendront après les tests de la V1 minimale. Les équivalents cités viennent du [guide d'aide Sony ILCE-7M3](https://helpguide.sony.net/ilc/1720/v1/en/print.pdf), lu le 9 novembre 2026.
@@ -559,7 +584,7 @@ Une pull request par étape :
 3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus). Interrupteurs de l'aperçu dans le viseur : version 0.3.16.
 4. Loupe dans le viseur et sur l'écran de revue : faite en version 0.3.17 (voir ci-dessus).
 5. Profondeur de champ approchée dans le viseur : faite en version 0.3.22, puis en flou de taille physique en version 0.3.23 (voir ci-dessus).
-6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Indicateur d'équilibre : version 0.3.31. Traînée en pixels (MVT-01) : version 0.3.32. Modes de déclenchement (BOI-12) : version 0.3.33. Collimateurs (MAP-06) : version 0.3.34. Modes d'exposition A et S, correction d'exposition et ISO auto (BOI-07, BOI-08, MES-04, MES-10, décision de Julien du 10 novembre 2026) : version 0.3.36, avec les réglages par défaut du Z 6. Vue de dessus (NET-01) et appareil déplaçable (NET-06) : version 0.3.37. LUM-02 : simulateur en V2.
+6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Indicateur d'équilibre : version 0.3.31. Traînée en pixels (MVT-01) : version 0.3.32. Modes de déclenchement (BOI-12) : version 0.3.33. Collimateurs (MAP-06) : version 0.3.34. Modes d'exposition A et S, correction d'exposition et ISO auto (BOI-07, BOI-08, MES-04, MES-10, décision de Julien du 10 novembre 2026) : version 0.3.36, avec les réglages par défaut du Z 6. Vue de dessus (NET-01) et appareil déplaçable (NET-06) : version 0.3.37. Défis des trois situations et bulletin : version 0.3.38. Ensuite : fiches des notions et des situations. LUM-02 : simulateur en V2.
 7. Après les tests de la V1 minimale : balance des blancs, grilles de composition, histogramme (voir ci-dessus). En V2 : correction de la photo après la prise.
 
 ## Ce que je ne sais pas
