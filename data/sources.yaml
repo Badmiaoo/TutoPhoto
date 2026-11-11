@@ -171,7 +171,7 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony α9 (ILCE-9), Focus Mode : AF-S « locks the focus once focusing is complete », AF-C « continues to focus while the shutter button is pressed and held halfway down » (lu le 9 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1650/v1/en/contents/TP0001486782.html"
-    used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts]
+    used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts, content/en/notions/MAP-04.md, content/fr/notions/MAP-04.md]
   - id: sony-a9-metering
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony α9 (ILCE-9, version 5 ou ultérieure), Metering Mode"
@@ -479,17 +479,17 @@ sources:
     group: "Physique, rendu et technique"
     label: "Wikipedia, F-number, « Typical one-third-stop f-number scale » (révision 1382682702, source secondaire, lue le 8 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=F-number&oldid=1382682702"
-    used_in: [docs/camera-physique.md]
+    used_in: [docs/camera-physique.md, content/en/notions/EXP-04.md, content/fr/notions/EXP-04.md]
   - id: wikipedia-shutter-speed
     group: "Physique, rendu et technique"
     label: "Wikipedia, Shutter speed : crans normalisés de 1/1000 à 1 s, échelle 2:1 (révision 1382495283, source secondaire, lue le 8 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Shutter_speed&oldid=1382495283"
-    used_in: [docs/camera-physique.md]
+    used_in: [docs/camera-physique.md, content/en/notions/EXP-05.md, content/fr/notions/EXP-05.md]
   - id: wikipedia-film-speed
     group: "Physique, rendu et technique"
     label: "Wikipedia, Film speed, tableau des valeurs ISO par tiers (révision 1383727213, source secondaire, lue le 8 novembre 2026) ; vitesse fondée sur le bruit : rapports signal sur bruit par pixel de 40:1 (« excellent image quality ») et 10:1 (« acceptable image quality »), pour 70 pixels par cm vus à 25 cm (lu le 10 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213"
-    used_in: [docs/camera-physique.md, app/src/ui/balance.ts]
+    used_in: [docs/camera-physique.md, app/src/ui/balance.ts, content/en/notions/EXP-06.md, content/fr/notions/EXP-06.md]
   - id: nikon-z6-specifications
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Specifications : capteur 35.9 × 23.9 mm, 24.5 millions de pixels effectifs, vitesses 1/8000 – 30 s par pas de 1/3 ou 1/2 IL, ISO 100 – 51200 (lu le 8 novembre 2026)"
@@ -544,22 +544,22 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Focus : AF-S « focus will lock while the shutter-release button is pressed halfway », collimateur qui passe du rouge au vert, priorité à la mise au point par défaut ; AF-C « focuses continuously while the shutter-release button is pressed halfway », priorité au déclenchement par défaut ; AF-area mode : zone large (S) et (L), « the camera will assign priority to the closest subject », zones (L) plus grandes que les zones (S), sans dimensions ; Touch Shutter, « Touch the display to focus on the selected point » sans déclencher (lu le 9 novembre 2026). Relu le 10 novembre 2026 : « The focus point can be positioned using the sub-selector or multi-selector » ; réglage a5 (Focus points used), « Every other point » pour n'utiliser qu'un quart des points"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/05_basic_settings_01.html"
-    used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts]
+    used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts, content/en/notions/MAP-04.md, content/en/notions/MAP-05.md, content/en/notions/MAP-06.md, content/en/notions/MAP-09.md, content/fr/notions/MAP-04.md, content/fr/notions/MAP-05.md, content/fr/notions/MAP-06.md, content/fr/notions/MAP-09.md]
   - id: nikon-z6-focus-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Mise au point : termes « AF ponctuel », « AF continu », « Mode de zone AF », « AF point sélectif », « AF zone large (S) » et « (L) », « AF zone automatique » (lu le 9 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/05_basic_settings_01.html"
-    used_in: [docs/camera-physique.md]
+    used_in: [docs/camera-physique.md, content/fr/notions/MAP-05.md]
   - id: nikon-z6-a4
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé a4 Auto-Area AF Face/Eye Detection : « Face and eye detection on », « Face detection on », « Animal detection », « Off » ; « one or the other of the subject's eyes, or on the subject's face if the eyes are not detected » (lu le 9 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_a04.html"
-    used_in: [docs/camera-physique.md, app/src/camera/faces.ts]
+    used_in: [docs/camera-physique.md, app/src/camera/faces.ts, content/en/notions/MAP-09.md, content/fr/notions/MAP-09.md]
   - id: nikon-z6-a4-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, a4 : Détect. visage-yeux AF zone auto ; termes « Détection visage/yeux activée », « Détection des visages activée », « Détection des animaux », « Désactivée » (lu le 9 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_a04.html"
-    used_in: [docs/camera-physique.md]
+    used_in: [docs/camera-physique.md, content/fr/notions/MAP-09.md]
   - id: nikon-p1100-af-area
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne COOLPIX P1100, AF area mode : sans visage détecté, « the camera automatically selects one or more of the nine focus areas containing the subject closest to the camera » (compact, pas un hybride ; lu le 9 novembre 2026)"
@@ -569,37 +569,37 @@ sources:
     group: "Physique, rendu et technique"
     label: "Wikipedia, Circle of confusion : flou acceptable d/1500 (0,029 mm en plein format) ; diamètre du flou c = A × |S₂ − S₁| / S₂ × f / (S₁ − f) (révision 1335590423, source secondaire, lue le 10 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Circle_of_confusion&oldid=1335590423"
-    used_in: [docs/camera-physique.md, app/src/ui/balance.ts, app/src/camera/sharpZone.ts]
+    used_in: [docs/camera-physique.md, app/src/ui/balance.ts, app/src/camera/sharpZone.ts, content/en/notions/MVT-01.md, content/en/notions/NET-01.md, content/en/notions/NET-06.md, content/fr/notions/MVT-01.md, content/fr/notions/NET-01.md, content/fr/notions/NET-06.md]
   - id: nikon-z6-release-mode
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The Release Mode/Self-Timer Button : Single frame, Continuous L (1–5 vps), Continuous H (environ 5,5 vps), Continuous H (extended) (12 vps au Z 6), Self-timer ; table des cadences maximales (12 vps en JPEG en Continuous H (extended)) (lu le 10 novembre 2026). Réglages d2 (Max. Continuous Release, de 1 à 200 vues) et c2 (Self-Timer) lus le même jour."
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_04.html"
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts]
+    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/en/notions/BOI-12.md, content/fr/notions/BOI-12.md]
   - id: nikon-z6-release-mode-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande mode de déclenchement/retardateur : termes « Vue par vue », « Continu L », « Continu H », « Continu H (étendu) », « Retardateur » (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_04.html"
-    used_in: [docs/camera-physique.md]
+    used_in: [docs/camera-physique.md, content/fr/notions/BOI-12.md]
   - id: nikon-z6-mode-dial
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The Mode Dial : P, S (« you choose the shutter speed while the camera automatically selects the aperture that will produce the optimal exposure »), A (l'inverse), M ; en M avec l'ISO auto, « ISO sensitivity will automatically be adjusted for optimal exposure at the selected shutter speed and aperture » ; indicateurs d'exposition par tiers d'IL (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_01.html"
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts]
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/en/notions/BOI-07.md, content/en/notions/BOI-08.md, content/en/notions/MES-10.md, content/fr/notions/MES-10.md]
   - id: nikon-z6-mode-dial-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Sélecteur de mode : termes « Auto à priorité vitesse », « Auto à priorité ouverture », « Manuel » (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_01.html"
-    used_in: [docs/camera-physique.md]
+    used_in: [docs/camera-physique.md, content/fr/notions/BOI-07.md, content/fr/notions/BOI-08.md]
   - id: nikon-z6-indicators
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Indicators and Error Messages : « Exposure indicators and shutter speed or aperture display flash », « Subject too bright; photo will be overexposed », « Subject too dark; photo will be underexposed » (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/13_troubleshooting_02.html"
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts]
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/en/notions/BOI-07.md, content/en/notions/BOI-08.md, content/fr/notions/BOI-07.md, content/fr/notions/BOI-08.md]
   - id: nikon-z6-exposure-compensation
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The E (Exposure Compensation) Button : de −5 à +5 IL par tiers ; « Exposure compensation is not reset when the camera is turned off » ; « In mode M, exposure compensation affects only the exposure indicator », l'ISO auto en tenant compte (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_03.html"
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts]
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/en/notions/MES-04.md, content/en/notions/MES-10.md, content/fr/notions/MES-04.md, content/fr/notions/MES-10.md]
   - id: nikon-z6-exposure-compensation-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande E (correction d'exposition) : terme « correction d'exposition » (lu le 10 novembre 2026)"
@@ -609,12 +609,12 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The S (ISO Sensitivity) Button : l'ISO auto agit « if optimal exposure cannot be achieved at the value selected » ; sensibilité maximale de ISO 200 (Z 6) à Hi 2 ; « ISO AUTO » affiché, et la valeur modifiée ; une valeur choisie plus haute que le maximum sert à sa place (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_02.html"
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts]
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/en/notions/EXP-06.md, content/fr/notions/EXP-06.md]
   - id: nikon-z6-iso-settings
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, ISO sensitivity settings : Maximum sensitivity ; Minimum shutter speed, « below which auto ISO sensitivity control will kick in to prevent underexposure in modes P and A », de 1/4000 s à 30 s ou Auto selon la focale ; vitesse sous le minimum si la sensibilité maximale ne suffit pas (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_03_08.html"
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts]
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/en/notions/MES-10.md, content/fr/notions/MES-10.md]
   - id: nikon-z6-iso-settings-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Réglage de la sensibilité : termes « Contrôle de la sensibilité auto. », « Sensibilité maximale », « Vitesse d'obturation minimale » (lu le 10 novembre 2026)"
@@ -624,17 +624,17 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Defaults : ISO 100 en P, S, A, M, contrôle de la sensibilité auto activé, sensibilité maximale 51200 (Z 6), vitesse minimale Auto ; Focus mode Single AF, AF-area mode Single-point AF ; a4 Face and eye detection on ; c2 retardateur 10 s ; d1 Continu L 3 vps (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html"
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts]
+    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/en/notions/BOI-12.md, content/en/notions/MAP-04.md, content/en/notions/MES-10.md, content/fr/notions/BOI-12.md, content/fr/notions/MAP-04.md, content/fr/notions/MES-10.md]
   - id: nikon-d850-auto-iso
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne D850, Auto ISO Sensitivity Control : « the minimum value for auto ISO sensitivity is automatically set to ISO 64 » ; en P et A, « sensitivity will only be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed » ; vitesse minimale fixée à 1/30 s avec un objectif sans données (lu le 10 novembre 2026). Autre boîtier que le Z 6 : retenu là où le manuel du Z 6 ne dit rien."
     url: "https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_02.html"
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, app/src/ui/cameraPanel.ts]
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, app/src/ui/cameraPanel.ts, content/en/notions/MES-10.md, content/fr/notions/MES-10.md]
   - id: nikon-z6-launch-2018
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, communiqué du 23 août 2018, « Nikon introduces the new Nikon Z mount system, and releases two full-frame mirrorless cameras: the Nikon Z 7 and Nikon Z 6 » : « the Z 6 has 273 focus points*, enabling broad coverage of approximately 90% of the imaging area both horizontally and vertically », « * With FX (36x24) format and single-point AF » (lu le 10 novembre 2026)"
     url: "https://www.nikon.com/news/2018/0823_mirrorless_01.htm"
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts]
+    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/en/notions/MAP-06.md, content/fr/notions/MAP-06.md]
   - id: nikon-z6-eisa-2019
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, communiqué du 15 août 2019 sur les prix EISA : « 273*2 focus points that provide good coverage of the imaging area — approximately 90% both horizontally and vertically », « *2 With recording of still images using the FX (36x24) image area and single-point AF » (lu le 10 novembre 2026)"
@@ -644,7 +644,7 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, page du produit Z 6 : « 273-point hybrid AF system offering accurate focus across 90% of the frame » ; fiche technique, « Focus points (in photo mode, FX format, single-point AF) 273 (single-point AF) » (lu le 10 novembre 2026)"
     url: "https://imaging.nikon.com/imaging/lineup/mirrorless/z_6/"
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts]
+    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/en/notions/MAP-06.md, content/fr/notions/MAP-06.md]
   - id: nikon-z6-apply-settings-live-view
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé d8 Apply Settings to Live View (lu le 9 novembre 2026)"
