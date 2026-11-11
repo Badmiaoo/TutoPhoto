@@ -27,7 +27,8 @@
 // - avec --photo : les notions « À revoir » du bulletin et le bouton « Fiche » de la fenêtre « Défis » ouvrent la
 //   fiche par-dessus le simulateur, et un lien de la fiche vers une autre fiche reste dans la fenêtre ;
 // - la scène se charge (le message de chargement disparaît) et aucun problème ne s'affiche à l'écran ;
-// - le rendu est à la densité de l'écran (pixels CSS × densité, version 0.3.52) et le cadre a les proportions du capteur ;
+// - le rendu est à la densité de l'écran plafonnée à 2 (pixels CSS × min(densité, 2), version 0.3.53) et le cadre a les
+//   proportions du capteur ;
 // - à ISO 6400, le bruit du viseur varie d'une image à l'autre ; aperçu coupé, il disparaît ;
 // - au 135 mm à f/1.4, la profondeur de champ du viseur floute le fond ; coupée, le fond redevient net ;
 // - la loupe passe à 100 % et l'indique ;
@@ -320,8 +321,8 @@ async function runProfile(browser, name, base) {
     check("aucun problème affiché", !diagnostic, diagnostic);
     if (!loaded) return { name, checks, errors };
 
-    // Le rendu est à la densité de l'écran (version 0.3.52 : pixels calculés = pixels CSS × densité), et le cadre a
-    // les proportions du capteur (Nikon Z 6 : 35,9 / 23,9).
+    // Le rendu est à la densité de l'écran, plafonnée à 2 (version 0.3.53 : pixels calculés = pixels CSS ×
+    // min(densité, 2)), et le cadre a les proportions du capteur (Nikon Z 6 : 35,9 / 23,9).
     await page.waitForTimeout(500);
     const geometry = await page.evaluate(() => {
       const c = document.getElementById("scene");
@@ -330,8 +331,8 @@ async function runProfile(browser, name, base) {
     });
     check(
       "rendu à la densité de l'écran",
-      Math.abs(geometry.rw - geometry.cw * geometry.dpr) <= 2 && Math.abs(geometry.rh - geometry.ch * geometry.dpr) <= 2,
-      `${geometry.rw}×${geometry.rh} rendu, ${geometry.cw}×${geometry.ch} affiché, densité ${geometry.dpr}`,
+      Math.abs(geometry.rw - geometry.cw * Math.min(geometry.dpr, 2)) <= 2 && Math.abs(geometry.rh - geometry.ch * Math.min(geometry.dpr, 2)) <= 2,
+      `${geometry.rw}×${geometry.rh} rendu, ${geometry.cw}×${geometry.ch} affiché, densité ${geometry.dpr}, plafond 2`,
     );
     check("cadre aux proportions du capteur", Math.abs(geometry.ratio - 35.9 / 23.9) < 0.02, `rapport ${geometry.ratio.toFixed(3)}, attendu ${(35.9 / 23.9).toFixed(3)}`);
 
