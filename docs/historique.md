@@ -184,3 +184,4 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Version 0.3.40 : fiche de LUM-02 d'après le guide Lowel de Tiffen et un article d'Art Adams ; couverture 12 sur 191. DPReview et Photography Life refusent toujours les lectures automatiques.
 - Julien propose de relever lui-même les passages des sites qui refusent les lectures automatiques, et valide la proposition sur la couverture de l'autofocus (« Ok ») : Z 6 pour la V1 minimale, autres hybrides plus tard, reflex en V2. Version 0.3.41.
 - Julien relève le texte de l'article de DPReview sur l'invariance ISO ; la fiche EXP-06 le cite (version 0.3.42).
+- Julien relève aussi l'article de Photography Life sur l'invariance ISO ; la fiche EXP-06 le cite (version 0.3.42).

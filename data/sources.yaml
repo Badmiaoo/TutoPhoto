@@ -66,8 +66,9 @@ sources:
     used_in: [content/fr/notions/EXP-06.md, content/en/notions/EXP-06.md]
   - id: pl-iso-invariance
     group: "Physique, rendu et technique"
-    label: "Photography Life, ISO Invariance Explained"
+    label: "Photography Life, ISO Invariance Explained (Spencer Cox, mis à jour le 22 août 2022). Texte relevé par Julien le 11 novembre 2026, le site refusant les lectures automatiques : bruit photonique, « Photon noise occurs due to fluctuations in photons from in the scene in front of your camera. It has nothing to do with the camera itself! », égal à la racine carrée du nombre de photons ; bruit de lecture, qui vient de l'appareil ; ISO étendus simulés : « Those ISO values don't provide any image quality benefit, and actually harm your image quality by making it much easier to “clip” detail in the highlights »"
     url: "https://photographylife.com/iso-invariance-explained"
+    used_in: [content/fr/notions/EXP-06.md, content/en/notions/EXP-06.md]
   - id: petapixel-perspective
     group: "Physique, rendu et technique"
     label: "PetaPixel, Perspective Distortion, Or: Why Lens Compression Doesn't Exist (23 mai 2018)"

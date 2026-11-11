@@ -17,7 +17,8 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 ### Modifié
 
 - Fiche EXP-06 (ISO), en français et en anglais : le bruit qui vient surtout du manque de lumière, l'écrêtage d'un cran de hautes lumières par cran d'ISO, et la définition de l'invariance ISO, d'après l'article de Richard Butler sur DPReview (« What is ISO invariance, and should I care? »), dont Julien a relevé le texte (le site refuse les lectures automatiques).
-- Source `dpreview-iso-invariance` complétée et rattachée à la fiche ; `docs/questions-ouvertes.md`, `docs/historique.md`.
+- Fiche EXP-06 : les deux familles de bruit (photonique, de la scène ; de lecture, de l'appareil) et le coût des ISO étendus simulés, d'après l'article de Spencer Cox sur Photography Life (« ISO Invariance Explained »), relevé par Julien.
+- Sources `dpreview-iso-invariance` et `pl-iso-invariance` complétées et rattachées à la fiche ; `docs/questions-ouvertes.md`, `docs/historique.md`.
 
 ## [0.3.41] - 2026-11-11
 

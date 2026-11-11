@@ -6,11 +6,17 @@ The Nikon Z 6 manual sums it up: the higher the ISO sensitivity, the less light 
 
 Why noise comes mostly from a lack of light: in automated modes (P, S, A), raising the ISO makes the camera aim for a lower exposure; it captures less light, and "this reduction in light leaves the image looking noisier" ([Richard Butler, "What is ISO invariance, and should I care?", DPReview, published 27 July 2026, updated 16 September 2026](https://www.dpreview.com/articles/iso-invar/), text extracted by Julien on 11 November 2026). Most cameras apply more gain as the ISO goes up; amplifying by one stop pushes the brightest stop of highlights beyond the converter's range: it is clipped and cannot be recovered (same source). A sensor is called "ISO invariant" when a one-stop increase in ISO removes one stop of dynamic range without any gain in the shadows: you only give away a stop of highlights (same source).
 
+Noise has two families of sources ([Spencer Cox, "ISO Invariance Explained", Photography Life, last updated 22 August 2022](https://photographylife.com/iso-invariance-explained), text extracted by Julien on 11 November 2026):
+- photon noise comes from the scene itself, not from the camera: photons do not all arrive equally, and this randomness equals the square root of the number of photons; dark areas, which receive fewer, are therefore proportionally noisier;
+- read noise comes from the camera.
+
+Extended ISO values "simulated" by the camera bring no image quality benefit and clip the highlights more easily (same source).
+
 To judge noise, the digital sensitivity standard uses a signal-to-noise ratio of 40:1 for "excellent image quality" and 10:1 for "acceptable image quality" ([Wikipedia, "Film speed", revision 1383727213](https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213), read on 10 November 2026).
 
 ## Simulator
 
-The "ISO" dial goes from 100 to 6400 in third stops (the Z 6 goes further; TutoPhoto stops where its noise measurements stop). Noise is computed from measurements of real sensors and shows in the viewfinder and on the photo, with the 100% loupe. The balance indicator and the photo report give the signal-to-noise ratio at the aimed point, with the 40:1 and 10:1 thresholds. With auto ISO (MES-10), the camera chooses the sensitivity.
+The "ISO" dial goes from 100 to 6400 in third stops (the Z 6 goes further; TutoPhoto stops where its noise measurements stop). Photon noise and read noise are computed from measurements of real sensors and shows in the viewfinder and on the photo, with the 100% loupe. The balance indicator and the photo report give the signal-to-noise ratio at the aimed point, with the 40:1 and 10:1 thresholds. With auto ISO (MES-10), the camera chooses the sensitivity.
 
 ## Exercise
 
