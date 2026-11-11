@@ -12,6 +12,23 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.38] - 2026-11-11
+
+### Ajouté
+
+- Défis des trois situations de la V1 minimale, validés par Julien le 11 novembre 2026, choisis dans la fenêtre « Défis » de l'en-tête :
+  - SIT-01 : l'œil de Sophia net, le fond derrière elle hors de la zone nette ;
+  - SIT-05 : Dennis, Sophia, Fabienne et Percy dans la zone nette ;
+  - SIT-06 : le chien dans le cadre, net et figé.
+- Bulletin sous chaque photo : exposition, zone nette, bruit au point visé, traînée des sujets en mouvement ; avec un défi, chaque critère, réussi ou manqué, et les notions à revoir.
+- Critères tirés de mesures déjà sourcées : zone nette et flou acceptable (diagonale / 1500), traînée comparée au même flou acceptable.
+- Routine de test : bulletin sous la photo ; défi SIT-05 réussi à f/8 ; défi SIT-01 à reprendre à f/22, le fond photo restant net (zone nette jusqu'à l'infini).
+
+### Modifié
+
+- L'écran de revue défile quand le bulletin dépasse la hauteur du viseur.
+- `docs/camera-physique.md` (section « Défis et bulletin »), `docs/historique.md`, README.
+
 ## [0.3.37] - 2026-11-10
 
 ### Ajouté
@@ -596,6 +613,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.38]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.37...v0.3.38
 [0.3.37]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.36...v0.3.37
 [0.3.36]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.35...v0.3.36
 [0.3.35]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.34...v0.3.35

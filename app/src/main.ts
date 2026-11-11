@@ -10,6 +10,7 @@ import { ViewfinderDepthOfField } from "./camera/viewfinderDof";
 import { Autofocus } from "./camera/autofocus";
 import { BalanceIndicator } from "./ui/balance";
 import { TopView } from "./ui/topView";
+import { ChallengePicker } from "./ui/challenges";
 import { initialLang, rememberLang, t, type Lang } from "./i18n";
 
 function element<T extends HTMLElement>(id: string): T {
@@ -32,6 +33,7 @@ let cameraPanel: CameraPanel | null = null;
 let shutter: Shutter | null = null;
 let balance: BalanceIndicator | null = null;
 let topView: TopView | null = null;
+let challenges: ChallengePicker | null = null;
 
 // Problèmes affichés à l'écran, pour diagnostiquer sur un téléphone sans console : erreurs JavaScript,
 // shader du bruit qui ne compile pas, scène affichée avant d'être prête.
@@ -71,6 +73,7 @@ function applyLang(): void {
   shutter?.setLang(lang);
   balance?.setLang(lang);
   topView?.setLang(lang);
+  challenges?.setLang(lang);
   renderProblems();
 }
 
@@ -140,6 +143,10 @@ if (!Engine.isSupported()) {
   );
   panel.attachDepthOfField(dof);
   const render = () => scene.render();
+  challenges = new ChallengePicker(
+    { button: element<HTMLButtonElement>("challenge-button"), dialog: element<HTMLDialogElement>("challenge-dialog") },
+    lang,
+  );
   shutter = new Shutter(
     engine,
     scene,
@@ -166,12 +173,16 @@ if (!Engine.isSupported()) {
       reviewPrev: element<HTMLButtonElement>("review-prev"),
       reviewNext: element<HTMLButtonElement>("review-next"),
       reviewCount: element("review-count"),
+      reviewBulletin: element("review-bulletin"),
     },
     () => engine.runRenderLoop(render),
     lang,
     noise,
     dof,
     autofocus,
+    subjects,
+    () => challenges?.current() ?? null,
+    () => balance?.lastNoise() ?? null,
   );
   balance = new BalanceIndicator(
     engine,

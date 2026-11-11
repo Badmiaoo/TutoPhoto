@@ -29,6 +29,7 @@ import type { Camera } from "@babylonjs/core/Cameras/camera";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import type { Autofocus } from "../camera/autofocus";
 import { blurLimitMm, sharpZone } from "../camera/sharpZone";
+import type { NoiseReading } from "./challenges";
 import { noiseParameters } from "../camera/noise";
 import { PHOTO_LONG_SIDE, type SceneTimeControl } from "../camera/photo";
 import type { CameraPanel } from "./cameraPanel";
@@ -101,6 +102,13 @@ export class BalanceIndicator {
     this.el.root.hidden = !enabled;
   }
 
+  private noiseReading: NoiseReading | null = null;
+
+  /** Dernier rapport signal sur bruit au point visé, pour le bulletin de la photo ; null s'il n'est pas connu. */
+  lastNoise(): NoiseReading | null {
+    return this.enabled ? this.noiseReading : null;
+  }
+
   private async refresh(): Promise<void> {
     if (!this.enabled || this.busy) return;
     this.busy = true;
@@ -164,6 +172,7 @@ export class BalanceIndicator {
       const isoText = s.labels.iso;
       const green = await this.greenAt(point);
       let noise: Status = "neutral";
+      this.noiseReading = null;
       if (green === null) {
         this.el.noise.textContent = `${isoText} · ${tr("balanceNoiseUnknown")}`;
       } else {
@@ -177,6 +186,7 @@ export class BalanceIndicator {
           const sigma = Math.sqrt(electrons + p.readNoise2) / (p.saturation * Math.sqrt(p.photosites[1]));
           const snr = v / sigma;
           noise = snr >= 40 ? "ok" : snr >= 10 ? "warn" : "bad";
+          this.noiseReading = { snr, level: noise };
           const level = tr(noise === "ok" ? "balanceExcellent" : noise === "warn" ? "balanceAcceptable" : "balanceInsufficient");
           this.el.noise.textContent = `${isoText} · ${tr("balanceNoise")} ${level} (${tr("balanceSnr")} ${Math.round(snr)}:1)`;
         }

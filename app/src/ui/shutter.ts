@@ -13,7 +13,7 @@
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Observer } from "@babylonjs/core/Misc/observable";
-import type { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import type { Scene } from "@babylonjs/core/scene";
 import type { UniversalCamera } from "@babylonjs/core/Cameras/universalCamera";
 import { takePhoto, type GroundInfo, type PhotoRequest, type PhotoResult, type SceneTimeControl } from "../camera/photo";
@@ -23,6 +23,10 @@ import type { ViewfinderNoise } from "../camera/noise";
 import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
 import type { AreaMode, Autofocus, FocusMode } from "../camera/autofocus";
 import { t, type Lang, type MessageKey } from "../i18n";
+import { judgeChallenge, measureShot, type Bulletin, type ChallengeId, type SceneThing } from "../camera/bulletin";
+import type { FaceSubject } from "../camera/faces";
+import { LANDMARKS } from "../scene";
+import { renderBulletin, type NoiseReading } from "./challenges";
 
 /** Un toucher qui bouge de moins de 6 px et dure moins de 0,4 s choisit le point ; au-delà, on tourne. */
 const TAP_MAX_MOVE_PX = 6;
@@ -51,6 +55,7 @@ interface ShutterElements {
   reviewPrev: HTMLButtonElement;
   reviewNext: HTMLButtonElement;
   reviewCount: HTMLElement;
+  reviewBulletin: HTMLElement;
 }
 
 /** Instant d'une vue : début de la pose sur l'horloge de la scène, et orientation de l'appareil alors. */
@@ -71,6 +76,10 @@ interface Shot {
   target: "eye" | "face" | "nearest" | "point" | null;
   /** Vue d'une rafale : rang, nombre de vues, écart au début de la rafale en secondes. */
   frame: { index: number; count: number; offset: number } | null;
+  /** Bulletin de la vue (camera/bulletin.ts), défi en cours et bruit lu dans le viseur au déclenchement. */
+  bulletin: Bulletin;
+  challenge: ChallengeId | null;
+  noise: NoiseReading | null;
 }
 
 /** Fenêtre affichée par la loupe, dans l'image à la définition du capteur. */
@@ -111,6 +120,9 @@ export class Shutter {
     private readonly noise: ViewfinderNoise,
     private readonly dof: ViewfinderDepthOfField,
     private readonly autofocus: Autofocus,
+    private readonly subjects: readonly FaceSubject[],
+    private readonly challenge: () => ChallengeId | null,
+    private readonly noiseReading: () => NoiseReading | null,
   ) {
     // Durée du toucher d'après l'horodatage des événements : une image longue entre l'appui et le relâchement
     // ne transforme pas un toucher en glissé.
@@ -160,6 +172,7 @@ export class Shutter {
     this.el.reviewNext.textContent = tr("reviewNext");
     if (this.shots.length > 1) this.el.reviewCount.textContent = `${tr("reviewFrame")} ${this.shotIndex + 1}/${this.shots.length}`;
     if (this.lastCaption) this.el.reviewCaption.textContent = this.lastCaption();
+    if (!this.el.reviewBulletin.hidden) this.showBulletin();
   }
 
   /** Toucher le viseur : avec la loupe, le point touché est ramené au cadre complet. */
@@ -319,6 +332,8 @@ export class Shutter {
     const focusMode = this.autofocus.mode();
     const areaMode = this.panel.area();
     const current = this.camera.rotation.clone();
+    const challenge = this.challenge();
+    const noise = this.noiseReading();
     const shots: Shot[] = [];
     try {
       await this.autofocus.settled();
@@ -326,11 +341,12 @@ export class Shutter {
         const moment = moments[i];
         const focusLocked = this.autofocus.locked();
         let measured = focusLocked;
-        if (!focusLocked) {
-          this.time.setFrozenTime(moment.t0);
-          this.camera.rotation.copyFrom(moment.rotation);
-          measured = await this.autofocus.measureNow();
-        }
+        // Scène à l'instant de la vue, appareil orienté comme alors : pour la mesure et pour le bulletin.
+        this.time.setFrozenTime(moment.t0);
+        this.camera.rotation.copyFrom(moment.rotation);
+        if (!focusLocked) measured = await this.autofocus.measureNow();
+        else this.scene.render();
+        const snapshot = this.snapshot();
         const request: PhotoRequest = {
           body: settings.body,
           focalMm: settings.focalMm,
@@ -348,7 +364,18 @@ export class Shutter {
         if (focusMode === "single" && !focusLocked) this.autofocus.lockAt(photo.focusDistance);
         const target = areaMode === "auto" ? (this.autofocus.target()?.kind ?? null) : null;
         const frame = series ? { ...series, offset: moment.t0 - moments[0].t0 } : null;
-        shots.push({ settings, request, photo, focusMode, areaMode, focusLocked, target, frame });
+        const bulletin = measureShot({
+          ...snapshot,
+          focalMm: settings.focalMm,
+          aperture: settings.aperture,
+          shutterSeconds: settings.shutterSeconds,
+          focusDistance: photo.focusDistance,
+          sensorWidthMm: settings.body.sensorWidthMm,
+          sensorHeightMm: settings.body.sensorHeightMm,
+          portrait: settings.frame.portrait,
+        });
+        if (challenge) bulletin.criteria = judgeChallenge(challenge, bulletin);
+        shots.push({ settings, request, photo, focusMode, areaMode, focusLocked, target, frame, bulletin, challenge, noise });
       }
     } catch (error) {
       console.error(error);
@@ -362,6 +389,34 @@ export class Shutter {
     for (const old of this.shots) URL.revokeObjectURL(old.photo.url);
     this.shots = shots;
     this.showFrame(0);
+  }
+
+  /**
+   * Relevé de la scène à l'instant présent (horloge figée) : matrice de vue de l'appareil, yeux des personnages et
+   * du chien, banc et poubelle ; vitesses du promeneur et du chien.
+   */
+  private snapshot(): { view: ReturnType<UniversalCamera["getViewMatrix"]>; things: SceneThing[] } {
+    const view = this.camera.getViewMatrix(true).clone();
+    const movers = this.time.movers();
+    const velocityOf = (id: string) => movers.find((m) => m.id === id)?.velocity.clone() ?? Vector3.Zero();
+    const things: SceneThing[] = this.subjects.map((s) => ({ id: s.id, points: s.eyes().map((e) => e.clone()), velocity: velocityOf(s.id) }));
+    for (const l of LANDMARKS) {
+      if (l.kind === "object") things.push({ id: l.id, points: [new Vector3(l.x, 0.5, l.z)], velocity: Vector3.Zero() });
+    }
+    return { view, things };
+  }
+
+  /** Bulletin de la vue affichée, sous la légende. */
+  private showBulletin(): void {
+    const shot = this.shots[this.shotIndex];
+    if (!shot) return;
+    renderBulletin(this.el.reviewBulletin, this.lang, shot.bulletin, {
+      exposureOffset: Math.log2(shot.settings.exposure),
+      focusDistance: shot.photo.focusDistance,
+      challenge: shot.challenge,
+      noise: shot.noise,
+      longSideMm: Math.max(shot.settings.body.sensorWidthMm, shot.settings.body.sensorHeightMm),
+    });
   }
 
   /** Vue de la série à afficher, avec les boutons de la série. */
@@ -398,6 +453,7 @@ export class Shutter {
       return `${series}${settings.summary} · ${settings.body.model} · ${mode} · ${focus} · ${this.computedText(photo)}`;
     };
     this.showCaption();
+    this.showBulletin();
   }
 
   /** Toucher la photo, ou la fenêtre de la loupe : fenêtre à 100 % centrée sur le point touché. */
@@ -432,6 +488,7 @@ export class Shutter {
       this.el.reviewWhole.hidden = false;
       this.el.reviewHint.hidden = false;
       this.lastCaption = () => `${t(this.lang, "loupe")} 100${t(this.lang, "percent")} · ${this.computedText(photo)}`;
+      this.el.reviewBulletin.hidden = true;
       this.showCaption();
     } catch (error) {
       console.error(error);
@@ -454,6 +511,7 @@ export class Shutter {
   /** Message d'erreur, avec le détail technique pour le diagnostic sur téléphone. */
   private showError(error: unknown): void {
     const detail = error instanceof Error ? error.message : String(error);
+    this.el.reviewBulletin.hidden = true;
     this.lastCaption = () => `${t(this.lang, "photoError")} (${detail})`;
     this.el.reviewCaption.textContent = this.lastCaption();
     this.el.review.hidden = false;
