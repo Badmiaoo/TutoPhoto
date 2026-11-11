@@ -71,6 +71,17 @@ export class ChallengePicker {
     } catch {
       // Stockage indisponible : pas de défi.
     }
+    // Défi choisi depuis la fiche d'une situation (« Jouer le défi » : simulateur/?defi=SIT-05) ; il est retenu
+    // comme un défi choisi dans la fenêtre.
+    const fromUrl = new URLSearchParams(window.location.search).get("defi");
+    if (CHALLENGES.includes(fromUrl as ChallengeId)) {
+      this.active = fromUrl as ChallengeId;
+      try {
+        window.localStorage.setItem(STORAGE_KEY, this.active);
+      } catch {
+        // Sans stockage, le choix vaut pour la page en cours.
+      }
+    }
     el.button.addEventListener("click", () => el.dialog.showModal());
     for (const input of el.dialog.querySelectorAll<HTMLInputElement>("input[name=challenge]")) {
       input.addEventListener("change", () => {
@@ -107,6 +118,7 @@ export class ChallengePicker {
     }
     dialog.querySelector("#challenge-note")!.textContent = tr("challengeNote");
     dialog.querySelector("#challenge-close")!.textContent = tr("close");
+    for (const button of dialog.querySelectorAll<HTMLButtonElement>(".fiche-open")) button.textContent = tr("ficheOpen");
     for (const input of dialog.querySelectorAll<HTMLInputElement>("input[name=challenge]")) {
       input.checked = input.value === (this.active ?? "none");
     }
@@ -114,6 +126,16 @@ export class ChallengePicker {
 }
 
 /** Bulletin d'une vue : exposition, zone nette, bruit, sujets en mouvement, puis le défi et les notions à revoir. */
+/** Bouton qui ouvre une fiche par-dessus le simulateur (ui/ficheDialog.ts). */
+function ficheButton(id: string, label: string): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "fiche-link";
+  button.dataset.fiche = id;
+  button.textContent = label;
+  return button;
+}
+
 export function renderBulletin(
   list: HTMLElement,
   lang: Lang,
@@ -127,7 +149,7 @@ export function renderBulletin(
   };
   const metres = (value: number) => (Number.isFinite(value) ? `${decimal(value)} m` : "∞");
   const name = (id: string) => (THING_KEYS[id] ? tr(THING_KEYS[id]) : id);
-  const lines: { text: string; className?: string }[] = [];
+  const lines: { text: string; className?: string; fiches?: string[] }[] = [];
   const offset = extra.exposureOffset;
   const sign = offset > 0.05 ? "+" : offset < -0.05 ? "−" : "";
   lines.push({ text: `${tr("bulletinExposure")} ${sign}${decimal(Math.abs(offset))} ${tr("meterUnit")}` });
@@ -164,7 +186,7 @@ export function renderBulletin(
     }
     const review = [...new Set(bulletin.criteria.filter((c) => !c.ok).flatMap((c) => c.notions))];
     if (review.length > 0) {
-      lines.push({ text: `${tr("bulletinReview")} ${review.map((id) => `${id} ${NOTION_TITLES[id]?.[lang] ?? ""}`.trim()).join(" ; ")}` });
+      lines.push({ text: tr("bulletinReview"), fiches: review });
     }
   }
   list.replaceChildren(
@@ -172,6 +194,10 @@ export function renderBulletin(
       const li = document.createElement("li");
       li.textContent = line.text;
       if (line.className) li.className = line.className;
+      // Notions à revoir : chacune ouvre sa fiche (« À revoir : NET-01 Profondeur de champ ; NET-06 … »).
+      line.fiches?.forEach((id, i) => {
+        li.append(i === 0 ? " " : " ; ", ficheButton(id, `${id} ${NOTION_TITLES[id]?.[lang] ?? ""}`.trim()));
+      });
       return li;
     }),
   );

@@ -11,6 +11,7 @@ import { Autofocus } from "./camera/autofocus";
 import { BalanceIndicator } from "./ui/balance";
 import { TopView } from "./ui/topView";
 import { ChallengePicker } from "./ui/challenges";
+import { FicheDialog } from "./ui/ficheDialog";
 import { initialLang, rememberLang, t, type Lang } from "./i18n";
 
 function element<T extends HTMLElement>(id: string): T {
@@ -35,6 +36,7 @@ let shutter: Shutter | null = null;
 let balance: BalanceIndicator | null = null;
 let topView: TopView | null = null;
 let challenges: ChallengePicker | null = null;
+let ficheDialog: FicheDialog | null = null;
 
 // Problèmes affichés à l'écran, pour diagnostiquer sur un téléphone sans console : erreurs JavaScript,
 // shader du bruit qui ne compile pas, scène affichée avant d'être prête.
@@ -76,6 +78,7 @@ function applyLang(): void {
   balance?.setLang(lang);
   topView?.setLang(lang);
   challenges?.setLang(lang);
+  ficheDialog?.setLang(lang);
   renderProblems();
 }
 
@@ -85,6 +88,16 @@ langButton.addEventListener("click", () => {
   applyLang();
 });
 creditsButton.addEventListener("click", () => creditsDialog.showModal());
+// Fiches ouvertes par-dessus le simulateur (bulletin, fenêtre « Défis ») : indépendant de la scène 3D.
+ficheDialog = new FicheDialog(
+  {
+    dialog: element<HTMLDialogElement>("fiche-dialog"),
+    body: element("fiche-body"),
+    page: element<HTMLAnchorElement>("fiche-page"),
+    close: element<HTMLButtonElement>("fiche-close"),
+  },
+  lang,
+);
 applyLang();
 
 if (!Engine.isSupported()) {

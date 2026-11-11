@@ -195,9 +195,9 @@
       <h2 id="challenge-title"></h2>
       <fieldset>
         <label><input type="radio" name="challenge" value="none" /> <span id="challenge-none-label"></span></label>
-        <label><input type="radio" name="challenge" value="SIT-01" /> <span id="challenge-SIT-01-label"></span></label>
-        <label><input type="radio" name="challenge" value="SIT-05" /> <span id="challenge-SIT-05-label"></span></label>
-        <label><input type="radio" name="challenge" value="SIT-06" /> <span id="challenge-SIT-06-label"></span></label>
+        <div class="challenge-line"><label><input type="radio" name="challenge" value="SIT-01" /> <span id="challenge-SIT-01-label"></span></label> <button type="button" class="fiche-open" data-fiche="SIT-01"></button></div>
+        <div class="challenge-line"><label><input type="radio" name="challenge" value="SIT-05" /> <span id="challenge-SIT-05-label"></span></label> <button type="button" class="fiche-open" data-fiche="SIT-05"></button></div>
+        <div class="challenge-line"><label><input type="radio" name="challenge" value="SIT-06" /> <span id="challenge-SIT-06-label"></span></label> <button type="button" class="fiche-open" data-fiche="SIT-06"></button></div>
       </fieldset>
       <p id="challenge-note" class="note"></p>
       <form method="dialog">
@@ -238,6 +238,13 @@
       <p id="release-note" class="note"></p>
       <form method="dialog">
         <button id="release-close" type="submit"></button>
+      </form>
+    </dialog>
+    <dialog id="fiche-dialog" class="fiche-dialog" aria-labelledby="fiche-title">
+      <div id="fiche-body" class="fiche-body"></div>
+      <p class="fiche-actions"><a id="fiche-page" target="_blank" rel="noopener"></a></p>
+      <form method="dialog">
+        <button id="fiche-close" type="submit"></button>
       </form>
     </dialog>
     <dialog id="credits-dialog" aria-labelledby="credits-title">
