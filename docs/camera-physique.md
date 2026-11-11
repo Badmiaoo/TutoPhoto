@@ -496,6 +496,23 @@ Dans TutoPhoto (`app/src/camera/exposureModes.ts`, `app/src/ui/cameraPanel.ts`) 
 
 Non simulés : le mode P (BOI-06, hors de la décision), l'option « Automatique » de la vitesse minimale, la sensibilité maximale au flash, les poses longues (« Bulb », « Time ») et les ISO au-delà de 6400.
 
+## Vue de dessus et appareil déplaçable (version 0.3.37)
+
+Proposées dans le bilan de la V1 minimale du 10 novembre 2026 (NET-01, « Zone nette visualisée en vue de dessus et sur l'image » ; NET-06, « Sujet et appareil déplaçables »), lancées par Julien le même soir.
+
+Dans TutoPhoto (`app/src/ui/topView.ts`, `app/src/camera/sharpZone.ts`) :
+- **Encart « Vue de dessus »**, en bas à droite du viseur, replié sur petit écran comme l'indicateur d'équilibre. Il montre l'appareil, le champ de l'objectif, le plan de mise au point, la zone nette, les personnages, le banc, la poubelle, le promeneur et le chien. Les sujets dans la zone nette sont cerclés de vert.
+- **Zone nette** : limites de l'indicateur d'équilibre, désormais calculées par un module commun (`camera/sharpZone.ts`), d'après la formule du cercle de confusion ([Wikipedia, révision 1335590423](https://en.wikipedia.org/w/index.php?title=Circle_of_confusion&oldid=1335590423)). Elle est dessinée entre deux plans perpendiculaires à l'axe de visée, et non entre deux cercles : la distance de mise au point se mesure le long de l'axe (c'est la profondeur que lit l'autofocus). Un sujet est net si sa distance le long de l'axe est entre les deux limites. L'inclinaison de l'appareil vers le haut ou le bas est négligée dans cette vue.
+- **Champ** : angle horizontal, 2 × atan(côté / (2 × focale)), avec le côté horizontal du capteur (le grand côté, le petit en cadrage vertical).
+- **Déplacer l'appareil (NET-06)** : toucher la carte y place l'appareil, sans changer son orientation ; « Retour au départ » le ramène. Zone permise, choisie pour TutoPhoto : x de −6 à 6 m, z de −6 à 5 m, soit devant le groupe (à 6,5 m du départ) et sur le sol où les ombres sont calculées. La photo et l'autofocus suivent : la distance au sol se calcule à partir de la hauteur de l'œil, qui ne change pas.
+- **Ce que l'on voit** : s'éloigner du sujet augmente la zone nette ; à distance de mise au point égale, un sujet loin derrière est plus flou qu'un sujet juste derrière (NET-06, « plus le fond est loin du sujet, plus il est flou »), ce que la même formule donne : le flou c croît avec |S₂ − S₁| / S₂.
+- **Routine de test** : en AF-C, point au centre, reculer l'appareil de 4 m sur la carte fait passer la distance mesurée du groupe d'environ 6,5 m à environ 10,5 m ; « Retour au départ » la ramène.
+
+Non simulé ou approché :
+- les personnages ne se déplacent pas : seul l'appareil bouge ;
+- le fond photo à 360° est pris d'un seul point : ce qu'il montre (arbres, bâtiments) ne change pas de perspective quand l'appareil se déplace, et son sol est projeté sur un plan ;
+- la vue de dessus est une aide de TutoPhoto, pas un affichage d'appareil.
+
 ## Fonctions demandées par Julien le 9 novembre 2026
 
 Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 minimale (`data/jalons.yaml`), qui ne contient que les notions clés de SIT-01, SIT-05 et SIT-06. `CLAUDE.md` demande de ne pas étendre la V1 minimale avant de l'avoir testée avec des débutants. Julien laisse à Claude le choix du moment (« quand tu estimes que c'est le meilleur moment », 9 novembre 2026) : balance des blancs, grilles de composition et histogramme viendront après les tests de la V1 minimale. Les équivalents cités viennent du [guide d'aide Sony ILCE-7M3](https://helpguide.sony.net/ilc/1720/v1/en/print.pdf), lu le 9 novembre 2026.
@@ -542,7 +559,7 @@ Une pull request par étape :
 3. Bruit physique : fait en version 0.3.15, sur la photo et dans le viseur (voir ci-dessus). Interrupteurs de l'aperçu dans le viseur : version 0.3.16.
 4. Loupe dans le viseur et sur l'écran de revue : faite en version 0.3.17 (voir ci-dessus).
 5. Profondeur de champ approchée dans le viseur : faite en version 0.3.22, puis en flou de taille physique en version 0.3.23 (voir ci-dessus).
-6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Indicateur d'équilibre : version 0.3.31. Traînée en pixels (MVT-01) : version 0.3.32. Modes de déclenchement (BOI-12) : version 0.3.33. Collimateurs (MAP-06) : version 0.3.34. Modes d'exposition A et S, correction d'exposition et ISO auto (BOI-07, BOI-08, MES-04, MES-10, décision de Julien du 10 novembre 2026) : version 0.3.36, avec les réglages par défaut du Z 6. Ensuite : profondeur de champ en vue de dessus (NET-01), appareil déplaçable (NET-06). LUM-02 : simulateur en V2.
+6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Indicateur d'équilibre : version 0.3.31. Traînée en pixels (MVT-01) : version 0.3.32. Modes de déclenchement (BOI-12) : version 0.3.33. Collimateurs (MAP-06) : version 0.3.34. Modes d'exposition A et S, correction d'exposition et ISO auto (BOI-07, BOI-08, MES-04, MES-10, décision de Julien du 10 novembre 2026) : version 0.3.36, avec les réglages par défaut du Z 6. Vue de dessus (NET-01) et appareil déplaçable (NET-06) : version 0.3.37. LUM-02 : simulateur en V2.
 7. Après les tests de la V1 minimale : balance des blancs, grilles de composition, histogramme (voir ci-dessus). En V2 : correction de la photo après la prise.
 
 ## Ce que je ne sais pas

@@ -9,6 +9,7 @@ import { ViewfinderNoise } from "./camera/noise";
 import { ViewfinderDepthOfField } from "./camera/viewfinderDof";
 import { Autofocus } from "./camera/autofocus";
 import { BalanceIndicator } from "./ui/balance";
+import { TopView } from "./ui/topView";
 import { initialLang, rememberLang, t, type Lang } from "./i18n";
 
 function element<T extends HTMLElement>(id: string): T {
@@ -30,6 +31,7 @@ let statusKey: "loading" | "loadError" | null = "loading";
 let cameraPanel: CameraPanel | null = null;
 let shutter: Shutter | null = null;
 let balance: BalanceIndicator | null = null;
+let topView: TopView | null = null;
 
 // Problèmes affichés à l'écran, pour diagnostiquer sur un téléphone sans console : erreurs JavaScript,
 // shader du bruit qui ne compile pas, scène affichée avant d'être prête.
@@ -68,6 +70,7 @@ function applyLang(): void {
   cameraPanel?.setLang(lang);
   shutter?.setLang(lang);
   balance?.setLang(lang);
+  topView?.setLang(lang);
   renderProblems();
 }
 
@@ -87,7 +90,7 @@ if (!Engine.isSupported()) {
   applyLang();
 } else {
   const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true });
-  const { scene, camera, ready, time, subjects } = createScene(engine, canvas);
+  const { scene, camera, ready, time, subjects, eye } = createScene(engine, canvas);
   // Serveur de développement seulement (absent du site construit) : accès pour les mesures sur la scène.
   if (import.meta.env.DEV) {
     void import("@babylonjs/core/Culling/ray");
@@ -193,6 +196,21 @@ if (!Engine.isSupported()) {
     lang,
   );
   panel.attachBalance(balance);
+  topView = new TopView(
+    camera,
+    time,
+    eye,
+    autofocus,
+    panel,
+    {
+      root: element("top-view"),
+      toggle: element<HTMLButtonElement>("top-view-toggle"),
+      reset: element<HTMLButtonElement>("top-view-reset"),
+      map: document.getElementById("top-view-map") as unknown as SVGSVGElement,
+      note: element("top-view-note"),
+    },
+    lang,
+  );
   ready
     .then((waiting) => {
       statusKey = null;

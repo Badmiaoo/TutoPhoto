@@ -244,6 +244,54 @@ async function runProfile(browser, name, base) {
     check("exposition par défaut : M et ISO auto (Z 6)", /^M · /.test(meterDefault) && isoDefault.name === "ISO auto" && isoDefault.value === "100", `${meterDefault} ; ${isoDefault.name} ${isoDefault.value}`);
     await setExposure({ autoIso: false });
 
+    // Vue de dessus (NET-01) et appareil déplaçable (NET-06). AF-C, point au centre : le groupe vers 6,5 m. Reculé
+    // de 4 m en touchant la carte (x = 0, z = −4), l'appareil mesure environ 4 m de plus ; « Retour au départ »
+    // le ramène. Carte : x de −8 à 8 m, z de 15 m (en haut) à −7 m (en bas).
+    const badgeMetres = async () => {
+      const m = /(\d+[,.]\d) m$/.exec(await page.evaluate(() => document.getElementById("af-badge").textContent));
+      return m ? Number(m[1].replace(",", ".")) : NaN;
+    };
+    // Attend que la distance affichée en AF-C vérifie la condition (le rendu logiciel peut être lent) ; au plus 30 s.
+    // « group » : le groupe, à moins de 9 m ; « farther » : plus de v + 3 m ; « back » : à 0,3 m près de v.
+    const waitMetres = (kind, arg) =>
+      page
+        .waitForFunction(
+          ([mode, value]) => {
+            const m = /^AF-C · Point · (\d+[,.]\d) m$/.exec(document.getElementById("af-badge").textContent);
+            if (!m) return false;
+            const d = Number(m[1].replace(",", "."));
+            return mode === "group" ? d < 9 : mode === "farther" ? d > value + 3 : Math.abs(d - value) < 0.3;
+          },
+          [kind, arg],
+          { timeout: 30000 },
+        )
+        .catch(() => undefined);
+    const topCollapsed = !(await page.locator("#top-view-map").isVisible());
+    if (topCollapsed) await page.click("#top-view-toggle");
+    await page.click("#af-button");
+    await page.check('#af-dialog input[name="focusMode"][value="continuous"]');
+    await page.click("#af-close");
+    await waitMetres("group", 0);
+    const fromStart = await badgeMetres();
+    const sharpCount = await page.evaluate(() => document.querySelectorAll("#top-view-map .top-things .sharp").length);
+    const map = await page.locator("#top-view-map").boundingBox();
+    await page.mouse.click(map.x + ((0 + 8) / 16) * map.width, map.y + ((4 + 15) / 22) * map.height);
+    await waitMetres("farther", fromStart);
+    const fromBack = await badgeMetres();
+    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-vue-de-dessus.png`), timeout: 120000 });
+    await page.click("#top-view-reset");
+    await waitMetres("back", fromStart);
+    const fromReset = await badgeMetres();
+    check(
+      "vue de dessus : appareil reculé de 4 m, puis ramené",
+      sharpCount > 0 && fromBack - fromStart > 3.5 && fromBack - fromStart < 4.5 && Math.abs(fromReset - fromStart) < 0.3,
+      `${fromStart} m au départ, ${fromBack} m reculé, ${fromReset} m ramené ; ${sharpCount} sujets dans la zone nette`,
+    );
+    await page.click("#af-button");
+    await page.check('#af-dialog input[name="focusMode"][value="single"]');
+    await page.click("#af-close");
+    if (topCollapsed) await page.click("#top-view-toggle");
+
     // Point de mise au point sur le sol, immobile, en bas du cadre, pour comparer le bruit à deux ISO.
     const snrOf = (text) => {
       const m = /signal\/bruit (\d+):1/.exec(text ?? "");
@@ -495,7 +543,10 @@ async function runProfile(browser, name, base) {
         (locked) => {
           const text = document.getElementById("af-badge").textContent;
           const m = /^AF-C · Zone L · (\d+[,.]\d) m/.exec(text);
-          return Boolean(m) && Math.abs(Number(m[1].replace(",", ".")) - locked) > 0.5;
+          // Seuil de 0,2 m (deux pas d'affichage). Depuis la version 0.3.34, la zone large est rognée à la zone couverte
+          // par l'autofocus : la distance verrouillée vaut 5,8 m au lieu de 5,4 m, et l'écart avec la mesure en AF-C
+          // après avoir relevé l'appareil (6,2 à 6,5 m dans les routines) n'est plus que de 0,5 à 0,7 m.
+          return Boolean(m) && Math.abs(Number(m[1].replace(",", ".")) - locked) > 0.2;
         },
         lockedAt,
         { timeout: 15000 },

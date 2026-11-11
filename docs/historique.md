@@ -173,3 +173,4 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
   - solveur de situations : en V2 ; pour les trois situations de la V1 minimale, la recette est écrite à la main dans leur fiche.
 - « Je vais me coucher, traite tout ce que tu peux sans moi sans attendre mon go » : Claude enchaîne les modes d'exposition et l'ISO auto, puis la vue de dessus de NET-01 et le déplacement de l'appareil de NET-06.
 - Version 0.3.36 : modes d'exposition M, A et S, correction d'exposition et ISO auto, d'après le manuel du Z 6 (et celui du D850 pour le plancher de l'ISO auto et sa règle en A). Les réglages par défaut du Z 6, lus le même soir, font passer TutoPhoto en AF-S par défaut et activent l'ISO auto ; ils confirment les 3 vues par seconde de Continu L et les 10 s du retardateur.
+- Version 0.3.37 : vue de dessus de la zone nette (NET-01) et appareil déplaçable sur la carte (NET-06) ; les personnages ne se déplacent pas.

@@ -563,6 +563,11 @@ export class CameraPanel {
     return this.ndcToFrame({ x: (ndc.x - this.loupeCenter.x) * this.loupeZoom, y: (ndc.y - this.loupeCenter.y) * this.loupeZoom });
   }
 
+  /** Faux pendant le calcul d'une photo. */
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
   /** Grise les réglages pendant le calcul d'une photo. */
   setEnabled(enabled: boolean): void {
     this.enabled = enabled;

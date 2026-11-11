@@ -12,6 +12,20 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.37] - 2026-11-10
+
+### Ajouté
+
+- Vue de dessus (NET-01) : encart du viseur avec l'appareil, le champ de l'objectif, le plan de mise au point, la zone nette entre deux plans perpendiculaires à l'axe, les personnages et les objets, cerclés de vert dans la zone nette ; replié sur petit écran.
+- Appareil déplaçable (NET-06) : toucher la carte place l'appareil, dans une zone de 12 m sur 11 m devant le groupe ; « Retour au départ ».
+- Routine de test : appareil reculé de 4 m sur la carte, distance mesurée augmentée d'environ 4 m, puis ramenée.
+
+### Modifié
+
+- Zone nette calculée par un module commun (`camera/sharpZone.ts`), pour l'indicateur d'équilibre et la vue de dessus.
+- Source `wikipedia-circle-of-confusion` rattachée à NET-01 et NET-06.
+- `docs/camera-physique.md` (section « Vue de dessus et appareil déplaçable »), `docs/historique.md`, README.
+
 ## [0.3.36] - 2026-11-10
 
 ### Ajouté
@@ -582,6 +596,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.37]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.36...v0.3.37
 [0.3.36]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.35...v0.3.36
 [0.3.35]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.34...v0.3.35
 [0.3.34]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.33...v0.3.34

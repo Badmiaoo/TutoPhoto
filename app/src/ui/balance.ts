@@ -28,6 +28,7 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { Camera } from "@babylonjs/core/Cameras/camera";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import type { Autofocus } from "../camera/autofocus";
+import { blurLimitMm, sharpZone } from "../camera/sharpZone";
 import { noiseParameters } from "../camera/noise";
 import { PHOTO_LONG_SIDE, type SceneTimeControl } from "../camera/photo";
 import type { CameraPanel } from "./cameraPanel";
@@ -111,12 +112,10 @@ export class BalanceIndicator {
       const tSec = s.shutterSeconds;
       const S1 = this.autofocus.distance();
       const body = s.body;
-      const blurLimit = Math.hypot(body.sensorWidthMm, body.sensorHeightMm) / 1500;
+      const blurLimit = blurLimitMm(body.sensorWidthMm, body.sensorHeightMm);
 
-      // Ouverture : zone nette.
-      const q = (blurLimit * N * (S1 * 1000 - f)) / (f * f);
-      const near = S1 / (1 + q);
-      const far = q < 1 ? S1 / (1 - q) : Infinity;
+      // Ouverture : zone nette (camera/sharpZone.ts).
+      const { near, far } = sharpZone(f, N, S1, blurLimit);
       const farText = Number.isFinite(far) ? `${this.decimal(far, 1)} m` : "∞";
       this.el.dof.textContent = `${s.labels.aperture} · ${tr("balanceDof")} ${this.decimal(near, 1)} m – ${farText}`;
 

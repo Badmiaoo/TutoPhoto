@@ -276,6 +276,105 @@ dialog a {
   font-variant-numeric: tabular-nums;
 }
 
+/* Vue de dessus (ui/topView.ts) : en bas à droite du viseur, repliée sur petit écran. */
+.top-view {
+  position: absolute;
+  z-index: 1;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  max-width: 13rem;
+  padding: 0.3rem;
+  border-radius: 4px;
+  background: rgb(0 0 0 / 0.6);
+  color: #fff;
+  font-size: 0.75rem;
+}
+
+.top-view.collapsed .top-view-map,
+.top-view.collapsed .top-view-note {
+  display: none;
+}
+
+.top-view-toggle {
+  padding: 0.1rem 0.4rem;
+  border: 1px solid rgb(255 255 255 / 0.6);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.top-view-map {
+  display: block;
+  height: min(16.5rem, 45vh);
+  aspect-ratio: 16 / 22;
+  margin-top: 0.3rem;
+  cursor: crosshair;
+}
+
+.top-view-note {
+  margin: 0.3rem 0 0;
+}
+
+#top-view-reset {
+  margin-top: 0.3rem;
+}
+
+#top-view-reset[hidden] {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .top-view-map {
+    height: 22vh;
+  }
+
+  .top-view-note {
+    display: none;
+  }
+}
+
+.top-area rect {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.4);
+  stroke-width: 0.06;
+  stroke-dasharray: 0.3 0.2;
+}
+
+.top-field polygon {
+  fill: rgb(255 255 255 / 0.06);
+  stroke: rgb(255 255 255 / 0.5);
+  stroke-width: 0.05;
+}
+
+.top-zone polygon {
+  fill: rgb(61 220 74 / 0.25);
+}
+
+.top-focus line {
+  stroke: #3ddc4a;
+  stroke-width: 0.08;
+}
+
+.top-things .person,
+.top-camera polygon {
+  fill: #fff;
+}
+
+.top-things .animal {
+  fill: #ffb000;
+}
+
+.top-things .object {
+  fill: #a4a49f;
+}
+
+.top-things .sharp {
+  stroke: #3ddc4a;
+  stroke-width: 0.15;
+}
+
 /* Réglage choisi par l'appareil (vitesse en A, ouverture en S, ISO auto). */
 .dial-row output.by-camera {
   font-style: italic;
