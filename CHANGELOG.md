@@ -12,6 +12,20 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.48] - 2026-11-11
+
+### Ajouté
+
+- `docs/propositions.md`, propositions de Claude à trancher par Julien, rien n'étant construit :
+  - trois formes pour l'activité interactive de LUM-02 (schéma en 2D recommandé) ;
+  - un protocole de test avec les débutants : nombre, déroulé, relevé anonyme, critères pour étendre ;
+  - un ordre de travail après la V1 minimale, avec ce que Julien a déjà renvoyé en V2.
+- Sources `wikipedia-umbra-penumbra` et `wikipedia-angular-diameter` (secondaires), citées dans les propositions.
+
+### Modifié
+
+- `docs/questions-ouvertes.md` renvoie aux propositions ; README ; `docs/historique.md`.
+
 ## [0.3.47] - 2026-11-11
 
 ### Ajouté
@@ -720,6 +734,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.48]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.47...v0.3.48
 [0.3.47]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.46...v0.3.47
 [0.3.46]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.45...v0.3.46
 [0.3.45]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.44...v0.3.45

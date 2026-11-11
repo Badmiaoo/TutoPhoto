@@ -17,7 +17,7 @@ TutoPhoto est le nom du projet. L'application est publiée sur GitHub Pages : ht
 | Chemin | Rôle |
 | --- | --- |
 | `data/` | Référentiel (`data/referentiel/`), situations, sources et jalons : la source de vérité |
-| `docs/` | Cadrage, architecture, lecture du référentiel, contenus, licences, pile technique, caméra physique, publication, questions ouvertes, historique |
+| `docs/` | Cadrage, architecture, lecture du référentiel, contenus, licences, pile technique, caméra physique, publication, questions ouvertes, propositions à trancher, historique |
 | `schemas/` | Schémas JSON des fichiers de `data/` et des manifestes de scène |
 | `app/` | Application (TypeScript, Babylon.js, Vite) ; scènes 3D et leurs crédits dans `app/public/scenes/` |
 | `scripts/` | Extraction, validation, couverture et contrôles (scènes 3D, dépôt public, changelog) |
