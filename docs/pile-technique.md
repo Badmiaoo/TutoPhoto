@@ -101,6 +101,7 @@ Décidé par Julien le 7 novembre 2026 ; versions et licences lues dans le regis
   - accueil et fiches produits après Vite par `app/scripts/build-pages.mjs`, à partir de `content/` : un convertisseur écrit pour TutoPhoto, qui ne reconnaît que le balisage des fiches et fait échouer la construction sur tout le reste (`docs/contenus.md`) ;
   - même mémoire de la langue partout (clé `tutophoto.lang` du navigateur) ;
   - activités interactives sous `activites/<ID>/` (version 0.3.50 : LUM-02), construites par une seconde passe de Vite (`app/vite.activites.config.ts`) : le simulateur tient en un seul fichier JavaScript, réglage que Vite n'accepte qu'avec une seule entrée ;
+  - densité du viseur (version 0.3.52, demande de Julien du 11 novembre 2026, la scène paraissant pixelisée sur son téléphone) : Babylon.js calcule par défaut l'image à la taille en pixels CSS (`adaptToDeviceRatio` faux, niveau de mise à l'échelle 1, lu dans `abstractEngine.pure.js` de la version 9.35.0), et le navigateur l'agrandit à la densité de l'écran, soit 2,625 pixels d'écran par pixel calculé sur le Pixel 7 émulé. Le viseur est désormais calculé à la densité complète, sans plafond ; le nombre de pixels par image est multiplié par la densité au carré (environ 6,9 sur ce Pixel 7). La loupe garde « 100 % = un photosite par pixel CSS ». Version isolée, pour pouvoir l'annuler par `git revert -m 1` de son commit de fusion si la fluidité ne suit pas ;
   - chargement (version 0.3.51, après le chargement sans fin signalé par Julien le 11 novembre 2026, en données mobiles) :
     - le simulateur affiche les Mio reçus et le temps écoulé, puis, après une minute, les fichiers encore attendus. Un fichier compte comme reçu quand le navigateur en a terminé le chargement (Resource Timing API) ; sa taille est celle du manifeste ;
     - l'accueil propose « Télécharger les ressources du simulateur » : le code du simulateur, le manifeste et les fichiers de la scène (sans les textes de licence), trois à la fois. Une barre suit les octets reçus en direct ; le bilan donne la durée et le débit moyen. Option A, choisie par Julien : les fichiers vont dans le cache ordinaire du navigateur, qui les garde ou non selon les en-têtes du serveur et la place disponible ;
@@ -125,7 +126,7 @@ Demandé par Julien le 9 novembre 2026 : tester sur ordinateur et sur mobile à 
   - ordinateur sans WebGL 2.
 - Contrôles :
   - chargement complet, sans problème affiché à l'écran ;
-  - rendu à la taille affichée et cadre aux proportions du capteur (depuis la version 0.3.21) ;
+  - rendu à la taille affichée et cadre aux proportions du capteur (depuis la version 0.3.21) ; depuis la version 0.3.52, rendu à la densité de l'écran (pixels CSS × densité) ;
   - profondeur de champ du viseur au 135 mm à f/1.4 : netteté d'une zone de fond inférieure à 60 % de celle mesurée sans l'effet (depuis la version 0.3.22) ;
   - bruit du viseur à ISO 6400, et son absence quand l'aperçu est coupé ;
   - loupe du viseur à 100 % ;

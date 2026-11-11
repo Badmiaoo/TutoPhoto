@@ -27,7 +27,7 @@
 // - avec --photo : les notions « À revoir » du bulletin et le bouton « Fiche » de la fenêtre « Défis » ouvrent la
 //   fiche par-dessus le simulateur, et un lien de la fiche vers une autre fiche reste dans la fenêtre ;
 // - la scène se charge (le message de chargement disparaît) et aucun problème ne s'affiche à l'écran ;
-// - le rendu a la taille affichée et le cadre les proportions du capteur ;
+// - le rendu est à la densité de l'écran (pixels CSS × densité, version 0.3.52) et le cadre a les proportions du capteur ;
 // - à ISO 6400, le bruit du viseur varie d'une image à l'autre ; aperçu coupé, il disparaît ;
 // - au 135 mm à f/1.4, la profondeur de champ du viseur floute le fond ; coupée, le fond redevient net ;
 // - la loupe passe à 100 % et l'indique ;
@@ -320,14 +320,19 @@ async function runProfile(browser, name, base) {
     check("aucun problème affiché", !diagnostic, diagnostic);
     if (!loaded) return { name, checks, errors };
 
-    // Le rendu a la taille affichée, et le cadre les proportions du capteur (Nikon Z 6 : 35,9 / 23,9).
+    // Le rendu est à la densité de l'écran (version 0.3.52 : pixels calculés = pixels CSS × densité), et le cadre a
+    // les proportions du capteur (Nikon Z 6 : 35,9 / 23,9).
     await page.waitForTimeout(500);
     const geometry = await page.evaluate(() => {
       const c = document.getElementById("scene");
       const f = document.getElementById("frame").getBoundingClientRect();
-      return { rw: c.width, rh: c.height, cw: c.clientWidth, ch: c.clientHeight, ratio: Math.max(f.width, f.height) / Math.min(f.width, f.height) };
+      return { rw: c.width, rh: c.height, cw: c.clientWidth, ch: c.clientHeight, dpr: window.devicePixelRatio, ratio: Math.max(f.width, f.height) / Math.min(f.width, f.height) };
     });
-    check("rendu à la taille affichée", Math.abs(geometry.rw - geometry.cw) <= 1 && Math.abs(geometry.rh - geometry.ch) <= 1, `${geometry.rw}×${geometry.rh} rendu, ${geometry.cw}×${geometry.ch} affiché`);
+    check(
+      "rendu à la densité de l'écran",
+      Math.abs(geometry.rw - geometry.cw * geometry.dpr) <= 2 && Math.abs(geometry.rh - geometry.ch * geometry.dpr) <= 2,
+      `${geometry.rw}×${geometry.rh} rendu, ${geometry.cw}×${geometry.ch} affiché, densité ${geometry.dpr}`,
+    );
     check("cadre aux proportions du capteur", Math.abs(geometry.ratio - 35.9 / 23.9) < 0.02, `rapport ${geometry.ratio.toFixed(3)}, attendu ${(35.9 / 23.9).toFixed(3)}`);
 
     const viewfinder = await page.evaluate(() => ({ h: document.getElementById("scene").clientHeight, vh: window.innerHeight }));

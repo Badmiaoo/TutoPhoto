@@ -12,6 +12,15 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.52] - 2026-11-11
+
+### Modifié
+
+- Viseur calculé à la densité de l'écran, sans plafond (demande de Julien du 11 novembre 2026 : la scène paraissait pixelisée sur son téléphone). Babylon.js calculait l'image à la taille en pixels CSS, que le navigateur agrandissait d'environ 2,6 fois sur un téléphone. Le nombre de pixels calculés par image est multiplié par la densité au carré. Version isolée : si la fluidité ne suit pas, on l'annule par `git revert -m 1` de son commit de fusion.
+- Loupe : « 100 % » reste un photosite par pixel CSS.
+- Routine de test : le rendu doit valoir la taille affichée multipliée par la densité de l'écran.
+- `docs/pile-technique.md`, `docs/questions-ouvertes.md`, `docs/historique.md`.
+
 ## [0.3.51] - 2026-11-11
 
 ### Ajouté
@@ -780,6 +789,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.52]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.51...v0.3.52
 [0.3.51]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.50...v0.3.51
 [0.3.50]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.49...v0.3.50
 [0.3.49]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.48...v0.3.49
