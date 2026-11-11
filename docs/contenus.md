@@ -34,7 +34,18 @@ Une section compte si son corps contient du texte. Les commentaires HTML (`<!-- 
 
 ## Fiche de situation
 
-Une situation est rédigée dans une langue quand son fichier existe et contient du texte hors commentaires HTML. Le plan de la fiche (recette, défi, bulletin) reste à définir avec les premiers défis.
+Une situation est rédigée dans une langue quand son fichier existe et contient du texte hors commentaires HTML.
+
+Plan retenu avec les premiers défis (version 0.3.39, à confirmer par Julien), une section de niveau 2 par partie :
+
+| Partie | Français | Anglais |
+| --- | --- | --- |
+| Le cadre de la situation | `## Où, quand, quoi, pourquoi` | `## Where, when, what, why` |
+| Les réglages et leurs raisons, avec un plan B | `## Recette` | `## Recipe` |
+| Le défi jouable dans le simulateur | `## Défi` | `## Challenge` |
+| Les notions liées | `## Notions` | `## Notions` |
+
+Le solveur de situations étant en V2 (décision du 10 novembre 2026), la recette des situations de la V1 minimale est écrite à la main ; chaque chiffre y est calculé avec les formules sourcées du simulateur.
 
 ## Règle de couverture
 

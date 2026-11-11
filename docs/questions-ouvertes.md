@@ -40,7 +40,7 @@ _Repris de la section 8 de `REPRISE.md` (7 novembre 2026), puis mis à jour le m
   - Fabienne & Percy compte 199 850 triangles (version « 200k » de l'archive) et Dennis 99 964 : charge à mesurer sur téléphone, avec réduction possible.
   - Le chien est stylisé, les personnages réalistes : écart de rendu à juger avec les débutants.
   - Vitesse du chien (3,5 m/s) estimée dans son animation, de façon imprécise ; elle compte pour le flou de bougé de SIT-06.
-- LUM-02 (lumière dure ou douce) : simulateur en V2, décision de Julien du 10 novembre 2026. Le fond de la scène de parc est une photo à 360° prise par ciel couvert, qu'un soleil direct contredirait ; en V1, une activité interactive le remplace.
+- LUM-02 (lumière dure ou douce) : fiche pas encore rédigée. L'article de Wikipedia « Hard and soft light » (révision 1356519852, lue le 11 novembre 2026) est marqué « Refimprove » (sources insuffisantes) et son passage sur la distance de la source se lit mal : il ne suffit pas. Une source fiable sur la taille apparente de la source reste à trouver. Simulateur en V2, décision de Julien du 10 novembre 2026. Le fond de la scène de parc est une photo à 360° prise par ciel couvert, qu'un soleil direct contredirait ; en V1, une activité interactive le remplace.
 - Rendu, au choix du moteur : flou d'un premier plan qui déborde sur le sujet, flou de mouvement et poses longues, flash (chantiers des domaines MAP, MVT et LUM).
 - Niveaux des situations : la règle de la médiane est un choix par défaut de la v0.2, à confirmer en écrivant les premiers défis.
 - Lisibilité sur téléphone, demandée par l'audit indépendant : intitulé anglais à la ligne, codes cliquables, textes lisibles. À appliquer dans la maquette.

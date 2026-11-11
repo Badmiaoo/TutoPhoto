@@ -12,6 +12,20 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.39] - 2026-11-11
+
+### Ajouté
+
+- Fiches de 15 notions de la V1 minimale, en français et en anglais (`content/fr/notions/`, `content/en/notions/`) : EXP-04, EXP-05, EXP-06, MES-04, MES-10, BOI-07, BOI-08, BOI-12, MAP-04, MAP-05, MAP-06, MAP-09, NET-01, NET-06, MVT-01. Chaque fiche a son explication sourcée, son simulateur (ce que fait TutoPhoto et ce qu'il ne simule pas) et son exercice, adapté à la scène de parc quand celui du référentiel n'y est pas jouable ; chaque chiffre est calculé.
+- Fiches des trois situations (SIT-01, SIT-05, SIT-06), en français et en anglais : cadre, recette écrite à la main (le solveur est en V2), défi, notions.
+- Plan de la fiche de situation dans `docs/contenus.md`.
+
+### Modifié
+
+- Sources rattachées aux fiches qui les citent ; EXP-04, EXP-05, EXP-06 et MVT-01 reçoivent leurs sources dans le référentiel.
+- Couverture : 11 notions sur 191, 11 sur 16 dans le jalon de la V1 minimale, et 3 situations sur 3. EXP-04, EXP-05, EXP-06 et MES-04 n'ont pas encore leur situation réelle (leurs situations ne sont pas dans la V1 minimale) ; LUM-02 attend une source fiable.
+- README, `docs/questions-ouvertes.md`, `docs/historique.md`.
+
 ## [0.3.38] - 2026-11-11
 
 ### Ajouté
@@ -613,6 +627,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.39]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.38...v0.3.39
 [0.3.38]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.37...v0.3.38
 [0.3.37]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.36...v0.3.37
 [0.3.36]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.35...v0.3.36

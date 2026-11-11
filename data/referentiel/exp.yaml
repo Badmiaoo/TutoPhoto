@@ -43,6 +43,7 @@ notions:
       simulator: "Diaphragme animé lié à l'image"
       exercise: "Trouver l'ouverture qui donne +1 IL depuis f/5.6"
     situations: [SIT-04, SIT-18]
+    sources: [wikipedia-f-number]
     since: v0.1
   - id: EXP-05
     title: {fr: "Vitesse d'obturation", en: "shutter speed"}
@@ -52,6 +53,7 @@ notions:
       simulator: "Rideau animé, durée visualisée"
       exercise: "Compenser le passage de f/4 à f/8 par la vitesse"
     situations: [SIT-17]
+    sources: [wikipedia-shutter-speed]
     since: v0.1
   - id: EXP-06
     title: {fr: "ISO", en: "ISO sensitivity"}
@@ -61,7 +63,7 @@ notions:
       simulator: "Même lumière captée, ISO variable : la luminosité change, le rapport signal/bruit presque pas (selon le profil d'appareil)"
       exercise: "ISO le plus bas utilisable à vitesse et ouverture imposées"
     situations: [SIT-07, SIT-19]
-    sources: [dpreview-iso-invariance, pl-iso-invariance, canon-5ds-iso]
+    sources: [dpreview-iso-invariance, pl-iso-invariance, canon-5ds-iso, nikon-z6-iso-button, wikipedia-film-speed]
     since: v0.1
   - id: EXP-07
     title: {fr: "Expositions équivalentes", en: "equivalent exposures"}

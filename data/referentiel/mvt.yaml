@@ -15,6 +15,7 @@ notions:
       simulator: "Sujets mobiles, traînée mesurée en pixels"
       exercise: "Figer un saut, puis un cycliste de profil"
     situations: [SIT-06, SIT-07, SIT-29, SIT-38, SIT-40]
+    sources: [wikipedia-circle-of-confusion]
     since: v0.1
   - id: MVT-02
     title: {fr: "Flou de bougé", en: "camera shake"}

@@ -179,3 +179,4 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 
 - Julien, sur le point du matin : « Suivons tes propositions ». Ordre retenu : un défi par situation, un bulletin après chaque photo, puis les fiches des notions et des situations.
 - Version 0.3.38 : défis SIT-01, SIT-05 et SIT-06, jugés sur la photo avec les critères déjà sourcés (zone nette, traînée) ; bulletin sous chaque photo, avec les notions à revoir.
+- Version 0.3.39 : fiches de 15 notions et des 3 situations de la V1 minimale, en français et en anglais, sourcées ; couverture 11 sur 191. La fiche de LUM-02 attend une source fiable ; deux sources de EXP-06 (DPReview, Photography Life) n'étaient pas joignables depuis la session de travail : la fiche s'appuie sur le manuel du Z 6 et sur l'article « Film speed ».
