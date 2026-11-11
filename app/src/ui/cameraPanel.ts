@@ -55,7 +55,8 @@ import type { BalanceIndicator } from "./balance";
  * 23 août 2018) [nikon-z6-launch-2018] ; même chiffre dans le communiqué du 15 août 2019 [nikon-z6-eisa-2019]
  * et sur la page du produit [nikon-z6-product]. Appliquée à tous les modes de zone. Depuis la version 0.3.43,
  * chaque boîtier a sa couverture quand elle est sourcée (camera/bodies.ts, afCoverage : Canon EOS RP, 88 % sur
- * le grand côté et 100 % sur le petit) ; les autres gardent celle du Z 6, ce qui n'est pas sourcé pour eux
+ * le grand côté et 100 % sur le petit ; depuis la 0.3.45, Sony A7 III, 93 % de la surface, partagés également
+ * entre les deux côtés) ; les autres gardent celle du Z 6, ce qui n'est pas sourcé pour eux
  * (décision de Julien du 11 novembre 2026 : hybrides ajoutés une fois lus, reflex en V2). La disposition des
  * points n'est pas dans ces sources : le point se place partout dans la zone couverte, sans grille.
  *   https://www.nikon.com/news/2018/0823_mirrorless_01.htm

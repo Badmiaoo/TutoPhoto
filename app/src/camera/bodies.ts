@@ -44,7 +44,13 @@ export const BODIES: readonly Body[] = [
     readNoise: [[100, 3.05], [126, 2.93], [159, 2.79], [200, 2.68], [251, 2.6], [318, 2.46], [400, 2.41], [503, 2.3], [636, 2.27], [800, 2.16], [1006, 2.13], [1273, 2.11], [1600, 2.07], [2011, 2.04], [2546, 2.03]] },
   // [sony-ilce-7m3-help-guide] : guide d'aide Sony, « 35.6 mm × 23.8 mm ».
   // Définition [sony-ilce-7m3-help-guide] : « Approx. 24 200 000 pixels ».
+  // Couverture AF [sony-ilce-7m3-af] : « 693 phase-detection AF points covering approx. 93% of image area » ; page
+  // de Sony Inde relevée par Julien le 11 novembre 2026,
+  // https://www.sony.co.in/interchangeable-lens-cameras/products/ilce-7m3-body-kit/feature2 .
+  // Sony ne donne que la part de la surface. Partage égal entre les deux côtés, √0,93 ≈ 0,964 chacun : choix de
+  // TutoPhoto, non sourcé, retenu par Julien le 11 novembre 2026.
   { brand: "sony", format: "ff", model: "Sony A7 III", sensorWidthMm: 35.6, sensorHeightMm: 23.8,
+    afCoverage: { horizontal: Math.sqrt(0.93), vertical: Math.sqrt(0.93) },
     effectivePixels: 24200000, fullWellElectrons: 95764,
     readNoise: [[100, 6.41], [126, 6.11], [159, 5.74], [200, 5.39], [251, 5.43], [318, 5.1], [400, 4.99], [503, 4.92], [636, 1.44], [800, 1.34], [1006, 1.39], [1273, 1.31], [1600, 1.37], [2011, 1.27], [2546, 1.24], [3200, 1.26], [4022, 1.24], [5091, 1.26], [6400, 1.19]] },
   // [sony-ilce-6000-sensor] : extrait de recherche de la fiche Sony, page non ouverte.

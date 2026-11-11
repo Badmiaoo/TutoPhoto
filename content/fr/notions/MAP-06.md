@@ -6,7 +6,7 @@ Le Nikon Z 6 a 273 collimateurs en AF point sélectif, au format FX, qui couvren
 
 ## Simulateur
 
-Toucher le viseur place le point de mise au point. La zone couverte par l'autofocus est tracée en pointillés ; un toucher hors de cette zone ramène le point sur son bord. La couverture dépend du boîtier : le Canon EOS RP couvre 88 % du cadre en largeur et 100 % en hauteur, selon l'objectif ([fiche de Canon](https://www.canon.co.uk/cameras/eos-rp/specifications/)) ; les boîtiers dont la couverture n'est pas encore sourcée gardent celle du Z 6. La disposition des 273 points n'est pas publiée dans les sources lues : le point se déplace en continu, sans grille. Les sélecteurs et le réglage a5 ne sont pas simulés.
+Toucher le viseur place le point de mise au point. La zone couverte par l'autofocus est tracée en pointillés ; un toucher hors de cette zone ramène le point sur son bord. La couverture dépend du boîtier. Le Canon EOS RP couvre 88 % du cadre en largeur et 100 % en hauteur, selon l'objectif ([fiche de Canon](https://www.canon.co.uk/cameras/eos-rp/specifications/)). Les collimateurs à détection de phase du Sony A7 III couvrent environ 93 % de la surface de l'image ([page de Sony](https://www.sony.co.in/interchangeable-lens-cameras/products/ilce-7m3-body-kit/feature2)) ; Sony ne dit pas comment cette surface se répartit, et TutoPhoto la partage également, soit environ 96,4 % en largeur et en hauteur, ce qui n'est pas sourcé. Les boîtiers dont la couverture n'est pas encore chiffrée gardent celle du Z 6. La disposition des 273 points n'est pas publiée dans les sources lues : le point se déplace en continu, sans grille. Les sélecteurs et le réglage a5 ne sont pas simulés.
 
 ## Exercice
 

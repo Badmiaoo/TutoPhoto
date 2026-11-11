@@ -6,7 +6,7 @@ The Nikon Z 6 has 273 focus points in single-point AF, in FX format, covering ap
 
 ## Simulator
 
-Tapping the viewfinder places the focus point. The area covered by autofocus is drawn as a dotted line; a tap outside it brings the point back to its edge. Coverage depends on the body: the Canon EOS RP covers 88% of the frame horizontally and 100% vertically, depending on the lens ([Canon's specifications](https://www.canon.co.uk/cameras/eos-rp/specifications/)); bodies whose coverage is not yet sourced keep the Z 6's. The layout of the 273 points is not published in the sources read: the point moves continuously, without a grid. The selectors and setting a5 are not simulated.
+Tapping the viewfinder places the focus point. The area covered by autofocus is drawn as a dotted line; a tap outside it brings the point back to its edge. Coverage depends on the body. The Canon EOS RP covers 88% of the frame horizontally and 100% vertically, depending on the lens ([Canon's specifications](https://www.canon.co.uk/cameras/eos-rp/specifications/)). The Sony A7 III's phase-detection AF points cover approximately 93% of the image area ([Sony's page](https://www.sony.co.in/interchangeable-lens-cameras/products/ilce-7m3-body-kit/feature2)); Sony does not say how that area is split, and TutoPhoto splits it equally, about 96.4% horizontally and vertically, which is not sourced. Bodies whose coverage is not yet quantified keep the Z 6's. The layout of the 273 points is not published in the sources read: the point moves continuously, without a grid. The selectors and setting a5 are not simulated.
 
 ## Exercise
 
