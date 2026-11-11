@@ -6,6 +6,7 @@ const messages = {
   fr: {
     subtitle: "Simulateur photo : la scène de parc, en construction",
     switchLang: "English",
+    home: "Accueil",
     licences: "Licences",
     credits: "Crédits",
     creditsTitle: "Crédits de la scène",
@@ -204,6 +205,7 @@ const messages = {
   en: {
     subtitle: "Photography simulator: the park scene, under construction",
     switchLang: "Français",
+    home: "Home",
     licences: "Licenses",
     credits: "Credits",
     creditsTitle: "Scene credits",

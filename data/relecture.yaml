@@ -1,0 +1,8 @@
+# Fiches relues (décision de Julien du 11 novembre 2026). Julien et une relectrice qu'il a désignée valident
+# l'exactitude des contenus et de leurs sources, en français et en anglais. Une fiche publiée sur le site porte
+# le bandeau « en cours de relecture » tant qu'elle n'est pas listée ici, dans sa langue.
+#
+# Une ligne par fiche et par langue, sous cette forme exacte (lue aussi par app/scripts/build-pages.mjs) :
+#   - {fiche: NET-01, langue: fr, date: 2026-11-12}
+# fiche : identifiant de la notion ou de la situation (fichier content/<langue>/notions|situations/<fiche>.md).
+relues: []

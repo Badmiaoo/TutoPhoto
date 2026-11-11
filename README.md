@@ -4,7 +4,7 @@ _English version: [README.en.md](README.en.md)._
 
 Boîte à outils open source, en français et en anglais, qui apprend la photo aux débutants par la simulation : régler son appareil, faire la mise au point, choisir ses collimateurs, et réussir une photo dans une situation donnée (où, quand, quoi, pourquoi).
 
-TutoPhoto est le nom du projet. L'application est publiée sur GitHub Pages : https://badmiaoo.github.io/TutoPhoto/
+TutoPhoto est le nom du projet. L'application est publiée sur GitHub Pages : https://badmiaoo.github.io/TutoPhoto/ (accueil et fiches ; le simulateur est sous `simulateur/`)
 
 ## État au 8 novembre 2026
 
@@ -36,7 +36,7 @@ Node.js 22 ou plus récent :
 cd app
 npm ci
 npm run dev      # serveur de développement
-npm run build    # vérification des types et site statique dans app/dist/
+npm run build    # vérification des types, simulateur, accueil et fiches dans app/dist/
 ```
 
 ## Vérifier le référentiel

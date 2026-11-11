@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "relecture.schema.json",
+  "title": "Fiches relues (data/relecture.yaml)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["relues"],
+  "properties": {
+    "relues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fiche", "langue", "date"],
+        "properties": {
+          "fiche": {"type": "string", "pattern": "^([A-Z]{3}|SIT)-[0-9]{2}$"},
+          "langue": {"enum": ["fr", "en"]},
+          "date": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}
+        }
+      }
+    }
+  }
+}

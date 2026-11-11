@@ -46,6 +46,7 @@ def check_schemas(ref):
     validate("situations.schema.json", *ref.situations_file)
     validate("sources.schema.json", *ref.sources_file)
     validate("jalons.schema.json", *ref.jalons_file)
+    validate("relecture.schema.json", *ref.relecture_file)
 
 
 def duplicates(ids):
@@ -188,6 +189,17 @@ def check_jalons(ref):
                     error(f"jalon {j['id']} : la notion clé {nid} de {sid} manque")
 
 
+def check_relecture(ref):
+    """Une fiche relue existe dans sa langue, et n'est listée qu'une fois par langue (data/relecture.yaml)."""
+    for dup in duplicates([(r["fiche"], r["langue"]) for r in ref.relues]):
+        error(f"relecture : fiche {dup[0]} en double en {dup[1]}")
+    for r in ref.relues:
+        kind = "situations" if r["fiche"].startswith("SIT-") else "notions"
+        path = ref.root / "content" / r["langue"] / kind / f"{r['fiche']}.md"
+        if not path.is_file():
+            error(f"relecture : {ref.rel(path)} introuvable")
+
+
 def summary(ref):
     levels = collections.Counter(n["level"] for n in ref.notions)
     detail = ", ".join(f"{levels[lv]} {lv}" for lv in referentiel.LEVELS)
@@ -206,6 +218,7 @@ def main():
         check_sources(ref)
         check_retired(ref)
         check_jalons(ref)
+        check_relecture(ref)
     for e in errors:
         print(f"ERREUR : {e}")
     for w in warnings:
