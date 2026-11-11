@@ -543,7 +543,10 @@ async function runProfile(browser, name, base) {
         (locked) => {
           const text = document.getElementById("af-badge").textContent;
           const m = /^AF-C · Zone L · (\d+[,.]\d) m/.exec(text);
-          return Boolean(m) && Math.abs(Number(m[1].replace(",", ".")) - locked) > 0.5;
+          // Seuil de 0,2 m (deux pas d'affichage). Depuis la version 0.3.34, la zone large est rognée à la zone couverte
+          // par l'autofocus : la distance verrouillée vaut 5,8 m au lieu de 5,4 m, et l'écart avec la mesure en AF-C
+          // après avoir relevé l'appareil (6,2 à 6,5 m dans les routines) n'est plus que de 0,5 à 0,7 m.
+          return Boolean(m) && Math.abs(Number(m[1].replace(",", ".")) - locked) > 0.2;
         },
         lockedAt,
         { timeout: 15000 },
