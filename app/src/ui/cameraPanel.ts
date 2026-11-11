@@ -748,7 +748,10 @@ export class CameraPanel {
 
   /** Grossissement de la loupe au cran donné : 100 % = définition du capteur / grand côté du cadre. */
   private zoomAt(level: number, frame: Frame, body: Body): number {
-    const full = sensorPixels(body).long / Math.max(frame.width, frame.height);
+    // 100 % : un photosite par pixel CSS. Le cadre est mesuré en pixels calculés ; à la densité de l'écran (version
+    // 0.3.52), un pixel CSS en compte 1 / niveau de mise à l'échelle.
+    const cssLong = Math.max(frame.width, frame.height) * this.engine.getHardwareScalingLevel();
+    const full = sensorPixels(body).long / cssLong;
     return Math.max(1, LOUPE_LEVELS[level] * full);
   }
 

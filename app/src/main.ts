@@ -147,7 +147,12 @@ if (!Engine.isSupported()) {
   element("no-webgl").hidden = false;
   applyLang();
 } else {
-  const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true });
+  // Viseur calculé à la densité de l'écran (version 0.3.52, demande de Julien du 11 novembre 2026 : la scène
+  // paraissait pixelisée sur son téléphone). Par défaut, Babylon.js calcule l'image à la taille en pixels CSS
+  // (adaptToDeviceRatio faux : niveau de mise à l'échelle 1) et le navigateur l'agrandit à la densité de l'écran,
+  // soit environ 2,6 pixels d'écran par pixel calculé sur un téléphone. Densité complète, sans plafond : version
+  // isolée, à annuler si la fluidité ne suit pas.
+  const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true }, true);
   const { scene, camera, ready, time, subjects, eye } = createScene(engine, canvas);
   // Serveur de développement seulement (absent du site construit) : accès pour les mesures sur la scène.
   if (import.meta.env.DEV) {
