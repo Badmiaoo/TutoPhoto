@@ -18,4 +18,4 @@ Défi SIT-01, dans la fenêtre « Défis » : l'œil de Sophia dans le cadre et 
 
 ## Notions
 
-MAP-06 Collimateurs ; MAP-09 Détection des yeux et des sujets ; NET-01 Profondeur de champ ; NET-06 Distance sujet-fond ; LUM-02 Lumière dure ou douce (fiche à venir).
+MAP-06 Collimateurs ; MAP-09 Détection des yeux et des sujets ; NET-01 Profondeur de champ ; NET-06 Distance sujet-fond ; LUM-02 Lumière dure ou douce.

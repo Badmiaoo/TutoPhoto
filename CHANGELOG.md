@@ -12,6 +12,20 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.40] - 2026-11-11
+
+### Ajouté
+
+- Fiche de LUM-02 (lumière dure ou douce), en français et en anglais : explication d'après le guide Lowel de Tiffen et un article d'Art Adams (ProVideo Coalition, 2011), activité à faire chez soi (l'activité interactive dans TutoPhoto reste à construire), exercice sur le portrait doux. Sources `tiffen-lowel-soft-light` et `pvc-adams-soft-light`.
+
+### Modifié
+
+- Plan de la fiche de situation confirmé par Julien le 11 novembre 2026 (`docs/contenus.md`).
+- Relecture des contenus : Julien et une relectrice qu'il a désignée (`docs/questions-ouvertes.md`).
+- Couverture : 12 notions sur 191, 12 sur 16 dans le jalon de la V1 minimale.
+- Sources de EXP-06 : DPReview et Photography Life refusent les lectures automatiques (403), même avec le proxy ouvert ; noté dans `docs/questions-ouvertes.md`.
+- README, `docs/historique.md`.
+
 ## [0.3.39] - 2026-11-11
 
 ### Ajouté
@@ -627,6 +641,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.40]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.39...v0.3.40
 [0.3.39]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.38...v0.3.39
 [0.3.38]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.37...v0.3.38
 [0.3.37]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.36...v0.3.37

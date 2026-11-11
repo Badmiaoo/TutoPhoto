@@ -26,6 +26,7 @@ notions:
     situations: [SIT-01, SIT-02, SIT-V2-01]
     notes:
       - "Simulateur reporté en V2 (décision de Julien du 10 novembre 2026) : le fond de la scène de parc est une photo à 360° prise par ciel couvert, qu'un soleil direct contredirait. En V1, une activité interactive le remplace."
+    sources: [tiffen-lowel-soft-light, pvc-adams-soft-light]
     since: v0.1
   - id: LUM-03
     title: {fr: "Direction de la lumière", en: "front light, side light, backlight"}

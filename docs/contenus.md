@@ -36,7 +36,7 @@ Une section compte si son corps contient du texte. Les commentaires HTML (`<!-- 
 
 Une situation est rédigée dans une langue quand son fichier existe et contient du texte hors commentaires HTML.
 
-Plan retenu avec les premiers défis (version 0.3.39, à confirmer par Julien), une section de niveau 2 par partie :
+Plan retenu avec les premiers défis (version 0.3.39), confirmé par Julien le 11 novembre 2026, une section de niveau 2 par partie :
 
 | Partie | Français | Anglais |
 | --- | --- | --- |

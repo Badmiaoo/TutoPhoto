@@ -18,4 +18,4 @@ Challenge SIT-01, in the "Challenges" window: Sophia's eye in the frame and in t
 
 ## Notions
 
-MAP-06 AF points; MAP-09 eye, face, subject detection; NET-01 depth of field; NET-06 subject-background distance; LUM-02 hard, soft light (sheet to come).
+MAP-06 AF points; MAP-09 eye, face, subject detection; NET-01 depth of field; NET-06 subject-background distance; LUM-02 hard, soft light.
