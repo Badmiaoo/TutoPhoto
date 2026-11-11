@@ -12,6 +12,20 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.43] - 2026-11-11
+
+### Ajouté
+
+- Couverture de l'autofocus par boîtier (MAP-06) : le Canon EOS RP couvre 88 % du cadre en largeur et 100 % en hauteur (« 88% horizontal and 100% vertical coverage », fiche de Canon Royaume-Uni relevée par Julien) ; en cadrage vertical, les deux côtés s'échangent. Les boîtiers dont la couverture n'est pas chiffrée gardent celle du Z 6.
+- Sources `canon-eos-rp-af` et `sony-ilce-6000-af` (« covering almost the entire image », sans pourcentage).
+- Routine de test : couverture du Canon EOS RP, en cadre horizontal et vertical.
+
+### Modifié
+
+- Le point de mise au point est ramené dans la zone couverte quand le boîtier ou le cadrage change ; le déclencheur lit le point du boîtier virtuel au lieu d'en garder une copie.
+- Source `canon-eos-rp-pixels` : capteur et définition confirmés par la fiche relevée par Julien.
+- Fiche MAP-06, `docs/camera-physique.md`, `docs/questions-ouvertes.md`, `docs/historique.md`.
+
 ## [0.3.42] - 2026-11-11
 
 ### Modifié
@@ -655,6 +669,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.43]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.42...v0.3.43
 [0.3.42]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.41...v0.3.42
 [0.3.41]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.40...v0.3.41
 [0.3.40]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.39...v0.3.40

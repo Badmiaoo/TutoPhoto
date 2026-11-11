@@ -94,8 +94,6 @@ interface LoupeView {
 }
 
 export class Shutter {
-  /** Point de mise au point dans le cadre, de 0 à 1, origine en haut à gauche ; centre par défaut. */
-  private focusPoint = { x: 0.5, y: 0.5 };
   private busy = false;
   /** Prise de vue en cours (une vue, une rafale ou un retardateur). */
   private shooting = false;
@@ -182,7 +180,7 @@ export class Shutter {
     const y = (clientY - rect.top) / rect.height;
     if (x < 0 || x > 1 || y < 0 || y > 1) return;
     // Hors de la zone couverte par l'autofocus, le point est ramené au bord de cette zone (cameraPanel.ts).
-    this.focusPoint = this.panel.setFocusPoint(this.panel.displayedToFrame({ x, y }));
+    this.panel.setFocusPoint(this.panel.displayedToFrame({ x, y }));
   }
 
   /** Le repère du point suit le cadre (en pourcentage du canevas, comme le cadre) et la loupe. */
@@ -192,7 +190,7 @@ export class Shutter {
     const top = parseFloat(frame.top) || 0;
     const width = parseFloat(frame.width) || 100;
     const height = parseFloat(frame.height) || 100;
-    const shown = this.panel.frameToDisplayed(this.focusPoint);
+    const shown = this.panel.frameToDisplayed(this.panel.focusPointInFrame());
     this.el.marker.hidden = shown.x < 0 || shown.x > 1 || shown.y < 0 || shown.y > 1;
     const style = this.el.marker.style;
     // Zone automatique : le repère entoure ce sur quoi l'appareil a fait le point (œil, visage, sujet).
@@ -354,7 +352,7 @@ export class Shutter {
           shutterSeconds: settings.shutterSeconds,
           iso: settings.iso,
           exposure: settings.exposure,
-          focusPoint: { ...this.focusPoint },
+          focusPoint: this.panel.focusPointInFrame(),
           focusDistance: measured ? this.autofocus.distance() : undefined,
           portrait: settings.frame.portrait,
           moment,

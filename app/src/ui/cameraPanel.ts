@@ -13,8 +13,8 @@
 // visages et des yeux (réglage a4 du Z 6), choisis dans la fenêtre « Mise au point ». Le
 // viseur indique le mode, la zone et la distance ; le repère passe au vert quand la distance est verrouillée,
 // comme le point AF du Nikon Z 6 [nikon-z6-focus].
-// Collimateurs (MAP-06, version 0.3.34) : le point et les zones restent dans la zone couverte par l'autofocus
-// (AF_COVERAGE), affichée en pointillés dans le viseur.
+// Collimateurs (MAP-06, version 0.3.34 ; par boîtier depuis la version 0.3.43) : le point et les zones restent
+// dans la zone couverte par l'autofocus (afMargins), affichée en pointillés dans le viseur.
 // Exposition (BOI-07, BOI-08, MES-04, MES-10, version 0.3.36) : modes M, A et S, correction d'exposition et ISO auto,
 // dans la fenêtre « Exposition » ouverte par l'indicateur ; l'appareil choisit ce que le mode lui laisse
 // (camera/exposureModes.ts), et tout le reste (viseur, bruit, profondeur de champ, photo) suit ses réglages.
@@ -53,15 +53,16 @@ import type { BalanceIndicator } from "./balance";
  * le Z 6 : « 273 focus points*, enabling broad coverage of approximately 90% of the imaging area both
  * horizontally and vertically », avec « * With FX (36x24) format and single-point AF » (communiqué du
  * 23 août 2018) [nikon-z6-launch-2018] ; même chiffre dans le communiqué du 15 août 2019 [nikon-z6-eisa-2019]
- * et sur la page du produit [nikon-z6-product]. Appliquée à tous les modes de zone et aux six boîtiers : la
- * couverture des cinq autres n'a pas été lue. La disposition des 273 points n'est pas dans ces sources : le
- * point se place partout dans la zone couverte, sans grille.
+ * et sur la page du produit [nikon-z6-product]. Appliquée à tous les modes de zone. Depuis la version 0.3.43,
+ * chaque boîtier a sa couverture quand elle est sourcée (camera/bodies.ts, afCoverage : Canon EOS RP, 88 % sur
+ * le grand côté et 100 % sur le petit) ; les autres gardent celle du Z 6, ce qui n'est pas sourcé pour eux
+ * (décision de Julien du 11 novembre 2026 : hybrides ajoutés une fois lus, reflex en V2). La disposition des
+ * points n'est pas dans ces sources : le point se place partout dans la zone couverte, sans grille.
  *   https://www.nikon.com/news/2018/0823_mirrorless_01.htm
  *   https://www.nikon.com/news/2019/0815_award_01.htm
  *   https://imaging.nikon.com/imaging/lineup/mirrorless/z_6/
  */
-export const AF_COVERAGE = 0.9;
-const AF_MARGIN = (1 - AF_COVERAGE) / 2;
+export const AF_COVERAGE = { horizontal: 0.9, vertical: 0.9 };
 
 /**
  * Mode de déclenchement (BOI-12), d'après le manuel du Nikon Z 6 (« The Release Mode/Self-Timer Button »,
@@ -368,6 +369,11 @@ export class CameraPanel {
     this.update();
   }
 
+  /** Point de mise au point dans le cadre complet (de 0 à 1, origine en haut à gauche). */
+  focusPointInFrame(): Point {
+    return { ...this.focusPoint };
+  }
+
   /** Point de mise au point dans le canevas (de 0 à 1, origine en haut à gauche), loupe comprise. */
   focusOnCanvas(): Point {
     if (!this.frame) return { x: 0.5, y: 0.5 };
@@ -433,9 +439,29 @@ export class CameraPanel {
         y: (frame.top + Math.min(1, Math.max(0, shown.y)) * frame.height) / height,
       };
     };
-    const start = onCanvas({ x: AF_MARGIN, y: AF_MARGIN });
-    const end = onCanvas({ x: 1 - AF_MARGIN, y: 1 - AF_MARGIN });
+    const margin = this.afMargins();
+    const start = onCanvas({ x: margin.x, y: margin.y });
+    const end = onCanvas({ x: 1 - margin.x, y: 1 - margin.y });
     return { left: start.x, top: start.y, right: end.x, bottom: end.y };
+  }
+
+  /**
+   * Marges de la zone couverte par l'autofocus, en fractions du cadre (x en largeur, y en hauteur) : couverture du
+   * boîtier, ou celle du Z 6 quand elle n'est pas sourcée ; grand et petit côtés échangés en cadrage vertical.
+   */
+  private afMargins(): { x: number; y: number } {
+    const coverage = this.body().afCoverage ?? AF_COVERAGE;
+    const portrait = this.frame?.portrait ?? false;
+    const across = portrait ? coverage.vertical : coverage.horizontal;
+    const down = portrait ? coverage.horizontal : coverage.vertical;
+    return { x: (1 - across) / 2, y: (1 - down) / 2 };
+  }
+
+  /** Point du cadre ramené dans la zone couverte par l'autofocus, au plus près. */
+  private clampToCoverage(point: Point): Point {
+    const margin = this.afMargins();
+    const clamp = (value: number, m: number) => Math.min(1 - m, Math.max(m, value));
+    return { x: clamp(point.x, margin.x), y: clamp(point.y, margin.y) };
   }
 
   /** Taille de la zone large dans le canevas (fractions de sa largeur et de sa hauteur) ; null pour un point. */
@@ -537,8 +563,7 @@ export class CameraPanel {
    * retenu.
    */
   setFocusPoint(point: Point): Point {
-    const clamp = (value: number) => Math.min(1 - AF_MARGIN, Math.max(AF_MARGIN, value));
-    this.focusPoint = { x: clamp(point.x), y: clamp(point.y) };
+    this.focusPoint = this.clampToCoverage(point);
     this.applyView();
     void this.autofocus?.touch();
     return { ...this.focusPoint };
@@ -684,6 +709,8 @@ export class CameraPanel {
     const frame = frameFor(width, height, body);
     this.frame = frame;
     this.canvasSize = { width, height };
+    // Le boîtier ou le cadrage a pu changer : le point reste dans la zone couverte.
+    this.focusPoint = this.clampToCoverage(this.focusPoint);
     const fov = cameraFov(width, height, frame, body, FOCAL_LENGTHS[this.focalIndex]);
     this.camera.fovMode = fov.axis === "vertical" ? Camera.FOVMODE_VERTICAL_FIXED : Camera.FOVMODE_HORIZONTAL_FIXED;
     this.camera.fov = fov.fov;

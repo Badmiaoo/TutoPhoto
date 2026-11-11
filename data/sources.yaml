@@ -539,8 +539,18 @@ sources:
     used_in: [docs/camera-physique.md]
   - id: canon-eos-rp-pixels
     group: "Constructeurs : manuels et pages techniques"
-    label: "Canon Royaume-Uni, EOS RP, Specifications : environ 26,2 millions de pixels (extrait de recherche du 8 novembre 2026, page non ouverte)"
+    label: "Canon Royaume-Uni, EOS RP, Specifications : « 35.9 x 24 mm CMOS », « Approx. 26.2 Megapixels » (extrait de recherche du 8 novembre 2026 ; page relevée par Julien le 11 novembre 2026, le site refusant les lectures automatiques)"
     url: "https://www.canon.co.uk/cameras/eos-rp/specifications/"
+    used_in: [docs/camera-physique.md, app/src/camera/bodies.ts]
+  - id: canon-eos-rp-af
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon Royaume-Uni, EOS RP, Specifications, autofocus : « Phase-difference detection system with image sensor (Dual Pixel CMOS AF) », « Coverage: 88% horizontal and 100% vertical coverage », note « Coverage vary depending on the lens used » ; « 4779 AF positions available » en sélection manuelle d'un point (page relevée par Julien le 11 novembre 2026, le site refusant les lectures automatiques)"
+    url: "https://www.canon.co.uk/cameras/eos-rp/specifications/"
+    used_in: [docs/camera-physique.md, app/src/camera/bodies.ts, content/fr/notions/MAP-06.md, content/en/notions/MAP-06.md]
+  - id: sony-ilce-6000-af
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony Moyen-Orient et Afrique, α6000, page du produit : « 179 phase detection points (covering almost the entire image) », sans pourcentage (page relevée par Julien le 11 novembre 2026, le site refusant les lectures automatiques)"
+    url: "https://www.sony-mea.com/en/electronics/interchangeable-lens-cameras/ilce-6000-body-kit"
     used_in: [docs/camera-physique.md]
   - id: nikon-z6-focus
     group: "Constructeurs : manuels et pages techniques"
