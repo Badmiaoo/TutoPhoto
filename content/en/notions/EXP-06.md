@@ -4,6 +4,8 @@
 
 The Nikon Z 6 manual sums it up: the higher the ISO sensitivity, the less light needed to make an exposure, allowing faster shutter speeds or smaller apertures, but the more likely the image is to be affected by noise ([Nikon, Z 7/Z 6 online manual, "The S (ISO Sensitivity) Button"](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_02.html), read on 10 November 2026). Extended settings come at a price: noise is "particularly likely" from Hi 0.3 to Hi 2, and at Lo settings highlights may lose some detail (same source).
 
+Why noise comes mostly from a lack of light: in automated modes (P, S, A), raising the ISO makes the camera aim for a lower exposure; it captures less light, and "this reduction in light leaves the image looking noisier" ([Richard Butler, "What is ISO invariance, and should I care?", DPReview, published 27 July 2026, updated 16 September 2026](https://www.dpreview.com/articles/iso-invar/), text extracted by Julien on 11 November 2026). Most cameras apply more gain as the ISO goes up; amplifying by one stop pushes the brightest stop of highlights beyond the converter's range: it is clipped and cannot be recovered (same source). A sensor is called "ISO invariant" when a one-stop increase in ISO removes one stop of dynamic range without any gain in the shadows: you only give away a stop of highlights (same source).
+
 To judge noise, the digital sensitivity standard uses a signal-to-noise ratio of 40:1 for "excellent image quality" and 10:1 for "acceptable image quality" ([Wikipedia, "Film speed", revision 1383727213](https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213), read on 10 November 2026).
 
 ## Simulator

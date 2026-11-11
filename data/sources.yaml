@@ -61,8 +61,9 @@ sources:
     url: "https://hugin.sourceforge.io/docs/manual/Entrance_pupil.html"
   - id: dpreview-iso-invariance
     group: "Physique, rendu et technique"
-    label: "DPReview, What is ISO invariance, and should I care? (Richard Butler, publié le 27 juillet 2026, mis à jour le 16 septembre 2026)"
+    label: "DPReview, What is ISO invariance, and should I care? (Richard Butler, publié le 27 juillet 2026, mis à jour le 16 septembre 2026). Texte relevé par Julien le 11 novembre 2026, le site refusant les lectures automatiques : « ISO invariance is an assessment of how much or little improvement in noise you get by increasing gain » ; un cran de gain écrête le cran le plus clair des hautes lumières ; « Setting ISO higher than you need will result in capturing less light than you might others, and this reduction in light leaves the image looking noisier » ; un capteur est ISO invariant quand un cran d'ISO retire un cran de plage dynamique"
     url: "https://www.dpreview.com/articles/iso-invar/"
+    used_in: [content/fr/notions/EXP-06.md, content/en/notions/EXP-06.md]
   - id: pl-iso-invariance
     group: "Physique, rendu et technique"
     label: "Photography Life, ISO Invariance Explained"
