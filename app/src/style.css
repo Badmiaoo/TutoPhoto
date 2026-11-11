@@ -658,6 +658,11 @@ dialog fieldset label {
   background: var(--fond);
 }
 
+/* Aucun élément ne rétrécit (la photo était écrasée par le bulletin sur téléphone) : l'écran défile. */
+.review > * {
+  flex-shrink: 0;
+}
+
 /* Centré quand il y a la place, sans couper le haut quand l'écran de revue défile. */
 .review > :first-child {
   margin-top: auto;
