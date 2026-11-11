@@ -11,7 +11,7 @@
 // Les pages se lisent sans JavaScript ; un petit script retient la langue choisie, au même endroit que le simulateur
 // (clé « tutophoto.lang », app/src/i18n.ts).
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -35,6 +35,8 @@ const TEXT = {
     trainDoor: "Je m'entraîne",
     trainIntro: "Le simulateur : un boîtier virtuel dans la scène de parc, en entraînement libre ou avec un défi par situation.",
     trainSize: (mib) => `Il télécharge la scène 3D, ${mib} Mio.`,
+    prefetch: "Télécharger les ressources du simulateur",
+    prefetchNote: "Pour mesurer ton réseau ou préparer le simulateur à l'avance : la progression et le débit s'affichent en direct.",
     learnDoor: "J'apprends",
     learnIntro: "Chaque notion a une explication, ce qu'en montre le simulateur et un exercice.",
     openSimulator: "Ouvrir le simulateur",
@@ -59,6 +61,8 @@ const TEXT = {
     trainDoor: "I'm practising",
     trainIntro: "The simulator: a virtual camera in the park scene, for free practice or with one challenge per situation.",
     trainSize: (mib) => `It downloads the 3D scene, ${mib} MiB.`,
+    prefetch: "Download the simulator's resources",
+    prefetchNote: "To check your network or prepare the simulator in advance: progress and speed are shown live.",
     learnDoor: "I'm learning",
     learnIntro: "Each notion has an explanation, what the simulator shows of it, and an exercise.",
     openSimulator: "Open the simulator",
@@ -135,6 +139,29 @@ function sceneMib() {
   const manifest = JSON.parse(readFileSync(join(app, "public", "scenes", "parc", "scene.json"), "utf8"));
   const bytes = manifest.assets.flatMap((a) => a.files).reduce((sum, f) => sum + f.bytes, 0);
   return Math.round(bytes / 2 ** 20);
+}
+
+/**
+ * Fichiers que charge le simulateur, pour le bouton « Télécharger les ressources du simulateur » de l'accueil
+ * (proposé par Julien le 11 novembre 2026, option A : cache ordinaire du navigateur) : le code et la feuille de style
+ * du simulateur, lus dans dist/simulateur/index.html, le manifeste de la scène et les fichiers qu'il liste, sauf les
+ * textes de licence, que le simulateur ne charge pas. Adresses relatives à l'accueil, tailles en octets.
+ */
+function prefetchFiles() {
+  const page = readFileSync(join(dist, "simulateur", "index.html"), "utf8");
+  const assets = [...page.matchAll(/(?:src|href)="\.\.\/(assets\/[^"]+)"/g)].map((m) => m[1]);
+  if (assets.length === 0) fail("dist/simulateur/index.html : code du simulateur introuvable");
+  const manifestPath = join(app, "public", "scenes", "parc", "scene.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const files = [
+    ...assets.map((path) => ({ url: path, bytes: statSync(join(dist, path)).size })),
+    { url: "scenes/parc/scene.json", bytes: statSync(manifestPath).size },
+    ...manifest.assets
+      .flatMap((asset) => asset.files)
+      .filter((f) => !f.path.endsWith(".txt"))
+      .map((f) => ({ url: `scenes/parc/${f.path.split("/").map(encodeURIComponent).join("/")}`, bytes: f.bytes })),
+  ];
+  return files;
 }
 
 /** Lit les fiches d'une langue : { id: { kind, title, sections: [{ title, lines }] } }. */
@@ -259,6 +286,11 @@ h3 { font-size: 1.05rem; margin: 1rem 0 0.25rem; }
 footer { max-width: 44rem; margin: 0 auto; padding: 1rem; border-top: 1px solid var(--line); color: var(--muted);
   font-size: 0.9rem; }
 [hidden] { display: none !important; }
+.actions-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.button.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); font: inherit; font-weight: 600; cursor: pointer; }
+.prefetch progress { width: 100%; height: 1rem; }
+.prefetch-status { margin: 0.25rem 0; }
+.prefetch-errors { color: var(--muted); font-size: 0.9rem; }
 `;
 
 /** Retient la langue de la page, ou celle qu'on choisit, comme le simulateur. */
@@ -378,7 +410,13 @@ ${situations.map(item).join("\n")}
 <section class="door" id="${t.anchors.train}">
 <h2>${t.trainDoor}</h2>
 <p>${t.trainIntro} ${t.trainSize(ctx.sceneMib)}</p>
-<p><a class="button" href="simulateur/?lang=${lang}">${t.openSimulator}</a></p>
+<p class="actions-row"><a class="button" href="simulateur/?lang=${lang}">${t.openSimulator}</a> <button type="button" class="button secondary" data-prefetch>${t.prefetch}</button></p>
+<p class="mark">${t.prefetchNote}</p>
+<div class="prefetch" data-prefetch-panel hidden>
+<progress max="100" value="0"></progress>
+<p class="prefetch-status" aria-live="polite"></p>
+<ul class="prefetch-errors"></ul>
+</div>
 </section>
 <section class="door" id="${t.anchors.learn}">
 <h2>${t.learnDoor}</h2>
@@ -409,6 +447,132 @@ const HOME_SCRIPT = `<script>
     b.addEventListener("click", function () { show(b.getAttribute("data-to"), true); });
   });
   show(lang, false);
+})();
+</script>`;
+
+// Pré-téléchargement des ressources du simulateur (version 0.3.51). Trois téléchargements à la fois ; les octets
+// sont comptés à mesure qu'ils arrivent (flux de la réponse), d'où une barre en direct. Débit = octets reçus × 8 ÷ durée.
+// Les fichiers vont dans le cache ordinaire du navigateur (option A, décision de Julien du 11 novembre 2026) : ce
+// qu'il en garde dépend du serveur et du navigateur, d'où la formulation prudente du bilan.
+const PREFETCH_TEXT = {
+  fr: {
+    progress: "{done} / {total} Mio · {pct} % · {time} · {rate} Mbit/s",
+    stall: "aucune donnée reçue depuis {s} s",
+    done: "Téléchargé : {total} Mio en {time}, débit moyen {rate} Mbit/s.",
+    cache: "Si le navigateur garde ces fichiers en mémoire, le simulateur s'ouvrira plus vite.",
+    failed: "{n} fichier(s) en échec : réessaie, ou change de réseau.",
+    retry: "Réessayer les fichiers en échec",
+    network: "erreur réseau",
+    min: "min",
+  },
+  en: {
+    progress: "{done} / {total} MiB · {pct} % · {time} · {rate} Mbit/s",
+    stall: "no data received for {s} s",
+    done: "Downloaded: {total} MiB in {time}, average speed {rate} Mbit/s.",
+    cache: "If the browser keeps these files, the simulator will open faster.",
+    failed: "{n} file(s) failed: try again, or change networks.",
+    retry: "Retry the failed files",
+    network: "network error",
+    min: "min",
+  },
+};
+
+const PREFETCH_SCRIPT = `<script>
+(function () {
+  var files = JSON.parse(document.getElementById("prefetch-files").textContent);
+  var TEXT = ${JSON.stringify(PREFETCH_TEXT)};
+  var total = files.reduce(function (sum, f) { return sum + f.bytes; }, 0);
+  var MIB = 1048576;
+  var STALL_S = 15;
+  var PARALLEL = 3;
+  document.querySelectorAll("[data-prefetch]").forEach(function (button) {
+    var block = button.closest("[data-lang-block]");
+    var lang = block.getAttribute("data-lang-block");
+    var t = TEXT[lang];
+    var panel = block.querySelector("[data-prefetch-panel]");
+    var bar = panel.querySelector("progress");
+    var status = panel.querySelector(".prefetch-status");
+    var errors = panel.querySelector(".prefetch-errors");
+    var label = button.textContent;
+    var got = {};
+    var ok = {};
+    var running = false;
+    var num = function (v, d) { var x = v.toFixed(d); return lang === "fr" ? x.replace(".", ",") : x; };
+    var duration = function (s) { return s < 60 ? Math.round(s) + " s" : Math.floor(s / 60) + " " + t.min + " " + Math.round(s % 60) + " s"; };
+    button.addEventListener("click", function () {
+      if (running) return;
+      running = true;
+      button.disabled = true;
+      panel.hidden = false;
+      errors.replaceChildren();
+      var todo = files.filter(function (f) { return !ok[f.url]; });
+      todo.forEach(function (f) { got[f.url] = 0; });
+      var failed = [];
+      var start = performance.now();
+      var startBytes = files.reduce(function (sum, f) { return sum + (ok[f.url] ? f.bytes : 0); }, 0);
+      var last = start;
+      var received = function () { return files.reduce(function (sum, f) { return sum + (ok[f.url] ? f.bytes : got[f.url] || 0); }, 0); };
+      var show = function (final) {
+        var now = performance.now();
+        var bytes = received();
+        var seconds = (now - start) / 1000;
+        var rate = seconds > 0 ? ((bytes - startBytes) * 8) / seconds / 1e6 : 0;
+        bar.value = Math.min(100, (100 * bytes) / total);
+        var fill = function (text) {
+          return text.replace("{done}", num(bytes / MIB, 1)).replace("{total}", num(total / MIB, 1)).replace("{pct}", Math.floor((100 * bytes) / total))
+            .replace("{time}", duration(seconds)).replace("{rate}", num(rate, 1));
+        };
+        if (!final) {
+          var idle = (now - last) / 1000;
+          status.textContent = fill(t.progress) + (idle >= STALL_S ? " · " + t.stall.replace("{s}", Math.round(idle)) : "");
+        } else if (failed.length === 0) {
+          status.textContent = fill(t.done) + " " + t.cache;
+        } else {
+          status.textContent = t.failed.replace("{n}", failed.length);
+        }
+      };
+      var timer = setInterval(function () { show(false); }, 250);
+      var queue = todo.slice();
+      var one = function () {
+        var f = queue.shift();
+        if (!f) return Promise.resolve();
+        return fetch(f.url)
+          .then(function (response) {
+            if (!response.ok) throw new Error(String(response.status));
+            if (!response.body || !response.body.getReader) {
+              return response.arrayBuffer().then(function (buffer) { got[f.url] = buffer.byteLength; last = performance.now(); });
+            }
+            var reader = response.body.getReader();
+            var pump = function () {
+              return reader.read().then(function (step) {
+                if (step.done) return;
+                got[f.url] += step.value.length;
+                last = performance.now();
+                return pump();
+              });
+            };
+            return pump();
+          })
+          .then(function () { ok[f.url] = true; })
+          .catch(function (error) {
+            got[f.url] = 0;
+            var reason = /^\\d+$/.test(error.message) ? error.message : t.network;
+            failed.push(f.url.split("/").pop() + " (" + reason + ")");
+          })
+          .then(one);
+      };
+      var workers = [];
+      for (var i = 0; i < PARALLEL; i++) workers.push(one());
+      Promise.all(workers).then(function () {
+        clearInterval(timer);
+        show(true);
+        errors.replaceChildren.apply(errors, failed.map(function (name) { var li = document.createElement("li"); li.textContent = name; return li; }));
+        running = false;
+        button.disabled = false;
+        button.textContent = failed.length ? t.retry : label;
+      });
+    });
+  });
 })();
 </script>`;
 
@@ -447,7 +611,7 @@ const home = page({
   description: `${TEXT.fr.tagline} ${TEXT.en.tagline}`,
   css: "pages.css",
   body: LANGS.map((lang) => homeBlock(lang, all, ctxFor(lang))).join("\n"),
-  script: HOME_SCRIPT,
+  script: `<script type="application/json" id="prefetch-files">${JSON.stringify(prefetchFiles()).replace(/</g, "\\u003c")}</script>\n${HOME_SCRIPT}\n${PREFETCH_SCRIPT}`,
 });
 outputs.push(["index.html", home], ["pages.css", CSS]);
 

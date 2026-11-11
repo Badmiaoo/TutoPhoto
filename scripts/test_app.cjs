@@ -15,11 +15,13 @@
 //
 // Contrôles, pour chaque profil :
 // - l'accueil s'affiche dans la langue demandée, sans défilement horizontal, et le bouton de langue change de bloc ;
+//   « Télécharger les ressources du simulateur » remplit sa barre et donne un bilan sans échec (version 0.3.51) ;
 // - une fiche (NET-01) s'affiche sans défilement horizontal, avec le bandeau de relecture tant qu'elle n'est pas
 //   listée dans data/relecture.yaml, et son bouton mène au simulateur ;
 // - le simulateur (simulateur/) a un lien vers l'accueil ;
-// - la fiche SIT-05 a un bouton « Jouer le défi » (simulateur/?defi=SIT-05), et le simulateur ouvert ainsi a le défi
-//   SIT-06 choisi (simulateur/?defi=SIT-06) ;
+// - la fiche SIT-05 a un bouton « Jouer le défi » (simulateur/?defi=SIT-05), et le simulateur ouvert à l'adresse
+//   simulateur?defi=SIT-06, sans la barre finale, ajoute la barre, montre la progression du chargement et a le
+//   défi SIT-06 choisi ;
 // - l'activité LUM-02 (activites/LUM-02/) : la fiche y mène ; l'exemple « Grande fenêtre » (120 cm à 200 cm) donne une
 //   pénombre de 120 × 50 / 200 = 30 cm ; la bonne réponse à la première question est saluée ; pas de défilement horizontal ;
 // - avec --photo : les notions « À revoir » du bulletin et le bouton « Fiche » de la fenêtre « Défis » ouvrent la
@@ -215,6 +217,22 @@ async function checkPages(page, base, name, check) {
     "accueil en français",
     home.shown.join() === "fr" && home.lang === "fr" && home.items > 0 && homeOverflow <= 0,
     `bloc ${home.shown.join()}, ${home.items} fiches listées, débordement ${homeOverflow} px`,
+  );
+  // Bouton « Télécharger les ressources du simulateur » (version 0.3.51) : barre à 100 %, bilan sans échec.
+  await page.click("[data-lang-block='fr'] [data-prefetch]");
+  const prefetch = await page
+    .waitForFunction(() => /Téléchargé|échec/.test(document.querySelector("[data-lang-block='fr'] .prefetch-status")?.textContent ?? ""), null, { timeout: 120000 })
+    .then(() =>
+      page.evaluate(() => {
+        const block = document.querySelector("[data-lang-block='fr']");
+        return { text: block.querySelector(".prefetch-status").textContent, value: block.querySelector(".prefetch progress").value, errors: block.querySelectorAll(".prefetch-errors li").length };
+      }),
+    )
+    .catch(() => ({ text: "", value: 0, errors: -1 }));
+  check(
+    "accueil : téléchargement des ressources du simulateur",
+    /^Téléchargé : \d+,\d Mio en .*, débit moyen \d+,\d Mbit\/s\./.test(prefetch.text) && prefetch.value === 100 && prefetch.errors === 0,
+    `${prefetch.text.slice(0, 90)} ; barre ${Math.round(prefetch.value)} % ; ${prefetch.errors} échec(s)`,
   );
   if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-accueil.png`), fullPage: true });
   await page.click("[data-lang-block='fr'] .lang-switch");
@@ -834,11 +852,21 @@ async function runProfile(browser, name, base) {
       await page.check('#release-dialog input[name="release"][value="single"]');
       await page.click("#release-close");
     }
-    // Défi choisi depuis la fiche d'une situation : simulateur/?defi=SIT-06 (version 0.3.47).
-    await page.goto(`${base}/simulateur/?lang=fr&defi=SIT-06`);
+    // Défi choisi depuis la fiche d'une situation : simulateur?defi=SIT-06 (version 0.3.47), ici sans la barre finale
+    // de simulateur/ : le serveur de la routine ne redirige pas, la page doit ajouter la barre elle-même (0.3.51).
+    // Pendant le chargement, la progression s'affiche en Mio reçus.
+    await page.goto(`${base}/simulateur?lang=fr&defi=SIT-06`);
+    const progress = await page
+      .waitForFunction(() => /Mio reçus|préparation/.test(document.getElementById("status")?.textContent ?? ""), null, { timeout: 60000 })
+      .then(() => page.evaluate(() => document.getElementById("status").textContent))
+      .catch(() => "");
     await page.waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 }).catch(() => undefined);
-    const chosen = await page.evaluate(() => document.getElementById("challenge-button").textContent);
-    check("défi choisi par l'adresse (?defi=SIT-06)", /SIT-06$/.test(chosen), chosen);
+    const chosen = await page.evaluate(() => ({ text: document.getElementById("challenge-button").textContent, path: location.pathname }));
+    check(
+      "adresse sans barre finale, défi choisi par l'adresse, progression du chargement",
+      /SIT-06$/.test(chosen.text) && chosen.path === "/simulateur/" && /Mio reçus|préparation/.test(progress),
+      `${chosen.path} ; ${chosen.text} ; pendant le chargement : « ${progress} »`,
+    );
   } catch (error) {
     check("déroulement du test", false, String(error).split("\n")[0]);
   } finally {

@@ -30,6 +30,46 @@ const diagnostic = element<HTMLParagraphElement>("diagnostic");
 // Le simulateur est sous simulateur/ depuis la version 0.3.46 : la scène est un dossier plus haut.
 const manifest = loadManifest("../scenes/parc/scene.json");
 let lang: Lang = initialLang();
+
+// Progression du chargement (version 0.3.51). La scène pèse 34 Mio, et un message seul ne permettait pas de
+// distinguer un réseau lent, un fichier bloqué ou une scène reçue mais pas prête (chargement sans fin signalé par
+// Julien le 11 novembre 2026). Un fichier compte comme reçu quand le navigateur en a fini le chargement, d'après
+// la Resource Timing API (performance.getEntriesByType("resource")) ; sa taille est celle du manifeste.
+let sceneFiles: { path: string; bytes: number }[] = [];
+const MISSING_AFTER_S = 60;
+const MIB = 2 ** 20;
+
+function loadingProgress(): string {
+  const seconds = Math.round(performance.now() / 1000);
+  if (sceneFiles.length === 0) return ` · ${seconds} s`;
+  const loaded = new Set(
+    (performance.getEntriesByType("resource") as PerformanceResourceTiming[]).map((e) => {
+      try {
+        return decodeURIComponent(new URL(e.name).pathname);
+      } catch {
+        return e.name;
+      }
+    }),
+  );
+  const done = (path: string) => [...loaded].some((name) => name.endsWith(`/scenes/parc/${path}`));
+  const missing = sceneFiles.filter((f) => !done(f.path));
+  const total = sceneFiles.reduce((sum, f) => sum + f.bytes, 0);
+  const received = total - missing.reduce((sum, f) => sum + f.bytes, 0);
+  const fill = (text: string) => text.replace("{s}", String(seconds));
+  if (missing.length === 0) return ` ${fill(t(lang, "loadingPreparing"))}`;
+  let text = ` ${fill(t(lang, "loadingProgress")).replace("{done}", String(Math.round(received / MIB))).replace("{total}", String(Math.round(total / MIB)))}`;
+  if (seconds >= MISSING_AFTER_S) {
+    const names = missing.slice(0, 3).map((f) => f.path.split("/").pop());
+    text += ` · ${t(lang, "loadingMissing").replace("{files}", names.join(", ") + (missing.length > 3 ? "…" : ""))}`;
+  }
+  return text;
+}
+manifest.then((m) => (sceneFiles = m.assets.flatMap((asset) => asset.files ?? []))).catch(() => undefined);
+// Mise à jour de la progression chaque seconde, tant que la scène se charge.
+const loadingTimer = window.setInterval(() => {
+  if (statusKey !== "loading") window.clearInterval(loadingTimer);
+  else status.textContent = t(lang, "loading") + loadingProgress();
+}, 1000);
 let statusKey: "loading" | "loadError" | null = "loading";
 let cameraPanel: CameraPanel | null = null;
 let shutter: Shutter | null = null;
@@ -70,7 +110,7 @@ function applyLang(): void {
   element("no-webgl").textContent = t(lang, "noWebgl");
   canvas.setAttribute("aria-label", t(lang, "sceneLabel"));
   langButton.textContent = t(lang, "switchLang");
-  status.textContent = statusKey ? t(lang, statusKey) : "";
+  status.textContent = statusKey ? t(lang, statusKey) + (statusKey === "loading" ? loadingProgress() : "") : "";
   status.hidden = statusKey === null;
   manifest.then((m) => renderCredits(creditsList, m, lang)).catch(() => undefined);
   cameraPanel?.setLang(lang);

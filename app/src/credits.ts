@@ -17,9 +17,11 @@ interface SceneAsset {
   license: "CC0-1.0" | "CC-BY-4.0";
   license_url: string;
   changes?: Bilingual;
+  /** Fichiers de l'élément, chemin relatif au dossier de la scène et taille en octets. */
+  files?: { path: string; bytes: number }[];
 }
 
-interface SceneManifest {
+export interface SceneManifest {
   title: Bilingual;
   assets: SceneAsset[];
 }

@@ -100,7 +100,11 @@ Décidé par Julien le 7 novembre 2026 ; versions et licences lues dans le regis
   - les fiches des notions et des situations sous `fiches/fr/` et `fiches/en/`, une page HTML statique par fiche, lisible sans charger la scène 3D ;
   - accueil et fiches produits après Vite par `app/scripts/build-pages.mjs`, à partir de `content/` : un convertisseur écrit pour TutoPhoto, qui ne reconnaît que le balisage des fiches et fait échouer la construction sur tout le reste (`docs/contenus.md`) ;
   - même mémoire de la langue partout (clé `tutophoto.lang` du navigateur) ;
-  - activités interactives sous `activites/<ID>/` (version 0.3.50 : LUM-02), construites par une seconde passe de Vite (`app/vite.activites.config.ts`) : le simulateur tient en un seul fichier JavaScript, réglage que Vite n'accepte qu'avec une seule entrée.
+  - activités interactives sous `activites/<ID>/` (version 0.3.50 : LUM-02), construites par une seconde passe de Vite (`app/vite.activites.config.ts`) : le simulateur tient en un seul fichier JavaScript, réglage que Vite n'accepte qu'avec une seule entrée ;
+  - chargement (version 0.3.51, après le chargement sans fin signalé par Julien le 11 novembre 2026, en données mobiles) :
+    - le simulateur affiche les Mio reçus et le temps écoulé, puis, après une minute, les fichiers encore attendus. Un fichier compte comme reçu quand le navigateur en a terminé le chargement (Resource Timing API) ; sa taille est celle du manifeste ;
+    - l'accueil propose « Télécharger les ressources du simulateur » : le code du simulateur, le manifeste et les fichiers de la scène (sans les textes de licence), trois à la fois. Une barre suit les octets reçus en direct ; le bilan donne la durée et le débit moyen. Option A, choisie par Julien : les fichiers vont dans le cache ordinaire du navigateur, qui les garde ou non selon les en-têtes du serveur et la place disponible ;
+    - une adresse sans barre finale (`…/simulateur`) est complétée par la page elle-même : sans cela, les chemins relatifs viseraient le dossier parent si le serveur ne redirige pas.
 - Publication sur GitHub Pages à chaque fusion sur `main`, par le workflow `.github/workflows/pages.yml`. GitHub Pages doit être activé dans les réglages du dépôt, avec la source « GitHub Actions ».
 - La CI des pull requests vérifie les types et construit le site (`.github/workflows/validate.yml`, job `app`).
 
