@@ -23,12 +23,18 @@ export interface Body {
   fullWellElectrons: number;
   /** Bruit de lecture mesuré : [ISO, électrons], par ISO croissant. */
   readNoise: readonly (readonly [number, number])[];
+  /**
+   * Couverture de l'autofocus (MAP-06), en fraction du grand côté (horizontal) et du petit côté (vertical) du
+   * capteur, au centre ; absente quand elle n'est pas sourcée (ui/cameraPanel.ts prend alors celle du Z 6).
+   */
+  afCoverage?: { horizontal: number; vertical: number };
 }
 
 export const BODIES: readonly Body[] = [
   // [nikon-z6-specifications] : manuel en ligne Nikon, « 35.9 × 23.9 mm CMOS sensor ».
   // Définition [nikon-z6-specifications] : « 24.5 million » pixels effectifs.
-  { brand: "nikon", format: "ff", model: "Nikon Z 6", sensorWidthMm: 35.9, sensorHeightMm: 23.9,
+  // Couverture AF [nikon-z6-launch-2018] : « approximately 90% of the imaging area both horizontally and vertically ».
+  { brand: "nikon", format: "ff", model: "Nikon Z 6", sensorWidthMm: 35.9, sensorHeightMm: 23.9, afCoverage: { horizontal: 0.9, vertical: 0.9 },
     effectivePixels: 24500000, fullWellElectrons: 83698,
     readNoise: [[100, 6.87], [126, 7.62], [159, 7.84], [200, 5.98], [251, 5.78], [318, 5.58], [400, 5.31], [503, 5.21], [636, 5.13], [800, 1.62], [1006, 1.49], [1273, 1.47], [1600, 1.37], [2011, 1.39], [2546, 1.37], [3200, 1.27], [4022, 1.25], [5091, 1.2], [6400, 1.21]] },
   // [nikon-d5600-sensor] : extrait de recherche, page non ouverte.
@@ -46,9 +52,13 @@ export const BODIES: readonly Body[] = [
   { brand: "sony", format: "apsc", model: "Sony A6000", sensorWidthMm: 23.5, sensorHeightMm: 15.6,
     effectivePixels: 24300000, fullWellElectrons: 33083,
     readNoise: [[100, 4.96], [126, 4.56], [159, 4.03], [200, 3.66], [251, 3.48], [318, 3.25], [400, 3.1], [503, 2.95], [636, 2.83], [800, 2.71], [1006, 2.64], [1273, 2.51], [1600, 2.41], [2011, 2.35], [2546, 2.28], [3200, 2.19], [4022, 2.2], [5091, 2.14], [6400, 2.04]] },
-  // [canon-eos-rp-sensor] : extrait de recherche de la fiche Canon, page non ouverte.
-  // Définition [canon-eos-rp-pixels] : environ 26,2 millions, extrait de recherche.
-  { brand: "canon", format: "ff", model: "Canon EOS RP", sensorWidthMm: 35.9, sensorHeightMm: 24.0,
+  // [canon-eos-rp-sensor] : extrait de recherche de la fiche Canon, page non ouverte ; confirmé par la fiche de
+  // Canon Royaume-Uni relevée par Julien le 11 novembre 2026 [canon-eos-rp-pixels] : « 35.9 x 24 mm CMOS ».
+  // Définition [canon-eos-rp-pixels] : « Approx. 26.2 Megapixels » (même fiche).
+  // Couverture AF [canon-eos-rp-af] : « 88% horizontal and 100% vertical coverage », variable selon l'objectif ;
+  // fiche technique de Canon Royaume-Uni relevée par Julien le 11 novembre 2026,
+  // https://www.canon.co.uk/cameras/eos-rp/specifications/ .
+  { brand: "canon", format: "ff", model: "Canon EOS RP", sensorWidthMm: 35.9, sensorHeightMm: 24.0, afCoverage: { horizontal: 0.88, vertical: 1 },
     effectivePixels: 26200000, fullWellElectrons: 82327,
     readNoise: [[100, 36.25], [126, 36.25], [159, 19.84], [200, 19.7], [251, 19.7], [318, 10.13], [400, 10.2], [503, 10.27], [636, 5.86], [800, 5.86], [1006, 5.94], [1273, 3.84], [1600, 3.86], [2011, 3.86], [2546, 2.79], [3200, 2.83], [4022, 2.85], [5091, 2.58], [6400, 2.62]] },
   // [canon-eos-2000d-sensor] : extrait de recherche de la fiche Canon, page non ouverte.

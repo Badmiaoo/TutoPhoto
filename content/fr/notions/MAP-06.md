@@ -6,7 +6,7 @@ Le Nikon Z 6 a 273 collimateurs en AF point sélectif, au format FX, qui couvren
 
 ## Simulateur
 
-Toucher le viseur place le point de mise au point. La zone couverte par l'autofocus est tracée en pointillés ; un toucher hors de cette zone ramène le point sur son bord. La disposition des 273 points n'est pas publiée dans les sources lues : le point se déplace en continu, sans grille. Les sélecteurs et le réglage a5 ne sont pas simulés.
+Toucher le viseur place le point de mise au point. La zone couverte par l'autofocus est tracée en pointillés ; un toucher hors de cette zone ramène le point sur son bord. La couverture dépend du boîtier : le Canon EOS RP couvre 88 % du cadre en largeur et 100 % en hauteur, selon l'objectif ([fiche de Canon](https://www.canon.co.uk/cameras/eos-rp/specifications/)) ; les boîtiers dont la couverture n'est pas encore sourcée gardent celle du Z 6. La disposition des 273 points n'est pas publiée dans les sources lues : le point se déplace en continu, sans grille. Les sélecteurs et le réglage a5 ne sont pas simulés.
 
 ## Exercice
 
