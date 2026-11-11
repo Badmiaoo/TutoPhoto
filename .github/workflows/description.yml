@@ -1,0 +1,29 @@
+name: Description de la pull request
+
+# Le titre et la description d'une pull request ne sont pas dans git : scripts/check_public.py les contrôle à part,
+# à chaque création ou modification. Constat du 11 novembre 2026 (docs/publication.md) : à la création, l'outil
+# GitHub de Claude remplace le pied de la description par un pied qui contient le lien de la session. Ce contrôle
+# échoue tant que le lien n'a pas été retiré.
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  description:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # Actions épinglées par commit ; licence MIT vérifiée le 7 novembre 2026.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - name: Titre et description sans information privée
+        # Lus dans le fichier de l'événement, jamais insérés dans la commande ni passés par « env: » : Actions écrit
+        # les variables d'une étape en clair dans son journal, public pour ce dépôt (constaté le 11 novembre 2026).
+        run: python scripts/check_public.py --pull-request "$GITHUB_EVENT_PATH"
