@@ -12,6 +12,12 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.41] - 2026-11-11
+
+### Modifié
+
+- Couverture de l'autofocus par boîtier, décision de Julien du 11 novembre 2026 : celle du Z 6 pour la V1 minimale ; les hybrides Sony A7 III, Sony A6000 et Canon EOS RP à ajouter une fois leurs chiffres lus sur les pages officielles ; les reflex en V2 (`docs/camera-physique.md`, `docs/questions-ouvertes.md`, `docs/historique.md`).
+
 ## [0.3.40] - 2026-11-11
 
 ### Ajouté
@@ -641,6 +647,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.41]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.40...v0.3.41
 [0.3.40]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.39...v0.3.40
 [0.3.39]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.38...v0.3.39
 [0.3.38]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.37...v0.3.38
