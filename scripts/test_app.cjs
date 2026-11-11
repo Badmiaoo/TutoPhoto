@@ -244,9 +244,10 @@ async function runProfile(browser, name, base) {
     check("exposition par défaut : M et ISO auto (Z 6)", /^M · /.test(meterDefault) && isoDefault.name === "ISO auto" && isoDefault.value === "100", `${meterDefault} ; ${isoDefault.name} ${isoDefault.value}`);
     await setExposure({ autoIso: false });
 
-    // Vue de dessus (NET-01) et appareil déplaçable (NET-06). AF-C, point au centre : le groupe vers 6,5 m. Reculé
-    // de 4 m en touchant la carte (x = 0, z = −4), l'appareil mesure environ 4 m de plus ; « Retour au départ »
-    // le ramène. Carte : x de −8 à 8 m, z de 15 m (en haut) à −7 m (en bas).
+    // Vue de dessus (NET-01) et appareil déplaçable (NET-06). AF-C, zone automatique : l'œil de Sophia vers 6,6 m
+    // (le point central, au bord de Sophia une fois l'appareil reculé, tombait parfois à côté d'elle sur le profil
+    // Android). Reculé de 4 m en touchant la carte (x = 0, z = −4), l'appareil mesure environ 4 m de plus ;
+    // « Retour au départ » le ramène. Carte : x de −8 à 8 m, z de 15 m (en haut) à −7 m (en bas).
     const badgeMetres = async () => {
       const m = /(\d+[,.]\d) m$/.exec(await page.evaluate(() => document.getElementById("af-badge").textContent));
       return m ? Number(m[1].replace(",", ".")) : NaN;
@@ -257,7 +258,7 @@ async function runProfile(browser, name, base) {
       page
         .waitForFunction(
           ([mode, value]) => {
-            const m = /^AF-C · Point · (\d+[,.]\d) m$/.exec(document.getElementById("af-badge").textContent);
+            const m = /^AF-C · Auto · .* (\d+[,.]\d) m$/.exec(document.getElementById("af-badge").textContent);
             if (!m) return false;
             const d = Number(m[1].replace(",", "."));
             return mode === "group" ? d < 9 : mode === "farther" ? d > value + 3 : Math.abs(d - value) < 0.3;
@@ -270,6 +271,8 @@ async function runProfile(browser, name, base) {
     if (topCollapsed) await page.click("#top-view-toggle");
     await page.click("#af-button");
     await page.check('#af-dialog input[name="focusMode"][value="continuous"]');
+    await page.check('#af-dialog input[name="areaMode"][value="auto"]');
+    await page.check('#af-dialog input[name="detection"][value="faceEye"]');
     await page.click("#af-close");
     await waitMetres("group", 0);
     const fromStart = await badgeMetres();
@@ -289,6 +292,7 @@ async function runProfile(browser, name, base) {
     );
     await page.click("#af-button");
     await page.check('#af-dialog input[name="focusMode"][value="single"]');
+    await page.check('#af-dialog input[name="areaMode"][value="point"]');
     await page.click("#af-close");
     if (topCollapsed) await page.click("#top-view-toggle");
 
