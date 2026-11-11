@@ -22,7 +22,7 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
   - SIT-06 : le chien dans le cadre, net et figé.
 - Bulletin sous chaque photo : exposition, zone nette, bruit au point visé, traînée des sujets en mouvement ; avec un défi, chaque critère, réussi ou manqué, et les notions à revoir.
 - Critères tirés de mesures déjà sourcées : zone nette et flou acceptable (diagonale / 1500), traînée comparée au même flou acceptable.
-- Routine de test : bulletin sous la photo ; défi SIT-05 réussi et défi SIT-01 à reprendre à f/8, la poubelle derrière Sophia restant nette.
+- Routine de test : bulletin sous la photo ; défi SIT-05 réussi à f/8 ; défi SIT-01 à reprendre à f/22, le fond photo restant net (zone nette jusqu'à l'infini).
 
 ### Modifié
 

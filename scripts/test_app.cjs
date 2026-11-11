@@ -435,8 +435,10 @@ async function runProfile(browser, name, base) {
 
     if (withPhoto) {
       // Défis (SIT-05, SIT-01), zone automatique avec détection des yeux : mise au point sur l'œil de Sophia, vers
-      // 6,6 m. À f/8 et 50 mm, zone nette d'environ 4 m à 17 m : le groupe y est (SIT-05 réussi), mais aussi la
-      // poubelle à 10,5 m, derrière Sophia et dans le cadre (SIT-01 à reprendre).
+      // 6,6 m. À f/8 et 50 mm, zone nette d'environ 4 m à 17 m : le groupe y est (SIT-05 réussi). À f/22, la distance
+      // hyperfocale vaut 2500 / (22 × 0,02875) ≈ 4 m : mise au point à 6,6 m, la zone nette va jusqu'à l'infini et le
+      // fond photo est net (SIT-01 à reprendre), quel que soit le cadrage (vertical sur le profil Android, où la
+      // poubelle sort du cadre).
       const challengeShot = async (id) => {
         await page.click("#challenge-button");
         await page.check(`#challenge-dialog input[name="challenge"][value="${id}"]`);
@@ -458,10 +460,12 @@ async function runProfile(browser, name, base) {
         .catch(() => undefined);
       const group = await challengeShot("SIT-05");
       check("défi SIT-05 : groupe net, réussi", /Défi SIT-05 · Photo de groupe : réussi/.test(group), group.split("\n").filter((l) => /Défi|Réussi|Manqué/.test(l)).join(" | "));
+      await clicks('[data-dial="aperture"][data-step="1"]', 9);
       const portrait = await challengeShot("SIT-01");
+      await clicks('[data-dial="aperture"][data-step="-1"]', 9);
       check(
-        "défi SIT-01 à f/8 : fond encore net, à reprendre",
-        /Défi SIT-01 · .* : à reprendre/.test(portrait) && /Manqué : fond derrière Sophia hors de la zone nette : encore net : .*la poubelle/.test(portrait) && /À revoir : NET-01/.test(portrait),
+        "défi SIT-01 à f/22 : fond encore net, à reprendre",
+        /Défi SIT-01 · .* : à reprendre/.test(portrait) && /Manqué : fond derrière Sophia hors de la zone nette : encore net : .*le fond photo/.test(portrait) && /À revoir : NET-01/.test(portrait),
         portrait.split("\n").filter((l) => /Défi|Réussi|Manqué|À revoir/.test(l)).join(" | "),
       );
       await page.click("#challenge-button");
