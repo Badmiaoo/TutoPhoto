@@ -746,3 +746,53 @@ dialog fieldset label {
 .focus-marker[hidden] {
   display: none;
 }
+
+/* Fiches ouvertes par-dessus le simulateur (version 0.3.47) : notions à revoir du bulletin, fenêtre « Défis ». */
+.fiche-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.challenge-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+}
+
+.fiche-dialog {
+  width: min(42rem, calc(100vw - 2rem));
+  overflow: auto;
+  line-height: 1.5;
+}
+
+.fiche-body h3,
+.fiche-body section h2 {
+  font-size: 1rem;
+  margin: 1rem 0 0.25rem;
+}
+
+.fiche-body .code {
+  color: var(--discret);
+  margin-right: 0.4rem;
+}
+
+.fiche-body .banner {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--discret);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.fiche-body a {
+  overflow-wrap: anywhere;
+}
+
+.fiche-actions {
+  font-size: 0.9rem;
+}

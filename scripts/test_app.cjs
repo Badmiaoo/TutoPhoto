@@ -18,6 +18,10 @@
 // - une fiche (NET-01) s'affiche sans défilement horizontal, avec le bandeau de relecture tant qu'elle n'est pas
 //   listée dans data/relecture.yaml, et son bouton mène au simulateur ;
 // - le simulateur (simulateur/) a un lien vers l'accueil ;
+// - la fiche SIT-05 a un bouton « Jouer le défi » (simulateur/?defi=SIT-05), et le simulateur ouvert ainsi a le défi
+//   SIT-06 choisi (simulateur/?defi=SIT-06) ;
+// - avec --photo : les notions « À revoir » du bulletin et le bouton « Fiche » de la fenêtre « Défis » ouvrent la
+//   fiche par-dessus le simulateur, et un lien de la fiche vers une autre fiche reste dans la fenêtre ;
 // - la scène se charge (le message de chargement disparaît) et aucun problème ne s'affiche à l'écran ;
 // - le rendu a la taille affichée et le cadre les proportions du capteur ;
 // - à ISO 6400, le bruit du viseur varie d'une image à l'autre ; aperçu coupé, il disparaît ;
@@ -233,6 +237,12 @@ async function checkPages(page, base, name, check) {
     `${fiche.title} ; bandeau de relecture : ${fiche.banner ? "oui" : "non"} ; sections : ${fiche.sections} ; débordement ${ficheOverflow} px`,
   );
   if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-fiche.png`), fullPage: true });
+  await page.goto(`${base}/fiches/fr/SIT-05.html`);
+  const play = await page.evaluate(() => {
+    const a = document.querySelector(".actions a");
+    return { text: a?.textContent ?? "", href: a?.getAttribute("href") ?? "" };
+  });
+  check("fiche SIT-05 : bouton « Jouer le défi »", play.text === "Jouer le défi" && play.href === "../../simulateur/?lang=fr&defi=SIT-05", `« ${play.text} » → ${play.href}`);
 }
 
 async function runProfile(browser, name, base) {
@@ -534,7 +544,7 @@ async function runProfile(browser, name, base) {
       // hyperfocale vaut 2500 / (22 × 0,02875) ≈ 4 m : mise au point à 6,6 m, la zone nette va jusqu'à l'infini et le
       // fond photo est net (SIT-01 à reprendre), quel que soit le cadrage (vertical sur le profil Android, où la
       // poubelle sort du cadre).
-      const challengeShot = async (id) => {
+      const challengeShot = async (id, during = null) => {
         await page.click("#challenge-button");
         await page.check(`#challenge-dialog input[name="challenge"][value="${id}"]`);
         await page.click("#challenge-close");
@@ -542,6 +552,7 @@ async function runProfile(browser, name, base) {
         await page.waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden && !document.getElementById("review-bulletin").hidden, null, { timeout: 300000 });
         const text = await page.evaluate(() => document.getElementById("review-bulletin").innerText);
         if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-defi-${id}.png`), timeout: 120000 });
+        if (during) await during();
         await page.click("#review-back");
         return text;
       };
@@ -556,7 +567,27 @@ async function runProfile(browser, name, base) {
       const group = await challengeShot("SIT-05");
       check("défi SIT-05 : groupe net, réussi", /Défi SIT-05 · Photo de groupe : réussi/.test(group), group.split("\n").filter((l) => /Défi|Réussi|Manqué/.test(l)).join(" | "));
       await clicks('[data-dial="aperture"][data-step="1"]', 9);
-      const portrait = await challengeShot("SIT-01");
+      // Fiche ouverte depuis le bulletin, puis une autre fiche depuis un lien de la première (version 0.3.47).
+      const ficheTitle = (prefix) =>
+        page
+          .waitForFunction((p) => document.getElementById("fiche-dialog").open && (document.getElementById("fiche-title")?.textContent ?? "").startsWith(p), prefix, { timeout: 30000 })
+          .then(() => page.evaluate(() => ({ title: document.getElementById("fiche-title").textContent, banner: document.querySelectorAll("#fiche-body .banner").length })))
+          .catch(() => ({ title: "", banner: 0 }));
+      let fromBulletin = { title: "", banner: 0 };
+      let fromLink = { title: "", banner: 0 };
+      const portrait = await challengeShot("SIT-01", async () => {
+        await page.click("#review-bulletin [data-fiche]");
+        fromBulletin = await ficheTitle("NET-01");
+        await page.click('#fiche-body a[href="SIT-01.html"]');
+        fromLink = await ficheTitle("SIT-01");
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-fiche-fenetre.png`), timeout: 120000 });
+        await page.click("#fiche-close");
+      });
+      check(
+        "bulletin : fiche ouverte par-dessus le simulateur",
+        fromBulletin.title.startsWith("NET-01") && fromBulletin.banner === (isReviewed("NET-01", "fr") ? 0 : 1) && fromLink.title.startsWith("SIT-01"),
+        `${fromBulletin.title} (bandeau : ${fromBulletin.banner ? "oui" : "non"}) puis ${fromLink.title}`,
+      );
       await clicks('[data-dial="aperture"][data-step="-1"]', 9);
       check(
         "défi SIT-01 à f/22 : fond encore net, à reprendre",
@@ -565,6 +596,12 @@ async function runProfile(browser, name, base) {
       );
       await page.click("#challenge-button");
       await page.check('#challenge-dialog input[name="challenge"][value="none"]');
+      // Bouton « Fiche » de la fenêtre « Défis » : la fiche s'ouvre par-dessus, la fenêtre « Défis » reste derrière.
+      await page.click('#challenge-dialog .fiche-open[data-fiche="SIT-05"]');
+      const fromChallenges = await ficheTitle("SIT-05");
+      await page.click("#fiche-close");
+      const challengesOpen = await page.evaluate(() => document.getElementById("challenge-dialog").open);
+      check("défis : fiche de la situation", fromChallenges.title.startsWith("SIT-05") && challengesOpen, `${fromChallenges.title} ; fenêtre « Défis » encore ouverte : ${challengesOpen ? "oui" : "non"}`);
       await page.click("#challenge-close");
       await page.click("#af-button");
       await page.check('#af-dialog input[name="focusMode"][value="single"]');
@@ -780,6 +817,11 @@ async function runProfile(browser, name, base) {
       await page.check('#release-dialog input[name="release"][value="single"]');
       await page.click("#release-close");
     }
+    // Défi choisi depuis la fiche d'une situation : simulateur/?defi=SIT-06 (version 0.3.47).
+    await page.goto(`${base}/simulateur/?lang=fr&defi=SIT-06`);
+    await page.waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 }).catch(() => undefined);
+    const chosen = await page.evaluate(() => document.getElementById("challenge-button").textContent);
+    check("défi choisi par l'adresse (?defi=SIT-06)", /SIT-06$/.test(chosen), chosen);
   } catch (error) {
     check("déroulement du test", false, String(error).split("\n")[0]);
   } finally {

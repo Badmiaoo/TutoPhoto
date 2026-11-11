@@ -12,6 +12,18 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.47] - 2026-11-11
+
+### Ajouté
+
+- Bouton « Jouer le défi » sur la fiche de chaque situation qui a un défi : il ouvre le simulateur avec ce défi choisi (`simulateur/?defi=SIT-05`).
+- Fenêtre de fiche par-dessus le simulateur (décision de Julien du 11 novembre 2026) : les notions « À revoir » du bulletin et le bouton « Fiche » de chaque défi l'ouvrent, sans perdre la scène ni les réglages. Les liens vers d'autres fiches restent dans la fenêtre ; les sources s'ouvrent dans un nouvel onglet ; un lien mène à la page complète.
+- Routine de test : bouton « Jouer le défi », défi choisi par l'adresse, fiche ouverte depuis le bulletin puis depuis un lien de la fiche, fiche ouverte depuis la fenêtre « Défis ».
+
+### Modifié
+
+- `docs/contenus.md`, `docs/questions-ouvertes.md`, `docs/historique.md`.
+
 ## [0.3.46] - 2026-11-11
 
 ### Ajouté
@@ -708,6 +720,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.47]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.46...v0.3.47
 [0.3.46]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.45...v0.3.46
 [0.3.45]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.44...v0.3.45
 [0.3.44]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.43...v0.3.44

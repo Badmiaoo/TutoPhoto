@@ -69,6 +69,7 @@ Décisions de Julien du 11 novembre 2026, version 0.3.46 :
 
   Tout autre balisage, une fiche sans sa traduction, ou un code de notion ou de situation sans fiche dans la même langue font échouer la construction ;
 - les codes de notions et de situations cités dans une fiche deviennent des liens vers leurs fiches ; la fiche d'une notion liste les situations dont la section « Notions » la cite.
+- depuis le simulateur (version 0.3.47) : la fiche d'une situation qui a une section « Défi » propose « Jouer le défi », qui ouvre le simulateur avec ce défi (`simulateur/?defi=SIT-05`) ; les notions « À revoir » du bulletin et le bouton « Fiche » de la fenêtre « Défis » ouvrent la fiche dans une fenêtre par-dessus le simulateur, sans perdre la scène ni les réglages. Dans cette fenêtre, les liens vers d'autres fiches y restent, et les liens vers les sources s'ouvrent dans un nouvel onglet.
 
 ## Limite connue
 

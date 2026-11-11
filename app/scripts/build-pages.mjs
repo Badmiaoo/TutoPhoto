@@ -38,6 +38,7 @@ const TEXT = {
     learnDoor: "J'apprends",
     learnIntro: "Chaque notion a une explication, ce qu'en montre le simulateur et un exercice.",
     openSimulator: "Ouvrir le simulateur",
+    playChallenge: "Jouer le défi",
     simulator: "Simulateur",
     reviewMark: "en relecture",
     reviewLegend: "Une fiche marquée « en relecture » n'a pas encore été vérifiée.",
@@ -60,6 +61,7 @@ const TEXT = {
     learnDoor: "I'm learning",
     learnIntro: "Each notion has an explanation, what the simulator shows of it, and an exercise.",
     openSimulator: "Open the simulator",
+    playChallenge: "Play the challenge",
     simulator: "Simulator",
     reviewMark: "under review",
     reviewLegend: "A page marked “under review” has not been checked yet.",
@@ -300,6 +302,11 @@ function fichePage(lang, id, fiche, ctx) {
   }
   const domain = fiche.kind === "notions" ? ctx.domains[id.slice(0, 3)]?.[lang] : null;
   const door = fiche.kind === "notions" ? [t.learnDoor, t.anchors.learn] : [t.situationDoor, t.anchors.situation];
+  // Une situation qui a une section « Défi » ouvre le simulateur avec ce défi (simulateur/?defi=…, version 0.3.47).
+  const hasChallenge = fiche.kind === "situations" && fiche.sections.some((s) => s.title === SECTIONS.situations[lang][2]);
+  const action = hasChallenge
+    ? `<a class="button" href="../../simulateur/?lang=${lang}&amp;defi=${id}">${t.playChallenge}</a>`
+    : `<a class="button" href="../../simulateur/?lang=${lang}">${t.openSimulator}</a>`;
   const crumb = `<a href="../../?lang=${lang}#${door[1]}">${door[0]}</a>${domain ? ` · ${escapeHtml(capitalize(domain))}` : ""}`;
   const body = `<header class="bar">
   <a class="brand" href="../../?lang=${lang}">TutoPhoto</a>
@@ -314,7 +321,7 @@ function fichePage(lang, id, fiche, ctx) {
 ${reviewed ? "" : `<p class="banner" role="note">${t.banner}</p>`}
 ${sections}
 ${related}
-<p class="actions"><a class="button" href="../../simulateur/?lang=${lang}">${t.openSimulator}</a></p>
+<p class="actions">${action}</p>
 </main>
 ${footer(lang, "../../")}`;
   return page({
