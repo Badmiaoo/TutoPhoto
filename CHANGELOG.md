@@ -12,6 +12,25 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.50] - 2026-11-11
+
+### Ajouté
+
+- Activité interactive de LUM-02 (lumière dure ou douce), en schéma 2D (décision de Julien du 11 novembre 2026), sous `activites/LUM-02/` :
+  - une vue de côté avec une source, un objet et un mur ; curseurs pour la taille de la source et sa distance à l'objet ;
+  - l'ombre pleine et la pénombre dessinées sur le mur, avec trois valeurs : taille apparente de la source, largeur de la pénombre (taille × distance objet–mur ÷ distance source–objet, par triangles semblables) et hauteur de l'ombre pleine ;
+  - trois exemples (petite lampe, grande fenêtre, réflecteur), dont les valeurs sont choisies pour l'activité ;
+  - deux questions, corrigées d'après le guide Lowel de Tiffen.
+- Bouton « Faire l'activité » sur la fiche LUM-02, à la place d'« Ouvrir le simulateur ».
+- Routine de test : l'activité, sur les quatre profils.
+
+### Modifié
+
+- Fiche LUM-02 (FR et EN) : la section « Activité » décrit l'activité de TutoPhoto, et garde l'activité à faire chez soi.
+- Construction : seconde passe de Vite pour les activités (`app/vite.activites.config.ts`).
+- Sources `wikipedia-umbra-penumbra`, `tiffen-lowel-soft-light` et `pvc-adams-soft-light` : rattachées à la fiche et au code de l'activité.
+- `docs/contenus.md`, `docs/pile-technique.md`, `docs/propositions.md`, `docs/questions-ouvertes.md`, `docs/historique.md`.
+
 ## [0.3.49] - 2026-11-11
 
 ### Modifié
@@ -745,6 +764,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.50]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.49...v0.3.50
 [0.3.49]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.48...v0.3.49
 [0.3.48]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.47...v0.3.48
 [0.3.47]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.46...v0.3.47

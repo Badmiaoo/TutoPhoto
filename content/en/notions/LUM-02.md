@@ -8,7 +8,11 @@ What counts is the apparent size, seen from the subject: a large source very far
 
 ## Activity
 
-The light simulator is planned for V2 and the interactive activity in TutoPhoto is still to be built. Meanwhile, an activity to do at home, based on the same sources:
+In TutoPhoto, a side-view diagram: a light source, an object, a wall. Change the size of the source and its distance to the object, and look at the shadow on the wall: the full shadow in the middle, and the penumbra at its edges, where the source is only partly hidden ([Wikipedia, “Umbra, penumbra and antumbra”, revision 1379008615](https://en.wikipedia.org/w/index.php?title=Umbra,_penumbra_and_antumbra&oldid=1379008615), secondary source, read on 11 November 2026). Light rays travel in straight lines: by similar triangles, the penumbra measures source size × object–wall distance ÷ source–object distance. The bigger the source looks from the object, the wider the penumbra and the softer the edge of the shadow. Two questions end the activity.
+
+The diagram is a 2D cross-section: the width of the penumbra is right, the exact shape of the gradient is simplified, and the examples (small lamp, large window, reflector) are values chosen for the activity. The light simulator is still planned for V2.
+
+Also to do at home, based on the same sources:
 - put an object on a table and light it with a small lamp without a shade: look at the edge of its shadow;
 - move the lamp closer, then further away: does the edge change?
 - bounce the light off a large white wall or card, so that it becomes the source: the edge of the shadow softens.

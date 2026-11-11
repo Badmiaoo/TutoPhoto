@@ -651,7 +651,7 @@ sources:
     group: "Physique, rendu et technique"
     label: "Wikipedia, Umbra, penumbra and antumbra : la pénombre est la zone où la source n'est cachée qu'en partie ; avec une source ponctuelle, seule l'ombre pleine existe (révision 1379008615, source secondaire, lue le 11 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Umbra,_penumbra_and_antumbra&oldid=1379008615"
-    used_in: [docs/propositions.md]
+    used_in: [docs/propositions.md, content/fr/notions/LUM-02.md, content/en/notions/LUM-02.md, app/src/activities/lum02.ts]
   - id: wikipedia-angular-diameter
     group: "Physique, rendu et technique"
     label: "Wikipedia, Angular diameter : diamètre apparent du Soleil vu de la Terre, de 31′27″ à 32′32″ (révision 1368815265, source secondaire, lue le 11 novembre 2026)"
@@ -661,12 +661,12 @@ sources:
     group: "Cours et pédagogie"
     label: "Tiffen (Lowel), Foundations of Lighting: Understanding Soft Light : « A soft light source would be one that appears larger in relative size than the subject being lit » ; le soleil, très loin, « appears smaller » et donne une lumière plus dure ; par ciel couvert, « the entire white cloudy sky is now the light source » ; reculer la source la rend plus petite et plus dure ; un réflecteur devient la source (lu le 11 novembre 2026)"
     url: "https://tiffen.reamaze.com/kb/lowel-guides/foundations-of-lighting-understanding-soft-light"
-    used_in: [content/fr/notions/LUM-02.md, content/en/notions/LUM-02.md, docs/propositions.md]
+    used_in: [content/fr/notions/LUM-02.md, content/en/notions/LUM-02.md, docs/propositions.md, app/src/activities/lum02.ts]
   - id: pvc-adams-soft-light
     group: "Cours et pédagogie"
     label: "Art Adams (directeur de la photographie), LIGHTING STRATEGIES: What Makes Soft Lights Cast Soft Shadows?, ProVideo Coalition, 27 décembre 2011 : une grande source est cachée peu à peu par l'objet, d'où l'ombre douce ; « Soft light is dependent on how big the source is in relation to the object it is lighting » ; une grande source lointaine paraît minuscule, comme le soleil (lu le 11 novembre 2026)"
     url: "https://www.provideocoalition.com/lighting_strategies_what_makes_soft_lights_cast_soft_shadows/"
-    used_in: [content/fr/notions/LUM-02.md, content/en/notions/LUM-02.md, docs/propositions.md]
+    used_in: [content/fr/notions/LUM-02.md, content/en/notions/LUM-02.md, docs/propositions.md, app/src/activities/lum02.ts]
   - id: nikon-z6-launch-2018
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, communiqué du 23 août 2018, « Nikon introduces the new Nikon Z mount system, and releases two full-frame mirrorless cameras: the Nikon Z 7 and Nikon Z 6 » : « the Z 6 has 273 focus points*, enabling broad coverage of approximately 90% of the imaging area both horizontally and vertically », « * With FX (36x24) format and single-point AF » (lu le 10 novembre 2026)"
