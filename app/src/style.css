@@ -175,6 +175,67 @@ dialog a {
   outline: 1px solid rgb(255 255 255 / 0.6);
 }
 
+/* Grille de cadrage (CMP-02, version 0.3.56) : lignes placées en pourcentages du cadre par ui/cameraPanel.ts. Un
+   trait clair d'un pixel bordé d'un trait sombre, pour rester lisible sur un fond clair comme sur un fond sombre ;
+   la paire est centrée sur la position (décalage d'un pixel entier : un demi-pixel rendrait le trait flou).
+   Aucun événement de pointeur : toucher le viseur déplace le point de mise au point. */
+.frame-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.frame-grid[hidden] {
+  display: none;
+}
+
+.grid-line {
+  position: absolute;
+  background: rgb(255 255 255 / 0.7);
+  pointer-events: none;
+}
+
+.grid-line.vertical {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  margin-left: -1px;
+  box-shadow: 1px 0 0 rgb(0 0 0 / 0.35);
+}
+
+.grid-line.horizontal {
+  left: 0;
+  right: 0;
+  height: 1px;
+  margin-top: -1px;
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.35);
+}
+
+/* Diagonales de la grille « Tiers et diagonales » : dessin vectoriel étiré aux dimensions du cadre, un trait clair
+   d'un pixel sur un trait sombre plus large, d'épaisseur constante quelle que soit la forme du cadre. */
+.grid-diagonals {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.grid-diagonal {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.grid-diagonal.shade {
+  stroke: rgb(0 0 0 / 0.35);
+  stroke-width: 3px;
+}
+
+.grid-diagonal.light {
+  stroke: rgb(255 255 255 / 0.7);
+  stroke-width: 1px;
+}
+
 /* Zone couverte par l'autofocus (MAP-06) : environ 90 % du cadre en largeur et en hauteur, en pointillés
    discrets. */
 .af-coverage {

@@ -27,6 +27,8 @@ jalons:
       - BOI-07
       - BOI-08
       - MES-04
+      # Ajoutée le 12 novembre 2026 (Julien) : grilles de cadrage (version 0.3.56), citée dans la fiche de SIT-01.
+      - CMP-02
     notes:
       - "LUM-02 : activité interactive en V1, simulateur en V2 (décision de Julien du 10 novembre 2026)."
       - "Solveur de situations : en V2. Pour les trois situations de la V1 minimale, la recette est écrite à la main dans leur fiche (décision de Julien du 10 novembre 2026)."

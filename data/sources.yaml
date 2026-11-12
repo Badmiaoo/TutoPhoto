@@ -639,9 +639,9 @@ sources:
     used_in: [docs/camera-physique.md]
   - id: nikon-z6-defaults
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, Defaults : ISO 100 en P, S, A, M, contrôle de la sensibilité auto activé, sensibilité maximale 51200 (Z 6), vitesse minimale Auto ; Focus mode Single AF, AF-area mode Single-point AF ; a4 Face and eye detection on ; c2 retardateur 10 s ; d1 Continu L 3 vps (lu le 10 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6, Defaults : ISO 100 en P, S, A, M, contrôle de la sensibilité auto activé, sensibilité maximale 51200 (Z 6), vitesse minimale Auto ; Focus mode Single AF, AF-area mode Single-point AF ; a4 Face and eye detection on ; c2 retardateur 10 s ; d1 Continu L 3 vps (lu le 10 novembre 2026) ; d9 Framing grid display Off (relu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html"
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/en/notions/BOI-12.md, content/en/notions/MAP-04.md, content/en/notions/MES-10.md, content/fr/notions/BOI-12.md, content/fr/notions/MAP-04.md, content/fr/notions/MES-10.md]
+    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/en/notions/BOI-12.md, content/en/notions/MAP-04.md, content/en/notions/MES-10.md, content/fr/notions/BOI-12.md, content/fr/notions/MAP-04.md, content/fr/notions/MES-10.md, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/dossiers/balance-des-blancs.md, docs/dossiers/viseur-aides.md]
   - id: nikon-d850-auto-iso
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne D850, Auto ISO Sensitivity Control : « the minimum value for auto ISO sensitivity is automatically set to ISO 64 » ; en P et A, « sensitivity will only be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed » ; vitesse minimale fixée à 1/30 s avec un objectif sans données (lu le 10 novembre 2026). Autre boîtier que le Z 6 : retenu là où le manuel du Z 6 ne dit rien."
@@ -697,3 +697,53 @@ sources:
     label: "bgfx, exemple 45-bokeh (elven cache, 2021, licence BSD à 2 clauses de bgfx) : bokeh_dof.sh reproduit et commente l'algorithme de Gustafsson ; fs_bokeh_dof_combine.sc recompose le flou calculé à résolution réduite (lus le 9 novembre 2026)"
     url: "https://github.com/bkaradzic/bgfx/tree/master/examples/45-bokeh"
     used_in: [docs/camera-physique.md]
+  - id: nikon-z6-d9
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé d9 Framing Grid Display : « Choose On to display a grid for reference when framing shots. » ; la page ne décrit pas le tracé du quadrillage (lu le 12 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d09.html"
+    used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: canon-850d-grid-display
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, manuel de l'EOS 850D, « Grid Display When Shooting » : grilles « 3x3 », « 6x4 » et « 3x3+diag » (« Displays grid lines in a 6x4 pattern to help you level the camera vertically and horizontally. ») ; boîtier voisin, pas un boîtier du simulateur (lu le 12 novembre 2026)"
+    url: "https://cam.start.canon/en/C002/manual/html/UG-09_Set-up_0200.html"
+    used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md]
+  - id: canon-r6-shooting-info-display
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, manuel de l'EOS R6, « Shooting Information Display » : « A grid can be displayed on the screen and viewfinder. » ; la capture du menu montre « Off », « 3x3 », « 6x4 », « 3x3+diag » avec leurs icônes ; boîtier voisin, pas un boîtier du simulateur (lu le 12 novembre 2026)"
+    url: "https://cam.start.canon/en/C004/manual/html/UG-03_Shooting-1_0360.html"
+    used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md]
+  - id: nikon-z6-f2
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé f2 Custom Control Assignment, « Framing grid display » : « Press the control to turn the framing grid display on or off. » (lu le 12 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_f02.html"
+    used_in: [docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: nikon-z6-d9-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, d9 : Affichage du quadrillage : « Choisissez Activé pour afficher un quadrillage de référence lors du cadrage des images. » (lu le 12 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_d09.html"
+    used_in: [content/fr/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: sony-a7iii-grid-line
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, guide d'aide ILCE-7M3 (A7 III), Grid Line : « Rule of 3rds Grid », « Place main subjects close to one of the grid lines that divide the image into thirds for a well-balanced composition » ; « Square Grid », « Diag. + Square Grid », « Off » ; ni le nombre de cases, ni le tracé des diagonales, ni le réglage par défaut ne sont donnés (lu le 12 novembre 2026)"
+    url: "https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001653165.html"
+    used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: sony-a7iii-grid-line-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Quadrillage : termes « Grille règle des tiers », « Grille carrée », « Diag. + Grille carrée », « OFF » ; « Positionnez les principaux sujets à proximité de l'une des lignes du quadrillage qui divise l'image en trois pour une composition bien équilibrée » (apostrophes typographiques dans la page ; lu le 12 novembre 2026)"
+    url: "https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001663039.html"
+    used_in: [content/fr/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: sony-a6000-grid-line
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, guide d'aide ILCE-6000 (A6000), Grid Line (Copyright 2014 Sony Corporation) : mêmes types et mêmes textes que l'A7 III ; « Off (default setting): Does not display the grid line. » (lu le 12 novembre 2026). La page française à la même adresse répond 404."
+    url: "https://helpguide.sony.net/gbmig/45349331/v1/en/contents/TP0000518347.html"
+    used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: nikon-d5600-digitutor-framing-grid
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, Digitutor D5600, Framing Grid (Live View) (© 2025 Nikon Corporation) : affichage « Framing grid » de la visée écran ; son illustration montre trois lignes verticales et trois lignes horizontales, soit seize cases, le texte ne donnant pas ce nombre (page d'aide, pas le manuel ; lue le 12 novembre 2026)"
+    url: "https://imaging.nikon.com/imaging/support/digitutor/d5600/functions/framing_grid_liveview.html"
+    used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: wikipedia-rule-of-thirds
+    group: "Cours et pédagogie"
+    label: "Wikipedia, Rule of thirds : image divisée en neuf parties égales par deux lignes horizontales et deux lignes verticales, éléments importants sur ces lignes ou à leurs croisements ; « to discourage placement of the subject at the center » ; expression écrite pour la première fois par John Thomas Smith en 1797 ; réserves de George Field (1845) et étude d'Amirshahi et collègues (2014) (révision 1383322855 du 2 novembre 2026, source secondaire, lue le 12 novembre 2026)"
+    url: "https://en.wikipedia.org/w/index.php?title=Rule_of_thirds&oldid=1383322855"
+    used_in: [content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md]

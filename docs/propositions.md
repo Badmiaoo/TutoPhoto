@@ -68,7 +68,7 @@ Rédigées par Claude le 11 novembre 2026, pendant que Julien était absent. Il 
 - la couverture de l'autofocus des reflex Nikon D5600 et Canon EOS 2000D (11 novembre 2026) ;
 - la correction de la photo après la prise, RET-01 et RET-02 (`docs/camera-physique.md`).
 
-**Placé après les tests de la V1 minimale** (Julien a laissé le moment à Claude le 9 novembre 2026) : balance des blancs (COU-02), grilles de composition (CMP-02), histogramme (MES-06).
+**Placé après les tests de la V1 minimale** (Julien a laissé le moment à Claude le 9 novembre 2026) : balance des blancs (COU-02), grilles de composition (CMP-02), histogramme (MES-06). Dans la nuit du 11 au 12 novembre 2026, Julien demande à Claude de continuer seul ; Claude le comprend comme la levée de l'attente des tests (`docs/etat-des-travaux.md`) : les grilles sont faites en version 0.3.56, avec les choix de la section 4.
 
 **Ordre retenu, une fois les tests faits :**
 1. Corriger ce que les tests révèlent, et finir la relecture des 19 fiches.
@@ -84,3 +84,23 @@ Rédigées par Claude le 11 novembre 2026, pendant que Julien était absent. Il 
 6. Le simulateur de LUM-02 et des autres notions de lumière, avec une scène dont l'éclairage peut changer : le fond du parc est une photo par ciel couvert.
 
 **À reprendre au passage** : `docs/architecture.md`, en partie caduque depuis l'abandon de la 2.5D (avertissement en tête du fichier).
+
+## 4. Choix faits par Claude dans la nuit du 11 au 12 novembre 2026, à confirmer
+
+`CLAUDE.md` demande de proposer avant de produire. Julien dormait et avait demandé à Claude de continuer seul (`docs/etat-des-travaux.md`) : pour chaque fonction, la spécification gardée dans `docs/specifications/` a tenu lieu de proposition. Chaque choix ci-dessous a été fait sans Julien. Il peut le confirmer, ou l'annuler : chaque fonction a sa version, que l'on retire par `git revert -m 1` de son commit de fusion.
+
+### Grilles de cadrage (CMP-02, version 0.3.56)
+
+**Tranché par Julien le 12 novembre 2026**, avant la fusion de la version. Spécification : `docs/specifications/grilles.md`. Sources et fonctionnement : `docs/camera-physique.md`, « Grilles de cadrage (version 0.3.56) ».
+
+| N° | Choix proposé par Claude | Décision de Julien |
+| --- | --- | --- |
+| 1 | La grille est une aide de TutoPhoto, la même pour tous les boîtiers, et non la copie du menu de chaque boîtier. | Retenu, après avoir d'abord choisi un menu par boîtier : « Mmmh en vrai les grilles sont des outils plutôt "global" ça fait partie de la composition et en vrai tous les boitiers ont les mêmes. Donc faisons les même pour tous les boitiers, 3*3 9*9 ect.. tous les plus communes ». |
+| 2 | Deux tracés seulement, « Tiers » et « Seize cases ». | Élargi par la même réponse : les grilles les plus communes. Claude ajoute les deux autres que les manuels lus nomment, « 6x4 » et « 3x3+diag » de Canon (EOS 850D, EOS R6). Aucune page lue ne nomme une grille « 9*9 » : elle n'est pas ajoutée, et je ne sais pas si Julien désignait par là les neuf cases de la grille 3 × 3. |
+| 3 | La grille est masquée quand la loupe agrandit l'image. | Retenu. |
+| 4 | La grille n'est dessinée ni sur la photo ni sur l'écran de revue. | Retenu : viseur seulement. |
+| 5 | Noms français des réglages de Sony : ceux du guide de l'A7 III, la page française du guide de l'A6000 étant introuvable. | Retenu. |
+| 6 | La fiche CMP-02 ne dit rien sur « quand centrer » ni sur la symétrie, et l'écrit. | Chercher une source, puis compléter la fiche dans une version suivante. |
+| 7 | CMP-02 hors du jalon de la V1 minimale, fiche SIT-01 inchangée. | Changé : CMP-02 est ajoutée au jalon (17 notions) et citée dans la fiche de SIT-01. |
+
+Restent des choix de Claude, non sourcés et dits comme tels : l'aspect des traits ; le sens de la grille « 6x4 » (six cases sur le grand côté) et le tracé des diagonales, déduits du nom et de l'icône de Canon.
