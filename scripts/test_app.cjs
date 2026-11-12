@@ -869,16 +869,23 @@ async function runProfile(browser, name, base) {
     // Défi choisi depuis la fiche d'une situation : simulateur?defi=SIT-06 (version 0.3.47), ici sans la barre finale
     // de simulateur/ : le serveur de la routine ne redirige pas, la page doit ajouter la barre elle-même (0.3.51).
     // Pendant le chargement, la progression s'affiche en Mio reçus.
+    // Le texte est rendu par le contrôle d'attente lui-même : le relire ensuite par un second appel laissait le temps
+    // au chargement de finir et au message de se vider (échec isolé du 11 novembre 2026 sur la machine de Claude,
+    // puis dans la CI le 12, les deux fois sur le profil webgl1, texte lu vide). Si l'attente échoue, sa raison est
+    // gardée.
     await page.goto(`${base}/simulateur?lang=fr&defi=SIT-06`);
     const progress = await page
-      .waitForFunction(() => /Mio reçus|préparation/.test(document.getElementById("status")?.textContent ?? ""), null, { timeout: 60000 })
-      .then(() => page.evaluate(() => document.getElementById("status").textContent))
-      .catch(() => "");
+      .waitForFunction(() => {
+        const text = document.getElementById("status")?.textContent ?? "";
+        return /Mio reçus|préparation/.test(text) ? text : false;
+      }, null, { timeout: 60000 })
+      .then((handle) => handle.jsonValue())
+      .catch((error) => `attente échouée : ${String(error).split("\n")[0]}`);
     await page.waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 }).catch(() => undefined);
     const chosen = await page.evaluate(() => ({ text: document.getElementById("challenge-button").textContent, path: location.pathname }));
     check(
       "adresse sans barre finale, défi choisi par l'adresse, progression du chargement",
-      /SIT-06$/.test(chosen.text) && chosen.path === "/simulateur/" && /Mio reçus|préparation/.test(progress),
+      /SIT-06$/.test(chosen.text) && chosen.path === "/simulateur/" && /Mio reçus|préparation/.test(progress) && !/^attente échouée/.test(progress),
       `${chosen.path} ; ${chosen.text} ; pendant le chargement : « ${progress} »`,
     );
   } catch (error) {
