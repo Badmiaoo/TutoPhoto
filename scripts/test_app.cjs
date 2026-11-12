@@ -882,7 +882,21 @@ async function runProfile(browser, name, base) {
       `${chosen.path} ; ${chosen.text} ; pendant le chargement : « ${progress} »`,
     );
   } catch (error) {
-    check("déroulement du test", false, String(error).split("\n")[0]);
+    // Dans la CI, il n'y a ni écran ni capture : le message garde le journal d'appel de Playwright (ce qu'il
+    // attendait de l'élément) et l'état de la page, lu en 10 secondes au plus au cas où elle ne répondrait plus.
+    const state = await Promise.race([
+      page.evaluate(() => ({
+        open: [...document.querySelectorAll("dialog[open]")].map((d) => d.id).join(", ") || "aucune",
+        meter: document.getElementById("meter-value")?.textContent ?? "",
+        status: document.getElementById("status")?.hidden ? "" : (document.getElementById("status")?.textContent ?? ""),
+        problem: document.getElementById("diagnostic")?.hidden ? "" : (document.getElementById("diagnostic")?.textContent ?? ""),
+      })),
+      new Promise((resolve) => setTimeout(() => resolve(null), 10000)),
+    ]).catch(() => null);
+    const where = state
+      ? `fenêtres ouvertes : ${state.open} ; posemètre : « ${state.meter} »${state.status ? ` ; message : « ${state.status} »` : ""}${state.problem ? ` ; problème affiché : « ${state.problem} »` : ""}`
+      : "la page ne répond plus";
+    check("déroulement du test", false, `${String(error).split("\n").slice(0, 25).join(" ⏎ ")} ; ${where}`);
   } finally {
     await context.close();
   }

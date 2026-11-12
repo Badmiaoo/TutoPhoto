@@ -24,6 +24,7 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 ### Corrigé
 
 - Routine de test : le contrôle des collimateurs reprenait un cadre du viseur mesuré plus tôt, en AF-S. Avec la police de la CI, plus large, l'aide de la mise au point prend une ligne de plus en AF-S qu'en AF-C et le viseur change de hauteur : le contrôle échouait sur le profil iPhone (« repère à 98,0 % × 5,3 % », reproduit sur la machine de Claude avec la police DejaVu Sans). Le cadre est maintenant mesuré au moment du contrôle. Le changement de hauteur du viseur reste à corriger (`docs/etat-des-travaux.md`).
+- Routine de test : quand le déroulement d'un profil s'arrête sur une erreur, le message garde le journal d'appel de Playwright et l'état de la page (fenêtres ouvertes, posemètre, message affiché), au lieu de la première ligne seule. Dans la CI, il n'y a pas d'écran pour voir ce qui bloque.
 
 ### Modifié
 
