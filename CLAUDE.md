@@ -3,7 +3,7 @@
 Simulateur photo open source, bilingue FR/EN, pour débutants avec un boîtier reflex ou hybride (pas de smartphone, de compact ni de bridge). Scènes en 3D de synthèse ; V1 minimale d'abord (scène de parc : SIT-01, SIT-05, SIT-06), testée avec des débutants.
 Publication : site statique sur GitHub Pages (https://badmiaoo.github.io/TutoPhoto/), à chaque fusion sur `main` ; tout tourne dans le navigateur. Moteur 3D : Babylon.js (`docs/pile-technique.md`).
 Source de vérité : `data/` (référentiel, situations, sources, jalons). Contexte et décisions : `docs/`.
-Archive de reprise : `REPRISE.md`.
+Archive de reprise : `REPRISE.md`. État des travaux, pour reprendre à tout moment : `docs/etat-des-travaux.md`.
 
 `REPRISE.md`, et `docs/` qui en est copié, sont un brouillon : probablement incomplet, mal écrit par endroits, avec des erreurs. Tout peut être remis en question, arguments et sources à l'appui ; Julien tranche.
 
@@ -29,9 +29,10 @@ Archive de reprise : `REPRISE.md`.
 - Jamais de push sur `main` : une branche et une pull request par sujet.
 - Julien autorise Claude à gérer la configuration de ce dépôt, et de lui seul (7 novembre 2026). Ce qui vit dans le dépôt (workflows, `.github/`) passe par une pull request ; un réglage de GitHub que les outils de Claude ne permettent pas de changer est indiqué à Julien, avec le chemin exact dans l'interface.
 - `python3 scripts/validate.py` avant toute pull request qui touche `data/` ; `cd app && npm run build` avant toute pull request qui touche `app/` ; `python3 scripts/check_scenes.py` avant toute pull request qui touche `app/public/scenes/`.
-- Toute pull request qui touche `app/` est testée sur ordinateur et sur mobile : `node scripts/test_app.cjs --photo` (ordinateur, Android, iPhone, WebGL 1), plus les tests propres au sujet ; faire le maximum de tests soi-même (Julien, 9 novembre 2026). Ces tests émulent l'écran, le toucher et le navigateur, pas le processeur graphique ni Safari : le dire dans la pull request, avec les résultats.
+- Toute pull request qui touche `app/` est testée sur ordinateur et sur mobile : `node scripts/test_app.cjs --photo` (ordinateur, Android, iPhone, WebGL 1), plus les tests propres au sujet ; faire le maximum de tests soi-même (Julien, 9 novembre 2026). Depuis la version 0.3.54, la CI lance cette routine sur la pull request, un job par profil (`routine.yml`) : attendre ses quatre jobs verts et reporter leurs résultats. Ces tests émulent l'écran, le toucher et le navigateur, pas le processeur graphique ni Safari : le dire dans la pull request, avec les résultats.
 - Claude fusionne lui-même ses pull requests quand la CI est verte sur le dernier commit (commit de fusion, pas de squash), puis vérifie que le tag de version a été posé.
 - Chaque pull request fusionnée est une version : elle ajoute sa section à `CHANGELOG.md` (contrôlée par `python3 scripts/changelog.py check --base origin/main`), et le workflow `tag.yml` pose le tag annoté `vX.Y.Z` sur son commit de fusion et publie la release GitHub. Numérotation dans `CHANGELOG.md`.
+- Chaque pull request met à jour `docs/etat-des-travaux.md` : où on en est, la file de travail, ce qui attend Julien (Julien, 12 novembre 2026 : tout consigner pour pouvoir reprendre à tout moment).
 - Identifiants stables, jamais renumérotés ; un identifiant retiré va dans `data/referentiel/retired.yaml`.
 - Pas d'extension au-delà de la V1 minimale avant de l'avoir testée avec des débutants.
 - Vérifier la licence de toute dépendance, de tout modèle et de toute scène avant de l'ajouter.

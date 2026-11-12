@@ -121,6 +121,7 @@ Option B, Babylon.js, pour la V1 minimale. C'est la seule qui couvre d'origine l
 Demandé par Julien le 9 novembre 2026 : tester sur ordinateur et sur mobile à chaque fois, et faire le maximum de tests soi-même.
 
 - Script : `node scripts/test_app.cjs --photo`, sur le site construit (`cd app && npm run build`). Il est lancé avant toute pull request qui touche `app/` (`CLAUDE.md`).
+- Depuis la version 0.3.54, la CI le lance sur chaque pull request qui touche `app/`, `content/`, `data/` ou la routine (`.github/workflows/routine.yml`) : un job par profil, en parallèle, avec la même version de Playwright. Raison : sur la machine de Claude, les quatre profils à la suite occupaient les quatre cœurs pendant 53 minutes (mesuré le 11 novembre 2026), et rien d'autre ne pouvait tourner sans fausser les délais. Les limites sont les mêmes : rendu logiciel, Chromium seul.
 - Outil : Playwright 1.63.0, licence Apache-2.0 (champ `license` de son `package.json`, lu le 9 novembre 2026). Il est installé hors du dépôt et n'est pas une dépendance de l'application.
 - Profils :
   - ordinateur (1280 × 800) ;

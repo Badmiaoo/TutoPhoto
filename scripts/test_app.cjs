@@ -778,16 +778,23 @@ async function runProfile(browser, name, base) {
     // hauteur. Un toucher dans le coin haut droit du cadre (l'indicateur d'équilibre occupe le coin haut gauche)
     // ramène le point au bord de la zone couverte, à 5 % des bords.
     await setAf("continuous", "point");
-    await page.mouse.click(frameBox.x + 0.99 * frameBox.width, frameBox.y + 0.01 * frameBox.height);
+    // Le cadre est mesuré ici, pas repris de plus haut : sa taille peut changer avec le mode AF. Sur le profil
+    // iPhone, avec une police plus large que celle de la machine de Claude (DejaVu Sans, celle de la CI), l'aide
+    // de la mise au point prend une ligne de plus en AF-S et le viseur perd 16 pixels de haut ; le cadre mesuré en
+    // AF-S donnait alors « repère à 98,0 % × 5,3 %, zone couverte 96,1 % × 96,0 % » (premier passage de la routine
+    // dans la CI, 12 novembre 2026, reproduit ensuite avec cette police).
+    await page.waitForTimeout(500);
+    const pointBox = await page.locator("#frame").boundingBox();
+    await page.mouse.click(pointBox.x + 0.99 * pointBox.width, pointBox.y + 0.01 * pointBox.height);
     await page.waitForTimeout(500);
     const coverage = await page.locator("#af-coverage").boundingBox();
     const marker = await page.locator("#focus-marker").boundingBox();
     const at = (box) => ({
-      x: (box.x + box.width / 2 - frameBox.x) / frameBox.width,
-      y: (box.y + box.height / 2 - frameBox.y) / frameBox.height,
+      x: (box.x + box.width / 2 - pointBox.x) / pointBox.width,
+      y: (box.y + box.height / 2 - pointBox.y) / pointBox.height,
     });
     const markerAt = marker ? at(marker) : { x: NaN, y: NaN };
-    const coverageShare = coverage ? { x: coverage.width / frameBox.width, y: coverage.height / frameBox.height } : { x: NaN, y: NaN };
+    const coverageShare = coverage ? { x: coverage.width / pointBox.width, y: coverage.height / pointBox.height } : { x: NaN, y: NaN };
     check(
       "collimateurs : point ramené dans la zone couverte (90 %)",
       Math.abs(markerAt.x - 0.95) < 0.01 && Math.abs(markerAt.y - 0.05) < 0.01 && Math.abs(coverageShare.x - 0.9) < 0.01 && Math.abs(coverageShare.y - 0.9) < 0.01,
@@ -828,7 +835,8 @@ async function runProfile(browser, name, base) {
     // Sony A7 III : « approx. 93% of image area » (page de Sony), partagés également : √0,93 ≈ 96,4 % par côté.
     await checkBodyCoverage("sony", "collimateurs : couverture du Sony A7 III (93 % de la surface, 96,4 % × 96,4 %)", Math.sqrt(0.93), Math.sqrt(0.93));
     await setBody("nikon");
-    await page.mouse.click(frameBox.x + frameBox.width / 2, frameBox.y + frameBox.height / 2);
+    const centreBox = await page.locator("#frame").boundingBox();
+    await page.mouse.click(centreBox.x + centreBox.width / 2, centreBox.y + centreBox.height / 2);
 
     if (withPhoto) {
       // Rafale : Continu L à 5 vues par seconde. En rendu logiciel, l'horloge de la scène avance moins vite que
@@ -861,20 +869,41 @@ async function runProfile(browser, name, base) {
     // Défi choisi depuis la fiche d'une situation : simulateur?defi=SIT-06 (version 0.3.47), ici sans la barre finale
     // de simulateur/ : le serveur de la routine ne redirige pas, la page doit ajouter la barre elle-même (0.3.51).
     // Pendant le chargement, la progression s'affiche en Mio reçus.
+    // Le texte est rendu par le contrôle d'attente lui-même : le relire ensuite par un second appel laissait le temps
+    // au chargement de finir et au message de se vider (échec isolé du 11 novembre 2026 sur la machine de Claude,
+    // puis dans la CI le 12, les deux fois sur le profil webgl1, texte lu vide). Si l'attente échoue, sa raison est
+    // gardée.
     await page.goto(`${base}/simulateur?lang=fr&defi=SIT-06`);
     const progress = await page
-      .waitForFunction(() => /Mio reçus|préparation/.test(document.getElementById("status")?.textContent ?? ""), null, { timeout: 60000 })
-      .then(() => page.evaluate(() => document.getElementById("status").textContent))
-      .catch(() => "");
+      .waitForFunction(() => {
+        const text = document.getElementById("status")?.textContent ?? "";
+        return /Mio reçus|préparation/.test(text) ? text : false;
+      }, null, { timeout: 60000 })
+      .then((handle) => handle.jsonValue())
+      .catch((error) => `attente échouée : ${String(error).split("\n")[0]}`);
     await page.waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 }).catch(() => undefined);
     const chosen = await page.evaluate(() => ({ text: document.getElementById("challenge-button").textContent, path: location.pathname }));
     check(
       "adresse sans barre finale, défi choisi par l'adresse, progression du chargement",
-      /SIT-06$/.test(chosen.text) && chosen.path === "/simulateur/" && /Mio reçus|préparation/.test(progress),
+      /SIT-06$/.test(chosen.text) && chosen.path === "/simulateur/" && /Mio reçus|préparation/.test(progress) && !/^attente échouée/.test(progress),
       `${chosen.path} ; ${chosen.text} ; pendant le chargement : « ${progress} »`,
     );
   } catch (error) {
-    check("déroulement du test", false, String(error).split("\n")[0]);
+    // Dans la CI, il n'y a ni écran ni capture : le message garde le journal d'appel de Playwright (ce qu'il
+    // attendait de l'élément) et l'état de la page, lu en 10 secondes au plus au cas où elle ne répondrait plus.
+    const state = await Promise.race([
+      page.evaluate(() => ({
+        open: [...document.querySelectorAll("dialog[open]")].map((d) => d.id).join(", ") || "aucune",
+        meter: document.getElementById("meter-value")?.textContent ?? "",
+        status: document.getElementById("status")?.hidden ? "" : (document.getElementById("status")?.textContent ?? ""),
+        problem: document.getElementById("diagnostic")?.hidden ? "" : (document.getElementById("diagnostic")?.textContent ?? ""),
+      })),
+      new Promise((resolve) => setTimeout(() => resolve(null), 10000)),
+    ]).catch(() => null);
+    const where = state
+      ? `fenêtres ouvertes : ${state.open} ; posemètre : « ${state.meter} »${state.status ? ` ; message : « ${state.status} »` : ""}${state.problem ? ` ; problème affiché : « ${state.problem} »` : ""}`
+      : "la page ne répond plus";
+    check("déroulement du test", false, `${String(error).split("\n").slice(0, 25).join(" ⏎ ")} ; ${where}`);
   } finally {
     await context.close();
   }
