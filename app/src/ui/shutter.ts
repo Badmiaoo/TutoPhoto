@@ -10,6 +10,8 @@
 // la mise au point est refaite à chaque vue ; en AF-S, elle reste celle de la première (verrouillée à
 // mi-course, manuel du Z 6). Au plus MAX_BURST vues, pour le temps de calcul. Retardateur : une vue après le
 // délai. L'écran de revue fait défiler la série, pour la trier.
+// Histogrammes et hautes lumières (MES-06, MES-07 ; version 0.3.57) : chaque photo garde ses mesures
+// (camera/histogram.ts), la fenêtre de la loupe a les siennes ; ui/reviewInfo.ts les affiche selon le bouton « Infos ».
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Observer } from "@babylonjs/core/Misc/observable";
@@ -27,6 +29,7 @@ import { judgeChallenge, measureShot, type Bulletin, type ChallengeId, type Scen
 import type { FaceSubject } from "../camera/faces";
 import { LANDMARKS } from "../scene";
 import { renderBulletin, type NoiseReading } from "./challenges";
+import type { ReviewInfo } from "./reviewInfo";
 
 /** Un toucher qui bouge de moins de 6 px et dure moins de 0,4 s choisit le point ; au-delà, on tourne. */
 const TAP_MAX_MOVE_PX = 6;
@@ -121,6 +124,7 @@ export class Shutter {
     private readonly subjects: readonly FaceSubject[],
     private readonly challenge: () => ChallengeId | null,
     private readonly noiseReading: () => NoiseReading | null,
+    private readonly info: ReviewInfo,
   ) {
     // Durée du toucher d'après l'horodatage des événements : une image longue entre l'appui et le relâchement
     // ne transforme pas un toucher en glissé.
@@ -171,6 +175,7 @@ export class Shutter {
     if (this.shots.length > 1) this.el.reviewCount.textContent = `${tr("reviewFrame")} ${this.shotIndex + 1}/${this.shots.length}`;
     if (this.lastCaption) this.el.reviewCaption.textContent = this.lastCaption();
     if (!this.el.reviewBulletin.hidden) this.showBulletin();
+    this.info.setLang(lang);
   }
 
   /** Toucher le viseur : avec la loupe, le point touché est ramené au cadre complet. */
@@ -452,6 +457,7 @@ export class Shutter {
     };
     this.showCaption();
     this.showBulletin();
+    this.info.show(photo.tones);
   }
 
   /** Toucher la photo, ou la fenêtre de la loupe : fenêtre à 100 % centrée sur le point touché. */
@@ -488,6 +494,8 @@ export class Shutter {
       this.lastCaption = () => `${t(this.lang, "loupe")} 100${t(this.lang, "percent")} · ${this.computedText(photo)}`;
       this.el.reviewBulletin.hidden = true;
       this.showCaption();
+      // Avec la loupe, histogrammes et zones écrêtées portent sur la partie affichée, comme sur le Z 6.
+      this.info.show(photo.tones, true);
     } catch (error) {
       console.error(error);
       this.showError(error);
@@ -510,6 +518,7 @@ export class Shutter {
   private showError(error: unknown): void {
     const detail = error instanceof Error ? error.message : String(error);
     this.el.reviewBulletin.hidden = true;
+    this.info.show(null);
     this.lastCaption = () => `${t(this.lang, "photoError")} (${detail})`;
     this.el.reviewCaption.textContent = this.lastCaption();
     this.el.review.hidden = false;

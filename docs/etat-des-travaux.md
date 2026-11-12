@@ -16,7 +16,7 @@ Ce que Claude en fait :
 
 ## Où on en est
 
-- En ligne après la fusion de cette pull request : version 0.3.56 (grilles de cadrage, CMP-02).
+- En ligne après la fusion de cette pull request : version 0.3.57 (histogrammes et hautes lumières sur l'écran de revue, MES-06 et MES-07).
 - Version 0.3.53 (densité du viseur plafonnée à 2) : fusionnée ; Julien doit la juger sur son téléphone (netteté et fluidité).
 - Interruption de la nuit : trois séries d'agents lancées en parallèle (carte du code, dossiers de sources) ont épuisé la limite d'usage de 5 heures en vingt minutes, vers 23 h 40 UTC le 11 novembre. La session est restée suspendue jusqu'à 5 h 50 UTC le 12. Depuis : un ou deux agents à la fois, et d'abord publier ce qui est prêt.
 
@@ -30,7 +30,7 @@ Dans l'ordre. « Écrit » : le code existe sur la machine de Claude, pas encore
 | 2 | Routine de test dans la CI ; ce fichier | | Fait, 0.3.54 | |
 | 3 | Progression du chargement sans les textes de licence | | Fait, 0.3.55 | |
 | 4 | Grilles de cadrage dans le viseur | CMP-02 | Fait, 0.3.56 | Spécification `docs/specifications/grilles.md` ; section 1 du dossier `docs/dossiers/viseur-aides.md` relue à la source le 12 novembre 2026. Choix tranchés par Julien le 12 novembre 2026 (`docs/propositions.md`, section 4). |
-| 5 | Histogramme (viseur et revue), alerte des hautes lumières | MES-06, MES-07 | À faire | Dossier `docs/dossiers/viseur-aides.md`, sections 2 à 4, écrit, à relire à la source. |
+| 5 | Histogramme (viseur et revue), alerte des hautes lumières | MES-06, MES-07 | Écran de revue fait, 0.3.57 ; viseur à faire | Spécification `docs/specifications/histogramme-revue.md` ; sections 3 et 4 du dossier `docs/dossiers/viseur-aides.md` relues à la source le 12 novembre 2026. Onze choix à confirmer par Julien (`docs/propositions.md`, section 4). Reste : l'histogramme en direct dans le viseur (mesurer d'abord le coût de la lecture des pixels sur téléphone ; section 2 du dossier à finir de relire), les zébrures (échelle IRE à sourcer), l'alerte des zones sous-exposées. |
 | 6 | Balance des blancs | COU-01, COU-02, COU-04 | À faire | Dossier `docs/dossiers/balance-des-blancs.md`, écrit, à relire à la source. Babylon.js 9.35.0 a déjà une balance (`imageProcessingConfiguration.whiteBalanceEnabled`, `temperature`, `tint`) ; la photo calculée ne passe pas par elle. |
 | 7 | Situations jouables dans le parc | SIT-28, SIT-V2-02, SIT-V2-06 | À faire | Fiches, défis ; sources à chercher pour OPT-06 et CMP-07. |
 | 8 | Solveur de situations | | À faire | Dossier de sources à faire (coupé par la limite d'usage). |
@@ -42,6 +42,9 @@ Dans l'ordre. « Écrit » : le code existe sur la machine de Claude, pas encore
 - mise en page à corriger : sur un écran étroit, avec une police plus large que celle de la machine de Claude (DejaVu Sans), l'aide de la mise au point prend une ligne de plus en AF-S qu'en AF-C, et le viseur change de hauteur (238 ou 254 pixels sur l'iPhone 14 émulé). Trouvé au premier passage de la routine dans la CI, le 12 novembre 2026 ; le contrôle des collimateurs mesure maintenant le cadre au moment où il s'en sert ;
 - routine de test dans la CI, échec non expliqué : au deuxième passage de la pull request de la version 0.3.54, le profil ordinateur s'est arrêté sur un délai dépassé à l'entrée du mode S (`page.check: Timeout 300000ms exceeded`). Non reproduit sur la machine de Claude avec la police de la CI, ni au quatrième passage. La routine garde depuis le journal d'appel de Playwright et l'état de la page : si l'échec revient, lire ce message avant toute relance. Les durées varient beaucoup d'un passage à l'autre (de 7 à 23 minutes par profil) ;
 - fiche CMP-02 : une source est à chercher pour « quand centrer » et pour la symétrie, que les pages lues ne traitent pas (décision de Julien du 12 novembre 2026) ;
+- écran de revue qui s'ouvre déjà défilé : dans Chromium, l'écran de revue garde son défilement d'une photo à la suivante ; après avoir fait défiler jusqu'à « Revenir au viseur », la photo suivante s'ouvre le haut coupé. Constaté le 12 novembre 2026 pendant les essais de la version 0.3.57, et déjà visible sur les captures de la routine de la version 0.3.52 ; non corrigé dans cette version, pour ne pas mêler deux sujets ;
+- vêtements clairs à la valeur maximale dès l'exposition jugée correcte (0,8 % de l'image à −0,2 IL, mesuré avec les histogrammes de la version 0.3.57) : étalonnage de la scène à revoir avec la mesure de la lumière (ligne 9 de la file ; `docs/questions-ouvertes.md`) ;
+- fiches MES-06 et MES-07 : leur brique « situation réelle » manque, leurs situations (SIT-02, SIT-10, SIT-13) n'étant pas rédigées ;
 - grille de relevé pour les tests avec les débutants (`docs/propositions.md`, section 2) : à écrire ;
 - bougé de la main : dossier de sources à faire ; rien n'est simulé tant qu'aucun modèle n'est sourcé ;
 - carte du code (points d'extension pour chaque fonction de la file) et classement des notions des domaines EXP, MES et BOI : faits cette nuit sur la machine de Claude, à refaire au besoin ; constat utile : le simulateur n'a aucune mesure de la lumière, et la photo calculée ne passe pas par le traitement d'image de Babylon.js.
@@ -69,7 +72,7 @@ Commits : auteur Julien avec son adresse « noreply » de GitHub (`git commit --
 ## Ce qui attend Julien
 
 - Juger la version 0.3.53 sur son téléphone.
-- Confirmer ou annuler les choix faits sans lui (`docs/propositions.md`, dernière section), à mesure qu'ils s'ajoutent. Premiers choix : les grilles de cadrage (version 0.3.56).
+- Confirmer ou annuler les choix faits sans lui (`docs/propositions.md`, dernière section), à mesure qu'ils s'ajoutent. Premiers choix : les grilles de cadrage (version 0.3.56), puis les histogrammes et les hautes lumières de l'écran de revue (version 0.3.57).
 - Renderpeople : date et périmètre de l'accord déjà obtenu, pour le documenter (`docs/questions-ouvertes.md`).
 - Relecture des fiches : les signaler relues pour `data/relecture.yaml`.
 - Tests avec cinq débutants (`docs/propositions.md`, section 2).

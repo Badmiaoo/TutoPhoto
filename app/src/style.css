@@ -457,7 +457,8 @@ dialog a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flashing {
+  .flashing,
+  .review-highlights {
     animation: none;
   }
 }
@@ -769,6 +770,83 @@ dialog fieldset label {
   color: var(--discret);
 }
 
+/* Affichages de l'écran de revue (MES-06, MES-07 ; version 0.3.57 ; ui/reviewInfo.ts). */
+
+/* Avec les histogrammes, la photo est réduite pour qu'ils tiennent sous elle, comme la vignette des boîtiers ; elle
+   garde au moins la hauteur réservée d'ordinaire sous la photo. */
+.review.with-histograms img {
+  max-height: max(6rem, calc(100% - 11.5rem));
+}
+
+/* Quatre histogrammes côte à côte, dans l'ordre luminance, rouge, vert, bleu. */
+.review-histograms {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4rem;
+  width: min(100%, 44rem);
+}
+
+.histogram {
+  margin: 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--discret);
+}
+
+.histogram svg {
+  display: block;
+  width: 100%;
+  height: 3.5rem;
+  border: 1px solid var(--discret);
+  border-radius: 2px;
+}
+
+.histogram path {
+  fill: var(--texte);
+}
+
+/* Couleurs des couches, lisibles sur fond clair comme sur fond sombre. */
+.histogram.red path {
+  fill: #d23c3c;
+}
+
+.histogram.green path {
+  fill: #2e9e44;
+}
+
+.histogram.blue path {
+  fill: #3f78e0;
+}
+
+/* Zones écrêtées, en noir, placées sur la photo par ui/reviewInfo.ts : une seconde en noir, une seconde visible. Le
+   calque ne prend pas les touchers, qui vont à la photo (loupe). Sans animation si l'utilisateur la refuse : les
+   zones restent en noir. */
+.review-highlights {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  animation: clignote 2s steps(2, start) infinite;
+}
+
+.review-info-details {
+  max-width: 42rem;
+  font-size: 0.85rem;
+  color: var(--discret);
+}
+
+.review-info-details summary {
+  cursor: pointer;
+  text-align: center;
+}
+
+.review-info-details .note {
+  margin: 0.3rem 0 0;
+  font-size: inherit;
+}
+
 .review-actions[hidden] {
   display: none;
 }
@@ -804,6 +882,7 @@ dialog fieldset label {
 .progress[hidden],
 .review-actions button[hidden],
 .review-caption[hidden],
+.review-histograms[hidden],
 .focus-marker[hidden] {
   display: none;
 }
