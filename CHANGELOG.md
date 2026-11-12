@@ -21,6 +21,10 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 - `docs/etat-des-travaux.md` : où on en est, la file de travail, la méthode, comment reprendre, ce qui attend Julien. Demandé par Julien le 12 novembre 2026, pour pouvoir reprendre à tout moment ; mis à jour à chaque pull request.
 - `docs/dossiers/` : trois dossiers de sources écrits dans la nuit par des agents de Claude (aides du viseur, balance des blancs, nouvelles scènes), avec citations et adresses. Ils ne sont pas encore relus à la source par un second agent, et le disent en tête.
 
+### Corrigé
+
+- Routine de test : le contrôle des collimateurs reprenait un cadre du viseur mesuré plus tôt, en AF-S. Avec la police de la CI, plus large, l'aide de la mise au point prend une ligne de plus en AF-S qu'en AF-C et le viseur change de hauteur : le contrôle échouait sur le profil iPhone (« repère à 98,0 % × 5,3 % », reproduit sur la machine de Claude avec la police DejaVu Sans). Le cadre est maintenant mesuré au moment du contrôle. Le changement de hauteur du viseur reste à corriger (`docs/etat-des-travaux.md`).
+
 ### Modifié
 
 - `CLAUDE.md` : la routine est lancée par la CI ; ses quatre jobs doivent être verts avant la fusion. Chaque pull request met à jour l'état des travaux.

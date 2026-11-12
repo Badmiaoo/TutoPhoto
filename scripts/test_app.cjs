@@ -778,16 +778,23 @@ async function runProfile(browser, name, base) {
     // hauteur. Un toucher dans le coin haut droit du cadre (l'indicateur d'équilibre occupe le coin haut gauche)
     // ramène le point au bord de la zone couverte, à 5 % des bords.
     await setAf("continuous", "point");
-    await page.mouse.click(frameBox.x + 0.99 * frameBox.width, frameBox.y + 0.01 * frameBox.height);
+    // Le cadre est mesuré ici, pas repris de plus haut : sa taille peut changer avec le mode AF. Sur le profil
+    // iPhone, avec une police plus large que celle de la machine de Claude (DejaVu Sans, celle de la CI), l'aide
+    // de la mise au point prend une ligne de plus en AF-S et le viseur perd 16 pixels de haut ; le cadre mesuré en
+    // AF-S donnait alors « repère à 98,0 % × 5,3 %, zone couverte 96,1 % × 96,0 % » (premier passage de la routine
+    // dans la CI, 12 novembre 2026, reproduit ensuite avec cette police).
+    await page.waitForTimeout(500);
+    const pointBox = await page.locator("#frame").boundingBox();
+    await page.mouse.click(pointBox.x + 0.99 * pointBox.width, pointBox.y + 0.01 * pointBox.height);
     await page.waitForTimeout(500);
     const coverage = await page.locator("#af-coverage").boundingBox();
     const marker = await page.locator("#focus-marker").boundingBox();
     const at = (box) => ({
-      x: (box.x + box.width / 2 - frameBox.x) / frameBox.width,
-      y: (box.y + box.height / 2 - frameBox.y) / frameBox.height,
+      x: (box.x + box.width / 2 - pointBox.x) / pointBox.width,
+      y: (box.y + box.height / 2 - pointBox.y) / pointBox.height,
     });
     const markerAt = marker ? at(marker) : { x: NaN, y: NaN };
-    const coverageShare = coverage ? { x: coverage.width / frameBox.width, y: coverage.height / frameBox.height } : { x: NaN, y: NaN };
+    const coverageShare = coverage ? { x: coverage.width / pointBox.width, y: coverage.height / pointBox.height } : { x: NaN, y: NaN };
     check(
       "collimateurs : point ramené dans la zone couverte (90 %)",
       Math.abs(markerAt.x - 0.95) < 0.01 && Math.abs(markerAt.y - 0.05) < 0.01 && Math.abs(coverageShare.x - 0.9) < 0.01 && Math.abs(coverageShare.y - 0.9) < 0.01,
@@ -828,7 +835,8 @@ async function runProfile(browser, name, base) {
     // Sony A7 III : « approx. 93% of image area » (page de Sony), partagés également : √0,93 ≈ 96,4 % par côté.
     await checkBodyCoverage("sony", "collimateurs : couverture du Sony A7 III (93 % de la surface, 96,4 % × 96,4 %)", Math.sqrt(0.93), Math.sqrt(0.93));
     await setBody("nikon");
-    await page.mouse.click(frameBox.x + frameBox.width / 2, frameBox.y + frameBox.height / 2);
+    const centreBox = await page.locator("#frame").boundingBox();
+    await page.mouse.click(centreBox.x + centreBox.width / 2, centreBox.y + centreBox.height / 2);
 
     if (withPhoto) {
       // Rafale : Continu L à 5 vues par seconde. En rendu logiciel, l'horloge de la scène avance moins vite que

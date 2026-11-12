@@ -39,6 +39,7 @@ Dans l'ordre. « Écrit » : le code existe sur la machine de Claude, pas encore
 
 À côté de la file :
 - quatre notions du jalon de la V1 minimale n'ont pas leur brique « situation réelle » (`python3 scripts/coverage.py` : 12 sur 16) : EXP-04, EXP-05, EXP-06 et MES-04 renvoient à des situations non rédigées. Les recettes de SIT-01 et de SIT-06 utilisent pourtant l'ouverture, la vitesse et l'ISO : ajouter ces renvois au référentiel est à proposer à Julien ; MES-04 attend une scène claire ou à contre-jour ;
+- mise en page à corriger : sur un écran étroit, avec une police plus large que celle de la machine de Claude (DejaVu Sans), l'aide de la mise au point prend une ligne de plus en AF-S qu'en AF-C, et le viseur change de hauteur (238 ou 254 pixels sur l'iPhone 14 émulé). Trouvé au premier passage de la routine dans la CI, le 12 novembre 2026 ; le contrôle des collimateurs mesure maintenant le cadre au moment où il s'en sert ;
 - grille de relevé pour les tests avec les débutants (`docs/propositions.md`, section 2) : à écrire ;
 - bougé de la main : dossier de sources à faire ; rien n'est simulé tant qu'aucun modèle n'est sourcé ;
 - carte du code (points d'extension pour chaque fonction de la file) et classement des notions des domaines EXP, MES et BOI : faits cette nuit sur la machine de Claude, à refaire au besoin ; constat utile : le simulateur n'a aucune mesure de la lumière, et la photo calculée ne passe pas par le traitement d'image de Babylon.js.
@@ -60,6 +61,8 @@ Limite : l'environnement de travail de Claude ne joint que certains sites (manue
 3. Prendre le premier sujet « Écrit » ou « À faire » de la file ; lire son dossier et sa spécification s'ils sont dans le dépôt, sinon les refaire.
 4. Suivre le flux d'une pull request de `CLAUDE.md`. Pièges déjà rencontrés (`docs/publication.md`) : réécrire la description aussitôt après la création ; le contrôle `description` lancé à la création peut échouer après coup, une nouvelle modification de la description le relance ; attendre les quatre jobs de la routine.
 5. Mettre ce fichier à jour dans la pull request.
+
+Commits : auteur Julien avec son adresse « noreply » de GitHub (`git commit --author=…`), sans changer l'identité par défaut de l'environnement de Claude, qui signe le commit comme committer (adresse « noreply » d'Anthropic) ; GitHub les affiche alors comme vérifiés. Les commits d'avant le 12 novembre 2026 avaient Julien pour committer et n'étaient pas signés.
 
 ## Ce qui attend Julien
 
