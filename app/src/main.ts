@@ -31,6 +31,9 @@ const diagnostic = element<HTMLParagraphElement>("diagnostic");
 const manifest = loadManifest("../scenes/parc/scene.json");
 let lang: Lang = initialLang();
 
+/** Densité maximale de calcul du viseur, en pixels calculés par pixel CSS (version 0.3.53, choix de Julien). */
+const MAX_DEVICE_RATIO = 2;
+
 // Progression du chargement (version 0.3.51). La scène pèse 34 Mio, et un message seul ne permettait pas de
 // distinguer un réseau lent, un fichier bloqué ou une scène reçue mais pas prête (chargement sans fin signalé par
 // Julien le 11 novembre 2026). Un fichier compte comme reçu quand le navigateur en a fini le chargement, d'après
@@ -150,9 +153,12 @@ if (!Engine.isSupported()) {
   // Viseur calculé à la densité de l'écran (version 0.3.52, demande de Julien du 11 novembre 2026 : la scène
   // paraissait pixelisée sur son téléphone). Par défaut, Babylon.js calcule l'image à la taille en pixels CSS
   // (adaptToDeviceRatio faux : niveau de mise à l'échelle 1) et le navigateur l'agrandit à la densité de l'écran,
-  // soit environ 2,6 pixels d'écran par pixel calculé sur un téléphone. Densité complète, sans plafond : version
-  // isolée, à annuler si la fluidité ne suit pas.
-  const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true }, true);
+  // soit environ 2,6 pixels d'écran par pixel calculé sur un téléphone. Densité complète en version 0.3.52 : plus net,
+  // mais saccadé sur le téléphone de Julien ; densité plafonnée à 2 en version 0.3.53, à sa demande (version isolée,
+  // à annuler si elle ne convient pas). Babylon.js applique le plafond à la création du moteur (niveau de mise à
+  // l'échelle 1 / min(plafond, densité)) ; si la densité change ensuite (zoom du navigateur), il multiplie ce niveau
+  // par le rapport des densités, sans réappliquer le plafond.
+  const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, limitDeviceRatio: MAX_DEVICE_RATIO }, true);
   const { scene, camera, ready, time, subjects, eye } = createScene(engine, canvas);
   // Serveur de développement seulement (absent du site construit) : accès pour les mesures sur la scène.
   if (import.meta.env.DEV) {

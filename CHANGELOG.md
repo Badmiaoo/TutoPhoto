@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.53] - 2026-11-11
+
+### Modifié
+
+- Densité du viseur plafonnée à 2 (demande de Julien du 11 novembre 2026 : la version 0.3.52 est « beaucoup moins pixelsé », mais saccadée sur son téléphone). Babylon.js calcule 4 fois plus de pixels qu'à la taille en pixels CSS, au lieu d'environ 6,9 sur un écran de densité 2,625 et 9 sur un écran de densité 3. Les écrans de densité 2 ou moins ne changent pas. Version isolée : si elle ne convient pas, on l'annule par `git revert -m 1` de son commit de fusion.
+- Routine de test : le rendu doit valoir la taille affichée multipliée par la densité de l'écran, plafonnée à 2.
+- `docs/pile-technique.md`, `docs/questions-ouvertes.md`, `docs/historique.md`.
+
 ## [0.3.52] - 2026-11-11
 
 ### Modifié
@@ -789,6 +797,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.53]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.52...v0.3.53
 [0.3.52]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.51...v0.3.52
 [0.3.51]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.50...v0.3.51
 [0.3.50]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.49...v0.3.50
