@@ -19,10 +19,11 @@
 // dans la fenêtre « Exposition » ouverte par l'indicateur ; l'appareil choisit ce que le mode lui laisse
 // (camera/exposureModes.ts), et tout le reste (viseur, bruit, profondeur de champ, photo) suit ses réglages.
 // Grilles de cadrage (CMP-02, version 0.3.56) : une aide du viseur, choisie dans la fenêtre « Aperçu », la même
-// pour tous les boîtiers (GRID_LINES). Choix de TutoPhoto, non sourcés : la grille est masquée quand la loupe
-// agrandit l'image, et elle n'est dessinée ni sur la photo ni sur l'écran de revue (aucune page lue ne dit ce que
-// fait un boîtier). Non simulé : le quadrillage du Nikon Z 6, dont le manuel ne décrit pas le tracé ; les grilles
-// « Square Grid » et « Diag. + Square Grid » de Sony, non décrites ; les grilles de Canon, manuels non lus.
+// pour tous les boîtiers (GRIDS ; décision de Julien du 12 novembre 2026 : les grilles sont des outils de
+// composition, les mêmes partout). Choix de TutoPhoto, non sourcés, confirmés par Julien : la grille est masquée
+// quand la loupe agrandit l'image, et elle n'est dessinée ni sur la photo ni sur l'écran de revue (aucune page lue
+// ne dit ce que fait un boîtier). Non simulé : le quadrillage du Nikon Z 6, dont le manuel ne décrit pas le tracé ;
+// les grilles « Square Grid » et « Diag. + Square Grid » de Sony, non décrites.
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
@@ -128,32 +129,53 @@ const TARGET_KEYS: Record<"eye" | "face" | "nearest" | "point", MessageKey> = {
 };
 
 /**
- * Grilles de cadrage (CMP-02, version 0.3.56) : positions des lignes, en fractions de la largeur et de la hauteur
- * du cadre, les mêmes dans les deux sens. Deux tracés seulement, les seuls sourcés pour les boîtiers du simulateur
- * (le nombre de lignes des tiers est déduit du texte de Sony, la page n'a pas d'illustration) :
+ * Grilles de cadrage (CMP-02, version 0.3.56) : positions des lignes, en fractions du grand côté et du petit côté du
+ * cadre. Les mêmes grilles pour tous les boîtiers (décision de Julien du 12 novembre 2026) : celles que les manuels
+ * lus nomment ou montrent.
  * - « thirds » : deux lignes dans chaque sens, aux tiers. Sony, « Grid Line », « Rule of 3rds Grid » : « Place
  *   main subjects close to one of the grid lines that divide the image into thirds for a well-balanced
- *   composition » (guides d'aide de l'A7 III et de l'A6000, lus le 12 novembre 2026) [sony-a7iii-grid-line]
- *   [sony-a6000-grid-line] ;
+ *   composition » (guides d'aide de l'A7 III et de l'A6000) [sony-a7iii-grid-line] [sony-a6000-grid-line] ; le
+ *   nombre de lignes est déduit de ce texte, la page n'a pas d'illustration. Canon, « 3x3 » : « Displays grid lines
+ *   in a 3x3 pattern » (manuel de l'EOS 850D) [canon-850d-grid-display].
  * - « sixteen » : trois lignes dans chaque sens, aux quarts, soit seize cases. Nikon, Digitutor du D5600, « Framing
  *   Grid (Live View) » : c'est ce que montre l'illustration de l'affichage « Framing grid » ; le texte de la page
- *   ne donne pas ce nombre (lue le 12 novembre 2026) [nikon-d5600-digitutor-framing-grid]. Lignes mesurées sur
- *   l'illustration à environ 25 %, 50 % et 75 % du cadre ; les quarts exacts sont retenus.
+ *   ne donne pas ce nombre [nikon-d5600-digitutor-framing-grid]. Lignes mesurées sur l'illustration à environ
+ *   25 %, 50 % et 75 % du cadre ; les quarts exacts sont retenus.
+ * - « twentyFour » : Canon, « 6x4 » : « Displays grid lines in a 6x4 pattern » [canon-850d-grid-display]. Six
+ *   cases sur le grand côté et quatre sur le petit : sens déduit du nom, la page ne le dit pas (sur un capteur
+ *   3:2, les cases sont alors carrées).
+ * - « thirdsDiagonals » : Canon, « 3x3+diag » : « Displays a grid together with diagonal lines »
+ *   [canon-850d-grid-display]. Deux diagonales d'un coin du cadre à l'autre : tracé déduit de l'icône du menu
+ *   (capture du manuel de l'EOS R6) [canon-r6-shooting-info-display], la page ne le décrit pas.
+ * Les manuels de Canon lus sont ceux de l'EOS 850D et de l'EOS R6, pas ceux des boîtiers du simulateur.
  * Par défaut, aucune grille : « d9 Framing grid display Off » sur le Z 6 [nikon-z6-defaults], « Off (default
  * setting) » sur l'A6000 [sony-a6000-grid-line]. Le manuel du Z 6 dit seulement « Choose On to display a grid for
  * reference when framing shots » [nikon-z6-d9] : son tracé n'est pas simulé.
  *   https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001653165.html
  *   https://helpguide.sony.net/gbmig/45349331/v1/en/contents/TP0000518347.html
  *   https://imaging.nikon.com/imaging/support/digitutor/d5600/functions/framing_grid_liveview.html
+ *   https://cam.start.canon/en/C002/manual/html/UG-09_Set-up_0200.html
+ *   https://cam.start.canon/en/C004/manual/html/UG-03_Shooting-1_0360.html
  *   https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d09.html
  */
-type GridKind = "none" | "thirds" | "sixteen";
-const GRID_LINES: Record<GridKind, readonly number[]> = {
-  none: [],
-  thirds: [1 / 3, 2 / 3],
-  sixteen: [1 / 4, 1 / 2, 3 / 4],
+type GridKind = "none" | "thirds" | "sixteen" | "twentyFour" | "thirdsDiagonals";
+interface GridLayout {
+  /** Lignes qui divisent le grand côté du cadre, puis le petit côté, en fractions de ce côté. */
+  long: readonly number[];
+  short: readonly number[];
+  diagonals: boolean;
+}
+const THIRDS = [1 / 3, 2 / 3] as const;
+const QUARTERS = [1 / 4, 1 / 2, 3 / 4] as const;
+const GRIDS: Record<GridKind, GridLayout> = {
+  none: { long: [], short: [], diagonals: false },
+  thirds: { long: THIRDS, short: THIRDS, diagonals: false },
+  sixteen: { long: QUARTERS, short: QUARTERS, diagonals: false },
+  twentyFour: { long: [1 / 6, 2 / 6, 3 / 6, 4 / 6, 5 / 6], short: QUARTERS, diagonals: false },
+  thirdsDiagonals: { long: THIRDS, short: THIRDS, diagonals: true },
 };
-const isGridKind = (value: unknown): value is GridKind => typeof value === "string" && Object.prototype.hasOwnProperty.call(GRID_LINES, value);
+const isGridKind = (value: unknown): value is GridKind => typeof value === "string" && Object.prototype.hasOwnProperty.call(GRIDS, value);
+const SVG_NS = "http://www.w3.org/2000/svg";
 
 /** Interrupteurs de l'aperçu dans le viseur. */
 const PREVIEW_SWITCHES = ["all", "brightness", "noise", "depthOfField", "balance"] as const;
@@ -232,7 +254,7 @@ export class CameraPanel {
   private frame: Frame | null = null;
   private preview: Preview = { all: true, brightness: true, noise: true, depthOfField: true, balance: true, grid: "none" };
   /** Grille dont les lignes sont tracées dans le cadre ; null avant le premier tracé. */
-  private drawnGrid: GridKind | null = null;
+  private drawnGrid: string | null = null;
   private balance: BalanceIndicator | null = null;
   private dof: ViewfinderDepthOfField | null = null;
   private autofocus: Autofocus | null = null;
@@ -805,17 +827,43 @@ export class CameraPanel {
   private updateGrid(): void {
     const kind = this.preview.grid;
     const grid = this.el.grid;
-    if (this.drawnGrid !== kind) {
+    // Cadre vertical (téléphone tenu droit) : le grand côté du capteur est vertical, les six cases de « 6 × 4 » aussi.
+    const tall = this.frame !== null && this.frame.height > this.frame.width;
+    const key = `${kind}:${tall ? "vertical" : "horizontal"}`;
+    if (this.drawnGrid !== key) {
+      const layout = GRIDS[kind];
       const line = (direction: "vertical" | "horizontal", at: number) => {
         const element = document.createElement("div");
         element.className = `grid-line ${direction}`;
         element.style.setProperty(direction === "vertical" ? "left" : "top", `${at * 100}%`);
         return element;
       };
-      const positions = GRID_LINES[kind];
-      grid.replaceChildren(...positions.map((at) => line("vertical", at)), ...positions.map((at) => line("horizontal", at)));
+      // Diagonales : un dessin vectoriel étiré aux dimensions du cadre, traits d'épaisseur constante.
+      const diagonals = () => {
+        const svg = document.createElementNS(SVG_NS, "svg");
+        svg.setAttribute("class", "grid-diagonals");
+        svg.setAttribute("viewBox", "0 0 100 100");
+        svg.setAttribute("preserveAspectRatio", "none");
+        for (const [x1, x2] of [[0, 100], [100, 0]]) {
+          for (const tone of ["shade", "light"]) {
+            const stroke = document.createElementNS(SVG_NS, "line");
+            stroke.setAttribute("class", `grid-diagonal ${tone}`);
+            stroke.setAttribute("x1", String(x1));
+            stroke.setAttribute("y1", "0");
+            stroke.setAttribute("x2", String(x2));
+            stroke.setAttribute("y2", "100");
+            svg.append(stroke);
+          }
+        }
+        return svg;
+      };
+      grid.replaceChildren(
+        ...(tall ? layout.short : layout.long).map((at) => line("vertical", at)),
+        ...(tall ? layout.long : layout.short).map((at) => line("horizontal", at)),
+        ...(layout.diagonals ? [diagonals()] : []),
+      );
       grid.dataset.grid = kind;
-      this.drawnGrid = kind;
+      this.drawnGrid = key;
     }
     grid.hidden = kind === "none" || this.loupeZoom > 1;
   }
@@ -982,6 +1030,8 @@ export class CameraPanel {
     dialog.querySelector("#preview-grid-none-label")!.textContent = tr("gridNone");
     dialog.querySelector("#preview-grid-thirds-label")!.textContent = tr("gridThirds");
     dialog.querySelector("#preview-grid-sixteen-label")!.textContent = tr("gridSixteen");
+    dialog.querySelector("#preview-grid-twentyfour-label")!.textContent = tr("gridTwentyFour");
+    dialog.querySelector("#preview-grid-diagonals-label")!.textContent = tr("gridThirdsDiagonals");
     dialog.querySelector("#preview-grid-note")!.textContent = tr("gridNote");
     dialog.querySelector("#preview-close")!.textContent = tr("close");
     for (const input of dialog.querySelectorAll<HTMLInputElement>("input[type=checkbox]")) {

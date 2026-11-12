@@ -91,14 +91,16 @@ Rédigées par Claude le 11 novembre 2026, pendant que Julien était absent. Il 
 
 ### Grilles de cadrage (CMP-02, version 0.3.56)
 
-Spécification : `docs/specifications/grilles.md`. Sources et fonctionnement : `docs/camera-physique.md`, « Grilles de cadrage (version 0.3.56) ».
+**Tranché par Julien le 12 novembre 2026**, avant la fusion de la version. Spécification : `docs/specifications/grilles.md`. Sources et fonctionnement : `docs/camera-physique.md`, « Grilles de cadrage (version 0.3.56) ».
 
-| N° | Choix fait | Pourquoi | Autre voie |
-| --- | --- | --- | --- |
-| 1 | La grille est une aide de TutoPhoto, la même pour tous les boîtiers, réglée dans la fenêtre « Aperçu », et non la copie du menu de chaque boîtier. | Le manuel du Nikon Z 6, boîtier par défaut, dit seulement qu'un quadrillage s'affiche, sans le décrire ; les manuels de Canon n'ont pas pu être lus. | Un réglage par boîtier, avec ses noms : « d9 » activé ou désactivé pour le Z 6, « Quadrillage » à quatre valeurs pour Sony. Le Z 6 n'aurait alors aucun tracé sourcé. |
-| 2 | Deux tracés seulement : « Tiers » (deux lignes dans chaque sens, aux tiers) et « Seize cases » (trois lignes dans chaque sens, aux quarts). | Ce sont les seuls sourcés pour les boîtiers du simulateur : décrit (Sony, « Rule of 3rds Grid ») ou montré (Nikon, illustration de l'affichage « Framing grid » du D5600). L'aspect des traits (couleur, épaisseur, bord sombre) est choisi pour la lisibilité, sans source. | Ajouter un repère de centre, des diagonales ou la « Grille carrée » de Sony : aucun de ces tracés n'est décrit dans les pages lues. |
-| 3 | La grille est masquée quand la loupe agrandit l'image ; elle revient quand la loupe est coupée. | Le cadre garde sa place alors que l'image est grossie : les lignes ne diviseraient plus l'image entière. Aucune page lue ne dit ce que fait un boîtier. | Garder la grille, déplacée et grossie avec l'image. |
-| 4 | La grille n'est dessinée ni sur la photo ni sur l'écran de revue. | La grille aide à cadrer (« for reference when framing shots », Nikon). Aucune page lue n'écrit qu'elle est absente de la photo enregistrée : c'est un comportement de TutoPhoto. | Une grille à afficher aussi sur l'écran de revue, pour comparer deux placements. |
-| 5 | Dans la note de la fenêtre, le nom français « Grille règle des tiers » est donné comme lu dans le guide de l'A7 III. | La page française du guide de l'A6000 n'a pas été trouvée (404) ; son guide en anglais porte le même nom, « Rule of 3rds Grid ». | Écrire « des boîtiers Sony » sans cette précision, comme le prévoyait la spécification. |
-| 6 | La fiche CMP-02 ne dit rien sur « quand centrer » ni sur la symétrie, et l'écrit. | Les pages lues (Nikon, Sony, Wikipedia « Rule of thirds ») n'en parlent pas. | Chercher une source pour ces deux points, puis compléter la fiche. |
-| 7 | CMP-02 n'est pas ajoutée au jalon de la V1 minimale (`data/jalons.yaml`), et la fiche SIT-01 n'est pas modifiée. | La spécification ne le demande pas ; SIT-01 ne compte pas CMP-02 parmi ses notions clés. | Ajouter CMP-02 aux notions citées par SIT-01. |
+| N° | Choix proposé par Claude | Décision de Julien |
+| --- | --- | --- |
+| 1 | La grille est une aide de TutoPhoto, la même pour tous les boîtiers, et non la copie du menu de chaque boîtier. | Retenu, après avoir d'abord choisi un menu par boîtier : « Mmmh en vrai les grilles sont des outils plutôt "global" ça fait partie de la composition et en vrai tous les boitiers ont les mêmes. Donc faisons les même pour tous les boitiers, 3*3 9*9 ect.. tous les plus communes ». |
+| 2 | Deux tracés seulement, « Tiers » et « Seize cases ». | Élargi par la même réponse : les grilles les plus communes. Claude ajoute les deux autres que les manuels lus nomment, « 6x4 » et « 3x3+diag » de Canon (EOS 850D, EOS R6). Aucune page lue ne nomme une grille « 9*9 » : elle n'est pas ajoutée, et je ne sais pas si Julien désignait par là les neuf cases de la grille 3 × 3. |
+| 3 | La grille est masquée quand la loupe agrandit l'image. | Retenu. |
+| 4 | La grille n'est dessinée ni sur la photo ni sur l'écran de revue. | Retenu : viseur seulement. |
+| 5 | Noms français des réglages de Sony : ceux du guide de l'A7 III, la page française du guide de l'A6000 étant introuvable. | Retenu. |
+| 6 | La fiche CMP-02 ne dit rien sur « quand centrer » ni sur la symétrie, et l'écrit. | Chercher une source, puis compléter la fiche dans une version suivante. |
+| 7 | CMP-02 hors du jalon de la V1 minimale, fiche SIT-01 inchangée. | Changé : CMP-02 est ajoutée au jalon (17 notions) et citée dans la fiche de SIT-01. |
+
+Restent des choix de Claude, non sourcés et dits comme tels : l'aspect des traits ; le sens de la grille « 6x4 » (six cases sur le grand côté) et le tracé des diagonales, déduits du nom et de l'icône de Canon.

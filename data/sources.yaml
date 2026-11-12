@@ -702,6 +702,16 @@ sources:
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé d9 Framing Grid Display : « Choose On to display a grid for reference when framing shots. » ; la page ne décrit pas le tracé du quadrillage (lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d09.html"
     used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: canon-850d-grid-display
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, manuel de l'EOS 850D, « Grid Display When Shooting » : grilles « 3x3 », « 6x4 » et « 3x3+diag » (« Displays grid lines in a 6x4 pattern to help you level the camera vertically and horizontally. ») ; boîtier voisin, pas un boîtier du simulateur (lu le 12 novembre 2026)"
+    url: "https://cam.start.canon/en/C002/manual/html/UG-09_Set-up_0200.html"
+    used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md]
+  - id: canon-r6-shooting-info-display
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, manuel de l'EOS R6, « Shooting Information Display » : « A grid can be displayed on the screen and viewfinder. » ; la capture du menu montre « Off », « 3x3 », « 6x4 », « 3x3+diag » avec leurs icônes ; boîtier voisin, pas un boîtier du simulateur (lu le 12 novembre 2026)"
+    url: "https://cam.start.canon/en/C004/manual/html/UG-03_Shooting-1_0360.html"
+    used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md]
   - id: nikon-z6-f2
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé f2 Custom Control Assignment, « Framing grid display » : « Press the control to turn the framing grid display on or off. » (lu le 12 novembre 2026)"

@@ -90,3 +90,14 @@ Notés par l'agent de Claude qui a mis la spécification en œuvre, le 12 novemb
 - Sources (section 7) : deux de plus, les pages françaises du réglage d9 du Z 6 et du réglage « Quadrillage » de l'A7 III, que la fiche française cite ; la page « Defaults » du Z 6, déjà dans `data/sources.yaml`, sert pour le réglage par défaut.
 - Fiche CMP-02 : l'article « Rule of thirds » de Wikipedia (révision 1383322855) ne dit pas quand centrer le sujet, et aucune page lue ne traite de la symétrie ; la fiche l'écrit au lieu de combler le manque.
 - Routine de test : un contrôle de plus que la section 5, les lignes ne prennent pas les touchers du viseur.
+
+## 11. Décisions de Julien du 12 novembre 2026
+
+Prises avant la fusion de la version ; détail dans `docs/propositions.md`, section 4.
+
+- Les mêmes grilles pour tous les boîtiers : « Mmmh en vrai les grilles sont des outils plutôt "global" ça fait partie de la composition et en vrai tous les boitiers ont les mêmes. Donc faisons les même pour tous les boitiers, 3*3 9*9 ect.. tous les plus communes ».
+- Les grilles les plus communes : aux deux tracés des sections 2 et 3 s'ajoutent « Vingt-quatre cases (6 × 4) » et « Tiers et diagonales », les grilles « 6x4 » et « 3x3+diag » des manuels Canon lus (EOS 850D, EOS R6). Aucune page lue ne nomme une grille « 9*9 ».
+- Grille masquée sous la loupe, et dans le viseur seulement : retenu.
+- CMP-02 ajoutée au jalon de la V1 minimale et citée dans la fiche de SIT-01.
+- Une source est à chercher pour le centrage et la symétrie, afin de compléter la fiche.
+

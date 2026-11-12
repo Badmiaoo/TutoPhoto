@@ -211,6 +211,31 @@ dialog a {
   box-shadow: 0 1px 0 rgb(0 0 0 / 0.35);
 }
 
+/* Diagonales de la grille « Tiers et diagonales » : dessin vectoriel étiré aux dimensions du cadre, un trait clair
+   d'un pixel sur un trait sombre plus large, d'épaisseur constante quelle que soit la forme du cadre. */
+.grid-diagonals {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.grid-diagonal {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.grid-diagonal.shade {
+  stroke: rgb(0 0 0 / 0.35);
+  stroke-width: 3px;
+}
+
+.grid-diagonal.light {
+  stroke: rgb(255 255 255 / 0.7);
+  stroke-width: 1px;
+}
+
 /* Zone couverte par l'autofocus (MAP-06) : environ 90 % du cadre en largeur et en hauteur, en pointillés
    discrets. */
 .af-coverage {

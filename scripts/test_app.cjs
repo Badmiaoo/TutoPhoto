@@ -34,7 +34,8 @@
 // - la loupe passe à 100 % et l'indique ;
 // - grilles de cadrage (CMP-02, version 0.3.56) : aucune ligne par défaut ; « Tiers », choisi dans la fenêtre
 //   « Aperçu », trace quatre lignes à 1/3 et 2/3 du cadre, « Seize cases » six lignes à 1/4, 1/2 et 3/4, à 1 pixel
-//   près ; le choix est écrit dans tutophoto.apercu ; les lignes ne reçoivent pas les touchers ; la grille est
+//   près ; « Vingt-quatre cases » a six cases sur le grand côté du cadre et quatre sur le petit ; « Tiers et
+//   diagonales » ajoute deux diagonales qui couvrent tout le cadre ; le choix est écrit dans tutophoto.apercu ; les lignes ne reçoivent pas les touchers ; la grille est
 //   masquée quand la loupe est à 100 % et revient quand elle est coupée ;
 // - le viseur garde au moins 35 % de la hauteur de la fenêtre (iPhone : 41 % avant l'indicateur d'équilibre) ;
 // - indicateur d'équilibre : zone nette et bruit excellent aux réglages par défaut ; au même point du sol,
@@ -548,9 +549,9 @@ async function runProfile(browser, name, base) {
 
     // Grilles de cadrage (CMP-02, version 0.3.56), choisies dans la fenêtre « Aperçu ». Lignes visibles du cadre :
     // position du milieu de chaque ligne, en fraction du cadre, et plus grand écart en pixels aux positions
-    // attendues (k / n de la largeur pour les verticales, de la hauteur pour les horizontales).
-    const gridState = (n) =>
-      page.evaluate((parts) => {
+    // attendues (k / n de la largeur pour les verticales, k / m de la hauteur pour les horizontales).
+    const gridState = (across, down = across) =>
+      page.evaluate(([partsAcross, partsDown]) => {
         const frame = document.getElementById("frame").getBoundingClientRect();
         const visible = (el) => el.getClientRects().length > 0 && getComputedStyle(el).visibility !== "hidden";
         const lines = [...document.querySelectorAll("#frame-grid .grid-line")].filter(visible);
@@ -560,7 +561,11 @@ async function runProfile(browser, name, base) {
         };
         const vertical = lines.filter((el) => el.classList.contains("vertical")).map((el) => middle(el, true)).sort((a, b) => a - b);
         const horizontal = lines.filter((el) => el.classList.contains("horizontal")).map((el) => middle(el, false)).sort((a, b) => a - b);
-        const worst = (found, size) => Math.max(0, ...found.map((v, k) => Math.abs(v - ((k + 1) * size) / parts)));
+        const worst = (found, size, parts) => Math.max(0, ...found.map((v, k) => Math.abs(v - ((k + 1) * size) / parts)));
+        // Diagonales : deux traits clairs, dans un dessin qui couvre tout le cadre.
+        const diagonals = [...document.querySelectorAll("#frame-grid .grid-diagonal.light")].filter(visible);
+        const drawing = document.querySelector("#frame-grid .grid-diagonals")?.getBoundingClientRect();
+        const spread = drawing ? Math.max(Math.abs(drawing.left - frame.left), Math.abs(drawing.top - frame.top), Math.abs(drawing.width - frame.width), Math.abs(drawing.height - frame.height)) : NaN;
         // Les lignes ne reçoivent pas les touchers : au croisement des deux premières, l'élément touché n'est ni une
         // ligne ni le cadre.
         const hit = vertical.length && horizontal.length ? document.elementFromPoint(frame.left + vertical[0], frame.top + horizontal[0]) : null;
@@ -573,13 +578,16 @@ async function runProfile(browser, name, base) {
         return {
           vertical: vertical.length,
           horizontal: horizontal.length,
-          error: Math.max(worst(vertical, frame.width), worst(horizontal, frame.height)),
+          error: Math.max(worst(vertical, frame.width, partsAcross), worst(horizontal, frame.height, partsDown)),
+          diagonals: diagonals.length,
+          spread,
+          tall: frame.height > frame.width,
           at: `${vertical.map((v) => ((100 * v) / frame.width).toFixed(1)).join(" / ")} % × ${horizontal.map((v) => ((100 * v) / frame.height).toFixed(1)).join(" / ")} %`,
           caught: Boolean(hit && hit.closest("#frame")),
           checked: document.querySelector('#preview-dialog input[name="grid"]:checked')?.value ?? "",
           saved,
         };
-      }, n);
+      }, [across, down]);
     const setGrid = async (kind) => {
       await page.click("#preview-button");
       await page.check(`#preview-dialog input[name="grid"][value="${kind}"]`);
@@ -599,6 +607,24 @@ async function runProfile(browser, name, base) {
       `${thirds.vertical} + ${thirds.horizontal} lignes à ${thirds.at} ; écart ${thirds.error.toFixed(2)} px ; toucher ${thirds.caught ? "pris par la grille" : "laissé au viseur"} ; tutophoto.apercu : ${thirds.saved}`,
     );
     if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-grille-tiers.png`), timeout: 120000 });
+    // « Vingt-quatre cases » : six cases sur le grand côté du cadre, quatre sur le petit (cadre vertical sur le profil
+    // Android). « Tiers et diagonales » : les tiers, et deux diagonales d'un coin du cadre à l'autre.
+    await setGrid("twentyFour");
+    const tall = thirds.tall;
+    const twentyFour = await gridState(tall ? 4 : 6, tall ? 6 : 4);
+    check(
+      "grille « Vingt-quatre cases » : six cases sur le grand côté, quatre sur le petit",
+      twentyFour.vertical === (tall ? 3 : 5) && twentyFour.horizontal === (tall ? 5 : 3) && twentyFour.error <= 1 && twentyFour.diagonals === 0 && twentyFour.saved === "twentyFour",
+      `cadre ${tall ? "vertical" : "horizontal"} ; ${twentyFour.vertical} + ${twentyFour.horizontal} lignes à ${twentyFour.at} ; écart ${twentyFour.error.toFixed(2)} px`,
+    );
+    await setGrid("thirdsDiagonals");
+    const withDiagonals = await gridState(3);
+    check(
+      "grille « Tiers et diagonales » : tiers et deux diagonales sur tout le cadre",
+      withDiagonals.vertical === 2 && withDiagonals.horizontal === 2 && withDiagonals.error <= 1 && withDiagonals.diagonals === 2 && withDiagonals.spread <= 1 && !withDiagonals.caught && withDiagonals.saved === "thirdsDiagonals",
+      `${withDiagonals.vertical} + ${withDiagonals.horizontal} lignes, ${withDiagonals.diagonals} diagonale(s) ; dessin à ${Number.isFinite(withDiagonals.spread) ? withDiagonals.spread.toFixed(2) : "?"} px du cadre ; toucher ${withDiagonals.caught ? "pris par la grille" : "laissé au viseur"}`,
+    );
+    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-grille-diagonales.png`), timeout: 120000 });
     await setGrid("sixteen");
     const sixteen = await gridState(4);
     check(
