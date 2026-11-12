@@ -16,7 +16,7 @@ Ce que Claude en fait :
 
 ## Où on en est
 
-- En ligne après la fusion de cette pull request : version 0.3.55.
+- En ligne après la fusion de cette pull request : version 0.3.56 (grilles de cadrage, CMP-02).
 - Version 0.3.53 (densité du viseur plafonnée à 2) : fusionnée ; Julien doit la juger sur son téléphone (netteté et fluidité).
 - Interruption de la nuit : trois séries d'agents lancées en parallèle (carte du code, dossiers de sources) ont épuisé la limite d'usage de 5 heures en vingt minutes, vers 23 h 40 UTC le 11 novembre. La session est restée suspendue jusqu'à 5 h 50 UTC le 12. Depuis : un ou deux agents à la fois, et d'abord publier ce qui est prêt.
 
@@ -29,8 +29,8 @@ Dans l'ordre. « Écrit » : le code existe sur la machine de Claude, pas encore
 | 1 | Densité du viseur plafonnée à 2 | | Fait, 0.3.53 | |
 | 2 | Routine de test dans la CI ; ce fichier | | Fait, 0.3.54 | |
 | 3 | Progression du chargement sans les textes de licence | | Fait, 0.3.55 | |
-| 4 | Grilles de cadrage dans le viseur | CMP-02 | À faire | Dossier `docs/dossiers/viseur-aides.md`, écrit, à relire à la source. |
-| 5 | Histogramme (viseur et revue), alerte des hautes lumières | MES-06, MES-07 | À faire | Même dossier. |
+| 4 | Grilles de cadrage dans le viseur | CMP-02 | Fait, 0.3.56 | Spécification `docs/specifications/grilles.md` ; section 1 du dossier `docs/dossiers/viseur-aides.md` relue à la source le 12 novembre 2026. Sept choix à confirmer par Julien (`docs/propositions.md`, section 4). |
+| 5 | Histogramme (viseur et revue), alerte des hautes lumières | MES-06, MES-07 | À faire | Dossier `docs/dossiers/viseur-aides.md`, sections 2 à 4, écrit, à relire à la source. |
 | 6 | Balance des blancs | COU-01, COU-02, COU-04 | À faire | Dossier `docs/dossiers/balance-des-blancs.md`, écrit, à relire à la source. Babylon.js 9.35.0 a déjà une balance (`imageProcessingConfiguration.whiteBalanceEnabled`, `temperature`, `tint`) ; la photo calculée ne passe pas par elle. |
 | 7 | Situations jouables dans le parc | SIT-28, SIT-V2-02, SIT-V2-06 | À faire | Fiches, défis ; sources à chercher pour OPT-06 et CMP-07. |
 | 8 | Solveur de situations | | À faire | Dossier de sources à faire (coupé par la limite d'usage). |
@@ -68,7 +68,7 @@ Commits : auteur Julien avec son adresse « noreply » de GitHub (`git commit --
 ## Ce qui attend Julien
 
 - Juger la version 0.3.53 sur son téléphone.
-- Confirmer ou annuler les choix faits sans lui (`docs/propositions.md`, dernière section), à mesure qu'ils s'ajoutent.
+- Confirmer ou annuler les choix faits sans lui (`docs/propositions.md`, dernière section), à mesure qu'ils s'ajoutent. Premiers choix : les grilles de cadrage (version 0.3.56).
 - Renderpeople : date et périmètre de l'accord déjà obtenu, pour le documenter (`docs/questions-ouvertes.md`).
 - Relecture des fiches : les signaler relues pour `data/relecture.yaml`.
 - Tests avec cinq débutants (`docs/propositions.md`, section 2).

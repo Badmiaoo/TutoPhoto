@@ -541,6 +541,46 @@ Dans TutoPhoto (`app/src/camera/bulletin.ts`, `app/src/ui/challenges.ts`) :
 
 Non simulé ou choisi : le seuil de 1 m pour « derrière » ; aucun jugement sur l'exposition ni sur le bruit dans les défis, faute de critère sourcé propre à ces situations ; les défis ne sont pas encore reliés aux fiches des notions, qui restent à rédiger.
 
+## Grilles de cadrage (version 0.3.56)
+
+Notion CMP-02 (« Tiers, centre, symétrie »), dont le simulateur est, d'après le référentiel, des « grilles superposables ». Spécification : `docs/specifications/grilles.md`. Dossier de sources : `docs/dossiers/viseur-aides.md`, section 1, relue à la source le 12 novembre 2026. Julien dormait : les choix faits sans lui sont repris dans `docs/propositions.md` (section 4), pour qu'il les confirme.
+
+Ce que disent les pages lues le 12 novembre 2026 :
+- **Nikon Z 6**, réglage « d9: Framing Grid Display » (« d9 : Affichage du quadrillage ») : « Choose On to display a grid for reference when framing shots. » ([manuel en ligne Nikon Z 7/Z 6](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d09.html) ; [en français](https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_d09.html)). Désactivé par défaut : « d9 Framing grid display Off » ([« Defaults »](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html)). Le manuel ne décrit pas le tracé.
+- **Sony A7 III**, réglage « Grid Line » (« Quadrillage ») : « Rule of 3rds Grid » (« Grille règle des tiers »), « Square Grid » (« Grille carrée »), « Diag. + Square Grid » (« Diag. + Grille carrée »), « Off ». Pour la grille des tiers : « Place main subjects close to one of the grid lines that divide the image into thirds for a well-balanced composition. » ([guide d'aide Sony ILCE-7M3](https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001653165.html) ; [en français](https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001663039.html)). La page ne donne ni le nombre de cases de « Square Grid », ni le tracé des diagonales, ni le réglage par défaut.
+- **Sony A6000** : même réglage et mêmes textes en anglais, avec « Off (default setting) » ([guide d'aide Sony ILCE-6000](https://helpguide.sony.net/gbmig/45349331/v1/en/contents/TP0000518347.html)). La page française à la même adresse (`/fr/` au lieu de `/en/`) répond 404 : les noms français du réglage ne sont lus que pour l'A7 III.
+- **Nikon D5600** : la page « Framing Grid (Live View) » de Digitutor montre l'affichage « Framing grid » de la visée écran ([Nikon](https://imaging.nikon.com/imaging/support/digitutor/d5600/functions/framing_grid_liveview.html)). Son illustration a trois lignes verticales et trois lignes horizontales, soit seize cases ; le texte ne donne pas ce nombre. C'est une page d'aide, pas le manuel, que Claude n'a pas pu lire.
+- **Canon EOS RP et EOS 2000D** : Je ne sais pas, manuels introuvables sur les sites que Claude peut joindre.
+- Aucune de ces pages n'écrit que la grille est absente de la photo enregistrée, ni ce qu'elle devient quand on agrandit l'image.
+
+Position des lignes de l'illustration du D5600, mesurée le 12 novembre 2026 sur l'image de Nikon (772 × 432 px) : l'écran y occupe 584 × 372 px entre ses bords sombres. Les colonnes les plus claires sont à 25,1 %, 49,9 % et 75,1 % de sa largeur, les lignes les plus claires à 25,1 %, 50,1 % et 74,6 % de sa hauteur (position = (indice du pixel − bord + 0,5) ÷ taille). TutoPhoto retient les quarts exacts.
+
+Dans TutoPhoto :
+- **Réglage.** Fenêtre « Aperçu », groupe « Grille de cadrage », trois boutons radio : « Aucune » (par défaut, comme sur le Z 6 et l'A6000), « Tiers », « Seize cases ». Le choix ne dépend pas de l'interrupteur général « Aperçu des réglages », qui ne le grise pas, et il ne compte pas dans le rappel « Aperçu coupé ». Il est mémorisé avec les interrupteurs (clé `tutophoto.apercu`, champ `grid` : `none`, `thirds`, `sixteen` ; une valeur inconnue vaut `none`).
+- **Tiers.** Deux lignes verticales et deux lignes horizontales, à 1/3 et 2/3 du cadre : tracé déduit du texte de Sony (« grid lines that divide the image into thirds ») ; la page n'a pas d'illustration et ne donne pas le nombre de lignes.
+- **Seize cases.** Trois lignes dans chaque sens, à 1/4, 1/2 et 3/4 du cadre : ce que montre l'illustration de Nikon pour le D5600.
+- **Tracé.** Des lignes placées en pourcentages dans le cadre du viseur (`div#frame`), qu'elles suivent quand il change de forme (boîtier, écran vertical). Chaque ligne est un trait clair d'un pixel bordé d'un trait sombre, pour rester lisible sur un fond clair comme sur un fond sombre. Elle ne reçoit aucun événement de pointeur : toucher le viseur déplace toujours le point de mise au point.
+- **Loupe.** La grille est masquée quand la loupe agrandit l'image, et revient quand la loupe est coupée : le cadre garde sa place alors que l'image est grossie, et les lignes ne diviseraient plus l'image entière.
+- **Photo et écran de revue.** Pas de grille. Les réglages par défaut, l'image du viseur, la photo et les trois défis ne changent pas.
+
+Choix de TutoPhoto, non sourcés, à confirmer par Julien :
+- une aide commune à tous les boîtiers, et non la copie du menu de chacun : avec un réglage par boîtier, le Z 6, boîtier par défaut, n'aurait aucun tracé sourcé ;
+- deux tracés seulement, les seuls sourcés pour les boîtiers du simulateur ;
+- l'aspect des traits (couleur, épaisseur, bord sombre), choisi pour la lisibilité ;
+- la grille masquée quand la loupe agrandit l'image ;
+- pas de grille sur la photo ni sur l'écran de revue.
+
+Non simulé : le quadrillage du Z 6 (tracé non décrit) et son attribution à une commande ([réglage f2](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_f02.html) : « Press the control to turn the framing grid display on or off. ») ; les grilles « 6x4 » et « 3x3+diag » lues dans les manuels des Canon EOS 850D et EOS R6, boîtiers voisins qui ne prouvent rien pour l'EOS RP ni l'EOS 2000D (`docs/dossiers/viseur-aides.md`) ; « Square Grid » et « Diag. + Square Grid » de Sony (tracés non décrits) ; les grilles de Canon (manuels non lus) ; la grille du viseur optique des reflex.
+
+Vérifications du 12 novembre 2026 dans le site construit, en français et en anglais, avec Chromium en rendu logiciel, qui n'émule ni le processeur graphique ni Safari :
+- ordinateur (1280 × 800, cadre de 910 × 606 px) et téléphone émulé (Pixel 7, cadre vertical de 294 × 441 px) : « Tiers » trace quatre lignes et « Seize cases » six, sur tout le cadre. Le milieu de chaque trait clair est à 0,5 px de la position exacte : le trait d'un pixel est posé juste avant elle, pour que la paire claire et sombre soit centrée dessus ;
+- toucher un croisement de la grille y place le point de mise au point ;
+- interrupteur général coupé : les trois boutons de la grille restent actifs, et le rappel « Aperçu coupé » ne cite pas la grille ;
+- loupe à 50 % puis à 100 % : aucune ligne ; loupe coupée : les lignes reviennent ;
+- autre boîtier (Canon EOS 2000D, cadre de 907 × 606 px sur ordinateur) : les lignes restent aux quarts ;
+- le choix est gardé après un rechargement ; une valeur inconnue en mémoire, ou une mémoire d'avant la version 0.3.56, donne « Aucune » sans perdre les interrupteurs ;
+- photo prise avec la grille « Tiers » : l'écran de revue recouvre le viseur, sans grille ; la grille revient au retour au viseur.
+
 ## Fonctions demandées par Julien le 9 novembre 2026
 
 Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 minimale (`data/jalons.yaml`), qui ne contient que les notions clés de SIT-01, SIT-05 et SIT-06. `CLAUDE.md` demande de ne pas étendre la V1 minimale avant de l'avoir testée avec des débutants. Julien laisse à Claude le choix du moment (« quand tu estimes que c'est le meilleur moment », 9 novembre 2026) : balance des blancs, grilles de composition et histogramme viendront après les tests de la V1 minimale. Les équivalents cités viennent du [guide d'aide Sony ILCE-7M3](https://helpguide.sony.net/ilc/1720/v1/en/print.pdf), lu le 9 novembre 2026.
@@ -558,6 +598,7 @@ Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 mi
 
 - Sur le Sony A7 III, « Grid Line » propose « Rule of 3rds Grid », « Square Grid » et « Diag. + Square Grid ».
 - Principe : un calque au-dessus du cadre du viseur, choisi dans le boîtier. Il ne change pas la photo.
+- Fait en version 0.3.56 : voir « Grilles de cadrage (version 0.3.56) », plus haut. Deux grilles (tiers, seize cases), choisies dans la fenêtre « Aperçu » et non dans le boîtier.
 
 ### Histogramme (MES-06)
 
@@ -588,7 +629,7 @@ Une pull request par étape :
 4. Loupe dans le viseur et sur l'écran de revue : faite en version 0.3.17 (voir ci-dessus).
 5. Profondeur de champ approchée dans le viseur : faite en version 0.3.22, puis en flou de taille physique en version 0.3.23 (voir ci-dessus).
 6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Indicateur d'équilibre : version 0.3.31. Traînée en pixels (MVT-01) : version 0.3.32. Modes de déclenchement (BOI-12) : version 0.3.33. Collimateurs (MAP-06) : version 0.3.34. Modes d'exposition A et S, correction d'exposition et ISO auto (BOI-07, BOI-08, MES-04, MES-10, décision de Julien du 10 novembre 2026) : version 0.3.36, avec les réglages par défaut du Z 6. Vue de dessus (NET-01) et appareil déplaçable (NET-06) : version 0.3.37. Défis des trois situations et bulletin : version 0.3.38. Ensuite : fiches des notions et des situations. LUM-02 : simulateur en V2.
-7. Après les tests de la V1 minimale : balance des blancs, grilles de composition, histogramme (voir ci-dessus). En V2 : correction de la photo après la prise.
+7. Après les tests de la V1 minimale : balance des blancs, grilles de composition, histogramme (voir ci-dessus). Dans la nuit du 11 au 12 novembre 2026, Julien demande à Claude de continuer seul ; Claude le comprend comme la levée de l'attente des tests (`docs/etat-des-travaux.md`) : grilles de cadrage (CMP-02) faites en version 0.3.56 ; restent l'histogramme et la balance des blancs. En V2 : correction de la photo après la prise.
 
 ## Ce que je ne sais pas
 
@@ -596,4 +637,5 @@ Une pull request par étape :
 - Le temps de calcul d'une photo par accumulation sur téléphone.
 - Le modèle du tremblement de la main pour le flou de bougé.
 - La fiabilité des capacités dérivées des mesures de DxOMark, que leur auteur juge lui-même peu sûres pour les petits capteurs.
+- Le tracé du quadrillage du Z 6 (réglage d9), celui des grilles « Square Grid » et « Diag. + Square Grid » de Sony, les grilles des Canon EOS RP et EOS 2000D ; ce que devient la grille d'un boîtier quand on agrandit l'image, et si un boîtier peut l'enregistrer sur la photo : les pages lues ne le disent pas.
 - La disposition des 273 collimateurs du Z 6, ce que le Z 6 affiche de leur couverture, la couverture de l'autofocus de l'A6000 (non chiffrée par Sony) et des deux reflex, et la répartition des 93 % de l'A7 III entre largeur et hauteur.

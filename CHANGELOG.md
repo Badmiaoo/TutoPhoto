@@ -12,6 +12,26 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.56] - 2026-11-12
+
+### Ajouté
+
+- Grilles de cadrage dans le viseur (CMP-02, « Tiers, centre, symétrie »). Dans la fenêtre « Aperçu », un groupe « Grille de cadrage » : « Aucune » (par défaut), « Tiers » ou « Seize cases ».
+  - « Tiers » : deux lignes verticales et deux lignes horizontales, aux tiers du cadre, d'après le texte de Sony pour « Rule of 3rds Grid » sur les A7 III et A6000 (« grid lines that divide the image into thirds », guides d'aide de Sony).
+  - « Seize cases » : trois lignes dans chaque sens, aux quarts du cadre, comme sur l'illustration de l'affichage « Framing grid » du Nikon D5600 (page Digitutor de Nikon).
+  - La grille suit le cadre du viseur, laisse les touchers au viseur, et son choix est mémorisé avec les interrupteurs de l'aperçu ; il ne dépend pas de l'interrupteur général.
+  - Choix de TutoPhoto, non sourcés, à confirmer par Julien (`docs/propositions.md`, section 4) : une aide commune à tous les boîtiers ; grille masquée quand la loupe agrandit l'image ; pas de grille sur la photo ni sur l'écran de revue.
+  - Non simulé : le quadrillage du Nikon Z 6, dont le manuel ne décrit pas le tracé ; les grilles « Square Grid » et « Diag. + Square Grid » de Sony ; les grilles de Canon, manuels non lus.
+- Fiche CMP-02, en français et en anglais : ce que disent Nikon et Sony de la grille, la règle des tiers d'après Wikipedia (source secondaire), les deux grilles du simulateur, et un exercice dans le parc (Sophia sur une ligne des tiers, puis au centre). Les pages lues ne disent pas quand centrer ni comment composer une image symétrique : la fiche l'écrit.
+- `data/sources.yaml` : sept sources (réglage d9 du Z 6 en anglais et en français, « Grid Line » de l'A7 III en anglais et en français, « Grid Line » de l'A6000, page Digitutor du D5600, article « Rule of thirds » de Wikipedia).
+- Routine de test : aucune ligne par défaut ; quatre lignes à 1/3 et 2/3 du cadre pour « Tiers », six à 1/4, 1/2 et 3/4 pour « Seize cases », à 1 pixel près ; choix écrit dans `tutophoto.apercu` ; grille masquée par la loupe à 100 %, puis revenue.
+- `docs/specifications/grilles.md` : la spécification de la fonction, écrite par Claude pendant que Julien dormait.
+
+### Modifié
+
+- `docs/camera-physique.md` (section « Grilles de cadrage (version 0.3.56) »), `docs/propositions.md` (section 4 : choix faits par Claude, à confirmer), `docs/questions-ouvertes.md`, `docs/historique.md`, `docs/etat-des-travaux.md`, `README.md`.
+- `docs/dossiers/viseur-aides.md` : section 1 relue à la source le 12 novembre 2026, rien à corriger.
+
 ## [0.3.55] - 2026-11-12
 
 ### Corrigé
@@ -831,6 +851,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.56]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.55...v0.3.56
 [0.3.55]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.54...v0.3.55
 [0.3.54]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.53...v0.3.54
 [0.3.53]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.52...v0.3.53

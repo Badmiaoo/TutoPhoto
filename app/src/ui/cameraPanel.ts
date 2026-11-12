@@ -18,6 +18,11 @@
 // Exposition (BOI-07, BOI-08, MES-04, MES-10, version 0.3.36) : modes M, A et S, correction d'exposition et ISO auto,
 // dans la fenêtre « Exposition » ouverte par l'indicateur ; l'appareil choisit ce que le mode lui laisse
 // (camera/exposureModes.ts), et tout le reste (viseur, bruit, profondeur de champ, photo) suit ses réglages.
+// Grilles de cadrage (CMP-02, version 0.3.56) : une aide du viseur, choisie dans la fenêtre « Aperçu », la même
+// pour tous les boîtiers (GRID_LINES). Choix de TutoPhoto, non sourcés : la grille est masquée quand la loupe
+// agrandit l'image, et elle n'est dessinée ni sur la photo ni sur l'écran de revue (aucune page lue ne dit ce que
+// fait un boîtier). Non simulé : le quadrillage du Nikon Z 6, dont le manuel ne décrit pas le tracé ; les grilles
+// « Square Grid » et « Diag. + Square Grid » de Sony, non décrites ; les grilles de Canon, manuels non lus.
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
@@ -122,7 +127,39 @@ const TARGET_KEYS: Record<"eye" | "face" | "nearest" | "point", MessageKey> = {
   point: "targetPoint",
 };
 
+/**
+ * Grilles de cadrage (CMP-02, version 0.3.56) : positions des lignes, en fractions de la largeur et de la hauteur
+ * du cadre, les mêmes dans les deux sens. Deux tracés seulement, les seuls sourcés pour les boîtiers du simulateur
+ * (le nombre de lignes des tiers est déduit du texte de Sony, la page n'a pas d'illustration) :
+ * - « thirds » : deux lignes dans chaque sens, aux tiers. Sony, « Grid Line », « Rule of 3rds Grid » : « Place
+ *   main subjects close to one of the grid lines that divide the image into thirds for a well-balanced
+ *   composition » (guides d'aide de l'A7 III et de l'A6000, lus le 12 novembre 2026) [sony-a7iii-grid-line]
+ *   [sony-a6000-grid-line] ;
+ * - « sixteen » : trois lignes dans chaque sens, aux quarts, soit seize cases. Nikon, Digitutor du D5600, « Framing
+ *   Grid (Live View) » : c'est ce que montre l'illustration de l'affichage « Framing grid » ; le texte de la page
+ *   ne donne pas ce nombre (lue le 12 novembre 2026) [nikon-d5600-digitutor-framing-grid]. Lignes mesurées sur
+ *   l'illustration à environ 25 %, 50 % et 75 % du cadre ; les quarts exacts sont retenus.
+ * Par défaut, aucune grille : « d9 Framing grid display Off » sur le Z 6 [nikon-z6-defaults], « Off (default
+ * setting) » sur l'A6000 [sony-a6000-grid-line]. Le manuel du Z 6 dit seulement « Choose On to display a grid for
+ * reference when framing shots » [nikon-z6-d9] : son tracé n'est pas simulé.
+ *   https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001653165.html
+ *   https://helpguide.sony.net/gbmig/45349331/v1/en/contents/TP0000518347.html
+ *   https://imaging.nikon.com/imaging/support/digitutor/d5600/functions/framing_grid_liveview.html
+ *   https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d09.html
+ */
+type GridKind = "none" | "thirds" | "sixteen";
+const GRID_LINES: Record<GridKind, readonly number[]> = {
+  none: [],
+  thirds: [1 / 3, 2 / 3],
+  sixteen: [1 / 4, 1 / 2, 3 / 4],
+};
+const isGridKind = (value: unknown): value is GridKind => typeof value === "string" && Object.prototype.hasOwnProperty.call(GRID_LINES, value);
+
 /** Interrupteurs de l'aperçu dans le viseur. */
+const PREVIEW_SWITCHES = ["all", "brightness", "noise", "depthOfField", "balance"] as const;
+type PreviewSwitch = (typeof PREVIEW_SWITCHES)[number];
+
+/** Aperçu dans le viseur : interrupteurs et grille de cadrage. */
 interface Preview {
   all: boolean;
   brightness: boolean;
@@ -130,6 +167,8 @@ interface Preview {
   depthOfField: boolean;
   /** Indicateur d'équilibre (ui/balance.ts) : une aide, que l'on peut couper pour s'entraîner. */
   balance: boolean;
+  /** Grille de cadrage : une aide, qui ne dépend pas de l'interrupteur général. */
+  grid: GridKind;
 }
 
 type Dial = "aperture" | "shutter" | "iso" | "focal";
@@ -152,6 +191,8 @@ export interface CurrentSettings {
 interface PanelElements {
   panel: HTMLElement;
   frame: HTMLElement;
+  /** Conteneur des lignes de la grille de cadrage, dans le cadre du viseur. */
+  grid: HTMLElement;
   meterNeedle: HTMLElement;
   meterValue: HTMLElement;
   bodyButton: HTMLButtonElement;
@@ -189,7 +230,9 @@ export class CameraPanel {
   private format: Format = "ff";
   private lang: Lang;
   private frame: Frame | null = null;
-  private preview: Preview = { all: true, brightness: true, noise: true, depthOfField: true, balance: true };
+  private preview: Preview = { all: true, brightness: true, noise: true, depthOfField: true, balance: true, grid: "none" };
+  /** Grille dont les lignes sont tracées dans le cadre ; null avant le premier tracé. */
+  private drawnGrid: GridKind | null = null;
   private balance: BalanceIndicator | null = null;
   private dof: ViewfinderDepthOfField | null = null;
   private autofocus: Autofocus | null = null;
@@ -281,7 +324,14 @@ export class CameraPanel {
     el.previewButton.addEventListener("click", () => el.previewDialog.showModal());
     for (const input of el.previewDialog.querySelectorAll<HTMLInputElement>("input[type=checkbox]")) {
       input.addEventListener("change", () => {
-        this.preview[input.value as keyof Preview] = input.checked;
+        this.preview[input.value as PreviewSwitch] = input.checked;
+        this.savePreview();
+        this.update();
+      });
+    }
+    for (const input of el.previewDialog.querySelectorAll<HTMLInputElement>("input[name=grid]")) {
+      input.addEventListener("change", () => {
+        if (isGridKind(input.value)) this.preview.grid = input.value;
         this.savePreview();
         this.update();
       });
@@ -716,6 +766,7 @@ export class CameraPanel {
     this.camera.fovMode = fov.axis === "vertical" ? Camera.FOVMODE_VERTICAL_FIXED : Camera.FOVMODE_HORIZONTAL_FIXED;
     this.camera.fov = fov.fov;
     if (this.enabled) this.applyLoupe(frame, body);
+    this.updateGrid();
     // Bruit du viseur : chaque pixel du cadre regroupe effectivePixels / (largeur × hauteur × grossissement²)
     // photosites.
     const resolved = this.resolved();
@@ -744,6 +795,29 @@ export class CameraPanel {
       covered.height = `${(coverage.bottom - coverage.top) * 100}%`;
     }
     for (const listener of this.viewListeners) listener();
+  }
+
+  /**
+   * Grille de cadrage : lignes placées en pourcentages du cadre, qu'elles suivent quand il change de forme (boîtier,
+   * écran vertical). Masquée quand la loupe agrandit l'image : le cadre garde sa place alors que l'image est
+   * grossie, et les lignes ne diviseraient plus l'image entière (choix de TutoPhoto, non sourcé).
+   */
+  private updateGrid(): void {
+    const kind = this.preview.grid;
+    const grid = this.el.grid;
+    if (this.drawnGrid !== kind) {
+      const line = (direction: "vertical" | "horizontal", at: number) => {
+        const element = document.createElement("div");
+        element.className = `grid-line ${direction}`;
+        element.style.setProperty(direction === "vertical" ? "left" : "top", `${at * 100}%`);
+        return element;
+      };
+      const positions = GRID_LINES[kind];
+      grid.replaceChildren(...positions.map((at) => line("vertical", at)), ...positions.map((at) => line("horizontal", at)));
+      grid.dataset.grid = kind;
+      this.drawnGrid = kind;
+    }
+    grid.hidden = kind === "none" || this.loupeZoom > 1;
   }
 
   /** Grossissement de la loupe au cran donné : 100 % = définition du capteur / grand côté du cadre. */
@@ -892,7 +966,7 @@ export class CameraPanel {
     return this.preview.all && this.preview.balance;
   }
 
-  /** Textes de la fenêtre de l'aperçu, cases cochées, et rappel dans le viseur de ce qui n'est pas montré. */
+  /** Textes de la fenêtre de l'aperçu, cases cochées, grille choisie, et rappel dans le viseur de ce qui n'est pas montré. */
   private updatePreview(tr: (key: MessageKey) => string, colon: string): void {
     const dialog = this.el.previewDialog;
     this.el.previewButton.textContent = tr("previewButton");
@@ -904,11 +978,18 @@ export class CameraPanel {
     dialog.querySelector("#preview-dof-label")!.textContent = tr("previewDepthOfField");
     dialog.querySelector("#preview-balance-label")!.textContent = tr("previewBalance");
     dialog.querySelector("#preview-note")!.textContent = tr("previewNote");
+    dialog.querySelector("#preview-grid-legend")!.textContent = tr("gridLegend");
+    dialog.querySelector("#preview-grid-none-label")!.textContent = tr("gridNone");
+    dialog.querySelector("#preview-grid-thirds-label")!.textContent = tr("gridThirds");
+    dialog.querySelector("#preview-grid-sixteen-label")!.textContent = tr("gridSixteen");
+    dialog.querySelector("#preview-grid-note")!.textContent = tr("gridNote");
     dialog.querySelector("#preview-close")!.textContent = tr("close");
     for (const input of dialog.querySelectorAll<HTMLInputElement>("input[type=checkbox]")) {
-      input.checked = this.preview[input.value as keyof Preview];
+      input.checked = this.preview[input.value as PreviewSwitch];
       if (input.value !== "all") input.disabled = !this.preview.all;
     }
+    // La grille ne dépend pas de l'interrupteur général : il ne la grise pas, et elle ne compte pas dans le rappel.
+    for (const input of dialog.querySelectorAll<HTMLInputElement>("input[name=grid]")) input.checked = input.value === this.preview.grid;
     const hidden: string[] = [];
     if (!this.showsBrightness()) hidden.push(tr("previewBrightnessShort"));
     if (!this.showsNoise()) hidden.push(tr("previewNoiseShort"));
@@ -921,11 +1002,14 @@ export class CameraPanel {
 
   private restorePreview(): void {
     try {
-      const saved = JSON.parse(window.localStorage.getItem(PREVIEW_STORAGE_KEY) ?? "null") as Partial<Preview> | null;
+      const saved = JSON.parse(window.localStorage.getItem(PREVIEW_STORAGE_KEY) ?? "null") as (Partial<Record<PreviewSwitch, unknown>> & { grid?: unknown }) | null;
       if (saved) {
-        for (const key of ["all", "brightness", "noise", "depthOfField", "balance"] as const) {
-          if (typeof saved[key] === "boolean") this.preview[key] = saved[key];
+        for (const key of PREVIEW_SWITCHES) {
+          const value = saved[key];
+          if (typeof value === "boolean") this.preview[key] = value;
         }
+        // Une valeur inconnue vaut « none », la valeur par défaut.
+        if (isGridKind(saved.grid)) this.preview.grid = saved.grid;
       }
     } catch {
       // Stockage indisponible : aperçu complet.

@@ -24,7 +24,10 @@
     </header>
     <main>
       <canvas id="scene"></canvas>
-      <div id="frame" class="frame" aria-hidden="true"></div>
+      <div id="frame" class="frame" aria-hidden="true">
+        <!-- Grille de cadrage (CMP-02, version 0.3.56) : lignes tracées par ui/cameraPanel.ts. -->
+        <div id="frame-grid" class="frame-grid" hidden></div>
+      </div>
       <div id="af-coverage" class="af-coverage" aria-hidden="true"></div>
       <div id="focus-marker" class="focus-marker" aria-hidden="true"></div>
       <p id="preview-badge" class="preview-badge" hidden></p>
@@ -166,6 +169,13 @@
         <label class="toggle"><input type="checkbox" value="balance" /> <span id="preview-balance-label"></span></label>
       </div>
       <p id="preview-note" class="note"></p>
+      <fieldset>
+        <legend id="preview-grid-legend"></legend>
+        <label><input type="radio" name="grid" value="none" /> <span id="preview-grid-none-label"></span></label>
+        <label><input type="radio" name="grid" value="thirds" /> <span id="preview-grid-thirds-label"></span></label>
+        <label><input type="radio" name="grid" value="sixteen" /> <span id="preview-grid-sixteen-label"></span></label>
+      </fieldset>
+      <p id="preview-grid-note" class="note"></p>
       <form method="dialog">
         <button id="preview-close" type="submit"></button>
       </form>

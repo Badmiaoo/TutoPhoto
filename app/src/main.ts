@@ -179,6 +179,7 @@ if (!Engine.isSupported()) {
     {
       panel: element("camera-panel"),
       frame: element("frame"),
+      grid: element("frame-grid"),
       meterNeedle: element("meter-needle"),
       meterValue: element("meter-value"),
       bodyButton: element<HTMLButtonElement>("body-button"),

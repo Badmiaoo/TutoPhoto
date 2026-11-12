@@ -68,7 +68,7 @@ Rédigées par Claude le 11 novembre 2026, pendant que Julien était absent. Il 
 - la couverture de l'autofocus des reflex Nikon D5600 et Canon EOS 2000D (11 novembre 2026) ;
 - la correction de la photo après la prise, RET-01 et RET-02 (`docs/camera-physique.md`).
 
-**Placé après les tests de la V1 minimale** (Julien a laissé le moment à Claude le 9 novembre 2026) : balance des blancs (COU-02), grilles de composition (CMP-02), histogramme (MES-06).
+**Placé après les tests de la V1 minimale** (Julien a laissé le moment à Claude le 9 novembre 2026) : balance des blancs (COU-02), grilles de composition (CMP-02), histogramme (MES-06). Dans la nuit du 11 au 12 novembre 2026, Julien demande à Claude de continuer seul ; Claude le comprend comme la levée de l'attente des tests (`docs/etat-des-travaux.md`) : les grilles sont faites en version 0.3.56, avec les choix de la section 4.
 
 **Ordre retenu, une fois les tests faits :**
 1. Corriger ce que les tests révèlent, et finir la relecture des 19 fiches.
@@ -84,3 +84,21 @@ Rédigées par Claude le 11 novembre 2026, pendant que Julien était absent. Il 
 6. Le simulateur de LUM-02 et des autres notions de lumière, avec une scène dont l'éclairage peut changer : le fond du parc est une photo par ciel couvert.
 
 **À reprendre au passage** : `docs/architecture.md`, en partie caduque depuis l'abandon de la 2.5D (avertissement en tête du fichier).
+
+## 4. Choix faits par Claude dans la nuit du 11 au 12 novembre 2026, à confirmer
+
+`CLAUDE.md` demande de proposer avant de produire. Julien dormait et avait demandé à Claude de continuer seul (`docs/etat-des-travaux.md`) : pour chaque fonction, la spécification gardée dans `docs/specifications/` a tenu lieu de proposition. Chaque choix ci-dessous a été fait sans Julien. Il peut le confirmer, ou l'annuler : chaque fonction a sa version, que l'on retire par `git revert -m 1` de son commit de fusion.
+
+### Grilles de cadrage (CMP-02, version 0.3.56)
+
+Spécification : `docs/specifications/grilles.md`. Sources et fonctionnement : `docs/camera-physique.md`, « Grilles de cadrage (version 0.3.56) ».
+
+| N° | Choix fait | Pourquoi | Autre voie |
+| --- | --- | --- | --- |
+| 1 | La grille est une aide de TutoPhoto, la même pour tous les boîtiers, réglée dans la fenêtre « Aperçu », et non la copie du menu de chaque boîtier. | Le manuel du Nikon Z 6, boîtier par défaut, dit seulement qu'un quadrillage s'affiche, sans le décrire ; les manuels de Canon n'ont pas pu être lus. | Un réglage par boîtier, avec ses noms : « d9 » activé ou désactivé pour le Z 6, « Quadrillage » à quatre valeurs pour Sony. Le Z 6 n'aurait alors aucun tracé sourcé. |
+| 2 | Deux tracés seulement : « Tiers » (deux lignes dans chaque sens, aux tiers) et « Seize cases » (trois lignes dans chaque sens, aux quarts). | Ce sont les seuls sourcés pour les boîtiers du simulateur : décrit (Sony, « Rule of 3rds Grid ») ou montré (Nikon, illustration de l'affichage « Framing grid » du D5600). L'aspect des traits (couleur, épaisseur, bord sombre) est choisi pour la lisibilité, sans source. | Ajouter un repère de centre, des diagonales ou la « Grille carrée » de Sony : aucun de ces tracés n'est décrit dans les pages lues. |
+| 3 | La grille est masquée quand la loupe agrandit l'image ; elle revient quand la loupe est coupée. | Le cadre garde sa place alors que l'image est grossie : les lignes ne diviseraient plus l'image entière. Aucune page lue ne dit ce que fait un boîtier. | Garder la grille, déplacée et grossie avec l'image. |
+| 4 | La grille n'est dessinée ni sur la photo ni sur l'écran de revue. | La grille aide à cadrer (« for reference when framing shots », Nikon). Aucune page lue n'écrit qu'elle est absente de la photo enregistrée : c'est un comportement de TutoPhoto. | Une grille à afficher aussi sur l'écran de revue, pour comparer deux placements. |
+| 5 | Dans la note de la fenêtre, le nom français « Grille règle des tiers » est donné comme lu dans le guide de l'A7 III. | La page française du guide de l'A6000 n'a pas été trouvée (404) ; son guide en anglais porte le même nom, « Rule of 3rds Grid ». | Écrire « des boîtiers Sony » sans cette précision, comme le prévoyait la spécification. |
+| 6 | La fiche CMP-02 ne dit rien sur « quand centrer » ni sur la symétrie, et l'écrit. | Les pages lues (Nikon, Sony, Wikipedia « Rule of thirds ») n'en parlent pas. | Chercher une source pour ces deux points, puis compléter la fiche. |
+| 7 | CMP-02 n'est pas ajoutée au jalon de la V1 minimale (`data/jalons.yaml`), et la fiche SIT-01 n'est pas modifiée. | La spécification ne le demande pas ; SIT-01 ne compte pas CMP-02 parmi ses notions clés. | Ajouter CMP-02 aux notions citées par SIT-01. |

@@ -1,6 +1,8 @@
 # Dossier de sources « viseur-aides »
 
 > Dossier de travail, écrit par un agent de Claude dans la nuit du 11 au 12 novembre 2026. **Pas encore relu à la source par un second agent** : la vérification indépendante prévue a été coupée par la limite d'usage. Avant de s'appuyer sur un fait, relire la citation à l'adresse donnée. Les pages brutes citées (`pages/…`) étaient sur la machine de Claude et ne sont pas dans le dépôt : les manuels ne sont pas sous licence libre.
+>
+> Section 1 (grilles de cadrage) relue à la source le 12 novembre 2026 par l'agent qui a mis en œuvre la version 0.3.56 : pages rechargées aux adresses données, citations retrouvées mot pour mot, illustration du D5600 identique, recherche en texte intégral refaite sur la copie de travail du manuel du Z 6 (« third » n'y apparaît que dans « third-party » et « a third time ») ; rien à corriger. Deux ajouts : la page française du guide de l'A6000 (même adresse avec `/fr/`) répond 404 ; les lignes de l'illustration du D5600 sont mesurées dans `docs/camera-physique.md`. Les sections 2 à 8 restent à relire.
 
 Aides affichées dans le viseur et à la lecture : grilles de cadrage, histogramme en prise de vue, histogramme à la lecture, hautes lumières (lecture et prise de vue), horizon virtuel. Notions du référentiel : CMP-02 (tiers, centre, symétrie ; simulateur « Grilles superposables »), CMP-04 (horizon ; « Rotation du cadre et niveau »), MES-06 (histogramme ; « Histogramme en direct et après la prise, relié aux zones de l'image »), MES-07 (alertes de surexposition et zébras ; « Clignotement et zébras réglables »).
 
