@@ -12,6 +12,17 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.58] - 2026-11-13
+
+### Ajouté
+
+- `docs/audit/` : audit du travail fait avant le 12 novembre 2026, demandé par Julien. Un rapport par lot (modèle physique, fiches, architecture et outils, sources, référentiel, interface et code, documentation), chaque constat avec sa preuve et sa contre-vérification par un second agent ; une synthèse avec le plan de corrections (`docs/audit/README.md`). Le script du workflow et les consignes des agents y sont gardés.
+
+### Modifié
+
+- `CLAUDE.md` : règle de reprise (Julien, 13 novembre 2026). Chaque pull request fusionnée suffit à repartir d'une session neuve ; un seul sujet à la fois, poussé dès son premier commit ; `/clear` après chaque fusion ; seuls les constats d'audit contre-vérifiés sont corrigés.
+- `docs/etat-des-travaux.md`, `docs/historique.md`.
+
 ## [0.3.57] - 2026-11-12
 
 ### Ajouté
@@ -876,6 +887,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.58]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.57...v0.3.58
 [0.3.57]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.56...v0.3.57
 [0.3.56]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.55...v0.3.56
 [0.3.55]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.54...v0.3.55

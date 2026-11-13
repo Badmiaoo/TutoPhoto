@@ -1,6 +1,6 @@
 # État des travaux
 
-## Point du 13 novembre 2026, 5 h 40 UTC : à lire d'abord
+## Point du 13 novembre 2026 : à lire d'abord
 
 Ce point prime sur l'ordre de la file plus bas.
 
@@ -8,12 +8,17 @@ Ce point prime sur l'ordre de la file plus bas.
 - Remettre en question tout le travail fait avant le 12 novembre 2026, par le modèle précédent : il « doit être challengé et si nécessaire modifier ».
 - « Que ce soit l'archi, les choix stratégiques ou les outils si tu pense que l'existant peut être amélioré fait le ne te contente pas de continuer sur un chemin défaillant, évitons les dettes techniques pour un mini projet en cours de développement ».
 
-**Limite d'usage.** La limite hebdomadaire du modèle de Claude est atteinte depuis la nuit du 12 au 13 novembre ; elle est levée le 14 novembre à 1 h UTC. Jusque-là, aucun agent ne peut tourner. Avant cela, la limite de 5 heures avait suspendu la session quatre fois. Constat : la conversation de Claude est devenue très longue, et chaque action y coûte cher ; déléguer à des agents coûte moins que d'agir dans la conversation.
+**Règle de reprise (Julien, 13 novembre 2026).** « a chaque mr fusionné on incluera dedans toutes les informations nécessaires à la reprise depuis une nouvelle session. Et ensuite une fois chaque MR fusionner, on clean la session et on repart de zéro ». Et : « je ne veux plus de sujets commencé non poussé ». Donc : un seul sujet à la fois, poussé dès son premier commit dans une pull request en brouillon ; après chaque fusion, Claude écrit à Julien « Tu peux lancer /clear », et Julien répond ensuite « Reprends à partir de docs/etat-des-travaux.md ».
+
+**Limite d'usage.** La limite de 5 heures a suspendu la session cinq fois entre le 11 et le 13 novembre ; elle laisse passer environ un agent par tranche quand la conversation est longue. Une conversation longue relit tout son contenu à chaque action : c'est elle qui consomme le plus, d'où la règle ci-dessus. Travailler par agents, et agir peu dans la conversation.
 
 **Où on en est.**
-- En ligne : version 0.3.56 (grilles de cadrage).
-- Version 0.3.57, histogrammes et hautes lumières de l'écran de revue : pull request ouverte, routine lancée par la CI le 12 novembre à 22 h 35 UTC. À fusionner si ses quatre jobs sont verts sur le dernier commit. Ce point d'état et le rapport d'audit ont été ajoutés à cette pull request pour ne pas les perdre.
-- Balance des blancs : spécification dans `docs/specifications/balance-des-blancs.md`, reportée (voir sa note).
+- En ligne : version 0.3.57 (histogrammes et hautes lumières sur l'écran de revue).
+- En cours, un seul sujet : **l'audit du travail antérieur**, dans une pull request en brouillon (version 0.3.58). Un workflow d'agents le mène lot par lot ; chaque agent pousse son rapport sous `docs/audit/` au fur et à mesure. Script : `docs/audit/audit-workflow.js.txt` ; consignes des agents : `docs/audit/consignes-agents.md`.
+- Tant que ce workflow tourne, ne pas toucher au dépôt local de la session (les agents y travaillent) : lire l'état sur GitHub.
+- Si le workflow s'arrête (limite d'usage) : regarder dans `docs/audit/` quels rapports portent un bilan de contre-vérification en tête, et relancer le script pour les lots restants, dans l'ordre : physique (contre-vérification seule), fiches, architecture, sources, referentiel, interface, documentation, puis la synthèse (`docs/audit/README.md`).
+- Quand la synthèse est poussée : la relire, passer la pull request en prête, attendre la CI, fusionner, vérifier le tag, puis dire à Julien de lancer `/clear`. Le sujet suivant est la première pull request du plan de corrections de la synthèse.
+- Balance des blancs : spécification dans `docs/specifications/balance-des-blancs.md`, reportée (voir sa note). Le début de code écrit le 12 novembre est abandonné : il sera réécrit après l'audit de l'architecture.
 
 **Nouvel ordre de travail.**
 
