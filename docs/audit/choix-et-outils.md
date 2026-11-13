@@ -97,6 +97,7 @@ Hypothèse 6, « la documentation se recouvre et chaque version touche six fichi
   - `README.md`, l. 9 : « État au 8 novembre 2026 », au-dessus d'un paragraphe qui décrit la version 0.3.57 du 12 novembre ; l. 11 : « 96 sources », alors que `data/sources.yaml` en compte 172 (`python3 scripts/validate.py`).
   - `README.en.md` : dernière modification le 9 novembre 2026 (commit `3f1822b`) ; il écrit encore « No written content yet: coverage 0 of 191 », alors que 22 fiches existent en anglais et que la couverture est de 13 sur 191.
   - `docs/etat-des-travaux.md` a deux sections « Où on en est » (l. 15 et l. 53) et deux files de travail (l. 26 et l. 59) : le point du 13 novembre a été ajouté au-dessus de l'ancien, avec la mention « Ce point prime sur l'ordre de la file plus bas » (l. 5).
+  - `docs/questions-ouvertes.md`, l. 32, dit les choix des grilles « faits sans Julien, à confirmer », et `docs/etat-des-travaux.md`, l. 111, les range parmi les choix à confirmer ; `docs/propositions.md`, l. 94, les dit « Tranché par Julien le 12 novembre 2026 », comme `docs/etat-des-travaux.md`, l. 68.
   - La liste des contrôles de la routine dans `docs/pile-technique.md` s'arrête à la version 0.3.29 (constat ARC-09).
 - Ce que cela coûtera : `CLAUDE.md`, l. 35-37, fait de `docs/etat-des-travaux.md` le point de départ de chaque session neuve, et la section « Comment reprendre » (l. 100) demande de lire aussi `docs/propositions.md` et `docs/questions-ouvertes.md` : avec `CLAUDE.md`, 59 524 octets à lire avant de commencer, qui grossissent à chaque version puisque rien n'en sort.
 - Voies.
@@ -193,6 +194,74 @@ Hypothèse 6, « la documentation se recouvre et chaque version touche six fichi
   - B. Deux niveaux : un job « pages » (liens internes, accueil, une fiche, l'activité ; un profil ordinateur et un profil téléphone) pour toute pull request qui touche `content/`, `data/` ou `app/` ; le scénario 3D sur quatre profils seulement si `app/` ou la routine changent. Demande une option du script pour ne jouer que les pages : à faire avec le découpage de la routine en étapes (ARC-05).
   - C. Ne pas lancer le scénario 3D sur une pull request en brouillon : `types: [opened, synchronize, reopened, ready_for_review]` et une condition de job sur `github.event.pull_request.draft`. Par défaut, « a workflow only runs when a `pull_request` event's activity type is `opened`, `synchronize`, or `reopened` », et `ready_for_review` est un type d'activité de `pull_request` (même dépôt, même commit, `content/actions/reference/workflows-and-actions/events-that-trigger-workflows.md`, l. 465 et 666). Risque : un échec découvert tard, au passage en « prête ».
 - Recommandation : B, dans la pull request qui découpe la routine ; C tout de suite si l'attente gêne les corrections de fiches, parce qu'elle tient en trois lignes.
+
+### CHX-08 · à améliorer · Toutes les versions sont épinglées, et rien ne dit quand ni comment les faire avancer
+
+- Endroit : `app/package.json`, l. 17-25 ; `requirements.txt` ; `.github/workflows/pages.yml`, l. 28, `routine.yml`, l. 41 et 52, `validate.yml`, l. 85 ; `docs/pile-technique.md`, l. 89-96 et 125 ; `scripts/test_app.cjs`, l. 6 et 69 ; aucun fichier `.github/dependabot.yml`.
+- État au 13 novembre 2026, d'après les registres npm et PyPI, le calendrier de Node.js et `git ls-remote` :
+
+  | Outil | Version épinglée, publiée le | Dernière version |
+  | --- | --- | --- |
+  | `@babylonjs/core`, `@babylonjs/loaders`, `babylonjs-gltf2interface` | 9.35.0, 6 novembre 2026 | 9.36.0, 12 novembre 2026 |
+  | `vite` | 8.3.6, 5 novembre 2026 | 8.3.8, 11 novembre 2026 |
+  | `typescript` | 7.0.2, 8 juillet 2026 | 7.0.2 |
+  | `playwright` (routine) | 1.63.0, 4 septembre 2026 | 1.65.1, 13 novembre 2026 |
+  | `PyYAML`, `jsonschema` | 6.0.3 et 4.26.0 | les mêmes |
+  | Node.js dans la CI | 22 | 22 est en maintenance depuis le 21 octobre 2025 et s'arrête le 30 avril 2027 ; la version 26 est la version LTS depuis le 28 octobre 2026, jusqu'au 30 avril 2029 |
+  | Les cinq actions et gitleaks | étiquettes citées dans les workflows | ce sont les dernières ; les cinq empreintes de commit sont bien celles des étiquettes |
+
+- Le rythme de Babylon.js : 33 versions stables depuis le 1er août 2026, 2,1 jours d'écart médian (registre npm). L'épingle prend donc une quinzaine de versions de retard par mois. « 9.35.0 » est écrit dans huit fichiers de `main` hors du verrou (`app/package.json`, `app/scripts/copy-licences.mjs`, `data/sources.yaml`, `docs/camera-physique.md`, `docs/pile-technique.md`, `docs/licences.md`, `docs/etat-des-travaux.md`, `CHANGELOG.md`), souvent avec le nom d'un fichier lu dans cette version.
+- Playwright : sa version est écrite dans un workflow (`routine.yml`, l. 52) et dans une page (`docs/pile-technique.md`, l. 125), dans aucun manifeste. Le message d'erreur du script conseille `npm install -g playwright` (`test_app.cjs`, l. 69), qui installe la dernière version, pas celle de la CI. Le jour de son choix (9 novembre), elle avait déjà deux versions mineures de retard (1.65.0 publiée le 5 novembre).
+- Python : `requirements.txt` épingle les deux paquets directs ; les quatre dépendances de `jsonschema` (`attrs`, `jsonschema-specifications`, `referencing`, `rpds-py`) sont prises à leur dernière version à chaque passage de la CI.
+- Ce qui est juste : `npm audit` sur une copie du verrou répond « found 0 vulnerabilities » ; les licences des registres sont celles que dit la documentation (MIT pour Vite, PyYAML et jsonschema ; Apache-2.0 pour TypeScript, Babylon.js et Playwright) ; Vite 8.3.6 accepte Node.js `^20.19.0 || >=22.12.0`.
+- Ce que cela coûte : rien aujourd'hui. Ce que cela coûtera : Node.js 22 sans correctif après le 30 avril 2027 ; des sauts de version plus grands le jour où une correction de sécurité y oblige ; des renvois de la documentation à une version que plus personne n'installe. Et le déroulé actuel refuse une mise à jour automatique : toute pull request doit ajouter une version à `CHANGELOG.md` (`validate.yml`, l. 32-42).
+- Voies.
+  - A. Ne rien faire. L'épinglage garde les constructions reproductibles ; le retard grandit.
+  - B. Une règle d'entretien dans `CLAUDE.md` : une pull request « entretien » par mois, ou avant chaque jalon. Elle lance `npm outdated` et `npm audit`, prend les versions correctives et mineures, repasse la routine, met Node.js de la CI sur la version LTS courante, et corrige les versions citées dans la documentation. Playwright entre dans un manifeste avec son verrou, au moment de la refonte des tests (ARC-05). Coût : une pull request par mois.
+  - C. Un outil de mise à jour automatique. Coût : un flux de pull requests à traiter (Babylon.js publie plusieurs fois par semaine), toutes rouges faute de section dans le changelog ; il faudrait les regrouper et les exempter du contrôle.
+- Recommandation : B.
+
+### CHX-09 · à améliorer · Rien ne dit à un contributeur extérieur comment tester ni comment proposer un changement ; le déroulé suppose un seul auteur
+
+- Endroit : `README.md`, l. 25 et 31-60 ; `README.en.md` ; `CLAUDE.md` ; `scripts/changelog.py`, l. 5-7 ; `.github/workflows/validate.yml`, l. 32-42 ; ni `CONTRIBUTING.md`, ni modèle de pull request ou de ticket sous `.github/`.
+- Preuve.
+  - `README.md`, « Lancer l'application » (l. 31-40), donne le serveur de développement et la construction, pas les tests. La routine n'est décrite que dans `CLAUDE.md`, l. 32, et dans `docs/pile-technique.md`, l. 119-141 ; elle demande Playwright « hors du dépôt » et a pris 53 minutes sur quatre cœurs (l. 124).
+  - `README.md`, l. 25, donne `CLAUDE.md` pour les « Règles de travail ». Ce fichier mêle les règles du projet (réalisme, sources, licences, identifiants stables) et les consignes de l'agent (« Claude fusionne lui-même ses pull requests », `/clear`, pied de description à réécrire) : un lecteur humain ne sait pas lesquelles valent pour lui.
+  - Toute pull request doit ajouter « une version plus récente que celle de REF » (`changelog.py`, l. 5-7). Deux pull requests ouvertes en même temps prennent le même numéro ; la seconde est à renuméroter, et `CHANGELOG.md`, `docs/historique.md` et `docs/etat-des-travaux.md` entrent en conflit.
+  - Les 64 pull requests du dépôt ont la même branche de tête, `ccr-0b29c4d4-any4xd` (API de GitHub) ; le dépôt n'a que deux branches. « Une branche et une pull request par sujet » (`CLAUDE.md`, l. 29 ; `README.md`, l. 54) décrit autre chose que ce qui est fait : un sujet à la fois, sur une branche réutilisée.
+  - `README.en.md` a 35 versions de retard (CHX-01) ; le reste de la documentation n'existe qu'en français (`CLAUDE.md`, l. 13), ce que le README anglais ne dit pas.
+  - `docs/architecture.md` décrit un autre produit, et aucune page ne décrit la structure de l'application (ARC-09).
+- Ce qui existe et aide : le tableau des dossiers de `README.md`, `docs/lire-le-referentiel.md`, `docs/contenus.md` (format des fiches, strict, vérifié par la construction), `docs/licences.md`, `docs/publication.md` ; `validate.py` et la construction échouent avec des messages en clair.
+- Ce que cela coûte : rien aujourd'hui, les 171 commits de `main` ont pour auteurs Claude et Julien. Le premier contributeur extérieur ne pourra ni tester, ni savoir quel numéro de version prendre, ni distinguer les règles qui le concernent.
+- Voies.
+  - A. Ne rien faire avant les tests de la V1 minimale.
+  - B. Le minimum, dans `README.md` : une section « Tester » (commande, prérequis, durée) ; une section « Proposer un changement » (le mainteneur attribue le numéro de version à la fusion ; les règles de `CLAUDE.md` qui valent pour tous) ; « une branche par sujet » remplacé par ce qui est fait ; `README.en.md` ramené à un résumé stable qui renvoie au français.
+  - C. `CONTRIBUTING.md`, modèles de ticket et de pull request, changelog par fragments (un fichier par pull request, assemblé à la fusion) pour permettre des pull requests en parallèle.
+- Recommandation : B, dans la pull request de documentation de CHX-01. C seulement si Julien décide d'ouvrir le projet à d'autres.
+
+### CHX-10 · à améliorer · Ce qui attend une décision de Julien est dispersé dans cinq pages, et la liste « Ce qui attend Julien » en oublie
+
+- Endroit : `docs/etat-des-travaux.md`, l. 73 et 108-114 ; `docs/camera-physique.md`, l. 13 et 76 ; `docs/historique.md`, l. 121 et 199 ; `docs/propositions.md`, l. 76 et 88-124 ; `docs/questions-ouvertes.md`, l. 12, 32 et 63 ; `docs/dossiers/scenes.md`, l. 12.
+- Preuve : liste reconstituée par `grep` de « à confirmer », « comprise comme », « lecture de Claude », « estimation de Claude » et « à trancher ».
+
+  | En attente | Depuis le | Écrit à | Dans « Ce qui attend Julien » |
+  | --- | --- | --- | --- |
+  | Boîtiers : « La réponse de Julien, « 1,2,3 », est comprise comme « les trois » » | 8 novembre | `docs/camera-physique.md`, l. 13 ; `docs/historique.md`, l. 121 | non |
+  | Viseur sans flou de mouvement : « C'est la lecture de Claude de la décision […] ; à confirmer par Julien » | 8 novembre | `docs/camera-physique.md`, l. 76 | non |
+  | Niveau des situations : règle de la médiane, « à confirmer en écrivant les premiers défis » ; les défis sont écrits depuis la version 0.3.38 | 7 novembre | `docs/questions-ouvertes.md`, l. 63 | non |
+  | Levée de l'attente des tests avant d'étendre (CHX-04) | 12 novembre | `docs/historique.md`, l. 199 | non |
+  | Situations qui réutiliseraient le parc : « une estimation de Claude » | 11 novembre | `docs/propositions.md`, l. 76 | non |
+  | Scènes suivantes sur des photos à 360° : « proposition », « à trancher par Julien » dans le dossier, mais déjà un sujet « À faire » de la file | 12 novembre | `docs/dossiers/scenes.md`, l. 12 ; `docs/etat-des-travaux.md`, l. 73 ; `docs/questions-ouvertes.md`, l. 12 | non |
+  | Onze choix des histogrammes (version 0.3.57) | 12 novembre | `docs/propositions.md`, l. 108-124 | oui |
+  | Version 0.3.53 à juger ; accord de Renderpeople ; relecture des fiches ; tests | | `docs/etat-des-travaux.md`, l. 110-114 | oui |
+
+  Pour les boîtiers, la suite vaut confirmation de fait : le 11 novembre, Julien a relevé lui-même la couverture de l'autofocus de l'EOS RP, de l'A7 III et de l'A6000 (`docs/historique.md`, l. 188-190). La phrase « comprise comme » n'a pas été mise à jour.
+- Ce que cela coûte : `CLAUDE.md`, l. 17, pose « Julien tranche ». Il ne peut trancher que ce qu'il voit ; deux questions attendent depuis cinq jours dans une page de 698 lignes, et la liste censée tout réunir compte cinq lignes.
+- Voies.
+  - A. Ne rien faire.
+  - B. Une seule table « Décisions en attente » dans `docs/etat-des-travaux.md` : la question, sa date, la page du détail, ce qui se passe sans réponse. Les autres pages y renvoient et n'écrivent plus « à confirmer ». Une décision prise sort de la table et entre dans `docs/historique.md`.
+  - C. Un ticket GitHub par décision. Julien les verrait sur son téléphone ; mais l'état ne serait plus tout entier dans le dépôt, ce que demande la règle de reprise (`CLAUDE.md`, l. 35).
+- Recommandation : B, avec la remise en ordre de CHX-01. Les questions de fond sont reprises dans « Questions à poser à Julien ».
 
 ## Vérifié
 
