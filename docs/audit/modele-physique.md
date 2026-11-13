@@ -1,6 +1,6 @@
 # Audit du lot « Modèle physique de l'appareil »
 
-> **Contre-vérification en cours, le 13 novembre 2026 : PHY-01 à PHY-10 faits (10 confirmés), PHY-11 à PHY-20 à faire.** Rapport écrit par un agent de Claude le 12 novembre 2026, à la demande de Julien ; un second agent essaie de réfuter chaque constat et écrit son verdict sous le constat (« Contre-vérification »).
+> **Contre-vérification en cours, le 13 novembre 2026 : PHY-01 à PHY-20 faits (19 confirmés, 1 réfuté) ; bilan et constats ajoutés à écrire.** Rapport écrit par un agent de Claude le 12 novembre 2026, à la demande de Julien ; un second agent essaie de réfuter chaque constat et écrit son verdict sous le constat (« Contre-vérification »).
 
 - Date : 12 novembre 2026.
 - Demande : Julien, le 12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent, et le modifier si nécessaire.
@@ -206,12 +206,16 @@ Correction : le point 1 (réécrire les l. 52-58) tout de suite. Le point 2 seul
 - Preuve (source lue pour l'audit, et calcul) : Wikipedia, « Airy disk », révision 1369075623 : l'article donne x = 1,22 × λ × f/d pour l'écart de deux points tout juste séparés, f/d étant « the f-number of a lens » ; pour f/8 et le violet (« the wavelength λ is about 420 nanometers »), « This gives a value for x of about 4 μm ». À f/22 (N exact 22,63), le diamètre du premier anneau sombre, 2,44 × λ × N, vaut 23 µm pour 420 nm et 30 µm pour 550 nm (vert, longueur d'onde choisie pour ce calcul). Le photosite du Z 6 mesure 35,9 mm / 6048 = 5,9 µm : la tache couvre 4 à 5 photosites. Le flou acceptable du simulateur, d / 1500, vaut 29 µm.
 - Correction proposée : ajouter à `docs/camera-physique.md` et à la note de l'objectif virtuel : « Diffraction non simulée : à f/16 et f/22, un vrai objectif perd du piqué ; ici, non. » Simulation en V2 avec NET-04, sources à réunir.
 
+**Contre-vérification : confirmé.** Le mot « diffraction » n'apparaît que dans le référentiel (`data/referentiel/net.yaml`) : ni la documentation ni l'interface ne disent qu'elle n'est pas simulée, alors que `CLAUDE.md` demande de dire ce qui n'est pas réaliste. Citations de la révision 1369075623 exactes ; calcul refait : 23,2 µm (420 nm) et 30,4 µm (550 nm) à f/22,6, pour un photosite de 5,94 µm et un flou acceptable de 28,8 µm. Correction : la phrase « non simulée » suffit ; y écrire le résultat du calcul (tache de 23 à 30 µm à f/22, soit 4 à 5 photosites du Z 6) plutôt que « un vrai objectif perd du piqué », qui n'est la citation d'aucune page lue.
+
 ### PHY-12 · à améliorer · Cellule : même mesure quel que soit le cadrage, sans que l'interface ni la section des modes le disent
 
 - Endroit : `app/src/camera/exposureModes.ts`, l. 82 (`sceneEv100 = SCENE_EV100`) ; `app/src/camera/exposure.ts`, l. 38 et 75 ; `docs/camera-physique.md`, l. 103 (dit, « pour l'instant ») et l. 500 (liste « Non simulés » de la version 0.3.36, qui ne le reprend pas) ; `app/src/i18n.ts`, `exposureNote` (l. 166-167).
 - Ce qui manque : en A et en S, l'appareil « choisit » d'après une scène à 12,5 IL partout. Viser le ciel ou le sol donne la même vitesse ; un débutant en déduira que la cellule ne dépend pas de ce qu'il vise.
 - Preuve (calcul, mêmes scripts que PHY-06) : entre la moitié haute de la sphère et la bande de l'horizon, la luminance moyenne varie d'un facteur 3,6 d'après le JPEG écrêté (0,339 / 0,095, soit 1,8 IL) et d'un facteur 12,5 d'après le HDR (2,534 / 0,202, soit 3,6 IL).
 - Correction proposée : ajouter « la mesure de la lumière : la cellule donne la même valeur quel que soit le cadrage (pas de mode de mesure) » à la liste « Non simulés » de la l. 500 et au texte `exposureNote`, dans les deux langues.
+
+**Contre-vérification : confirmé.** `resolveExposure(control, sceneEv100 = SCENE_EV100)` et `exposureOffset` visent la constante 12,5. Le dépôt le dit à deux endroits (`docs/camera-physique.md`, l. 103 ; `docs/etat-des-travaux.md` : « le simulateur n'a aucune mesure de la lumière »), mais ni le texte `exposureNote` de l'interface, ni la liste « Non simulés » de la l. 500, ni les fiches MES-04, MES-10, BOI-07 et BOI-08 : le débutant ne le lit nulle part. Rapports recalculés entre la moitié haute et la bande de l'horizon : 3,5 d'après le JPEG, 12,5 d'après le HDR. Correction proposée juste, et provisoire : la mesure de la lumière est dans la file de travail et dans le lot « architecture » ; la phrase partira avec elle.
 
 ### PHY-13 · à améliorer · Capacité des photosites : valeurs dérivées de DxOMark, alors que la page du bruit de lecture porte sa propre capacité et la formule de saturation
 
@@ -231,6 +235,8 @@ Correction : le point 1 (réécrire les l. 52-58) tout de suite. Le point 2 seul
 - Limite : la page ne dit pas comment `fwc` est obtenu ; je ne sais pas si c'est une mesure directe. Effet sur le bruit : 2 % au plus (racine de l'écart).
 - Correction proposée : dans la documentation, citer le calcul de la colonne « Saturation (e-) » de Claff comme source de e_sat(S) = capacité × 100 / S, à la place de « modèle proposé » ; proposer à Julien de prendre `fwc` du graphique du bruit de lecture (même page, même auteur, même jeu de mesures que σ_r), en disant ce que la page ne dit pas.
 
+**Contre-vérification : confirmé.** Correction réduite. Relus le 13 novembre 2026 : les six `fwc` du graphique (80 359, 32 718, 93 703, 32 205, 79 455, 24 583) et le calcul de la colonne « Saturation (e-) » (l. 182-185 de la page), qui vaut fwc × 100 / ISO de ISO 100 à `hiEv`, et au-delà pour le D5600. À faire : citer ce calcul comme source de e_sat(S) à la place de « modèle proposé », et donner les `fwc` de cette page comme recoupement des capacités retenues (écart de −1,5 à +4,2 %). À ne pas faire : remplacer les valeurs. La page ne dit pas d'où vient `fwc`, l'effet sur le bruit est de 2 % au plus, et la documentation porte déjà la mise en garde de Claff (l. 80 et « Ce que je ne sais pas ») : on échangerait une valeur publiée dans un tableau, avec sa mise en garde, contre un champ du code de la page, sans provenance.
+
 ### PHY-14 · à améliorer · Définition du capteur « approchée » alors que les sources lues donnent la taille de l'image
 
 - Endroit : `app/src/camera/bodies.ts`, l. 77-84 (`sensorPixels`) ; `docs/camera-physique.md`, l. 232 (« la forme exacte de l'image n'est pas lue dans les sources ») ; utilisé par `cameraPanel.ts`, l. 876 et `shutter.ts`, l. 468-470.
@@ -239,6 +245,8 @@ Correction : le point 1 (réécrire les l. 52-58) tout de suite. Le point 2 seul
   - Sony, guide d'aide ILCE-7M3 : « L: 24M 6000×4000 pixels » ; Sony, guide d'aide ILCE-6000, « Image Size (still image) » : « L: 24M 6000×4000 pixels ».
 - Calcul : `sensorPixels` donne 6066 × 4039 (Z 6), 6017 × 4022 (A7 III), 6050 × 4016 (A6000) : 0,3 à 0,8 % de trop.
 - Correction proposée : ajouter `imagePixels: { long, short }` aux boîtiers dont la taille est lue (Z 6, A7 III, A6000) et garder le calcul pour les autres ; corriger la l. 232 et l'exemple « 6066 × 4039 » ; pour le bruit, compter les pixels de l'image (24,3 millions pour le Z 6) plutôt que les pixels effectifs.
+
+**Contre-vérification : confirmé.** Correction réduite. Les trois tailles d'image sont dans les pages relues (Z 6 : « 6048 × 4024 (Large: 24.3 M) » ; A7 III et A6000 : « L: 24M 6000×4000 pixels ») : la phrase « la forme exacte de l'image n'est pas lue dans les sources » est fausse pour ces trois boîtiers. Écarts recalculés : 0,3 à 0,8 %. À faire : corriger la l. 232 et le commentaire de `sensorPixels` ; un champ facultatif `imagePixels` pour ces trois boîtiers si l'on veut une loupe exacte, les trois autres gardant le calcul. À ne pas faire : compter les pixels de l'image pour le bruit. Rien de lu ne dit lequel des deux nombres couvre les 35,9 × 23,9 mm du capteur (pas de 5,936 µm d'un côté, de 5,918 µm de l'autre), et l'effet est de 0,4 % sur le bruit.
 
 ### PHY-15 · à améliorer · Valeurs notées « extrait de recherche, page non ouverte » : état au 12 novembre 2026
 
@@ -257,6 +265,8 @@ Correction : le point 1 (réécrire les l. 52-58) tout de suite. Le point 2 seul
 - Incohérence au passage : les tableaux de la documentation (l. 29 et 176) disent encore « extrait de recherche, page non ouverte » pour l'EOS RP, alors que `bodies.ts` (l. 61-63) et `data/sources.yaml` disent la fiche de Canon Royaume-Uni relevée par Julien le 11 novembre 2026.
 - Correction proposée : remplacer `nikon-d5600-pixels` (Clifton Cameras) par le communiqué de Nikon ; mettre les tableaux des l. 21-30 et 168-177 à jour (EOS RP : « relevé par Julien ») ; pour le capteur du D5600, de l'A6000 et de l'EOS 2000D, écrire « source secondaire » avec la révision de Wikipedia à la place de l'extrait de recherche, ou demander à Julien de relever les fiches des constructeurs comme pour l'EOS RP.
 
+**Contre-vérification : confirmé.** Toutes les citations du tableau sont retrouvées dans les pages relues le 13 novembre 2026 (communiqué de Nikon du 10 novembre 2016 ; révisions 1345325532, 1380408739, 1374030103, 1381131251 et 1367164927 de Wikipedia). L'incohérence est réelle : `data/sources.yaml` (`canon-eos-rp-pixels`) et `bodies.ts` disent la fiche de Canon relevée par Julien, les tableaux des l. 29 et 176 disent encore « page non ouverte ». Le dépôt signalait déjà lui-même ces valeurs comme non ouvertes : le constat ne révèle aucune valeur fausse. Correction proposée juste ; à mener avec le lot « sources », qui couvre les mêmes entrées.
+
 ### PHY-16 · à améliorer · Exemples calculés avec les libellés, alors que le code prend les valeurs exactes des crans
 
 - Endroit : `docs/camera-physique.md`, l. 33 (« Les calculs utilisent les valeurs exactes des crans »), puis l. 65, 296-301, 416 et 540.
@@ -267,6 +277,8 @@ Correction : le point 1 (réécrire les l. 52-58) tout de suite. Le point 2 seul
   - l. 540 : hyperfocale « ≈ 4 m » (3,95 m) ; 3,89 m avec N exact et le terme + f.
 - Correction proposée : recalculer ces quatre exemples avec les valeurs exactes, ou écrire à chaque fois « avec la valeur du libellé ».
 
+**Contre-vérification : réfuté.** Exagéré. Recalculé : au degré de précision écrit, trois des quatre exemples ne changent pas (l. 65 : « ≈ 2,1 mm » pour 2,10 comme pour 2,12 ; l. 416 : « ≈ 0,19 mm », « 6,6 à 6,8 fois » et « environ 8 px » couvrent 0,191 mm, 6,66 fois et 8,0 px ; l. 540 : « ≈ 4 m » pour 3,95 comme pour 3,89 m). Seul le flou attendu du viseur bouge (58,7 → 58,1 px ; 25,1 → 24,8 px), de 1 %, dans le sens qui rapproche la mesure, et la conclusion de la l. 301 tient ; les pourcentages de la l. 66 bougent d'un dixième de point. Écrire le calcul avec le libellé (« 135 / 1,4 ») est la façon lisible de donner un exemple. Au plus, une phrase à la l. 33 : « les exemples chiffrés prennent les libellés ; l'écart avec les valeurs exactes est d'au plus 3 % (f/22) ».
+
 ### PHY-17 · à améliorer · Indicateur d'équilibre : le sujet en mouvement est cherché à la distance de mise au point, pas sous le point visé
 
 - Endroit : `app/src/ui/balance.ts`, l. 131-157.
@@ -274,12 +286,16 @@ Correction : le point 1 (réécrire les l. 52-58) tout de suite. Le point 2 seul
 - Conséquence : en AF-S, distance verrouillée sur Sophia (6,6 m), si l'on place ensuite le point sur le chien (9 m), le point reconstruit est 2,4 m devant le chien : l'indicateur écrit « sujet immobile » alors que la photo montrera la traînée. Quand le sujet est retenu, sa traînée est calculée à la distance de mise au point, à 1 m près. Le bulletin, lui, mesure à la position du sujet (`bulletin.ts`, l. 88-98).
 - Correction proposée : chercher le sujet le long du rayon du point visé (distance du sujet à ce rayon, vue de dessus), et calculer la traînée avec la position du sujet dans le repère de la caméra, comme `bulletin.ts`.
 
+**Contre-vérification : confirmé.** Correction à corriger. Code relu : le point est reconstruit à la distance de mise au point (`balance.ts`, l. 121 et 134) et la traînée calculée avec `aimed`, pas avec la position du sujet. L'exemple est à reformuler : en AF-S, toucher le chien refait la mise au point sur lui ; le cas se produit quand on verrouille sur Sophia puis qu'on recadre pour amener le point sur le chien (la « mise au point suivie d'un recadrage » de la l. 335). La recherche « le long du rayon » proposée crée un faux positif : un sujet en mouvement qui passe derrière un personnage immobile visé, à moins de 1 m du rayon, serait pris pour le sujet visé, ce que le code actuel évite. À faire : (1) calculer la traînée à la position du sujet, par la fonction de `bulletin.ts` (une seule formule pour les deux) ; (2) pour la recherche, prendre la profondeur lue sous le point dans la carte du viseur plutôt que la distance verrouillée, ou garder la recherche actuelle et écrire cette limite.
+
 ### PHY-18 · à améliorer · Bruit : deux hypothèses non dites
 
 - Endroit : `app/src/camera/noise.ts`, l. 85-89 et l. 140-145 ; `app/src/camera/photo.ts`, l. 174 ; `docs/camera-physique.md`, l. 159-165.
 - Preuve (code) : `vec3 electrons = max(v, 0.0) * noiseSaturation;`, où `v` est la couleur affichée en lumière linéaire. Les canaux rouge, vert et bleu de l'image tiennent donc lieu de canaux bruts du capteur : ni gains de balance des blancs, ni matrice de couleur. Les tirages sont gaussiens (`gaussianAt`), y compris pour quelques électrons.
 - Ce que disent les sources lues pour l'audit : Wikipedia, « Image noise », révision 1377731967 : « In color cameras where more amplification is used in the blue color channel than in the green or red channel, there can be more noise in the blue channel » ; et la loi de Poisson « can be approximated by a Gaussian distribution for large image intensity ». Je ne sais pas chiffrer l'écart pour les six boîtiers.
 - Correction proposée : ajouter aux limites de la section « Bruit numérique (version 0.3.15) » : « les canaux de l'image tiennent lieu de canaux du capteur (pas de gains de balance des blancs ni de matrice de couleur) ; tirages gaussiens, approximation de la loi de Poisson, moins bonne dans les ombres profondes ». À reprendre avec la balance des blancs (COU-01, COU-02).
+
+**Contre-vérification : confirmé.** `addSensorNoise` applique bien le modèle aux canaux de l'image affichée. Déjà dit en partie : la documentation nomme les « tirages gaussiens » (l. 162) sans dire que c'est une approximation, et `docs/specifications/balance-des-blancs.md` écrit « Le bruit propre à chaque couche après gains n'est pas simulé », mais pour une fonction reportée, pas dans la section du bruit. Citation de Wikipedia exacte ; pour l'approximation gaussienne, citer plutôt Claff (« Gain », voir PHY-04). Une phrase dans les limites de la section suffit, dans la même modification que PHY-04.
 
 ### PHY-19 · à améliorer · Flou du viseur : « sans copie », mais la boucle est celle de l'exemple de bgfx
 
@@ -291,12 +307,16 @@ Correction : le point 1 (réécrire les l. 52-58) tout de suite. Le point 2 seul
 - Ce que je ne sais pas : si quatre lignes d'un algorithme publié créent une obligation de licence, et sous quelle licence est le billet d'origine (non lu). C'est une question de droit.
 - Correction proposée : écrire « boucle reprise de l'algorithme de Gustafsson, tel que le reproduit l'exemple 45-bokeh de bgfx » à la place de « sans copie » ; soumettre à Julien, avec `docs/licences.md`, l'ajout de la mention de copyright et de la licence BSD à 2 clauses de bgfx aux crédits.
 
+**Contre-vérification : confirmé.** Fichiers de bgfx relus le 13 novembre 2026. La boucle de `DepthOfField` (`if (sampleSize > centerSize)`, `clamp(absSampleSize, 0.0, absCenterSize*2.0)`, `smoothstep(radius-0.5, radius+0.5, absSampleSize)`, `color += mix(color/total, sampleColor, m)`, `total += 1.0`, pas de `u_radiusScale/loopValue`) et la recomposition de `fs_bokeh_dof_combine.sc` (`saturate(sampleSize-1.0)`) se retrouvent, aux noms près, dans `viewfinderDof.ts` (l. 94-100 et 118) : « sans copie » est inexact. bgfx n'apparaît ni dans `docs/licences.md` (« Code de tiers dans le site publié » ne cite que Babylon.js) ni dans les crédits. Sa licence (BSD à 2 clauses, « Copyright 2010-2026 Branimir Karadzic » ; en-tête des deux fichiers : « Copyright 2021 elven cache ») demande de garder la notice dans les redistributions du code source. Je ne sais pas si ces lignes y sont soumises ; ajouter la notice coûte peu et lève le doute. Correction proposée juste : Julien tranche.
+
 ### PHY-20 · à améliorer · Le critère du sujet « figé » a une source qui n'est pas citée
 
 - Endroit : `docs/camera-physique.md`, l. 416, 418 (« les seuils, eux, sont sourcés ») et l. 531 ; `app/src/ui/balance.ts`, l. 10 ; `app/src/camera/bulletin.ts`, l. 6-8.
 - Ce qui est écrit : la traînée est comparée « au même flou acceptable » d / 1500, avec pour source l'article « Circle of confusion », cité pour le flou de mise au point. Rien ne dit que ce seuil s'applique à un flou de mouvement.
 - Preuve (source) : la même révision 1335590423 le dit, dans sa partie historique : « The common 1/100 inch CoC limit has been applied to blur other than defocus blur. For example, Wall (1889, p. 92) says: To find how quickly a shutter must act to take an object in motion that there may be a circle of confusion less than 1/100 in. in diameter, divide the distance of the object by 100 times the focus of the lens, and divide the rapidity of motion of object in inches per second by the results ». C'est la formule de TutoPhoto pour un sujet de profil : traînée = f × v × t / distance.
 - Correction proposée : citer ce passage aux trois endroits, et dire ce qui reste un choix de TutoPhoto : prendre la limite d / 1500 d'aujourd'hui à la place du 1/100 de pouce de 1889.
+
+**Contre-vérification : confirmé.** Passage retrouvé mot pour mot dans la révision 1335590423 (section « Wall 1889 ») ; la règle de Wall, pose = distance / (100 × focale × vitesse du sujet), donne une traînée f × v × t / distance égale à la limite de 1/100 de pouce. Le constat joue en faveur du travail audité : le critère a une source, il manque sa citation. Correction proposée juste ; écrire que la source est secondaire (Wikipedia citant Wall, 1889) et que prendre d / 1500 pour le mouvement reste un choix de TutoPhoto.
 
 ## Vérifié
 
