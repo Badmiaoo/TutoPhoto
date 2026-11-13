@@ -639,7 +639,7 @@ sources:
     used_in: [docs/camera-physique.md]
   - id: nikon-z6-defaults
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, Defaults : ISO 100 en P, S, A, M, contrôle de la sensibilité auto activé, sensibilité maximale 51200 (Z 6), vitesse minimale Auto ; Focus mode Single AF, AF-area mode Single-point AF ; a4 Face and eye detection on ; c2 retardateur 10 s ; d1 Continu L 3 vps (lu le 10 novembre 2026) ; d9 Framing grid display Off (relu le 12 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6, Defaults : ISO 100 en P, S, A, M, contrôle de la sensibilité auto activé, sensibilité maximale 51200 (Z 6), vitesse minimale Auto ; Focus mode Single AF, AF-area mode Single-point AF ; a4 Face and eye detection on ; c2 retardateur 10 s ; d1 Continu L 3 vps (lu le 10 novembre 2026) ; d9 Framing grid display Off ; g6 Highlight display, Display pattern Off, Highlight display threshold 248 ; aucune ligne pour Playback display options (relu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html"
     used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/en/notions/BOI-12.md, content/en/notions/MAP-04.md, content/en/notions/MES-10.md, content/fr/notions/BOI-12.md, content/fr/notions/MAP-04.md, content/fr/notions/MES-10.md, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/dossiers/balance-des-blancs.md, docs/dossiers/viseur-aides.md]
   - id: nikon-d850-auto-iso
@@ -747,3 +747,58 @@ sources:
     label: "Wikipedia, Rule of thirds : image divisée en neuf parties égales par deux lignes horizontales et deux lignes verticales, éléments importants sur ces lignes ou à leurs croisements ; « to discourage placement of the subject at the center » ; expression écrite pour la première fois par John Thomas Smith en 1797 ; réserves de George Field (1845) et étude d'Amirshahi et collègues (2014) (révision 1383322855 du 2 novembre 2026, source secondaire, lue le 12 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Rule_of_thirds&oldid=1383322855"
     used_in: [content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md]
+  - id: nikon-z6-photo-information
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, Photo Information : à la lecture, la commande DISP fait défiler les pages d'information, dont « None (image only) », « RGB histogram » et « Highlights », affichées seulement si elles sont sélectionnées dans « Playback display options » ; « Histogram (RGB channel) », puis canaux rouge, vert et bleu ; « Highlights (areas that may be overexposed) » ; « Histograms show tone distribution, with pixel brightness (tone) plotted on the horizontal axis and the number of pixels on the vertical axis. » ; « Camera histograms are intended as a guide only and may differ from those displayed in imaging applications. » ; avec la loupe, « The histogram will be updated to show only the data for the portion of the image visible in the display. » ; la page ne définit pas « RGB channel » et ne dit ni comment les hautes lumières sont marquées ni à quel seuil (lu le 12 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/08_more_about_playback_02.html"
+    used_in: [app/src/camera/histogram.ts, app/src/ui/reviewInfo.ts, content/en/notions/MES-06.md, content/en/notions/MES-07.md, content/fr/notions/MES-06.md, content/fr/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: nikon-z6-photo-information-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Informations sur les photos : « Histogramme RVB », « Histogramme (canal RVB) », canaux rouge, vert et bleu ; « Hautes lumières (zones susceptibles d'être surexposées) » ; « la luminosité des pixels (tons) figurant sur l'axe horizontal et le nombre de pixels figurant sur l'axe vertical » ; « Les histogrammes de l'appareil photo ne doivent servir que de référence. » (apostrophes typographiques dans la page ; lu le 12 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/08_more_about_playback_02.html"
+    used_in: [content/fr/notions/MES-06.md, content/fr/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: nikon-z6-g6
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé g6 Highlight Display, groupe « g: Movie » : des hachures indiquent les hautes lumières en vidéo ; « Highlight display threshold », « If 255 is selected, the highlight display will show only areas that are potentially overexposed. » ; seule valeur de seuil écrite dans les pages lues (lu le 12 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_g06.html"
+    used_in: [app/src/camera/histogram.ts, content/en/notions/MES-07.md, content/fr/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: nikon-z6-g6-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, g6 : Affichage des hautes lumières : « Si 255 est sélectionné, seules les zones susceptibles d'être surexposées seront indiquées. » (lu le 12 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_g06.html"
+    used_in: [content/fr/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: nikon-z6-camera-controls
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, Camera Controls, The DISP Button : en mode photo, la commande DISP fait défiler « Indicators on », « Simplified display », « Histogram », « Virtual horizon », « Information display », « Flash info » ; l'histogramme n'est pas affiché quand le réglage d8 (Apply settings to live view) est sur Off (lu le 12 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/02_getting_to_know_the_camera_02.html"
+    used_in: [docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: sony-a7iii-switching-display
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, guide d'aide ILCE-7M3 (A7 III), Switching the screen display (while shooting/during playback) : à la lecture, « Display Info. → Histogram → No Disp. Info. → Display Info. » ; « If the image has an overexposed or underexposed area, the corresponding section will blink on the histogram display (overexposed/underexposed warning). » ; « The settings for playback are also applied in [Auto Review]. » ; « A peak at the right or left end of the histogram indicates that the image has an overexposed or underexposed area, respectively. You cannot correct such defects using a computer after shooting. » ; le seuil du clignotement n'est pas donné (lu le 12 novembre 2026)"
+    url: "https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001653116.html"
+    used_in: [app/src/ui/reviewInfo.ts, content/en/notions/MES-06.md, content/en/notions/MES-07.md, content/fr/notions/MES-06.md, content/fr/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: sony-a7iii-switching-display-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Changement d'affichage d'écran (pendant la prise de vue ou la lecture) : « Si l'image présente des zones surexposées ou sous-exposées, la partie correspondante clignote sur l'affichage de l'histogramme (avertissement surexposition/sous-exposition). » ; « Vous ne pourrez pas corriger de tels défauts au moyen d'un ordinateur après la prise de vue. » (apostrophes typographiques dans la page ; lu le 12 novembre 2026)"
+    url: "https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001662878.html"
+    used_in: [content/fr/notions/MES-06.md, content/fr/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: sony-a7iii-icons
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, guide d'aide ILCE-7M3 (A7 III), List of icons on the monitor : écran de lecture « Histogram display », « Histogram (Luminance/R/G/B) » (lu le 12 novembre 2026)"
+    url: "https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001667671.html"
+    used_in: [app/src/camera/histogram.ts, content/en/notions/MES-06.md, content/fr/notions/MES-06.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: sony-a7iii-zebra
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, guide d'aide ILCE-7M3 (A7 III), Zebra Setting : « Sets a zebra pattern, which appears over part of an image if the brightness level of that part meets the IRE level that you have set. » ; pour la surexposition, « The zebra pattern will appear over areas with a brightness level equal to or higher than the value you set. » ; la page ne définit pas l'échelle IRE et ne liste pas les valeurs (lu le 12 novembre 2026)"
+    url: "https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001667679.html"
+    used_in: [content/en/notions/MES-07.md, content/fr/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: sony-a7iii-zebra-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Régl. zebra : motif zébré « sur une portion d'une image si le niveau de luminosité de cette portion atteint le niveau IRE que vous avez défini » (apostrophes typographiques dans la page ; lu le 12 novembre 2026)"
+    url: "https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001667947.html"
+    used_in: [content/fr/notions/MES-07.md, docs/camera-physique.md]
+  - id: wikipedia-srgb
+    group: "Physique, rendu et technique"
+    label: "Wikipedia, sRGB, section « Primaries » : matrice du sRGB linéaire vers XYZ, dont la ligne Y vaut 0,2126 ; 0,7152 ; 0,0722, « these 4-digit coefficients should be considered exact » (révision 1378992844 du 7 octobre 2026, source secondaire, lue le 12 novembre 2026). TutoPhoto applique ces coefficients aux valeurs encodées de la photo pour son histogramme de luminance : c'est son choix, pas celui de la norme."
+    url: "https://en.wikipedia.org/w/index.php?title=SRGB&oldid=1378992844"
+    used_in: [app/src/camera/histogram.ts, content/en/notions/MES-06.md, content/fr/notions/MES-06.md, docs/camera-physique.md, docs/dossiers/balance-des-blancs.md]

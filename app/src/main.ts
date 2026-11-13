@@ -12,6 +12,7 @@ import { BalanceIndicator } from "./ui/balance";
 import { TopView } from "./ui/topView";
 import { ChallengePicker } from "./ui/challenges";
 import { FicheDialog } from "./ui/ficheDialog";
+import { ReviewInfo } from "./ui/reviewInfo";
 import { initialLang, rememberLang, t, type Lang } from "./i18n";
 
 function element<T extends HTMLElement>(id: string): T {
@@ -256,6 +257,22 @@ if (!Engine.isSupported()) {
     subjects,
     () => challenges?.current() ?? null,
     () => balance?.lastNoise() ?? null,
+    // Affichages de l'écran de revue (version 0.3.57) : photo seule, histogrammes, hautes lumières.
+    new ReviewInfo(
+      {
+        review: element("review"),
+        image: element<HTMLImageElement>("review-image"),
+        highlights: element<HTMLCanvasElement>("review-highlights"),
+        row: element("review-info-row"),
+        button: element<HTMLButtonElement>("review-info"),
+        histograms: element("review-histograms"),
+        clipping: element("review-clipping"),
+        details: element("review-info-details"),
+        limits: element("review-info-limits"),
+        note: element("review-info-note"),
+      },
+      lang,
+    ),
   );
   balance = new BalanceIndicator(
     engine,

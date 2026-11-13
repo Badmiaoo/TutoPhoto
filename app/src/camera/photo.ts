@@ -15,6 +15,9 @@
 // - Loupe de l'écran de revue : la même photo (même instant, même orientation, même mise au point) est
 //   recalculée sur une fenêtre de l'image, à la définition du capteur. La fenêtre est obtenue en
 //   resserrant la projection : x' = (x − centre) / demi-largeur, en coordonnées normalisées.
+// - Histogrammes et zones écrêtées (MES-06, MES-07 ; version 0.3.57) : mesurés sur les pixels 8 bits de la photo
+//   finale, avant sa compression en JPEG (camera/histogram.ts). La loupe passant par ce même calcul, ses mesures
+//   portent sur la fenêtre agrandie.
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
@@ -28,6 +31,7 @@ import "@babylonjs/core/Shaders/postprocess.vertex";
 import "@babylonjs/core/Rendering/depthRendererSceneComponent";
 import type { Body } from "./bodies";
 import { NOISE_GLSL, NOISE_UNIFORMS, bindNoise, noiseParameters } from "./noise";
+import { measureTones, type PhotoTones } from "./histogram";
 
 /** Hauteur de l'œil au-dessus du sol et rayon de la sphère du fond (scene.ts), en mètres. */
 export interface GroundInfo {
@@ -117,6 +121,8 @@ export interface PhotoResult {
   /** Dimensions de l'image complète, en pixels. */
   fullWidth: number;
   fullHeight: number;
+  /** Histogrammes et zones écrêtées de l'image calculée : la photo, ou la fenêtre de la loupe (camera/histogram.ts). */
+  tones: PhotoTones;
 }
 
 const ACCUMULATE = `
@@ -430,6 +436,8 @@ export async function takePhoto(
       image.data.set(pixels.subarray((height - 1 - y) * rowBytes, (height - y) * rowBytes), y * rowBytes);
     }
     context.putImageData(image, 0, 0);
+    // Histogrammes et zones écrêtées, sur les valeurs exactes des pixels : le JPEG les modifierait.
+    const tones = measureTones(image.data, width, height);
     const blob = await new Promise<Blob>((resolve, reject) =>
       canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Photo vide"))), "image/jpeg", 0.92),
     );
@@ -445,6 +453,7 @@ export async function takePhoto(
       replay: { t0, rotation: camera.rotation.clone(), focusDistance },
       fullWidth,
       fullHeight,
+      tones,
     };
   } finally {
     scene.disableDepthRenderer(camera);

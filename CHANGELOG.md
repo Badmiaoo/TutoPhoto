@@ -12,6 +12,29 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.57] - 2026-11-12
+
+### Ajouté
+
+- `docs/audit/modele-physique.md` : premier rapport de l'audit demandé par Julien le 12 novembre 2026 (20 constats, pas encore contre-vérifiés) ; `docs/specifications/balance-des-blancs.md` (fonction reportée) ; point d'état du 13 novembre en tête de `docs/etat-des-travaux.md`.
+- Histogrammes et hautes lumières sur l'écran de revue (MES-06, « Histogramme » ; MES-07, « Alertes de surexposition et zébras »). Sous chaque photo, un bouton « Infos » fait défiler trois affichages, comme la commande DISP des boîtiers à la lecture : photo seule (par défaut), histogrammes, hautes lumières. Le choix est mémorisé et vaut pour les photos suivantes, pour chaque vue d'une série et pour la loupe.
+  - « Histogrammes » : quatre histogrammes sous la photo réduite, dans l'ordre du Nikon Z 6 et du Sony A7 III (luminance, rouge, vert, bleu), le noir à gauche ; une ligne de texte donne la part des pixels dont au moins une couche est à la valeur maximale.
+  - « Hautes lumières » : ces pixels clignotent en noir sur la photo, une seconde en noir, une seconde visibles, sans prendre les touchers, qui ouvrent toujours la loupe. Sans pixel à la valeur maximale, la photo ne change pas et le texte le dit.
+  - Avec la loupe, histogrammes, part et zones portent sur la partie affichée, comme sur le Z 6.
+  - Sources : pages « Photo Information » et « g6: Highlight Display » du manuel du Z 6, pages « Switching the screen display » et « List of icons on the monitor » du guide de l'A7 III.
+  - Choix de TutoPhoto, non sourcés, à confirmer par Julien (`docs/propositions.md`, section 4) : la formule de la luminance (0,2126 R + 0,7152 V + 0,0722 B, sur les valeurs de la photo), l'échelle verticale des histogrammes, le seuil à 255, le clignotement pour tous les boîtiers et son rythme, un bouton qui fait défiler trois affichages.
+  - Non simulé : l'histogramme en direct dans le viseur et les zébrures à la prise de vue, renvoyés à une autre version ; l'alerte des zones sous-exposées de Sony ; les réglages d'image du boîtier.
+- Fiches MES-06 et MES-07, en français et en anglais : ce que disent Nikon et Sony de l'histogramme, des hautes lumières et des zébrures ; les affichages du simulateur, leurs calculs et ce qui n'est pas simulé ; deux exercices dans le parc (trois photos à −2, 0 et +2 IL ; exposer le plus clair possible sans faire clignoter le haut blanc de Sophia). Leurs situations ne sont pas rédigées : la brique « situation réelle » leur manque.
+- `data/sources.yaml` : onze sources (pages « Photo Information », « g6: Highlight Display » et « Camera Controls » du Z 6, pages « Switching the screen display », « List of icons on the monitor » et « Zebra Setting » de l'A7 III, avec leurs versions françaises quand les fiches les citent ; article « sRGB » de Wikipedia).
+- Routine de test, avec `--photo` : ni histogramme ni clignotement par défaut ; quatre histogrammes dont la somme des colonnes égale le nombre de pixels de la photo ; part écrêtée et zones posées sur la photo pour une photo surexposée de 3,2 IL ; aucune zone et luminance à gauche pour une photo sous-exposée de 3,2 IL ; retour à « photo seule ».
+- `docs/specifications/histogramme-revue.md` : la spécification de la fonction, écrite par Claude sans Julien, avec les écarts de la mise en œuvre.
+
+### Modifié
+
+- Écran de revue : le bouton « Infos » s'ajoute sous la photo ; la légende et le bulletin descendent d'une ligne.
+- `docs/camera-physique.md` (section « Histogrammes et hautes lumières sur l'écran de revue (version 0.3.57) »), `docs/propositions.md` (section 4 : onze choix à confirmer), `docs/questions-ouvertes.md`, `docs/historique.md`, `docs/etat-des-travaux.md`, `README.md`.
+- `docs/dossiers/viseur-aides.md` : sections 3 et 4 relues à la source le 12 novembre 2026, rien à corriger, trois phrases ajoutées.
+
 ## [0.3.56] - 2026-11-12
 
 ### Ajouté
@@ -853,6 +876,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.57]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.56...v0.3.57
 [0.3.56]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.55...v0.3.56
 [0.3.55]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.54...v0.3.55
 [0.3.54]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.53...v0.3.54

@@ -42,6 +42,12 @@
 //   immobile, le rapport signal/bruit à ISO 6400 tombe sous 40 % de celui à ISO 100 (environ 17 % attendus :
 //   6 IL de sensibilité en plus, 0,87 IL d'exposition en plus, bruit photonique) ; traînée du chien évaluée ;
 // - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne ;
+// - avec --photo, histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07, version 0.3.57) : par défaut,
+//   ni histogramme ni clignotement ; « Infos » une fois : quatre histogrammes (luminance, rouge, vert, bleu), la
+//   somme des colonnes de chacun égale au nombre de pixels de la photo ; photo surexposée de 3,2 IL : part écrêtée
+//   supérieure à 0 dans le texte, puis « Infos » encore une fois : zones écrêtées posées sur la photo, sans prendre
+//   les touchers ; photo sous-exposée de 3,2 IL : aucune zone, plus de la moitié des pixels de luminance dans la
+//   moitié gauche ; retour à « photo seule » et aux réglages de départ ;
 // - avec --photo, rafale (BOI-12) : en Continu L à 5 vues par seconde, déclencheur tenu jusqu'à deux vues au
 //   moins, espacées de 0,2 s sur l'horloge de la scène, que l'écran de revue fait défiler ;
 // - mise au point (MAP-04, MAP-05, MAP-09), en fin de test parce que la vue change : AF-C et point sélectif par
@@ -672,6 +678,76 @@ async function runProfile(browser, name, base) {
       const bulletinText = await page.evaluate(() => document.getElementById("review-bulletin").innerText);
       check("bulletin sous la photo", /Exposition : /.test(bulletinText) && /Zone nette : /.test(bulletinText), bulletinText.split("\n").slice(0, 3).join(" | "));
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-photo.png`), timeout: 120000 });
+
+      // Histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07 ; version 0.3.57). Le bouton « Infos »
+      // fait défiler : photo seule (par défaut), histogrammes, hautes lumières. État lu dans la page :
+      // - histogrammes visibles, avec les nombres de pixels de leurs colonnes (attribut data-columns) ;
+      // - texte de la part écrêtée (« … : 3,2 % de l'image », avec une espace insécable devant « % », ou « Aucun
+      //   pixel à la valeur maximale ») ;
+      // - calque des zones écrêtées : affiché ou non (il clignote : sa visibilité ne compte pas), pixels opaques,
+      //   écart en pixels entre son rectangle et celui de la photo, et élément touché au centre de la photo.
+      const reviewInfo = () =>
+        page.evaluate(() => {
+          const shown = (el) => !el.hidden && el.getClientRects().length > 0;
+          const img = document.getElementById("review-image");
+          const pixels = img.naturalWidth * img.naturalHeight;
+          const histograms = [...document.querySelectorAll("#review-histograms svg[data-channel]")].filter(shown).map((svg) => {
+            const columns = (svg.dataset.columns ?? "").split(",").map(Number);
+            const sum = (list) => list.reduce((a, b) => a + b, 0);
+            return { channel: svg.dataset.channel, count: columns.length, total: sum(columns), left: sum(columns.slice(0, 128)) };
+          });
+          const clipping = document.getElementById("review-clipping");
+          const text = shown(clipping) ? clipping.textContent : "";
+          const m = /: (\d+,\d)\s% de l'image/.exec(text);
+          const overlay = document.getElementById("review-highlights");
+          const zones = { shown: shown(overlay), opaque: 0, gap: NaN };
+          if (zones.shown) {
+            const data = overlay.getContext("2d").getImageData(0, 0, overlay.width, overlay.height).data;
+            for (let i = 3; i < data.length; i += 4) if (data[i] === 255) zones.opaque++;
+            const a = overlay.getBoundingClientRect();
+            const b = img.getBoundingClientRect();
+            zones.gap = Math.max(Math.abs(a.left - b.left), Math.abs(a.top - b.top), Math.abs(a.right - b.right), Math.abs(a.bottom - b.bottom));
+          }
+          const box = img.getBoundingClientRect();
+          let saved = null;
+          try {
+            saved = JSON.parse(localStorage.getItem("tutophoto.revue") ?? "null")?.display ?? null;
+          } catch {
+            saved = "illisible";
+          }
+          return {
+            button: document.getElementById("review-info").textContent,
+            pixels,
+            histograms,
+            text,
+            share: m ? Number(m[1].replace(",", ".")) : /^Aucun pixel à la valeur maximale/.test(text) ? 0 : NaN,
+            zones,
+            touched: document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)?.id ?? "",
+            exposure: /Exposition : (\S+ IL)/.exec(document.getElementById("review-bulletin").innerText)?.[1] ?? "",
+            saved,
+          };
+        });
+      const infoDefault = await reviewInfo();
+      check(
+        "revue : ni histogramme ni clignotement par défaut",
+        infoDefault.button === "Infos : photo seule" && infoDefault.histograms.length === 0 && !infoDefault.zones.shown && infoDefault.text === "" && infoDefault.saved === null,
+        `bouton « ${infoDefault.button} » ; ${infoDefault.histograms.length} histogramme(s) ; zones écrêtées ${infoDefault.zones.shown ? "affichées" : "masquées"} ; tutophoto.revue : ${infoDefault.saved}`,
+      );
+      await page.click("#review-info");
+      const infoHistograms = await reviewInfo();
+      check(
+        "revue, « Infos » une fois : quatre histogrammes, somme des colonnes égale au nombre de pixels",
+        infoHistograms.button === "Infos : histogrammes" &&
+          infoHistograms.histograms.map((h) => h.channel).join() === "luminance,red,green,blue" &&
+          infoHistograms.histograms.every((h) => h.count === 256 && h.total === infoHistograms.pixels) &&
+          infoHistograms.pixels > 0 &&
+          infoHistograms.saved === "histograms",
+        `${infoHistograms.histograms.map((h) => `${h.channel} ${h.total}`).join(", ")} ; photo de ${infoHistograms.pixels} pixels ; ${infoHistograms.text} ; tutophoto.revue : ${infoHistograms.saved}`,
+      );
+      if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-histogrammes.png`), timeout: 120000 });
+      // Retour à « photo seule » (par « hautes lumières ») : la loupe de l'écran de revue est contrôlée comme avant.
+      await page.click("#review-info");
+      await page.click("#review-info");
       const box = await page.locator("#review-image").boundingBox();
       await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
       await page.waitForFunction(() => document.getElementById("progress").hidden && !document.getElementById("review-whole").hidden, null, { timeout: 300000 });
@@ -679,6 +755,59 @@ async function runProfile(browser, name, base) {
       check("loupe de l'écran de revue", /100/.test(caption), caption);
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-loupe.png`), timeout: 120000 });
       await page.click("#review-back");
+
+      // Photo surexposée, puis sous-exposée (MES-06, MES-07). Réglages de départ : M, f/8, 1/4000 s, ISO 6400, soit
+      // +0,5 IL (12,5 − 12). Les crans valent un tiers d'IL et la scène est à un demi-tiers : 3 IL exactement
+      // n'existe pas. Vitesse à 1/640 s (8 crans) : +0,5 + 8/3 = +3,2 IL. Puis 1/4000 s et ISO 500 (11 crans) :
+      // +0,5 − 11/3 = −3,2 IL.
+      const shoot = async () => {
+        await page.click("#shutter-button");
+        await page.waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden && document.getElementById("review-image").complete, null, { timeout: 300000 });
+      };
+      await clicks('[data-dial="shutter"][data-step="1"]', 8);
+      await shoot();
+      await page.click("#review-info");
+      const over = await reviewInfo();
+      check(
+        "photo surexposée de 3,2 IL : part écrêtée supérieure à 0 dans le texte",
+        over.exposure === "+3,2 IL" && over.share > 0 && over.histograms.length === 4 && over.histograms.every((h) => h.total === over.pixels),
+        `exposition ${over.exposure} ; ${over.text}`,
+      );
+      await page.click("#review-info");
+      const overZones = await reviewInfo();
+      const zoneShare = (100 * overZones.zones.opaque) / overZones.pixels;
+      check(
+        "« Infos » encore une fois : zones écrêtées posées sur la photo",
+        overZones.button === "Infos : hautes lumières" && overZones.zones.shown && overZones.zones.opaque > 0 && Math.abs(zoneShare - overZones.share) < 0.06 && overZones.zones.gap <= 1 && overZones.touched === "review-image" && overZones.histograms.length === 0,
+        `${overZones.zones.opaque} pixels en noir, soit ${zoneShare.toFixed(2)} % ; ${overZones.text} ; écart avec la photo ${overZones.zones.gap.toFixed(2)} px ; toucher au centre de la photo : ${overZones.touched}`,
+      );
+      if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-hautes-lumieres.png`), timeout: 120000 });
+      await page.click("#review-back");
+      await clicks('[data-dial="shutter"][data-step="-1"]', 8);
+      await clicks('[data-dial="iso"][data-step="-1"]', 11);
+      // L'affichage « hautes lumières » est gardé pour la photo suivante : sans zone écrêtée, rien ne clignote.
+      await shoot();
+      const underZones = await reviewInfo();
+      await page.click("#review-info");
+      await page.click("#review-info");
+      const under = await reviewInfo();
+      const luminance = under.histograms.find((h) => h.channel === "luminance") ?? { left: 0, total: 0 };
+      check(
+        "photo sous-exposée de 3,2 IL : aucune zone écrêtée, luminance dans la moitié gauche",
+        under.exposure === "−3,2 IL" && underZones.button === "Infos : hautes lumières" && underZones.share === 0 && !underZones.zones.shown && under.share === 0 && luminance.left > under.pixels / 2 && luminance.total === under.pixels,
+        `exposition ${under.exposure} ; hautes lumières : ${underZones.text} ; ${luminance.left} pixels sur ${under.pixels} dans la moitié gauche de la luminance`,
+      );
+      // Retour à « photo seule » et aux réglages de départ avant la suite.
+      await page.click("#review-info");
+      await page.click("#review-info");
+      const infoOff = await reviewInfo();
+      check(
+        "revue : retour à « photo seule »",
+        infoOff.button === "Infos : photo seule" && infoOff.histograms.length === 0 && !infoOff.zones.shown && infoOff.text === "" && infoOff.saved === "photo",
+        `bouton « ${infoOff.button} » ; tutophoto.revue : ${infoOff.saved}`,
+      );
+      await page.click("#review-back");
+      await clicks('[data-dial="iso"][data-step="1"]', 11);
     }
 
     if (withPhoto) {

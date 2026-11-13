@@ -68,6 +68,19 @@
       </div>
       <section id="review" class="review" hidden>
         <img id="review-image" alt="" />
+        <!-- Affichages de l'écran de revue (MES-06, MES-07 ; version 0.3.57 ; ui/reviewInfo.ts). L'image reste le
+             premier élément, sans conteneur : les zones écrêtées sont un calque placé sur elle, qui ne prend pas les
+             touchers (toucher la photo ouvre la loupe). -->
+        <canvas id="review-highlights" class="review-highlights" aria-hidden="true" hidden></canvas>
+        <div id="review-info-row" class="review-actions" hidden>
+          <button id="review-info" type="button"></button>
+        </div>
+        <div id="review-histograms" class="review-histograms" hidden></div>
+        <p id="review-clipping" class="review-caption" role="status" hidden></p>
+        <details id="review-info-details" class="review-info-details" hidden>
+          <summary id="review-info-limits"></summary>
+          <p id="review-info-note" class="note"></p>
+        </details>
         <p id="review-caption" class="review-caption"></p>
         <ul id="review-bulletin" class="review-bulletin" hidden></ul>
         <p id="review-hint" class="review-caption"></p>
