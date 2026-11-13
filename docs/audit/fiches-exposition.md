@@ -5,8 +5,9 @@
 - Date : 13 novembre 2026.
 - Demande : Julien, le 12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent, et le modifier si nécessaire.
 - Version auditée : copie de travail à la version 0.3.58 ; les seize fiches datent de la version 0.3.40 (11 novembre 2026), EXP-06 complétée le même jour (0.3.42).
-- Auteur : un agent de Claude. Un second agent doit encore essayer de réfuter chaque constat.
-- Avancement : rapport en cours d'écriture ; ce qui reste à couvrir est listé à la fin de l'en-tête.
+- Auteurs : un agent de Claude, coupé par la limite d'usage le 13 novembre 2026 après FEX-12 ; un autre agent de Claude a repris le rapport le même jour (FEX-13 et suivants, compléments marqués « reprise », essais dans un navigateur). Un autre agent doit encore essayer de réfuter chaque constat.
+- Reprise : les constats de la première passe sur toutes les fiches (`docs/audit/fiches.md`, constats FIC) qui portent sur ces huit notions ont été vérifiés un par un ; la correspondance est dans la section « Constats FIC repris ».
+- Avancement : reprise en cours ; ce qui reste à couvrir est dit dans la section « Ce qui n'est pas couvert », à la fin.
 
 ## Périmètre
 
@@ -20,9 +21,20 @@
 2. Relecture de chaque source citée à son adresse, le 13 novembre 2026, quand l'hôte répond ; chaque affirmation de fiche est cherchée dans le texte extrait de la page enregistrée.
 3. Chaque chiffre et chaque exercice est rejoué avec le code du simulateur : `exposure.ts`, `exposureModes.ts` et `sharpZone.ts` compilés hors du dépôt (`tsc`), puis appelés par des scripts (`exercices.cjs`, `etat_depart.cjs`) ; le rapport signal sur bruit est recalculé d'après `balance.ts` et `noise.ts` (`bruit_exp06.py`).
 4. Chaque réglage, libellé et bouton nommé par une fiche est cherché dans le code de l'interface.
-5. Aucun navigateur : ce que les fiches annoncent est établi par le code et le calcul, pas par un essai dans le simulateur affiché.
+5. Première rédaction (FEX-01 à FEX-12) : aucun navigateur ; ce que les fiches annoncent y est établi par le code et le calcul.
 
 Pages enregistrées, textes extraits, scripts et leurs sorties : dossier `audit/fiches-exposition/` du bloc-notes de la session, hors du dépôt (`pages/`, `texte/`, `scripts/`, `*.out`). Rien n'y est gardé d'une session à l'autre : les preuves utiles sont recopiées ici.
+
+### Reprise (13 novembre 2026)
+
+1. Les trois modules compilés par la première rédaction sont recompilés depuis le code courant (fichiers identiques), et ses trois scripts relancés : mêmes sorties, au caractère près.
+2. Citations des sources : 42 passages recherchés mot pour mot par un script dans les pages enregistrées par la première rédaction ; tous retrouvés.
+3. Chaque constat FIC qui porte sur les huit notions est vérifié à nouveau (source relue, code relu, calcul refait) avant d'être repris.
+4. Calculs nouveaux : traînée du chien et limite « figé » pour les six boîtiers (`boitiers.cjs`), zone nette de l'exercice de BOI-07 par ouverture (`boi07.cjs`).
+5. Sources lues en plus : manuels de Canon et de Sony, pour les noms des modes (FEX-15).
+6. Navigateur : site construit hors du dépôt depuis le code courant (`vite build`, même fichier que celui de la contre-vérification du modèle physique), ouvert dans Chromium sans écran (rendu logiciel, Playwright, fenêtre de 1280 × 800, densité 1, interface en français), script `essais.cjs`. Cet essai n'émule ni un processeur graphique ni Safari. Les sorties de la première passe (`preuves-123.out`, `preuves-45678.out`, prises de la même façon) sont citées quand elles portent sur ces huit notions.
+
+Scripts et sorties de la reprise : sous-dossier `reprise/` du même dossier du bloc-notes de la session.
 
 ## Sources
 
@@ -46,6 +58,8 @@ Toutes lues le 13 novembre 2026. Wikipedia est une source secondaire.
 | Nikon, manuel en ligne Z 7/Z 6 (en) : « Specifications », « c2: Self-Timer », « d1: CL Mode Shooting Speed », « d2: Max. Continuous Release » | `https://onlinemanual.nikonimglib.com/z7_z6/en/14_technical_notes_06.html`, `…/09_menu_guide_05_c02.html`, `_d01.html`, `_d02.html` | `nikon-z6-en-14_technical_notes_06.html`, `nikon-z6-en-09_menu_guide_05_*.html` |
 | Nikon, manuel en ligne Z 7/Z 6 (fr), pour les termes : « Commande ISO (sensibilité [ISO]) », « Commande correction d'exposition », « Réglage de la sensibilité », « Indicateurs et messages d'erreur » | `https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_02.html`, `_03.html`, `09_menu_guide_03_08.html`, `13_troubleshooting_02.html` | `nikon-z6-fr-*.html` |
 | William J. Claff, PhotonsToPhotos, « Input-referred Read Noise versus ISO Setting » (« Last revised: 2026-08-17 ») | `https://www.photonstophotos.net/Charts/RN_e.htm` | `ptp-RN_e.htm` |
+| Canon, manuel en ligne de l'EOS 850D (en et fr ; page sans date) : « Shutter-Priority AE Mode (Tv) », « Aperture-Priority AE Mode (Av) », « Drive Mode » ; « Mode d'exposition automatique avec priorité à l'obturation (Tv) », « … avec priorité à l'ouverture (Av) », « Mode d'acquisition ». Boîtier voisin, pas un boîtier du simulateur | `https://cam.start.canon/en/C002/manual/html/UG-03_CustomShooting_0030.html`, `…_0040.html`, `UG-04_AF-Drive_0060.html` ; mêmes pages sous `…/fr/C002/…` | `reprise/pages/canon-850d-*.html` |
+| Sony, guide d'aide ILCE-7M3 (A7 III), en et fr, en un fichier (« Copyright 2018 Sony Corporation ») : « Drive Mode », « Entraînement », liste des modes de prise de vue | `https://helpguide.sony.net/ilc/1720/v1/en/print.pdf`, `https://helpguide.sony.net/ilc/1720/v1/fr/print.pdf` | `reprise/pages/sony-ilce-7m3-en-print.pdf`, `…-fr-print.pdf` |
 
 ### Non relues
 
@@ -76,6 +90,8 @@ Toutes lues le 13 novembre 2026. Wikipedia est une source secondaire.
 - Ce qui est juste : f/4 est bien un IL au-dessus de f/5.6, et 1/100 s ramène bien l'exposition de f/4 et 1/400 s. Le reste du dépôt le dit déjà correctement : « à −1/6 IL de la scène » (`exposure.ts`, l. 79), « ISO 250 donne −1/6 IL, ISO 320 donne +1/6 IL » (fiche EXP-06), « d'environ −0,2 IL à +0,8 IL » (fiche MES-04).
 - Conséquence : le débutant cherche un « 0 » qui n'existe pas (deux vitesses sont à égalité, 1/160 s et 1/200 s), puis un « +1 » qui n'existe pas non plus.
 - Correction proposée : EXP-04, « règle f/5.6 et 1/200 s : la cellule affiche −0,2 IL, le plus près de 0 que la scène permet (elle vaut 12,5 IL, entre deux crans). Trouve l'ouverture qui donne un IL de plus sans toucher à la vitesse ni à l'ISO. Réponse : f/4, la cellule affiche +0,8 IL » ; EXP-05, « la cellule descend de deux IL, de −0,2 à −2,2 IL ». Même chose en anglais.
+- Reprise, mesure dans un navigateur (sortie `preuves-123.out` de la première passe, interface en français) : à f/5,6 et ISO 100, sans ISO auto, la cellule écrit « M · +0,5 IL » à 1/125 s, « M · +0,2 IL » à 1/160 s, « M · −0,2 IL » à 1/200 s, « M · −0,5 IL » à 1/250 s ; à f/4, « M · +0,8 IL » à 1/200 s et « M · +1,2 IL » à 1/160 s ; pour EXP-05, « M · −0,2 IL », « M · −2,2 IL », « M · −0,2 IL ». Ce sont les valeurs du tableau.
+- Reprise, réalisme (repris de FIC-01, vérifié) : l'indicateur du Z 6 a une position « exposition optimale » et se lit par tiers ou demi-IL. Manuel, « The Mode Dial », encadré « Exposure Indicators » : « Depending on the option chosen for Custom Setting b1 (EV steps for exposure cntrl), the amount of under- or overexposure is shown in increments of 1/3 or 1/2 EV », avec les exemples « Optimal exposure », « Underexposed by 1/3 EV », « Overexposed by over 3 EV » (`https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_01.html`, lu le 13 novembre 2026, fichier `nikon-z6-en-06_shooting_controls_01.html`). Dans TutoPhoto, l'indicateur écrit des dixièmes d'IL et aucun réglage manuel n'atteint 0, parce que la scène est placée à un demi-tiers de tous les crans (`exposure.ts`, l. 38 ; `exposureModes.ts`, l. 26-28). Je ne sais pas ce qu'un Z 6 affiche pour un écart de 1/6 IL : le manuel ne le dit pas. À la racine, deux options qui relèvent du modèle physique et de Julien : placer la scène sur un cran (12⅓ ou 12⅔ IL), ou graduer l'indicateur par tiers comme le Z 6. L'une ou l'autre rendrait l'exercice jouable tel qu'il est écrit, mais change la vue de départ, des exemples de `docs/camera-physique.md` et des contrôles de la routine.
 
 ### FEX-02 · incohérent · EXP-04, EXP-05, EXP-06, « Simulateur » : ce qui est décrit ne vaut qu'avec l'ISO auto désactivé, or il est activé au départ
 
@@ -95,6 +111,7 @@ Toutes lues le 13 novembre 2026. Wikipedia est une source secondaire.
   | allonger à 1/50 s | ISO 100 | M · +0,8 IL |
   | boutons « + » de la molette « ISO auto », valeur choisie 200, 800 ou 6400 | ISO 100 | M · −0,2 IL |
 
+- Reprise, mesure dans un navigateur (`essais.cjs`, partie A, stockage du navigateur vide) : à l'ouverture, la cellule écrit « M · −0,2 IL », les molettes « Ouverture f/8 », « Vitesse 1/100 s », « ISO auto 100 », et la fenêtre « Exposition » a « ISO auto activé ; sensibilité maximale ISO 6400 ; vitesse minimale 1/30 s ». En fermant à f/11, f/16 puis f/22, la cellule reste à « M · −0,2 IL » et la molette passe à « ISO auto 200 », « 400 », « 800 » ; à f/5,6, « M · +0,8 IL » et « ISO auto 100 » ; à 1/200 s, 1/1000 s et 1/4000 s, « M · −0,2 IL » et « ISO auto 200 », « 1000 », « 4000 ». Ce sont les lignes du tableau.
 - Conséquence : dans l'état où le simulateur s'ouvre, fermer le diaphragme ou raccourcir la pose ne fait bouger ni la cellule ni la luminosité du viseur (l'ISO monte à la place, jusqu'à 6400), et les boutons de la molette ISO ne changent pas la valeur affichée. Le débutant qui lit « montrent tout de suite l'effet » voit le contraire une fois sur deux. Le comportement lui-même est celui que la documentation annonce (`docs/camera-physique.md`, l. 489-492) ; ce sont les fiches qui ne le disent pas.
 - Correction proposée : en tête de la section « Simulateur » des trois fiches, une phrase : « Au départ, l'ISO auto est activé, comme sur le Z 6 : l'appareil rattrape tes réglages en changeant la sensibilité. Désactive-le dans la fenêtre « Exposition » (touche l'indicateur d'exposition, voir MES-10) pour voir l'effet de chaque réglage seul. » ; dans EXP-06, préciser que la molette s'appelle « ISO auto » tant qu'il est activé. Même chose en anglais. Changer l'état de départ du simulateur est une autre option, qui relève de Julien.
 
@@ -207,6 +224,79 @@ Toutes lues le 13 novembre 2026. Wikipedia est une source secondaire.
 4. `MES-10.md`, l. 13 : « l'ISO auto descend jusqu'à ISO 100 » est donné comme une règle du manuel du D850, qui écrit « the minimum value for auto ISO sensitivity is automatically set to ISO 64 », sa sensibilité la plus basse. Le passage à ISO 100 est une transposition de TutoPhoto, dite dans `exposureModes.ts` (l. 15-17), pas dans la fiche. Correction : « l'ISO auto descend jusqu'à la sensibilité la plus basse du boîtier (ISO 64 sur le D850 ; ISO 100 ici) ».
 5. `BOI-12.md`, l. 13 : « Non simulés : la mémoire tampon, le mode silencieux ». `docs/camera-physique.md`, l. 442, en liste deux de plus : l'exposition qui « may vary erratically » en Continu H (étendu), et plusieurs vues au retardateur. À ajouter, ou à renvoyer à la documentation.
 
+### FEX-13 · à améliorer · MES-10, BOI-08 et BOI-12 : « 1/1000 s fige le chien » ne vaut qu'avec un boîtier plein format (reprise)
+
+- Endroit : `content/fr/notions/MES-10.md`, l. 17 ; `BOI-08.md`, l. 13 ; `BOI-12.md`, l. 17 ; mêmes lignes en anglais.
+- Ce qui est écrit : « À 1/1000 s, le chien (3,5 m/s à 9 m, 50 mm) laisse 50 × 3,5 × 0,001 / 9 ≈ 0,019 mm, soit 0,8 px sur la photo, sous la limite de 1,2 px : il est figé » (MES-10) ; « En mode S à 1/1000 s […] réussis le défi SIT-06 » (BOI-08). Aucune des trois fiches ne dit avec quel boîtier. Les fiches des situations, elles, le disent : « boîtier de TutoPhoto (Nikon Z 6, 50 mm) » (`content/fr/situations/SIT-06.md`, l. 9).
+- Preuve (code) : le simulateur propose six boîtiers, trois plein format et trois APS-C (`app/src/camera/bodies.ts`, l. 33-75), et garde le choix d'une visite à l'autre (`app/src/ui/cameraPanel.ts`, l. 1094-1097 et 1119-1120). Le sujet est « figé » quand sa traînée sur le capteur, en millimètres, ne dépasse pas le flou acceptable, diagonale du capteur / 1500 (`app/src/camera/bulletin.ts`, l. 79 et 108 ; `sharpZone.ts`, l. 8-10). La traînée en millimètres ne dépend pas du capteur ; la limite, si.
+- Preuve (calcul, `boitiers.cjs`, formules de `bulletin.ts`, pose exacte du cran « 1/1000 », 1/1024 s ; chien à 9 m, 3,5 m/s, 50 mm) :
+
+  | Boîtier | Flou acceptable | Traînée à 1/1000 s | Verdict | Première pose « figée » |
+  | --- | --- | --- | --- | --- |
+  | Nikon Z 6 | 0,0288 mm | 0,0190 mm, soit 0,79 px | figé | 1/800 s |
+  | Sony A7 III | 0,0286 mm | 0,0190 mm, soit 0,80 px | figé | 1/800 s |
+  | Canon EOS RP | 0,0288 mm | 0,0190 mm, soit 0,79 px | figé | 1/800 s |
+  | Nikon D5600 | 0,0188 mm | 0,0190 mm, soit 1,21 px | traînée (1,01 fois la limite) | 1/1250 s |
+  | Sony A6000 | 0,0188 mm | 0,0190 mm, soit 1,21 px | traînée (1,01 fois la limite) | 1/1250 s |
+  | Canon EOS 2000D | 0,0179 mm | 0,0190 mm, soit 1,28 px | traînée (1,06 fois la limite) | 1/1250 s |
+
+  En pixels de la photo, la limite vaut 1,20 px pour les six boîtiers. Avec le D5600 ou l'A6000, le bulletin écrit donc une traînée et une limite arrondies au même chiffre : « traînée de 1,2 px, au-delà du flou acceptable (limite 1,2 px) » (`app/src/ui/challenges.ts`, l. 162-166, un chiffre après la virgule).
+- La focale compte autant : au 85 mm, il faut 1/1250 s en plein format, et aucune des six poses de 1/500 à 1/1600 s ne suffit en APS-C (même script). Les fiches la donnent (« 50 mm »), mais c'est le réglage de départ, pas une consigne.
+- Conséquence : un débutant qui a choisi le boîtier qui ressemble au sien (D5600, A6000 ou EOS 2000D) suit l'exercice de BOI-08 ou de MES-10 à la lettre et lit « Manqué : chien figé », avec une explication chiffrée qui semble se contredire.
+- Ce qui est juste : avec le boîtier de départ, tous les chiffres des trois exercices (point 28 de « Vérifié »).
+- Correction proposée : dans les trois exercices, « Avec le boîtier de départ (Nikon Z 6) et le 50 mm : […] » ; dans MES-10, ajouter « Avec un boîtier APS-C, le capteur est plus petit et la limite aussi : il faut 1/1250 s. » Même chose en anglais. Hors du lot, pour le rapport de l'interface : quand la traînée et la limite s'arrondissent au même chiffre, le bulletin devrait écrire un chiffre de plus.
+
+### FEX-14 · non sourcé · MES-10, « Simulateur » : « sa règle n'est pas publiée », une vitesse minimale de départ qui n'est pas celle du Z 6, et une règle prêtée au seul D850 (reprise ; repris de FIC-06, complété)
+
+- Endroit : `content/fr/notions/MES-10.md`, l. 13 ; `content/en/notions/MES-10.md`, l. 13.
+- Ce qui est écrit : « Deux règles viennent du manuel du Nikon D850, celui du Z 6 ne les donnant pas : l'ISO auto descend jusqu'à ISO 100, et en mode A il ne monte que si la vitesse passerait sous la vitesse minimale […]. L'option « Automatique » de la vitesse minimale n'est pas simulée : sa règle n'est pas publiée. »
+- Preuve (source, page citée par la fiche, relue le 13 novembre 2026, fichier `nikon-z6-en-09_menu_guide_03_08.html`) :
+  1. « sa règle n'est pas publiée » : la fiche ne peut pas affirmer qu'une règle n'est publiée nulle part ; seules les pages lues comptent (`CLAUDE.md` : « Information invérifiable : « Je ne sais pas » »). Et la page en dit plus que la fiche : « If Auto is selected for Auto ISO sensitivity control > Minimum shutter speed, the camera will choose the minimum shutter speed based on the focal length of the lens. For example, the camera will automatically select fast minimum shutter speeds to reduce the blur that commonly occurs with telephoto lenses. »
+  2. Réglage de départ : sur le Z 6, la vitesse minimale est sur « Auto » (« Defaults » : « Minimum shutter speed : Auto », fichier `nikon-z6-en-09_menu_guide_01.html`). TutoPhoto part de 1/30 s (`app/src/ui/cameraPanel.ts`, l. 93-100 ; mesuré dans un navigateur, état de départ : « vitesse minimale 1/30 s »). Cette valeur vient du manuel du D850, pour un cas que TutoPhoto transpose : « if a non-CPU lens is used without lens data, minimum shutter speed is fixed at 1/30 s ». La fiche dit que l'ISO auto est activé comme sur le Z 6, mais pas que sa vitesse minimale de départ n'est pas celle du Z 6. Le même écart vaut pour la sensibilité maximale : 51 200 par défaut sur le Z 6 (« Defaults »), 6400 dans TutoPhoto, haut de son échelle (FEX-03).
+  3. « celui du Z 6 ne les donnant pas » : pour la seconde règle, la page du Z 6 la donne en substance, et la fiche la reprend elle-même à la l. 7 : « Minimum shutter speed: Choose the shutter speed below which auto ISO sensitivity control will kick in to prevent underexposure in modes P and A ». Ce que le manuel du D850 ajoute est le mot « only » (« sensitivity will only be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed »), et ce que le code en tire est dit plus juste dans `app/src/camera/exposureModes.ts`, l. 15 : le manuel du Z 6 ne dit pas « s'il baisse la sensibilité en A ».
+- Correction proposée : « Une règle vient du manuel du Nikon D850, celui du Z 6 ne la donnant pas : l'ISO auto descend jusqu'à la sensibilité la plus basse du boîtier (ISO 64 sur le D850, ISO 100 ici). Le manuel du D850 précise aussi qu'en mode A la sensibilité n'est modifiée que si la vitesse passerait sous la vitesse minimale. Sur le Z 6, la vitesse minimale est réglée au départ sur « Automatique » : l'appareil la choisit d'après la focale, plus rapide au téléobjectif ; le manuel ne donne pas la règle, et TutoPhoto ne la simule pas. Il part de 1/30 s, valeur que le manuel du D850 fixe quand « Automatique » ne peut pas fonctionner. » Même chose en anglais. Le point 4 de FEX-12 est repris dans cette phrase.
+
+### FEX-15 · à améliorer · BOI-07, BOI-08 et BOI-12 : seuls les noms de Nikon, alors que le simulateur propose des boîtiers Canon et Sony ; le titre de BOI-12 n'est pas expliqué (reprise)
+
+- Endroit : `content/fr/notions/BOI-07.md`, l. 1 et 5 ; `BOI-08.md`, l. 1 et 5 ; `BOI-12.md`, l. 1 et 5 ; mêmes lignes en anglais.
+- Ce qui est écrit : « En mode A, « Auto à priorité ouverture » », « En mode S, « Auto à priorité vitesse » », d'après le manuel du Z 6. Le titre de BOI-12 est « Modes d'entraînement » (« Drive modes »), et son texte ne parle que du « mode de déclenchement » (« release mode ») : aucune phrase ne dit que c'est la même chose.
+- Preuve (dépôt) : le référentiel nomme les deux notions pour plusieurs marques, « aperture priority, A/Av » et « shutter priority, S/Tv » (`data/referentiel/boi.yaml`, l. 63 et 73) ; les fiches anglaises ont gardé « Aperture priority » et « Shutter priority ». Le simulateur propose deux boîtiers Canon et deux Sony (`app/src/camera/bodies.ts`, l. 52-74) ; sa fenêtre « Exposition » n'a que les lettres de Nikon (`app/src/i18n.ts`, l. 152-154 et 386-388).
+- Preuve (sources lues le 13 novembre 2026) :
+
+  | Marque | Priorité à l'ouverture | Priorité à la vitesse | Vue par vue, rafale, retardateur |
+  | --- | --- | --- | --- |
+  | Nikon Z 6 | « A Auto à priorité ouverture » ; « A Aperture-priority auto » | « S Auto à priorité vitesse » ; « S Shutter-priority auto » | « mode de déclenchement » ; « release mode » |
+  | Sony A7 III | « A (Priorité ouvert.) » ; « A (Aperture Priority) » | « S (Priorité vitesse) » ; « S (Shutter Priority) » | « Entraînement » ; « Drive Mode » |
+  | Canon EOS 850D (boîtier voisin) | « Mode d'exposition automatique avec priorité à l'ouverture (Av) » ; « Aperture-Priority AE Mode (Av) », « [Av] stands for Aperture value » | « Mode d'exposition automatique avec priorité à l'obturation (Tv) » ; « Shutter-Priority AE Mode (Tv) », « [Tv] stands for Time value » | « Mode d'acquisition » ; « Drive Mode » |
+
+  Adresses : Sony, `https://helpguide.sony.net/ilc/1720/v1/fr/print.pdf` et `…/en/print.pdf` ; Canon, `https://cam.start.canon/fr/C002/manual/html/UG-03_CustomShooting_0040.html`, `…_0030.html`, `UG-04_AF-Drive_0060.html`, et les mêmes sous `/en/`. Je n'ai pas trouvé les manuels de l'EOS RP et de l'EOS 2000D sur l'hôte joignable : les termes de Canon viennent d'un boîtier voisin.
+- Conséquence : le titre « Modes d'entraînement » est le terme de Sony ; un débutant qui a un Nikon ne le trouvera pas sur son boîtier, et la fiche ne fait pas le lien. Un débutant qui a un Canon ne trouvera ni « A » ni « S » sur sa molette, alors que le simulateur lui propose son boîtier.
+- Correction proposée : une phrase par fiche, avec ces sources (à ajouter à `data/sources.yaml` pour Canon ; le guide de Sony y est déjà, `sony-ilce-7m3-help-guide`). BOI-07 : « Sony l'appelle aussi A (« Priorité ouvert. »), Canon l'appelle Av (« Aperture value »). » BOI-08 : « Sony l'appelle aussi S (« Priorité vitesse »), Canon l'appelle Tv (« Time value »). » BOI-12 : « Nikon dit « mode de déclenchement », Sony « entraînement », Canon « mode d'acquisition » ; en anglais, « release mode » chez Nikon, « drive mode » chez Sony et Canon. » Même chose en anglais. Que la fenêtre « Exposition » suive la marque choisie est une autre question, pour le rapport de l'interface et pour Julien.
+
+### FEX-16 · incohérent · Les fiches françaises écrivent « f/5.6 », l'interface française « f/5,6 » (reprise ; repris de FIC-09, troisième point)
+
+- Endroit : `content/fr/notions/EXP-04.md`, l. 7, 13 et 17 (« f/1.4 », « f/2.8 », « f/5.6 », « f/3.2 », « f/3.5 ») ; `content/fr/notions/BOI-08.md`, l. 9 et 13 (« f/1.4 »). Hors du lot, même écriture dans `MAP-06.md`, `NET-01.md` et `SIT-06.md`.
+- Preuve (code) : en français, l'interface remplace le point par une virgule dans les ouvertures (`app/src/ui/cameraPanel.ts`, l. 695-699 : `decimal`, puis `` `f/${decimal(apertureLabel(settings.aperture))}` ``). Mesuré dans un navigateur : la molette affiche « f/5,6 » et « f/2,5 », et la légende de la photo « S · f/2,5 · 1/1000 s » (sorties `preuves-123.out` et `preuves-45678.out`).
+- Dans la même phrase, la fiche EXP-04 écrit « f/5.6 » et « (5,6 / 4)² ≈ 1,96 » (l. 17).
+- Preuve (sources) : le manuel français de Canon écrit la virgule, « (Avec un nombre-f d'ouverture faible : f/5,6) » (EOS 850D, « Mode d'exposition automatique avec priorité à l'ouverture (Av) », lu le 13 novembre 2026). Les pages françaises du manuel du Z 6 lues pour l'audit n'ont qu'une ouverture, sans décimale (« f/25 »). Je ne sais pas ce qu'affichent l'écran d'un boîtier réglé en français ni la bague d'un objectif : aucune page lue ne le montre.
+- Correction proposée : une seule écriture en français, la même dans les fiches et dans l'interface. Le plus court est d'aligner les fiches sur l'interface (virgule), comme le manuel français de Canon ; l'inverse demande une source pour ce qu'affiche un boîtier. Julien tranche.
+
+### FEX-17 · à améliorer · BOI-07, exercice : « ouvre à f/2 ou plus » se lit dans les deux sens (reprise ; repris de FIC-17, premier point)
+
+- Endroit : `content/fr/notions/BOI-07.md`, l. 13. L'anglais dit « open up to f/2 or wider », sans équivoque.
+- Preuve (calcul, `boi07.cjs`, Nikon Z 6, 50 mm, mise au point sur l'œil de Sophia à 6,6 m) : la zone nette s'arrête à 7,77 m à f/2 et à 7,94 m à f/2.2, puis dépasse le banc (8 m) dès f/2.5 (8,15 m), et le chien (9 m) dès f/3.5 (9,02 m). Le défi SIT-01 demande que rien de ce qui est dans le cadre, à plus de 1 m derrière Sophia, ne soit dans la zone nette (`app/src/camera/bulletin.ts`, l. 120-123).
+- Conséquence : un débutant qui lit « f/2 ou plus » comme « f/2 ou un nombre plus grand » (f/2.8, f/4) fait l'inverse de ce qui est voulu, et le défi échoue dès que le banc ou le chien est dans le cadre.
+- Correction proposée : « ouvre à f/2 ou davantage (f/1.8, f/1.6, f/1.4 : un nombre plus petit) ».
+
+### FEX-18 · à améliorer · EXP-04, EXP-05 et EXP-06 : Wikipedia citée sans dire que c'est une source secondaire ; dates de lecture qui ne sont pas celles de `data/sources.yaml` (reprise ; repris de FIC-18, complété)
+
+- Endroit : `content/fr/notions/EXP-04.md`, l. 5 ; `EXP-05.md`, l. 5 ; `EXP-06.md`, l. 15 ; mêmes lignes en anglais.
+- Preuve :
+  1. Les trois fiches citent une révision de Wikipedia comme seule source d'une définition ou d'une règle, sans la qualifier. Les fiches écrites ensuite le font : « source secondaire » dans `LUM-02.md` (l. 11), `CMP-02.md` (l. 7) et `MES-06.md` (l. 25). `data/sources.yaml` le dit pour les trois entrées (`wikipedia-f-number`, `wikipedia-shutter-speed`, `wikipedia-film-speed` : « source secondaire »).
+  2. EXP-04 et EXP-05 écrivent « lue le 11 novembre 2026 ». Les deux entrées de `data/sources.yaml` disent « lue le 8 novembre 2026 », et leur libellé ne décrit que ce que le code en tire : « « Typical one-third-stop f-number scale » » et « crans normalisés de 1/1000 à 1 s, échelle 2:1 ». La définition du nombre f, l'éclairement en 1/N², la profondeur de champ et la définition du temps de pose, que les fiches en tirent, n'y sont pas, ni la lecture du 11 novembre. Pour « Film speed », la fiche et l'entrée disent toutes deux le 10 novembre 2026.
+- Ce qui est juste : les six affirmations sont bien dans les révisions citées (points 1 à 5, 8 et 9 de « Vérifié »).
+- Correction proposée : ajouter « source secondaire » aux trois citations, dans les deux langues ; compléter les deux libellés de `data/sources.yaml` avec ce que les fiches en tirent et la date du 11 novembre 2026. Une source primaire (manuel, norme) pour ces définitions serait mieux : je n'en ai pas cherché.
+
 ## Vérifié
 
 EXP-04 (ouverture)
@@ -243,7 +333,7 @@ MES-10 (ISO auto)
 23. Manuel du Z 6, « ISO Sensitivity Settings » : « the camera will automatically adjust ISO sensitivity when optimal exposure cannot be achieved at the value selected for ISO sensitivity » ; « Maximum sensitivity: Choose an upper limit for ISO sensitivity to prevent it being raised too high » ; « Minimum shutter speed: Choose the shutter speed below which auto ISO sensitivity control will kick in to prevent underexposure in modes P and A » ; « Shutter speeds may drop below the selected minimum if optimum exposure cannot be achieved at the ISO sensitivity chosen for Maximum sensitivity ».
 24. « Defaults » : « Auto ISO sensitivity control : On ». La correction prise en compte par l'ISO auto en M : citation du point 20.
 25. Manuel du D850 : « the minimum value for auto ISO sensitivity is automatically set to ISO 64 » ; « In exposure modes P and A, sensitivity will only be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed ».
-26. « L'option « Automatique » […] : sa règle n'est pas publiée » : la page dit seulement « the camera will choose the minimum shutter speed based on the focal length of the lens ».
+26. L'option « Automatique » de la vitesse minimale : la page dit « the camera will choose the minimum shutter speed based on the focal length of the lens », sans règle chiffrée. La phrase de la fiche (« sa règle n'est pas publiée ») va plus loin que la page : voir FEX-14 (corrigé à la reprise).
 27. Simulateur : les trois réglages sont dans la fenêtre « Exposition » ; sensibilité maximale de ISO 200 à 6400 (`cameraPanel.ts`, l. 92 et 610-612) ; la molette s'appelle « ISO auto » dans les deux langues (`i18n.ts`, l. 161 et 395) et montre la valeur retenue.
 28. Exercice, à ISO 100 et sans correction : mode A, f/8, vitesse minimale 1/1000 s, maximum 6400 donnent ISO 1000 et 1/1000 s. Traînée du chien : 50 × 3,5 × 0,001 / 9 = 0,0194 mm, soit 0,81 px (0,79 px avec la valeur exacte du cran, 1/1024 s), pour une limite de 43,1 / 35,9 = 1,20 px. À f/8, la zone nette va de 4,9 à 51 m pour une mise au point à 9 m : le chien y est.
 
@@ -270,6 +360,43 @@ Les seize fiches
 42. Balisage : seulement ce que `docs/contenus.md` autorise (titre, sections de niveau 2, paragraphes, listes à tirets, gras, liens) ; les trois sections attendues existent dans chaque fiche.
 43. Chaque lien d'une fiche correspond à une source de `data/sources.yaml` dont le champ `used_in` nomme la fiche ; `python3 scripts/validate.py` : 0 erreur.
 
+Reprise (13 novembre 2026)
+44. Les points 1 à 43 tiennent, sauf le point 26 (voir FEX-14) : scripts de la première rédaction relancés sur le code recompilé (mêmes sorties), et 42 passages recherchés mot pour mot dans les pages enregistrées (tous retrouvés). Les mots « minimum value » sont absents des deux pages du Z 6 sur la sensibilité : son manuel ne donne pas la sensibilité la plus basse de l'ISO auto, comme la fiche MES-10 le dit.
+45. EXP-04, « Simulateur » : l'aperçu de la luminosité, du bruit et de la profondeur de champ est en marche au départ (`cameraPanel.ts`, l. 255) ; coupé dans la fenêtre « Aperçu », le viseur ne montre plus l'effet, et un rappel « Aperçu coupé » s'affiche (l. 1043-1050).
+46. BOI-07 et BOI-08, « Simulateur » : « grisée » veut dire boutons désactivés et valeur en italique (`cameraPanel.ts`, l. 723 et 727 ; `app/src/style.css`, l. 442-444) ; hors des limites, la valeur et l'indicateur d'exposition clignotent ensemble (l. 724, 740 et 745), en rouge sans clignoter si le système demande moins d'animations (`style.css`, l. 459-464).
+47. BOI-12 : « 3 par défaut » et « 10 par défaut » sont bien les réglages d1 et c2 de « Defaults ». C'est le texte de l'interface qui se trompe en les disant « choisis, les pages lues ne les donnant pas » (`i18n.ts`, texte `releaseNote`) : constat PHY-09 de `modele-physique.md`.
+48. BOI-12, « Simulateur » : le bouton porte le mode courant (« Vue par vue », « Continu H · 5,5 vps »…) et ouvre la fenêtre « Mode de déclenchement » (`cameraPanel.ts`, l. 554-565) ; la rafale dure tant que le déclencheur reste appuyé (`shutter.ts`, l. 254-300).
+49. MES-10, « Explication » : « Auto ISO sensitivity control : On », « Maximum sensitivity : Z 6: 51200 », « Minimum shutter speed : Auto » dans « Defaults » ; la liste de la vitesse minimale va « from 1/4000 s to 30 s », comme celle du simulateur (`cameraPanel.ts`, l. 615-619).
+50. MES-10 et BOI-08 : la règle « une valeur choisie plus haute que le maximum sert à sa place » du manuel du D850 (« the value selected by the user will be used instead ») est dans le code (`exposureModes.ts`, l. 86).
+51. Titres : ceux des fiches françaises sont ceux du référentiel ; en anglais, trois diffèrent un peu (« ISO » pour « ISO sensitivity », « Aperture priority » et « Shutter priority » sans « A/Av » ni « S/Tv », voir FEX-15).
+
 ## Je ne sais pas
 
 1. Ce que disent les articles de DPReview et de Photography Life cités par EXP-06 (l. 7 à 13) : les deux hôtes refusent les lectures automatiques (403), et le relevé de Julien n'est pas dans le dépôt. Les passages de la fiche qui en viennent ne sont donc pas vérifiés ici, pas plus que les dates « publié le 27 juillet 2026, mis à jour le 16 septembre 2026 » et « mis à jour le 22 août 2022 ».
+2. Ce qu'un Z 6 affiche quand l'écart à l'exposition optimale vaut 1/6 IL, entre deux graduations de son indicateur : le manuel dit seulement que l'écart est montré par tiers ou demi-IL (FEX-01).
+3. La règle de l'option « Auto » de la vitesse minimale du Z 6 : la page lue dit qu'elle dépend de la focale, sans la donner. Je n'ai pas cherché d'autre source (FEX-14).
+4. Ce qu'affichent, en français, l'écran d'un boîtier et la bague d'un objectif pour une ouverture à décimale (« 5.6 » ou « 5,6 ») : aucune page lue ne le montre (FEX-16).
+5. Les noms des modes sur le Canon EOS RP et le Canon EOS 2000D : leurs manuels ne sont pas sur l'hôte joignable sous la forme essayée (`cam.start.canon`, codes C001 à C006) ; les termes de Canon viennent du manuel de l'EOS 850D (FEX-15).
+
+## Constats FIC repris
+
+`docs/audit/fiches.md` (première passe sur toutes les fiches, non contre-vérifiée) : sort de chaque constat qui porte sur ces huit notions. Les autres (FIC-03, FIC-04, FIC-12 à FIC-15, FIC-19, et les parties de FIC-08 et de FIC-17 qui portent sur d'autres fiches) relèvent du rapport `fiches-mise-au-point.md`.
+
+| Constat FIC | Sort | Ici |
+| --- | --- | --- |
+| FIC-01 (EXP-04, cellule à 0) | déjà là ; le passage sur l'indicateur du Z 6 est vérifié et repris | FEX-01 |
+| FIC-02 (EXP-06, « là où s'arrêtent ses mesures ») | déjà là | FEX-03 |
+| FIC-05 (BOI-12, délais du retardateur, 12 vues par seconde) | déjà là | FEX-04 |
+| FIC-06 (MES-10, « sa règle n'est pas publiée ») | vérifié, repris et complété ; la première rédaction l'avait classé « vérifié » (point 26), à tort pour la phrase telle qu'elle est écrite | FEX-14 |
+| FIC-07 (EXP-06, exercice) | déjà là | FEX-05 |
+| FIC-08, partie EXP-05 (traînée « du sujet visé » dans le bulletin) | déjà là | FEX-12, point 1 |
+| FIC-09 (noms de la cellule, « loupe », écriture des ouvertures) | deux premiers points déjà là ; le troisième est vérifié et repris | FEX-11 ; FEX-16 |
+| FIC-10 (1/4000 s et 1/8000 s) | déjà là | FEX-07 |
+| FIC-11 (pas de mesure de la lumière, MES-04) | déjà là | FEX-09 |
+| FIC-16 (EXP-06 trop dense, faute d'accord) | déjà là | FEX-10 ; FEX-12, point 2 |
+| FIC-17, partie BOI-07 (« f/2 ou plus ») | vérifié et repris | FEX-17 |
+| FIC-18, parties EXP-04, EXP-05 et EXP-06 (Wikipedia, source secondaire) | vérifié, repris et complété | FEX-18 |
+
+## Ce qui n'est pas couvert
+
+À compléter à la fin de la reprise.
