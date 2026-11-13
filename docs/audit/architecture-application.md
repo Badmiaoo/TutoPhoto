@@ -317,6 +317,12 @@ Voie B : juste, avec une limite à écrire. `captureGPUFrameTime` repose sur une
 - Voies : A, ne rien faire ; B, un module `camera/optics.ts` sans rendu (cercle de confusion, zone nette, traînée, champ) et un module `camera/noiseModel.ts` (bruit de lecture, paramètres, rapport signal sur bruit), que le viseur, la photo, l'équilibre, le bulletin et le solveur appellent ; les shaders reçoivent leurs facteurs de ces modules ; les titres des notions lus dans `data/` à la construction, comme le fait déjà `build-pages.mjs` pour les fiches.
 - Recommandation : B, dans la même pull request que les tests rapides (ARC-05), qui en vérifient chaque fonction ; sans changement de comportement.
 
+**Contre-vérification : confirmé.** Correction à réduire sur un point. Chaque copie est à la ligne dite (relu une à une) ; `replace(".", ",")` est bien écrit onze fois dans six fichiers de `app/src/ui/` (et une douzième dans `activities/lum02.ts`) ; les dix titres de `challenges.ts` sont aujourd'hui ceux de `data/referentiel/`. Les copies qui comptent sont celles qui ont déjà divergé ou peuvent diverger sans bruit : la traînée, écrite dans `balance.ts` et dans `bulletin.ts` (PHY-17 en vient, et sa contre-vérification demande déjà une seule formule), la loi du bruit recopiée en TypeScript dans `balance.ts`, et les nombres 1500 et 500 écrits en dur à côté de leurs constantes. Le cercle de confusion et le champ de vue sont des formules d'une ligne, écrites dans des unités différentes : les réunir est propre, pas urgent. L'exemple de PHY-05 ne vaut plus : sa contre-vérification conclut que le code ne change pas.
+
+- Titres des notions, à ne pas faire comme proposé : les lire dans `data/` à la construction demande un troisième lecteur de YAML par expression régulière en JavaScript, ce que ce rapport reproche lui-même à `build-pages.mjs` (section « Hors du périmètre »), et une étape de plus avant `vite` et avant `npm run dev`. Moins cher et plus sûr : garder les dix titres dans le code et les contrôler dans `scripts/validate.py`, qui charge déjà le référentiel et tourne dans la CI.
+- La loi du bruit restera écrite deux fois, en GLSL et en TypeScript : le module commun les met côte à côte, il ne les réunit pas. Un test rapide peut comparer la version TypeScript à des valeurs calculées à la main ; la version GLSL n'est vérifiée que par la routine.
+- Ordre dans la pull request : les formules prises dans des classes (`balance.ts`, `photo.ts`) ne peuvent pas être testées avant d'être sorties ; pour elles, la protection de la refonte est la routine, pas les tests rapides.
+
 ### ARC-10 · à améliorer · Le bulletin de la photo ne mesure pas la photo
 
 - Endroit : `app/src/ui/shutter.ts`, l. 339, 352, 370-381 et 413-423 ; `app/src/main.ts`, l. 259 ; `app/src/ui/balance.ts`, l. 105-110 ; `app/src/camera/photo.ts`, l. 124-125 ; `docs/camera-physique.md`, l. 521 et 536.
@@ -329,6 +335,14 @@ Voie B : juste, avec une limite à écrire. `captureGPUFrameTime` repose sur une
 - Voies : A, ne rien faire, et garder les deux approximations écrites ; B, `takePhoto` rend ses mesures avec la photo : la valeur moyenne avant le bruit autour du point visé (quelques pixels lus dans la somme accumulée), d'où le rapport signal sur bruit par le module du bruit (ARC-07), et la part écrêtée, déjà dans `tones` ; le bulletin devient une fonction de la géométrie et de ces mesures, testable sans navigateur.
 - Recommandation : B, après ARC-07. Le bruit du bulletin ne dépend alors plus de l'indicateur d'équilibre, et vaut pour chaque vue d'une rafale.
 
+**Contre-vérification : confirmé.** Titre exagéré, priorité basse. Relu : le bruit du bulletin est bien la dernière lecture de l'indicateur d'équilibre, prise une fois par série (`shutter.ts`, l. 339 ; `main.ts`, l. 259 ; `balance.ts`, l. 108-110), et l'exposition est l'écart des réglages à la constante. Trois réserves en faveur du travail audité.
+
+- Le titre dit trop : la netteté, la traînée et le cadre sont calculés sur la géométrie avec laquelle la photo est calculée, donc exacts pour la photo, et le constat le reconnaît. Seule la ligne « bruit » ne vient pas de la photo ; la ligne « exposition » est le sujet de PHY-12.
+- Les deux approximations sont écrites, dans la documentation (`docs/camera-physique.md`, l. 536) et à l'écran (« Bruit au point visé, lu dans le viseur au déclenchement ») : rien n'est caché au débutant. Le bulletin a été validé par Julien le 11 novembre 2026 (l. 521).
+- `PhotoResult.tones` date de la version 0.3.57 (12 novembre) : que le bulletin, écrit le 11, ne s'en serve pas n'est pas un défaut du travail antérieur.
+
+Ce qui reste juste : une mesure affichée sous la photo dépend d'une option d'affichage du viseur, disparaît quand on coupe l'indicateur, et ne distingue pas les vues d'une rafale. La voie B est faisable avec ce que le code fait déjà (`photo.ts`, l. 321, lit déjà une texture en flottants). Elle change une ligne du bulletin que Julien a validée : à lui proposer (`CLAUDE.md`), et à ne faire qu'après les refontes qui protègent le reste. Phrase à corriger au passage, `docs/camera-physique.md`, l. 521 : « un défi par situation, vérifié sur la photo » ; les critères sont calculés sur la géométrie de la scène à l'instant de la photo, pas sur ses pixels.
+
 ### ARC-11 · à améliorer · Un boîtier est un couple (marque, format) : six au plus, avec des échelles et des comportements communs
 
 - Endroit : `app/src/camera/bodies.ts`, l. 10-11 et 86-90 ; `app/src/ui/cameraPanel.ts`, l. 72, 89, 251-252, 338-345, 677-679 et 1094-1097 ; `app/simulateur/index.html`, l. 160-167 ; `app/src/camera/exposure.ts`, l. 11-32 et 87.
@@ -340,6 +354,15 @@ Voie B : juste, avec une limite à écrire. `captureGPUFrameTime` repose sur une
 - Voies : A, ne rien faire avant la V2 ; B, donner à chaque boîtier un identifiant stable, que le panneau mémorise à la place du couple (en lisant encore l'ancien format de la mémoire), et construire la fenêtre du boîtier à partir de la liste ; les plages et les termes propres à un boîtier viendront quand une source les donnera.
 - Recommandation : B, limitée à l'identifiant, au moment du magasin de réglages (ARC-02) : à ce moment elle ne coûte presque rien, et `CLAUDE.md` demande des identifiants stables. Le reste attend la V2 et ses sources.
 
+**Contre-vérification : réfuté.** Les lignes citées sont exactes, mais ce qu'elles montrent est une décision, pas un défaut, et la correction crée du travail sans besoin connu.
+
+- Le couple (marque, format) est le modèle décidé par Julien le 8 novembre 2026 : « Capteur : plein format ou APS-C, au choix du débutant », « Boîtiers de référence : trois paires, au choix de la marque » (`docs/camera-physique.md`, l. 11-19). La fenêtre du boîtier, faite de deux groupes de boutons, et `findBody(brand, format)` appliquent cette décision ; le couple est une clé stable pour ces six boîtiers.
+- Aucun coût aujourd'hui, le constat le dit. Et aucun des besoins cités n'est dans la file de travail : `cameraPanel.ts`, l. 66 (« hybrides ajoutés une fois lus, reflex en V2 ») parle de la couverture de l'autofocus des boîtiers qui sont déjà dans la liste (le D5600 et l'EOS 2000D sont des reflex), pas de boîtiers à ajouter ; un second boîtier d'une même marque et d'un même format n'est demandé nulle part ; le « vocabulaire de ta marque » est dans une page que son bandeau dit « brouillon ».
+- La correction a un coût que le rapport ne compte pas : mémoriser un identifiant à la place du couple oblige à lire les deux formats de `tutophoto.boitier`, donc à écrire et à garder un code de reprise de l'ancien format, pour rien de visible. Les « identifiants stables » de `CLAUDE.md` sont ceux du référentiel (notions, situations) et de `data/sources.yaml`.
+- Les échelles communes aux six boîtiers et les termes du Z 6 sont écrits, dans la documentation (`docs/camera-physique.md`, l. 101 : « Ces plages sont communes aux six boîtiers ») et dans l'interface (texte `afHelp`).
+
+Le jour où un septième boîtier ou une plage propre à un boîtier est décidé et sourcé, la clé se changera avec ce besoin sous les yeux. Refonte 6 du plan : le magasin de réglages sans l'identifiant de boîtier.
+
 ### ARC-12 · à améliorer · Le site publié ne dit pas quelle version il est
 
 - Endroit : `app/package.json`, l. 4 ; `app/scripts/build-pages.mjs` ; `app/simulateur/index.html` ; `CHANGELOG.md`, l. 15.
@@ -347,6 +370,8 @@ Voie B : juste, avec une limite à écrire. `captureGPUFrameTime` repose sur une
 - Ce que cela coûte : chaque pull request fusionnée est une version, publiée aussitôt, et Julien doit en juger sur son téléphone (« Juger la version 0.3.53 sur son téléphone », `docs/etat-des-travaux.md`, l. 110). Rien à l'écran ne lui dit quelle version son navigateur a chargée. Les tests prévus avec cinq débutants auront le même défaut : un retour ne pourra pas être rattaché à une version.
 - Voies : A, ne rien faire ; B, lire à la construction le premier titre de version de `CHANGELOG.md` et l'écrire dans le pied de l'accueil, dans la fenêtre des crédits du simulateur et dans la ligne de diagnostic. Capacité vérifiée : option `define` de Vite (`node_modules/vite/dist/node/index.d.ts`, l. 3332) pour le simulateur ; `build-pages.mjs` lit déjà des fichiers du dépôt pour l'accueil.
 - Recommandation : B, dans la pull request de l'affichage de diagnostic (ARC-06).
+
+**Contre-vérification : confirmé.** Site reconstruit sur une copie : `"version": "0.0.0"` dans `app/package.json` ; dans le site construit, les seuls numéros de version sont dans des commentaires de `simulateur/index.html` (0.3.51, 0.3.56, 0.3.57) et de la page de l'activité LUM-02 ; l'accueil dit seulement « Version en construction ». Aucune page du dépôt ne signale ce manque. Le coût est concret : Julien juge chaque version sur son téléphone, sans rien à l'écran qui dise laquelle il regarde. Correction juste et peu chère ; deux précisions. Le premier titre de version de `CHANGELOG.md` est, sur une pull request, la version à venir, et sur `main` la version publiée : c'est bien la bonne source (le tag n'est posé qu'après la fusion). Un seul lecteur de ce titre pour `vite.config.ts` et pour `build-pages.mjs`, pas deux expressions régulières. Rien n'oblige à attendre l'affichage de diagnostic : cette correction peut partir seule, et la première, puisque c'est elle qui permet de rattacher un jugement de Julien à une version.
 
 ## Carte de l'application (version 0.3.57)
 
