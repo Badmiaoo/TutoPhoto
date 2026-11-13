@@ -1,12 +1,12 @@
 # Audit du lot « Choix de fond, données, documentation, déroulé d'une version et outils »
 
-État : constats non contre-vérifiés
+> **Bilan de la contre-vérification, 13 novembre 2026 : 6 constats confirmés (CHX-01, CHX-02, CHX-03, CHX-05, CHX-06, CHX-10), 5 réfutés (CHX-04, CHX-07, CHX-08, CHX-09, CHX-11), aucun ajouté.** Rapport écrit par un agent de Claude le 13 novembre 2026, à la demande de Julien. Un second agent a ensuite essayé de réfuter chaque constat, en avocat du travail audité : il a relu l'endroit visé, relu les sources à leur adresse et refait les mesures avec ses propres scripts ; son verdict est écrit sous chaque constat (« Contre-vérification »), et ses objections aux questions, à la liste du contributeur et au plan sous les lignes « Contre-avis ». Gravité à baisser : CHX-02 et CHX-05, de « incohérent » à « à améliorer ». Corrections réduites ou corrigées : CHX-02, CHX-03, CHX-05, CHX-06 et CHX-10. Les réfutations ne disent pas que tout va bien : trois constats portent sur du travail du 12 novembre ou d'après (CHX-04, CHX-07, et une part de CHX-10), un est déjà écrit dans le dépôt comme décision de Julien (CHX-11), deux reprochent ce que l'environnement de Claude impose ou affirment ce que les README démentent (CHX-08, CHX-09). À corriger d'abord : la documentation qui se recouvre et ses pages périmées (CHX-01, dont les deux README), avec une seule table de ce qui attend Julien, où entre la question sur la règle « pas d'extension avant les tests » (CHX-10, question 1).
 
 - Date : 13 novembre 2026.
 - Demande : Julien, le 12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent ; « Que ce soit l'archi, les choix stratégiques ou les outils si tu pense que l'existant peut être amélioré fait le ne te contente pas de continuer sur un chemin défaillant, évitons les dettes techniques pour un mini projet en cours de développement ». Le 13 novembre : finir l'audit et pousser le résultat.
 - Version auditée : `main` à la version 0.3.57 (commit de fusion `8a0c894`), et la copie de travail de la version 0.3.58 en cours pour `CLAUDE.md`, `CHANGELOG.md` et `docs/etat-des-travaux.md`. Les numéros de ligne sont ceux de la copie de travail.
 - Rapport écrit par un agent de Claude. Il juge les choix et l'organisation, pas la structure du code (`docs/audit/architecture-application.md`, constats ARC, cités quand ils touchent le même sujet).
-- Bilan : 11 constats (3 « incohérent », 8 « à améliorer », aucun « faux » ni « non sourcé »), 30 points vérifiés et justes, 12 « Je ne sais pas », 4 questions à poser à Julien. L'hypothèse 6 de Claude est confirmée. Les choix de fond ont presque tous une décision de Julien, datée et écrite, et leurs sources relues disent ce que la documentation leur fait dire. Les défauts sont ailleurs : la raison écrite du choix du moteur ne vaut plus (CHX-02) ; une règle de `CLAUDE.md` a été levée sur une lecture de Claude (CHX-04) ; le récit de chaque version s'écrit quatre fois au moins (CHX-01) ; ce qui attend Julien n'est réuni nulle part (CHX-10) ; rien, dans GitHub, ne fait respecter les règles du dépôt (CHX-03). Le projet produit plus vite qu'il ne valide : 63 versions en sept jours, aucune fiche relue, aucun test avec des débutants.
+- Bilan de l'audit, avant la contre-vérification : 11 constats (3 « incohérent », 8 « à améliorer », aucun « faux » ni « non sourcé »), 30 points vérifiés et justes, 12 « Je ne sais pas », 4 questions à poser à Julien. L'hypothèse 6 de Claude est confirmée. Les choix de fond ont presque tous une décision de Julien, datée et écrite, et leurs sources relues disent ce que la documentation leur fait dire. Les défauts sont ailleurs : la raison écrite du choix du moteur ne vaut plus (CHX-02) ; une règle de `CLAUDE.md` a été levée sur une lecture de Claude (CHX-04) ; le récit de chaque version s'écrit quatre fois au moins (CHX-01) ; ce qui attend Julien n'est réuni nulle part (CHX-10) ; rien, dans GitHub, ne fait respecter les règles du dépôt (CHX-03). Le projet produit plus vite qu'il ne valide : 63 versions en sept jours, aucune fiche relue, aucun test avec des débutants.
 
 ## Périmètre
 
@@ -27,6 +27,22 @@
 6. Aucun navigateur, aucune construction du site : les mesures du site construit sont celles de `docs/audit/architecture-application.md`.
 
 Scripts, pages enregistrées et réponses de l'API : dossier `audit/choix-et-outils/` du bloc-notes de la session, hors du dépôt (`scripts/`, `pages/`).
+
+### Contre-vérification (13 novembre 2026)
+
+1. Pour chaque constat : relecture de l'endroit cité dans la copie de travail (version 0.3.58 en cours), et date du travail visé par `git log` et `git blame`. Ce qui date du 12 novembre 2026 ou d'après (version 0.3.54 et suivantes : routine dans la CI, `docs/etat-des-travaux.md`, grilles, histogrammes, dossier des scènes) est hors de la période auditée, comme dans les autres rapports.
+2. Mesures refaites par des scripts écrits pour la contre-vérification, sans reprendre ceux de l'audit : fichiers de documentation par fusion (`fusions.py`) ; titres du référentiel, des fiches et de `challenges.ts` (`titres.py`) ; passages des workflows, pull requests et contrôle des descriptions (`ci.py`, sur 461 passages et 64 pull requests lus dans l'API) ; durées des jobs de la routine (`routine.py`) ; versions et dates des registres (`versions.py`). Essai de `scripts/extract_reprise.py` dans un dossier vide ; `npm audit` sur une copie du verrou.
+3. Sources relues à leur adresse le 13 novembre 2026, et citations cherchées mot pour mot dans les fichiers enregistrés :
+   - three.js, étiquette `r187`, `src/renderers/webgpu/WebGPURenderer.js` et `examples/jsm/tsl/display/MotionBlur.js` (`raw.githubusercontent.com/mrdoob/three.js/r187/…`) ;
+   - Babylon.js, étiquette `9.35.0`, `packages/dev/core/src/PostProcesses/thinCircleOfConfusionPostProcess.ts` et `packages/dev/core/src/Shaders/circleOfConfusion.fragment.fx` (`raw.githubusercontent.com/BabylonJS/Babylon.js/9.35.0/…`) ;
+   - GitHub, source de la documentation, dépôt `github/docs`, commit `8cd1075` : `content/actions/reference/workflows-and-actions/contexts.md`, `content/actions/reference/workflows-and-actions/events-that-trigger-workflows.md`, `content/billing/concepts/product-billing/github-actions.md`, `data/reusables/actions/workflows/skipped-job-status-checks-passing.md`, `data/reusables/pull_requests/path-filtering-required-workflows.md` ;
+   - Playwright, étiquette `v1.63.0`, `packages/playwright-core/src/server/registry/index.ts` (`raw.githubusercontent.com/microsoft/playwright/v1.63.0/…`) : les hôtes de téléchargement des navigateurs ;
+   - registre npm (`@babylonjs/core`, `vite`, `typescript`, `playwright`), registre PyPI (`PyYAML`, `jsonschema`), calendrier de Node.js (`raw.githubusercontent.com/nodejs/Release/main/schedule.json`) ;
+   - API de GitHub pour le dépôt TutoPhoto : branche `main`, règles, passages des workflows, jobs de la routine, annotations du dernier passage de `tag.yml`, pull requests ; étiquettes par `git ls-remote --tags origin`.
+4. Recherche, dans le reste du dépôt et dans les autres rapports d'audit, de ce qui dirait déjà le constat ou le contredirait.
+5. Aucun navigateur, aucune construction du site, aucune écriture sur GitHub hors de l'envoi de ce rapport. Non relus : le site publié et `docs.github.com` (hôtes non joignables), comme pour l'audit.
+
+Pages et scripts : dossier `audit/choix-et-outils/refutation/` du bloc-notes de la session, hors du dépôt (`pages/`, scripts à la racine).
 
 ## Sources
 
