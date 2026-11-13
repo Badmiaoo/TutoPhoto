@@ -132,9 +132,143 @@ Toutes lues le 13 novembre 2026. Wikipedia est une source secondaire.
 - Conséquence : tel qu'écrit, l'exercice donne une photo brûlée et, selon le point visé, soit « hautes lumières écrêtées », soit le même rapport signal sur bruit qu'à ISO 320 (même lumière captée : 888 électrons dans les deux cas pour l'ombre à 0,03). Le débutant qui vient de lire « plus l'image risque d'être affectée par le bruit » attend l'inverse, et la fiche ne dit ni ce qu'il doit voir ni pourquoi. La leçon du référentiel (« Même lumière captée, ISO variable : la luminosité change, le rapport signal/bruit presque pas », `data/referentiel/exp.yaml`, EXP-06) est pourtant celle que ces chiffres montrent ; la leçon de l'explication (« le bruit vient surtout du manque de lumière ») demande, elle, une exposition égale.
 - Correction proposée : remplacer la dernière phrase par deux comparaisons annoncées. (1) « Passe à ISO 6400 sans rien changer d'autre : la photo est surexposée de 4,5 IL ; vise une ombre : le rapport signal sur bruit ne bouge presque pas, la lumière captée est la même. » (2) « Garde ISO 6400 et reviens à une exposition correcte, à 1/4000 s et f/9 : le capteur reçoit vingt fois moins de lumière qu'à ISO 320, et le rapport signal sur bruit est divisé par environ 4,5 (√20). » Je ne sais pas ce que vaut le point visé par défaut dans le viseur : à mesurer dans le navigateur avant d'écrire des valeurs dans la fiche.
 
+### FEX-06 · à améliorer · Exercices : le résultat annoncé dépend de réglages que la fiche ne donne pas
+
+- Endroit : `content/fr/notions/MES-04.md`, l. 13 ; `MES-10.md`, l. 17 ; `BOI-08.md`, l. 13 ; `BOI-12.md`, l. 17 ; mêmes lignes en anglais.
+- Preuve (code) : le mode, la correction, l'ISO auto, la sensibilité maximale et la vitesse minimale sont gardés d'une visite à l'autre (`app/src/ui/cameraPanel.ts`, l. 1116-1133 et 1104-1110) ; les molettes repartent de f/8, 1/100 s et ISO 100, mais gardent leur valeur tant que la page reste ouverte. Un exercice hérite donc de ce que le précédent a laissé.
+- Preuve (calcul, `etat_depart.cjs` et `exercices.cjs`) :
+
+  | Exercice | Résultat annoncé | Condition non écrite | Sinon |
+  | --- | --- | --- | --- |
+  | MES-04, « En mode A à f/8 » | 1/100 s, puis 1/50 s avec +1 IL | ISO 100 ; ISO auto désactivé, ou vitesse minimale à 1/50 s ou plus lente | ISO 320 choisi : 1/320 s, puis 1/160 s. Après l'exercice de MES-10 (vitesse minimale 1/1000 s) : 1/1000 s à ISO 1000, puis 1/1000 s à ISO 2000 |
+  | MES-04, fin de l'exercice | rien | la correction de +1 IL reste réglée, et mémorisée | l'exercice de MES-10 donne ensuite ISO 2000, pas ISO 1000 |
+  | MES-10, « environ ISO 1000 et 1/1000 s » | ISO 1000 et 1/1000 s (exactement, à −0,2 IL) | sensibilité choisie de 1000 au plus, correction à ±0 | ISO 3200 choisi : 1/3200 s à ISO 3200 |
+  | BOI-08, « 1/4000 s sans ISO auto : l'ouverture clignote à f/1.4 » | clignote, −0,5 IL | ISO 100 | ISO 125 : f/1.4 sans clignoter ; ISO 320 : f/2.2 |
+  | BOI-12, « la vue où il […] réussit le défi » | défi SIT-06 réussi | pose de 1/800 s ou plus courte, mise au point sur le chien | à l'état de départ (M, 1/100 s) : traînée de 8,0 px pour une limite de 1,2 px, défi « à reprendre » sur toutes les vues |
+
+- Correction proposée : faire partir chaque exercice d'un état écrit en entier. MES-04 : « En mode A à f/8 et ISO 100, sans ISO auto […] », et finir par « Remets la correction à ±0 ». MES-10 : ajouter « ISO 100, correction à ±0 ». BOI-08 : « à ISO 100 ». BOI-12 : « garde les réglages de l'exercice de BOI-08 (mode S, 1/1000 s, AF-C, zone automatique, détection des animaux) ». Même chose en anglais.
+
+### FEX-07 · à améliorer · EXP-05 et BOI-07 : 1/4000 s est la limite de TutoPhoto, pas celle du Z 6 ; en mode A, « pas assez de lumière » n'arrive jamais dans le parc
+
+- Endroit : `content/fr/notions/EXP-05.md`, l. 11 ; `BOI-07.md`, l. 5 et 9 ; mêmes lignes en anglais.
+- Ce qui est écrit : « La molette « Vitesse » va de 30 s à 1/4000 s » ; « elle clignote hors des limites (30 s à 1/4000 s) » ; dans l'explication de BOI-07 : « trop de lumière, il faut fermer le diaphragme ; pas assez, il faut l'ouvrir ». EXP-06 dit pour l'ISO que « le Z 6 va au-delà » ; rien de tel pour la vitesse.
+- Preuve (source) : « Shutter speed can be set to “×200” or to values between 30 s and 1/8000 s » (Nikon, « The Mode Dial », page citée par les deux fiches) ; `data/sources.yaml`, `nikon-z6-specifications` : « vitesses 1/8000 – 30 s ». `docs/camera-physique.md`, l. 101 : « Ces plages sont communes aux six boîtiers ; leurs plages réelles, souvent plus larges ».
+- Preuve (calcul, `etat_depart.cjs`) : en mode A sans ISO auto, sur les 14 725 combinaisons d'ouverture, d'ISO et de correction, la vitesse clignote 5 444 fois pour « trop de lumière » et jamais pour « pas assez » : la pose la plus longue demandée est 2,5 s (f/22, ISO 100, +5 IL), loin de 30 s. À f/1.4, ISO 100 donne 1/3200 s ; ISO 200 clignote à 1/4000 s (+0,5 IL), là où un Z 6 aurait encore 1/6400 s.
+- Correction proposée : EXP-05, « de 30 s à 1/4000 s par tiers de cran (le Z 6 va jusqu'à 1/8000 s) » ; BOI-07, « elle clignote hors des limites de TutoPhoto (30 s à 1/4000 s). Dans le parc, seule la limite rapide s'atteint : à f/1.4, dès ISO 200. Le cas « pas assez de lumière » demande une scène plus sombre. » Même chose en anglais.
+
+### FEX-08 · incohérent · Brique « simulateur » et explication : écarts au référentiel que les fiches ne disent pas
+
+- Endroit : sections « Simulateur » de `EXP-04.md`, `EXP-05.md`, `EXP-06.md`, `MES-10.md`, `BOI-07.md` ; explication de `BOI-12.md` ; `MES-10.md`, l. 7 ; `EXP-06.md`, l. 7 ; français et anglais.
+- Preuve : `data/referentiel/` (champ `spec.simulator` ou `spec.explanation`) contre le code décrit par la fiche.
+
+  | Notion | Référentiel | Ce qui existe | La fiche le dit-elle ? |
+  | --- | --- | --- | --- |
+  | EXP-04 | « Diaphragme animé lié à l'image » | molette, cellule, aperçu, vue de dessus ; aucun diaphragme dessiné | non |
+  | EXP-05 | « Rideau animé, durée visualisée » | molette, cellule, traînée en pixels ; aucun rideau | non |
+  | EXP-06 | « Même lumière captée, ISO variable : la luminosité change, le rapport signal/bruit presque pas » | le simulateur le fait en M sans ISO auto (FEX-05) | non : ni la section, ni l'exercice ne l'annoncent |
+  | MES-10 | « Menu ISO auto, l'appareil explique son choix » | la molette montre la valeur retenue ; une bulle donne « valeur choisie » (`cameraPanel.ts`, l. 725-726) ; aucune explication | non |
+  | BOI-07 | « Alerte de vitesse trop lente » | aucune alerte ; le bougé n'est pas simulé | à moitié : « TutoPhoto ne peut pas juger le « sans bougé » », dans l'exercice |
+  | BOI-12 | explication : « Vue par vue, rafale, silencieux, retardateur » | le mode silencieux n'est pas expliqué ; il est cité une fois, dans « Non simulés » | non |
+  | MES-10, EXP-06 | la fiche cite le mode P (« en modes P et A », « P, S, A ») | pas de mode P (`cameraPanel.ts`, l. 90 : `["M", "A", "S"]`) | non ; seule l'interface le dit (`exposureNote`, « Non simulés : le mode P ») |
+
+- Ce qui est juste : pour les exercices, les fiches disent chaque fois l'écart (« La fiche du référentiel propose […], l'exercice est adapté »). BOI-08 (« Ouverture qui atteint sa limite et clignote ») et BOI-12 (« Rafale qui produit une série à trier ») font ce que le référentiel demande.
+- Conséquence : `scripts/coverage.py` compte la brique « simulateur » dès que la section existe (limite connue de `docs/contenus.md`) ; ces cinq notions sont comptées couvertes alors que le simulateur demandé n'existe pas.
+- Correction proposée : dans chaque section « Simulateur », une phrase sur le modèle de celle des exercices (« La fiche du référentiel prévoit un diaphragme animé ; TutoPhoto ne le dessine pas encore »), et « le mode P n'est pas simulé » dans MES-10. Ou changer le référentiel, par une proposition : Julien tranche.
+
+### FEX-09 · à améliorer · MES-04 : la fiche ne dit ni à quoi sert la correction, ni que la cellule de TutoPhoto mesure partout la même chose
+
+- Endroit : `content/fr/notions/MES-04.md`, l. 5, 9 et 13 ; `content/en/notions/MES-04.md`, mêmes lignes.
+- Ce qui est écrit : ce que fait la commande (« modifie l'exposition proposée par l'appareil »), ses bornes, le mode M, la mémorisation. L'exercice du référentiel, « Rendre la neige blanche », est remplacé par un exercice mécanique (+1 IL en A, puis en M).
+- Preuve (code) : les modes A et S visent une constante. `cameraPanel.ts`, l. 392-401, appelle `resolveExposure` sans luminosité de scène ; `exposureModes.ts`, l. 82 : `sceneEv100 = SCENE_EV100`. C'est le constat PHY-12 de `modele-physique.md` (« même mesure quel que soit le cadrage »). Aucune des huit fiches ne le dit.
+- Conséquence : un débutant apprend comment corriger, pas quand ni pourquoi ; et le simulateur ne peut pas le lui montrer, puisque sa cellule ne se trompe jamais. La page de Nikon lue ne dit pas non plus dans quels cas corriger : je ne sais pas le sourcer avec les pages citées.
+- Correction proposée : dans « Simulateur », ajouter « Limite : la cellule de TutoPhoto donne la même mesure où que tu vises (toute la scène vaut 12,5 IL) ; la correction n'y rattrape donc aucune erreur de mesure, elle ne fait qu'éclaircir ou assombrir exprès. » Pour le « quand » (neige, contre-jour), chercher une source avant d'écrire ; `docs/etat-des-travaux.md` note déjà que MES-04 « attend une scène claire ou à contre-jour ».
+
+### FEX-10 · à améliorer · EXP-06, explication : dense pour une notion de niveau N1, et l'idée première du référentiel n'y est pas écrite simplement
+
+- Endroit : `content/fr/notions/EXP-06.md`, l. 5 à 15 ; `content/en/notions/EXP-06.md`, l. 5 à 15.
+- Preuve : `data/referentiel/exp.yaml`, EXP-06, niveau N1, explication : « L'ISO éclaircit sans ajouter de lumière ; le bruit vient surtout du manque de lumière […] ». La fiche ouvre par la phrase du manuel, « moins il faut de lumière pour exposer », qui dit l'inverse à un débutant (le capteur deviendrait plus sensible), et n'écrit nulle part que l'ISO n'ajoute pas de lumière ; il faut le déduire de « La plupart des appareils amplifient davantage le signal ». En cinq paragraphes et quatre sources, elle emploie sans les définir « convertisseur », « écrêté », « plage dynamique » (notion EXP-09, niveau N2, sans fiche), « bruit photonique » et « bruit de lecture » (EXP-08, N2, sans fiche), « rapport signal sur bruit », et elle définit « ISO invariant », terme qui ne sert ensuite ni dans la section « Simulateur », ni dans l'exercice, ni dans le simulateur.
+- Critère : `docs/cadrage.md`, « Le public est débutant. Le but est la compréhension et la maîtrise du boîtier et des bases, pas le niveau professionnel. »
+- Correction proposée : ouvrir par une phrase simple, par exemple « Monter l'ISO éclaircit la photo sans ajouter de lumière : l'appareil amplifie ce qu'il a capté. », suivie de la phrase du manuel ; garder le manque de lumière, les deux bruits en une phrase chacun et les seuils 40:1 et 10:1, que le simulateur affiche ; déplacer la définition de l'invariance ISO vers la fiche de EXP-08 ou de EXP-09 quand elle sera écrite. Julien tranche : c'est un choix de rédaction.
+
+### FEX-11 · à améliorer · Vocabulaire : deux noms pour la cellule, « loupe » en anglais, titres de pages Nikon avec la lettre de leur icône
+
+- Endroit et preuve :
+  1. « la cellule » (`EXP-04.md`, l. 13 et 17 ; `EXP-05.md`, l. 11 et 15) et « l'indicateur d'exposition » (`MES-04.md`, l. 5 et 9 ; `BOI-07.md` et `BOI-08.md`, l. 5) désignent le même élément du simulateur, une échelle de −3 à +3 et le bouton « M · −0,2 IL », qui ne porte aucun nom à l'écran (`app/simulateur/index.html`, l. 137-146 ; la clé `meter` de `i18n.ts` n'est lue nulle part). En anglais : « the meter » et « the exposure indicator ». Le terme du manuel est « exposure indicator », « indicateur d'exposition ».
+  2. `content/en/notions/EXP-06.md`, l. 19 : « with the 100% loupe ». Le bouton s'appelle « Magnifier » en anglais (`app/src/i18n.ts`, l. 435).
+  3. « The S (ISO Sensitivity) Button » (`EXP-06.md`, l. 5) et « The E (Exposure Compensation) Button » (`MES-04.md`, l. 5 ; `MES-10.md`, l. 9), en français et en anglais : « S » et « E » sont les lettres de la police d'icônes de la page (`<h1>The <span class="wf-icn1">S</span> (ISO Sensitivity) Button</h1>`). Les titres des pages sont « The ISO (ISO Sensitivity) Button » et « The Exposure Compensation Button » (balise `title`) ; sur le boîtier, la commande est marquée ISO. Les mêmes titres sont dans `data/sources.yaml` (`nikon-z6-iso-button`, `nikon-z6-exposure-compensation`), `docs/camera-physique.md` et `exposureModes.ts`.
+  4. Les fiches françaises de BOI-07, BOI-08 et BOI-12 citent la page française du manuel pour ses termes ; celles de EXP-06, MES-04 et MES-10 ne citent que les pages anglaises, alors que leurs termes (« correction d'exposition », « sensibilité maximale », « vitesse d'obturation minimale », « contrôle de la sensibilité auto ») viennent des pages françaises, qui existent, sont dans `data/sources.yaml` (`nikon-z6-exposure-compensation-fr`, `nikon-z6-iso-settings-fr`) et ont été relues. Il en va de même de « Indicators and Error Messages », dont la page française dit : « Les indicateurs d'exposition et l'affichage de la vitesse d'obturation ou de l'ouverture clignotent ».
+- Correction proposée : (1) un seul nom, « l'indicateur d'exposition », décrit à sa première mention dans chaque fiche (« l'échelle de −3 à +3 sous le viseur, et le bouton qui affiche « M · −0,2 IL » ») ; (2) « magnifier » ; (3) les titres des balises `title` ; (4) dans les fiches françaises, le lien vers la page française quand elle existe, comme pour BOI-07.
+
+### FEX-12 · à améliorer · Petites inexactitudes
+
+1. `EXP-05.md`, l. 11 (fr, en) : « l'indicateur d'équilibre et le bulletin de la photo donnent la traînée du sujet visé ». Le bulletin donne la traînée du promeneur et du chien quand ils sont dans le cadre, visés ou non (`app/src/ui/challenges.ts`, l. 163-167) ; seul l'indicateur d'équilibre parle du sujet visé (`balance.ts`, l. 138-169, avec la réserve de PHY-17). Correction : « l'indicateur d'équilibre donne la traînée du sujet visé, le bulletin celle du promeneur et du chien s'ils sont dans le cadre, en pixels ».
+2. `EXP-06.md`, l. 19 : « sont calculés […] et se voit » ; en anglais « are computed […] and shows ». Correction : « se voient », « show ».
+3. `EXP-06.md`, l. 19 : « dans le viseur et sur la photo, à la loupe à 100 % ». Dans le viseur, le bruit de la loupe est sous-estimé sur les écrans de densité 2 ou plus (PHY-07) : la phrase sera juste une fois PHY-07 corrigé.
+4. `MES-10.md`, l. 13 : « l'ISO auto descend jusqu'à ISO 100 » est donné comme une règle du manuel du D850, qui écrit « the minimum value for auto ISO sensitivity is automatically set to ISO 64 », sa sensibilité la plus basse. Le passage à ISO 100 est une transposition de TutoPhoto, dite dans `exposureModes.ts` (l. 15-17), pas dans la fiche. Correction : « l'ISO auto descend jusqu'à la sensibilité la plus basse du boîtier (ISO 64 sur le D850 ; ISO 100 ici) ».
+5. `BOI-12.md`, l. 13 : « Non simulés : la mémoire tampon, le mode silencieux ». `docs/camera-physique.md`, l. 442, en liste deux de plus : l'exposition qui « may vary erratically » en Continu H (étendu), et plusieurs vues au retardateur. À ajouter, ou à renvoyer à la documentation.
+
 ## Vérifié
 
-Rempli à la suite, voir plus bas dans les envois suivants.
+EXP-04 (ouverture)
+1. Définition : « the ratio of the system's focal length to the diameter of the entrance pupil » (Wikipedia, « F-number »).
+2. « The brightness of the projected image (illuminance) […] decreases with the square of the f-number » (même page).
+3. Crans entiers : « a decrease of the pupil and aperture diameters by a factor of 1/√2 or about 0.7071, and hence a halving of the area of the pupil » ; « The one-stop unit is also known as the EV (exposure value) unit ».
+4. Tiers de cran : « the aperture that is one-third stop smaller than f/2.8 is f/3.2, two-thirds smaller is f/3.5, and one whole stop smaller is f/4 » ; « Steps of one-third stop (1⁄3 EV) are the most common » sur les appareils modernes.
+5. « Depth of field increases with f-number ».
+6. Molette de f/1.4 à f/22 : 25 crans par tiers (`exposure.ts`, l. 12-15) ; en A l'ouverture est choisie et la vitesse réglée, en S l'inverse (`cameraPanel.ts`, l. 685-687).
+7. (5,6 / 4)² = 1,96 ; 2,00 avec les valeurs exactes des crans (voir PHY-16 pour ce choix d'écriture).
+
+EXP-05 (vitesse)
+8. Définition : « shutter speed or exposure time is the length of time that the film or digital sensor inside the camera is exposed to light […] when taking a photograph » (Wikipedia, « Shutter speed »).
+9. « doubling the exposure time doubles the amount of light » ; « a standardized 2:1 scale was adopted for shutter speed so that opening one aperture stop and reducing the amount of time of the shutter speed by one step resulted in the identical exposure ».
+10. La phrase sur la traînée (l. 7) n'a pas de source dans la fiche, mais renvoie à MVT-01 ; la page citée la dit aussi : « Very short shutter speeds can be used to freeze fast-moving subjects […]. Very long shutter speeds are used to intentionally blur a moving subject ».
+11. Molette de 30 s à 1/4000 s : 52 crans par tiers (`exposure.ts`, l. 19-25).
+12. « En rafale, une vue ne dure jamais moins que sa pose » : intervalle = max(1 / cadence, pose) (`shutter.ts`, fonction `interval`).
+13. Exercice : f/4 et 1/400 s, puis f/8, puis 1/100 s donnent −0,2, −2,2 et −0,2 IL : la réponse 1/100 s est juste.
+
+EXP-06 (ISO)
+14. Manuel du Z 6 : « The higher the ISO sensitivity, the less light needed to make an exposure, allowing faster shutter speeds or smaller apertures, but the more likely the image is to be affected by noise » ; « Noise is particularly likely at settings between Hi 0.3 and Hi 2 » ; « Highlights may lose some detail » (réglages Lo).
+15. « Two ratios are used, the 40:1 ("excellent image quality") and the 10:1 ("acceptable image quality") ratio » (Wikipedia, « Film speed », « Noise-based speed »).
+16. Molette de 100 à 6400 : 19 crans par tiers (`exposure.ts`, l. 29-32) ; le Z 6 va au-delà : « from ISO 100 to ISO 51200 ».
+17. Exercice, calcul : 14 IL₁₀₀ (13,97 avec les libellés, 14 exactement avec les crans) ; 100 × 2^1,5 ≈ 283 ; ISO 250 donne −1/6 IL et ISO 320 +1/6 IL.
+18. L'indicateur d'équilibre et le bulletin donnent le rapport signal sur bruit au point visé, classé aux seuils 40 et 10 (`balance.ts`, l. 188-191 ; `challenges.ts`, l. 157-160).
+19. Les passages tirés de DPReview et de Photography Life reprennent bien les citations gardées dans `data/sources.yaml` (`dpreview-iso-invariance`, `pl-iso-invariance`) ; ce n'est pas une vérification à la source (voir « Je ne sais pas »).
+
+MES-04 (correction d'exposition)
+20. Manuel du Z 6 : « In modes other than b [icône du mode automatique], exposure compensation can be used to alter exposure from the value suggested by the camera, making pictures brighter or darker » ; « between –5 EV (underexposure) and +5 EV (overexposure) in increments of 1/3 EV » ; « positive values make the subject brighter while negative values make it darker » ; « In mode M, exposure compensation affects only the exposure indicator […] (ISO sensitivity will, however, automatically be adjusted […] when auto ISO sensitivity control is enabled) » ; « Normal exposure can be restored by setting exposure compensation to ±0. Exposure compensation is not reset when the camera is turned off. »
+21. Simulateur : la fenêtre « Exposition » s'ouvre en touchant l'indicateur (`cameraPanel.ts`, l. 300) ; 31 valeurs de −5,0 à +5,0 IL (l. 607-609) ; en A et S l'indicateur montre la correction, en M il est seul à bouger sauf avec l'ISO auto (`exposureModes.ts`, l. 92 et 125) ; correction mémorisée (`cameraPanel.ts`, l. 1107 et 1128).
+22. Exercice, à ISO 100 : en A à f/8, 1/100 s et −0,2 IL, puis 1/50 s et +0,8 IL avec +1 IL ; en M sans ISO auto, photo inchangée à −0,2 IL, indicateur de −0,2 à −1,2 IL.
+
+MES-10 (ISO auto)
+23. Manuel du Z 6, « ISO Sensitivity Settings » : « the camera will automatically adjust ISO sensitivity when optimal exposure cannot be achieved at the value selected for ISO sensitivity » ; « Maximum sensitivity: Choose an upper limit for ISO sensitivity to prevent it being raised too high » ; « Minimum shutter speed: Choose the shutter speed below which auto ISO sensitivity control will kick in to prevent underexposure in modes P and A » ; « Shutter speeds may drop below the selected minimum if optimum exposure cannot be achieved at the ISO sensitivity chosen for Maximum sensitivity ».
+24. « Defaults » : « Auto ISO sensitivity control : On ». La correction prise en compte par l'ISO auto en M : citation du point 20.
+25. Manuel du D850 : « the minimum value for auto ISO sensitivity is automatically set to ISO 64 » ; « In exposure modes P and A, sensitivity will only be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed ».
+26. « L'option « Automatique » […] : sa règle n'est pas publiée » : la page dit seulement « the camera will choose the minimum shutter speed based on the focal length of the lens ».
+27. Simulateur : les trois réglages sont dans la fenêtre « Exposition » ; sensibilité maximale de ISO 200 à 6400 (`cameraPanel.ts`, l. 92 et 610-612) ; la molette s'appelle « ISO auto » dans les deux langues (`i18n.ts`, l. 161 et 395) et montre la valeur retenue.
+28. Exercice, à ISO 100 et sans correction : mode A, f/8, vitesse minimale 1/1000 s, maximum 6400 donnent ISO 1000 et 1/1000 s. Traînée du chien : 50 × 3,5 × 0,001 / 9 = 0,0194 mm, soit 0,81 px (0,79 px avec la valeur exacte du cran, 1/1024 s), pour une limite de 43,1 / 35,9 = 1,20 px. À f/8, la zone nette va de 4,9 à 51 m pour une mise au point à 9 m : le chien y est.
+
+BOI-07 (priorité à l'ouverture)
+29. Manuel français : « A Auto à priorité ouverture : choisissez l'ouverture ; l'appareil photo sélectionne la vitesse d'obturation […]. Utilisez cette option afin de rendre flou l'arrière-plan ou afin d'étendre la zone de netteté au premier plan et à l'arrière-plan. » ; manuel anglais : « Use to blur backgrounds or bring both foreground and background into focus ».
+30. « Indicators and Error Messages » : « (Exposure indicators and shutter speed or aperture display flash) » ; « Subject too bright; photo will be overexposed. […] A Choose a smaller aperture (higher f-number) » ; « Subject too dark; photo will be underexposed. […] A Choose larger aperture (lower f-number) ».
+31. Simulateur : nom « Vitesse (auto) » (`cameraPanel.ts`, l. 719), boutons désactivés (l. 727), clignotement hors de l'échelle (l. 724 ; `exposureModes.ts`, l. 105) ; avec l'ISO auto, la sensibilité ne monte que si la vitesse passerait sous la vitesse minimale (`exposureModes.ts`, l. 96-103).
+32. Exercice : à f/2 et ISO 100, l'appareil prend 1/1600 s. Au 50 mm, mise au point à 6,6 m, la zone nette va de 5,7 à 7,8 m ; le banc (8 m), le chien (9 m), la poubelle (10,5 m), le promeneur (12,5 m) et le fond (500 m) sont au-delà : le défi SIT-01 est jouable depuis la position de départ.
+
+BOI-08 (priorité à la vitesse)
+33. Manuel français : « S Auto à priorité vitesse : choisissez la vitesse d'obturation ; l'appareil photo sélectionne l'ouverture […]. Utilisez ce mode pour figer le mouvement ou le rendre flou. » ; manuel anglais : « Use to freeze or blur motion ». « Indicators and Error Messages » : « S Increase shutter speed » (trop clair), « Increase ISO sensitivity […] S Lower shutter speed » (trop sombre).
+34. Simulateur : nom « Ouverture (auto) », limites f/1.4 et f/22 de l'objectif virtuel, sensibilité qui change quand l'ouverture ne suffit plus (`exposureModes.ts`, l. 108-114).
+35. Exercice, à ISO 100 : mode S à 1/1000 s, f/2.5 ; à 1/4000 s sans ISO auto, f/1.4 qui clignote et −0,5 IL ; avec l'ISO auto, ISO 125, f/1.4, −0,2 IL. AF-C, zone automatique et détection des animaux existent (`i18n.ts`, l. 49, 57 et 62 ; `faces.ts`).
+
+BOI-12 (modes de déclenchement)
+36. Termes français de la page française : « Vue par vue », « Continu L », « Continu H », « Continu H (étendu) », « Retardateur » ; termes anglais : « Single frame », « Continuous L », « Continuous H », « Continuous H (extended) », « Self-timer ».
+37. « The camera takes one photograph each time the shutter-release button is pressed » ; « While the shutter-release button is held down, the camera records 1–5 frames per second » ; « up to about 5.5 frames per second » ; « Defaults » : « Self-timer delay 10 s », « CL mode shooting speed 3 fps ».
+38. Simulateur : cadences 5,5 et 12, Continu L de 1 à 5, délais 2, 5, 10 et 20 s (`cameraPanel.ts`, l. 89 et 101-102) ; intervalle jamais plus court que la pose ; mise au point refaite à chaque vue en AF-C, gardée en AF-S ; un bulletin par vue ; 20 vues au plus (`shutter.ts`, `MAX_BURST`, `shootSeries`).
+
+Les seize fiches
+39. Français et anglais disent la même chose, phrase par phrase ; seuls écarts : ceux de FEX-11.
+40. Termes anglais des manuels : « Aperture-priority auto », « Shutter-priority auto », « exposure compensation », « exposure indicator », « auto ISO sensitivity control », « maximum sensitivity », « minimum shutter speed », « release mode », « shutter-release button », « auto-area AF », « animal detection ».
+41. Ton : tutoiement en français, phrases directes, ni emoji ni formule emphatique.
+42. Balisage : seulement ce que `docs/contenus.md` autorise (titre, sections de niveau 2, paragraphes, listes à tirets, gras, liens) ; les trois sections attendues existent dans chaque fiche.
+43. Chaque lien d'une fiche correspond à une source de `data/sources.yaml` dont le champ `used_in` nomme la fiche ; `python3 scripts/validate.py` : 0 erreur.
 
 ## Je ne sais pas
 
