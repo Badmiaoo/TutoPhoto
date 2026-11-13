@@ -8,7 +8,13 @@
 // pendant que le workflow de la première version tournait encore : vérifier qu'aucun autre workflow ne tourne.
 //
 // Pour le relancer depuis une autre session :
-//   args = { blocNotes: '<dossier temporaire de la session>', rapports: ['fiches-exposition', …], voies: 1 }
+//   args = { blocNotes: '<dossier temporaire de la session>', rapports: ['architecture-application', …], voies: 1,
+//            etats: { 'architecture-application': { fait: 'audit' } } }
+// etats dit où reprendre un rapport commencé : { fait: 'audit' } quand l'audit est fini et la réfutation à faire ;
+// { fait: 'réfutation', ajoutes: n } quand il ne reste que n constats ajoutés à contre-vérifier. Sans etats, un
+// rapport part de l'audit (et l'agent reprend le fichier s'il existe). Les rapports finis ne sont pas à lister.
+// docs/audit/fiches.md, rapport partiel de la première version que les missions des fiches citent, a été retiré le
+// 13 novembre, une fois ses constats repris par les deux rapports des fiches (il reste dans l'historique).
 // et recréer dans ce dossier le script d'envoi « envoi-audit.sh » : sous un verrou (flock), il refuse tout fichier
 // hors de docs/audit/, contrôle le fichier envoyé avec les fonctions de scripts/check_public.py (plus : aucun
 // chemin local, aucun nom de modèle d'intelligence artificielle), fait « git add » et « git commit » de ce seul
@@ -196,7 +202,8 @@ const chaine = async (r) => {
 const cles = (args && args.rapports) || Object.keys(RAPPORTS)
 const nombre = Math.min(2, Math.max(1, (args && args.voies) || 1))
 const voies = Array.from({ length: nombre }, () => [])
-cles.forEach((cle, i) => voies[i % nombre].push({ ...RAPPORTS[cle], cle }))
+const etats = (args && args.etats) || {}
+cles.forEach((cle, i) => voies[i % nombre].push({ ...RAPPORTS[cle], cle, ...(etats[cle] || {}) }))
 const parVoie = await parallel(voies.map((voie) => async () => {
   const faits = []
   for (const r of voie) faits.push(await chaine(r))
