@@ -1,6 +1,6 @@
 # Audit du lot « Modèle physique de l'appareil »
 
-> **État au 13 novembre 2026 : constats non contre-vérifiés.** Ce rapport a été écrit par un agent de Claude le 12 novembre 2026, à la demande de Julien (remettre en question tout le travail fait avant cette date). L'étape suivante, où un second agent essaie de réfuter chaque constat, a été coupée par la limite d'usage. Aucune correction ne doit partir de ce rapport avant cette contre-vérification. Les scripts de calcul et les pages relues étaient sur la machine de Claude et ne sont pas dans le dépôt.
+> **Contre-vérification en cours, le 13 novembre 2026 : PHY-01 à PHY-10 faits (10 confirmés), PHY-11 à PHY-20 à faire.** Rapport écrit par un agent de Claude le 12 novembre 2026, à la demande de Julien ; un second agent essaie de réfuter chaque constat et écrit son verdict sous le constat (« Contre-vérification »).
 
 - Date : 12 novembre 2026.
 - Demande : Julien, le 12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent, et le modifier si nécessaire.
@@ -85,6 +85,8 @@ Toutes lues le 12 novembre 2026. Wikipedia est une source secondaire.
   - tout de suite, dans `docs/camera-physique.md` : remplacer la fin de la phrase par « suivre le chien pendant la rafale recadre chaque vue ; l'appareil reste immobile pendant chaque pose : pas de filé » ; ajouter aux « Non simulé » de la section : « le filé et tout mouvement de l'appareil pendant la pose » ;
   - plus tard (le filé est une notion du référentiel, `data/referentiel/mvt.yaml`, hors V1 minimale) : passer à `takePhoto` l'orientation au début et à la fin de la pose, tirées des relevés de `press.samples`, et l'interpoler à chaque rendu. Julien tranche.
 
+**Contre-vérification : confirmé.** Relu dans la version courante (`photo.ts`, l. 235-239 et 376-388 ; `shutter.ts`, l. 292-298) : l'orientation est copiée une fois avant les rendus, et la boucle ne change que la projection, le décalage de l'œil et l'instant. Aucune autre phrase du dépôt n'annonce de filé (recherche du mot : cette seule phrase, hors référentiel), et la même documentation écrit « Pas encore de flou de bougé » (l. 149). La correction de la documentation suffit ; le filé est la notion MVT-06 (« Rotation de l'appareil pendant la pose, sujet suivi »), hors V1 minimale : rien à coder maintenant.
+
 ### PHY-02 · faux · « Non mesuré » pour le D5600 au-delà d'ISO 2546 : la source a ces points
 
 - Endroit : `docs/camera-physique.md`, l. 85 (« non mesuré »), l. 91 (« Pour le D5600, la mesure s'arrête vers ISO 2546 »), l. 160 ; `app/src/camera/bodies.ts`, l. 41 (« Bruit mesuré jusqu'à ISO 2546 seulement ») ; `app/src/camera/noise.ts`, l. 45.
@@ -92,12 +94,16 @@ Toutes lues le 12 novembre 2026. Wikipedia est une source secondaire.
 - Ce qui est juste : les points existent ; ils sont hors de la plage analogique (gain numérique). Le code garde 2,03 électrons au-delà d'ISO 2546 ; la source donne 2,03 puis 2,00. L'écart est de 1,5 % : le rendu ne change pas.
 - Correction proposée : écrire « au-delà d'ISO 2546, hors de la plage analogique (mise à l'échelle numérique, symboles ouverts du graphique) : 2,03 électrons à ISO 3200, 2,00 de ISO 4000 à 6400 » à ces cinq endroits ; dans le tableau de la l. 85, « 2,03 » à la place de « non mesuré » ; ajouter les quatre points à `readNoise` du D5600 ou garder la dernière valeur, au choix, en le disant.
 
+**Contre-vérification : confirmé.** Page relue le 13 novembre 2026 : la série `Nikon D5600_14` a quatre points entre ISO 3200 et 6400 (y = 1,02 ; 1,00 ; 1,00 ; 1,00, soit 2,03 ; 2,00 ; 2,00 ; 2,00 électrons), en triangles ouverts, et c'est le seul des six boîtiers dans ce cas entre ISO 100 et 6400. La gravité « faux » ne vaut que pour le texte : le rendu ne change pas (1,5 % sur le bruit de lecture). Correction retenue : ajouter les quatre points à `readNoise` (les six boîtiers vont alors tous jusqu'à ISO 6400, et le cas particulier de `noise.ts` disparaît), avec la mention « hors de la plage analogique, mise à l'échelle numérique » ; la page précise : « The conversion is for analog gain only. Digital gain and other signal processing are supressed. »
+
 ### PHY-03 · non sourcé · « Pas de flou de mouvement, comme dans le viseur d'un vrai appareil »
 
 - Endroit : `docs/camera-physique.md`, l. 76.
 - Ce qui est écrit : « Viseur : pas de flou de mouvement, comme dans le viseur d'un vrai appareil. »
 - Preuve : aucune source n'est citée. Le guide d'aide Sony ILCE-7M3, lu, dit seulement de « Setting Effect ON » : « Displays Live View in conditions close to what your picture will look like as a result of applying all your settings » (`sony-ilce-7m3-print.pdf`, « Live View Display »). Il ne dit pas ce que la visée montre du temps de pose. Le manuel du Z 6 (d8) parle de « brightness and hue ».
 - Correction proposée : écrire « Viseur : pas de flou de mouvement ; choix de TutoPhoto. Je ne sais pas ce que la visée d'un hybride montre du flou de mouvement : les pages lues ne le disent pas. »
+
+**Contre-vérification : confirmé.** Relu : le guide Sony (« Live View Display ») et le réglage d8 du Z 6 (« to preview how changes to such settings as white balance, Picture Controls, and exposure compensation affect color and brightness ») ne parlent que de couleur et de luminosité ; aucune page lue ne dit ce que la visée montre du temps de pose, et aucune entrée de `data/sources.yaml` n'appuie la phrase. Correction proposée juste.
 
 ### PHY-04 · non sourcé · La loi du bruit (√n, somme des variances) n'a pas de source dans le lot
 
@@ -109,6 +115,8 @@ Toutes lues le 12 novembre 2026. Wikipedia est une source secondaire.
   - `data/sources.yaml` a déjà `pl-iso-invariance` (Photography Life, relevé par Julien le 11 novembre 2026 : bruit photonique « égal à la racine carrée du nombre de photons »), utilisé par la fiche EXP-06 seulement.
 - Correction proposée : citer `pl-iso-invariance` et les deux révisions de Wikipedia (à ajouter à `data/sources.yaml`) dans `noise.ts` et dans la section « Bruit numérique » ; y dire que l'addition des variances du bruit photonique et du bruit de lecture suppose deux bruits indépendants, et que les tirages sont gaussiens (voir PHY-18). Source primaire possible, non lue : les articles « Photon Transfer Curve » et « Read Noise » du « Sensor Analysis Primer » de Claff, dont seule la table des matières a été ouverte.
 
+**Contre-vérification : confirmé.** Ni la section ni `noise.ts` ne citent de source pour la loi ; les deux citations de Wikipedia sont exactes. Source primaire à préférer, lue le 13 novembre 2026, du même auteur que les mesures : William J. Claff, « Sensor Analysis Primer - Gain » (« Last revised: 2021-12-05 », `https://www.photonstophotos.net/GeneralTopics/Sensors_&_Raw/Sensor_Analysis_Primer/Gain.htm`) : « Photon Noise follows a Poisson distribution that, except for small numbers, is closely approximated by a Normal distribution » et « Photon Noise in electrons is equal to the square root of the signal in electrons ». L'addition des variances du bruit photonique et du bruit de lecture n'est écrite dans aucune page lue (ni chez Claff, ni dans les deux articles de Wikipedia) : à écrire comme une hypothèse de TutoPhoto, pas comme un fait sourcé.
+
 ### PHY-05 · non sourcé · Champ de vue 2 × atan(côté / (2 × focale)) : sans source, et valable à l'infini seulement
 
 - Endroit : `app/src/camera/exposure.ts`, l. 90-93 ; `app/src/camera/viewfinder.ts`, l. 36-45 ; `app/src/camera/photo.ts`, l. 239 ; `docs/camera-physique.md`, l. 105 et 509.
@@ -116,6 +124,8 @@ Toutes lues le 12 novembre 2026. Wikipedia est une source secondaire.
 - Preuve (source lue pour l'audit) : Wikipedia, « Angle of view (photography) », révision 1382676604 : « For a lens projecting a rectilinear image (focused at infinity, see derivation), the angle of view (α) can be calculated from the chosen dimension (d), and effective focal length (f) », suivi de la formule α = 2 arctan(d / 2f) ; et « Note that the angle of view varies slightly when the focus is not at infinity (See breathing (lens)) », avec le tirage S2 = S1 × F / (S1 − F).
 - Ce que fait le code : le champ garde sa valeur de l'infini à toute distance de mise au point, alors que le flou suit la formule des lentilles minces, qui suppose le tirage f × S / (S − f). L'en-tête de `photo.ts` (l. 4-7) le dit pour le disque d'ouverture, pas pour le champ. Écart entre les deux grandissements, f / (S − f) : 0,8 % au 50 mm à 6,6 m, 3,1 % au 200 mm à 6,6 m, 15 % au 200 mm à 1,5 m (distance possible depuis que l'appareil se déplace, version 0.3.37).
 - Correction proposée : ajouter la révision de Wikipedia à `data/sources.yaml` et la citer aux cinq endroits ; écrire dans `docs/camera-physique.md` : « le champ est celui d'une mise au point à l'infini et ne change pas avec la distance de mise au point ; un vrai objectif change un peu de champ en faisant le point, d'une façon propre à chaque objectif ; non simulé ».
+
+**Contre-vérification : confirmé.** Citations exactes dans la révision 1382676604 ; aucune entrée de `data/sources.yaml` ne porte sur le champ de vue, et le dépôt ne dit nulle part que le champ est celui de l'infini. Écarts recalculés : 0,8 %, 3,1 % et 15,4 %. Correction à corriger : « d'une façon propre à chaque objectif » n'est pas dans la page lue (elle dit seulement « varies slightly when the focus is not at infinity ») ; écrire « le champ est celui d'une mise au point à l'infini ; il varie un peu quand la mise au point est plus proche ; non simulé ». Citer la source à la définition (`fieldOfView`, `exposure.ts`) et dans la documentation suffit ; le code ne change pas.
 
 ### PHY-06 · incohérent · L'étalonnage annoncé de la scène n'existe pas dans le code ; fond et éclairage ne sont pas à la même échelle
 
@@ -128,6 +138,15 @@ Toutes lues le 12 novembre 2026. Wikipedia est une source secondaire.
 - Correction proposée :
   1. réécrire les l. 52-58 : le modèle est rapporté à l'affichage ; à écart nul, le viseur montre le JPEG de Poly Haven tel quel, et le blanc du JPEG tient lieu de saturation du capteur ; donner les moyennes mesurées ci-dessus ; retirer « mise à l'échelle » ;
   2. mesurer dans un rendu (plan gris de réflectance connue posé au sol, lu dans le viseur et comparé au sol du fond), puis régler `scene.environmentIntensity` (de l'ordre de 1 / 2,1 ≈ 0,47 d'après les fichiers) et consigner le calcul dans `scene.ts`. Cela change l'image de départ : Julien tranche.
+
+**Contre-vérification : confirmé.** Recalcul indépendant sur les deux fichiers du dépôt (lumière linéaire par la puissance 2,2 de Babylon, luminance pondérée par l'angle solide) :
+- fond JPEG : 0,235 sur la sphère, 0,346 sur la moitié haute, 0,123 sur la moitié basse, 0,098 sur ±20°, 0,084 de −16° à +8° ; la part écrêtée de la moitié haute vaut 10,8 % avec « un canal à 255 » et 15,3 % avec « un canal à 254 ou plus » (le critère des 14,2 % n'est pas dit) ;
+- rapport HDR / JPEG^2,2 sur les tons moyens : médiane 1,96 (quartiles 1,88 et 2,11 ; 1,93 sur la moitié basse). Le rapport écrit 2,11 : la valeur dépend du choix des pixels, l'ordre de grandeur (environ 1 IL) tient ;
+- Babylon 9.35.0 relu : `this.environmentIntensity = 1` (`scene.pure.js`, l. 823), `this._lightingInfos.z = this._environmentIntensity * scene.environmentIntensity` (`pbrBaseMaterial.pure.js`, l. 1725), fond égal à `toLinearSpace` de la texture multiplié par son niveau (`background.fragment.js`) ; `app/src` ne règle ni l'un ni l'autre.
+
+Déjà dit en partie dans le dépôt : « étalonnage à revoir avec la mesure de la lumière » (`docs/camera-physique.md`, l. 628 ; `docs/questions-ouvertes.md`), « il faut dire la moyenne de quoi » (`docs/dossiers/scenes.md`, section 5), et les vêtements clairs à la valeur maximale dès l'exposition jugée correcte (version 0.3.57), que l'écart d'échelle expliquerait. Ce qui est nouveau et tient : aucune mise à l'échelle n'existe dans le code, et l'éclairage des objets 3D est environ deux fois plus fort que le fond. Au cadrage de départ, le fond seul (0,084) est à −0,3 IL de la valeur du modèle (0,104) : c'est l'éclairage qui est en cause, pas le fond.
+
+Correction : le point 1 (réécrire les l. 52-58) tout de suite. Le point 2 seulement après la mesure dans un rendu, avec une valeur « de l'ordre de 0,5 » et non « 0,47 », et dans la même pull request que la mesure de la lumière (file de `docs/etat-des-travaux.md`), puisqu'il change l'image de départ et les mesures de bruit de la documentation : Julien tranche.
 
 ### PHY-07 · incohérent · Loupe du viseur : bruit sous-estimé sur les écrans de densité 2 ou plus
 
@@ -144,6 +163,8 @@ Toutes lues le 12 novembre 2026. Wikipedia est une source secondaire.
 - Conséquence : sur un téléphone (densité plafonnée à 2), la loupe du viseur montre un bruit deux fois plus faible qu'attendu, au grain deux fois plus fin. La loupe de l'écran de revue n'est pas touchée (image à la définition du capteur, un pixel par pixel CSS). Les vérifications de la l. 249-257 datent de la densité 1.
 - Correction proposée : quand un pixel calculé couvre moins d'un photosite de la couleur, un même tirage pour tous les pixels calculés du photosite (coordonnées du tirage ramenées à la grille des photosites), densité 1 inchangée ; corriger la l. 239 ; ajouter à la routine une mesure du bruit de la loupe à densité 2.
 
+**Contre-vérification : confirmé.** Calcul refait à partir du code (`zoomAt`, `applyView`, `noiseParameters`) : mêmes rapports (densité 2 : 0,71 et 0,50 à 50 % ; 0,50 et 0,50 à 100 % ; 1,00 partout à densité 1 et sans loupe). `CHANGELOG.md` (0.3.52) n'adapte que la définition de « 100 % ». Précision : par pixel calculé, l'amplitude reste celle d'un photosite ; c'est le grain, deux fois plus fin que le photosite, qui divise le bruit par deux à l'échelle du pixel CSS. Correction à préciser : quand la loupe grossit, tirer le bruit sur la grille des pixels CSS (coordonnées du tirage multipliées par le niveau de mise à l'échelle, arrondies vers le bas) avec k compté par pixel CSS, ce qui redonne le comportement mesuré à densité 1 ; sans loupe, ne rien changer. Non mesuré dans un navigateur : à mesurer avant de corriger.
+
 ### PHY-08 · incohérent · Plafond du flou du viseur : compté en pixels calculés, donc moitié moindre à densité 2
 
 - Endroit : `app/src/camera/viewfinderDof.ts`, l. 32-33 ; `app/src/ui/cameraPanel.ts`, l. 798-802 ; `docs/camera-physique.md`, l. 276, 285, 296-301 et 313.
@@ -154,12 +175,16 @@ Toutes lues le 12 novembre 2026. Wikipedia est une source secondaire.
   - téléphone, cadre de 453 px CSS : aucun plafond à densité 1 (5,07 mm) ; à densité 2 (2,54 mm), le 200 mm à f/1.4 est montré à 57 %, à f/2 à 81 %.
 - Correction proposée : soit porter le plafond à 32 px CSS (32 / niveau de mise à l'échelle) : à pas égal, le nombre d'échantillons au plafond quadruple (environ 680, la boucle en admet 400), coût à mesurer sur le téléphone de Julien ; soit garder le plafond et l'écrire : « 64 pixels calculés, soit 32 px CSS à densité 2 », avec les cas plafonnés ci-dessus. Dans les deux cas, dater les mesures des l. 288-301 (« densité 1 »).
 
+**Contre-vérification : confirmé.** Recalculé : plafond de 2,17 mm (densité 1) et 1,08 mm (densité 2) sur un cadre de 1060 px CSS, de 5,07 et 2,54 mm sur 453 px CSS ; à densité 2, le 135 mm à f/1.4 est montré à 55 % et le 105 mm à 92 % sur ordinateur, le 200 mm à f/1.4 à 58 % sur téléphone. Nuance : la documentation et le code disent tous deux « pixels du canevas » et ne se contredisent pas ; ce sont les exemples (58,7 px non plafonnés sur 1200 × 900) qui ne valent plus à densité 2. Correction : la seconde voie d'abord (écrire le plafond en pixels calculés et en millimètres de capteur, dater les mesures « densité 1 »). Relever le plafond fait passer la spirale de 171 à 683 échantillons (boucle de 400), alors que la densité vient d'être plafonnée pour la fluidité : pas sans mesure sur téléphone. Autre voie, à évaluer : une passe de flou à l'échelle 0,5 / densité, qui garde le nombre de pixels et d'échantillons de la densité 1 avec un plafond en pixels CSS.
+
 ### PHY-09 · incohérent · L'interface dit que les réglages par défaut de la rafale et du retardateur sont « choisis »
 
 - Endroit : `app/src/i18n.ts`, l. 169-170 (français) et l. 382-383 (anglais), texte `releaseNote`.
 - Ce qui est écrit : « Réglages par défaut (3 vues par seconde, 10 s) choisis, les pages lues ne les donnant pas. » ; en anglais : « Default settings (3 frames per second, 10 s) are chosen, as the pages read do not give them. »
 - Preuve : la documentation (l. 432 et 435) et `cameraPanel.ts` (l. 78-79) disent que ce sont les réglages du Z 6. La page « Defaults » du manuel, relue : « c2 Self-timer Self-timer delay 10 s », « d1 CL mode shooting speed 3 fps » (`nikon-z6-09_menu_guide_01.html`).
 - Correction proposée : « Réglages par défaut du Z 6 : 3 vues par seconde en Continu L, retardateur de 10 s. » ; « Z 6 defaults: 3 frames per second in Continuous L, 10 s self-timer. »
+
+**Contre-vérification : confirmé.** Page « Defaults » relue le 13 novembre 2026 : « c2 Self-timer », « Self-timer delay 10 s » ; « d1 CL mode shooting speed 3 fps ». Le texte `releaseNote` dit toujours « choisis » (l. 169-170 ; l. 403-404 en anglais dans la version courante), contre `cameraPanel.ts` (l. 78-79), la documentation (l. 432 et 435) et la fiche BOI-12. Correction proposée juste.
 
 ### PHY-10 · incohérent · Passages du début de la documentation contredits par la suite
 
@@ -171,6 +196,8 @@ Toutes lues le 12 novembre 2026. Wikipedia est une source secondaire.
   - l. 102, « leurs plages réelles, souvent plus larges, viendront avec l'étape du bruit » ; l'étape du bruit est faite (0.3.15) et les plages sont toujours communes (`exposure.ts`, l. 11-32) ;
   - l. 641, sous « Ce que je ne sais pas » : « Le temps de calcul d'une photo par accumulation sur téléphone. » ; l. 144-148 : mesuré par Julien le 9 novembre 2026 (0,8 s et 2,0 s).
 - Correction proposée : marquer les sections « Profondeur de champ », « Flou de mouvement et de bougé » et « Bruit numérique » du début comme le modèle proposé le 8 novembre, avec un renvoi à la section qui dit ce qui est fait ; corriger les cinq phrases ; pour la l. 102, écrire « plages réelles non reprises à ce jour ».
+
+**Contre-vérification : confirmé.** Les cinq phrases sont périmées (la l. 641 est devenue la l. 693 avec la version 0.3.57). Gravité à ramener à « à améliorer » : l'en-tête du document dit que le modèle du début est « proposé » et « reste à valider », et les sections suivantes, datées par version, disent ce qui est fait ; seule la liste « Ce que je ne sais pas », tenue à jour jusqu'à la version 0.3.57, est fausse au présent. Pour cette ligne, écrire ce qui reste inconnu : le temps de calcul sur les téléphones des testeurs (`docs/questions-ouvertes.md`). Le reste de la correction est proportionné.
 
 ### PHY-11 · à améliorer · Diffraction : ni simulée, ni dite
 
