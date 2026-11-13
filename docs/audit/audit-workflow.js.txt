@@ -1,12 +1,14 @@
 // Script du workflow d'audit (outil Workflow de Claude Code), version du 13 novembre 2026, deuxième passe.
 // La première version menait un lot après l'autre, un agent par lot ; elle a produit le rapport du modèle physique.
-// Celle-ci découpe les lots restants en onze rapports plus étroits, menés deux de front (plafond de l'outil sur
-// cette machine), chacun par trois agents à la suite : audit, réfutation, puis contre-vérification des constats
-// que la réfutation a ajoutés (règle de CLAUDE.md : un constat n'est corrigé que s'il a été contre-vérifié par un
-// second agent).
+// Celle-ci découpe les lots restants en onze rapports plus étroits, chacun mené par trois agents à la suite :
+// audit, réfutation, puis contre-vérification des constats que la réfutation a ajoutés (règle de CLAUDE.md : un
+// constat n'est corrigé que s'il a été contre-vérifié par un second agent).
+// Un seul agent à la fois (args.voies : 1) : la limite d'usage de 5 heures coupe tous les agents en cours, et un
+// agent coupé coûte une reprise. Deux de front, le 13 novembre, ont donné cinq agents coupés en dix-huit minutes,
+// pendant que le workflow de la première version tournait encore : vérifier qu'aucun autre workflow ne tourne.
 //
 // Pour le relancer depuis une autre session :
-//   args = { blocNotes: '<dossier temporaire de la session>', rapports: ['fiches-exposition', …] }
+//   args = { blocNotes: '<dossier temporaire de la session>', rapports: ['fiches-exposition', …], voies: 1 }
 // et recréer dans ce dossier le script d'envoi « envoi-audit.sh » : sous un verrou (flock), il refuse tout fichier
 // hors de docs/audit/, contrôle le fichier envoyé avec les fonctions de scripts/check_public.py (plus : aucun
 // chemin local, aucun nom de modèle d'intelligence artificielle), fait « git add » et « git commit » de ce seul
@@ -15,7 +17,7 @@
 // Un rapport déjà commencé est repris, pas refait : les consignes de reprise sont dans les missions.
 export const meta = {
   name: 'audit-suite',
-  description: 'Audit du travail antérieur, rapports restants : audit, réfutation par un second agent, contre-vérification des constats ajoutés ; deux rapports de front, chaque étape poussée sur GitHub',
+  description: 'Audit du travail antérieur, rapports restants : audit, réfutation par un second agent, contre-vérification des constats ajoutés ; un agent à la fois, chaque étape poussée sur GitHub',
   phases: [
     { title: 'Audit', detail: 'sources relues à leur adresse, calculs refaits, code confronté à la documentation' },
     { title: 'Réfutation', detail: 'un second agent essaie de réfuter chaque constat' },
@@ -28,7 +30,7 @@ const BRANCH = 'ccr-0b29c4d4-any4xd'
 
 const commun = (r) => `Lis d'abord ${W}/docs/audit/consignes-agents.md et respecte-le, sauf sur un point : ta mission t'autorise à écrire le rapport ${W}/${r.fichier} et à l'envoyer sur GitHub, par le seul script d'envoi décrit plus bas.
 
-Tu travailles dans ${W}, le dépôt TutoPhoto, sur la branche ${BRANCH}, déjà extraite. Un autre agent y travaille en même temps que toi, sur un autre rapport. Donc :
+Tu travailles dans ${W}, le dépôt TutoPhoto, sur la branche ${BRANCH}, déjà extraite. Un autre agent peut y travailler en même temps que toi, sur un autre rapport. Donc :
 - tu n'écris qu'un fichier du dépôt : ${r.fichier} ;
 - tu ne lances aucune commande git qui écrit (ni add, ni commit, ni push, ni stash, ni checkout, ni switch, ni reset, ni rebase, ni worktree) : l'envoi passe par le script ; les commandes git de lecture (log, show, diff, blame, grep) sont libres ;
 - tu ne modifies aucun autre fichier du dépôt, même pour un essai : pour essayer une modification ou construire le site, travaille sur une copie sous ton dossier de travail ;
@@ -50,12 +52,14 @@ const RAPPORTS = {
   'fiches-exposition': {
     nom: 'fiches, exposition et boîtier', fichier: 'docs/audit/fiches-exposition.md', prefixe: 'FEX',
     titre: 'Fiches des notions d\'exposition, de mesure et de boîtier',
+    reprise: `Deux agents ont été coupés par la limite d'usage le 13 novembre. Le premier a écrit ${W}/${'docs/audit/fiches-exposition.md'} (constats FEX, presque complet : lis son en-tête pour ce qui reste). Le second, dans une première passe qui prenait toutes les fiches en un rapport, a écrit ${W}/docs/audit/fiches.md (constats FIC, non contre-vérifiés, essais dans un navigateur non faits). Pour chaque constat FIC qui porte sur tes huit notions et que ton rapport n'a pas déjà : vérifie-le toi-même et, s'il tient, ajoute-le à ton rapport sous un identifiant FEX à la suite, avec la mention « repris de FIC-nn ». N'écris pas dans fiches.md : Claude le retirera quand les deux rapports des fiches l'auront repris. Les dossiers de travail des deux agents sont gardés : ${S}/audit/fiches-exposition/ et ${S}/audit/fiches/ (pages enregistrées, textes extraits, scripts) : réutilise-les plutôt que de tout retélécharger.`,
     perimetre: `Les fiches de content/fr/notions/ et content/en/notions/ écrites le 11 novembre 2026 pour les notions EXP-04, EXP-05, EXP-06, MES-04, MES-10, BOI-07, BOI-08 et BOI-12 (seize fichiers). Lis docs/contenus.md (règles des fiches), les notions correspondantes dans data/referentiel/, les formules du code que les fiches utilisent (app/src/camera/, docs/camera-physique.md) et data/sources.yaml pour les sources citées. Les autres fiches (mise au point, netteté, mouvement, lumière, situations) sont auditées par un autre rapport (docs/audit/fiches-mise-au-point.md) ; le modèle physique lui-même l'a été (docs/audit/modele-physique.md : ne refais pas ses constats, renvoie à eux quand une fiche en dépend).
 Questions, phrase par phrase : chaque affirmation factuelle a-t-elle une source citée, et la source dit-elle bien cela (relis-la à son adresse) ? Chaque chiffre se recalcule-t-il avec les formules du simulateur et les réglages annoncés ? La fiche dit-elle ce que le simulateur fait vraiment, et ce qu'il ne simule pas ? L'exercice et le défi sont-ils jouables tels qu'écrits (vérifie dans le code que les réglages demandés existent et donnent le résultat annoncé) ? La fiche anglaise dit-elle la même chose que la française, avec les termes des manuels anglais ? Le ton suit-il CLAUDE.md ? Une explication est-elle trompeuse ou trop compliquée pour un débutant (critère de docs/cadrage.md) ?`,
   },
   'fiches-mise-au-point': {
     nom: 'fiches, mise au point, mouvement, lumière et situations', fichier: 'docs/audit/fiches-mise-au-point.md', prefixe: 'FMA',
     titre: 'Fiches des notions de mise au point, de netteté, de mouvement et de lumière ; situations ; activité LUM-02',
+    reprise: `Point de départ : ${W}/docs/audit/fiches.md, écrit le 13 novembre par un agent d'une première passe qui prenait toutes les fiches en un rapport, coupé par la limite d'usage (constats FIC, non contre-vérifiés ; ses essais dans un navigateur, annoncés dans son en-tête, n'ont pas été faits). Reprends dans ton rapport, sous des identifiants FMA, ses constats qui portent sur ton périmètre, après les avoir relus toi-même (endroit visé, source, calcul), avec la mention « repris de FIC-nn » ; reprends aussi ce qui te sert de ses sections « Sources », « Vérifié » et « Je ne sais pas ». Les constats FIC qui portent sur les notions EXP, MES et BOI sont repris par l'autre rapport : laisse-les. Puis couvre ce que cet agent n'a pas traité. N'écris pas dans fiches.md : Claude le retirera quand les deux rapports des fiches l'auront repris. Son dossier de travail est gardé : ${S}/audit/fiches/ (pages enregistrées, textes extraits, scripts dont calculs.py et yeux_gltf.py, sorties) : réutilise-le plutôt que de tout retélécharger.`,
     perimetre: `Les fiches de content/fr/ et content/en/ écrites le 11 novembre 2026 : notions MAP-04, MAP-05, MAP-06, MAP-09, NET-01, NET-06, MVT-01 et LUM-02 ; situations SIT-01, SIT-05 et SIT-06 (sans la phrase « Cadrage » de SIT-01, ajoutée le 12 novembre) ; l'activité app/src/activities/lum02.ts, app/src/activities/lum02.css, app/activites/LUM-02/index.html et ses textes. Lis docs/contenus.md (règles des fiches), les notions et situations correspondantes dans data/, les formules du code que les fiches utilisent (app/src/camera/ : autofocus.ts, faces.ts, sharpZone.ts, viewfinderDof.ts, photo.ts ; docs/camera-physique.md) et data/sources.yaml pour les sources citées. Les fiches d'exposition, de mesure et de boîtier sont auditées par un autre rapport (docs/audit/fiches-exposition.md) ; le modèle physique lui-même l'a été (docs/audit/modele-physique.md : ne refais pas ses constats, renvoie à eux quand une fiche en dépend).
 Questions, phrase par phrase : chaque affirmation factuelle a-t-elle une source citée, et la source dit-elle bien cela (relis-la à son adresse) ? Chaque chiffre se recalcule-t-il avec les formules du simulateur et les réglages annoncés ? La fiche dit-elle ce que le simulateur fait vraiment, et ce qu'il ne simule pas ? L'exercice, le défi et la recette de chaque situation sont-ils jouables tels qu'écrits (vérifie dans le code que les réglages demandés existent et donnent le résultat annoncé) ? La fiche anglaise dit-elle la même chose que la française, avec les termes des manuels anglais ? Le ton suit-il CLAUDE.md ? Une explication est-elle trompeuse ou trop compliquée pour un débutant (critère de docs/cadrage.md) ? Pour l'activité LUM-02 : ce qu'elle montre est-il juste, sourcé, et ce qu'elle ne simule pas est-il dit ?`,
   },
@@ -132,7 +136,7 @@ const audit = (r) => agent(`${commun(r)}
 Mission : écrire le rapport d'audit « ${r.titre} » et l'envoyer.
 Périmètre : ${r.perimetre}
 
-Reprise : si ${W}/${r.fichier} existe déjà, un agent avant toi a été coupé en plein travail. Ne repars pas de zéro : lis-le, garde ce qui est écrit et prouvé, et continue là où il s'est arrêté (la partie du périmètre qu'il n'a pas traitée).
+Reprise : ${r.reprise || `si ${W}/${r.fichier} existe déjà, un agent avant toi a été coupé en plein travail (limite d'usage). Ne repars pas de zéro : lis-le, garde ce qui est écrit et prouvé, et continue là où il s'est arrêté (la partie du périmètre qu'il n'a pas traitée) ; son dossier de travail, ${S}/audit/${r.cle}/, est peut-être encore là.`}
 
 Écris ${W}/${r.fichier} (français), au fur et à mesure :
 - en tête : titre, date, périmètre, méthode, sources relues et non relues, et la ligne « État : constats non contre-vérifiés » ;
@@ -164,9 +168,9 @@ Le rapport a été écrit par un premier agent ; un second a essayé de réfuter
 Réponds par l'objet structuré : pousse (vrai si le script a écrit « ENVOYÉ » pour ton dernier état), confirmes, refutes (nombres, pour les seuls constats ajoutés), ajoutes (0), resume (80 mots au plus).`,
   { label: `ajoutés ${r.cle}`, phase: 'Constats ajoutés', schema: VERDICTS, agentType: 'general-purpose' })
 
-// Deux voies, parce que l'outil ne mène que deux agents de front sur cette machine ; dans chaque voie, un rapport
-// est mené jusqu'au bout (audit, réfutation, constats ajoutés) avant le suivant : une coupure laisse ainsi des
-// rapports finis plutôt que des audits sans réfutation.
+// Une voie par défaut (deux au plus : l'outil ne mène que deux agents de front sur cette machine) ; dans une voie,
+// un rapport est mené jusqu'au bout (audit, réfutation, constats ajoutés) avant le suivant : une coupure laisse
+// ainsi des rapports finis plutôt que des audits sans réfutation.
 const chaine = async (r) => {
   const etat = { rapport: r.cle, fichier: r.fichier, coupe: null, audit: null, refutation: null, ajoutes: null }
   if (r.fait) {
@@ -190,8 +194,9 @@ const chaine = async (r) => {
   return etat
 }
 const cles = (args && args.rapports) || Object.keys(RAPPORTS)
-const voies = [[], []]
-cles.forEach((cle, i) => voies[i % 2].push({ ...RAPPORTS[cle], cle }))
+const nombre = Math.min(2, Math.max(1, (args && args.voies) || 1))
+const voies = Array.from({ length: nombre }, () => [])
+cles.forEach((cle, i) => voies[i % nombre].push({ ...RAPPORTS[cle], cle }))
 const parVoie = await parallel(voies.map((voie) => async () => {
   const faits = []
   for (const r of voie) faits.push(await chaine(r))
