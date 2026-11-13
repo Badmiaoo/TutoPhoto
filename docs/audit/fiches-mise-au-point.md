@@ -5,7 +5,7 @@
 - Version auditée : copie de travail à la version 0.3.58. Les fiches du lot datent du 11 novembre 2026 (versions 0.3.40 à 0.3.50) ; la phrase « Cadrage » de SIT-01, ajoutée le 12 novembre, est hors du lot.
 - État : constats non contre-vérifiés.
 - Auteur : un agent de Claude, à partir de la première passe sur toutes les fiches (`docs/audit/fiches.md`, constats FIC, coupée par la limite d'usage). Chaque constat FIC qui porte sur ce lot a été relu (endroit visé, source, calcul) avant d'être repris ; la correspondance est dans la section « Constats FIC repris ».
-- Avancement : rapport en cours d'écriture. Écrits : les constats repris de la première passe (FMA-01 à FMA-10). À venir : les constats nouveaux (exercices et recettes rejoués, activité LUM-02, fiches anglaises), les sections « Vérifié » et « Je ne sais pas », le classement par gravité.
+- Avancement : rapport en cours d'écriture, repris le 13 novembre 2026 par un autre agent de Claude après une coupure. Écrits : les constats repris de la première passe (FMA-01 à FMA-10) et les premiers constats nouveaux (FMA-12 à FMA-15). À venir : la suite des constats nouveaux (exercices et recettes rejoués, activité LUM-02), les sections « Vérifié », « Je ne sais pas » et « Constats FIC repris », le classement par gravité.
 
 ## Périmètre
 
@@ -51,6 +51,8 @@ Toutes lues le 13 novembre 2026. Wikipedia est une source secondaire.
 | Nikon, manuel en ligne Z 7/Z 6 (en), « a5: Focus Points Used » | `https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_a05.html` | `nikon-z6-en-a5.html` |
 | Nikon, manuel en ligne COOLPIX P1100, « AF area mode » (citée par le code, pas par les fiches) | `https://onlinemanual.nikonimglib.com/p1100/en/08-31.html` | `nikon-p1100-af-area.html` |
 | Wikipedia, « Nikon D5600 » (révision 1345325532), « Canon EOS 2000D » (révision 1381131251) | `https://en.wikipedia.org/w/index.php?title=Nikon_D5600&oldid=1345325532`, `…title=Canon_EOS_2000D&oldid=1381131251` | `wiki-nikon-d5600-1345325532.html`, `wiki-canon-eos-2000d-1381131251.html` |
+| Canon, manuel en ligne de l'EOS 850D : « AF Operation », « Selecting the AF Area and AF Point (Viewfinder Shooting) », « Selecting the AF Methods (Live View Shooting) », en anglais et en français | `https://cam.start.canon/en/C002/manual/html/UG-04_AF-Drive_0020.html`, `…_0030.html`, `…_0040.html`, et les mêmes sous `/fr/` | `canon-850d-en-afdrive-0020.html` et suivants, `canon-850d-fr-afdrive-0020.html` et suivants |
+| Sony, guide d'aide de l'ILCE-7M3 (α7 III), « Focus Mode », « Focus Area », en anglais et en français | `https://helpguide.sony.net/ilc/1720/v1/en/print.pdf`, `…/fr/print.pdf` | fichiers enregistrés par l'audit des fiches d'exposition (`sony-ilce-7m3-en-print.pdf`, `sony-ilce-7m3-fr-print.pdf`), lus dans leur texte extrait |
 
 ### Non relues
 
@@ -59,9 +61,11 @@ Toutes lues le 13 novembre 2026. Wikipedia est une source secondaire.
 | Canon Royaume-Uni, fiche de l'EOS RP (`https://www.canon.co.uk/cameras/eos-rp/specifications/`), citée par MAP-06 | Source non relue : l'hôte répond 403 (« Access Denied ») le 13 novembre 2026. Seule trace : la citation gardée dans `data/sources.yaml` (`canon-eos-rp-af`), relevée par Julien le 11 novembre 2026. |
 | Sony Inde, page de l'α7 III (`https://www.sony.co.in/interchangeable-lens-cameras/products/ilce-7m3-body-kit/feature2`), citée par MAP-06 | Source non relue : hôte non joignable (le proxy refuse la connexion). Seule trace : la citation gardée dans `data/sources.yaml` (`sony-ilce-7m3-af`), relevée par Julien le 11 novembre 2026. |
 
+| Photography Life, « What is Lens Compression? » (`https://photographylife.com/what-is-lens-compression`), listée par le référentiel pour NET-01, pas citée par la fiche | Source non relue : l'hôte répond 403 le 13 novembre 2026 (constat FMA-15). |
+
 ## Constats
 
-Rédaction en cours : les constats ci-dessous sont ceux de la première passe, relus un par un. Le classement par gravité viendra à la fin.
+Rédaction en cours : FMA-01 à FMA-10 sont les constats de la première passe, relus un par un ; les suivants sont nouveaux. Le classement par gravité viendra à la fin.
 
 ### FMA-01 · incohérent · MAP-04, exercice : le bulletin ne dit « hors de la zone nette » que dans un défi, et ni le mode ni la vitesse ne sont écrits (repris de FIC-08)
 
@@ -142,6 +146,64 @@ Rédaction en cours : les constats ci-dessous sont ceux de la première passe, r
 - Preuve (calcul, `calculs.py`, formules de `lum02.ts`, l. 130-146) : le bord extérieur de la pénombre est à (30 × (d₁ + 50) + 50 × D) / (2 × d₁) de l'axe. Il dépasse 100 cm pour 427 des 11 550 positions des curseurs (3,7 %), toutes à 50 cm ou moins de l'objet. À 150 cm et 20 cm : « Pénombre sur le mur : 375,0 cm de chaque côté de l'ombre », bord extérieur à ±240 cm. Le mur dessiné est alors éclairé partout à 72 % (0,72 à 0, 50 et 100 cm de l'axe) : aucun bord d'ombre n'est visible, alors que la consigne est de « regarde[r] le bord de l'ombre sur le mur ». Les rayons tracés sortent de la vue. Les trois exemples tiennent dans le mur (bord extérieur à ±23, ±34 et ±49 cm).
 - Deuxième point : sans ombre pleine (2 035 positions sur 11 550, dont l'exemple « Réflecteur », où elle vaut −1,25 cm), la légende reste « Sur le mur : ombre pleine au centre […] » et la ligne « Pénombre sur le mur : 50,0 cm de chaque côté de l'ombre », alors que la troisième ligne écrit « Pas d'ombre pleine ».
 - Correction proposée : quand le bord extérieur dépasse 100 cm, ajouter « (au-delà du mur dessiné) » à la ligne de la pénombre ; sans ombre pleine, écrire « Pénombre sur le mur : … cm de chaque côté ; les deux se rejoignent » et retirer « ombre pleine au centre » de la légende. Ou borner la distance minimale du curseur à 55 cm, ce qui supprime le premier cas.
+
+### FMA-12 · incohérent · NET-01 : la vue de dessus cercle de vert un personnage que le bulletin déclare hors de la zone nette
+
+- Endroit : `content/fr/notions/NET-01.md`, l. 11 ; `content/en/notions/NET-01.md`, l. 11 ; `app/src/ui/topView.ts`, l. 142-150 ; `app/src/ui/shutter.ts`, l. 405.
+- Ce qui est écrit : « la vue de dessus, qui dessine la zone nette entre deux plans perpendiculaires à l'axe et cercle de vert les sujets qui y sont. L'indicateur d'équilibre et le bulletin donnent les limites en mètres. »
+- Preuve (code) : la vue de dessus juge un personnage à sa position de chargement, au sol (`topView.ts`, l. 143-150, avec `LANDMARKS`, `app/src/scene.ts`, l. 58-64 : Dennis à 6,5 m, Sophia à 6,6 m, Fabienne et Percy à 6,5 m, un seul cercle pour les deux). Le bulletin et les défis jugent les yeux (`shutter.ts`, l. 405 : `points: s.eyes()` ; `app/src/camera/bulletin.ts`, l. 84-105). Positions des yeux relues dans les fichiers glTF par la première passe (`yeux_gltf.py`) : Dennis à 6,30 et 6,32 m, Percy à 6,30 et 6,35 m, Fabienne à 6,41 m, Sophia de 6,54 à 6,64 m selon l'instant. Les yeux de Dennis sont donc 18 à 20 cm devant son repère.
+- Preuve (mesure, `essais.cjs`, essai 4 : 85 mm, mode A à f/1,4, AF-S, zone automatique, visages et yeux, défi SIT-05, un toucher sur le groupe) : l'autofocus écrit « œil · verrouillée à 6,5 m » ; la vue de dessus cercle de vert Dennis, Sophia et le cercle de Fabienne et Percy, avec la note « Zone nette : 6,3 m – 6,8 m » ; le bulletin de la photo prise aussitôt écrit « Zone nette : 6,3 m – 6,8 m (mise au point à 6,5 m) », puis « Manqué : les quatre visages du groupe dans le cadre et dans la zone nette : manqués : Dennis, Percy ». La vue de dessus, relue après la photo, n'a pas changé.
+- Calcul (`calculs2.py`) : au 85 mm et à f/1.4, une mise au point à 6,55 m donne une zone nette de 6,32 à 6,80 m ; les repères au sol (6,5 m) y sont, les yeux de Dennis (6,30 et 6,32 m) n'y sont pas.
+- Conséquence : le débutant qui se fie à la vue de dessus pour le défi SIT-05 voit tout le groupe cerclé de vert, puis lit « Manqué ». La fiche présente les deux affichages comme la même mesure.
+- Correction proposée : dans `topView.ts`, juger les personnages et le chien sur les points que juge le bulletin (leurs yeux, `subjects`), et garder la position au sol pour le dessin ; la phrase de la fiche devient alors juste. Tant que le code n'est pas corrigé, écrire dans la fiche : « cercle de vert les personnages dont la position au sol y est ; le bulletin, lui, juge leurs yeux, jusqu'à 20 cm plus près de l'appareil ». Même chose en anglais.
+
+### FMA-13 · à améliorer · MVT-01, exercice : « 1/200 s » et « 1/800 s » ne valent qu'avec un boîtier plein format et au 50 mm, ce que l'exercice ne dit pas
+
+- Endroit : `content/fr/notions/MVT-01.md`, l. 15 ; `content/en/notions/MVT-01.md`, l. 15.
+- Ce qui est écrit : « Trouve la vitesse la plus lente qui fige le promeneur (1/200 s), puis celle qui fige le chien (1/800 s), et vérifie-les avec le bulletin ; réussis le défi SIT-06. »
+- Preuve (calcul, `calculs2.py`, formules de `bulletin.ts`, valeurs exactes des crans ; chien à 3,5 m/s et 9 m, promeneur à 1,25 m/s et 12,5 m) : première pose « figée » de l'échelle, selon le boîtier et la focale.
+
+  | Focale | Plein format (Nikon Z 6, Sony A7 III, Canon EOS RP) | APS-C (Nikon D5600, Sony A6000, Canon EOS 2000D) |
+  | --- | --- | --- |
+  | 50 mm | promeneur 1/200 s ; chien 1/800 s | promeneur 1/320 s ; chien 1/1250 s |
+  | 85 mm | promeneur 1/320 s ; chien 1/1250 s | promeneur 1/500 s ; chien 1/2000 s |
+  | 135 mm | promeneur 1/500 s ; chien 1/2000 s | promeneur 1/800 s ; chien 1/3200 s |
+
+- Preuve (mesure, `essais.cjs`, essai 7 : Nikon Z 6, 50 mm, mode S, AF-C, zone automatique, détection des animaux, défi SIT-06) : à 1/800 s, « le chien : traînée de 1,0 px, sous le flou acceptable (limite 1,2 px) », défi réussi ; à 1/640 s, « 1,3 px, au-delà du flou acceptable », « Manqué : chien figé » ; à 1/200 s, « le promeneur : traînée de 1,0 px, sous le flou acceptable » ; à 1/160 s, « le promeneur : traînée de 1,3 px, au-delà du flou acceptable ». Les deux réponses de la fiche sont donc justes avec le boîtier et la focale de départ.
+- Ce qui manque : l'explication dit « en plein format » (l. 5) et « au 50 mm » (l. 7) pour son calcul, mais l'exercice ne reprend ni le boîtier ni la focale. Le simulateur propose trois boîtiers APS-C et garde le choix d'une visite à l'autre (constat FEX-13, même cause, pour MES-10, BOI-08 et BOI-12) ; avec l'un d'eux, le débutant qui règle 1/800 s lit « Manqué : chien figé » et une fiche qui lui dit le contraire.
+- Correction proposée : « Avec le boîtier de départ (Nikon Z 6) et le 50 mm : trouve la vitesse la plus lente qui fige le promeneur (1/200 s), puis celle qui fige le chien (1/800 s) […]. Avec un boîtier APS-C, le flou acceptable est plus petit : 1/320 s et 1/1250 s. Une focale plus longue grossit le sujet et sa traînée : au 85 mm, 1/320 s et 1/1250 s en plein format. » Même chose en anglais.
+
+### FMA-14 · à améliorer · MAP-04, MAP-05, MAP-06 et MAP-09 : les seuls noms de Nikon, alors que le simulateur propose des boîtiers Canon et Sony ; en français, Nikon n'écrit pas « collimateur »
+
+- Endroit : `content/fr/notions/MAP-04.md`, l. 5-9 ; `MAP-05.md`, l. 5-8 ; `MAP-06.md`, l. 1 et 5 ; `MAP-09.md`, l. 5 ; mêmes lignes en anglais.
+- Ce qui est écrit : « AF-S » et « AF-C », « AF point sélectif », « AF zone large (S) et (L) », « AF zone automatique », « réglage a4 », d'après le manuel du Z 6 ; pour MAP-04 seulement, « Le Sony α9 décrit les mêmes modes ». MAP-06 a pour titre « Collimateurs » et écrit « 273 collimateurs ».
+- Preuve (dépôt) : le simulateur propose deux boîtiers Canon et deux Sony (`app/src/camera/bodies.ts`, l. 52-74) ; sa fenêtre « Mise au point » n'a que les noms de Nikon (`app/src/i18n.ts`, l. 46-59 et 280-296). Le référentiel cite pour MAP-04 et MAP-05 des manuels de Canon, de Sony et de Fujifilm (`data/referentiel/map.yaml` : `canon-r5-af-operation`, `canon-r5ii-af-area`, `sony-a7iv-focus-area`, `sony-a7riv-automatic-af`, `fujifilm-gfx100-af`) ; aucune de ces sources n'a de date de lecture ni de citation dans `data/sources.yaml`, et les fiches ne s'en servent pas.
+- Preuve (sources lues le 13 novembre 2026) :
+
+  | Marque | Sujet immobile, sujet en mouvement | Zone de mise au point | Mot pour le point de mesure, en français |
+  | --- | --- | --- | --- |
+  | Nikon Z 6 | « AF-S AF ponctuel », « AF-C AF continu » ; « Single AF », « Continuous AF » | « AF point sélectif », « AF zone large (S) », « AF zone automatique » ; « Single-point AF », « Wide-area AF (S) », « Auto-area AF » | « point AF » (33 fois dans la page « Mise au point ») ; « collimateur de mise au point » n'y est que pour la mise au point manuelle (2 fois) |
+  | Sony A7 III | « AF ponctuel », « AF continu » ; « Single-shot AF », « Continuous AF » | « Zone mise au point » : « Large », « Zone », « Centre », « Spot flexible » ; « Focus Area » : « Wide », « Zone », « Center », « Flexible Spot » | « collimateur » (« le collimateur souhaité ») |
+  | Canon EOS 850D (boîtier voisin) | « AF One-Shot », « AF Ai Servo » au viseur, « AF Servo » en visée par l'écran ; « One-Shot AF », « AI Servo AF », « Servo AF » | visée par l'écran : « 1 collimateur AF », « Zone AF », « +Suivi » ; « 1-point AF », « Zone AF », « +Tracking » | « collimateur AF » |
+
+  Adresses : Nikon, pages citées par les fiches ; Sony, `https://helpguide.sony.net/ilc/1720/v1/fr/print.pdf` et `…/en/print.pdf` (« Mode mise au point », « Zone mise au point » ; lus dans le texte extrait par l'audit des fiches d'exposition, fichiers `sony-ilce-7m3-fr.txt` et `sony-ilce-7m3-en.txt` de son dossier) ; Canon, `https://cam.start.canon/fr/C002/manual/html/UG-04_AF-Drive_0020.html` (« Opération autofocus »), `…_0030.html` et `…_0040.html`, et les mêmes sous `/en/` (fichiers `canon-850d-fr-afdrive-0020.html` et suivants). Les manuels de l'EOS RP et de l'EOS 2000D n'ont pas été trouvés sur l'hôte joignable (constat FEX-15) : les termes de Canon viennent d'un boîtier voisin.
+- Conséquence : un débutant qui a un Canon ne trouvera ni « AF-S » ni « AF-C » sur son boîtier, alors que le simulateur lui propose son boîtier ; un débutant qui a un Nikon réglé en français ne trouvera pas « collimateur » dans ses menus, mais « point AF » (« a5 : Points AF utilisés »).
+- Correction proposée, une phrase par fiche, avec ces sources (à ajouter à `data/sources.yaml` pour Canon) :
+  - MAP-04 : « Canon appelle ces modes « AF One-Shot » et « AF Servo » (« AF Ai Servo » au viseur d'un reflex). » ; « Canon calls these modes One-Shot AF and Servo AF (AI Servo AF through a DSLR's viewfinder). »
+  - MAP-05 : « Sony les range sous « Zone mise au point » (« Large », « Zone », « Centre », « Spot flexible ») ; Canon, en visée par l'écran, sous « Méthode autofocus » (« 1 collimateur AF », « Zone AF », « +Suivi »). » ; en anglais, les termes de la colonne.
+  - MAP-06 : « Les menus français de Nikon écrivent « point AF » ; ceux de Canon et de Sony, « collimateur ». »
+  - Même réserve que pour FEX-15 : le manuel de Canon lu est celui de l'EOS 850D. Que la fenêtre « Mise au point » suive la marque choisie est une autre question, pour le rapport de l'interface et pour Julien.
+
+### FMA-15 · à améliorer · Référentiel : les sources des notions NET-01, LUM-02 et MAP-04 ne sont pas celles de leurs fiches
+
+- Endroit : `data/referentiel/net.yaml` (NET-01), `lum.yaml` (LUM-02), `map.yaml` (MAP-04), champ `sources`.
+- Preuve (script : adresses citées par chaque fiche, rapportées aux identifiants de `data/sources.yaml`, puis comparées au champ `sources` de la notion) :
+  1. NET-01 : la fiche ne cite que `wikipedia-circle-of-confusion` ; la notion ne liste que `pl-lens-compression` (« Photography Life, What is Lens Compression? »), entrée sans date de lecture, sans citation et sans `used_in`. L'adresse répond 403 le 13 novembre 2026 : source non relue. Le domaine NET, lui, liste bien les deux.
+  2. LUM-02 : la fiche et l'activité citent `wikipedia-umbra-penumbra` ; la notion ne liste que `tiffen-lowel-soft-light` et `pvc-adams-soft-light`.
+  3. MAP-04 : la fiche cite `nikon-z6-defaults` (« L'AF-S est le réglage par défaut du Z 6 ») ; la notion ne le liste pas.
+- Pour les cinq autres notions du lot, toutes les sources citées par la fiche sont dans le champ `sources`.
+- Règle : `docs/lire-le-referentiel.md`, « `sources` : identifiants de `data/sources.yaml` », sans dire s'il s'agit des sources de la fiche ou de la spécification. `scripts/validate.py` contrôle que l'identifiant existe, pas que la fiche et la notion concordent.
+- Correction proposée : ajouter `wikipedia-circle-of-confusion` à NET-01, `wikipedia-umbra-penumbra` à LUM-02 et `nikon-z6-defaults` à MAP-04 ; pour `pl-lens-compression`, la lire (Julien peut la relever, comme les pages de Canon et de Sony) ou la retirer de NET-01, où rien ne s'en sert. Écrire dans `docs/lire-le-referentiel.md` que le champ contient au moins les sources de la fiche.
 
 ## Vérifié
 
