@@ -1,69 +1,120 @@
-// Script du workflow d'audit lancé par Claude le 13 novembre 2026 (outil Workflow de Claude Code).
-// Pour le relancer depuis une autre session : remplacer BLOC_NOTES par le dossier temporaire de la session,
-// et passer les lots restants dans args.lots.
+// Script du workflow d'audit (outil Workflow de Claude Code), version du 13 novembre 2026, deuxième passe.
+// La première version menait un lot après l'autre, un agent par lot ; elle a produit le rapport du modèle physique.
+// Celle-ci découpe les lots restants en onze rapports plus étroits, menés deux de front (plafond de l'outil sur
+// cette machine), chacun par trois agents à la suite : audit, réfutation, puis contre-vérification des constats
+// que la réfutation a ajoutés (règle de CLAUDE.md : un constat n'est corrigé que s'il a été contre-vérifié par un
+// second agent).
+//
+// Pour le relancer depuis une autre session :
+//   args = { blocNotes: '<dossier temporaire de la session>', rapports: ['fiches-exposition', …] }
+// et recréer dans ce dossier le script d'envoi « envoi-audit.sh » : sous un verrou (flock), il refuse tout fichier
+// hors de docs/audit/, contrôle le fichier envoyé avec les fonctions de scripts/check_public.py (plus : aucun
+// chemin local, aucun nom de modèle d'intelligence artificielle), fait « git add » et « git commit » de ce seul
+// fichier (auteur : Julien, adresse « noreply » ; committer : l'identité par défaut de l'environnement), puis
+// « git push origin <branche> » avec reprises. Les agents n'utilisent jamais git autrement.
+// Un rapport déjà commencé est repris, pas refait : les consignes de reprise sont dans les missions.
 export const meta = {
-  name: 'audit-complet',
-  description: 'Audit du travail antérieur, lot par lot et à la suite : constats avec preuves, réfutation par un second agent, chaque étape poussée sur GitHub ; synthèse finale',
+  name: 'audit-suite',
+  description: 'Audit du travail antérieur, rapports restants : audit, réfutation par un second agent, contre-vérification des constats ajoutés ; deux rapports de front, chaque étape poussée sur GitHub',
   phases: [
     { title: 'Audit', detail: 'sources relues à leur adresse, calculs refaits, code confronté à la documentation' },
     { title: 'Réfutation', detail: 'un second agent essaie de réfuter chaque constat' },
-    { title: 'Synthèse', detail: 'constats confirmés, classés, et plan de corrections' },
+    { title: 'Constats ajoutés', detail: 'un troisième agent contre-vérifie les constats ajoutés par le second' },
   ],
 }
-// args : { lots: [clés dans l'ordre], synthese: bool }
-const S = 'BLOC_NOTES'
+const S = args.blocNotes
 const W = '/home/user/TutoPhoto'
 const BRANCH = 'ccr-0b29c4d4-any4xd'
-const COMMON = `Lis d'abord ${W}/docs/audit/consignes-agents.md et respecte-le, sauf sur un point : ta mission t'autorise à écrire, à enregistrer et à pousser des fichiers sous ${W}/docs/audit/ (et eux seuls, sauf mention contraire plus bas).
 
-Tu travailles dans ${W}, le dépôt TutoPhoto, sur la branche ${BRANCH}, déjà extraite. Ne change pas de branche, ne réécris pas l'historique (ni rebase, ni amend, ni push forcé), ne touche à aucun fichier hors de ton périmètre d'écriture. Tes scripts de calcul et les pages relues vont sous ${S}/audit/<lot>/, jamais dans le dépôt.
+const commun = (r) => `Lis d'abord ${W}/docs/audit/consignes-agents.md et respecte-le, sauf sur un point : ta mission t'autorise à écrire le rapport ${W}/${r.fichier} et à l'envoyer sur GitHub, par le seul script d'envoi décrit plus bas.
 
-Contexte : Julien, le 12 novembre 2026, demande de remettre en question tout le travail fait avant ce jour par le modèle précédent, et de le modifier si nécessaire ; puis : « Que ce soit l'archi, les choix stratégiques ou les outils si tu pense que l'existant peut être amélioré fait le ne te contente pas de continuer sur un chemin défaillant, évitons les dettes techniques pour un mini projet en cours de développement ». Le 13 novembre : « je ne veux plus de sujets commencé non poussé et tu va finir l'audit correctement. Tu pousse le résultat sur git. »
+Tu travailles dans ${W}, le dépôt TutoPhoto, sur la branche ${BRANCH}, déjà extraite. Un autre agent y travaille en même temps que toi, sur un autre rapport. Donc :
+- tu n'écris qu'un fichier du dépôt : ${r.fichier} ;
+- tu ne lances aucune commande git qui écrit (ni add, ni commit, ni push, ni stash, ni checkout, ni switch, ni reset, ni rebase, ni worktree) : l'envoi passe par le script ; les commandes git de lecture (log, show, diff, blame, grep) sont libres ;
+- tu ne modifies aucun autre fichier du dépôt, même pour un essai : pour essayer une modification ou construire le site, travaille sur une copie sous ton dossier de travail ;
+- ton dossier de travail, hors du dépôt : ${S}/audit/${r.cle}/ (scripts de calcul, pages enregistrées, copies). Rien d'autre n'y est gardé d'une session à l'autre : ce qui compte doit être dans ton rapport.
 
-État d'esprit : rien n'est juste parce que c'est écrit. Règles du projet (CLAUDE.md) : réalisme, rien sans source, « Je ne sais pas » pour ce qui n'est pas vérifiable, calculs expliqués. Relis chaque source à son adresse quand l'hôte est joignable (sinon : « source non relue : hôte non joignable »), refais chaque calcul avec un script, confronte le code à la documentation. Ne cherche pas des fautes à tout prix : un point vérifié et juste se note « vérifié », en une ligne.
+Contexte : Julien, le 12 novembre 2026, demande de remettre en question tout le travail fait avant ce jour par le modèle précédent, et de le modifier si nécessaire ; puis : « Que ce soit l'archi, les choix stratégiques ou les outils si tu pense que l'existant peut être amélioré fait le ne te contente pas de continuer sur un chemin défaillant, évitons les dettes techniques pour un mini projet en cours de développement ». Le 13 novembre : « je ne veux plus de sujets commencé non poussé et tu va finir l'audit correctement. Tu pousse le résultat sur git. » L'audit est découpé en douze rapports sous docs/audit/ ; celui du modèle physique (docs/audit/modele-physique.md) est fini et donne la forme attendue : lis son début et deux ou trois de ses constats avant d'écrire.
 
-Pousser ton travail, obligatoire, au moins une fois à mi-parcours et une fois à la fin :
-  cd ${W} && git add docs/audit && git commit --author="Julien Touzeau <12866524+Badmiaoo@users.noreply.github.com>" -m "Audit : <lot>, <étape>" -m "Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>" && python3 scripts/check_public.py --commits all && git push origin ${BRANCH}
-Si check_public.py signale un problème, corrige le fichier, refais un commit, puis pousse. Dans tes fichiers : aucun chemin local (/tmp/…, /home/…), aucun nom de modèle d'intelligence artificielle (écris « le modèle précédent »), aucune adresse électronique. La limite d'usage peut te couper à tout moment : écris et pousse au fur et à mesure.`
+État d'esprit : rien n'est juste parce que c'est écrit. Règles du projet (CLAUDE.md) : réalisme, rien sans source, « Je ne sais pas » pour ce qui n'est pas vérifiable, calculs expliqués. Relis chaque source à son adresse quand l'hôte est joignable (sinon : « source non relue : hôte non joignable »), refais chaque calcul avec un script, confronte le code à la documentation. Ne cherche pas des fautes à tout prix : un point vérifié et juste se note « vérifié », en une ligne. Préfère peu de constats prouvés à beaucoup de constats fragiles.
 
-const LOTS = {
-  physique: {
-    titre: 'Modèle physique de l\'appareil', fichier: 'docs/audit/modele-physique.md', prefixe: 'PHY', deja: true,
-    perimetre: `Rapport déjà écrit le 12 novembre (20 constats, 41 points vérifiés) ; il reste à le contre-vérifier.`,
+Envoi, obligatoire : dès que tes premiers constats (ou verdicts) sont écrits, puis à peu près tous les cinq constats, et à la fin :
+  bash ${S}/envoi-audit.sh "Audit : ${r.nom}, <étape>" ${r.fichier}
+Le script contrôle ton fichier, fait le commit et pousse ; il écrit « ENVOYÉ » quand c'est fait. Il refuse un fichier qui contient un chemin local (écris « le bloc-notes de la session »), un nom de modèle d'intelligence artificielle (écris « le modèle précédent » ou « un agent de Claude »), une adresse électronique ou un lien privé : s'il refuse, lis son message, corrige ton fichier, relance. La limite d'usage peut te couper à tout moment : écris dans ton fichier au fur et à mesure, jamais tout à la fin, et envoie souvent.`
+
+const RAPPORTS = {
+  'physique': {
+    nom: 'modèle physique', fichier: 'docs/audit/modele-physique.md', prefixe: 'PHY', fait: 'réfutation', ajoutes: 1,
+    titre: 'Modèle physique de l\'appareil',
   },
-  fiches: {
-    titre: 'Fiches des notions et des situations', fichier: 'docs/audit/fiches.md', prefixe: 'FIC',
-    perimetre: `Les fiches de content/fr/ et content/en/ écrites avant le 12 novembre 2026 : notions EXP-04, EXP-05, EXP-06, MES-04, MES-10, BOI-07, BOI-08, BOI-12, MAP-04, MAP-05, MAP-06, MAP-09, NET-01, NET-06, MVT-01, LUM-02 ; situations SIT-01, SIT-05, SIT-06 (sans la phrase « Cadrage » de SIT-01, ajoutée le 12 novembre) ; l'activité app/src/activities/lum02.ts et ses textes. Lis docs/contenus.md et les formules du code que les fiches utilisent (app/src/camera/).
-Questions, phrase par phrase : chaque affirmation factuelle a-t-elle une source citée, et la source dit-elle bien cela (relis-la) ? Chaque chiffre se recalcule-t-il avec les formules du simulateur et les réglages annoncés ? La fiche dit-elle ce que le simulateur fait vraiment, et ce qu'il ne simule pas ? L'exercice et le défi sont-ils jouables tels qu'écrits ? La fiche anglaise dit-elle la même chose que la française, avec les termes des manuels anglais ? Le ton suit-il CLAUDE.md ? Une explication est-elle trompeuse ou trop compliquée pour un débutant ?`,
+  'fiches-exposition': {
+    nom: 'fiches, exposition et boîtier', fichier: 'docs/audit/fiches-exposition.md', prefixe: 'FEX',
+    titre: 'Fiches des notions d\'exposition, de mesure et de boîtier',
+    perimetre: `Les fiches de content/fr/notions/ et content/en/notions/ écrites le 11 novembre 2026 pour les notions EXP-04, EXP-05, EXP-06, MES-04, MES-10, BOI-07, BOI-08 et BOI-12 (seize fichiers). Lis docs/contenus.md (règles des fiches), les notions correspondantes dans data/referentiel/, les formules du code que les fiches utilisent (app/src/camera/, docs/camera-physique.md) et data/sources.yaml pour les sources citées. Les autres fiches (mise au point, netteté, mouvement, lumière, situations) sont auditées par un autre rapport (docs/audit/fiches-mise-au-point.md) ; le modèle physique lui-même l'a été (docs/audit/modele-physique.md : ne refais pas ses constats, renvoie à eux quand une fiche en dépend).
+Questions, phrase par phrase : chaque affirmation factuelle a-t-elle une source citée, et la source dit-elle bien cela (relis-la à son adresse) ? Chaque chiffre se recalcule-t-il avec les formules du simulateur et les réglages annoncés ? La fiche dit-elle ce que le simulateur fait vraiment, et ce qu'il ne simule pas ? L'exercice et le défi sont-ils jouables tels qu'écrits (vérifie dans le code que les réglages demandés existent et donnent le résultat annoncé) ? La fiche anglaise dit-elle la même chose que la française, avec les termes des manuels anglais ? Le ton suit-il CLAUDE.md ? Une explication est-elle trompeuse ou trop compliquée pour un débutant (critère de docs/cadrage.md) ?`,
   },
-  architecture: {
-    titre: 'Architecture, choix techniques, choix stratégiques et outils', fichier: 'docs/audit/architecture.md', prefixe: 'ARC',
-    perimetre: `Tout ce qui structure le projet : l'application (app/src/ : rendu du viseur et photo calculée, état des réglages, interface sans cadre, scène écrite dans le code, absence de mesure de la lumière, i18n), la construction (Vite en deux passes, générateur de pages statiques app/scripts/build-pages.mjs), les tests (scripts/test_app.cjs, un seul scénario ; aucun test rapide des formules), les données (référentiel en YAML, couverture, jalons), la documentation (docs/ : rôle de chaque fichier, recouvrements), le déroulé d'une version (CLAUDE.md : une pull request par sujet, changelog, tag), la CI (.github/workflows/), et les choix de fond (docs/cadrage.md, docs/pile-technique.md, docs/architecture.md, docs/propositions.md : Babylon.js, six boîtiers de référence, périmètre de 191 notions et 49 situations, V1 minimale, photos à 360° comme décor, licences des modèles).
-Hypothèses de Claude à confirmer ou à écarter, preuves à l'appui : (1) deux chaînes d'image, viseur et photo, obligent à écrire deux fois chaque fonction d'image, et le viseur travaille sur une image déjà écrêtée ; (2) un réglage du boîtier se câble à la main à six endroits d'un fichier de plus de 1 000 lignes ; (3) la scène est écrite dans le code, son fichier de description ne sert qu'aux licences ; (4) aucune mesure de la lumière : les modes A, S et l'ISO auto visent une constante ; (5) un seul long scénario de test dans le navigateur, fragile et lent, et aucun test rapide des formules ; (6) la documentation se recouvre et chaque version touche six fichiers.
-Pour chaque problème réel : la preuve (fichier et ligne, mesure), ce qu'il coûte aujourd'hui et ce qu'il coûtera avec les fonctions prévues (docs/etat-des-travaux.md), au moins deux voies dont « ne rien faire », leur coût et leur risque pour un petit projet, et ta recommandation. Dis aussi ce qui est bien fait et doit rester. Termine par un plan ordonné de refontes, chacune tenant en une pull request, avec ce qui la protège des régressions.`,
+  'fiches-mise-au-point': {
+    nom: 'fiches, mise au point, mouvement, lumière et situations', fichier: 'docs/audit/fiches-mise-au-point.md', prefixe: 'FMA',
+    titre: 'Fiches des notions de mise au point, de netteté, de mouvement et de lumière ; situations ; activité LUM-02',
+    perimetre: `Les fiches de content/fr/ et content/en/ écrites le 11 novembre 2026 : notions MAP-04, MAP-05, MAP-06, MAP-09, NET-01, NET-06, MVT-01 et LUM-02 ; situations SIT-01, SIT-05 et SIT-06 (sans la phrase « Cadrage » de SIT-01, ajoutée le 12 novembre) ; l'activité app/src/activities/lum02.ts, app/src/activities/lum02.css, app/activites/LUM-02/index.html et ses textes. Lis docs/contenus.md (règles des fiches), les notions et situations correspondantes dans data/, les formules du code que les fiches utilisent (app/src/camera/ : autofocus.ts, faces.ts, sharpZone.ts, viewfinderDof.ts, photo.ts ; docs/camera-physique.md) et data/sources.yaml pour les sources citées. Les fiches d'exposition, de mesure et de boîtier sont auditées par un autre rapport (docs/audit/fiches-exposition.md) ; le modèle physique lui-même l'a été (docs/audit/modele-physique.md : ne refais pas ses constats, renvoie à eux quand une fiche en dépend).
+Questions, phrase par phrase : chaque affirmation factuelle a-t-elle une source citée, et la source dit-elle bien cela (relis-la à son adresse) ? Chaque chiffre se recalcule-t-il avec les formules du simulateur et les réglages annoncés ? La fiche dit-elle ce que le simulateur fait vraiment, et ce qu'il ne simule pas ? L'exercice, le défi et la recette de chaque situation sont-ils jouables tels qu'écrits (vérifie dans le code que les réglages demandés existent et donnent le résultat annoncé) ? La fiche anglaise dit-elle la même chose que la française, avec les termes des manuels anglais ? Le ton suit-il CLAUDE.md ? Une explication est-elle trompeuse ou trop compliquée pour un débutant (critère de docs/cadrage.md) ? Pour l'activité LUM-02 : ce qu'elle montre est-il juste, sourcé, et ce qu'elle ne simule pas est-il dit ?`,
   },
-  sources: {
-    titre: 'Sources (data/sources.yaml)', fichier: 'docs/audit/sources.md', prefixe: 'SRC',
-    perimetre: `Les entrées de data/sources.yaml ajoutées avant le 12 novembre 2026 (environ 151). Pour chacune dont l'hôte est joignable : la page existe-t-elle encore, et dit-elle ce que le libellé affirme (auteur, titre, date, citation) ? Le champ used_in liste-t-il bien les fichiers où l'adresse apparaît, et les notions qui citent la source s'appuient-elles sur ce qu'elle dit ? Recense à part les sources jamais ouvertes (« extrait de recherche, page non ouverte »), les sources secondaires qui tiennent lieu de primaires, les sources citées nulle part, et les affirmations du dépôt qui citent une adresse absente du fichier. Automatise ce qui peut l'être (script), puis relis à la main les sources dont dépendent des valeurs du simulateur.`,
+  'architecture-application': {
+    nom: 'architecture de l\'application', fichier: 'docs/audit/architecture-application.md', prefixe: 'ARC',
+    titre: 'Architecture de l\'application, de sa construction et de ses tests',
+    perimetre: `Ce qui structure l'application : app/src/ (rendu du viseur et photo calculée, état des réglages, interface sans cadre applicatif, scène écrite dans le code, absence de mesure de la lumière, i18n), la construction (Vite en deux passes, générateur de pages statiques app/scripts/build-pages.mjs, app/package.json, app/vite.config.*), les tests (scripts/test_app.cjs, un seul scénario ; aucun test rapide des formules), et docs/architecture.md, docs/pile-technique.md pour ce qu'ils disent de l'application. Lis docs/etat-des-travaux.md pour les fonctions prévues (balance des blancs, histogramme en direct, situations jouables, solveur, nouvelles scènes en photo à 360°, mesure de la lumière, modes de mesure, mode P, mise au point manuelle) : c'est par rapport à elles qu'une structure coûte ou non. Tu ne cherches pas les bogues un par un (rapport docs/audit/code.md) ni les erreurs du modèle physique (docs/audit/modele-physique.md) : tu juges la structure.
+Hypothèses de Claude à confirmer ou à écarter, preuves à l'appui (fichier et ligne, mesure) : (1) deux chaînes d'image, viseur et photo, obligent à écrire deux fois chaque fonction d'image, et le viseur travaille sur une image déjà écrêtée ; (2) un réglage du boîtier se câble à la main à six endroits d'un fichier de plus de 1 000 lignes (app/src/ui/cameraPanel.ts) ; (3) la scène est écrite dans le code (app/src/scene.ts), son fichier de description (app/public/scenes/parc/scene.json) ne sert qu'aux licences ; (4) aucune mesure de la lumière : les modes A, S et l'ISO auto visent une constante ; (5) un seul long scénario de test dans le navigateur, fragile et lent, et aucun test rapide des formules. Cherche aussi ce que ces hypothèses ne voient pas (état partagé, dépendances entre modules, ce qui empêche d'ajouter une scène ou un boîtier, taille de ce qui est téléchargé, coût par image).
+Pour chaque problème réel, le constat donne : la preuve, ce qu'il coûte aujourd'hui et ce qu'il coûtera avec les fonctions prévues, au moins deux voies dont « ne rien faire », leur coût et leur risque pour un petit projet tenu par une personne et Claude, et ta recommandation. Si une voie s'appuie sur une capacité de Babylon.js ou d'un outil, vérifie-la dans le code installé (app/node_modules) ou dans sa documentation, pas de mémoire. Ajoute une section « Ce qui est bien fait et doit rester ». Termine par une section « Plan de refontes » : des refontes ordonnées, chacune tenant en une pull request, avec ce qui la protège des régressions.`,
   },
-  referentiel: {
-    titre: 'Référentiel et situations', fichier: 'docs/audit/referentiel.md', prefixe: 'REF',
-    perimetre: `data/referentiel/*.yaml (191 notions), data/situations.yaml (49 situations), data/jalons.yaml, docs/lire-le-referentiel.md, schemas/, scripts/validate.py et scripts/coverage.py. Le référentiel est un brouillon repris de REPRISE.md. Questions : les textes des notions (explication, simulateur, exercice) contiennent-ils des affirmations de photographie fausses ou douteuses (signale-les avec la source qui les contredit ou « à sourcer ») ? Y a-t-il des doublons, des notions mal classées de niveau, des renvois vers des situations sans retour qui trahissent une erreur, des situations dont les notions clés ne suffisent pas à la traiter, des identifiants incohérents ? Les 191 notions et 49 situations sont-elles un périmètre tenable et utile pour un débutant, ou faut-il regrouper, retirer, reporter (propose, sans rien retirer toi-même) ? Les contrôles automatiques laissent-ils passer des erreurs ?`,
+  'choix-et-outils': {
+    nom: 'choix de fond, données, documentation et outils', fichier: 'docs/audit/choix-et-outils.md', prefixe: 'CHX',
+    titre: 'Choix stratégiques, organisation des données et de la documentation, déroulé d\'une version, outils',
+    perimetre: `Les choix de fond et l'organisation du projet, hors structure du code de l'application (rapport docs/audit/architecture-application.md) : les choix de docs/cadrage.md, docs/pile-technique.md, docs/architecture.md et docs/propositions.md (Babylon.js plutôt qu'un autre moteur, tout dans le navigateur, site statique, six boîtiers de référence, V1 minimale d'une scène et trois situations, photos à 360° comme décor des scènes suivantes, modèles 3D de tiers et leurs licences, bilingue dès le départ, pas de smartphone) ; l'organisation des données (référentiel en YAML sous data/, fiches en Markdown sous content/, jalons, couverture : qui lit quoi, ce qui est généré, ce qui est dupliqué entre data/, content/ et app/src/i18n.ts) ; l'organisation de la documentation (docs/ : rôle de chaque fichier, recouvrements, ce qu'une version oblige à toucher ; REPRISE.md) ; le déroulé d'une version (CLAUDE.md : une pull request par sujet, une version par pull request, CHANGELOG.md, tag, release, /clear) ; la CI vue comme un outil (.github/workflows/ : durée, coût, ce qu'elle protège vraiment) ; les outils (Vite, TypeScript, Playwright, scripts Python, dépendances de app/package.json et requirements.txt : versions, entretien). Le périmètre du référentiel (191 notions, 49 situations) est jugé par un autre rapport (docs/audit/referentiel-structure.md) ; les erreurs de fait de la documentation par docs/audit/documentation.md ; les licences par docs/audit/licences-scripts-ci.md.
+Hypothèse de Claude à confirmer ou à écarter, preuves à l'appui : (6) la documentation se recouvre et chaque version touche six fichiers (mesure-le sur les dix dernières versions avec git log --stat). Autres questions : chaque choix de fond a-t-il des raisons écrites, sourcées, et tiennent-elles encore (relis les sources citées quand l'hôte est joignable) ? Un choix a-t-il été fait par le modèle précédent sans que Julien l'ait tranché (compare avec docs/historique.md) ? Qu'est-ce qui, dans le déroulé d'une version, coûte sans protéger ? Qu'est-ce qui manque pour qu'un contributeur extérieur comprenne le projet ?
+Pour chaque problème réel, le constat donne : la preuve (fichier et ligne, mesure), ce qu'il coûte aujourd'hui et ce qu'il coûtera, au moins deux voies dont « ne rien faire », leur coût et leur risque pour un petit projet tenu par une personne et Claude, et ta recommandation. Les décisions de Julien ne sont pas des fautes : si tu penses qu'une décision mérite d'être rouverte, dis-le comme une question à lui poser, arguments et sources à l'appui. Ajoute une section « Ce qui est bien fait et doit rester ». Termine par une section « Plan » : des changements ordonnés, chacun tenant en une pull request.`,
   },
-  interface: {
-    titre: 'Interface, code et routine de test', fichier: 'docs/audit/interface-code.md', prefixe: 'INT',
-    perimetre: `Le code écrit avant le 12 novembre 2026 hors modèle physique : app/src/main.ts, app/src/scene.ts, app/src/ui/ (sauf reviewInfo.ts et la partie grilles de cameraPanel.ts), app/src/i18n.ts, app/src/credits.ts, app/src/style.css, app/simulateur/index.html, app/activites/, app/scripts/, scripts/test_app.cjs. Cherche : bogues (logique, cas limites, états mémorisés, changement de langue ou de boîtier, redimensionnement), fuites, coût par image sur téléphone, accessibilité (clavier, lecteurs d'écran, contrastes), mise en page sur téléphone (dont le viseur qui change de hauteur avec l'aide de la mise au point, et l'écran de revue qui garde son défilement, déjà notés dans docs/etat-des-travaux.md), libellés français et anglais (termes des manuels, cohérence), code mort ou dupliqué, contrôles de la routine qui ne prouvent rien ou qui cassent pour de mauvaises raisons. Tu peux lancer un navigateur pour prouver un bogue (site à construire dans une copie : n'écris pas dans ${W}/app/dist).`,
+  'sources': {
+    nom: 'sources', fichier: 'docs/audit/sources.md', prefixe: 'SRC',
+    titre: 'Sources (data/sources.yaml)',
+    perimetre: `Les entrées de data/sources.yaml ajoutées avant le 12 novembre 2026 (environ 151 ; date d'ajout par git log ou git blame). Pour chacune dont l'hôte est joignable : la page existe-t-elle encore, et dit-elle ce que le libellé affirme (auteur, titre, date, citation) ? Le champ used_in liste-t-il bien les fichiers où l'adresse apparaît, et les notions qui citent la source s'appuient-elles sur ce qu'elle dit ? Recense à part, dans des tableaux : les sources jamais ouvertes (« extrait de recherche, page non ouverte »), les sources secondaires qui tiennent lieu de primaires, les sources citées nulle part, les sources dont l'hôte n'est pas joignable d'ici (non relues), et les affirmations du dépôt qui citent une adresse absente du fichier. Automatise ce qui peut l'être par un script (existence de la page, titre, présence de la citation, cohérence de used_in), puis relis à la main, en priorité, les sources dont dépendent des valeurs du simulateur et des fiches. Les rapports docs/audit/modele-physique.md et, s'ils existent déjà, docs/audit/fiches-exposition.md et docs/audit/fiches-mise-au-point.md ont relu une partie des sources : ne refais pas leurs constats, renvoie à eux, et concentre la lecture à la main sur ce qu'ils n'ont pas relu.`,
   },
-  documentation: {
-    titre: 'Documentation, scripts, CI et licences', fichier: 'docs/audit/documentation.md', prefixe: 'DOC',
-    perimetre: `CLAUDE.md, README.md et README.en.md, REPRISE.md, docs/*.md (hors docs/audit/, docs/dossiers/, docs/specifications/), CHANGELOG.md (cohérence des versions jusqu'à 0.3.53), LICENSE et docs/licences.md, app/public/scenes/parc/scene.json et scripts/check_scenes.py (licences, auteurs, adresses d'origine des modèles ; question ouverte des modèles Renderpeople), scripts/*.py, .github/workflows/*.yml, docs/publication.md (rien de privé dans le dépôt). Cherche : affirmations fausses ou périmées, contradictions entre fichiers, décisions de Julien mal rapportées (compare avec docs/historique.md), règles de CLAUDE.md que le dépôt ne respecte pas, risques de licence, contrôles automatiques qui laissent passer ce qu'ils doivent arrêter, étapes de CI fragiles ou inutiles.`,
+  'referentiel-contenu': {
+    nom: 'référentiel, contenu des notions et des situations', fichier: 'docs/audit/referentiel-contenu.md', prefixe: 'REF',
+    titre: 'Référentiel : contenu des 191 notions et des 49 situations',
+    perimetre: `Les textes de data/referentiel/*.yaml (191 notions : intitulé, explication, simulateur, exercice, niveau, renvois) et de data/situations.yaml (49 situations : description, notions clés), brouillon repris de REPRISE.md. Lis docs/lire-le-referentiel.md d'abord. Questions : les textes contiennent-ils des affirmations de photographie fausses ou douteuses (signale-les avec la source qui les contredit, relue à son adresse, ou avec « à sourcer » quand tu ne peux pas trancher : n'affirme rien de mémoire) ? Y a-t-il des doublons entre notions, des notions mal classées de niveau pour un débutant (critère de docs/cadrage.md), des situations dont les notions clés ne suffisent pas à les traiter ou qui citent une notion sans rapport, des intitulés qui ne sont pas les termes des manuels (Nikon, Canon, Sony, en français) ? Commence par les 17 notions du jalon de la V1 minimale (data/jalons.yaml) et les notions des domaines déjà en ligne, puis le reste, domaine par domaine ; écris dans l'en-tête ce que tu as lu en entier et ce que tu n'as que survolé. La structure du référentiel, ses contrôles automatiques et son périmètre sont jugés par un autre rapport (docs/audit/referentiel-structure.md).`,
+  },
+  'referentiel-structure': {
+    nom: 'référentiel, structure, contrôles et périmètre', fichier: 'docs/audit/referentiel-structure.md', prefixe: 'RST',
+    titre: 'Référentiel : structure, contrôles automatiques et périmètre',
+    perimetre: `data/referentiel/*.yaml, data/situations.yaml, data/jalons.yaml, data/relecture.yaml s'il existe, data/referentiel/retired.yaml, docs/lire-le-referentiel.md, schemas/, scripts/validate.py, scripts/coverage.py, scripts/referentiel.py, scripts/extract_reprise.py, requirements.txt. Questions : les identifiants sont-ils cohérents et stables (comparaison avec REPRISE.md et l'historique git : un identifiant a-t-il été renuméroté ou réutilisé) ? Les renvois entre notions et situations sont-ils cohérents dans les deux sens, et les renvois sans retour trahissent-ils une erreur ? Les champs since, niveau, jalon suivent-ils les règles de CHANGELOG.md et de docs/lire-le-referentiel.md ? Les contrôles automatiques laissent-ils passer des erreurs : essaie-les sur une copie du dépôt, sous ton dossier de travail, en y injectant des fautes (identifiant en double, renvoi vers une notion absente, niveau inconnu, champ manquant, source absente de sources.yaml, fiche sans notion) et note ce qui passe à tort ; les chiffres annoncés (191, 49, 13 sur 17) sont-ils ceux que les scripts calculent ? Enfin le périmètre : 191 notions et 49 situations sont-ils tenables et utiles pour un débutant (critère de docs/cadrage.md), ou faut-il regrouper, retirer, reporter ? Propose avec des comptes (par domaine, par niveau, notions jamais citées par une situation), sans rien retirer toi-même. La justesse des textes des notions est jugée par un autre rapport (docs/audit/referentiel-contenu.md).`,
+  },
+  'code': {
+    nom: 'code de l\'interface', fichier: 'docs/audit/code.md', prefixe: 'COD',
+    titre: 'Code de l\'interface : bogues, états, fuites, coût',
+    perimetre: `Le code écrit avant le 12 novembre 2026 hors modèle physique : app/src/main.ts, app/src/scene.ts, app/src/ui/*.ts (sauf reviewInfo.ts et la partie « grilles » de cameraPanel.ts), app/src/i18n.ts (sa mécanique, pas ses libellés), app/src/credits.ts, app/src/activities/lum02.ts, app/scripts/*.mjs. Cherche : bogues (logique, cas limites, états mémorisés dans le navigateur, changement de langue ou de boîtier en cours d'usage, redimensionnement et rotation, photo lancée pendant un calcul, rafale et retardateur interrompus), fuites (écouteurs, textures, minuteries jamais libérés), coût par image sur téléphone (ce qui est recalculé à chaque image sans raison), erreurs non rattrapées (chargement de la scène en échec, WebGL absent ou contexte perdu), code mort ou dupliqué. Chaque bogue doit être prouvé : par la lecture, lignes à l'appui, d'un chemin d'exécution précis ; ou, mieux, par un essai dans un navigateur (Playwright est installé ; construis le site dans une copie sous ton dossier de travail, jamais dans ${W}/app/dist ; rendu logiciel lent : réserve-le aux bogues qui en valent la peine). La mise en page, l'accessibilité, les libellés et la routine de test sont jugés par un autre rapport (docs/audit/interface.md) ; la structure d'ensemble par docs/audit/architecture-application.md ; les formules par docs/audit/modele-physique.md.`,
+  },
+  'interface': {
+    nom: 'interface et routine de test', fichier: 'docs/audit/interface.md', prefixe: 'INT',
+    titre: 'Interface : mise en page, accessibilité, libellés ; routine de test',
+    perimetre: `Ce que voit et touche l'utilisateur, dans le code écrit avant le 12 novembre 2026 : app/src/style.css, app/simulateur/index.html, app/activites/, app/src/activities/lum02.css, les pages produites par app/scripts/build-pages.mjs, les libellés français et anglais de app/src/i18n.ts ; et la routine scripts/test_app.cjs. Cherche : accessibilité (tout se fait-il au clavier, ordre de tabulation, noms accessibles des commandes, rôles et états ARIA, contrastes calculés avec la formule du WCAG 2.2 sur les couleurs de style.css, taille des cibles tactiles, préférence de mouvement réduit) ; mise en page sur téléphone, en portrait et en paysage (dont deux défauts déjà notés dans docs/etat-des-travaux.md : le viseur qui change de hauteur avec l'aide de la mise au point, l'écran de revue qui garde son défilement) ; libellés français et anglais (termes des manuels Nikon, Canon et Sony, relus à leur adresse ; cohérence entre les deux langues et avec les fiches ; tutoiement ; textes tronqués) ; routine de test : contrôles qui ne prouvent rien (toujours vrais), qui cassent pour de mauvaises raisons (délais, polices, ordre), ce qui n'est pas testé du tout, durée. Un défaut de mise en page ou d'accessibilité se prouve par une mesure : calcul de contraste, ou essai dans un navigateur (Playwright est installé ; construis le site dans une copie sous ton dossier de travail, jamais dans ${W}/app/dist ; rendu logiciel lent : cible tes essais). Les critères d'accessibilité cités doivent l'être d'après leur texte, relu si l'hôte est joignable, sinon marqués « non relu ». Les bogues de logique sont jugés par un autre rapport (docs/audit/code.md).`,
+  },
+  'documentation': {
+    nom: 'documentation', fichier: 'docs/audit/documentation.md', prefixe: 'DOC',
+    titre: 'Documentation : exactitude, cohérence, décisions rapportées',
+    perimetre: `CLAUDE.md, README.md et README.en.md, REPRISE.md, CHANGELOG.md (cohérence des versions jusqu'à 0.3.53 : chaque version a-t-elle son tag, sa date, ce qu'elle annonce est-il dans son commit de fusion), et docs/*.md hors docs/audit/, docs/dossiers/ et docs/specifications/, et hors docs/camera-physique.md (déjà audité : docs/audit/modele-physique.md), docs/licences.md et docs/publication.md (rapport docs/audit/licences-scripts-ci.md). Cherche : affirmations fausses ou périmées (confronte chaque affirmation vérifiable au dépôt : fichiers, scripts, comptes, versions, adresses) ; contradictions entre fichiers ; décisions de Julien mal rapportées, ou choix présentés comme des décisions de Julien sans trace (compare avec docs/historique.md et les messages de commit) ; règles de CLAUDE.md que le dépôt ne respecte pas ; questions de docs/questions-ouvertes.md déjà tranchées ou oubliées ; README qui ne dit pas ce que fait le site en ligne ; README anglais qui ne dit pas la même chose que le français ; liens internes cassés (vérifie-les par un script). Le recouvrement entre fichiers et le déroulé d'une version sont jugés, comme organisation, par un autre rapport (docs/audit/choix-et-outils.md) : toi, tu juges l'exactitude.`,
+  },
+  'licences-scripts-ci': {
+    nom: 'licences, scripts, CI et confidentialité', fichier: 'docs/audit/licences-scripts-ci.md', prefixe: 'LIC',
+    titre: 'Licences, scripts de contrôle, CI et confidentialité du dépôt public',
+    perimetre: `LICENSE et docs/licences.md ; app/public/scenes/parc/scene.json, les fichiers de la scène et scripts/check_scenes.py (licence, auteur et adresse d'origine de chaque modèle, texture et photo : relis chaque adresse d'origine quand l'hôte est joignable, et vérifie que la licence annoncée est celle de la page ; question ouverte des modèles Renderpeople dans docs/questions-ouvertes.md : que dit exactement leur licence, d'après leur site s'il est joignable, sinon « Je ne sais pas ») ; licences des dépendances (app/package.json et app/package-lock.json, champ license de chaque paquet installé sous app/node_modules, textes de licence copiés par app/scripts/copy-licences.mjs ; requirements.txt) ; polices et images du site ; scripts/changelog.py, scripts/check_public.py, scripts/check_scenes.py (essaie-les sur une copie du dépôt, sous ton dossier de travail, en y injectant ce qu'ils doivent arrêter : section de version manquante ou mal formée, secret, adresse électronique, lien privé, chemin local, modèle sans licence ; note ce qui passe à tort et ce qui est refusé à tort) ; .github/workflows/*.yml (permissions, actions épinglées par commit : l'empreinte correspond-elle à la version annoncée, si l'hôte est joignable ; déclencheurs ; étapes fragiles ou inutiles ; ce qu'un contributeur extérieur malveillant pourrait obtenir par une pull request) ; docs/publication.md et la règle « rien ne doit filtrer » de CLAUDE.md : cherche dans tout l'historique git (messages, auteurs, contenus) ce qui a filtré et n'est pas déjà consigné dans docs/publication.md, sans jamais recopier une valeur privée dans ton rapport (décris-la, donne le commit et le fichier). scripts/validate.py et scripts/coverage.py sont jugés par un autre rapport (docs/audit/referentiel-structure.md).`,
   },
 }
+
 const RESUME = {
   type: 'object',
   properties: {
     fichier: { type: 'string' }, pousse: { type: 'boolean' }, resume: { type: 'string' },
-    constats: { type: 'number' }, verifies: { type: 'number' },
+    constats: { type: 'number' }, verifies: { type: 'number' }, perimetre_non_couvert: { type: 'string' },
   },
   required: ['fichier', 'pousse', 'resume', 'constats'],
 }
@@ -73,55 +124,77 @@ const VERDICTS = {
     pousse: { type: 'boolean' }, confirmes: { type: 'number' }, refutes: { type: 'number' }, ajoutes: { type: 'number' },
     resume: { type: 'string' },
   },
-  required: ['pousse', 'confirmes', 'refutes', 'resume'],
+  required: ['pousse', 'confirmes', 'refutes', 'ajoutes', 'resume'],
 }
-const keys = (args && args.lots) || Object.keys(LOTS)
-const out = []
-let coupe = false
-for (const key of keys) {
-  const l = LOTS[key]
-  let audit = l.deja ? { fichier: l.fichier, pousse: true, resume: l.perimetre, constats: 20 } : null
-  if (!l.deja) {
-    audit = await agent(`${COMMON}
 
-Mission : auditer le lot « ${l.titre} » et pousser ton rapport.
-Périmètre : ${l.perimetre}
+const audit = (r) => agent(`${commun(r)}
 
-Écris ${W}/${l.fichier} (français), au fur et à mesure :
-- en tête : date, périmètre, méthode, sources relues et non relues, et la ligne « État : constats non contre-vérifiés » ;
-- section « Constats » : un constat par titre de niveau 3, « ### ${l.prefixe}-01 · gravité · titre », gravité parmi « faux » (contraire à la source ou au calcul), « non sourcé », « incohérent » (code, documentation et fiches ne disent pas la même chose), « à améliorer » (juste mais trompeur, obscur, irréaliste sans être dit, ou source de dette) ; puis l'endroit exact (fichier et ligne), ce qui est écrit ou fait, la preuve (citation exacte de la source avec son adresse, calcul refait avec ses nombres, extrait de code, mesure), et la correction proposée, précise ;
-- section « Vérifié » : les points contrôlés et justes, une ligne chacun ;
-- section « Je ne sais pas » : ce que tu n'as pas pu vérifier, et pourquoi.
-Classe les constats du plus grave au moins grave. Pas de constat sans preuve. Pousse à mi-parcours et à la fin.
+Mission : écrire le rapport d'audit « ${r.titre} » et l'envoyer.
+Périmètre : ${r.perimetre}
 
-Réponds par l'objet structuré : fichier, pousse (vrai si ton dernier état est poussé), resume (120 mots au plus), constats (nombre), verifies (nombre).`, { label: `audit ${key}`, phase: 'Audit', schema: RESUME, agentType: 'general-purpose' })
-    if (!audit) { coupe = true; out.push({ lot: key, etape: 'audit coupé' }); break }
+Reprise : si ${W}/${r.fichier} existe déjà, un agent avant toi a été coupé en plein travail. Ne repars pas de zéro : lis-le, garde ce qui est écrit et prouvé, et continue là où il s'est arrêté (la partie du périmètre qu'il n'a pas traitée).
+
+Écris ${W}/${r.fichier} (français), au fur et à mesure :
+- en tête : titre, date, périmètre, méthode, sources relues et non relues, et la ligne « État : constats non contre-vérifiés » ;
+- section « ## Constats » : un constat par titre de niveau 3, « ### ${r.prefixe}-01 · gravité · titre », numérotés à la suite, gravité parmi « faux » (contraire à la source, au calcul ou au code), « non sourcé », « incohérent » (code, documentation et fiches ne disent pas la même chose), « à améliorer » (juste mais trompeur, obscur, irréaliste sans être dit, ou source de dette) ; puis l'endroit exact (fichier et ligne), ce qui est écrit ou fait, la preuve (citation exacte de la source avec son adresse, calcul refait avec ses nombres, extrait de code, mesure), et la correction proposée, précise et proportionnée ;
+- section « ## Vérifié » : les points contrôlés et justes, une ligne chacun ;
+- section « ## Je ne sais pas » : ce que tu n'as pas pu vérifier, et pourquoi ;
+- les sections propres à ton périmètre, s'il en demande.
+Classe les constats du plus grave au moins grave à la fin (les identifiants peuvent alors ne plus se suivre : ne les renumérote pas après un envoi). Pas de constat sans preuve. Dis dans l'en-tête ce que tu n'as pas eu le temps de couvrir.
+
+Réponds par l'objet structuré : fichier, pousse (vrai si le script a écrit « ENVOYÉ » pour ton dernier état), resume (120 mots au plus), constats (nombre), verifies (nombre), perimetre_non_couvert (ce qui reste à auditer, ou « rien »).`,
+  { label: `audit ${r.cle}`, phase: 'Audit', schema: RESUME, agentType: 'general-purpose' })
+
+const refutation = (r) => agent(`${commun(r)}
+
+Mission : essayer de réfuter, un par un, tous les constats du rapport ${W}/${r.fichier} (« ${r.titre} »), écrit par un autre agent, puis envoyer le rapport annoté.
+Tu es l'avocat du travail audité. Pour chaque constat (titres « ### ${r.prefixe}-… ») : relis toi-même l'endroit visé et la source à son adresse, ou refais le calcul ou l'essai avec ton propre script (sous ton dossier de travail, dans un sous-dossier refutation/), sans reprendre les scripts de l'audit, et cherche si le constat est faux, exagéré, déjà dit ailleurs dans le dépôt, hors du périmètre (travail fait le 12 novembre 2026 ou après), ou si sa correction introduirait une erreur ou une dette. Dans le doute, le constat est réfuté.
+Écris sous chaque constat une ligne « **Contre-vérification : confirmé.** » ou « **Contre-vérification : réfuté.** », suivie de ta preuve en une à trois phrases ; corrige la correction proposée quand elle est fausse ou disproportionnée, et la gravité quand elle est exagérée. Si le rapport a des sections de plan ou de recommandations, écris sous chaque recommandation que tu contestes une ligne « **Contre-avis :** » avec tes raisons. Si tu trouves en chemin une faute que le rapport n'a pas vue, ajoute-la en fin de section « Constats », numérotée à la suite, avec la mention « ajouté à la contre-vérification » dans son titre, sa preuve et sa correction (elle sera contre-vérifiée par un troisième agent : n'écris pas de verdict dessous). Quand tout est traité, remplace en tête la ligne d'état par le bilan : date, constats confirmés, réfutés, ajoutés, et en une phrase ce qui est à corriger d'abord ; retire toute mention qui dit que le rapport n'est pas contre-vérifié.
+
+Reprise : si des constats portent déjà une ligne « Contre-vérification », un agent avant toi a été coupé en plein travail : ne les refais pas, continue avec les suivants.
+
+Réponds par l'objet structuré : pousse (vrai si le script a écrit « ENVOYÉ » pour ton dernier état), confirmes, refutes, ajoutes (nombres, sur tout le rapport), resume (120 mots au plus : ce qui est vraiment à corriger, du plus grave au moins grave).`,
+  { label: `réfutation ${r.cle}`, phase: 'Réfutation', schema: VERDICTS, agentType: 'general-purpose' })
+
+const ajoutes = (r) => agent(`${commun(r)}
+
+Mission : contre-vérifier les constats ajoutés pendant la contre-vérification du rapport ${W}/${r.fichier} (« ${r.titre} »), puis envoyer le rapport annoté.
+Le rapport a été écrit par un premier agent ; un second a essayé de réfuter chaque constat et en a ajouté, marqués « ajouté à la contre-vérification ». Règle du projet : un constat n'est corrigé que s'il a été contre-vérifié par un second agent ; ceux-là ne l'ont été par personne. Pour chaque constat ajouté qui n'a pas encore de ligne « Contre-vérification » : relis toi-même l'endroit visé et la source à son adresse, ou refais le calcul ou l'essai avec ton propre script, et cherche s'il est faux, exagéré, déjà dit ailleurs dans le dépôt, hors du périmètre, ou si sa correction introduirait une erreur ou une dette. Dans le doute, le constat est réfuté. Écris dessous « **Contre-vérification : confirmé.** » ou « **Contre-vérification : réfuté.** », suivie de ta preuve en une à trois phrases ; corrige la correction proposée si elle est fausse ou disproportionnée. Ne touche pas aux autres constats. Mets à jour le bilan en tête du rapport : parmi les constats ajoutés, combien sont confirmés, combien réfutés.
+
+Réponds par l'objet structuré : pousse (vrai si le script a écrit « ENVOYÉ » pour ton dernier état), confirmes, refutes (nombres, pour les seuls constats ajoutés), ajoutes (0), resume (80 mots au plus).`,
+  { label: `ajoutés ${r.cle}`, phase: 'Constats ajoutés', schema: VERDICTS, agentType: 'general-purpose' })
+
+// Deux voies, parce que l'outil ne mène que deux agents de front sur cette machine ; dans chaque voie, un rapport
+// est mené jusqu'au bout (audit, réfutation, constats ajoutés) avant le suivant : une coupure laisse ainsi des
+// rapports finis plutôt que des audits sans réfutation.
+const chaine = async (r) => {
+  const etat = { rapport: r.cle, fichier: r.fichier, coupe: null, audit: null, refutation: null, ajoutes: null }
+  if (r.fait) {
+    etat.audit = 'déjà fait'
+  } else {
+    etat.audit = await audit(r)
+    if (!etat.audit) { log(`${r.cle} : audit coupé`); etat.coupe = 'audit'; return etat }
   }
-  const refutation = await agent(`${COMMON}
-
-Mission : essayer de réfuter, un par un, tous les constats du rapport ${W}/${l.fichier} (lot « ${l.titre} »), écrit par un autre agent, puis pousser le rapport annoté.
-Tu es l'avocat du travail audité. Pour chaque constat (titres « ### ${l.prefixe}-… ») : relis toi-même l'endroit visé et la source à son adresse, ou refais le calcul avec ton propre script (sous ${S}/audit/${key}/refutation/), et cherche si le constat est faux, exagéré, déjà dit ailleurs dans le dépôt, ou si sa correction introduirait une erreur ou une dette. Dans le doute, le constat est réfuté.
-Écris sous chaque constat une ligne « **Contre-vérification : confirmé.** » ou « **Contre-vérification : réfuté.** », suivie de ta preuve en une ou deux phrases ; corrige la correction proposée quand elle est fausse ou disproportionnée. Si tu trouves en chemin une faute que le rapport n'a pas vue, ajoute-la en fin de section « Constats » avec la mention « ajouté à la contre-vérification » et sa preuve. Remplace en tête la mention d'état par le bilan : date, constats confirmés, réfutés, ajoutés. Retire toute note qui dit que le rapport n'est pas contre-vérifié. Pousse à mi-parcours et à la fin.
-
-Réponds par l'objet structuré : pousse, confirmes, refutes, ajoutes (nombres), resume (120 mots au plus : ce qui est vraiment à corriger, du plus grave au moins grave).`, { label: `réfutation ${key}`, phase: 'Réfutation', schema: VERDICTS, agentType: 'general-purpose' })
-  out.push({ lot: key, fichier: l.fichier, audit: audit ? { resume: audit.resume, constats: audit.constats, verifies: audit.verifies } : null, refutation })
-  log(`${key} : ${refutation ? `${refutation.confirmes} confirmé(s), ${refutation.refutes} réfuté(s)` : 'contre-vérification coupée'}`)
-  if (!refutation) { coupe = true; break }
+  if (r.fait === 'réfutation') {
+    etat.refutation = { ajoutes: r.ajoutes, resume: 'déjà faite' }
+  } else {
+    etat.refutation = await refutation(r)
+    if (!etat.refutation) { log(`${r.cle} : réfutation coupée`); etat.coupe = 'réfutation'; return etat }
+    log(`${r.cle} : ${etat.refutation.confirmes} confirmé(s), ${etat.refutation.refutes} réfuté(s), ${etat.refutation.ajoutes} ajouté(s)`)
+  }
+  if (etat.refutation.ajoutes > 0) {
+    etat.ajoutes = await ajoutes(r)
+    if (!etat.ajoutes) { log(`${r.cle} : contre-vérification des constats ajoutés coupée`); etat.coupe = 'constats ajoutés'; return etat }
+    log(`${r.cle}, constats ajoutés : ${etat.ajoutes.confirmes} confirmé(s), ${etat.ajoutes.refutes} réfuté(s)`)
+  }
+  return etat
 }
-let synthese = null
-if (!coupe && (!args || args.synthese !== false)) {
-  synthese = await agent(`${COMMON}
-Pour cette mission, ton périmètre d'écriture s'étend à ${W}/docs/etat-des-travaux.md.
-
-Mission : écrire la synthèse de l'audit et le plan de corrections, puis pousser.
-Lis tous les rapports de ${W}/docs/audit/ (constats et contre-vérifications). Écris ${W}/docs/audit/README.md (français) :
-- ce qui a été audité, par qui et comment (un agent, puis un second qui réfute), et ce qui ne l'a pas été ;
-- un tableau des constats confirmés, tous lots confondus, du plus grave au moins grave (identifiant, gravité, ce qui est faux, où) ; le nombre de constats réfutés et de points vérifiés par lot ;
-- le plan de corrections : des pull requests ordonnées, une par sujet, chacune avec les constats qu'elle traite, ce qu'elle change, ce qui la protège des régressions, et ce qu'il faut demander à Julien avant (décisions, sources qu'il doit relever) ; les refontes d'architecture d'abord quand d'autres corrections en dépendent ;
-- ce qui reste « Je ne sais pas ».
-Mets à jour dans ${W}/docs/etat-des-travaux.md le tableau « Nouvel ordre de travail » du point du 13 novembre : état de chaque lot d'audit, et renvoi au plan de corrections. Ne change rien d'autre dans ce fichier.
-Commit (git add docs/audit docs/etat-des-travaux.md), contrôle, push.
-
-Réponds par l'objet structuré : fichier, pousse, resume (150 mots au plus : les cinq corrections les plus importantes et la première pull request à faire), constats (nombre de constats confirmés au total).`, { label: 'synthèse', phase: 'Synthèse', schema: RESUME, agentType: 'general-purpose' })
-}
-return { lots: out, coupe, synthese }
+const cles = (args && args.rapports) || Object.keys(RAPPORTS)
+const voies = [[], []]
+cles.forEach((cle, i) => voies[i % 2].push({ ...RAPPORTS[cle], cle }))
+const parVoie = await parallel(voies.map((voie) => async () => {
+  const faits = []
+  for (const r of voie) faits.push(await chaine(r))
+  return faits
+}))
+return parVoie.filter(Boolean).flat()

@@ -14,9 +14,11 @@ Ce point prime sur l'ordre de la file plus bas.
 
 **Où on en est.**
 - En ligne : version 0.3.57 (histogrammes et hautes lumières sur l'écran de revue).
-- En cours, un seul sujet : **l'audit du travail antérieur**, dans une pull request en brouillon (version 0.3.58). Un workflow d'agents le mène lot par lot ; chaque agent pousse son rapport sous `docs/audit/` au fur et à mesure. Script : `docs/audit/audit-workflow.js.txt` ; consignes des agents : `docs/audit/consignes-agents.md`.
-- Tant que ce workflow tourne, ne pas toucher au dépôt local de la session (les agents y travaillent) : lire l'état sur GitHub.
-- Si le workflow s'arrête (limite d'usage) : regarder dans `docs/audit/` quels rapports portent un bilan de contre-vérification en tête, et relancer le script pour les lots restants, dans l'ordre : physique (contre-vérification seule), fiches, architecture, sources, referentiel, interface, documentation, puis la synthèse (`docs/audit/README.md`).
+- En cours, un seul sujet : **l'audit du travail antérieur**, dans la pull request 64, en brouillon (version 0.3.58). Un workflow d'agents le mène ; chaque agent pousse son rapport sous `docs/audit/` au fur et à mesure. Script : `docs/audit/audit-workflow.js.txt` (son en-tête dit comment le relancer) ; consignes des agents : `docs/audit/consignes-agents.md`.
+- Douze rapports, chacun en trois étapes : audit par un agent, réfutation de chaque constat par un second, contre-vérification par un troisième des constats que le second a ajoutés. Deux rapports sont menés de front, chacun jusqu'au bout avant le suivant. Ordre : `modele-physique.md` (fini le 13 novembre, sauf la contre-vérification du constat ajouté PHY-21), `fiches-exposition.md`, `fiches-mise-au-point.md`, `architecture-application.md`, `choix-et-outils.md`, `sources.md`, `referentiel-contenu.md`, `referentiel-structure.md`, `code.md`, `interface.md`, `documentation.md`, `licences-scripts-ci.md` ; puis la synthèse et le plan de corrections (`docs/audit/README.md`).
+- Lire où en est un rapport, dans le dépôt : pas de fichier, rien n'est fait ; « État : constats non contre-vérifiés » en tête, l'audit est fait ou en cours et la réfutation reste à faire ; un bilan de contre-vérification en tête, la réfutation est faite ; un constat « ajouté à la contre-vérification » sans ligne « Contre-vérification » dessous, la troisième étape reste à faire. Un rapport commencé est repris par l'agent suivant, pas refait (c'est dans les missions du script).
+- Tant que le workflow tourne, ne pas toucher au dépôt local de la session (les agents y travaillent) : lire l'état sur GitHub.
+- Si le workflow s'arrête (limite d'usage) : le relancer pour les rapports qui ne sont pas finis, dans l'ordre ci-dessus.
 - Quand la synthèse est poussée : la relire, passer la pull request en prête, attendre la CI, fusionner, vérifier le tag, puis dire à Julien de lancer `/clear`. Le sujet suivant est la première pull request du plan de corrections de la synthèse.
 - Balance des blancs : spécification dans `docs/specifications/balance-des-blancs.md`, reportée (voir sa note). Le début de code écrit le 12 novembre est abandonné : il sera réécrit après l'audit de l'architecture.
 
@@ -24,10 +26,10 @@ Ce point prime sur l'ordre de la file plus bas.
 
 | N° | Sujet | État |
 | --- | --- | --- |
-| 1 | Audit du modèle physique | Rapport écrit, `docs/audit/modele-physique.md` : 20 constats, 41 points vérifiés. Contre-vérification à faire avant toute correction. |
-| 2 | Audit des fiches (16 notions, 3 situations, activité LUM-02) | À refaire : coupé par la limite. |
-| 3 | Audit de l'architecture, des choix techniques et des outils | À faire. Hypothèses de Claude à vérifier : deux chaînes d'image (viseur, photo) qui obligent à tout écrire deux fois ; réglages du boîtier câblés à la main dans un fichier de plus de 1 000 lignes ; scène écrite en dur ; aucune mesure de la lumière ; un seul long scénario de test et aucun test rapide des formules ; documentation qui se recouvre. |
-| 4 | Audits restants : `data/sources.yaml`, référentiel et situations, interface et code, documentation et scripts | À faire. |
+| 1 | Audit du modèle physique | Fini : `docs/audit/modele-physique.md`, 19 constats confirmés, 1 réfuté (PHY-16), 1 ajouté à contre-vérifier (PHY-21). |
+| 2 | Audit des fiches (16 notions, 3 situations, activité LUM-02) | En cours : `docs/audit/fiches-exposition.md`, `docs/audit/fiches-mise-au-point.md`. |
+| 3 | Audit de l'architecture, des choix techniques et des outils | En cours : `docs/audit/architecture-application.md`, `docs/audit/choix-et-outils.md`. Hypothèses de Claude à vérifier : deux chaînes d'image (viseur, photo) qui obligent à tout écrire deux fois ; réglages du boîtier câblés à la main dans un fichier de plus de 1 000 lignes ; scène écrite en dur ; aucune mesure de la lumière ; un seul long scénario de test et aucun test rapide des formules ; documentation qui se recouvre. |
+| 4 | Audits restants : sources, référentiel (contenu, structure), code, interface, documentation, licences et CI | À faire, sept rapports (liste plus haut). |
 | 5 | Corrections et refontes issues des audits, une pull request par sujet | À faire. |
 | 6 | Nouvelles fonctions, sur la base assainie : balance des blancs, histogramme en direct, puis la suite de la file | Après le point 5. |
 
