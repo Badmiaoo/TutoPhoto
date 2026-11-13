@@ -3,7 +3,7 @@
 > **État au 13 novembre 2026 : constats non contre-vérifiés.** Ce rapport a été écrit par un agent de Claude le 12 novembre 2026, à la demande de Julien (remettre en question tout le travail fait avant cette date). L'étape suivante, où un second agent essaie de réfuter chaque constat, a été coupée par la limite d'usage. Aucune correction ne doit partir de ce rapport avant cette contre-vérification. Les scripts de calcul et les pages relues étaient sur la machine de Claude et ne sont pas dans le dépôt.
 
 - Date : 12 novembre 2026.
-- Demande : Julien, le 12 novembre 2026, « tout ce qui a été fait en opus doit être challengé et si nécessaire modifier ».
+- Demande : Julien, le 12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent, et le modifier si nécessaire.
 - Version auditée : copie de travail à la version 0.3.56, pour ce qui date de la version 0.3.53 ou d'avant. Hors du lot : la routine dans la CI (0.3.54), la progression du chargement (0.3.55), les grilles de cadrage (0.3.56).
 - Bilan : 20 constats (2 « faux », 3 « non sourcé », 5 « incohérent », 10 « à améliorer »), 41 points vérifiés et justes, 16 « Je ne sais pas ». Les formules du cœur du modèle (exposition, bruit, cercle de confusion, zone nette, traînée, modes A et S) sont celles de leurs sources, et tous les exemples chiffrés se recalculent, à la valeur des libellés près (PHY-16). Les défauts sont aux bords : ce que la documentation promet et que le code ne fait pas (filé, étalonnage), et ce que le passage à la densité de l'écran (0.3.52) a changé sans que le bruit et le flou du viseur suivent.
 
