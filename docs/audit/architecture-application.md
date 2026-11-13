@@ -1,12 +1,12 @@
 # Audit du lot « Architecture de l'application, de sa construction et de ses tests »
 
-État : constats non contre-vérifiés
+> **Bilan de la contre-vérification, 13 novembre 2026 : 10 constats confirmés, 2 réfutés (ARC-04, ARC-11), 1 ajouté (ARC-13, à contre-vérifier par un troisième agent).** Rapport écrit par un agent de Claude le 13 novembre 2026, à la demande de Julien. Un second agent a ensuite essayé de réfuter chaque constat : il a relu l'endroit visé, refait les comptes et les calculs avec ses propres scripts, reconstruit le site sur une copie et relu les passages de la routine dans GitHub ; son verdict est écrit sous chaque constat, et ses objections au plan sous les lignes « Contre-avis ». Gravité à baisser : ARC-09 (« à améliorer », la page annonce elle-même sa péremption) et ARC-08 (rien à corriger pour lui-même). Titres exagérés : ARC-06 (le téléchargement et le calcul d'une photo sont mesurés) et ARC-10 (seule la ligne « bruit » ne vient pas de la photo). Corrections réduites ou corrigées : ARC-01, ARC-02, ARC-03, ARC-05 et ARC-07. Chiffres du rapport à corriger : ARC-02 (82 appels à `element(`, pas 47), ARC-06 (96 Mio nominaux pour le fond, 169 tours de boucle au plus), ARC-09 (71 fichiers chargés d'office). Réfutés : ARC-04, doublon de PHY-12 et fonction déjà prévue, sans rien à reprocher au travail antérieur ; ARC-11, décision de Julien du 8 novembre et correction sans besoin connu. À corriger d'abord : la version du site à l'écran (ARC-12, seule), puis les tests rapides avec les formules communes (ARC-05, ARC-07), puis la mesure du coût du viseur et des capacités de l'appareil (ARC-06, ARC-13), avant le développement partagé entre le viseur et la photo (ARC-01) et le magasin de réglages (ARC-02) ; le plan passe de neuf refontes à cinq avant les fonctions nouvelles.
 
 - Date : 13 novembre 2026.
 - Demande : Julien, le 12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent ; « Que ce soit l'archi, les choix stratégiques ou les outils si tu pense que l'existant peut être amélioré fait le ne te contente pas de continuer sur un chemin défaillant, évitons les dettes techniques pour un mini projet en cours de développement ».
 - Version auditée : copie de travail de la version 0.3.58 en cours ; `app/`, `scripts/`, `docs/architecture.md` et `docs/pile-technique.md` y sont ceux de la version 0.3.57 (`git diff v0.3.57 HEAD` vide pour ces chemins). Les numéros de ligne sont ceux de cette version.
 - Rapport écrit par un agent de Claude. Ce rapport juge la structure. Les bogues un par un relèvent de `docs/audit/code.md`, les erreurs du modèle de `docs/audit/modele-physique.md` (constats PHY, cités quand ils touchent la structure).
-- Bilan : 12 constats (1 « incohérent », 11 « à améliorer », aucun « faux » ni « non sourcé »), 22 points vérifiés et justes, 9 « Je ne sais pas ». Les cinq hypothèses de Claude sont confirmées : la première avec une précision (la loi du bruit n'est écrite qu'une fois), la deuxième sous-estimée (huit endroits et non six), la troisième à préciser (le manifeste de la scène a quatre usages). Le cœur du constat : le viseur et la photo ne partagent pas leur traitement d'image, et rien ne permet de changer cela sans risque tant qu'il n'y a ni test rapide ni mesure du coût d'une image. Le plan de refontes, en fin de rapport, commence donc par les tests et la mesure.
+- Bilan de l'audit, avant la contre-vérification : 12 constats (1 « incohérent », 11 « à améliorer », aucun « faux » ni « non sourcé »), 22 points vérifiés et justes, 9 « Je ne sais pas ». Les cinq hypothèses de Claude sont confirmées : la première avec une précision (la loi du bruit n'est écrite qu'une fois), la deuxième sous-estimée (huit endroits et non six), la troisième à préciser (le manifeste de la scène a quatre usages). Le cœur du constat : le viseur et la photo ne partagent pas leur traitement d'image, et rien ne permet de changer cela sans risque tant qu'il n'y a ni test rapide ni mesure du coût d'une image. Le plan de refontes, en fin de rapport, commence donc par les tests et la mesure.
 
 ## Périmètre
 
@@ -36,7 +36,7 @@ Un second agent de Claude a essayé de réfuter chaque constat, en avocat du tra
 2. Comptes refaits par des scripts écrits pour la contre-vérification, sans reprendre ceux de l'audit : lignes, champs, appels, identifiants de la page, clés des textes (`comptes.py`, `page_textes.py`) ; triangles, textures et poids de la scène (`scene_poids.py`) ; exemples chiffrés des deux chaînes d'image, tours de la spirale du flou (`deux_chaines.py`).
 3. Lignes de Babylon.js 9.35.0 relues dans le paquet installé, une par une.
 4. Site reconstruit sur une copie du dépôt, hors du dépôt : construction normale, construction sans `inlineDynamicImports` (fichiers chargés d'office et à la demande séparés par le graphe des imports), construction à deux entrées, fiche au balisage inconnu.
-5. Essai de tests rapides refait avec d'autres fichiers (un résolveur de 15 lignes et trois fichiers de tests), Node.js 22.23.4.
+5. Essai de tests rapides refait avec d'autres fichiers (un résolveur de 16 lignes et trois fichiers de tests), Node.js 22.23.4.
 6. Passages de la routine relus dans GitHub (les dix passages du workflow, et les quatre jobs du dixième), en lecture seule ; registre npm relu pour Vitest et `@types/node`.
 7. Recherche, dans le reste du dépôt, de ce qui dirait déjà le constat, et de la date du travail visé : ce qui date du 12 novembre 2026 ou d'après (routine dans la CI, 0.3.54 ; grilles, 0.3.56 ; histogrammes, 0.3.57 ; spécification de la balance des blancs ; dossier des scènes) est hors de la période auditée et ne peut pas être reproché au travail antérieur.
 8. Aucun navigateur : rien n'est mesuré dans un rendu, comme dans l'audit.
@@ -158,7 +158,7 @@ Hypothèse 5 de Claude : **confirmée**.
   - Pour la routine dans le navigateur, quelle que soit la voie : la découper en étapes nommées, chacune dans son propre `try`, qui remettent les réglages de départ par un seul appel (le magasin de réglages d'ARC-02 le permet) ; un échec n'arrête alors que son étape. Sortir de la routine ce qui est un calcul (pénombre de LUM-02, positions des lignes des grilles, sommes des histogrammes) vers les tests rapides.
 - Recommandation : B, en première pull request du plan, parce qu'elle protège toutes les suivantes ; C si le fichier de résolution ou la version de Node.js posent problème. Garder la routine pour ce qu'elle seule peut voir : le rendu, la page, le toucher.
 
-**Contre-vérification : confirmé.** Correction à préciser. Recompté : aucun script de test dans `app/package.json` ; `runProfile` va de la l. 295 à la l. 1156, avec un seul `try` de la l. 318 à la l. 1136 ; 88 appels à `check(`. Relu dans GitHub : dix passages, quatre annulés, un en échec, cinq réussis, de 20 min 22 s à 27 min 21 s ; dixième passage : 17 min 41 s, 22 min 26 s, 22 min 38 s et 26 min 29 s, soit 89 minutes de machine. Essai refait avec d'autres fichiers (un résolveur de 15 lignes, trois fichiers de tests) : cinq tests réussis en 0,19 s sur `exposure.ts`, `exposureModes.ts` (les 475 combinaisons du mode A), `sharpZone.ts`, `bodies.ts`, `viewfinder.ts` et `bulletin.ts` (avec les vecteurs de Babylon.js, sans navigateur) ; `noise.ts` refuse de se charger, même message (« TypeScript parameter property is not supported in strip-only mode »), et se charge avec `--experimental-transform-types`. Registre npm relu : Vitest 5.1.0 et `@types/node` 26.6.6, licence MIT.
+**Contre-vérification : confirmé.** Correction à préciser. Recompté : aucun script de test dans `app/package.json` ; `runProfile` va de la l. 295 à la l. 1156, avec un seul `try` de la l. 318 à la l. 1136 ; 88 appels à `check(`. Relu dans GitHub : dix passages, quatre annulés, un en échec, cinq réussis, de 20 min 22 s à 27 min 21 s ; dixième passage : 17 min 41 s, 22 min 26 s, 22 min 38 s et 26 min 29 s, soit 89 minutes de machine. Essai refait avec d'autres fichiers (un résolveur de 16 lignes, trois fichiers de tests) : cinq tests réussis en 0,19 s sur `exposure.ts`, `exposureModes.ts` (les 475 combinaisons du mode A), `sharpZone.ts`, `bodies.ts`, `viewfinder.ts` et `bulletin.ts` (avec les vecteurs de Babylon.js, sans navigateur) ; `noise.ts` refuse de se charger, même message (« TypeScript parameter property is not supported in strip-only mode »), et se charge avec `--experimental-transform-types`. Registre npm relu : Vitest 5.1.0 et `@types/node` 26.6.6, licence MIT.
 
 - Périmètre : la routine dans la CI date du 12 novembre 2026 (0.3.54), hors de la période auditée ; ses durées sont une mesure, pas un reproche. Le constat repose sur `scripts/test_app.cjs` (9 novembre) et sur l'absence de tests des formules, qui sont bien du travail antérieur.
 - Voie B, à corriger : `@types/node` se prend à la version majeure du Node.js employé. La CI installe Node.js 22 et l'essai tourne sous 22.23.4 : prendre la dernière 22 (22.20.5 d'après le registre npm, lu le 13 novembre 2026), pas 26.6.6, qui décrit Node.js 26.
@@ -373,6 +373,27 @@ Le jour où un septième boîtier ou une plage propre à un boîtier est décid�
 
 **Contre-vérification : confirmé.** Site reconstruit sur une copie : `"version": "0.0.0"` dans `app/package.json` ; dans le site construit, les seuls numéros de version sont dans des commentaires de `simulateur/index.html` (0.3.51, 0.3.56, 0.3.57) et de la page de l'activité LUM-02 ; l'accueil dit seulement « Version en construction ». Aucune page du dépôt ne signale ce manque. Le coût est concret : Julien juge chaque version sur son téléphone, sans rien à l'écran qui dise laquelle il regarde. Correction juste et peu chère ; deux précisions. Le premier titre de version de `CHANGELOG.md` est, sur une pull request, la version à venir, et sur `main` la version publiée : c'est bien la bonne source (le tag n'est posé qu'après la fusion). Un seul lecteur de ce titre pour `vite.config.ts` et pour `build-pages.mjs`, pas deux expressions régulières. Rien n'oblige à attendre l'affichage de diagnostic : cette correction peut partir seule, et la première, puisque c'est elle qui permet de rattacher un jugement de Julien à une version.
 
+### ARC-13 · à améliorer · ajouté à la contre-vérification · La photo et l'autofocus supposent le rendu dans des textures en flottants : aucune capacité de l'appareil n'est lue
+
+Trouvé en vérifiant le repli de la voie B d'ARC-01. Établi par le code ; rien n'est essayé sur un appareil.
+
+- Endroit : `app/src/camera/photo.ts`, l. 274-291 et 315-321 ; `app/src/camera/autofocus.ts`, l. 121 et 350-352 ; `app/src/main.ts`, l. 153 ; `docs/pile-technique.md`, l. 33-45 ; `docs/camera-physique.md`, l. 129.
+- Ce qui est fait.
+  - La photo rend chaque image dans une texture en demi-flottants (`photo.ts`, l. 276), fait sa somme dans deux textures en flottants de 32 bits (l. 285), et lit sa carte de profondeur comme un tableau de flottants (l. 321). L'autofocus du viseur crée sa carte de profondeur en flottants de 32 bits (`autofocus.ts`, l. 121) et la lit de même (l. 350-352).
+  - La seule capacité contrôlée au démarrage est la présence de WebGL (`main.ts`, l. 153 : `Engine.isSupported()`). `grep -rn getCaps app/src` ne trouve rien : ni `textureFloatRender`, ni `textureHalfFloatRender` ne sont lus.
+- Preuve que Babylon.js ne protège pas ce cas (paquet 9.35.0, `Engines/thinEngine.pure.js`).
+  - Savoir créer une texture en flottants et savoir y rendre sont deux capacités : `textureFloat` (l. 355, toujours vraie en WebGL 2) et `textureFloatRender` (l. 422), qui dépend en WebGL 2 de l'extension `EXT_color_buffer_float` (l. 350 et 3461-3465). `textureHalfFloatRender` dépend en WebGL 2 de la même extension (l. 3467-3471).
+  - Pour une cible de rendu en flottants, Babylon.js ne repasse en 8 bits que si les textures en flottants elles-mêmes manquent (l. 2484-2487) ; il ne regarde pas si l'on peut y rendre. Sur un appareil WebGL 2 sans cette extension, les cibles de la photo sont donc créées telles quelles.
+  - La carte de profondeur de la photo, elle, a un repli dans Babylon.js : `enableDepthRenderer` choisit des demi-flottants, des flottants ou 8 bits selon ces capacités (`Rendering/depthRendererSceneComponent.pure.js`, l. 111-120). `photo.ts` ne le sait pas : il lit toujours des flottants.
+- Ce que le dépôt en dit : rien. `docs/camera-physique.md`, l. 129, décrit la texture en demi-flottants sans dire qu'elle est une exigence ; le tableau des navigateurs de `docs/pile-technique.md` (l. 33-45) ne parle que de WebGL 2 et de WebGPU ; ARC-01 note en passant que « la photo calculée en dépend déjà ».
+- Je ne sais pas : quels téléphones n'exposent pas cette extension, ni ce que voit l'utilisateur sur un tel appareil (photo noire, erreur affichée, distance de mise au point fausse). Les quatre profils de la routine tournent sur le même rendu logiciel, « iPhone » compris : ils ne peuvent pas le montrer. Le téléphone de Julien calcule les photos, donc l'expose.
+- Ce que cela coûte : rien de constaté. Le risque est pour les tests avec cinq débutants, sur des téléphones que personne n'a essayés, et pour la voie B d'ARC-01, qui étend cette dépendance au viseur.
+- Correction proposée, peu chère :
+  - lire `engine.getCaps().textureFloatRender` et `textureHalfFloatRender` au démarrage ; si l'une manque, le dire par la ligne de diagnostic qui existe déjà (`report`, `main.ts`, l. 96) et griser le déclencheur, plutôt que de laisser calculer une photo fausse ;
+  - écrire l'exigence dans `docs/pile-technique.md` et dans `docs/camera-physique.md` ;
+  - afficher ces capacités dans l'affichage de diagnostic d'ARC-06, pour que Julien et les testeurs les relèvent sur de vrais téléphones ;
+  - ne décider d'un repli (somme en demi-flottants, par exemple) que si un appareil réel en a besoin. Julien tranche.
+
 ## Carte de l'application (version 0.3.57)
 
 Écrite pour cet audit, parce qu'aucune page du dépôt ne la donne (ARC-09). Nombres de lignes : `wc -l`.
@@ -386,6 +407,8 @@ Le jour où un septième boîtier ou une plage propre à un boîtier est décid�
 - Trajet d'un réglage : bouton de la page, champ de `CameraPanel`, `update()`, `resolved()` (`resolveExposure`) ; de là, d'un côté le viseur (exposition des matériaux, paramètres du bruit et du flou), de l'autre `current()`, que lisent le déclencheur (au déclenchement), l'indicateur d'équilibre (toutes les 300 ms) et la vue de dessus (toutes les 250 ms).
 - Trajet d'une image : tableau d'ARC-01.
 - Sens des dépendances (graphe des imports) : aucun fichier de `camera/` n'importe un fichier de `ui/` ; `scene.ts` importe deux types de `camera/` ; `ui/shutter.ts` et `ui/topView.ts` importent `scene.ts` ; `photo.ts` porte des types et une fonction (`GroundInfo`, `SceneTimeControl`, `groundDepth`) que `scene.ts`, `autofocus.ts`, `viewfinderDof.ts`, `balance.ts` et `topView.ts` lui prennent.
+
+**Note de contre-vérification (carte).** Relue contre le code : juste, sauf un nombre. `main.ts` ne passe pas 47 éléments de la page aux classes mais 71 (66 par `element(…)`, 5 par `getElementById` ; 82 appels à `element(` en tout dans le fichier). Nombres de lignes, 223 textes par langue et sens des imports : retrouvés par script.
 
 ## Vérifié
 
@@ -414,6 +437,8 @@ Points contrôlés et justes.
 21. Vitest 5.1.0 déclare accepter Vite 8 et une licence MIT (registre npm, lu le 13 novembre 2026).
 22. Le viseur n'attache un post-traitement qu'une fois son shader compilé, avec un délai et un message à l'écran en cas d'échec (`noise.ts`, l. 185-201 ; `viewfinderDof.ts`, l. 191-207 ; `main.ts`, l. 93-109).
 
+**Note de contre-vérification (points vérifiés).** Refaits, et retrouvés : 1, 2, 3, 5 à 11, 13 à 22 (imports ; essai de tests ; 147 identifiants ; 223 clés ; dix titres ; versions ; refus de Vite à deux entrées, même message ; 324 fichiers ; `__tutophoto` absent ; 34,3 Mio ; construction arrêtée, code de sortie 1, sur une ligne de citation ajoutée à NET-01 ; dix passages de la routine ; lignes de Babylon.js ; registre npm). Point 4 : relu, non essayé. Point 12 : 5,7 s à ma mesure pour `npm run build` entier, au lieu de « moins de 5 secondes » ; même ordre de grandeur.
+
 ## Je ne sais pas
 
 - Le coût réel d'une image du viseur et d'une lecture de pixels sur un téléphone : rien n'est mesurable ici (rendu logiciel, pas de processeur graphique). C'est l'objet de la voie B d'ARC-06.
@@ -422,6 +447,7 @@ Points contrôlés et justes.
 - L'écart visible entre le viseur et la photo : calculé sur des exemples (ARC-01), non mesuré dans un rendu.
 - La part exacte du code inutilisé dans le fichier JavaScript : seule la part des shaders pour WebGPU est sûre (ARC-09) ; savoir quels autres morceaux la scène charge demande un navigateur.
 - Si Babylon.js réduit la photo de fond de 8192 pixels sur un téléphone qui n'accepte pas cette taille, et à quel prix, comme le dit `scene.ts`, l. 181 : non vérifié.
+  - **Note de contre-vérification :** la première moitié se lit dans le paquet. Babylon.js 9.35.0 borne la taille de la texture à `maxTextureSize` (`Engines/thinEngine.pure.js`, l. 2957-2959) et, si l'image dépasse, la redessine à cette taille dans un canevas avant de l'envoyer (l. 2616-2628). Le commentaire de `scene.ts` est donc juste. Le prix (netteté du fond, durée) reste inconnu.
 - La cause de l'échec non expliqué de la routine du 12 novembre (délai dépassé à l'entrée du mode S) : non cherchée ici.
 - Si Vitest fonctionne dans ce dépôt : non installé, non essayé. Seule la voie sans dépendance l'a été.
 - Le comportement sous Safari et sur un vrai iPhone : hors de portée de cet environnement, comme pour la routine.
@@ -473,3 +499,25 @@ Dans l'ordre. Chaque refonte tient en une pull request et ne change pas le compo
 | 9 | `docs/architecture.md` réécrite | ARC-09 | Relecture par un second agent |
 
 Ensuite, les fonctions prévues, sur cette base : la balance des blancs (une ligne dans le développement partagé, un réglage dans le magasin), l'histogramme en direct (lu après le développement), puis la mesure de la lumière (ARC-04, voie B), qui attend en plus l'étalonnage de la scène (PHY-06) et ses sources. La description complète d'une scène et le changement de scène (ARC-03, second temps) viennent avec la deuxième scène.
+
+### Contre-avis sur le plan (contre-vérification, 13 novembre 2026)
+
+Les refontes 1, 2 et 4 tiennent, avec les corrections écrites sous ARC-05, ARC-06, ARC-12 et ARC-01. Les autres sont contestées, en tout ou en partie.
+
+**Contre-avis (ensemble du plan) :** neuf pull requests sans changement visible avant toute fonction nouvelle, c'est beaucoup pour ce que Julien appelle un « mini projet », quand chaque commit qui touche `app/` attend 20 à 27 minutes de routine et qu'un seul sujet est ouvert à la fois. Ce que les fonctions prévues demandent vraiment avant elles : la version à l'écran (ARC-12, seule, d'abord), les tests rapides et les formules communes (refonte 1), la mesure du viseur avec les capacités de l'appareil (refonte 2, ARC-13), le développement partagé (refonte 4) et le magasin de réglages (refonte 6, sans l'identifiant de boîtier). Les refontes 3, 5 et 7 peuvent venir quand elles rapportent ; la 8 attend la deuxième scène.
+
+**Contre-avis (refonte 2) :** la version à l'écran n'a pas à attendre l'affichage de diagnostic. Elle tient en quelques lignes, ne touche pas au rendu, et sert dès le prochain jugement de Julien sur son téléphone : la sortir seule, en premier. Ajouter à l'affichage de diagnostic les capacités de rendu en flottants (ARC-13).
+
+**Contre-avis (refonte 3) :** elle est placée avant ce dont elle dépend. Des étapes indépendantes supposent de remettre les réglages de départ « par un seul appel », que le rapport attend du magasin de réglages (refonte 6). Sans lui, chaque étape devrait recharger la page et la scène en rendu logiciel, ce qui allonge une routine déjà longue. À faire après la refonte 6, ou pas du tout : d'après les messages des commits, un seul des dix passages s'est arrêté sur une exception (le deuxième), et la routine dans la CI date du 12 novembre.
+
+**Contre-avis (refonte 4) :** à ne lancer qu'avec les chiffres de la refonte 2 relevés sur le téléphone de Julien, et avec les deux corrections écrites sous ARC-01 (repli sans seconde chaîne ; bascule de `applyByPostProcess` seulement quand le développement est attaché). Elle change l'image du viseur : c'est une proposition à faire à Julien avant de produire (`CLAUDE.md`), pas une refonte « sans changement ».
+
+**Contre-avis (refonte 5) :** elle change une ligne du bulletin validé par Julien le 11 novembre, pour un écart documenté et dit à l'écran. Aucune fonction de la file ne l'attend avant les situations dont les critères portent sur les pixels (contre-jour, neige). À proposer à ce moment-là.
+
+**Contre-avis (refonte 6) :** le magasin de réglages, oui ; l'identifiant de boîtier, non (ARC-11, réfuté).
+
+**Contre-avis (refonte 7) :** les textes par attribut retirent au compilateur le contrôle des clés ; à ne faire qu'avec le test rapide qui le remplace. Le découpage de `cameraPanel.ts` n'est un préalable à rien.
+
+**Contre-avis (refonte 8) :** à retirer du plan. Des rôles à la place des noms n'apportent rien tant que les défis se jouent dans le parc ; ils se dessinent avec la deuxième scène (ARC-03).
+
+**Contre-avis (refonte 9) :** ne pas attendre la fin. La « Carte de l'application » est écrite : la copier maintenant dans `docs/architecture.md`, sous son bandeau, puis la tenir à jour à chaque refonte.
