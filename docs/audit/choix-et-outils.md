@@ -6,7 +6,7 @@
 - Demande : Julien, le 12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent ; « Que ce soit l'archi, les choix stratégiques ou les outils si tu pense que l'existant peut être amélioré fait le ne te contente pas de continuer sur un chemin défaillant, évitons les dettes techniques pour un mini projet en cours de développement ». Le 13 novembre : finir l'audit et pousser le résultat.
 - Version auditée : `main` à la version 0.3.57 (commit de fusion `8a0c894`), et la copie de travail de la version 0.3.58 en cours pour `CLAUDE.md`, `CHANGELOG.md` et `docs/etat-des-travaux.md`. Les numéros de ligne sont ceux de la copie de travail.
 - Rapport écrit par un agent de Claude. Il juge les choix et l'organisation, pas la structure du code (`docs/audit/architecture-application.md`, constats ARC, cités quand ils touchent le même sujet).
-- Rapport en cours d'écriture : les sections se remplissent au fur et à mesure. Ce qui n'est pas encore couvert est dit dans « Ce qui n'est pas couvert ».
+- Bilan : 11 constats (3 « incohérent », 8 « à améliorer », aucun « faux » ni « non sourcé »), 30 points vérifiés et justes, 12 « Je ne sais pas », 4 questions à poser à Julien. L'hypothèse 6 de Claude est confirmée. Les choix de fond ont presque tous une décision de Julien, datée et écrite, et leurs sources relues disent ce que la documentation leur fait dire. Les défauts sont ailleurs : la raison écrite du choix du moteur ne vaut plus (CHX-02) ; une règle de `CLAUDE.md` a été levée sur une lecture de Claude (CHX-04) ; le récit de chaque version s'écrit quatre fois au moins (CHX-01) ; ce qui attend Julien n'est réuni nulle part (CHX-10) ; rien, dans GitHub, ne fait respecter les règles du dépôt (CHX-03). Le projet produit plus vite qu'il ne valide : 63 versions en sept jours, aucune fiche relue, aucun test avec des débutants.
 
 ## Périmètre
 
@@ -46,24 +46,91 @@ Toutes lues le 13 novembre 2026.
 | Registre npm : `vite`, `typescript`, `@babylonjs/core`, `@babylonjs/loaders`, `babylonjs-gltf2interface`, `playwright`, `three`, `playcanvas`, `three-gpu-pathtracer` (versions, dates de publication, licences) | `registry.npmjs.org/<paquet>` | `npm-*.json` |
 | Registre PyPI : `PyYAML`, `jsonschema` | `pypi.org/pypi/<paquet>/json` | `pypi-*.json` |
 | Node.js, calendrier des versions (`schedule.json` du dépôt `nodejs/Release`, branche `main`) et liste des versions publiées | `raw.githubusercontent.com/nodejs/Release/main/schedule.json`, `nodejs.org/dist/index.json` | `node-release-schedule.json`, `node-dist-index.json` |
-| GitHub, API du dépôt TutoPhoto : dépôt, branche `main`, règles, branches, pull requests, passages des workflows et leurs jobs | `api.github.com/repos/Badmiaoo/TutoPhoto/…` | `gh-*.json` |
+| GitHub, API du dépôt TutoPhoto : dépôt, branche `main`, règles, branches, pull requests, releases, passages des workflows, leurs jobs et leurs annotations | `api.github.com/repos/Badmiaoo/TutoPhoto/…` | `gh-*.json` |
+| three.js, étiquette `r187` : `src/renderers/webgpu/WebGPURenderer.js` | `raw.githubusercontent.com/mrdoob/three.js/r187/…` | `three-r187-WebGPURenderer.js` |
+| GitHub, source de la documentation, dépôt `github/docs`, commit `8cd1075` : `data/reusables/gated-features/pages.md`, `content/billing/concepts/product-billing/github-actions.md`, `content/actions/reference/workflows-and-actions/events-that-trigger-workflows.md`, `data/reusables/actions/workflows/skipped-job-status-checks-passing.md`, `data/reusables/pull_requests/path-filtering-required-workflows.md` | `raw.githubusercontent.com/github/docs/8cd1075/…` | `ghdocs-*.md` |
+| Étiquettes des dépôts cités (moteurs 3D, données de MDN, cinq actions, gitleaks) et du dépôt TutoPhoto | `git ls-remote` sur `github.com` | (sortie de la commande, non enregistrée) |
+| gitleaks 8.30.1, empreintes de la release | `github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_checksums.txt` | `gitleaks-checksums.txt` |
+| Vite, journal des versions (branche `main`) | `raw.githubusercontent.com/vitejs/vite/main/packages/vite/CHANGELOG.md` | `vite-CHANGELOG.md` |
+| Registre npm : `yaml` (pour une voie de CHX-05) | `registry.npmjs.org/yaml` | `npm-yaml.json` |
 
 ### Non relues
 
 - Site publié (`badmiaoo.github.io`) : source non relue, hôte non joignable. Rien de ce rapport ne repose sur une lecture du site en ligne.
-- Documentation de GitHub à son adresse (`docs.github.com`) : hôte non joignable ; la page des limites de GitHub Pages est lue dans sa source (`github/docs`), comme l'avait fait le modèle précédent.
-- Pages des dépôts sur `github.com` (arborescences aux étiquettes citées par `docs/pile-technique.md`) : l'hôte répond 403 ; les fichiers sont lus par `raw.githubusercontent.com`. L'empreinte du commit de chaque étiquette (`7e89746`, `00bc37c`, `b7655d8`, `80d1888`, `29768a4`) n'est pas vérifiée : l'API de GitHub ne répond pas pour ces dépôts depuis la session.
+- Documentation de GitHub à son adresse (`docs.github.com`) : hôte non joignable ; les pages sont lues dans leur source (`github/docs`, commit `8cd1075`, celui que cite le dépôt), comme l'avait fait le modèle précédent. Ces sources contiennent des variables de gabarit (`{% data … %}`) : les citations de ce rapport sont prises dans des phrases sans variable, ou la variable est remplacée par le nom du produit.
+- Pages des dépôts sur `github.com` (arborescences aux étiquettes citées par `docs/pile-technique.md`) : l'hôte répond 403 aux lectures de pages ; les fichiers sont lus par `raw.githubusercontent.com` et les étiquettes par `git ls-remote`.
 - Documentation de Babylon.js (`doc.babylonjs.com`) et `caniuse.com` : hôtes non joignables.
 
 ## Ce qui n'est pas couvert
 
-À compléter en fin de rapport.
+- `REPRISE.md` (3 554 lignes) n'est pas relu : seuls son rôle et ses blocs de données sont examinés (CHX-06).
+- Le contenu des trois dossiers de sources (`docs/dossiers/`, 1 268 lignes) et des trois spécifications (`docs/specifications/`) n'est pas relu : seul leur rôle l'est.
+- `docs/camera-physique.md` n'est examiné que pour ce qu'il dit des choix (boîtiers, effets de Babylon.js) ; son organisation relève de `docs/audit/documentation.md`.
+- Les scripts ne sont pas relus ligne à ligne (`docs/audit/licences-scripts-ci.md`), ni les sections de `CHANGELOG.md` une à une, ni les schémas de `schemas/`.
+- Aucune mesure dans un navigateur ni sur le site publié.
 
 ## Hypothèse de Claude : verdict
 
 Hypothèse 6, « la documentation se recouvre et chaque version touche six fichiers » : **confirmée, avec une précision**. Sur les dix dernières versions (0.3.48 à 0.3.57), une version touche de 4 à 11 fichiers de documentation, 5,9 en moyenne et 4,5 en médiane ; aucune n'en touche moins de quatre. Le recouvrement est mesuré : le même fait d'une version s'écrit dans deux à huit pages. Détail et voies : CHX-01.
 
 ## Constats
+
+Classés du plus grave au moins grave : d'abord les trois « incohérent », puis les huit « à améliorer », par coût décroissant. Les identifiants suivent l'ordre d'écriture et ne sont pas renumérotés.
+
+### CHX-04 · incohérent · `CLAUDE.md` interdit d'étendre avant les tests avec des débutants ; deux versions ont étendu, sur une lecture de Claude que Julien n'a pas confirmée par écrit
+
+- Endroit : `CLAUDE.md`, l. 40 ; `docs/questions-ouvertes.md`, l. 83 ; `docs/propositions.md`, l. 5, 53-57 et 71 ; `docs/historique.md`, l. 199 ; `docs/etat-des-travaux.md`, l. 28-35, 48 et 108-114.
+- Ce qui est écrit : « Pas d'extension au-delà de la V1 minimale avant de l'avoir testée avec des débutants. » (`CLAUDE.md`, l. 40) ; « On n'étend au-delà de la V1 minimale qu'après l'avoir testée avec des débutants. » (`docs/questions-ouvertes.md`, l. 83) ; et la décision de Julien du 11 novembre au soir : « pour étendre, **tous** les testeurs doivent réussir chaque défi sans aide et mieux répondre après qu'avant » (`docs/propositions.md`, l. 5).
+- Ce qui est fait : quelques heures après, Julien écrit « Si jamais tu te retrouves sans plus rien a faire termine la v1. Et si jamais tu l'as terminé alors commence la v2. » et « vas aussi loins que possible ». La suite est une lecture : « Claude le comprend comme la levée, par Julien, de l'attente des tests avec les débutants avant d'étendre » (`docs/historique.md`, l. 199) ; « l'attente des tests […] est levée par cette demande » (`docs/etat-des-travaux.md`, l. 48). Les versions 0.3.56 (grilles, CMP-02) et 0.3.57 (histogrammes, MES-06 et MES-07, hors du jalon `v1-min` de `data/jalons.yaml`) étendent le simulateur. Le nouvel ordre de travail (`docs/etat-des-travaux.md`, l. 28-35) enchaîne l'audit, les corrections, puis les « Nouvelles fonctions » ; les tests avec cinq débutants ne sont plus qu'une ligne de « Ce qui attend Julien » (l. 114).
+- Ce qui est juste : Julien a vu la première extension avant sa fusion, en a tranché les sept choix le 12 novembre et a ajouté CMP-02 au jalon (`docs/propositions.md`, l. 94-104) : il n'a pas refusé d'étendre. Mais aucune phrase de lui ne lève la règle, et elle est toujours dans `CLAUDE.md`.
+- Ce que cela coûte.
+  - Une session neuve lit deux consignes contraires : `CLAUDE.md`, qui prime, interdit ; `docs/etat-des-travaux.md`, qu'elle lit ensuite, dit la règle levée.
+  - Sur le fond : après 63 versions, aucune des validations prévues n'a eu lieu. `data/relecture.yaml` : `relues: []`, soit 44 pages de fiches publiées avec le bandeau « en cours de relecture » ; tests avec les débutants à faire (`docs/etat-des-travaux.md`, l. 114) ; version 0.3.53 à juger sur téléphone (l. 110) ; onze choix de la version 0.3.57 à confirmer (`docs/propositions.md`, section 4). Les trois premiers rapports de l'audit ont confirmé 59 constats sur ce travail que personne n'avait relu (20 pour le modèle physique, 18 et 21 pour les fiches). Ce qui limite le projet aujourd'hui est la validation, pas la production.
+- Voies.
+  - A. Ne rien faire : la contradiction reste, et chaque session la tranchera à sa façon.
+  - B. Poser la question à Julien et écrire sa réponse dans `CLAUDE.md` : soit la règle tient (après les corrections de l'audit, aucune fonction nouvelle avant les tests), soit elle est levée (la retirer de `CLAUDE.md` et de `docs/questions-ouvertes.md`, et dire ce qui la remplace).
+  - C. Garder l'extension, mais plafonner ce qui attend une validation : par exemple, pas de fonction nouvelle tant que des choix de la version précédente ne sont pas confirmés.
+- Recommandation : B. C'est une décision de Julien ; elle est reprise dans « Questions à poser à Julien ».
+
+### CHX-02 · incohérent · Les deux effets qui ont fait choisir Babylon.js ne servent plus, et `docs/pile-technique.md` dit encore le contraire
+
+- Endroit : `docs/pile-technique.md`, l. 21, 56, 75-78 et 117 ; `docs/historique.md`, l. 73 ; `docs/camera-physique.md`, l. 41-45 et 268-270 ; `app/src/` (imports).
+- Ce qui est écrit, comme raison du choix du 7 novembre 2026 : « le seul des moteurs temps réel lus qui fournit à la fois une profondeur de champ physique (ouverture, focale, distance) et un flou de mouvement par objet » (`docs/pile-technique.md`, l. 56) ; « C'est la seule qui couvre d'origine les deux effets clés de la tranche de parc » (l. 117). La section « Décision » garde comme points à traiter « régler `lensSize` sur la focale » et « relier `motionStrength` à la vitesse d'obturation » (l. 77-78).
+- Preuve (code) : aucun des deux effets n'est importé. `grep` de `DepthOfField`, `MotionBlur`, `CircleOfConfusion`, `lensSize` et `motionStrength` dans `app/src/` : seule la classe `ViewfinderDepthOfField` de TutoPhoto répond (`app/src/camera/viewfinderDof.ts`, l. 128). Les 28 chemins importés de `@babylonjs/core` sont le moteur, la scène, la caméra, les textures et cibles de rendu, le rendu de profondeur, les post-traitements à shader écrit par TutoPhoto (`PostProcess`, `EffectRenderer`, `ShaderStore`), le fond (`PhotoDome`, `HDRCubeTexture`, `BackgroundMaterial`), une lumière et ses ombres, le chargement glTF.
+- Preuve (documentation du dépôt) : dès le 8 novembre, `docs/camera-physique.md`, l. 43, écrit de la profondeur de champ de Babylon.js : « Le résultat est ensuite plafonné à 1 et sert de fraction d'un flou maximal fixe […] : le passage en pixels n'est pas physique, et le flou n'a pas la forme de l'ouverture. » L'effet est essayé en version 0.3.22, puis remplacé en version 0.3.23 par « un flou en disque de taille physique, écrit pour TutoPhoto », sur décision de Julien du 9 novembre (l. 268-270). La photo est calculée par accumulation de rendus, écrite pour TutoPhoto (décision de Julien du 8 novembre, `docs/historique.md`, l. 118) ; le viseur n'a pas de flou de mouvement (`docs/camera-physique.md`, l. 76).
+- Preuve (source relue) : le tableau de `docs/pile-technique.md` est juste sur ce qu'il a lu. `thinCircleOfConfusionPostProcess.ts`, étiquette `9.35.0`, l. 107-108 : `const aperture = this.lensSize / this.fStop;` puis `const cocPrecalculation = (aperture * this.focalLength) / (this.focusDistance - this.focalLength);`. Mais le plafond est dans un autre fichier, que la comparaison du 7 novembre ne cite pas : `Shaders/circleOfConfusion.fragment.js` du paquet 9.35.0, l. 19 : `coc=clamp(coc,0.0,1.0)`. Le mot « physique » de la l. 21 vaut pour le calcul du cercle de confusion, pas pour le flou affiché.
+- Preuve (source relue), sur l'option écartée : la page reproche à three.js que relier le flou de mouvement à la vitesse d'obturation « demande le moteur WebGPU » (l. 52, et l. 22 : « moteur WebGPU »), à côté d'un Babylon.js qui « fonctionne en WebGL2, pris en charge par tous les navigateurs du tableau » (l. 56). Ce moteur de three.js n'exige pas WebGPU : `src/renderers/webgpu/WebGPURenderer.js`, étiquette `r187`, l. 24 : « If not, `WebGPURenderer` falls backs to a WebGL 2 backend », et l. 41, option `forceWebGL`. La comparaison ne le dit pas. Les autres lignes du tableau relues sont exactes (section « Vérifié »).
+- Ce que cela coûte : rien dans l'application. Dans la documentation, la page qui justifie le moteur donne une raison qui n'a tenu que deux jours, et laisse croire que la profondeur de champ et le flou de mouvement viennent de Babylon.js. La question « pourquoi ce moteur » n'a plus de réponse écrite qui soit vraie.
+- Voies.
+  - A. Ne rien faire.
+  - B. Corriger la page : sous « Décision », une note datée qui dit que les deux effets ne servent plus depuis la version 0.3.23, ce que Babylon.js fournit aujourd'hui (la liste ci-dessus), et pourquoi on le garde ; retirer les deux points à traiter devenus sans objet. Coût : une pull request de documentation, à faire avec le découpage de la page proposé par CHX-01.
+  - C. Rouvrir le choix du moteur (three.js, sous licence MIT, sans `NOTICE.md` à recopier). Coût certain : douze fichiers de `app/src/` importent Babylon.js, 4 456 lignes sur 6 292, et toute la routine de test est à repasser. Gain : je ne sais pas. Aucune page lue n'attribue un défaut de l'application à Babylon.js qui ne soit déjà contourné (un seul fichier JavaScript depuis la version 0.3.25, chargement qui n'attend plus le shader du bruit depuis la version 0.3.18), et rien ne dit qu'une accumulation de rendus s'écrirait mieux ailleurs.
+- Recommandation : B. Pas C : le coût est certain et le gain n'est pas établi. Si la refonte de la chaîne d'image (ARC-01) butait sur une limite du moteur, la question se reposerait alors, avec la limite sous les yeux.
+
+### CHX-05 · incohérent · `data/` est dite « source de vérité », mais le site et l'application recopient ses titres à la main ; en anglais, les copies ne disent pas la même chose
+
+- Endroit : `CLAUDE.md`, l. 5 ; `data/referentiel/*.yaml` et `data/situations.yaml` (champ `title`) ; première ligne de chaque fiche de `content/` ; `app/src/ui/challenges.ts`, l. 9-21 et 199 ; `app/src/i18n.ts`, l. 107-111 et 341-345 ; `app/scripts/build-pages.mjs`, l. 22-23, 85-94 et 101-134 ; `scripts/coverage.py`, l. 18-23 ; `scripts/referentiel.py`, l. 11 ; `docs/contenus.md`, l. 25-31 et 41-46.
+- Qui lit quoi (lu dans le code).
+
+  | Donnée | Écrite à | Lue par |
+  | --- | --- | --- |
+  | Titre d'une notion | `data/referentiel/` | `scripts/validate.py` et `scripts/coverage.py` seulement |
+  | | ligne 1 de la fiche, dans chaque langue | `build-pages.mjs` : titre de la page et de l'accueil |
+  | | `challenges.ts`, table `NOTION_TITLES` (dix notions, « repris du référentiel ») | le bulletin du simulateur |
+  | Titre d'une situation | `data/situations.yaml` ; ligne 1 de la fiche ; `i18n.ts` (`challenge01Title`…) | respectivement : les scripts Python ; les pages ; la fenêtre « Défis » |
+  | Titres des sections d'une fiche | `docs/contenus.md` (la règle) ; `coverage.py` (`HEADINGS`) ; `build-pages.mjs` (`SECTIONS`) | chacun le sien |
+  | Ordre des domaines | `referentiel.py` (`DOMAIN_ORDER`) ; `build-pages.mjs` (`DOMAIN_ORDER`, « Ordre des domaines de scripts/referentiel.py ») | chacun le sien |
+  | Titres des domaines, fiches relues | `data/referentiel/*.yaml`, `data/relecture.yaml` | PyYAML côté Python ; côté site, des expressions régulières qui exigent une mise en page exacte (`build-pages.mjs`, l. 108 et 129) |
+
+  Rien n'est produit à partir de `data/` : ni l'application ni les pages ne lisent un titre de notion ou de situation dans le référentiel.
+- Preuve de l'écart (script `doublons.py`, 44 fiches) : en français, les 22 titres de fiches sont ceux du référentiel. En anglais, 20 sur 22 diffèrent : 17 par la seule majuscule initiale, et 3 par les mots : BOI-07, « Aperture priority » dans la fiche et « aperture priority, A/Av » dans le référentiel ; BOI-08, « Shutter priority » et « shutter priority, S/Tv » ; EXP-06, « ISO » et « ISO sensitivity ». Effet visible en anglais : sous une photo, le bouton « à revoir » affiche « BOI-08 shutter priority, S/Tv » (`challenges.ts`, l. 12 et 199) et ouvre une fiche titrée « Shutter priority ».
+- Un détail : `build-pages.mjs`, l. 101, dit le format du bloc `domain` « contrôlé par validate.py ». `validate.py` charge les fichiers avec PyYAML et accepte toute mise en page valide ; c'est `build-pages.mjs` lui-même qui échoue, avec un message clair, si le bloc change de forme.
+- Ce que cela coûte : presque rien aujourd'hui (un écart de libellé en anglais). Ce que cela coûtera : 19 notions sur 191 ont une fiche ; chaque fiche ajoute un titre recopié dans deux langues, et le solveur de situations prévu en V2 aura besoin des données de `data/situations.yaml` dans l'application.
+- Voies.
+  - A. Ne rien faire.
+  - B. Un contrôle et une copie de moins : `validate.py` vérifie que la ligne 1 de chaque fiche porte le titre du référentiel (avec une règle écrite pour la majuscule) ; `NOTION_TITLES` disparaît de `challenges.ts`, les titres venant d'un fichier produit à la construction. Coût : une pull request ; les trois titres anglais qui diffèrent sont à trancher par Julien ou par la relectrice.
+  - C. Un seul lecteur de `data/` côté site : le paquet `yaml` (version 2.9.1, licence ISC, sans dépendance, d'après le registre npm lu le 13 novembre 2026) en dépendance de développement ; `build-pages.mjs` et Vite lisent `data/` directement, et les titres des sections sont définis une fois. Coût : une dépendance à vérifier (`CLAUDE.md`, l. 41), la lecture de `build-pages.mjs` à reprendre.
+- Recommandation : B maintenant. C quand l'application aura besoin des données (solveur de situations), pas avant.
 
 ### CHX-01 · à améliorer · Le récit de chaque version s'écrit dans quatre à onze fichiers, et trois journaux se recouvrent
 
@@ -106,20 +173,32 @@ Hypothèse 6, « la documentation se recouvre et chaque version touche six fichi
   - C. Produire les pages d'état par script (comptes du README d'après `scripts/coverage.py`, historique d'après le changelog). Coût : un outil de plus à entretenir, pour un dépôt de cette taille.
 - Recommandation : B. Le détail page par page revient au rapport `docs/audit/documentation.md` ; ce constat fixe la règle et la mesure.
 
-### CHX-02 · incohérent · Les deux effets qui ont fait choisir Babylon.js ne servent plus, et `docs/pile-technique.md` dit encore le contraire
+### CHX-10 · à améliorer · Ce qui attend une décision de Julien est dispersé dans cinq pages, et la liste « Ce qui attend Julien » en oublie
 
-- Endroit : `docs/pile-technique.md`, l. 21, 56, 75-78 et 117 ; `docs/historique.md`, l. 73 ; `docs/camera-physique.md`, l. 41-45 et 268-270 ; `app/src/` (imports).
-- Ce qui est écrit, comme raison du choix du 7 novembre 2026 : « le seul des moteurs temps réel lus qui fournit à la fois une profondeur de champ physique (ouverture, focale, distance) et un flou de mouvement par objet » (`docs/pile-technique.md`, l. 56) ; « C'est la seule qui couvre d'origine les deux effets clés de la tranche de parc » (l. 117). La section « Décision » garde comme points à traiter « régler `lensSize` sur la focale » et « relier `motionStrength` à la vitesse d'obturation » (l. 77-78).
-- Preuve (code) : aucun des deux effets n'est importé. `grep` de `DepthOfField`, `MotionBlur`, `CircleOfConfusion`, `lensSize` et `motionStrength` dans `app/src/` : seule la classe `ViewfinderDepthOfField` de TutoPhoto répond (`app/src/camera/viewfinderDof.ts`, l. 128). Les 28 chemins importés de `@babylonjs/core` sont le moteur, la scène, la caméra, les textures et cibles de rendu, le rendu de profondeur, les post-traitements à shader écrit par TutoPhoto (`PostProcess`, `EffectRenderer`, `ShaderStore`), le fond (`PhotoDome`, `HDRCubeTexture`, `BackgroundMaterial`), une lumière et ses ombres, le chargement glTF.
-- Preuve (documentation du dépôt) : dès le 8 novembre, `docs/camera-physique.md`, l. 43, écrit de la profondeur de champ de Babylon.js : « Le résultat est ensuite plafonné à 1 et sert de fraction d'un flou maximal fixe […] : le passage en pixels n'est pas physique, et le flou n'a pas la forme de l'ouverture. » L'effet est essayé en version 0.3.22, puis remplacé en version 0.3.23 par « un flou en disque de taille physique, écrit pour TutoPhoto », sur décision de Julien du 9 novembre (l. 268-270). La photo est calculée par accumulation de rendus, écrite pour TutoPhoto (décision de Julien du 8 novembre, `docs/historique.md`, l. 118) ; le viseur n'a pas de flou de mouvement (`docs/camera-physique.md`, l. 76).
-- Preuve (source relue) : le tableau de `docs/pile-technique.md` est juste sur ce qu'il a lu. `thinCircleOfConfusionPostProcess.ts`, étiquette `9.35.0`, l. 107-108 : `const aperture = this.lensSize / this.fStop;` puis `const cocPrecalculation = (aperture * this.focalLength) / (this.focusDistance - this.focalLength);`. Mais le plafond est dans un autre fichier, que la comparaison du 7 novembre ne cite pas : `Shaders/circleOfConfusion.fragment.js` du paquet 9.35.0, l. 19 : `coc=clamp(coc,0.0,1.0)`. Le mot « physique » de la l. 21 vaut pour le calcul du cercle de confusion, pas pour le flou affiché.
-- Preuve (source relue), sur l'option écartée : la page reproche à three.js que relier le flou de mouvement à la vitesse d'obturation « demande le moteur WebGPU » (l. 52, et l. 22 : « moteur WebGPU »), à côté d'un Babylon.js qui « fonctionne en WebGL2, pris en charge par tous les navigateurs du tableau » (l. 56). Ce moteur de three.js n'exige pas WebGPU : `src/renderers/webgpu/WebGPURenderer.js`, étiquette `r187`, l. 24 : « If not, `WebGPURenderer` falls backs to a WebGL 2 backend », et l. 41, option `forceWebGL`. La comparaison ne le dit pas. Les autres lignes du tableau relues sont exactes (section « Vérifié »).
-- Ce que cela coûte : rien dans l'application. Dans la documentation, la page qui justifie le moteur donne une raison qui n'a tenu que deux jours, et laisse croire que la profondeur de champ et le flou de mouvement viennent de Babylon.js. La question « pourquoi ce moteur » n'a plus de réponse écrite qui soit vraie.
+- Endroit : `docs/etat-des-travaux.md`, l. 73 et 108-114 ; `docs/camera-physique.md`, l. 13 et 76 ; `docs/historique.md`, l. 121 et 199 ; `docs/propositions.md`, l. 76 et 88-124 ; `docs/questions-ouvertes.md`, l. 12, 32 et 63 ; `docs/dossiers/scenes.md`, l. 12.
+- Preuve : liste reconstituée par `grep` de « à confirmer », « comprise comme », « lecture de Claude », « estimation de Claude » et « à trancher ».
+
+  | En attente | Depuis le | Écrit à | Dans « Ce qui attend Julien » |
+  | --- | --- | --- | --- |
+  | Boîtiers : « La réponse de Julien, « 1,2,3 », est comprise comme « les trois » » | 8 novembre | `docs/camera-physique.md`, l. 13 ; `docs/historique.md`, l. 121 | non |
+  | Viseur sans flou de mouvement : « C'est la lecture de Claude de la décision […] ; à confirmer par Julien » | 8 novembre | `docs/camera-physique.md`, l. 76 | non |
+  | Niveau des situations : règle de la médiane, « à confirmer en écrivant les premiers défis » ; les défis sont écrits depuis la version 0.3.38 | 7 novembre | `docs/questions-ouvertes.md`, l. 63 | non |
+  | Levée de l'attente des tests avant d'étendre (CHX-04) | 12 novembre | `docs/historique.md`, l. 199 | non |
+  | Situations qui réutiliseraient le parc : « une estimation de Claude » | 11 novembre | `docs/propositions.md`, l. 76 | non |
+  | Scènes suivantes sur des photos à 360° : « proposition », « à trancher par Julien » dans le dossier, mais déjà un sujet « À faire » de la file | 12 novembre | `docs/dossiers/scenes.md`, l. 12 ; `docs/etat-des-travaux.md`, l. 73 ; `docs/questions-ouvertes.md`, l. 12 | non |
+  | Onze choix des histogrammes (version 0.3.57) | 12 novembre | `docs/propositions.md`, l. 108-124 | oui |
+  | Tags `v0.2.0`, `v0.2.1` et `v0.2.2` : « tag à poser à la main » | 7 novembre | `CHANGELOG.md`, section 0.2.4 ; avertissements de chaque passage de `tag.yml` | non |
+  | Version 0.3.53 à juger ; accord de Renderpeople ; relecture des fiches ; tests | | `docs/etat-des-travaux.md`, l. 110-114 | oui |
+
+  Pour les boîtiers, la suite vaut confirmation de fait : le 11 novembre, Julien a relevé lui-même la couverture de l'autofocus de l'EOS RP, de l'A7 III et de l'A6000 (`docs/historique.md`, l. 188-190). La phrase « comprise comme » n'a pas été mise à jour.
+
+  Pour les tags : le dépôt publié a 60 tags, de `v0.2.3` à `v0.3.57` (`git ls-remote --tags origin`), pour 63 versions fusionnées. GitHub refuse au workflow la référence des trois premières. Depuis, chaque passage de `tag.yml` recrée leurs trois objets de tag, se voit refuser les références et écrit trois avertissements ; ceux du passage du 13 novembre 2026 : « v0.2.2 sur 911deef : référence refusée au jeton du workflow (HTTP 403 : Resource not accessible by integration) ; tag à poser à la main. » Quatre liens du bas de `CHANGELOG.md` visent ces tags absents (`compare/v0.2.2...v0.2.3`, `compare/v0.2.1...v0.2.2`, `compare/v0.2.0...v0.2.1`, `tree/v0.2.0`). Correction proportionnée : soit Julien pose les trois tags (la commande est dans le résumé du workflow), soit `scripts/changelog.py` cesse de les réessayer et les quatre liens visent les commits.
+- Ce que cela coûte : `CLAUDE.md`, l. 17, pose « Julien tranche ». Il ne peut trancher que ce qu'il voit ; deux questions attendent depuis cinq jours dans une page de 698 lignes, et la liste censée tout réunir compte cinq lignes.
 - Voies.
   - A. Ne rien faire.
-  - B. Corriger la page : sous « Décision », une note datée qui dit que les deux effets ne servent plus depuis la version 0.3.23, ce que Babylon.js fournit aujourd'hui (la liste ci-dessus), et pourquoi on le garde ; retirer les deux points à traiter devenus sans objet. Coût : une pull request de documentation, à faire avec le découpage de la page proposé par CHX-01.
-  - C. Rouvrir le choix du moteur (three.js, sous licence MIT, sans `NOTICE.md` à recopier). Coût certain : douze fichiers de `app/src/` importent Babylon.js, 4 456 lignes sur 6 292, et toute la routine de test est à repasser. Gain : je ne sais pas. Aucune page lue n'attribue un défaut de l'application à Babylon.js qui ne soit déjà contourné (un seul fichier JavaScript depuis la version 0.3.25, chargement qui n'attend plus le shader du bruit depuis la version 0.3.18), et rien ne dit qu'une accumulation de rendus s'écrirait mieux ailleurs.
-- Recommandation : B. Pas C : le coût est certain et le gain n'est pas établi. Si la refonte de la chaîne d'image (ARC-01) butait sur une limite du moteur, la question se reposerait alors, avec la limite sous les yeux.
+  - B. Une seule table « Décisions en attente » dans `docs/etat-des-travaux.md` : la question, sa date, la page du détail, ce qui se passe sans réponse. Les autres pages y renvoient et n'écrivent plus « à confirmer ». Une décision prise sort de la table et entre dans `docs/historique.md`.
+  - C. Un ticket GitHub par décision. Julien les verrait sur son téléphone ; mais l'état ne serait plus tout entier dans le dépôt, ce que demande la règle de reprise (`CLAUDE.md`, l. 35).
+- Recommandation : B, avec la remise en ordre de CHX-01. Les questions de fond sont reprises dans « Questions à poser à Julien ».
 
 ### CHX-03 · à améliorer · Rien, dans GitHub, n'empêche de pousser sur `main` ni de fusionner avec une CI rouge : la règle ne tient que par `CLAUDE.md`
 
@@ -133,55 +212,6 @@ Hypothèse 6, « la documentation se recouvre et chaque version touche six fichi
   - B. Julien active une règle de branche sur `main` : pull request obligatoire, et contrôles requis `validate`, `confidentialite`, `app` et `description`. Chemin dans l'interface : Settings, puis Rules, puis Rulesets, puis New branch ruleset (chemin non relu dans la documentation de GitHub, dont le site n'est pas joignable : à vérifier à l'écran). Coût : dix minutes de Julien. Les quatre jobs de la routine ne peuvent pas être requis tels quels : `routine.yml` ne se lance que si la pull request touche `app/`, `content/`, `data/` ou la routine (l. 8-13), et GitHub écrit : « You should not use path or branch filtering to skip workflow runs if the workflow is required to pass before merging. » (source de la documentation, dépôt `github/docs`, commit `8cd1075`, `data/reusables/pull_requests/path-filtering-required-workflows.md`).
   - C. B, plus la routine rendue « requérable » : le filtre par chemins passe du déclencheur à une condition de job. GitHub écrit : « A job that is skipped will report its status as "Success". It will not prevent a pull request from merging, even if it is a required check. » (même dépôt, même commit, `data/reusables/actions/workflows/skipped-job-status-checks-passing.md`). Coût : une pull request sur le workflow, à faire avec CHX-07.
 - Recommandation : B maintenant ; C avec la refonte des tests (ARC-05, CHX-07).
-
-### CHX-04 · incohérent · `CLAUDE.md` interdit d'étendre avant les tests avec des débutants ; deux versions ont étendu, sur une lecture de Claude que Julien n'a pas confirmée par écrit
-
-- Endroit : `CLAUDE.md`, l. 40 ; `docs/questions-ouvertes.md`, l. 83 ; `docs/propositions.md`, l. 5, 53-57 et 71 ; `docs/historique.md`, l. 199 ; `docs/etat-des-travaux.md`, l. 28-35, 48 et 108-114.
-- Ce qui est écrit : « Pas d'extension au-delà de la V1 minimale avant de l'avoir testée avec des débutants. » (`CLAUDE.md`, l. 40) ; « On n'étend au-delà de la V1 minimale qu'après l'avoir testée avec des débutants. » (`docs/questions-ouvertes.md`, l. 83) ; et la décision de Julien du 11 novembre au soir : « pour étendre, **tous** les testeurs doivent réussir chaque défi sans aide et mieux répondre après qu'avant » (`docs/propositions.md`, l. 5).
-- Ce qui est fait : quelques heures après, Julien écrit « Si jamais tu te retrouves sans plus rien a faire termine la v1. Et si jamais tu l'as terminé alors commence la v2. » et « vas aussi loins que possible ». La suite est une lecture : « Claude le comprend comme la levée, par Julien, de l'attente des tests avec les débutants avant d'étendre » (`docs/historique.md`, l. 199) ; « l'attente des tests […] est levée par cette demande » (`docs/etat-des-travaux.md`, l. 48). Les versions 0.3.56 (grilles, CMP-02) et 0.3.57 (histogrammes, MES-06 et MES-07, hors du jalon `v1-min` de `data/jalons.yaml`) étendent le simulateur. Le nouvel ordre de travail (`docs/etat-des-travaux.md`, l. 28-35) enchaîne l'audit, les corrections, puis les « Nouvelles fonctions » ; les tests avec cinq débutants ne sont plus qu'une ligne de « Ce qui attend Julien » (l. 114).
-- Ce qui est juste : Julien a vu la première extension avant sa fusion, en a tranché les sept choix le 12 novembre et a ajouté CMP-02 au jalon (`docs/propositions.md`, l. 94-104) : il n'a pas refusé d'étendre. Mais aucune phrase de lui ne lève la règle, et elle est toujours dans `CLAUDE.md`.
-- Ce que cela coûte.
-  - Une session neuve lit deux consignes contraires : `CLAUDE.md`, qui prime, interdit ; `docs/etat-des-travaux.md`, qu'elle lit ensuite, dit la règle levée.
-  - Sur le fond : après 63 versions, aucune des validations prévues n'a eu lieu. `data/relecture.yaml` : `relues: []`, soit 44 pages de fiches publiées avec le bandeau « en cours de relecture » ; tests avec les débutants à faire (`docs/etat-des-travaux.md`, l. 114) ; version 0.3.53 à juger sur téléphone (l. 110) ; onze choix de la version 0.3.57 à confirmer (`docs/propositions.md`, section 4). Les trois premiers rapports de l'audit ont confirmé 59 constats sur ce travail que personne n'avait relu (20 pour le modèle physique, 18 et 21 pour les fiches). Ce qui limite le projet aujourd'hui est la validation, pas la production.
-- Voies.
-  - A. Ne rien faire : la contradiction reste, et chaque session la tranchera à sa façon.
-  - B. Poser la question à Julien et écrire sa réponse dans `CLAUDE.md` : soit la règle tient (après les corrections de l'audit, aucune fonction nouvelle avant les tests), soit elle est levée (la retirer de `CLAUDE.md` et de `docs/questions-ouvertes.md`, et dire ce qui la remplace).
-  - C. Garder l'extension, mais plafonner ce qui attend une validation : par exemple, pas de fonction nouvelle tant que des choix de la version précédente ne sont pas confirmés.
-- Recommandation : B. C'est une décision de Julien ; elle est reprise dans « Questions à poser à Julien ».
-
-### CHX-05 · incohérent · `data/` est dite « source de vérité », mais le site et l'application recopient ses titres à la main ; en anglais, les copies ne disent pas la même chose
-
-- Endroit : `CLAUDE.md`, l. 5 ; `data/referentiel/*.yaml` et `data/situations.yaml` (champ `title`) ; première ligne de chaque fiche de `content/` ; `app/src/ui/challenges.ts`, l. 9-21 et 199 ; `app/src/i18n.ts`, l. 107-111 et 341-345 ; `app/scripts/build-pages.mjs`, l. 22-23, 85-94 et 101-134 ; `scripts/coverage.py`, l. 18-23 ; `scripts/referentiel.py`, l. 11 ; `docs/contenus.md`, l. 25-31 et 41-46.
-- Qui lit quoi (lu dans le code).
-
-  | Donnée | Écrite à | Lue par |
-  | --- | --- | --- |
-  | Titre d'une notion | `data/referentiel/` | `scripts/validate.py` et `scripts/coverage.py` seulement |
-  | | ligne 1 de la fiche, dans chaque langue | `build-pages.mjs` : titre de la page et de l'accueil |
-  | | `challenges.ts`, table `NOTION_TITLES` (dix notions, « repris du référentiel ») | le bulletin du simulateur |
-  | Titre d'une situation | `data/situations.yaml` ; ligne 1 de la fiche ; `i18n.ts` (`challenge01Title`…) | respectivement : les scripts Python ; les pages ; la fenêtre « Défis » |
-  | Titres des sections d'une fiche | `docs/contenus.md` (la règle) ; `coverage.py` (`HEADINGS`) ; `build-pages.mjs` (`SECTIONS`) | chacun le sien |
-  | Ordre des domaines | `referentiel.py` (`DOMAIN_ORDER`) ; `build-pages.mjs` (`DOMAIN_ORDER`, « Ordre des domaines de scripts/referentiel.py ») | chacun le sien |
-  | Titres des domaines, fiches relues | `data/referentiel/*.yaml`, `data/relecture.yaml` | PyYAML côté Python ; côté site, des expressions régulières qui exigent une mise en page exacte (`build-pages.mjs`, l. 108 et 129) |
-
-  Rien n'est produit à partir de `data/` : ni l'application ni les pages ne lisent un titre de notion ou de situation dans le référentiel.
-- Preuve de l'écart (script `doublons.py`, 44 fiches) : en français, les 22 titres de fiches sont ceux du référentiel. En anglais, 20 sur 22 diffèrent : 17 par la seule majuscule initiale, et 3 par les mots : BOI-07, « Aperture priority » dans la fiche et « aperture priority, A/Av » dans le référentiel ; BOI-08, « Shutter priority » et « shutter priority, S/Tv » ; EXP-06, « ISO » et « ISO sensitivity ». Effet visible en anglais : sous une photo, le bouton « à revoir » affiche « BOI-08 shutter priority, S/Tv » (`challenges.ts`, l. 12 et 199) et ouvre une fiche titrée « Shutter priority ».
-- Un détail : `build-pages.mjs`, l. 101, dit le format du bloc `domain` « contrôlé par validate.py ». `validate.py` charge les fichiers avec PyYAML et accepte toute mise en page valide ; c'est `build-pages.mjs` lui-même qui échoue, avec un message clair, si le bloc change de forme.
-- Ce que cela coûte : presque rien aujourd'hui (un écart de libellé en anglais). Ce que cela coûtera : 19 notions sur 191 ont une fiche ; chaque fiche ajoute un titre recopié dans deux langues, et le solveur de situations prévu en V2 aura besoin des données de `data/situations.yaml` dans l'application.
-- Voies.
-  - A. Ne rien faire.
-  - B. Un contrôle et une copie de moins : `validate.py` vérifie que la ligne 1 de chaque fiche porte le titre du référentiel (avec une règle écrite pour la majuscule) ; `NOTION_TITLES` disparaît de `challenges.ts`, les titres venant d'un fichier produit à la construction. Coût : une pull request ; les trois titres anglais qui diffèrent sont à trancher par Julien ou par la relectrice.
-  - C. Un seul lecteur de `data/` côté site : le paquet `yaml` (version 2.9.1, licence ISC, sans dépendance, d'après le registre npm lu le 13 novembre 2026) en dépendance de développement ; `build-pages.mjs` et Vite lisent `data/` directement, et les titres des sections sont définis une fois. Coût : une dépendance à vérifier (`CLAUDE.md`, l. 41), la lecture de `build-pages.mjs` à reprendre.
-- Recommandation : B maintenant. C quand l'application aura besoin des données (solveur de situations), pas avant.
-
-### CHX-06 · à améliorer · `scripts/extract_reprise.py` écrase `data/` avec le référentiel du 7 novembre si on le lance ; `CLAUDE.md` présente encore `docs/` comme une copie de `REPRISE.md`
-
-- Endroit : `scripts/extract_reprise.py`, l. 11-19 ; `README.md`, l. 23-24 ; `CLAUDE.md`, l. 6 et 8 ; `REPRISE.md` (3 554 lignes, 171 157 octets) ; `docs/historique.md`, l. 46.
-- Preuve (script) : sans argument, le script lit `REPRISE.md` et écrit dans le dossier courant chaque bloc qui commence par `# fichier:` (`out.write_text(body, encoding="utf-8")`, l. 18). Essai dans un dossier vide du bloc-notes : 16 fichiers écrits (les 14 de `data/referentiel/`, `data/situations.yaml`, `data/sources.yaml`). Comparés à ceux du dépôt : 15 diffèrent (`data/sources.yaml`, 484 lignes d'écart ; `data/situations.yaml`, 94 ; les treize domaines, de 6 à 44), seul `retired.yaml` est identique. Aucun workflow ni aucune page ne l'appelle (`grep`), sauf `REPRISE.md` lui-même ; `README.md`, l. 23, le range parmi les scripts du dépôt (« Extraction »). `docs/historique.md`, l. 46, dit que l'identité entre `data/` et `REPRISE.md` a été vérifiée une fois, à la première pull request.
-- Preuve (`CLAUDE.md`) : l. 8, « `REPRISE.md`, et `docs/` qui en est copié, sont un brouillon ». Sur les 13 pages à la racine de `docs/`, 5 disent venir de `REPRISE.md` (`architecture.md`, `historique.md`, `cadrage.md`, `questions-ouvertes.md`, `lire-le-referentiel.md`, d'après leur ligne 3) ; les huit autres, dont `docs/camera-physique.md` (105 769 octets), et les dossiers `dossiers/`, `specifications/` et `audit/` ont été écrits après. La l. 6 nomme `REPRISE.md` « Archive de reprise », à côté de `docs/etat-des-travaux.md`, « pour reprendre à tout moment » : deux fichiers pour le même mot.
-- Ce que cela coûte : un script rangé parmi les outils du dépôt détruit sans prévenir le travail non enregistré sur `data/` ; une session neuve peut prendre `REPRISE.md` (171 157 octets) pour une lecture de reprise.
-- Voies : A, ne rien faire ; B, supprimer `scripts/extract_reprise.py` (l'historique de git le garde), corriger `README.md`, l. 23, et réécrire les l. 6 et 8 de `CLAUDE.md` (« `REPRISE.md` : archive figée du 7 novembre 2026, à ne pas lire pour reprendre ») ; C, déplacer en plus `REPRISE.md` sous `docs/`, ce qui casse les renvois de cinq pages pour peu de gain.
-- Recommandation : B.
 
 ### CHX-07 · à améliorer · Une pull request qui ne touche que des fiches ou des données lance quatre fois le scénario 3D complet
 
@@ -223,6 +253,27 @@ Hypothèse 6, « la documentation se recouvre et chaque version touche six fichi
   - C. Un outil de mise à jour automatique. Coût : un flux de pull requests à traiter (Babylon.js publie plusieurs fois par semaine), toutes rouges faute de section dans le changelog ; il faudrait les regrouper et les exempter du contrôle.
 - Recommandation : B.
 
+### CHX-06 · à améliorer · `scripts/extract_reprise.py` écrase `data/` avec le référentiel du 7 novembre si on le lance ; `CLAUDE.md` présente encore `docs/` comme une copie de `REPRISE.md`
+
+- Endroit : `scripts/extract_reprise.py`, l. 11-19 ; `README.md`, l. 23-24 ; `CLAUDE.md`, l. 6 et 8 ; `REPRISE.md` (3 554 lignes, 171 157 octets) ; `docs/historique.md`, l. 46.
+- Preuve (script) : sans argument, le script lit `REPRISE.md` et écrit dans le dossier courant chaque bloc qui commence par `# fichier:` (`out.write_text(body, encoding="utf-8")`, l. 18). Essai dans un dossier vide du bloc-notes : 16 fichiers écrits (les 14 de `data/referentiel/`, `data/situations.yaml`, `data/sources.yaml`). Comparés à ceux du dépôt : 15 diffèrent (`data/sources.yaml`, 484 lignes d'écart ; `data/situations.yaml`, 94 ; les treize domaines, de 6 à 44), seul `retired.yaml` est identique. Aucun workflow ni aucune page ne l'appelle (`grep`), sauf `REPRISE.md` lui-même ; `README.md`, l. 23, le range parmi les scripts du dépôt (« Extraction »). `docs/historique.md`, l. 46, dit que l'identité entre `data/` et `REPRISE.md` a été vérifiée une fois, à la première pull request.
+- Preuve (`CLAUDE.md`) : l. 8, « `REPRISE.md`, et `docs/` qui en est copié, sont un brouillon ». Sur les 13 pages à la racine de `docs/`, 5 disent venir de `REPRISE.md` (`architecture.md`, `historique.md`, `cadrage.md`, `questions-ouvertes.md`, `lire-le-referentiel.md`, d'après leur ligne 3) ; les huit autres, dont `docs/camera-physique.md` (105 769 octets), et les dossiers `dossiers/`, `specifications/` et `audit/` ont été écrits après. La l. 6 nomme `REPRISE.md` « Archive de reprise », à côté de `docs/etat-des-travaux.md`, « pour reprendre à tout moment » : deux fichiers pour le même mot.
+- Ce que cela coûte : un script rangé parmi les outils du dépôt détruit sans prévenir le travail non enregistré sur `data/` ; une session neuve peut prendre `REPRISE.md` (171 157 octets) pour une lecture de reprise.
+- Voies : A, ne rien faire ; B, supprimer `scripts/extract_reprise.py` (l'historique de git le garde), corriger `README.md`, l. 23, et réécrire les l. 6 et 8 de `CLAUDE.md` (« `REPRISE.md` : archive figée du 7 novembre 2026, à ne pas lire pour reprendre ») ; C, déplacer en plus `REPRISE.md` sous `docs/`, ce qui casse les renvois de cinq pages pour peu de gain.
+- Recommandation : B.
+
+### CHX-11 · à améliorer · Chaque pull request naît avec le lien de la session, puis est corrigée : le lien reste dans son historique, et le contrôle échoue une fois par pull request
+
+- Endroit : `CLAUDE.md`, l. 22-23 ; `docs/publication.md`, l. 32-41 ; `.github/workflows/description.yml`.
+- Ce qui est fait : à la création, l'outil GitHub de Claude remplace le pied de la description par un pied qui porte le lien de la session ; Claude réécrit ensuite la description ; `description.yml` échoue tant que le lien y est (`docs/publication.md`, l. 35 et 40).
+- Mesure (API de GitHub) : 107 passages du contrôle, 14 échecs, tous depuis le 11 novembre 2026 (10 le 11, 3 le 12, 1 le 13), pour les quinze pull requests 50 à 64 : à peu près un échec voulu par pull request.
+- Ce que le contrôle protège : la description telle qu'elle est au moment de la fusion. Ce qu'il ne protège pas, et la page le dit : le lien « reste dans l'historique d'édition de chacune » (`docs/publication.md`, l. 40). La règle de `CLAUDE.md`, l. 22, « ni lien vers une session Claude dans les commits et les pull requests », n'est donc tenue qu'en surface, par construction.
+- Voies.
+  - A. Ne rien faire : le lien ne s'ouvre que pour le propriétaire de la session (`docs/publication.md`, l. 37).
+  - B. Essayer une fois de créer la pull request sans l'outil qui ajoute le pied : par l'API de GitHub ou par la commande `gh`. Dans la session de cet audit, les lectures de l'API passent avec une identité pour ce dépôt (en-tête `X-RateLimit-Limit: 15000`) ; je ne sais pas si une écriture passerait, et la mission interdit de l'essayer. Si elle passe, le lien n'entre plus dans aucune description, et le contrôle reste comme filet.
+  - C. Garder le déroulé et retirer la phrase de `CLAUDE.md` qui promet plus que ce qui est tenu.
+- Recommandation : B, à la prochaine pull request ; puis mettre `CLAUDE.md`, l. 23, et `docs/publication.md` à jour selon le résultat.
+
 ### CHX-09 · à améliorer · Rien ne dit à un contributeur extérieur comment tester ni comment proposer un changement ; le déroulé suppose un seul auteur
 
 - Endroit : `README.md`, l. 25 et 31-60 ; `README.en.md` ; `CLAUDE.md` ; `scripts/changelog.py`, l. 5-7 ; `.github/workflows/validate.yml`, l. 32-42 ; ni `CONTRIBUTING.md`, ni modèle de pull request ou de ticket sous `.github/`.
@@ -241,45 +292,124 @@ Hypothèse 6, « la documentation se recouvre et chaque version touche six fichi
   - C. `CONTRIBUTING.md`, modèles de ticket et de pull request, changelog par fragments (un fichier par pull request, assemblé à la fusion) pour permettre des pull requests en parallèle.
 - Recommandation : B, dans la pull request de documentation de CHX-01. C seulement si Julien décide d'ouvrir le projet à d'autres.
 
-### CHX-10 · à améliorer · Ce qui attend une décision de Julien est dispersé dans cinq pages, et la liste « Ce qui attend Julien » en oublie
+## Questions à poser à Julien
 
-- Endroit : `docs/etat-des-travaux.md`, l. 73 et 108-114 ; `docs/camera-physique.md`, l. 13 et 76 ; `docs/historique.md`, l. 121 et 199 ; `docs/propositions.md`, l. 76 et 88-124 ; `docs/questions-ouvertes.md`, l. 12, 32 et 63 ; `docs/dossiers/scenes.md`, l. 12.
-- Preuve : liste reconstituée par `grep` de « à confirmer », « comprise comme », « lecture de Claude », « estimation de Claude » et « à trancher ».
+Ce sont des décisions de Julien, ou des choix qui lui reviennent. Aucune n'est une faute.
 
-  | En attente | Depuis le | Écrit à | Dans « Ce qui attend Julien » |
-  | --- | --- | --- | --- |
-  | Boîtiers : « La réponse de Julien, « 1,2,3 », est comprise comme « les trois » » | 8 novembre | `docs/camera-physique.md`, l. 13 ; `docs/historique.md`, l. 121 | non |
-  | Viseur sans flou de mouvement : « C'est la lecture de Claude de la décision […] ; à confirmer par Julien » | 8 novembre | `docs/camera-physique.md`, l. 76 | non |
-  | Niveau des situations : règle de la médiane, « à confirmer en écrivant les premiers défis » ; les défis sont écrits depuis la version 0.3.38 | 7 novembre | `docs/questions-ouvertes.md`, l. 63 | non |
-  | Levée de l'attente des tests avant d'étendre (CHX-04) | 12 novembre | `docs/historique.md`, l. 199 | non |
-  | Situations qui réutiliseraient le parc : « une estimation de Claude » | 11 novembre | `docs/propositions.md`, l. 76 | non |
-  | Scènes suivantes sur des photos à 360° : « proposition », « à trancher par Julien » dans le dossier, mais déjà un sujet « À faire » de la file | 12 novembre | `docs/dossiers/scenes.md`, l. 12 ; `docs/etat-des-travaux.md`, l. 73 ; `docs/questions-ouvertes.md`, l. 12 | non |
-  | Onze choix des histogrammes (version 0.3.57) | 12 novembre | `docs/propositions.md`, l. 108-124 | oui |
-  | Tags `v0.2.0`, `v0.2.1` et `v0.2.2` : « tag à poser à la main » | 7 novembre | `CHANGELOG.md`, section 0.2.4 ; avertissements de chaque passage de `tag.yml` | non |
-  | Version 0.3.53 à juger ; accord de Renderpeople ; relecture des fiches ; tests | | `docs/etat-des-travaux.md`, l. 110-114 | oui |
+1. **La règle « pas d'extension avant les tests avec des débutants » tient-elle encore ?** (CHX-04)
+   - Pour qu'elle tienne : 59 constats confirmés par les trois premiers rapports, sur un travail que personne n'avait relu ; aucune fiche relue ; chaque fonction ajoutée apporte ses choix à confirmer (sept pour les grilles, onze pour les histogrammes) ; le protocole de test est prêt (`docs/propositions.md`, section 2), il ne manque que la grille de relevé (`docs/etat-des-travaux.md`, l. 84) et la version affichée à l'écran (ARC-12).
+   - Pour qu'elle soit levée : les mots de Julien dans la nuit du 11 au 12 novembre (« vas aussi loins que possible ») ; les tests dépendent de sa disponibilité et de celle de cinq personnes, pas de Claude.
+   - Mon avis : la garder, et placer les tests juste après les corrections de l'audit. Dans les deux cas, écrire la réponse dans `CLAUDE.md`.
+2. **Six boîtiers de référence : le dire à l'écran, ou en garder moins ?**
+   - Ce qu'est un boîtier dans le code : la taille du capteur, son nombre de pixels, son bruit, et la couverture de l'autofocus pour trois sur six (`app/src/camera/bodies.ts`, l. 13-31). Tout le reste, commandes, termes, cadences de rafale, réglages par défaut, vient du manuel du Nikon Z 6, et les aides le disent une par une (« Termes et cadences du manuel du Nikon Z 6 », `app/src/i18n.ts`, l. 170). La fenêtre « Boîtier de référence » ne le dit pas : elle affiche deux notes, sur le capteur et sur l'objectif (`app/simulateur/index.html`, l. 156-173).
+   - Ce que coûtent six boîtiers avec la règle « rien sans source » : les capteurs du D5600, de l'A6000 et de l'EOS 2000D viennent d'un extrait de recherche, page non ouverte, et celui de l'EOS RP aussi, avant que Julien n'en relève la fiche (`bodies.ts`, l. 40-41, 56, 61 et 70-71 ; PHY-15) ; les manuels de l'EOS RP, de l'EOS 2000D et du D5600 sont introuvables depuis l'environnement de Claude (`docs/questions-ouvertes.md`, l. 34 et 43).
+   - Voies : garder six et l'écrire dans la fenêtre du boîtier (« seuls le capteur, son bruit et la couverture de l'autofocus changent ; les commandes et les termes sont ceux du Nikon Z 6 ») ; ou ne garder que les boîtiers dont le manuel est lu ; ou sourcer chaque boîtier, ce qui multiplie le travail de chaque fonction.
+   - Mon avis : la première voie. Elle tient en une phrase et applique le mot d'ordre : dire ce qui n'est pas réaliste.
+3. **Les scènes suivantes : encore une photo à 360° pour décor ?**
+   - La file de travail les donne déjà comme telles (`docs/etat-des-travaux.md`, l. 73) ; le dossier dit que c'est une proposition (`docs/dossiers/scenes.md`, l. 12), et la question est écrite « ouverte pour les autres scènes » (`docs/questions-ouvertes.md`, l. 12).
+   - Ce que le dépôt sait déjà des limites d'un fond photo : image en 8 bits aux hautes lumières écrêtées (`docs/questions-ouvertes.md`, l. 24) ; perspective qui ne change pas quand l'appareil se déplace ou monte (`docs/propositions.md`, l. 81) ; éclairage figé, qui renvoie LUM-02 et les notions de lumière à plus tard (l. 84) ; scène « déclarée à 12,5 IL sans mesure de sa lumière » (`docs/questions-ouvertes.md`, l. 44) ; hauteur de prise de vue supposée (l. 26).
+   - Ce que coûte l'autre voie : un seul arbre en 3D pèse 66,3 Mo, ou 11,9 Mo simplifié à 10 % (`docs/historique.md`, l. 100).
+   - Mon avis : je ne sais pas trancher sans le dossier relu ; à décider scène par scène, en écrivant à l'écran ce que le fond ne simule pas.
+4. **Bilingue : écrire l'anglais en même temps que le français, ou après sa relecture ?**
+   - Décision du 6 novembre : bilingue dès la V1 (`docs/cadrage.md`, l. 32). Elle n'est pas en cause.
+   - Ce que coûte l'écriture simultanée : chaque correction de fiche se fait deux fois (39 constats confirmés à corriger dans 44 pages), et la relecture prévue porte sur les deux langues (`data/relecture.yaml`) ; `README.en.md` a 35 versions de retard, et trois titres anglais ne sont déjà plus ceux du référentiel (CHX-05).
+   - Voie possible : la relectrice relit le français ; l'anglais est remis d'aplomb à partir du français relu, puis relu à son tour.
+   - Mon avis : garder les deux arbres et le contrôle de la construction ; faire porter la relecture d'abord sur le français.
 
-  Pour les boîtiers, la suite vaut confirmation de fait : le 11 novembre, Julien a relevé lui-même la couverture de l'autofocus de l'EOS RP, de l'A7 III et de l'A6000 (`docs/historique.md`, l. 188-190). La phrase « comprise comme » n'a pas été mise à jour.
+## Ce qui manque pour qu'un contributeur extérieur comprenne le projet
 
-  Pour les tags : le dépôt publié a 60 tags, de `v0.2.3` à `v0.3.57` (`git ls-remote --tags origin`), pour 63 versions fusionnées. GitHub refuse au workflow la référence des trois premières. Depuis, chaque passage de `tag.yml` recrée leurs trois objets de tag, se voit refuser les références et écrit trois avertissements ; ceux du passage du 13 novembre 2026 : « v0.2.2 sur 911deef : référence refusée au jeton du workflow (HTTP 403 : Resource not accessible by integration) ; tag à poser à la main. » Quatre liens du bas de `CHANGELOG.md` visent ces tags absents (`compare/v0.2.2...v0.2.3`, `compare/v0.2.1...v0.2.2`, `compare/v0.2.0...v0.2.1`, `tree/v0.2.0`). Correction proportionnée : soit Julien pose les trois tags (la commande est dans le résumé du workflow), soit `scripts/changelog.py` cesse de les réessayer et les quatre liens visent les commits.
-- Ce que cela coûte : `CLAUDE.md`, l. 17, pose « Julien tranche ». Il ne peut trancher que ce qu'il voit ; deux questions attendent depuis cinq jours dans une page de 698 lignes, et la liste censée tout réunir compte cinq lignes.
-- Voies.
-  - A. Ne rien faire.
-  - B. Une seule table « Décisions en attente » dans `docs/etat-des-travaux.md` : la question, sa date, la page du détail, ce qui se passe sans réponse. Les autres pages y renvoient et n'écrivent plus « à confirmer ». Une décision prise sort de la table et entre dans `docs/historique.md`.
-  - C. Un ticket GitHub par décision. Julien les verrait sur son téléphone ; mais l'état ne serait plus tout entier dans le dépôt, ce que demande la règle de reprise (`CLAUDE.md`, l. 35).
-- Recommandation : B, avec la remise en ordre de CHX-01. Les questions de fond sont reprises dans « Questions à poser à Julien ».
+Dans l'ordre où il buterait (détail : CHX-09).
+
+1. Une page qui décrive l'application telle qu'elle est : `docs/architecture.md` décrit un produit en 2.5D qui n'existe pas (ARC-09).
+2. Comment tester : rien dans `README.md` ; la routine demande un outil installé hors du dépôt et près d'une heure sur une machine sans carte graphique.
+3. Quelles règles valent pour lui : `CLAUDE.md` mêle les règles du projet et les consignes de l'agent.
+4. Comment proposer un changement : le numéro de version à prendre, les pages à mettre à jour, qui fusionne.
+5. Où en est le projet : `README.md` date son état du 8 novembre, et le site ne dit pas sa version (ARC-12).
+6. Ce qui est décidé et ce qui est ouvert : réparti entre `docs/historique.md`, `docs/propositions.md`, `docs/questions-ouvertes.md` et `docs/etat-des-travaux.md` (CHX-01, CHX-10).
+7. En anglais : un README à jour, qui dise que la documentation est en français.
 
 ## Vérifié
 
-À compléter.
+Choix de fond et leurs sources.
+
+- Moteurs comparés : les étiquettes citées par `docs/pile-technique.md` pointent les commits écrits (`r187` : `7e89746` ; `9.35.0` : `00bc37c` ; `v2.23.3` : `b7655d8` ; `v0.0.28` : `80d1888` ; `v8.1.8` : `29768a4`), d'après `git ls-remote`.
+- three.js r187, `DepthOfFieldNode.js` : flou par `smoothstep( 0, this.focalLengthNode, … )` (l. 376) et « A unitless value for artistic purposes to adjust the size of the bokeh » (l. 33) : « artistique » est juste.
+- three.js r187, `BokehShader2.js` : focale en millimètres, `CoC = 0.03`, résultat ramené entre 0 et 1 (`blur = clamp(blur,0.0,1.0)`, l. 310) ; `MotionBlur.js` : 16 échantillons par défaut : exact.
+- Babylon.js 9.35.0, `thinMotionBlurPostProcess.ts` : flou par objet par défaut, 32 échantillons, `motionStrength` à 1 ; `NOTICE.md` existe à la racine du dépôt : exact.
+- PlayCanvas 2.23.3, `camera-frame.js` : profondeur de champ réglée par `focusDistance`, `focusRange` et `blurRadius`, sans ouverture ni focale : exact.
+- three-gpu-pathtracer 0.0.28 : « The project requires WebGPU. » et « Only MeshStandardMaterial and MeshPhysicalMaterial are supported. » (README) ; `PhysicalCamera.js` porte `fStop`, `focusDistance` et `apertureBlades`, avec `bokehSize = getFocalLength() / fStop` ; dépendances `three >=0.187.0`, `three-mesh-bvh` et `xatlas-web` : exact.
+- Tableau des navigateurs : ses sept lignes sont celles de `api/GPU.json` et de `api/WebGL2RenderingContext.json` de MDN, version 8.1.8.
+- Limites de GitHub Pages (`docs/historique.md`, l. 66) : site publié de 1 Go au plus, bande passante « soft » de 100 Go par mois, déploiement de 10 minutes au plus : ce sont les termes de la source. « Pas d'usage commercial » résume « not intended for or allowed to be used as a free web-hosting service to run your online business, e-commerce site, or any other website that is primarily directed at either facilitating commercial transactions or providing commercial software as a service (SaaS) ».
+- Marge sur ces limites : le site construit pèse 40 438 621 octets (copie du 12 novembre) ; 100 Go ÷ 40,4 Mo ≈ 2 470 chargements complets par mois, sans le cache du navigateur ; 1 Go ÷ 36 Mo ≈ 27 scènes du poids de celle du parc. Le calcul de `docs/historique.md`, l. 67 (2 000 chargements pour une scène supposée de 50 Mo) est juste. Le dépôt lui-même porte 34,4 Mio de scène, sans fichier remplacé dans l'historique (40 blobs pour 38 fichiers).
+- `docs/publication.md` : GitHub Pages n'est offert, sans offre payante, qu'aux dépôts publics : exact (`data/reusables/gated-features/pages.md`).
+- Débit (`docs/questions-ouvertes.md`, l. 52) : 34 × 2²⁰ × 8 ÷ 2 000 000 = 143 s, soit 2 min 23 s ; à 1 Mbit/s, 285 s : exact à une seconde près.
+- Public sans smartphone, 3D de synthèse, V1 minimale d'une scène et de trois situations, bilinguisme, licences, hébergement, moteur, fond à 360° de la scène de parc, protocole de test à cinq testeurs : chacun a sa décision de Julien, datée, dans `docs/historique.md`, `docs/cadrage.md` ou `docs/propositions.md`.
+- Les lectures de Claude sont écrites comme telles (« comprise comme », « Claude le comprend comme », « lecture de Claude », « estimation de Claude ») : aucune n'est présentée comme une décision de Julien.
+
+Données.
+
+- `python3 scripts/validate.py` : 191 notions, 49 situations, 172 sources, 0 erreur, 0 avertissement. `python3 scripts/coverage.py` : 13 notions couvertes sur 191, le chiffre de `README.md`.
+- Les 47 adresses distinctes citées par les fiches (113 liens) sont toutes dans `data/sources.yaml` ; les identifiants de sources cités entre crochets dans `app/src/` y sont tous.
+- Titres français : les 22 fiches françaises portent le titre du référentiel ; les dix titres de `challenges.ts` sont ceux du référentiel, dans les deux langues.
+- Numérotation des versions : entre `v0.3.0` et `main`, aucune notion ni situation n'est ajoutée, retirée ou reclassée ; garder Y à 3 suit la règle de `CHANGELOG.md`. Seul LUM-02 a reçu `activity: true`.
+
+Déroulé d'une version et CI.
+
+- « Jamais de push sur `main` » : un seul commit hors fusion, le premier (`e89680d`), cas dit par `docs/historique.md`, l. 42 ; les 63 autres commits du premier parent sont des commits de fusion, sans squash.
+- « CI verte avant la fusion » : pour les 63 pull requests fusionnées, le dernier passage de chaque workflow sur le commit de tête est un succès.
+- Tags et releases : 60 tags et 60 releases, de `v0.2.3` à `v0.3.57`, posés par le workflow ; `python3 scripts/changelog.py check` passe sur les 64 versions du changelog.
+- Actions épinglées : les cinq empreintes de commit des workflows sont celles des étiquettes écrites en commentaire, et ces étiquettes sont les dernières (`git ls-remote`).
+- gitleaks : l'empreinte SHA-256 de `validate.yml`, l. 63, est celle que donne le fichier d'empreintes de la release 8.30.1 pour l'archive `linux_x64`.
+- Droits des workflows : `contents: read` partout, `contents: write` pour `tag.yml` seul, `pages: write` et `id-token: write` pour le seul job de publication.
+- Coût de la CI hors routine : les jobs `validate`, `confidentialite` et `app` durent de 6 à 20 secondes chacun ; la construction et la publication du site, de 27 à 46 secondes à elles deux. La construction refaite dans chaque job de la routine prend 6 secondes : ce n'est pas un coût.
+- Machines de la CI gratuites pour un dépôt public (citation dans CHX-07).
+- Échecs de la CI en sept jours : 1 sur 214 pour la validation (téléchargement de gitleaks, 9 novembre) ; 4 sur 54 pour la publication (deux avant l'activation de GitHub Pages le 7 novembre, deux délais dépassés du déploiement le 9) ; la validation n'a donc encore arrêté aucune erreur du dépôt, les mêmes contrôles étant lancés avant chaque envoi.
+
+Outils.
+
+- Versions et licences écrites dans `docs/pile-technique.md` et `requirements.txt` : ce sont celles des registres (Vite 8.3.6, MIT ; TypeScript 7.0.2, Apache-2.0 ; Babylon.js 9.35.0, Apache-2.0 ; Playwright 1.63.0, Apache-2.0 ; PyYAML 6.0.3 et jsonschema 4.26.0, MIT).
+- `npm audit` sur une copie de `app/package-lock.json` : aucune vulnérabilité connue le 13 novembre 2026. Le journal de Vite ne signale aucune correction de sécurité entre 8.3.6 et 8.3.8.
+- Dépendances : trois paquets à l'exécution et deux au développement, 64 entrées dans le verrou (surtout les binaires par plateforme de Rolldown, de TypeScript et de Lightning CSS) ; deux paquets Python.
+- `app/vite.config.ts` : polyfill de préchargement désactivé et un seul fichier JavaScript (`inlineDynamicImports`), comme l'écrit `docs/pile-technique.md`, l. 90-91.
 
 ## Je ne sais pas
 
-À compléter.
+- La question posée à Julien le 8 novembre 2026, à laquelle « 1,2,3 » répondait : la conversation n'est pas dans le dépôt.
+- Si l'outillage (TypeScript, Vite) a bien été « décidé par Julien », comme l'écrit `docs/pile-technique.md`, l. 87 : `docs/historique.md`, l. 76-79, le liste sans dire qui a tranché.
+- Ce que pèserait et coûterait la même application sur un autre moteur : rien n'est mesuré (CHX-02).
+- PlayCanvas : « Aucun fichier de flou de mouvement dans le dépôt » (`docs/pile-technique.md`, l. 30). Non vérifié : je n'ai pas pu lister les fichiers du dépôt à l'étiquette.
+- Les en-têtes de cache de GitHub Pages, donc le nombre réel de téléchargements par visiteur : site non joignable.
+- Le chemin exact, dans l'interface de GitHub, pour créer une règle de branche, et si le job d'une matrice peut être requis par son nom : documentation non jointe pour ces deux points.
+- Si l'outil de Claude peut pousser sur une autre branche que celle de la session : les 64 pull requests ont la même.
+- Si créer une pull request par l'API évite le pied qui porte le lien de la session (CHX-11) : non essayé.
+- Pourquoi le même profil de la routine dure de 7 à 23 minutes d'un passage à l'autre.
+- Si Playwright 1.63.0 installera encore ses dépendances sur l'image qui succède à l'actuelle `ubuntu-latest`.
+- La langue des cinq testeurs prévus, donc ce que l'anglais apporte aux tests de la V1 minimale.
+- Si quelqu'un lit les 60 releases : aucune mesure n'est possible depuis la session.
 
 ## Ce qui est bien fait et doit rester
 
-À compléter.
+- Les décisions sont datées, attribuées, et les mots de Julien cités tels quels ; une lecture de Claude est dite comme une lecture. C'est ce qui a rendu cet audit possible.
+- La comparaison des moteurs est faite sur le code source, à une version et à un commit nommés : chaque ligne relue se retrouve dans le fichier cité.
+- Chaque dépendance a sa version, sa licence et la date de lecture ; il y en a très peu.
+- Les actions sont épinglées par empreinte de commit, le binaire de gitleaks est vérifié par son empreinte, et chaque workflow n'a que les droits qu'il lui faut.
+- Une version par pull request, avec son tag et sa release posés par un workflow à partir du changelog, et des commits de fusion : une version s'annule par un seul `git revert -m 1`.
+- Les règles ont été tenues sans que rien n'y oblige : 63 fusions, toutes avec une CI verte, un seul commit direct sur `main`, celui du premier jour.
+- Le format des fiches est strict, et la construction échoue en clair sur tout écart ; toutes les adresses des fiches sont dans `data/sources.yaml`.
+- Identifiants stables, `retired.yaml`, schémas JSON et `validate.py` : le référentiel se contrôle en quelques secondes.
+- L'hygiène du dépôt public : `check_public.py`, gitleaks sur tout l'historique, contrôle des descriptions, et des fuites racontées sans détour dans `docs/publication.md`.
+- Le plan de repli de l'hébergement est écrit, avec les vraies limites de GitHub Pages.
+- `docs/etat-des-travaux.md` comme point de reprise unique, et la règle du 13 novembre (un sujet à la fois, poussé dès le premier commit) : l'idée est la bonne ; il reste à tenir la page courte (CHX-01).
+- La CI hors routine coûte moins d'une minute de machine par passage.
 
 ## Plan
 
-À compléter.
+Des changements ordonnés, chacun tenant en une pull request. Les constats ne sont pas contre-vérifiés : rien de ceci n'est à faire avant la réfutation (`CLAUDE.md`, l. 38).
+
+0. Sans pull request : Julien répond aux quatre questions et, s'il le veut, active une règle de branche sur `main` (CHX-03, voie B).
+1. Règles et point de reprise. `CLAUDE.md` : une table « quelle information dans quelle page » ; les l. 6, 8, 29 et 40 remises d'accord avec ce qui est fait et avec la réponse de Julien ; la règle d'entretien des versions. `docs/etat-des-travaux.md` réécrit : un seul état, une seule file, une table « Décisions en attente ». Suppression de `scripts/extract_reprise.py`. Constats : CHX-01, CHX-04, CHX-06, CHX-08, CHX-10. En premier, parce que chaque session suivante lit ces deux pages.
+2. Pages de documentation. `docs/pile-technique.md` coupé en deux (la comparaison des moteurs, avec la note sur les deux effets qui ne servent plus ; la référence de l'outillage) ; `docs/questions-ouvertes.md` réduit à ce qui est ouvert ; `docs/historique.md` réservé aux décisions ; `README.md` et `README.en.md` : état court, sections « Tester » et « Proposer un changement ». Constats : CHX-01, CHX-02, CHX-09. À accorder avec le rapport `docs/audit/documentation.md` et avec la carte de l'application d'ARC-09.
+3. Données. `validate.py` contrôle le titre de chaque fiche ; les titres du bulletin sont produits à la construction ; les trois titres anglais qui diffèrent sont tranchés. Constat : CHX-05.
+4. CI, petits réglages. Scénario 3D non lancé sur une pull request en brouillon (CHX-07, voie C) ; Node.js de la CI sur la version LTS courante (CHX-08) ; `changelog.py` ne réessaie plus les trois premiers tags et les quatre liens sont corrigés (CHX-10) ; essai de création d'une pull request sans le pied (CHX-11).
+5. Avec la refonte des tests du plan d'architecture (ARC-05) : un niveau « pages » de la routine, le filtre par chemins passé en condition de job pour pouvoir requérir la routine, Playwright dans un manifeste avec son verrou. Constats : CHX-07, CHX-03, CHX-08.
+6. Première pull request d'entretien : Babylon.js, Vite et Playwright à leur dernière version, routine complète, versions citées dans la documentation. Après les refontes de l'audit, pas pendant : changer le moteur au milieu d'une refonte brouille la cause d'une régression. Constat : CHX-08.
