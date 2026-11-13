@@ -1,5 +1,33 @@
 # État des travaux
 
+## Point du 13 novembre 2026, 5 h 40 UTC : à lire d'abord
+
+Ce point prime sur l'ordre de la file plus bas.
+
+**Deux demandes de Julien, le 12 novembre au soir.**
+- Remettre en question tout le travail fait avant le 12 novembre 2026, par le modèle précédent : il « doit être challengé et si nécessaire modifier ».
+- « Que ce soit l'archi, les choix stratégiques ou les outils si tu pense que l'existant peut être amélioré fait le ne te contente pas de continuer sur un chemin défaillant, évitons les dettes techniques pour un mini projet en cours de développement ».
+
+**Limite d'usage.** La limite hebdomadaire du modèle de Claude est atteinte depuis la nuit du 12 au 13 novembre ; elle est levée le 14 novembre à 1 h UTC. Jusque-là, aucun agent ne peut tourner. Avant cela, la limite de 5 heures avait suspendu la session quatre fois. Constat : la conversation de Claude est devenue très longue, et chaque action y coûte cher ; déléguer à des agents coûte moins que d'agir dans la conversation.
+
+**Où on en est.**
+- En ligne : version 0.3.56 (grilles de cadrage).
+- Version 0.3.57, histogrammes et hautes lumières de l'écran de revue : pull request ouverte, routine lancée par la CI le 12 novembre à 22 h 35 UTC. À fusionner si ses quatre jobs sont verts sur le dernier commit. Ce point d'état et le rapport d'audit ont été ajoutés à cette pull request pour ne pas les perdre.
+- Balance des blancs : spécification dans `docs/specifications/balance-des-blancs.md`, reportée (voir sa note).
+
+**Nouvel ordre de travail.**
+
+| N° | Sujet | État |
+| --- | --- | --- |
+| 1 | Audit du modèle physique | Rapport écrit, `docs/audit/modele-physique.md` : 20 constats, 41 points vérifiés. Contre-vérification à faire avant toute correction. |
+| 2 | Audit des fiches (16 notions, 3 situations, activité LUM-02) | À refaire : coupé par la limite. |
+| 3 | Audit de l'architecture, des choix techniques et des outils | À faire. Hypothèses de Claude à vérifier : deux chaînes d'image (viseur, photo) qui obligent à tout écrire deux fois ; réglages du boîtier câblés à la main dans un fichier de plus de 1 000 lignes ; scène écrite en dur ; aucune mesure de la lumière ; un seul long scénario de test et aucun test rapide des formules ; documentation qui se recouvre. |
+| 4 | Audits restants : `data/sources.yaml`, référentiel et situations, interface et code, documentation et scripts | À faire. |
+| 5 | Corrections et refontes issues des audits, une pull request par sujet | À faire. |
+| 6 | Nouvelles fonctions, sur la base assainie : balance des blancs, histogramme en direct, puis la suite de la file | Après le point 5. |
+
+**Méthode d'un audit.** Un agent relit chaque source à son adresse, refait chaque calcul et confronte le code à la documentation ; un second agent essaie de réfuter chaque constat ; seuls les constats qui résistent sont corrigés.
+
 Tenu à jour à chaque pull request, à la demande de Julien (12 novembre 2026) : « Oublie pas de tout consigner en cas de limitation par la limite de token, que on puisse reprendre a tout moment. » But : qu'une nouvelle session de Claude, ou Julien, reprenne le travail avec le dépôt seul.
 
 ## Mandat en cours
