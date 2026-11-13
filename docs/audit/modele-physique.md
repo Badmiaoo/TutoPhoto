@@ -1,11 +1,11 @@
 # Audit du lot « Modèle physique de l'appareil »
 
-> **Contre-vérification en cours, le 13 novembre 2026 : PHY-01 à PHY-20 faits (19 confirmés, 1 réfuté) ; bilan et constats ajoutés à écrire.** Rapport écrit par un agent de Claude le 12 novembre 2026, à la demande de Julien ; un second agent essaie de réfuter chaque constat et écrit son verdict sous le constat (« Contre-vérification »).
+> **Bilan de la contre-vérification, 13 novembre 2026 : 19 constats confirmés, 1 réfuté (PHY-16), 1 ajouté (PHY-21).** Rapport écrit par un agent de Claude le 12 novembre 2026, à la demande de Julien. Un second agent a ensuite essayé de réfuter chaque constat : il a relu l'endroit visé, relu les sources à leur adresse et refait les calculs avec ses propres scripts ; son verdict est écrit sous chaque constat. Corrections réduites ou corrigées : PHY-05, PHY-06, PHY-08, PHY-11, PHY-13, PHY-14 et PHY-17. Gravité à baisser : PHY-02 (le rendu ne change pas) et PHY-10. À corriger d'abord : PHY-06 (éclairage des objets 3D environ deux fois plus fort que le fond, étalonnage annoncé absent du code ; à mesurer dans un rendu avant tout réglage), PHY-01 (filé annoncé à tort), PHY-07 et PHY-08 (bruit de la loupe et plafond du flou du viseur à densité 2), PHY-21 (flou tronqué quand le calcul d'une photo est interrompu), PHY-09 (texte de l'interface). Le reste relève de la documentation : sources à citer, limites à écrire.
 
 - Date : 12 novembre 2026.
 - Demande : Julien, le 12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent, et le modifier si nécessaire.
 - Version auditée : copie de travail à la version 0.3.56, pour ce qui date de la version 0.3.53 ou d'avant. Hors du lot : la routine dans la CI (0.3.54), la progression du chargement (0.3.55), les grilles de cadrage (0.3.56).
-- Bilan : 20 constats (2 « faux », 3 « non sourcé », 5 « incohérent », 10 « à améliorer »), 41 points vérifiés et justes, 16 « Je ne sais pas ». Les formules du cœur du modèle (exposition, bruit, cercle de confusion, zone nette, traînée, modes A et S) sont celles de leurs sources, et tous les exemples chiffrés se recalculent, à la valeur des libellés près (PHY-16). Les défauts sont aux bords : ce que la documentation promet et que le code ne fait pas (filé, étalonnage), et ce que le passage à la densité de l'écran (0.3.52) a changé sans que le bruit et le flou du viseur suivent.
+- Bilan de l'audit du 12 novembre : 20 constats (2 « faux », 3 « non sourcé », 5 « incohérent », 10 « à améliorer »), 41 points vérifiés et justes, 16 « Je ne sais pas ». Les formules du cœur du modèle (exposition, bruit, cercle de confusion, zone nette, traînée, modes A et S) sont celles de leurs sources, et tous les exemples chiffrés se recalculent, à la valeur des libellés près (PHY-16). Les défauts sont aux bords : ce que la documentation promet et que le code ne fait pas (filé, étalonnage), et ce que le passage à la densité de l'écran (0.3.52) a changé sans que le bruit et le flou du viseur suivent.
 
 ## Périmètre
 
@@ -22,6 +22,16 @@
 5. Aucun navigateur : les mesures faites dans le viseur (bruit, flou, temps de calcul) ne sont pas refaites. `npx tsc --noEmit` passe.
 
 Pages enregistrées, textes extraits et scripts : dossier `audit/physique/` du bloc-notes de la session, hors du dépôt (`pages/`, `texte/`, `scripts/`). Les numéros de ligne sont ceux de la version 0.3.56.
+
+### Contre-vérification (13 novembre 2026)
+
+1. Pour chaque constat : relecture du code et de la documentation à l'endroit cité, dans la version courante (0.3.58).
+2. Sources relues à leur adresse le 13 novembre 2026, et citations cherchées mot pour mot dans les pages enregistrées (liste plus bas).
+3. Calculs refaits par des scripts écrits pour la contre-vérification, sans reprendre ceux de l'audit : séries du bruit de lecture et capacités (`rn2.py`), fond JPEG et fichier HDR (`fond.py`, `fond2.py`), exemples de la documentation, diffraction, champ et définition des capteurs (`exemples.py`), densité de l'écran (`densite.py`), disque d'ouverture d'une photo interrompue (`disque_tronque.py`).
+4. Recherche, dans le reste du dépôt, de ce qui dirait déjà le constat ou le contredirait.
+5. Aucun navigateur : PHY-06, PHY-07, PHY-08 et PHY-21 sont établis par le code, les fichiers et le calcul, pas par une mesure dans un rendu.
+
+Pages et scripts : dossier `audit/physique/refutation/` du bloc-notes de la session, hors du dépôt (`pages/`, scripts à la racine). Les numéros de ligne des constats sont ceux de la version 0.3.56 ; depuis, la version 0.3.57 a décalé `photo.ts` (de 4 à 6 lignes), `shutter.ts` (de 2 à 5 lignes), `i18n.ts` (de 21 lignes après la l. 207) et la fin de `docs/camera-physique.md` (de 51 ou 52 lignes après la l. 585 : la l. 641 est devenue la l. 693). Les contre-vérifications donnent les lignes courantes quand elles diffèrent.
 
 ## Sources
 
@@ -59,6 +69,24 @@ Toutes lues le 12 novembre 2026. Wikipedia est une source secondaire.
 | Wikipedia, « Nikon D5600 » (1345325532), « Canon EOS RP » (1374030103), « Canon EOS 2000D » (1381131251), « Sony α7 III » (1367164927) | `https://en.wikipedia.org/w/index.php?title=…&oldid=…` | `wiki-nikon-d5600.html`, `wiki-canon-eos-rp.html`, `wiki-canon-eos-2000d.html`, `wiki-sony-a7iii.html` |
 | Wikipedia, « Airy disk » (1369075623), « Angle of view (photography) » (1382676604), « Shot noise » (1364169856), « Image noise » (1377731967) | idem | `wiki-airy-disk.html`, `wiki-angle-of-view.html`, `wiki-shot-noise.html`, `wiki-image-noise.html` |
 | William J. Claff, « Sensor Analysis Primer » (« Last revised: 2021-03-27 ») : table des matières seulement | `https://www.photonstophotos.net/GeneralTopics/Sensors_&_Raw/Sensor_Analysis_Primer/Sensor_Analysis_Primer.htm` | `ptp-primer.htm` |
+
+### Relues pour la contre-vérification
+
+Toutes lues le 13 novembre 2026 (fichiers sous `pages/` du dossier de la contre-vérification).
+
+| Source | Adresse lue | Fichier (`pages/`) |
+| --- | --- | --- |
+| William J. Claff, « Input-referred Read Noise versus ISO Setting » (« Last revised: 2026-08-17 ») et « DxOMark Derived Sensor Characteristics » (« Last revised: 2025-12-15 ») | adresses citées par le lot | `ptp-RN_e.htm`, `ptp-Sensor_Characteristics.htm` |
+| William J. Claff, « Sensor Analysis Primer - Gain » (« Last revised: 2021-12-05 »), « Photon Transfer Curve » (« Last revised: 2009-02-28 »), « Read Noise - Optical Black » (« Last revised: 2009-03-04 ») | `https://www.photonstophotos.net/GeneralTopics/Sensors_&_Raw/Sensor_Analysis_Primer/Gain.htm`, `…/Photon_Transfer_Curve.htm`, `…/Read_Noise_-_Optical_Black.htm` | `ptp-Gain.htm`, `ptp-Photon_Transfer_Curve.htm`, `ptp-Read_Noise_-_Optical_Black.htm` |
+| Nikon, manuel en ligne Z 7/Z 6 (en) : « Defaults », « Specifications », « d8: Apply Settings to Live View » | adresses citées par le lot | `nikon-z6-defaults.html`, `nikon-z6-specs.html`, `nikon-z6-d8.html` |
+| Nikon, communiqué du 10 novembre 2016 (D5600) | `https://www.nikon.com/news/2016/1110_dslr_01.htm` | `nikon-news-2016-1110.html` |
+| Sony, guide d'aide ILCE-7M3 (PDF) ; guide d'aide ILCE-6000, « Image Size (still image) » | adresses citées plus haut | `sony-ilce-7m3-print.pdf`, `sony-a6000-image-size.html` |
+| Wikipedia (source secondaire), révisions citées par l'audit : « Shot noise » 1364169856, « Image noise » 1377731967, « Angle of view (photography) » 1382676604, « Airy disk » 1369075623, « Circle of confusion » 1335590423, « Film speed » 1383727213, « Exposure value » 1352562239, « Nikon D5600 » 1345325532, « Canon EOS RP » 1374030103, « Canon EOS 2000D » 1381131251, « Sony α7 III » 1367164927, « Sony α6000 » 1380408739 | `https://en.wikipedia.org/w/index.php?title=…&oldid=…` | `wiki-<révision>.html` |
+| bgfx, exemple 45-bokeh : `bokeh_dof.sh`, `fs_bokeh_dof_combine.sc` ; licence de bgfx (« Copyright 2010-2026 Branimir Karadzic ») | `https://raw.githubusercontent.com/bkaradzic/bgfx/master/examples/45-bokeh/…`, `https://raw.githubusercontent.com/bkaradzic/bgfx/master/LICENSE` | `bgfx-bokeh_dof.sh`, `bgfx-combine.sc`, `bgfx-LICENSE` |
+| Poly Haven, API, fiche de `autumn_hockey` | `https://api.polyhaven.com/info/autumn_hockey` | `polyhaven-autumn_hockey.json` |
+| Babylon.js, paquet `@babylonjs/core` 9.35.0 : `scene.pure.js`, `Materials/PBR/pbrBaseMaterial.pure.js`, `Shaders/background.fragment.js`, `Helpers/textureDome.js`, `Materials/Textures/Filtering/hdrFiltering.js` | `app/node_modules/@babylonjs/core/` | (dans le dépôt de travail) |
+
+Non relue à la contre-vérification : Photography Life, « ISO Invariance Explained » (`pl-iso-invariance`) : l'hôte répond 403 et demande un contrôle manuel ; le texte relevé par Julien le 11 novembre 2026 reste la seule lecture.
 
 ### Non relues
 
@@ -318,6 +346,15 @@ Correction : le point 1 (réécrire les l. 52-58) tout de suite. Le point 2 seul
 
 **Contre-vérification : confirmé.** Passage retrouvé mot pour mot dans la révision 1335590423 (section « Wall 1889 ») ; la règle de Wall, pose = distance / (100 × focale × vitesse du sujet), donne une traînée f × v × t / distance égale à la limite de 1/100 de pouce. Le constat joue en faveur du travail audité : le critère a une source, il manque sa citation. Correction proposée juste ; écrire que la source est secondaire (Wikipedia citant Wall, 1889) et que prendre d / 1500 pour le mouvement reste un choix de TutoPhoto.
 
+### PHY-21 · à améliorer · Photo interrompue par le plafond de 5 s : disque d'ouverture tronqué, flou sous-estimé (ajouté à la contre-vérification)
+
+- Endroit : `app/src/camera/photo.ts`, l. 376-399 et 406-415 (version courante) ; `docs/camera-physique.md`, l. 130 ; `app/src/ui/shutter.ts`, l. 530-531.
+- Ce qui est écrit : « Le calcul s'arrête au bout de 5 s ; la photo indique alors les rendus reçus sur les rendus prévus. »
+- Preuve (code) : les points du disque d'ouverture sont parcourus du centre vers le bord, `const r = lensRadius * Math.sqrt((i + 0.5) / planned);`, et la boucle sort par `if (performance.now() - started > TIME_BUDGET_MS) break;`. La moyenne porte sur les rendus reçus (`invSamples`, `1 / done`), sans autre correction. Les instants, eux, sont permutés (`((i * stride) % planned) + 0.5`) : interrompus, ils restent étalés sur la pose.
+- Preuve (calcul, `disque_tronque.py`) : avec 128 rendus reçus sur 256, le disque couvert a 0,71 fois le rayon de l'ouverture ; avec 64 sur 256, 0,50 fois. Le flou de mise au point de la photo est multiplié par √(reçus / prévus) : 64 rendus sur 256 donnent le flou d'une ouverture fermée de deux diaphragmes, à exposition inchangée.
+- Conséquence : sur un appareil lent, les photos à grand flou (portrait à grande ouverture, loupe de l'écran de revue) montrent moins de flou qu'elles ne devraient, et la légende (« 64/256 rendus ») ne le dit pas. Sur le téléphone de Julien, 256 rendus prennent 2,0 s (l. 146) : le cas ne s'y produit pas. Je ne sais pas s'il se produit sur les téléphones des testeurs, dont les temps ne sont pas mesurés (`docs/questions-ouvertes.md`). En rendu logiciel, la documentation donne de l'ordre d'une seconde pour un rendu de 600 px (l. 144) : la routine de test atteint sans doute le plafond, mais elle ne mesure pas le flou ; non vérifié.
+- Correction proposée : parcourir les rendus dans un ordre permuté, comme le sont déjà les instants (indice i′ = (i × pas′) mod prévus, pas′ premier avec prévus ; point du disque et instant calculés à partir de i′). Un calcul interrompu échantillonne alors tout le disque, avec des copies plus espacées, que le lissage (rayon 0,45 × flou / √reçus) atténue déjà ; un calcul complet garde les mêmes paires point-instant, donc la même photo. Écrire la limite à la l. 130. À vérifier dans un navigateur avant de fusionner.
+
 ## Vérifié
 
 Exposition
@@ -391,6 +428,10 @@ Boîtiers et scène
 14. L'écart des yeux du chien : 0,316 unité de l'os de la tête, soit 9,3 cm si cet os a l'échelle du porteur (0,6 / 2,05) ; la documentation écrit 9,2 cm. Je n'ai pas lu l'échelle de l'os.
 15. L'effet chiffré, par boîtier, des gains de balance des blancs sur le bruit (PHY-18).
 16. Le texte des normes ISO 12232 et ANSI PH2.7 : seul Wikipedia est lu.
+17. (contre-vérification) Si le plafond de 5 s interrompt le calcul d'une photo sur les téléphones des testeurs (PHY-21) : leurs temps de calcul ne sont pas mesurés.
+18. (contre-vérification) Le bruit de la loupe et le plafond du flou à densité 2 (PHY-07, PHY-08) dans un navigateur : établis par le code et le calcul, pas mesurés.
+19. (contre-vérification) Une source pour l'addition des variances du bruit photonique et du bruit de lecture (PHY-04) : aucune des pages lues ne l'écrit.
+20. (contre-vérification) Si les lignes reprises de l'exemple de bgfx créent une obligation de licence (PHY-19) : question de droit, non tranchée.
 
 ## Hors du lot, vu en passant
 
