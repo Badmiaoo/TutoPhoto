@@ -280,7 +280,23 @@ Rédaction en cours : FMA-01 à FMA-10 sont les constats de la première passe, 
 - Règle écrite : `docs/contenus.md`, l. 46, « Les notions liées », sans dire lesquelles. Effet (`docs/contenus.md`, l. 71 ; `app/scripts/build-pages.mjs`, l. 594-595) : la page d'une notion liste les situations dont la section « Notions » la cite. La page de MAP-09 ne liste donc pas SIT-06, dont la recette demande la détection des animaux, et celle de MAP-04 ne liste pas SIT-01, dont la recette demande l'AF-S.
 - Correction proposée : écrire la règle dans `docs/contenus.md` (les notions clés, puis toute notion que la recette cite), et compléter SIT-01 (BOI-07, MAP-04) et SIT-06 (MAP-09), en français et en anglais.
 
-### FMA-22 · à améliorer · MAP-09, « Simulateur » : en AF-S, le repère n'entoure aucun visage avant le toucher ; la fiche décrit le comportement du Z 6, pas celui du simulateur
+### FMA-19 · à améliorer · SIT-06 : le défi est « réussi » sur une vue où la tête du chien est cachée ; et la mise au point ne « suit » pas le chien derrière le groupe, ce que la recette ne dit pas
+
+- Endroit : `content/fr/situations/SIT-06.md`, l. 12 et 17 ; `content/en/situations/SIT-06.md`, mêmes lignes ; `app/src/camera/bulletin.ts`, l. 93-95, 105 et 134-139.
+- Ce qui est écrit : recette, « **AF-C, AF zone automatique, détection des animaux** : la mise au point suit le chien » ; défi, « le chien dans le cadre, dans la zone nette, et figé ».
+- Preuve (code) : le chien est « dans le cadre » si l'un de ses yeux se projette dans le capteur (`bulletin.ts`, l. 93-95), « dans la zone nette » si sa profondeur est entre les deux limites (l. 105). Rien ne regarde si un personnage le cache. La détection de l'autofocus, elle, fait ce contrôle (`app/src/camera/faces.ts`, l. 103-104 : la carte de profondeur doit montrer une surface à moins de 4 cm de l'œil).
+- Preuve (mesure, capture de l'audit des fiches d'exposition : recette de SIT-06 en Continu H, six vues, fichiers `essais-D.out` et `rafale-vue-1.png` à `rafale-vue-6.png` de son dossier, images regardées pour ce rapport) :
+  - vue 2 : la tête du chien est derrière Sophia, seul son corps dépasse entre Dennis et elle ; bulletin : « Défi SIT-06 · Enfant ou chien qui court : réussi », les trois critères réussis ;
+  - vue 3 : le chien est derrière Sophia et Fabienne ; « AF-C · Auto · sujet le plus proche · mise au point à 5,8 m », « Réussi : chien dans le cadre », « Manqué : chien dans la zone nette (9,0 m) ». Vues 4 et 6 : même saut à 5,8 m.
+- Preuve (mesure, `essais.cjs`, essai 9, AF-S verrouillé à 9,0 m) : photo prise quand le chien passait derrière le groupe (x = −0,8 m à l'appel) : « Défi SIT-06 […] : réussi », « Réussi : chien dans le cadre » ; pas d'image gardée de cette vue.
+- Ce que la documentation dit et que la fiche ne dit pas : `docs/camera-physique.md`, l. 403, parmi ce qui n'est pas simulé, « Délai de suivi (réglage a3 du Z 6) : quand le chien passe derrière quelqu'un, la mise au point saute aussitôt ailleurs ». Dans la rafale ci-dessus, trois vues sur six sont perdues ainsi.
+- Conséquence : un « réussi » sous une photo où l'on ne voit pas la tête du sujet ; et un débutant qui suit la recette à la lettre perd la moitié de sa rafale sans que la fiche l'ait prévenu.
+- Correction proposée :
+  - recette : « la mise au point suit le chien tant qu'il est visible ; quand il passe derrière le groupe, elle saute sur le sujet le plus proche (le sol, à 5,8 m) : déclenche avant ou après le groupe, ou tourne l'appareil pour l'en écarter » ; même chose en anglais ;
+  - défi, section de la fiche : « dans le cadre : le défi ne juge pas si le chien est caché par un personnage » ;
+  - simulateur, Julien tranche : juger « dans le cadre » avec le contrôle de visibilité que `faces.ts` fait déjà.
+
+### FMA-22 · incohérent · MAP-09, « Simulateur » : en AF-S, le repère n'entoure aucun visage avant le toucher ; la fiche décrit le comportement du Z 6, pas celui du simulateur
 
 - Endroit : `content/fr/notions/MAP-09.md`, l. 9 ; `content/en/notions/MAP-09.md`, l. 9 ; `app/src/camera/autofocus.ts`, l. 138-140 et 160-165.
 - Ce qui est écrit : « Le repère entoure l'œil ou le visage retenu, en ambre, puis en vert une fois verrouillé en AF-S. »
@@ -296,12 +312,127 @@ Rédaction en cours : FMA-01 à FMA-10 sont les constats de la première passe, 
 
 ## Vérifié
 
-À écrire.
+Points contrôlés et justes. Les sources ont été relues à leur adresse le 13 novembre 2026 ; les calculs sont ceux de `calculs.py` et de `calculs2.py` ; les essais sont ceux de `essais.cjs` (essais 4 à 10), de `essais2.cjs` (essais 11 à 14), de `activite.cjs`, et ceux de la première passe quand c'est dit.
+
+MAP-04
+1. AF-S : « For stationary subjects. Press the shutter-release button halfway to focus. […] focus will lock while the shutter-release button is pressed halfway. […] At default settings, the shutter can only be released if the camera is able to focus (focus priority). » (Nikon, « Focus »).
+2. AF-C : « For moving subjects. The camera focuses continuously while the shutter-release button is pressed halfway; if the subject moves, the camera will predict the final distance to the subject and adjust focus as necessary. At default settings, the shutter can be released whether or not the subject is in focus (release priority). » (même page).
+3. Sony α9 : « AF-S (Single-shot AF): The product locks the focus once focusing is complete. Use this when the subject is motionless. AF-C (Continuous AF): The product continues to focus while the shutter button is pressed and held halfway down. Use this when the subject is in motion. »
+4. « Defaults » : « Focus mode Single AF », « AF-area mode Single-point AF ».
+5. Simulateur : en AF-C, relecture toutes les 200 ms (`autofocus.ts`, l. 83 et 138-140), soit cinq fois par seconde ; mesure refaite au déclenchement (`shutter.ts`, l. 350) ; ni temps de mise au point, ni échecs, ni prédiction (`autofocus.ts`, l. 30-33). Le Z 6 permet de faire le point au toucher sans déclencher (« Touch the display to focus on the selected point. Lifting your finger from the display does not release the shutter. »).
+
+MAP-05
+6. « The default setting is Single-point AF » ; point sélectif, « The camera focuses on a point selected by the user » ; zone large, « As for Single-point AF, except the camera focuses on a wider area, the focus areas for Wide-area AF (L) being larger than those for Wide-area AF (S). […] the camera will assign priority to the closest subject » ; zone automatique, « The camera automatically detects the subject and selects the focus area ».
+7. Termes français : « AF point sélectif », « AF zone large (S) », « AF zone large (L) », « AF zone automatique » sont ceux de la page française du manuel, et ceux de l'interface (`i18n.ts`, l. 51-57).
+8. Simulateur : carrés de 10 % et de 20 % du grand côté (`cameraPanel.ts`, l. 116) ; la page lue ne donne pas la taille des zones ; la zone dynamique et le pinpoint sont dans le manuel et pas dans le simulateur.
+
+MAP-06
+9. « the Z 6 has 273 focus points*, enabling broad coverage of approximately 90% of the imaging area both horizontally and vertically », « * With FX (36x24) format and single-point AF » (communiqué du 23 août 2018) ; « 273-point hybrid AF system offering accurate focus across 90% of the frame » (page du produit).
+10. « The focus point can be positioned using the sub-selector […] or multi-selector » ; « choose Every other point for Custom Setting a5 (Focus points used) to use only a quarter of the available focus points » (« Focus »).
+11. Simulateur : toucher hors de la zone couverte ramène le point sur son bord (`cameraPanel.ts`, l. 467) ; zone tracée en pointillés (`style.css`, l. 241-244) ; couvertures de 0,88 et 1 pour l'EOS RP et de √0,93 ≈ 0,9644 pour l'A7 III (`bodies.ts`), comme la fiche les écrit ; pas de grille.
+12. Exercice, calcul : au 135 mm, à f/1.8 et 6,6 m, de 6,48 à 6,72 m, soit 24 cm.
+13. Exercice, essais 6 et 13 : au 135 mm, mode A à f/1,8 (« Vitesse (auto) 1/2000 s »), point sélectif sur l'œil de Sophia : « Zone nette : 6,4 m – 6,7 m (mise au point à 6,6 m) », défi SIT-01 réussi. Point touché ensuite sur le fond : « verrouillée à 500,0 m », « Zone nette : 207,9 m – ∞ », « Manqué : œil de Sophia dans le cadre et dans la zone nette (6,6 m) », « encore net : le fond photo ». Nuance : un toucher à côté d'elle qui tombe sur Percy donne 6,5 m, et le défi reste réussi.
+
+MAP-09
+14. Réglage a4 : « Face and eye detection on », « Face detection on », « Animal detection », « Off » ; « it automatically focuses on one or the other of the subject's eyes, or on the subject's face if the eyes are not detected » (page du réglage a4 ; la page « Focus », que la fiche cite pour cette phrase, le dit avec d'autres mots).
+15. « personnes et animaux ne sont pas détectés en même temps » : le réglage a4 est un choix entre quatre options (« Choose whether the camera detects human portrait subjects or dogs and cats ») ; déduction juste.
+16. Toucher et suivi : « If auto-area AF is selected for AF-area mode, the camera will track the selected subject as it moves through the frame. […] the camera will focus on and track the face or eye closest to the selected point » ; échecs : « the subject's face occupies a very large or very small proportion of the frame », « the subject's face or eyes are obscured by hair or other objects », et la lumière et les lunettes, que la fiche dit ne pas simuler.
+17. Simulateur : seuils de 0,4 %, 25 % et 0,8 % (`faces.ts`, l. 67-69) ; œil vu s'il est dans la zone couverte et si la surface lue est à moins de 4 cm (l. 66 et 102-104). Calcul : au 50 mm, l'écart des yeux d'un adulte du groupe fait 1,39 % du grand côté (yeux détectés), celui du promeneur 0,72 % (visage seul) ; l'essai 11 écrit bien « visage · verrouillée à 12,4 m » pour le promeneur.
+18. Exercice, essai 8 : un toucher sur Percy donne « œil · verrouillée à 6,3 m », défi SIT-05 réussi à f/8 ; en détection des animaux et AF-C, le repère suit le chien quand il est dans le cadre. Nuance (essai 11) : un toucher à 9 % de la hauteur du cadre au-dessus de l'œil de Sophia a retenu le visage du promeneur, qui passait derrière elle ; c'est la règle du code et du manuel (« closest to the selected point »).
+
+NET-01
+19. « A lens can precisely focus objects at only one distance » ; « the greater the distance an object is from the plane of focus, the greater the size of the blur spot » ; « the range of object distances over which objects appear sharp is the depth of field » ; « a widely used CoC limit is d/1500, or 0.029 mm for full-frame 35 mm format » ; « the most appropriate value depends on visual acuity, viewing conditions, and the amount of enlargement » (révision 1335590423).
+20. La formule de la zone nette est celle de `sharpZone.ts` (l. 13-16), tirée de celle de l'article (constats PHY, « Vérifié ») ; les quatre leviers se lisent bien dans q.
+21. Exemples : de 4,12 à 16,61 m à f/8, de 5,97 à 7,39 m à f/1.4, de 6,34 à 6,88 m au 135 mm à f/4.
+22. Simulateur : aperçu de la profondeur de champ réglable dans la fenêtre « Aperçu » (`i18n.ts`, l. 82) ; limites en mètres dans l'indicateur d'équilibre et le bulletin (essais : « f/1,8 · zone nette : 6,4 m – 6,7 m », « Zone nette : 5,1 m – 9,4 m »).
+23. Exercice, essai 10 : à f/4 et au 50 mm, point sur l'œil de Sophia, chien dans le cadre : « Manqué : fond derrière Sophia hors de la zone nette : encore net : le chien » (deux photos) ; au 135 mm, « Zone nette : 6,3 m – 6,9 m », défi SIT-01 réussi. Nuance : au 50 mm, le défi réussit aussi quand le chien est hors du cadre (une photo), ce qui arrive 35 % du temps sans tourner l'appareil.
+
+NET-06
+24. Formule : l'article donne « C = A |S₂ − S₁| / S₂ », « c = C m », « f₁ = f S₁ / (S₁ − f) », et pour un objet à l'infini « c = f A / (S₁ − f) » ; la formule de la fiche en découle, avec son maximum à l'infini.
+25. Calcul : A = 12,5 mm ; poubelle 0,0354 mm (1,23 fois) ; promeneur 0,0450 mm (1,57 fois) ; fond à l'infini 0,0954 mm (3,32 fois).
+26. Simulateur : toucher la carte déplace l'appareil (`topView.ts`, l. 89-99) ; fond à 500 m (`scene.ts`, l. 37).
+27. Exercice, essai 5 : appareil avancé de 3 m, point refait sur l'œil de Sophia : « verrouillée à 3,5 m », « Zone nette : 3,0 m – 4,2 m », défi SIT-01 réussi à f/4 (pour la consigne, voir FMA-16).
+
+MVT-01
+28. La formule de la traînée est celle de `bulletin.ts` (l. 96-97). Chien : 19,44 mm/s, limite à 1/676 s, donc 1/800 s ; promeneur : 5 mm/s, limite à 1/174 s, donc 1/200 s.
+29. Simulateur : photo de 1500 px de grand côté (`photo.ts`, l. 43) ; limite de 1,2013 px avec le Z 6, et de 1,20 px pour les six boîtiers (c'est en millimètres qu'elle change, FMA-13) ; le bulletin donne la traînée du promeneur et du chien quand ils sont dans le cadre (`challenges.ts`, l. 163-167).
+30. Exercice, essai 7, avec le boîtier et la focale de départ : 1/800 s fige le chien, 1/640 s non ; 1/200 s fige le promeneur, 1/160 s non (FMA-13).
+31. « Le bougé de la main n'est ni sourcé ni simulé » : `docs/cadrage.md`, l. 14.
+
+LUM-02
+32. Tiffen : « A soft light source would be one that appears larger in relative size than the subject being lit. Being larger than the subject, the light source is covering it from a greater angle and, as a result, filling in more of the potential shadow areas. » ; soleil, « since its so far away, it appears smaller and therefore is light quality will be "harder". Note the sharp shadows. » ; ciel couvert, « the entire white cloudy sky is now the light source. […] It lights our subject from a very large angle, so its effect is ultra soft » ; « Moving the soft light back created a smaller source, making the effect of the output harder » ; « the reflector's surface becomes the light source ».
+33. Art Adams : « There is a transition period where the source gradually becomes hidden and the shadow becomes darker and darker until the light source is completely blocked » ; « Soft light is dependent on how big the source is in relation to the object it is lighting » ; « a big source a long distance away now appears to be a very tiny source. (We have a daily example of that: the sun.) » ; article daté du 27 décembre 2011.
+34. Wikipedia, révision 1379008615 : « The penumbra […] is the region in which only a portion of the light source is obscured by the occluding body » ; « for a collimated beam (such as a point source) of light, only the umbra is cast ».
+35. Calcul de l'activité, refait par triangles semblables : pénombre = D × d₂ / d₁ ; ombre pleine = H × (d₁ + d₂) / d₁ − D × d₂ / d₁ ; part de la source vue d'un point du mur : les trois sont celles de `lum02.ts` (l. 130-146).
+36. Exemples, par le calcul et dans le navigateur : petite lampe, 1,7°, 1,5 cm, ombre pleine de 43,5 cm ; grande fenêtre, 33,4°, 30,0 cm, 7,5 cm ; réflecteur, 53,1°, 50,0 cm, pas d'ombre pleine.
+37. « Plus la source paraît grande vue de l'objet, plus la pénombre est large » : dans l'activité, le mur est à distance fixe, et la pénombre vaut 2 × 50 cm × tan(angle / 2) ; elle ne dépend que de la taille apparente.
+38. Questions : les deux réponses justes sont celles des sources (points 32 et 33) ; chaque bouton affiche son explication (navigateur).
+39. Page de l'activité : textes français et anglais équivalents ; l'attribut de langue suit le choix ; pas de défilement horizontal à 390 px de large ; tutoiement.
+40. « À faire aussi chez soi » : adaptation des sources (lampe nue ; lumière renvoyée sur un mur, « bouncing the output of a light […] off a white ceiling or wall […] converts the ceiling or wall into a larger and softer light source ») ; la mise en garde sur l'ampoule chaude est une prudence, non sourcée.
+
+Situations
+41. Titres, lieux et intentions des trois fiches : ceux de `data/situations.yaml`.
+42. SIT-01, recette (première passe, essai 4) : mode A à f/2, « Vitesse (auto) 1/1600 s » ; AF-S, zone automatique, visages et yeux, sans toucher le viseur : photo « œil · mise au point à 6,6 m », « Zone nette : 5,7 m – 7,8 m », défi réussi. Calcul : de 5,74 à 7,77 m ; poubelle, chien et promeneur au-delà.
+43. SIT-01, plan B : se rapprocher (essai 5) et allonger la focale (essai 10) réussissent le défi à f/4.
+44. SIT-05, recette (première passe, essai 5 ; essai 8) : mode A à f/8, « Vitesse (auto) 1/100 s », défi réussi.
+45. SIT-06, recette (première passe, essai 7 ; essai 7) : mode S à 1/1000 s, « Ouverture (auto) f/2,5 », ISO 100 ; traînée de 0,019 mm, 0,8 px ; AF-C, zone automatique, détection des animaux : « œil · mise au point à 9,0 m », défi réussi quand le chien est dans le cadre et détecté.
+46. SIT-06 : « La scène de TutoPhoto a une lumière fixe […] ; la baisse de lumière du soir n'est pas simulée » : dit, et juste (`exposure.ts`, l. 38).
+47. Sections « Défi » : les critères écrits sont ceux du code (`bulletin.ts`, l. 117-139) et de la fenêtre « Défis » (`i18n.ts`, l. 107-112).
+
+Fiches anglaises et ton
+48. Lecture phrase par phrase des onze fiches anglaises contre les françaises : même contenu, mêmes chiffres. Écarts sans conséquence : MAP-05 et MAP-09 ne citent pas les pages françaises du manuel ; l'exercice de MAP-06 n'a pas « (formule de NET-01) » ; LUM-02 a une paire de guillemets typographiques.
+49. Termes anglais du manuel de Nikon : « Single AF », « Continuous AF », « Single-point AF », « Wide-area AF (S) », « Auto-area AF », « Dynamic-area AF », « Pinpoint AF », « focus point », « sub-selector », « multi selector », « Auto-area AF face/eye detection », « Animal detection », « Continuous H » : tous dans les pages lues, et dans l'interface anglaise (`i18n.ts`, l. 280-296 et 331).
+50. Noms des fenêtres et des affichages en anglais : « Focus », « Challenges », « Preview », « report », « balance indicator », « top view », « sharp zone » : ceux de l'interface (`i18n.ts`, l. 280, 306, 318, 336, 340, 369 et 377).
+51. Ton : tutoiement, pas d'emoji, pas de formule emphatique, dans les vingt-deux fiches et dans les textes de l'activité.
+
+## Lisibilité pour un débutant
+
+Pas des constats : des remarques pour la relecture décidée le 11 novembre 2026 (`docs/questions-ouvertes.md`) et pour le test avec des débutants. La contre-vérification du rapport des fiches d'exposition a réfuté un constat de ce genre (FEX-10), comme jugement de rédaction.
+
+1. MVT-01 (niveau N1), l. 5 : la première formule est le cas général, avec quatre grandeurs (X, Z, vX, vZ) ; le cas simple, celui que le parc montre (sujet qui traverse : traînée = focale × vitesse × pose ÷ distance), n'est écrit que dans l'exemple chiffré de la l. 7. L'ordre inverse se lirait mieux.
+2. NET-01, l. 7, et NET-06, l. 5 : une formule chacune, suivie d'exemples chiffrés. Lisible si l'on saute la formule ; « tache de flou » et « plan de mise au point » sont définis par la phrase qui les amène.
+3. MAP-06, l. 9 : deux sources, quatre boîtiers nommés ou évoqués et trois choix de TutoPhoto dans un seul paragraphe de la section « Simulateur » ; une liste par boîtier se lirait mieux.
 
 ## Je ne sais pas
 
-À écrire.
+1. Ce que disent les pages de Canon Royaume-Uni (EOS RP) et de Sony Inde (α7 III) citées par MAP-06 : non relues (403, hôte non joignable). Les chiffres de la fiche sont ceux des citations gardées dans `data/sources.yaml`, relevées par Julien.
+2. Ce que fait un Z 6 quand le sol entre dans une zone large, et la taille minimale d'un sujet pour qu'une zone large le retienne : aucune page lue ne le dit (FMA-03).
+3. La part du cadre couverte par l'autofocus du Nikon D5600, du Canon EOS 2000D et du Sony A6000 (FMA-05).
+4. La distance des arbres et des bâtiments de la photo à 360° (FMA-04).
+5. Ce qu'affiche exactement un Z 6 en AF-S avant la mi-course, visage détecté : le manuel parle d'une bordure ambre à la détection et d'un point vert à la mise au point, sans décrire la suite des deux en AF-S (FMA-22).
+6. Les noms des modes d'autofocus sur les deux boîtiers Canon du simulateur (EOS RP, EOS 2000D) : leurs manuels n'ont pas été trouvés sur l'hôte joignable ; les termes de FMA-14 viennent de l'EOS 850D.
+7. Ce que dit « What is Lens Compression? » (Photography Life), source de NET-01 dans le référentiel : 403 (FMA-15).
+8. Le comportement sur un vrai processeur graphique, sur un téléphone et dans Safari : tous les essais viennent de Chromium en rendu logiciel, écran d'ordinateur émulé. En particulier, le bouton de l'autofocus et le repère ont paru décalés d'une lecture pendant le suivi du chien en AF-C (essai 8) ; je ne sais pas si cela tient au rendu logiciel.
+9. Si la photo au 135 mm et à f/1,8 se calcule en entier sur un vrai appareil : en rendu logiciel, la légende écrit « 97/224 rendus », « 105/231 rendus », « 101/233 rendus » (photo interrompue, constat PHY-21).
+10. Si un débutant lit sans peine les formules de MVT-01, NET-01 et NET-06 : cela se juge au test (section « Lisibilité pour un débutant »).
 
 ## Constats FIC repris
 
-À écrire.
+`docs/audit/fiches.md` (première passe sur toutes les fiches, non contre-vérifiée) : sort de chaque constat qui porte sur ce lot. Les autres relèvent du rapport `fiches-exposition.md`, qui les a repris (sa section « Constats FIC repris »). Avec ce tableau, les dix-neuf constats FIC ont tous un sort : `fiches.md` peut être retiré.
+
+| Constat FIC | Sort | Ici |
+| --- | --- | --- |
+| FIC-03 (MAP-06, « Hors de cette zone, l'appareil ne peut pas faire le point ») | relu, repris ; source ajoutée pour la correction | FMA-02 |
+| FIC-04 (SIT-05 et MAP-05, « souvent le sol devant les pieds ») | relu, repris, mesure de la première passe citée | FMA-03 |
+| FIC-08, partie MAP-04 (bulletin, mode et vitesse non dits) | relu, repris ; complété par ce que l'exercice montre vraiment | FMA-01 ; FMA-11 |
+| FIC-09, troisième point (ouvertures écrites « f/1.8 », interface « f/1,8 ») | non repris : FEX-16 le porte déjà et nomme les fiches de ce lot (cinq écritures à point : trois dans MAP-06, une dans NET-01, une dans SIT-06) ; même décision de Julien | FEX-16 |
+| FIC-10, partie « recettes » (vitesse limitée à 1/4000 s) | non repris : aucune des trois recettes n'approche la limite (1/1600 s au plus court) ; le reste est FEX-07 | — |
+| FIC-11 (pas de mesure de la lumière) | non repris : FEX-09 et PHY-12 le portent ; dans ce lot, les recettes ne font que citer la vitesse ou l'ouverture que l'appareil choisit | FEX-09 |
+| FIC-12 (NET-06, fond photo qui ne change pas) | relu, repris | FMA-04 |
+| FIC-13 (MAP-06, couverture du Z 6 prêtée aux autres boîtiers) | relu, repris ; le Sony A6000 ajouté | FMA-05 |
+| FIC-14 (MVT-01, critère « figé ») | relu, repris | FMA-06 |
+| FIC-15 (SIT-01, la lumière absente de la recette) | relu, repris | FMA-07 |
+| FIC-17, deuxième à quatrième points (MAP-09, LUM-02, MAP-05) | relus, repris ; pour MAP-05, la mesure remplace le calcul du cadre vertical | FMA-08 |
+| FIC-18, parties NET-01, NET-06 et MVT-01 (Wikipedia, source secondaire) | relu, repris et complété | FMA-09 |
+| FIC-19 (activité de LUM-02, pénombre hors du mur) | relu, repris, complété et mesuré | FMA-10 |
+| FIC-01, FIC-02, FIC-05, FIC-06, FIC-07, FIC-16 ; parties EXP, MES et BOI de FIC-08, FIC-09, FIC-17 et FIC-18 | autre rapport | `fiches-exposition.md` |
+
+## Ce qui n'est pas couvert
+
+1. Les deux pages de constructeurs citées par MAP-06 que l'hôte refuse (Canon Royaume-Uni, Sony Inde).
+2. Un essai avec un processeur graphique, sur un téléphone ou dans Safari.
+3. L'interface en anglais dans le simulateur : ses libellés sont lus dans `app/src/i18n.ts` ; seule l'activité de LUM-02 a été ouverte en anglais dans un navigateur.
+4. L'exercice de MAP-05 n'a pas été rejoué pour cette reprise : le constat FMA-08 s'appuie sur la mesure de la première passe (`preuves-123.out`, essai 3).
+5. Les pages des fiches telles que le site les publie (`app/scripts/build-pages.mjs`) : ce rapport lit les fichiers de `content/`.
+6. La feuille de style de l'activité (`lum02.css`) : lue, et la page regardée sur deux captures (ordinateur et téléphone, thème clair) ; le thème sombre et les contrastes n'ont pas été mesurés.
+7. Les valeurs à écrire dans la correction de FMA-18 (85 mm, f/1.4 puis f/2.8) : calculées, la première mesurée (essai 4), la seconde à rejouer.
