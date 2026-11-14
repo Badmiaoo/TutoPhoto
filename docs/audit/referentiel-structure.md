@@ -4,7 +4,8 @@
 - Demande : Julien, le 12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent, et le modifier si nécessaire ; le 13 novembre : finir l'audit et pousser le résultat.
 - Auteur : un agent de Claude. **État : constats non contre-vérifiés.**
 - Version auditée : branche de l'audit, commit `5ab1783` (version 0.3.58 en cours). Les fichiers du lot datent du 7 au 12 novembre 2026.
-- Rapport en cours d'écriture : la liste de ce qui reste à couvrir est à la fin de cet en-tête.
+- Bilan : 12 constats (4 « incohérent », 8 « à améliorer »), aucun « faux » ni « non sourcé » ; 17 points vérifiés et justes ; 5 « Je ne sais pas ». Les données sont saines : aucun identifiant renuméroté ni réutilisé, tous les renvois tiennent, les chiffres annoncés (191, 49, 13 sur 17) sont ceux que les scripts calculent, et `validate.py` refuse toutes les fautes de la liste de la mission sauf une (la fiche sans notion). Les défauts sont dans ce que les contrôles ne regardent pas (état précédent, clés en double, `since`, doublons de listes, fiches sans notion), dans les identifiants `SIT-V2-NN` que le site ne sait pas lire, et dans la mesure de la couverture (jalon plafonné, brique « situation réelle » comptée sans contenu). À corriger d'abord : RST-01, avant l'étape 7 de la file de travail.
+- Périmètre du référentiel (191 notions, 49 situations) : comptes et propositions dans la section « Périmètre », à trancher par Julien ; rien n'est retiré.
 
 ## Périmètre
 
@@ -42,9 +43,12 @@ Non relues : hôte non joignable d'ici.
 | Marc Levoy, liste des exercices, `https://sites.google.com/site/marclevoylectures/assignments` | `docs/lire-le-referentiel.md`, l. 26 |
 | Spécification YAML sur `yaml.org` (lue à la place : sa source sur GitHub, ci-dessus) | ce rapport |
 
-## Reste à couvrir (rapport en cours)
+## Ce qui n'est pas couvert
 
-- Relecture finale et classement des constats par gravité.
+- Les treize fichiers de domaine ne sont pas lus ligne à ligne, et les 180 renvois sans retour ne sont pas jugés un par un : c'est l'objet du rapport `referentiel-contenu.md`.
+- Les contrôles de `validate.py` sur `data/sources.yaml` (`used_in`, l. 134-142) ne sont essayés que pour la source absente : le reste est dans `sources.md` (SRC-03).
+- `app/scripts/build-pages.mjs` n'est lu et essayé que pour ce qu'il contrôle des identifiants des fiches et de `data/relecture.yaml`.
+- Les workflows ne sont pas lancés ; `validate.yml` est lu.
 
 ## Constats
 
@@ -58,70 +62,6 @@ Non relues : hôte non joignable d'ici.
   - phrase « Voir aussi SIT-V2-02. » ajoutée à la fiche de SIT-01 : la page est produite, sans lien et sans contrôle, alors que la même phrase avec un code de forme courante sans fiche (« XYZ-98 ») arrête la construction (« XYZ-98 n'a pas de fiche en fr »).
 - Conséquence : l'étape 7 de la file (`docs/etat-des-travaux.md`, l. 71 : « Situations jouables dans le parc | SIT-28, SIT-V2-02, SIT-V2-06 ») échouera à la construction dès la première fiche, avec un message qui n'aide pas ; ces fiches ne pourront pas être marquées relues.
 - Correction proposée : garder les identifiants (règle des identifiants stables) et corriger les trois expressions de `build-pages.mjs` en `(?:[A-Z]{3}|SIT-V2)-\d{2}`, et le schéma en `^([A-Z]{3}-[0-9]{2}|SIT-V2-[0-9]{2})$`. Le rapport `referentiel-contenu.md` (REF-16) propose par ailleurs de verser quatre de ces sept situations dans d'autres : si Julien le retient, la correction reste nécessaire pour les trois qui restent.
-
-### RST-02 · incohérent · Une fiche sans notion est publiée : aucun contrôle ne confronte `content/` au référentiel
-
-- Endroit : `scripts/validate.py`, l. 192-200 (seul endroit qui lit `content/`) ; `scripts/coverage.py`, l. 45-69 ; `app/scripts/build-pages.mjs`, l. 168-200.
-- Ce qui est fait : `validate.py` ne regarde `content/` que pour vérifier que le fichier d'une fiche listée dans `data/relecture.yaml` existe. `coverage.py` cherche la fiche de chaque notion connue, et ignore les autres fichiers. `build-pages.mjs` ne lit du référentiel que les titres des domaines et la liste des fiches relues ; il contrôle que le nom du fichier et la première ligne portent le même code, pas que ce code existe.
-- Preuve (essais sur une copie ; `validate.py` : « 0 erreur(s), 0 avertissement(s) » dans les trois cas) :
-  - `content/fr|en/notions/XYZ-99.md` (aucune notion XYZ-99, aucun domaine XYZ) : « Pages : accueil, 46 fiche(s) », `fiches/fr/XYZ-99.html` produite ;
-  - `content/fr|en/notions/MAP-13.md` (identifiant retiré) : page produite et listée à l'accueil ; listée dans `data/relecture.yaml`, elle est acceptée comme relue ;
-  - une fiche de notion rangée dans `content/fr|en/situations/EXP-01.md` : publiée parmi les situations.
-- Ce qui existe déjà : le rapport `choix-et-outils.md` (CHX-05) établit que le titre d'une fiche n'est pas comparé à celui du référentiel ; essai refait ici (titre de `EXP-04` remplacé : page produite). Ce constat-ci porte sur l'existence de l'identifiant.
-- Correction proposée : dans `validate.py`, un contrôle `check_content` d'une quinzaine de lignes : tout fichier `content/<langue>/notions/<ID>.md` porte l'identifiant d'une notion du référentiel, tout fichier `content/<langue>/situations/<ID>.md` celui d'une situation ; un identifiant retiré donne un message qui le dit. Le contrôle du titre proposé par CHX-05 va au même endroit.
-
-### RST-03 · à améliorer · « Identifiants stables, jamais renumérotés » : le contrôle ne voit que la réutilisation d'un identifiant déjà inscrit dans `retired.yaml`
-
-- Endroit : `scripts/validate.py`, l. 145-164 (`check_retired`) ; `CLAUDE.md`, « Identifiants stables, jamais renumérotés ; un identifiant retiré va dans `data/referentiel/retired.yaml` ».
-- Ce qui est fait : `validate.py` ne connaît que l'état courant des fichiers. Il refuse un identifiant présent à la fois dans le référentiel et dans `retired.yaml`, et un renvoi vers un identifiant retiré. Rien ne compare l'état courant à l'état précédent.
-- Preuve (essais sur une copie) :
-  - `RET-14` renommée `RET-16` (aucune autre ligne à changer, la notion n'est notion clé de rien) : « 191 notions […] 0 erreur(s), 0 avertissement(s) » ;
-  - `RET-15` supprimée sans entrée dans `retired.yaml` : « 190 notions […] 0 erreur(s), 0 avertissement(s) » ;
-  - `MAP-13` recréée : refusé, « identifiant retiré réutilisé : MAP-13 ». Ce cas est tenu.
-- État réel : aucun identifiant n'a été renuméroté ni supprimé depuis l'extraction (section « Vérifié ») ; le défaut est dans le contrôle, pas dans les données.
-- Correction proposée : une option `--base REF` à `validate.py`, sur le modèle de `scripts/changelog.py check --base` que la CI lance déjà (`validate.yml`, l. 34-43) : tout identifiant de notion ou de situation présent dans `REF` est encore dans le référentiel ou dans `retired.yaml`. Une vingtaine de lignes ; sans option, le script se comporte comme aujourd'hui.
-
-### RST-04 · à améliorer · Une clé YAML écrite deux fois est acceptée en silence : la seconde écrase la première
-
-- Endroit : `scripts/referentiel.py`, l. 26-28 (`yaml.safe_load`).
-- Source : spécification YAML 1.2.2, section « Mapping » : « The content of a _mapping_ node is an unordered set of _key/value_ node _pairs_, with the restriction that each of the keys is [unique]. » (`https://raw.githubusercontent.com/yaml/yaml-spec/main/spec/1.2.2/spec.md`, lue le 14 novembre 2026). PyYAML 6.0.3 ne l'applique pas : `lib/yaml/constructor.py`, l. 144, `mapping[key] = value`, sans test de présence.
-- Preuve (essais sur une copie) :
-  - `level: N1` suivi de `level: N3` dans `EXP-01` : « 191 notions (91 N1, 80 N2, 20 N3) […] 0 erreur(s), 0 avertissement(s) » ; la notion est comptée N3 ;
-  - un second bloc `notions:` ajouté à la fin de `lec.yaml` avec une seule notion : « 188 notions […] 0 erreur(s), 0 avertissement(s) ». LEC-01 à LEC-04 ont disparu sans message, parce qu'aucune n'est notion clé ni dans un jalon.
-- Quand cela arrive : un bloc recopié, une fusion de branches résolue à la main, un champ ajouté sans voir qu'il existe déjà plus bas. Les fichiers actuels n'ont aucune clé en double (le témoin et les comptes de la section « Vérifié » le montrent).
-- Correction proposée : dans `referentiel.load_yaml`, un chargeur dérivé de `yaml.SafeLoader` dont `construct_mapping` refuse une clé déjà vue, avec le fichier et la ligne (une dizaine de lignes, sans dépendance nouvelle).
-
-### RST-05 · à améliorer · Le champ `since` et la règle du numéro Y ne sont contrôlés par rien
-
-- Endroit : `CHANGELOG.md`, l. 8 ; `schemas/domaine.schema.json`, l. 78, `situations.schema.json`, l. 52, `retired.schema.json`, l. 18 ; `docs/lire-le-referentiel.md`, l. 15 ; `README.md`, l. 11 ; `data/situations.yaml`, l. 3.
-- Ce qui est écrit : `CHANGELOG.md`, l. 8 : « Y : version du référentiel, celle du champ `since` des notions et des situations. Y augmente quand une notion ou une situation est ajoutée, retirée ou reclassée (niveau, notions clés) ; les nouveautés prennent alors `since: v0.Y`. » Les schémas ne contrôlent que la forme (`^v[0-9]+\.[0-9]+$`). `scripts/changelog.py` ne lit pas `data/`.
-- Preuve (essais sur une copie, tous acceptés avec « 0 erreur(s), 0 avertissement(s) ») : une notion nouvelle `EXP-15` avec `since: v0.1` ; la même avec `since: v9.9` ; `since` de `EXP-01` changé de `v0.1` en `v0.3`.
-- État réel, juste : 162 notions `v0.1` et 29 `v0.2`, 38 situations `v0.1` et 11 `v0.2` ; les 29 et les 11 sont exactement celles que `REPRISE.md` (section 9) dit ajoutées à la v0.2 (section « Vérifié »).
-- Trois imprécisions autour de la règle :
-  - `retired.yaml` a aussi un champ `since` obligatoire, qui y vaut la version du retrait (`MAP-13`, `since: v0.2`), alors que `docs/lire-le-referentiel.md`, l. 15, ne définit `since` que comme la « version qui a introduit la notion » ; les champs de `retired.yaml` ne sont décrits nulle part ;
-  - d'après la règle, le référentiel est à la version 0.3 depuis la version 0.3.0 (retrait du champ `version` : toutes les notions reclassées en V1) ; `README.md`, l. 11, écrit encore « référentiel v0.2 », et aucune notion ne porte `since: v0.3`, ce qui est juste puisque rien n'a été ajouté ;
-  - le champ `activity` n'est pas dans la liste « (niveau, notions clés) » : LUM-02 est passée en activité (`activity: true`, commit `9182e02`, 10 novembre 2026) sans changer Y. La règle ne dit pas si c'est un reclassement.
-- Correction proposée : avec l'option `--base` de RST-03, deux contrôles : un identifiant déjà présent dans la base garde son `since` ; un identifiant nouveau porte le Y de la version en tête de `CHANGELOG.md`. Dans `docs/lire-le-referentiel.md` : une ligne pour `retired.yaml` (`since` = version du retrait) et une pour dire si `activity` compte comme un reclassement (Julien tranche). `README.md` : « référentiel v0.3 », ou sans numéro.
-
-### RST-06 · à améliorer · Niveau des situations : un écart à la règle n'est qu'un avertissement, un champ `notes` quelconque le fait taire, et `level` peut dépasser `level_max`
-
-- Endroit : `scripts/validate.py`, l. 104-113 ; `data/situations.yaml`, l. 3 ; `.github/workflows/validate.yml`, l. 27-28.
-- Ce qui est écrit : `data/situations.yaml`, l. 3 : « Niveau d'entrée = niveau médian des notions clés (médiane haute). level_max = plus haut niveau des notions clés. […] Règle par défaut v0.2, ajustable à la main avec une raison dans notes. » Le code : `if actual != expected and not s.get("notes"): warn(...)`.
-- Preuve (essais sur une copie) :
-  - niveau de `NET-01` changé de N1 en N3, situations non recalculées : quatre avertissements, code de sortie 0 ; l'étape de la CI passe au vert, l'avertissement n'est lisible que dans son journal ;
-  - `SIT-01` avec `level: N3` et `level_max: N1` : un avertissement, code 0 ;
-  - la même avec `notes: ["x"]` : aucun message. N'importe quelle note, même sans rapport avec le niveau, vaut dérogation.
-- État réel, juste : les 49 situations suivent la règle (recalcul par script, 0 écart) et aucune n'a de champ `notes` : la dérogation n'a jamais servi.
-- Correction proposée : en faire une erreur tant qu'aucune situation n'y déroge ; `level` supérieur à `level_max` toujours refusé ; si une dérogation devient nécessaire, un champ dédié (`level_reason`) plutôt que `notes`.
-
-### RST-07 · à améliorer · Les listes n'ont pas de contrôle de doublon : un renvoi répété fausse les comptes, une notion clé répétée déplace le niveau d'une situation
-
-- Endroit : `schemas/domaine.schema.json`, l. 42-45 et 66-72 ; `schemas/situations.schema.json`, l. 41-50 ; `scripts/validate.py`, l. 175-177 (doublons contrôlés pour les jalons seulement).
-- Preuve (essais sur une copie) :
-  - `EXP-01` avec `situations: [SIT-07, SIT-07, SIT-18]` : « 0 erreur(s), 0 avertissement(s) », et `coverage.py` affiche « Renvois notion → situation : 382, dont 181 sans retour » au lieu de 381 et 180 ;
-  - `SIT-04` avec `key_notions: [LUM-07, MAP-06, COU-03, COU-03, COU-03]` : la médiane passe de N1 à N2, `validate.py` ne donne qu'un avertissement de niveau (code 0), sans dire qu'une notion est répétée ;
-  - une source répétée dans `sources` : acceptée.
-- Correction proposée : `"uniqueItems": true` sur les six listes d'identifiants des schémas (`situations` et `sources` d'une notion, `sources` d'un domaine, `key_notions` et `sources` d'une situation, `situations` et `notions` d'un jalon). Le contrôle écrit à la main pour les jalons (`validate.py`, l. 175-177) devient inutile.
 
 ### RST-08 · incohérent · Jalon `v1-min` : « 13 sur 17 » ne peut pas monter à 17 sans rédiger des situations hors du jalon ; les « réglages de base » de la règle ne sont nulle part dans les données
 
@@ -149,7 +89,7 @@ Non relues : hôte non joignable d'ici.
 
 ### RST-09 · incohérent · « Situation réelle » : `coverage.py` et le site n'ont pas la même définition des situations d'une notion, et un renvoi sans retour suffit à valider la brique
 
-- Endroit : `scripts/coverage.py`, l. 62-67 ; `docs/contenus.md`, « Règle de couverture » ; `app/scripts/build-pages.mjs`, l. 590-596 (`situationsOf`) ; `scripts/validate.py`, l. 84-85.
+- Endroit : `scripts/coverage.py`, l. 62-67 ; `docs/contenus.md`, « Règle de couverture » ; `app/scripts/build-pages.mjs`, l. 594-600 (`situationsOf`) ; `scripts/validate.py`, l. 84-85.
 - Ce qui est fait :
   - `coverage.py` : une notion a sa brique « situation réelle » dès qu'une des situations de son champ `situations` a une fiche dans les deux langues, que cette fiche parle de la notion ou non ;
   - `build-pages.mjs` : la page d'une notion liste les situations dont la section « Notions » cite la notion ; le champ `situations` du référentiel n'est pas lu ;
@@ -168,6 +108,70 @@ Non relues : hôte non joignable d'ici.
 - Preuve : ces reports ne sont écrits que dans de la prose et dans deux lignes de `notes` du jalon (`data/jalons.yaml`, l. 33-34). Aucun champ de `data/referentiel/ret.yaml` ne dit que le simulateur de RET-01 et de RET-02 est reporté ; `coverage.py` les compte comme les autres dans le dénominateur 191.
 - Correction proposée : ne pas rétablir le champ `version` ; se servir des jalons, qui existent et sont contrôlés. Un jalon par tranche décidée (aujourd'hui `v1-min` ; ensuite ceux que Julien retiendra dans la section « Périmètre » plus bas), et une phrase corrigée dans `docs/lire-le-referentiel.md` et `docs/cadrage.md` : le référentiel est le catalogue, les jalons disent ce qui est visé et quand.
 
+### RST-02 · à améliorer · Une fiche sans notion est publiée : aucun contrôle ne confronte `content/` au référentiel
+
+- Endroit : `scripts/validate.py`, l. 137-142 et 192-200 ; `scripts/coverage.py`, l. 45-69 ; `app/scripts/build-pages.mjs`, l. 168-200.
+- Ce qui est fait : `validate.py` ne regarde `content/` que pour deux choses : le fichier d'une fiche listée dans `data/relecture.yaml` existe (l. 192-200), et l'adresse d'une source dont `used_in` nomme une fiche y figure (l. 137-142). `coverage.py` cherche la fiche de chaque notion connue, et ignore les autres fichiers. `build-pages.mjs` ne lit du référentiel que les titres des domaines et la liste des fiches relues ; il contrôle que le nom du fichier et la première ligne portent le même code, pas que ce code existe.
+- Preuve (essais sur une copie ; `validate.py` : « 0 erreur(s), 0 avertissement(s) » dans les trois cas) :
+  - `content/fr|en/notions/XYZ-99.md` (aucune notion XYZ-99, aucun domaine XYZ) : « Pages : accueil, 46 fiche(s) », `fiches/fr/XYZ-99.html` produite ;
+  - `content/fr|en/notions/MAP-13.md` (identifiant retiré) : page produite et listée à l'accueil ; ajoutée à `data/relecture.yaml`, elle est acceptée par `validate.py` et publiée sans le bandeau « en cours de relecture » (« 1 relue(s) ») ;
+  - une fiche de notion rangée dans `content/fr|en/situations/EXP-01.md` : publiée, et listée à l'accueil sous « Je suis en situation », avant SIT-01.
+- Ce qui existe déjà : le rapport `choix-et-outils.md` (CHX-05) établit que le titre d'une fiche n'est pas comparé à celui du référentiel ; essai refait ici (titre de `EXP-04` remplacé : page produite). Ce constat-ci porte sur l'existence de l'identifiant.
+- Correction proposée : dans `validate.py`, un contrôle `check_content` d'une quinzaine de lignes : tout fichier `content/<langue>/notions/<ID>.md` porte l'identifiant d'une notion du référentiel, tout fichier `content/<langue>/situations/<ID>.md` celui d'une situation ; un identifiant retiré donne un message qui le dit. Le contrôle du titre proposé par CHX-05 va au même endroit.
+
+### RST-03 · à améliorer · « Identifiants stables, jamais renumérotés » : le contrôle ne voit que la réutilisation d'un identifiant déjà inscrit dans `retired.yaml`
+
+- Endroit : `scripts/validate.py`, l. 145-164 (`check_retired`) ; `CLAUDE.md`, « Identifiants stables, jamais renumérotés ; un identifiant retiré va dans `data/referentiel/retired.yaml` ».
+- Ce qui est fait : `validate.py` ne connaît que l'état courant des fichiers. Il refuse un identifiant présent à la fois dans le référentiel et dans `retired.yaml`, et un renvoi vers un identifiant retiré. Rien ne compare l'état courant à l'état précédent.
+- Preuve (essais sur une copie) :
+  - `RET-14` renommée `RET-16` (aucune autre ligne à changer, la notion n'est notion clé de rien) : « 191 notions […] 0 erreur(s), 0 avertissement(s) » ;
+  - `RET-15` supprimée sans entrée dans `retired.yaml` : « 190 notions […] 0 erreur(s), 0 avertissement(s) » ;
+  - `MAP-13` recréée : refusé, « identifiant retiré réutilisé : MAP-13 ». Ce cas est tenu.
+- État réel : aucun identifiant n'a été renuméroté ni supprimé depuis l'extraction (section « Vérifié ») ; le défaut est dans le contrôle, pas dans les données.
+- Correction proposée : une option `--base REF` à `validate.py`, sur le modèle de `scripts/changelog.py check --base` que la CI lance déjà (`validate.yml`, l. 32-42) : tout identifiant de notion ou de situation présent dans `REF` est encore dans le référentiel ou dans `retired.yaml`. Une vingtaine de lignes ; sans option, le script se comporte comme aujourd'hui.
+
+### RST-04 · à améliorer · Une clé YAML écrite deux fois est acceptée en silence : la seconde écrase la première
+
+- Endroit : `scripts/referentiel.py`, l. 26-28 (`yaml.safe_load`).
+- Source : spécification YAML 1.2.2, section « Mapping » : « The content of a _mapping_ node is an unordered set of _key/value_ node _pairs_, with the restriction that each of the keys is [unique]. » (`https://raw.githubusercontent.com/yaml/yaml-spec/main/spec/1.2.2/spec.md`, lue le 14 novembre 2026). PyYAML 6.0.3 ne l'applique pas : `lib/yaml/constructor.py`, l. 144, `mapping[key] = value`, sans test de présence.
+- Preuve (essais sur une copie) :
+  - `level: N1` suivi de `level: N3` dans `EXP-01` : « 191 notions (91 N1, 80 N2, 20 N3) […] 0 erreur(s), 0 avertissement(s) » ; la notion est comptée N3 ;
+  - un second bloc `notions:` ajouté à la fin de `lec.yaml` avec une seule notion : « 188 notions […] 0 erreur(s), 0 avertissement(s) ». LEC-01 à LEC-04 ont disparu sans message, parce qu'aucune n'est notion clé ni dans un jalon.
+- Quand cela arrive : un bloc recopié, une fusion de branches résolue à la main, un champ ajouté sans voir qu'il existe déjà plus bas. Les fichiers actuels n'ont aucune clé en double (le témoin et les comptes de la section « Vérifié » le montrent).
+- Correction proposée : dans `referentiel.load_yaml`, un chargeur dérivé de `yaml.SafeLoader` dont `construct_mapping` refuse une clé déjà vue, avec le fichier et la ligne (une dizaine de lignes, sans dépendance nouvelle).
+
+### RST-05 · à améliorer · Le champ `since` et la règle du numéro Y ne sont contrôlés par rien
+
+- Endroit : `CHANGELOG.md`, l. 8 ; `schemas/domaine.schema.json`, l. 78, `situations.schema.json`, l. 52, `retired.schema.json`, l. 18 ; `docs/lire-le-referentiel.md`, l. 15 ; `README.md`, l. 11 ; `data/situations.yaml`, l. 3.
+- Ce qui est écrit : `CHANGELOG.md`, l. 8 : « Y : version du référentiel, celle du champ `since` des notions et des situations. Y augmente quand une notion ou une situation est ajoutée, retirée ou reclassée (niveau, notions clés) ; les nouveautés prennent alors `since: v0.Y`. » Les schémas ne contrôlent que la forme (`^v[0-9]+\.[0-9]+$`). `scripts/changelog.py` ne lit pas `data/`.
+- Preuve (essais sur une copie, tous acceptés avec « 0 erreur(s), 0 avertissement(s) ») : une notion nouvelle `EXP-15` avec `since: v0.1` ; la même avec `since: v9.9` ; `since` de `EXP-01` changé de `v0.1` en `v0.3`.
+- État réel, juste : 162 notions `v0.1` et 29 `v0.2`, 38 situations `v0.1` et 11 `v0.2` ; les 29 et les 11 sont exactement celles que `REPRISE.md` (section 9) dit ajoutées à la v0.2 (section « Vérifié »).
+- Trois imprécisions autour de la règle :
+  - `retired.yaml` a aussi un champ `since` obligatoire, qui y vaut la version du retrait (`MAP-13`, `since: v0.2`), alors que `docs/lire-le-referentiel.md`, l. 15, ne définit `since` que comme la « version qui a introduit la notion » ; les champs de `retired.yaml` ne sont décrits nulle part ;
+  - d'après la règle, le référentiel est à la version 0.3 depuis la version 0.3.0 (retrait du champ `version` : toutes les notions reclassées en V1) ; `README.md`, l. 11, écrit encore « référentiel v0.2 », et aucune notion ne porte `since: v0.3`, ce qui est juste puisque rien n'a été ajouté ;
+  - le champ `activity` n'est pas dans la liste « (niveau, notions clés) » : LUM-02 est passée en activité (`activity: true`, commit `9182e02`, 10 novembre 2026) sans changer Y. La règle ne dit pas si c'est un reclassement.
+- Correction proposée : avec l'option `--base` de RST-03, deux contrôles : un identifiant déjà présent dans la base garde son `since` ; un identifiant nouveau porte le Y de la version en tête de `CHANGELOG.md`. Dans `docs/lire-le-referentiel.md` : une ligne pour `retired.yaml` (`since` = version du retrait) et une pour dire si `activity` compte comme un reclassement (Julien tranche). `README.md` : « référentiel v0.3 », ou sans numéro.
+
+### RST-06 · à améliorer · Niveau des situations : un écart à la règle n'est qu'un avertissement, un champ `notes` quelconque le fait taire, et `level` peut dépasser `level_max`
+
+- Endroit : `scripts/validate.py`, l. 104-113 ; `data/situations.yaml`, l. 3 ; `.github/workflows/validate.yml`, l. 26-27.
+- Ce qui est écrit : `data/situations.yaml`, l. 3 : « Niveau d'entrée = niveau médian des notions clés (médiane haute). level_max = plus haut niveau des notions clés. […] Règle par défaut v0.2, ajustable à la main avec une raison dans notes. » Le code : `if actual != expected and not s.get("notes"): warn(...)`.
+- Preuve (essais sur une copie) :
+  - niveau de `NET-01` changé de N1 en N3, situations non recalculées : quatre avertissements, code de sortie 0 ; l'étape de la CI passe au vert, l'avertissement n'est lisible que dans son journal ;
+  - `SIT-01` avec `level: N3` et `level_max: N1` : un avertissement, code 0 ;
+  - la même avec `notes: ["x"]` : aucun message. N'importe quelle note, même sans rapport avec le niveau, vaut dérogation.
+- État réel, juste : les 49 situations suivent la règle (recalcul par script, 0 écart) et aucune n'a de champ `notes` : la dérogation n'a jamais servi.
+- Correction proposée : en faire une erreur tant qu'aucune situation n'y déroge ; `level` supérieur à `level_max` toujours refusé ; si une dérogation devient nécessaire, un champ dédié (`level_reason`) plutôt que `notes`.
+
+### RST-07 · à améliorer · Les listes n'ont pas de contrôle de doublon : un renvoi répété fausse les comptes, une notion clé répétée déplace le niveau d'une situation
+
+- Endroit : `schemas/domaine.schema.json`, l. 42-45 et 65-72 ; `schemas/situations.schema.json`, l. 41-50 ; `scripts/validate.py`, l. 175-177 (doublons contrôlés pour les jalons seulement).
+- Preuve (essais sur une copie) :
+  - `EXP-01` avec `situations: [SIT-07, SIT-07, SIT-18]` : « 0 erreur(s), 0 avertissement(s) », et `coverage.py` affiche « Renvois notion → situation : 382, dont 181 sans retour » au lieu de 381 et 180 ;
+  - `SIT-04` avec `key_notions: [LUM-07, MAP-06, COU-03, COU-03, COU-03]` : la médiane passe de N1 à N2, `validate.py` ne donne qu'un avertissement de niveau (code 0), sans dire qu'une notion est répétée ;
+  - une source répétée dans `sources` : acceptée.
+- Correction proposée : `"uniqueItems": true` sur les six listes d'identifiants des schémas (`situations` et `sources` d'une notion, `sources` d'un domaine, `key_notions` et `sources` d'une situation, `situations` et `notions` d'un jalon). Le contrôle écrit à la main pour les jalons (`validate.py`, l. 175-177) devient inutile.
+
 ### RST-11 · à améliorer · `docs/lire-le-referentiel.md` ne décrit pas tous les fichiers ni tous les champs que les schémas acceptent
 
 - Endroit : `docs/lire-le-referentiel.md`, l. 3, 13, 17, 19 ; `schemas/`.
@@ -181,6 +185,14 @@ Non relues : hôte non joignable d'ici.
 - Ce qui est juste : les onze champs d'une notion et les six champs d'une source sont décrits, avec le même sens que dans les schémas ; les deux règles de la fin (l. 23-24) sont celles que `validate.py` applique.
 - Correction proposée : cinq lignes à ajouter (situation, jalon, domaine, identifiants retirés, fiches relues), la l. 13 nuancée (« ou dont le simulateur est reporté »), la l. 3 datée de la dernière mise à jour.
 
+### RST-12 · à améliorer · Deux cas où un script s'arrête sur une trace Python au lieu d'un message
+
+- Endroit : `scripts/referentiel.py`, l. 26-28 ; `scripts/coverage.py`, l. 91.
+- Preuve (essais sur une copie) :
+  - `data/relecture.yaml` avec `date: 2026-13-45` : `validate.py` et `coverage.py` s'arrêtent sur « ValueError: month must be in 1..12 », levée par PyYAML pendant la lecture, sans nom de fichier ni de ligne dans un message du projet. Le code de sortie est 1 : la faute ne passe pas, mais le message n'aide pas ;
+  - une notion qui renvoie à une situation absente : `validate.py` le dit (« EXP-01 : situation SIT-99 inexistante »), `coverage.py` s'arrête sur « KeyError: 'SIT-99' ». La CI lance `validate.py` d'abord (`validate.yml`, l. 26-27 puis 30-31) : sans effet tant que l'ordre tient.
+- Correction proposée : dans `referentiel.load_yaml`, attraper l'erreur de lecture et la redonner avec le chemin du fichier ; rien à changer dans `coverage.py`, sinon une ligne dans son en-tête (« suppose un référentiel validé »).
+
 ## Périmètre : 191 notions et 49 situations
 
 Question posée : est-ce tenable et utile pour un débutant, ou faut-il regrouper, retirer, reporter ? Rien n'est retiré ici ; ce qui suit donne des comptes et des propositions, que Julien tranche. Scripts : `perimetre.py`, `renvois.py`, `liste.py`.
@@ -189,7 +201,7 @@ Question posée : est-ce tenable et utile pour un débutant, ou faut-il regroupe
 
 `docs/cadrage.md`, principe du 10 novembre 2026, Julien : « Ça s'adresse à des débutants/néophyte. […] Je ne veux pas transformer les gens en professionnel de la photo, mais en des gens qui maîtrise le fonctionnement du boîtier et des bases de la photographie. »
 
-Le périmètre, lui, date du 7 novembre : « garde tout » (29 notions et 11 situations ajoutées d'un coup, `REPRISE.md`, section 9), puis « Plus de découpage V1/V2 ». D'après `docs/lire-le-referentiel.md`, l. 26, son ampleur est celle d'un cours d'université (source non relue : hôte non joignable). Le référentiel n'a pas été repassé au crible du critère du 10 novembre : aucun commit ne change une notion, un niveau ou une situation depuis l'extraction (section « Vérifié »).
+Le périmètre, lui, date du 7 novembre : « garde tout » (29 notions et 11 situations ajoutées d'un coup, `REPRISE.md`, section 9), puis « Plus de découpage V1/V2 ». D'après `docs/lire-le-referentiel.md`, l. 26, son ampleur est celle d'un cours d'université (source non relue : hôte non joignable). Le référentiel n'a pas été repassé au crible du critère du 10 novembre : aucun commit n'ajoute, ne retire ni ne reclasse une notion ou une situation depuis l'extraction (section « Vérifié »).
 
 ### Les comptes
 
@@ -230,7 +242,7 @@ Aucun de ces groupes n'est une erreur du référentiel : ce sont des notions jus
 | Groupe | Notions | Situations touchées | Pourquoi le critère les désigne |
 | --- | --- | --- | --- |
 | A. Niveau N3, « avancé » | 19 | 11 situations perdent une partie de leurs notions clés, aucune ne les perd toutes | `docs/lire-le-referentiel.md`, l. 11 : « N3 avancé » ; le critère vise les bases |
-| B. Domaine RET, retouche | 15 (5 N1, 9 N2, 1 N3) | 3 (SIT-30, SIT-32, SIT-36) | hors du boîtier ; demande un second outil (« mini-développeur intégré », introduction du domaine) ; RET-01 et RET-02 déjà reportées en V2 ; 12 sur 15 ne sont notion clé de rien |
+| B. Domaine RET, retouche | 15 (5 N1, 9 N2, 1 N3) | 3 (SIT-30, SIT-32, SIT-36) | hors du boîtier ; demande un second outil (« mini-développeur intégré », introduction du domaine) ; la correction de la photo après la prise (RET-01, RET-02) est déjà reportée en V2 ; 12 sur 15 ne sont notion clé de rien |
 | C. Périmètres ajoutés le 7 novembre : drone, sous l'eau, restauration | 4 (PLA-09, COU-09, LUM-18, RET-15) | 2 (SIT-41, SIT-42) | pratiques à part ; SIT-41 et la décision « reflex et hybrides uniquement » sont du même jour, et aucun champ de SIT-41 ne dit quel appareil vole |
 | A, B et C réunis | 35 (RET-10, LUM-18 et RET-15 sont dans deux groupes) | 13 situations touchées en partie, 36 intactes | reste : 156 notions (86 N1, 70 N2) |
 | D. Notions N2 jamais notion clé, hors A, B et C | 25 | aucune | à réexaminer une par une : rien ne les rattache à une situation |
@@ -263,8 +275,14 @@ Points contrôlés et justes.
 - Ordre des domaines de `referentiel.py` (`DOMAIN_ORDER`) : celui de la section 4 de `REPRISE.md`.
 - Les fautes demandées par la mission sont refusées par `validate.py`, avec un message qui nomme l'endroit : identifiant en double (notion, situation, jalon, identifiant retiré ; une notion recopiée dans un autre domaine) ; renvoi vers une notion ou une situation absente (notion clé, champ `situations`, jalon, `merged_into`) ; notion clé retirée ; notion clé sans renvoi retour ; niveau inconnu ; champ manquant (`since`, `spec.exercise`, `title.en`, `situations`) ; champ inconnu ; source absente de `data/sources.yaml` (notion, domaine, situation) ; notion sans situation ni `practice_outside` ; situation citée par aucune notion ; notion clé absente du jalon ; doublon dans un jalon ; nom de fichier différent du domaine ; fiche relue inexistante ou listée deux fois. Seule faute de la liste qui passe : la fiche sans notion (RST-02).
 - `requirements.txt` : PyYAML 6.0.3 et jsonschema 4.26.0 existent sur PyPI, sous licence MIT d'après leurs métadonnées (lues le 14 novembre 2026) ; ce sont les versions installées ici.
+- Schémas : les six schémas des données sont des schémas valides du brouillon 2020-12 qu'ils déclarent (`Draft202012Validator.check_schema`), celui que `validate.py` emploie.
+- Identifiants cités dans le dépôt (`citations.py`) : 2 962 mentions d'un identifiant de notion ou de situation dans les fichiers suivis par git, hors `docs/audit/` ; 241 identifiants distincts, tous dans le référentiel, sauf `MAP-13`, cité six fois comme identifiant retiré (`REPRISE.md`, `docs/historique.md`, `retired.yaml`, et la note de fusion de MAP-08).
+- Règles de `docs/lire-le-referentiel.md`, l. 23-24, et commentaire de `data/jalons.yaml`, l. 2 : ce sont celles que `validate.py` applique (essais B7 et J3 de `injection.py` : notion clé sans renvoi retour, notion clé absente du jalon).
 
 ## Je ne sais pas
 
 - Les identifiants entre la v0.1 et la v0.2 : la v0.1 n'est pas dans le dépôt (le premier commit porte déjà la v0.2). Qu'aucun identifiant n'ait été renuméroté avant le 7 novembre 2026 n'est pas vérifiable ici ; les comptes sont cohérents avec le récit de `REPRISE.md` (163 − 1 + 29 = 191).
 - « Le squelette reprend l'ampleur du cours de photographie numérique de Marc Levoy à Stanford » (`docs/lire-le-referentiel.md`, l. 26) : source non relue : hôte non joignable (les deux adresses citées).
+- Si 191 notions et 49 situations sont utiles à un débutant : aucun test avec des débutants n'a eu lieu, et les données ne le disent pas. Les comptes de la section « Périmètre » montrent ce que le critère du 10 novembre désigne, pas ce qu'un débutant en retire.
+- Combien de temps demanderait le référentiel entier : je ne sais pas le déduire de sept jours de travail d'un agent ; ni le temps de relecture, ni celui des scènes ne sont mesurés.
+- SIT-41, « Paysage vu d'un drone » : aucun texte lu ici ne dit si l'appareil d'un drone entre dans « reflex et hybrides uniquement ». La question est posée à Julien (section « Périmètre », groupe C), sans affirmation de ma part.
