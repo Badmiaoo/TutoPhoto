@@ -49,7 +49,7 @@ Non relues :
 
 ## Parties du périmètre pas encore traitées
 
-À ce stade de l'écriture : workflows de la CI (permissions, déclencheurs, ce qu'obtient un contributeur extérieur), licences des dépendances, `docs/licences.md` et `docs/publication.md` phrase par phrase, question de Renderpeople. Cette liste est mise à jour à chaque envoi.
+À ce stade de l'écriture : ce qu'obtient un contributeur extérieur par une pull request, licences des dépendances, `docs/licences.md` et `docs/publication.md` phrase par phrase, question de Renderpeople. Cette liste est mise à jour à chaque envoi.
 
 ## Constats
 
@@ -91,6 +91,7 @@ Non relues :
 - Ce qui est écrit : « `scripts/check_public.py` cherche ces informations dans tous les fichiers suivis par git et dans les messages de tous les commits, et vérifie les adresses des auteurs et des committers. »
 - Preuve (essais sur le clone, résultat « 0 problème(s) » à chaque fois) :
   - un fichier `docs/essai.gif` dont les premiers octets contiennent un octet nul, puis une adresse électronique et un chemin macOS en clair : ignoré comme binaire (l. 105). Une photo avec ses métadonnées (auteur, numéro de série, position GPS) passerait de la même façon ;
+  - un fichier de texte enregistré en UTF-16, avec une adresse électronique et un chemin macOS : ignoré lui aussi, car cet encodage met un octet nul après chaque lettre (essai du 14 novembre 2026, second clone) ;
   - un fichier dont le nom contient une adresse électronique : le nom n'est pas lu ;
   - un commit dont le nom d'auteur contient un nom et un numéro de téléphone : seul le champ de l'adresse est lu (`%ae`, `%ce`) ;
   - une étiquette annotée dont le message contient une adresse électronique, et une autre créée avec une adresse personnelle : ni le message ni l'adresse du créateur d'une étiquette ne sont lus.
@@ -150,6 +151,41 @@ Non relues :
   4. `verified` : une vraie date, pas dans le futur (`datetime.date.fromisoformat`).
 
   Le cas 6 ne se contrôle que par un nouveau téléchargement : à refaire à la main quand une scène change, comme ici.
+
+### LIC-06 · à améliorer · `scripts/check_public.py` : ce qu'une pull request tolère pour elle-même, et ce que le script refuse à tort
+
+- Endroit : `scripts/check_public.py`, l. 35-39 (`ALLOWED_EMAIL`), l. 52-56 et 64 (motifs), l. 79-84 et 125 (tolérances) ; `scripts/check_public_historique.txt` ; `docs/publication.md`, l. 29.
+- Ce qui est écrit : `docs/publication.md` : « le contrôle tolère ce seul problème dans ces seuls commits ». En-tête de la liste : « tout nouveau commit est contrôlé ».
+- Preuve 1, la liste des tolérances n'est pas figée (essai sur un clone, le 14 novembre 2026) :
+  1. un commit A dont le message porte une ligne « Claude-Session » avec un lien de session fabriqué : `python3 scripts/check_public.py --commits all` répond « 1 problème(s) » ;
+  2. un commit B qui ajoute l'empreinte de A à `scripts/check_public_historique.txt` : « 178 fichier(s) texte, 326 commit(s) contrôlé(s) : 0 problème(s) ».
+
+  La liste est lue dans la copie de travail (l. 76 et 81-84), donc dans la pull request elle-même. « Ces seuls commits » ne tient qu'à la relecture de ce fichier. État réel : la liste a 28 lignes, toutes des commits d'avant la version 0.3.9 (voir « Vérifié »).
+- Preuve 2, refus à tort (script `essai_check_public.py`, 53 lignes fabriquées). Les lignes sont décrites, pas recopiées : la première rédaction de ce constat les citait, et le script d'envoi de ce rapport, qui appelle `scan_text`, a refusé le fichier pour cinq d'entre elles. C'est la preuve la plus directe du constat.
+  - un nombre précédé du signe plus et écrit avec des espaces de milliers (un million de photons, douze millions et demi d'électrons) : « numéro de téléphone international » (l. 56) ;
+  - un identifiant de dix chiffres qui commence par zéro : « numéro de téléphone » (l. 55) ;
+  - un nom d'image pour écran dense, formé d'un nom, d'une arobase, de « 2x » et de l'extension `.png` : « adresse électronique » (l. 64 : rien n'exclut une extension de fichier) ;
+  - un exemple de code où une clé d'API reçoit, entre guillemets, un texte d'attente en majuscules : « secret écrit en clair » (l. 52-54) ;
+  - toute adresse sous le domaine de Google Docs, même la page d'accueil du service : « lien vers une ressource privée » (l. 59) ;
+  - une adresse « noreply » de GitHub formée du seul pseudo, sans numéro devant : refusée, le motif de la l. 36 exige un nombre, le signe plus, puis le pseudo. Je ne sais pas si GitHub attribue encore cette forme (page non relue).
+- Pourquoi cela compte : il n'existe aucun moyen d'excepter une ligne d'un fichier. La seule tolérance porte sur les messages de 28 commits. Un refus à tort se règle donc en reformulant le texte, ou en modifiant le motif pour tout le dépôt. État réel : aucun refus à tort aujourd'hui (« 177 fichier(s) texte, 324 commit(s) contrôlé(s) : 0 problème(s) »).
+- Correction proposée :
+  1. tolérances : n'accepter une empreinte de la liste que si le commit est un ancêtre du commit de fusion de la version 0.3.9, écrit en dur dans le script (`git merge-base --is-ancestor`). La liste ne peut alors plus s'allonger sans que le script change, ce qui se voit à la relecture ;
+  2. téléphones : pour le motif international, refuser les groupes de trois chiffres répétés (`\d{3}(?: \d{3})+`), qui sont des milliers ; garder le motif français ;
+  3. adresses : exclure les correspondances dont la fin est une extension d'image (`.png`, `.jpg`, `.webp`, `.svg`) ;
+  4. une liste d'exceptions pour les fichiers, de la même forme que celle des commits (chemin, type de problème), vide au départ et soumise à la même relecture.
+
+### LIC-07 · à améliorer · `tag.yml` et `pages.yml` peuvent être lancés à la main sur une autre branche que `main`
+
+- Endroit : `.github/workflows/tag.yml`, l. 3-6 et 34 ; `.github/workflows/pages.yml`, l. 3-6 ; `scripts/changelog.py`, l. 114-118 et 171-189.
+- Ce qui est écrit : `tag.yml`, l. 6 : « relance à la main, par exemple après un échec » ; l. 8 : « Seul ce workflow écrit dans le dépôt : il crée des tags et des releases, rien d'autre. » `CHANGELOG.md`, l. 3 : le tag est posé « sur le commit de fusion ».
+- Preuve :
+  - un lancement à la main se fait sur la branche choisie : pour `workflow_dispatch`, `GITHUB_SHA` vaut « Last commit on the `GITHUB_REF` branch or tag » et `GITHUB_REF` « Branch or tag that received dispatch » (`events-that-trigger-workflows.md`, dépôt `github/docs`, commit `d59b263`). Aucune condition des deux workflows ne limite le job à `main` ;
+  - `introducing_commit` cherche le commit dans `HEAD` (l. 116-117), pas dans `main`. Essai sur un clone de la branche de l'audit, sans rien écrire (`python3 scripts/changelog.py tag`) : « v0.3.58 -> ba9cd33 (Audit du travail antérieur : règle de reprise et outillage) ». `ba9cd33` est le premier commit de la branche, pas un commit de fusion ;
+  - `tag_on_github` ne crée un tag que s'il manque, et ne le déplace jamais (l. 173-189). Un lancement à la main sur une branche de travail poserait donc `v0.3.58` et sa release sur un commit de la branche, pour de bon : après la fusion, le workflow trouverait le tag déjà là.
+  - `pages.yml` : même déclencheur. Je ne sais pas si l'environnement `github-pages` du dépôt refuse les déploiements venus d'une autre branche : ce réglage ne se lit pas depuis la session.
+- Qui peut le faire : seulement un compte qui a le droit d'écrire dans le dépôt, donc Julien ou Claude. Ce n'est pas une faille ouverte à un tiers, c'est un geste à ne pas rater.
+- Correction proposée : une ligne dans chaque workflow, `if: github.ref == 'refs/heads/main'` sur le job `tag` et sur le job `build`. Le comportement ne dépend alors plus d'un réglage du dépôt.
 
 ## Vérifié
 
