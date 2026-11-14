@@ -344,6 +344,26 @@ Lus dans le code, sans essai. Aucun ne justifie une pull request à lui seul ; �
 - point 4 : ne rien changer. L'appel à `restoreView()` dit ce qu'il fait et coûte une matrice par photo ; le retirer ferait dépendre la remise de la projection d'un effet de bord de `setEnabled` ;
 - point 5 : ne retirer que la clé `meter`. Les trois `export` ne coûtent rien, et ARC-05 recommande des tests rapides des formules, dont la pénombre de LUM-02, qui importeront `shadow`.
 
+### COD-14 · faux · Écran de revue : après « Photo entière », la loupe n'agrandit pas le point touché mais un point de l'ancienne fenêtre (ajouté à la contre-vérification)
+
+- Endroit : `app/src/ui/shutter.ts`, l. 155, 441-461, 463-473 et 539-542.
+- Ce qui est écrit : `shutter.ts`, l. 463 : « Toucher la photo, ou la fenêtre de la loupe : fenêtre à 100 % centrée sur le point touché. » `docs/camera-physique.md`, l. 245 : « toucher la fenêtre la recentre ; « Photo entière » revient à la photo ».
+- Ce qui est fait : `magnify` lit le point touché selon `this.loupe` : si une fenêtre de loupe est en mémoire, le toucher est pris pour une position dans cette fenêtre (l. 471-473). Or « Photo entière » appelle `showWhole` (l. 155), qui remet la photo entière à l'écran sans vider `this.loupe` : seuls `showFrame` (l. 429) et `magnify` (l. 489) appellent `dropLoupe`. Après « Photo entière », l'image affichée est la photo entière, et le toucher suivant est converti comme s'il portait sur l'ancienne fenêtre.
+- Preuve (essai `r14_photo_entiere.cjs`, 14 novembre 2026, fenêtre de 1280 × 800 px, Z 6, réglages par défaut ; la fenêtre de la loupe fait 1256 × 466 px ; vignettes de 6 × 4 cases, écart moyen de luminance par case) :
+
+  | Suite de gestes | Ce que montre la fenêtre de la loupe |
+  | --- | --- |
+  | R : photo neuve, toucher à 90 % de la largeur et de la hauteur | le sol couvert de feuilles, en bas à droite de la photo |
+  | A : photo neuve, toucher à 10 % et 10 % | des branches, en haut à gauche |
+  | B : après A, « Photo entière », puis toucher à 90 % et 90 % | des branches : la zone de A, décalée ; écart de 15,7 niveaux par case avec R |
+
+  Les deux photos entières, elles, ne diffèrent que de 4,0 niveaux par case (les sujets bougent). Captures : `r14-R.png`, `r14-A.png`, `r14-B.png`.
+- Calcul d'après le code, image de 6066 × 4039 px (`sensorPixels` du Z 6) : la fenêtre A commence à gauche 0, haut 0,1 × 4039 − 233 = 171. Le toucher de B est lu comme le point (0 + 0,9 × 1256) / 6066 = 0,186 en largeur et (171 + 0,9 × 466) / 4039 = 0,146 en hauteur, d'où une fenêtre à gauche 502, haut 357 : 502 px à droite et 186 px sous celle de A. La fenêtre attendue pour un toucher à 90 % est à gauche 4810, haut 3402. La capture de B montre bien la zone de A décalée de cet ordre (la branche oblique de droite de A est au milieu de B).
+- Conséquence : c'est la suite de gestes ordinaire pour contrôler la netteté à deux endroits d'une photo (deux visages du groupe de SIT-05) : agrandir, revenir à la photo entière, agrandir ailleurs. Le second agrandissement montre un voisin du premier ; le débutant juge la netteté d'un autre endroit que celui qu'il a touché, et rien ne le lui dit. La routine ne joue qu'une loupe par photo (`scripts/test_app.cjs`, l. 751-753).
+- Ce que je ne sais pas : si un vrai téléphone se comporte de même ; rien dans ce chemin ne dépend du rendu ni du toucher.
+- Périmètre : code du 9 et du 10 novembre 2026 (`git blame`), dans le lot. Aucune autre page du dépôt ne le dit.
+- Correction proposée : dans `showWhole`, vider la fenêtre de la loupe (`this.dropLoupe()`, qui libère aussi son adresse) ; un contrôle de plus dans la routine : deux loupes séparées par « Photo entière », la seconde montre le point touché. Non essayée.
+
 ## Vérifié
 
 Points contrôlés et justes.
