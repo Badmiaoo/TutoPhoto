@@ -177,6 +177,12 @@ Une fois ces lignes ôtées, plus rien ne contredit une autre page : ce sont des
   - `docs/historique.md`, l. 198-199, range de même la version 0.3.53 au 11 novembre, avant la demande de la nuit, alors qu'elle a été fusionnée après ; l. 207 écrit « Version 0.3.57 fusionnée » au 13 novembre, ce qui est juste.
 - Correction proposée : écrire dans l'en-tête du changelog ce qu'est la date (« date de la fusion, en heure de Paris ») et corriger les trois titres ; ou faire écrire la date par `scripts/changelog.py` au moment du tag. Pour les trois tags : voir CHX-10.
 
+**Contre-vérification : confirmé**, à la gravité la plus basse ; correction à corriger. Refait avec mon propre script (`dates_versions.py`) : 64 sections, 60 tags sur GitHub, tous annotés et posés sur une fusion à deux parents ; trois titres datés de la veille de la fusion (0.3.37, 0.3.53, 0.3.57), les 57 autres du jour même en UTC comme à Paris. L'écart est de quelques heures (fusions à 0 h 33, 5 h 54 et 6 h 08 UTC, sections écrites la veille au soir) ; la version 0.3.57 est du 13 novembre, hors de la période. Les deux corrections proposées créent un défaut :
+- corriger les trois titres : la date du titre est recopiée dans le message du tag annoté et dans le nom de la release (`scripts/changelog.py`, `tag_message` et l. 195 ; lus le 14 novembre 2026 : tag `v0.3.37`, « Version 0.3.37 - 2026-11-10 », release « v0.3.37 - 2026-11-10 », publiée le 11 à 0 h 33 UTC). Un tag publié ne se réécrit pas : le changelog ne dirait plus la même date que ses tags ;
+- faire écrire la date au moment du tag : le tag se pose après la fusion, il faudrait donc un commit du workflow sur `main`, que la règle du dépôt interdit ; et « date de la fusion » obligerait à redater toute section écrite le soir et fusionnée après minuit.
+
+À faire : une phrase dans l'en-tête du changelog, « la date est celle du jour où la section est écrite ; la date de la fusion est celle du tag », et rien d'autre. Pour `docs/historique.md`, l. 198-199 : pas d'erreur ; l'entrée rapporte la demande de Julien du 11 novembre au soir (commit 19a744b, 21 h 52 UTC), dans l'ordre des faits, sans dater la fusion. Les trois tags absents sont dans CHX-10.
+
 ### DOC-07 · à améliorer · Phrases et en-têtes périmés dans les pages de cadrage : ce qui est annoncé comme à venir est fait, ou ne s'est pas fait
 
 - Endroit et preuve :
@@ -192,6 +198,13 @@ Une fois ces lignes ôtées, plus rien ne contredit une autre page : ce sont des
 
 - Correction proposée : corriger ces six endroits dans la pull request qui réécrira ces pages (ARC-09, CHX-01) ; pour la couverture, soit l'afficher sur l'accueil (le nombre sort de `coverage.py`), soit écrire « affiché dans le dépôt ».
 
+**Contre-vérification : confirmé**, pour trois lignes du tableau sur six, à la gravité la plus basse. Restent : l'en-tête de `docs/cadrage.md` (l. 3 ; deux sections ajoutées le 10 novembre par les commits ebe5c06 et 9182e02), la phrase de `docs/contenus.md`, l. 77 (le simulateur existe ; la limite qu'elle annonce, une brique comptée par la présence d'une section, vaut toujours), et la promesse de `docs/architecture.md`, l. 5, qui est déjà dans ARC-09 (à compter une fois). À retirer :
+- `docs/cadrage.md`, l. 41 : la ligne vient de `REPRISE.md` (l. 200) et définit ce que « 100 % » veut dire ; c'est un objectif du cadrage que le site ne tient pas encore, pas une phrase périmée. Écrire « affiché dans le dépôt » changerait cet objectif, ce qui revient à Julien ; afficher la couverture sur l'accueil est une fonction à mettre dans la file, pas une correction de documentation ;
+- les numéros de section : l'en-tête de `docs/lire-le-referentiel.md` nomme `REPRISE.md` (« Repris de la section 3 de `REPRISE.md` »), et la l. 7 de `docs/historique.md` est dans la partie que son en-tête dit « copiée sans réécriture » : les numéros sont ceux de l'archive, par construction ;
+- `docs/historique.md`, l. 3 : faux. Après le trait de la l. 38, le titre de la l. 40 est « 7 novembre 2026 : session 1 (après REPRISE.md) » : la suite se dit bien postérieure à l'archive.
+
+Correction : les deux retouches (en-tête du cadrage, phrase des contenus) au passage, dans la pull request qui reprend ces pages ; rien à part.
+
 ### DOC-08 · à améliorer · Trois phrases prêtent à Julien plus que les mots que le dépôt rapporte de lui
 
 - Limite : la conversation n'est pas dans le dépôt. Ce constat compare chaque attribution à ce que `docs/historique.md` et les messages de commit en gardent ; il ne dit pas que Julien n'a pas dit ou validé ces points.
@@ -201,6 +214,13 @@ Une fois ces lignes ôtées, plus rien ne contredit une autre page : ce sont des
   3. `docs/pile-technique.md`, l. 87, section « Outillage de l'application » : « Décidé par Julien le 7 novembre 2026 » (TypeScript, Vite). `docs/historique.md`, l. 76 à 79, donne les mêmes choix sans dire qui les a faits, là où les entrées voisines écrivent « Julien passe le dépôt en public » ou « Décision de Julien » ; les messages des commits de la version 0.3.5 (c85c9bb, 88bebca, 69e2bc5) n'en disent rien.
 - Juste, pour comparaison : les autres attributions contrôlées ont leur trace dans `docs/historique.md`, souvent avec les mots de Julien (voir « Vérifié »). Les lectures de Claude sont dites comme telles à deux endroits : « "1,2,3" est comprise comme "les trois" » (l. 121) et « Claude le comprend comme la levée […] de l'attente des tests » (l. 199).
 - Correction proposée : dans `CLAUDE.md`, séparer la citation de sa mise en règle (« Julien, 9 novembre 2026 : "…" ; règle qu'en tire Claude : … ») ; dans le changelog et la pile technique, écrire ce qui a été validé au juste, ou demander à Julien de confirmer. Pour la suite : noter dans `docs/historique.md` les mots de Julien pour chaque décision, comme c'est fait depuis le 9 novembre.
+
+**Contre-vérification : réfuté.** Aucune des trois attributions n'est montrée fausse (le constat l'écrit : il « ne dit pas que Julien n'a pas dit ou validé ces points »), une a sa trace mot pour mot dans une page que le constat n'a pas lue, et la correction de `CLAUDE.md` est disproportionnée.
+1. `CLAUDE.md`, l. 11 : la règle n'est pas une citation (pas de guillemets) ; « (Julien, 9 novembre 2026) » donne l'origine de la règle, comme pour les autres règles datées du fichier. Les mots exacts sont dans `docs/historique.md`, l. 154, qui ajoute « Le mot d'ordre entre dans `CLAUDE.md` (version 0.3.28) ». « Sourcé » et « dire ce qui ne l'est pas » reprennent deux règles que le fichier portait déjà avant le commit 4697d1e (« Toute affirmation factuelle est sourcée », « Ne jamais inventer […] "Je ne sais pas" ») ; rien n'y est prêté à Julien qu'il n'ait posé.
+2. `CHANGELOG.md`, version 0.3.38 : la trace existe, dans `docs/camera-physique.md`, l. 521 : « Proposés le 10 novembre 2026 avec le bilan de la V1 minimale, validés par Julien le 11 novembre (« Suivons tes propositions ») : un défi par situation, vérifié sur la photo, et un bulletin après chaque photo. » Le changelog dit les défis validés ; il ne dit pas que chaque critère l'a été un par un.
+3. `docs/pile-technique.md`, l. 87 : la phrase est elle-même la trace, écrite le jour de la décision (commit 69e2bc5, 7 novembre 2026, 15 h 50 UTC), et `CLAUDE.md` posait déjà « Proposer l'approche avant de produire ; Julien tranche ». Que `docs/historique.md` ne répète pas « Julien » pour cette entrée ne prouve rien.
+
+Rien à corriger. La conversation n'étant pas dans le dépôt, seul Julien peut dire si une attribution est fausse ; aucun élément lu ne le suggère.
 
 ### DOC-09 · à améliorer · `REPRISE.md` : l'archive ne dit pas qu'elle en est une ; son en-tête dit « Ce fichier fait foi » et ses instructions contredisent `CLAUDE.md`
 
