@@ -198,6 +198,42 @@ Ce lot est du code : il cite peu de sources extérieures.
   3. `TopView.draw` : sortir avant toute écriture quand la vue est repliée et que rien n'a changé ; garder les éléments de la carte et ne changer que leurs attributs ;
   4. `BalanceIndicator` : n'écrire un texte ou une classe que s'il diffère du précédent ; ne rien lire ni écrire quand le texte est replié et l'onglet masqué (`document.hidden`).
 
+### COD-11 · faux · Navigateur sans WebGL : le message prévu n'est jamais visible ; la page montre un rectangle gris et des éléments vides
+
+- Endroit : `app/src/main.ts`, l. 153-158 ; `app/src/style.css`, l. 81-87 et 138-143 ; `app/simulateur/index.html`, l. 26 et 100.
+- Ce qui est écrit : `i18n.ts`, clé `noWebgl` : « Ce navigateur ne permet pas d'afficher la scène 3D (WebGL indisponible). »
+- Ce qui est fait : sans WebGL, `main.ts` pose `canvas.hidden = true`, masque le panneau et montre le paragraphe `#no-webgl` (l. 154-157). Mais `style.css`, l. 138-140, donne au canevas `display: block`, qui l'emporte sur l'attribut `hidden` : le canevas garde toute la hauteur de `main` (`height: 100%`), le paragraphe, placé après lui (`index.html`, l. 100), est poussé sous le bas de `main`, qui coupe ce qui dépasse (`overflow: hidden`, l. 86). La feuille de style corrige ce même piège pour treize autres sélecteurs (`.review[hidden]`, `.progress[hidden]`, `.balance[hidden]`…, l. 166 à 886), pas pour `#scene`.
+- Preuve (essais 8 et 8b, 14 novembre 2026 ; `getContext` rend `null` pour `webgl` et `webgl2`) :
+
+  | Profil | Fenêtre | Canevas (`hidden`, `display` calculé, haut et bas) | Message `#no-webgl` (haut et bas) |
+  | --- | --- | --- | --- |
+  | Ordinateur | 1280 × 800 px | `true`, `block`, de 51 à 800 px | de 816 à 868 px : sous le bas de la fenêtre |
+  | Pixel 7 émulé | 412 × 839 px | `true`, `block`, de 100 à 839 px | de 855 à 927 px : sous le bas de la fenêtre |
+
+  Sur la capture (`essai8-ordinateur.png`), la bande où le message devrait être est d'une seule couleur (écart type 0 sur les trois canaux). Restent à l'écran : le voile du cadre du viseur sur toute la zone, le triangle de l'indicateur d'équilibre sans texte, la boîte de la vue de dessus vide avec deux boutons sans texte, le repère de mise au point, et, dans l'en-tête, le bouton « Défis » sans texte, qui n'ouvre rien (ces composants ne sont créés que dans la branche avec WebGL, `main.ts`, l. 159-314).
+- Conséquence : la personne dont le navigateur n'a pas WebGL ne lit aucune explication. La routine a un profil sans WebGL 2, pas de profil sans WebGL.
+- Correction proposée : `#scene[hidden] { display: none; }` dans `style.css` ; dans la branche sans WebGL, masquer aussi `#frame`, `#af-coverage`, `#focus-marker`, `#balance`, `#top-view` et `#challenge-button` (ou poser une classe sur `body` et une règle qui masque tout `main` sauf `#no-webgl`) ; un contrôle de plus dans la routine (le texte du message est visible : `elementFromPoint` en son centre le rend).
+
+### COD-12 · à améliorer · Contexte WebGL perdu : rien n'est dit, et après la restauration les objets 3D sont de 5 à 10 % plus sombres
+
+- Endroit : `app/src/main.ts`, l. 168 et 315-330 (aucun abonnement à `engine.onContextLostObservable` ni à `onContextRestoredObservable`) ; `app/src/scene.ts`, l. 196-205.
+- Ce qui est fait : Babylon.js gère lui-même la perte et la restauration du contexte ; le code de TutoPhoto ne s'en occupe pas. Pendant la perte, le viseur est figé sans message.
+- Preuve (essais 5, 5b et 5c, 14 novembre 2026 ; perte forcée par l'extension `WEBGL_lose_context`, restauration 3 s plus tard) :
+  - ce qui revient : le viseur, l'indicateur du viseur, l'indicateur d'équilibre, une photo (16 rendus, 9,8 s), et le bruit du viseur à ISO 6400 (écart type par canal 1,21 ; 0,90 ; 1,65 avant, les mêmes valeurs après) ;
+  - ce qui change : la moyenne des pixels sur des objets immobiles, aperçus du bruit et de la profondeur de champ coupés (essai 5c) :
+
+    | Relevé | Veste de Dennis | Dos de Fabienne | Banc | Fond (haut du cadre) |
+    | --- | --- | --- | --- | --- |
+    | Avant la perte | 117,31 | 75,82 | 81,13 | 46,16 |
+    | 20 s plus tard, sans perte (témoin) | 117,31 | 75,82 | 81,19 | 46,16 |
+    | 20 s après la restauration | 111,83 | 68,40 | 76,79 | 46,16 |
+    | Rapport après / avant | 0,953 | 0,902 | 0,947 | 1,000 |
+
+    Le fond (photo à 360°) est inchangé ; les objets éclairés par le fichier HDR perdent de 5 à 10 %. La console porte, à la restauration : « WebGL: INVALID_OPERATION: texImage2D: type HALF_FLOAT_OES but ArrayBufferView is not NULL and not Uint16Array » ; la texture d'éclairage est en demi-flottants (`type` 2).
+- Ce que je ne sais pas : la cause exacte (quelle partie de la texture d'éclairage n'est pas reconstruite) ; la fréquence d'une perte de contexte sur un téléphone (onglet en arrière-plan, mémoire graphique) ; ce que fait une perte pendant le calcul d'une photo, non essayé ; si un vrai processeur graphique donne le même écart que le rendu logiciel.
+- Ce que cela coûte : une exposition des sujets décalée de log₂(0,90) = −0,15 IL au plus, sans que rien ne le dise, jusqu'au rechargement de la page.
+- Correction proposée : s'abonner aux deux événements du moteur ; à la perte, afficher un message (« Affichage interrompu… ») ; à la restauration, recréer la texture d'éclairage (`environment.dispose()`, puis une nouvelle `HDRCubeTexture`), ou proposer de recharger la page. À vérifier avec l'essai 5c : rapports revenus à 1,000.
+
 ## Vérifié
 
 À compléter.
