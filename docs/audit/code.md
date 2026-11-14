@@ -302,6 +302,22 @@ Correction essayée, ce que l'audit laissait à faire : sur une troisième copie
   3. `TopView.draw` : sortir avant toute écriture quand la vue est repliée et que rien n'a changé ; garder les éléments de la carte et ne changer que leurs attributs ;
   4. `BalanceIndicator` : n'écrire un texte ou une classe que s'il diffère du précédent ; ne rien lire ni écrire quand le texte est replié et l'onglet masqué (`document.hidden`).
 
+**Contre-vérification : réfuté.** Exagéré : les comptes sont justes, le coût avancé ne se retrouve pas à la mesure, et la correction va contre ARC-06. Comptes refaits (`r10_cout.cjs`, 14 novembre 2026, 20 s au repos par mode) : 5 écritures par passage pour la vue de dessus repliée, 10 dépliée, 9 pour l'équilibre, 24 en AF-C, comme l'audit. Le seul dommage avancé est le recalcul des styles et de la mise en page « en concurrence avec le rendu du viseur » ; l'audit ne le mesure pas. Chromium le compte (`Performance.getMetrics`, écart entre le début et la fin des 20 s) :
+
+| Profil | Mode | Écritures | Recalcul des styles | Mise en page | Part des 20 s |
+| --- | --- | --- | --- | --- | --- |
+| Ordinateur, 1280 × 800 px | AF-S | 446 | 35 fois, 4,8 ms | 35 passes, 17,5 ms | 0,11 % |
+| Ordinateur, 1280 × 800 px | AF-C | 971 | 35 fois, 4,4 ms | 35 passes, 19,3 ms | 0,12 % |
+| Pixel 7 émulé | AF-S | 347 | 30 fois, 3,5 ms | 30 passes, 5,0 ms | 0,04 % |
+| Pixel 7 émulé | AF-C | 1 074 | 48 fois, 3,2 ms | 48 passes, 10,9 ms | 0,07 % |
+
+- Ces durées couvrent toutes les écritures de la page, utiles ou non. Passer d'AF-S à AF-C ajoute 525 à 727 écritures pour 1,4 à 5,7 ms en 20 s : les 20 écritures par passage dans la fenêtre « Mise au point », fermée, ne coûtent presque rien.
+- Ce que la mesure ne dit pas : en rendu logiciel, les minuteries ne passent que 1,2 fois par seconde. Une passe de styles et de mise en page coûte ici de 0,28 ms (profil Pixel 7 : 8,4 ms / 30) à 0,68 ms (ordinateur : 23,7 ms / 35) ; à la cadence prévue par le code, il y en aurait au plus 3,3 + 4 + 5 = 12,3 par seconde, soit 3,4 à 8,4 ms par seconde, moins de 1 % du temps, sur cette machine. Le rapport de vitesse avec le téléphone de Julien : je ne sais pas.
+- ARC-06, confirmé, demande de mesurer avant d'optimiser (« Optimiser sans mesurer. Risque : optimiser ce qui ne coûte pas ») : la correction proposée ajoute des conditions dans quatre fichiers pour un coût que rien n'établit.
+- Elle porte un risque : en zone automatique, le repère suit l'œil ou le visage à chaque mesure (`shutter.ts`, l. 203-212, appelé par `autofocus.onChange`) ; un `notify()` retenu tant que la distance affichée ne change pas figerait ce repère sur un sujet qui se déplace à distance constante.
+
+À ne pas corriger. À reprendre seulement si la mesure d'ARC-06 (voie B), sur le téléphone de Julien, montre un coût ; ce que ces écritures font aux lecteurs d'écran relève de `docs/audit/interface.md`.
+
 ### COD-05 · à améliorer · Rafale : si une vue échoue en cours de série, le message d'erreur est aussitôt remplacé par la première vue réussie
 
 - Endroit : `app/src/ui/shutter.ts`, l. 341-395 et 518-525.
