@@ -3,7 +3,7 @@
 - Date : 14 novembre 2026.
 - Demande : Julien, le 12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent, et le modifier si nécessaire ; le 13 novembre : finir l'audit et pousser le résultat.
 - Rapport écrit par un agent de Claude. **État : constats non contre-vérifiés.**
-- Bilan : 17 constats (aucun « faux », 5 « incohérent », 1 « non sourcé », 11 « à améliorer »), 57 points vérifiés et justes, 14 « Je ne sais pas ». Aucune affirmation de photographie contraire à une source lue n'a été trouvée dans les textes ; une se lit de travers faute de dire d'où l'angle se mesure (OPT-12, REF-15), et une ne vaut pas pour deux des trois boîtiers lus (MES-07, REF-02). Les défauts sont ailleurs : le référentiel n'a pas suivi les fiches écrites depuis (sources, MES-07), des renvois et des notions clés manquent là où la situation en dépend (trépied, caisson étanche, verticales), huit groupes de notions se recouvrent, et quatre termes ne sont ceux d'aucun manuel.
+- Bilan : 17 constats (aucun « faux », 5 « incohérent », 1 « non sourcé », 11 « à améliorer »), 61 points vérifiés et justes, 15 « Je ne sais pas ». Aucune affirmation de photographie contraire à une source lue n'a été trouvée dans les textes ; une se lit de travers faute de dire d'où l'angle se mesure (OPT-12, REF-15), et une ne vaut pas pour deux des trois boîtiers lus (MES-07, REF-02). Les défauts sont ailleurs : le référentiel n'a pas suivi les fiches écrites depuis (sources, MES-07), des renvois et des notions clés manquent là où la situation en dépend (trépied, caisson étanche, verticales), huit groupes de notions se recouvrent, et quatre termes ne sont ceux d'aucun manuel.
 - Version auditée : copie de travail de la branche de l'audit (version 0.3.58 en cours) ; les derniers commits qui touchent `data/referentiel/` et `data/situations.yaml` datent du 11 novembre 2026.
 
 ## Périmètre
@@ -127,7 +127,7 @@ Classés par gravité, dans l'ordre des rapports précédents : « non sourcé �
 
 - Endroit : `data/referentiel/boi.yaml`, l. 82-90 (BOI-09, « Mode manuel », N1).
 - Ce qui est écrit : explication, « Tout fixer soi-même : lumière stable, panorama, nuit » ; exercice, « Série d'un concert à lumière changeante ».
-- Preuve : les deux phrases, à quatre lignes d'écart. L'explication donne trois cas d'usage ; l'exercice en prend un quatrième, qui est le contraire du premier. Aucune source n'est citée pour l'un ni pour l'autre. Le manuel du Z 6 dit seulement : « M Manual: You control both shutter speed and aperture. Set shutter speed to “bulb” or “time” for long time-exposures. » (`…/z7_z6/en/06_shooting_controls_01.html`).
+- Preuve : les deux phrases, à deux lignes d'écart (l. 86 et 88). L'explication donne trois cas d'usage ; l'exercice en prend un quatrième, qui est le contraire du premier. Aucune source n'est citée pour l'un ni pour l'autre. Le manuel du Z 6 dit seulement : « M Manual: You control both shutter speed and aperture. Set shutter speed to “bulb” or “time” for long time-exposures. » (`…/z7_z6/en/06_shooting_controls_01.html`).
 - Je ne sais pas si le mode manuel est conseillé pour un concert : aucune source lue ne le dit.
 - Correction proposée : un exercice tiré de l'explication, par exemple « Garder la même exposition sur les cinq vues d'un panorama » (BOI-09 est notion clé de SIT-30, « Panorama ») ; ou bien ajouter le concert à l'explication, avec une source.
 
@@ -365,6 +365,13 @@ Autres domaines :
 - OPT-17 : Wikipedia, « Entrance pupil », révision 1378470579, « the camera must be rotated around the center of the entrance pupil to avoid parallax errors in the final, stitched panorama ».
 - RET-14 : Wikipedia, « Posterization », révision 1369953124, « may occur when the color depth, sometimes called bit depth, is insufficient to accurately sample a continuous gradation of color tone ».
 
+Exercices chiffrés, refaits par script (`exercices.py` ; cercle de confusion de 0,029 mm, plein format, celui de la source `wikipedia-circle-of-confusion`) :
+
+- NET-03, « Paysage net de 1,5 m à l'infini » : il faut une hyperfocale de 3 m (Wikipedia, « Hyperfocal distance », révision 1382493010 : « all objects at distances from half of the hyperfocal distance out to infinity will be acceptably sharp »), soit f/3 au 16 mm, f/6,7 au 24 mm, f/14 au 35 mm : faisable au grand-angle.
+- MAP-16, « Régler une zone nette de 2 à 5 m » : 1/2 − 1/5 = 2/H donne une hyperfocale de 6,67 m et une mise au point à 2,86 m, soit f/4,1 au 28 mm et f/6,4 au 35 mm : faisable.
+- MVT-07, « Poser 30 s en plein jour » : depuis f/16, 1/100 s et ISO 100 en plein soleil (règle citée au constat REF-07 pour EXP-11), 30 s demandent 3000 fois moins de lumière, soit 11,55 IL. Un filtre de 10 IL donne 10 s à f/16 et 20 s à f/22 : l'exercice n'est faisable en plein soleil qu'avec plus de 10 IL de filtre, ou sous un ciel moins lumineux. À dire dans l'exercice quand il sera écrit.
+- BOI-22, « Date, fuseau, auteur, géolocalisation, microprogramme, réinitialisation » : ces réglages existent dans le menu Configuration du Z 6, en cinq lignes (« Fuseau horaire et date », « Informations de copyright », « Données de position », « Version du firmware », « Réinitialiser tous les réglages »).
+
 ## Je ne sais pas
 
 - MAP-14, « le limiteur accélère l'AF sur les sujets lointains » : la seule source de la notion décrit le limiteur d'un bridge (constat SRC-07 du rapport `sources.md`), et sa phrase est conforme (« focus more quickly on distant subjects by keeping it from focusing on subjects at close distances », guide du DSC-RX10M4, relu). Je ne sais pas ce que fait le limiteur d'un objectif de reflex ou d'hybride, ni s'il sert aussi en macro (MAP-14 est notion clé de SIT-22) : aucun manuel d'objectif à limiteur n'a été trouvé sur les hôtes joignables.
@@ -375,6 +382,7 @@ Autres domaines :
 - EXP-09, « L'écart en IL entre la saturation du capteur et son plancher de bruit » : pas de source dans la notion ; l'article « Dynamic range » de Wikipedia (révision 1384581363) donne la définition générale (« the ratio between the largest and smallest measurable values »), pas celle-ci mot pour mot.
 - EXP-13, « le JPEG, limité à 8 bits par couche » : source citée (`cic-bit-depth`) non relue, hôte non joignable ; aucune page lue ne le dit.
 - EXP-14, BOI-28, MVT-12, RET-10, COU-05 : sources citées non relues (hôtes non joignables) ; texte non vérifié.
+- MVT-09, « règles empiriques » et exercice « Pose maximale au 14 mm, puis au 50 mm » : la règle n'est pas nommée ; si c'est celle « des 500 », elle donnerait 35,7 s et 10 s (calcul), mais aucune page lue ne la donne (elle n'est pas dans l'article « Astrophotography » de Wikipedia, révision 1384698105). La notion a déjà un `todo`.
 - SIT-29, « Depuis un train ou un avion », notion clé OPT-12 (polarisant) : Wikipedia, « Polarizing filter (photography) », montre le verre trempé d'une lunette arrière de voiture vu à travers un polarisant (« Variations in glass stress are clearly seen when photographed through a polarizing filter »). Je ne sais pas si les vitres d'un train ou d'un avion font de même : pas de source lue. À vérifier avant d'écrire la recette.
 - SIT-21, « Feux d'artifice », notion clé MES-09 (posemètre en manuel) : je ne sais pas si l'échelle d'exposition sert en pose B devant un ciel noir ; les pages lues ne le disent pas.
 - SIT-14, « Brouillard et temps couvert » : une de ses trois notions clés est EXP-12 (« Exposer à droite », N3) ; ni MES-03 ni MES-04 n'y renvoient. Je ne sais pas si le brouillard trompe la cellule comme la neige : pas de source lue.
