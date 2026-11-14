@@ -156,6 +156,48 @@ Ce lot est du code : il cite peu de sources extérieures.
 - Conséquence : en triant une rafale (c'est l'usage annoncé, `shutter.ts`, l. 12), on peut regarder à 100 % une autre vue que celle que le compteur désigne, et juger nette la mauvaise.
 - Correction proposée : à la reprise de `magnify`, jeter le résultat si l'écran de revue a été fermé ou si la vue a changé (`if (this.el.review.hidden || this.shots[this.shotIndex] !== shot) { URL.revokeObjectURL(photo.url); return; }`) ; ou griser les boutons de l'écran de revue pendant le calcul, comme ceux du panneau.
 
+### COD-09 · faux · Rafale au doigt : un glissement de 20 px du doigt sur le déclencheur arrête la rafale, doigt encore posé
+
+- Endroit : `app/src/ui/shutter.ts`, l. 139-146 ; `app/src/style.css`, l. 138-143 et 506-516.
+- Ce qui est écrit : `docs/camera-physique.md`, l. 436 : « tant que le déclencheur reste appuyé, une vue par intervalle ». `shutter.ts`, l. 139-141 : le pointeur est capturé à l'appui pour que « le relâchement arrive au bouton ».
+- Ce qui est fait : la fin de la rafale est liée à trois événements, dont `pointercancel` (l. 146). Le canevas a `touch-action: none` (`style.css`, l. 142), pas le déclencheur (l. 506-516 : valeur par défaut, `auto`). Dans l'essai, quand le doigt se déplace de 20 px sur le bouton, Chromium prend le geste (défilement) et envoie `pointercancel` à la page, bien qu'elle ne défile pas ; la capture du pointeur n'y change rien.
+- Preuve (essai 4, 14 novembre 2026, profil Pixel 7 émulé, 412 × 839 px, page non défilable : `scrollHeight` = `clientHeight` = 839 ; Continu L à 5 vues par seconde ; touchers envoyés par `Input.dispatchTouchEvent`, événements relevés sur le bouton) :
+
+  | Geste | Événements reçus par le bouton | Fin de la rafale |
+  | --- | --- | --- |
+  | doigt immobile 7,9 s | `pointerdown`, puis `pointerup` et `lostpointercapture` au lever du doigt | au lever du doigt (4 vues) |
+  | doigt posé, puis glissé vers le haut par pas de 5 px | `pointerdown`, quatre `pointermove`, puis `pointercancel` et `lostpointercapture` après le quatrième pas (20 px) | au `pointercancel` : le bouton revient à « Déclencher » et le calcul commence, 18,8 s avant le lever du doigt (`touchend`) |
+  | le même glissement, avec `touch-action: none` ajouté au bouton | `pointerdown`, six `pointermove`, puis `pointerup` au lever du doigt | au lever du doigt (9 vues) |
+
+  Les durées sont étirées par le rendu logiciel ; l'ordre des événements, lui, ne dépend pas de la vitesse.
+- Conséquence : en rafale, le doigt tient le déclencheur pendant que l'autre main suit le sujet ; un glissement de 20 px (3 mm sur un écran à 160 px CSS par pouce) coupe la série sans que rien ne le dise. Le débutant voit une rafale plus courte que son appui.
+- Ce que l'essai ne dit pas : le comportement d'un vrai téléphone et de Safari, non essayés. La routine de test tient le déclencheur à la souris (`scripts/test_app.cjs`, l. 1080-1084 : `page.mouse.down()`), pas au doigt.
+- Correction proposée : `touch-action: none;` dans la règle `.shutter-button` (essayée : troisième ligne du tableau), avec `user-select: none;` et `-webkit-touch-callout: none;` contre le menu de l'appui long (non essayé, Safari n'étant pas émulé). À confirmer sur le téléphone de Julien.
+
+### COD-10 · à améliorer · Au repos, trois minuteries réécrivent de 50 à 190 fois par seconde des textes et des attributs qui n'ont pas changé
+
+- Endroit : `app/src/ui/topView.ts`, l. 80 et 101-110 ; `app/src/ui/balance.ts`, l. 74, 128, 163-168, 177-191 et 202-215 ; `app/src/camera/autofocus.ts`, l. 138-140 et 262 ; `app/src/ui/cameraPanel.ts`, l. 435 et 950-999 ; `app/src/ui/shutter.ts`, l. 158.
+- Ce qui est fait :
+  - vue de dessus : `draw()` toutes les 250 ms, repliée ou non ; repliée, elle réécrit quand même le texte et `aria-expanded` du bouton, `aria-label` de la carte, le texte et `hidden` du bouton « Retour au départ » (l. 104-109) ; dépliée, elle recrée en plus tous les éléments de la carte ;
+  - équilibre : `refresh()` toutes les 300 ms ; trois textes, trois classes et la position du point sont réécrits à chaque fois, même quand le texte est replié (petit écran) ;
+  - AF-C : toutes les 200 ms, chaque mesure aboutie appelle `notify()` (`autofocus.ts`, l. 262), que la distance ait changé ou non ; `updateFocus` réécrit alors le bouton « Mise au point », les seize textes de la fenêtre « Mise au point » (fermée), la consigne sous le viseur et l'état des quatre cases de détection (`cameraPanel.ts`, l. 950-984). Seul l'indicateur du viseur est gardé par un test (l. 995 : `if (this.el.afBadge.textContent !== text)`).
+- Preuve (essai 6, 14 novembre 2026, viseur au repos pendant 10 s, écritures comptées par un `MutationObserver` sur toute la page). En rendu logiciel, la page ne rend que 2,2 images par seconde et les minuteries ne passent que 1,1 à 1,6 fois par seconde ; ce qui se lit est le nombre d'écritures par passage :
+
+  | Composant | Écritures par passage | Cadence prévue par le code | Écritures par seconde à cette cadence |
+  | --- | --- | --- | --- |
+  | Vue de dessus repliée | 5 | 4 par seconde | 20 |
+  | Vue de dessus dépliée | 10 | 4 par seconde | 40 |
+  | Équilibre, replié ou non | 9 | 3,3 par seconde | 30 |
+  | Autofocus en AF-C | 24 | 5 par seconde | 120 |
+
+  Soit, à la cadence prévue : 50 par seconde sur un téléphone en AF-S (tout replié), 70 sur un ordinateur en AF-S, 170 à 190 en AF-C. Comptes bruts de l'essai, en 10 s : 156 à 228 en AF-S, 538 à 585 en AF-C.
+- Ce que cela coûte : chaque écriture d'un texte remplace un nœud et invalide la mise en page de son élément ; pour les éléments visibles (bouton « Mise au point », consigne, boutons de la vue de dessus), le navigateur recalcule styles et mise en page à l'image suivante, en concurrence avec le rendu du viseur. Le coût en millisecondes sur un téléphone : je ne sais pas, il n'est pas mesuré (ARC-06 le dit pour toute la boucle). Ces écritures touchent aussi des éléments lus par les lecteurs d'écran (`aria-label`, `aria-expanded`), ce qui relève de `docs/audit/interface.md`.
+- Correction proposée, sans changement de comportement :
+  1. `Autofocus.measure` : n'appeler `notify()` que si la distance affichée (un chiffre après la virgule), la cible ou le verrou ont changé ;
+  2. `updateFocus` : séparer les textes (à refaire au changement de langue ou de mode) de l'indicateur de distance (à chaque mesure) ;
+  3. `TopView.draw` : sortir avant toute écriture quand la vue est repliée et que rien n'a changé ; garder les éléments de la carte et ne changer que leurs attributs ;
+  4. `BalanceIndicator` : n'écrire un texte ou une classe que s'il diffère du précédent ; ne rien lire ni écrire quand le texte est replié et l'onglet masqué (`document.hidden`).
+
 ## Vérifié
 
 À compléter.
