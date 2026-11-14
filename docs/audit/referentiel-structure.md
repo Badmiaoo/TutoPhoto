@@ -205,6 +205,8 @@ Non relues : hôte non joignable d'ici.
 - Ce qui est juste : les onze champs d'une notion et les six champs d'une source sont décrits, avec le même sens que dans les schémas ; les deux règles de la fin (l. 23-24) sont celles que `validate.py` applique.
 - Correction proposée : cinq lignes à ajouter (situation, jalon, domaine, identifiants retirés, fiches relues), la l. 13 nuancée (« ou dont le simulateur est reporté »), la l. 3 datée de la dernière mise à jour.
 
+**Contre-vérification : confirmé**, à la gravité la plus basse, et correction à réduire. Relu champ par champ contre les schémas et les données : `notes` manque pour le jalon (le seul jalon s'en sert) et pour la situation (aucune ne s'en sert) ; le bloc `domain` n'est pas décrit (six domaines ont des `sources`, trois un `todo`, aucun de `notes`) ; `retired.yaml` n'y est pas, et son `since` vaut la version du retrait ; la l. 13 ne vaut pas pour LUM-02. Deux réserves. La page n'a pas changé depuis le 7 novembre 2026 (commit `90b09fe`) : sa l. 3 est exacte, il suffit d'y ajouter la date de la mise à jour à venir. Et `data/relecture.yaml` n'est pas un fichier du référentiel : il est décrit là où on le cherche (son en-tête, `docs/contenus.md`, l. 63), un renvoi suffit. Restent quatre lignes à ajouter : `notes` du jalon et de la situation (avec « `id`, `title`, `since` : comme pour une notion »), bloc `domain`, `retired.yaml`, nuance de la l. 13.
+
 ### RST-12 · à améliorer · Deux cas où un script s'arrête sur une trace Python au lieu d'un message
 
 - Endroit : `scripts/referentiel.py`, l. 26-28 ; `scripts/coverage.py`, l. 91.
@@ -212,6 +214,8 @@ Non relues : hôte non joignable d'ici.
   - `data/relecture.yaml` avec `date: 2026-13-45` : `validate.py` et `coverage.py` s'arrêtent sur « ValueError: month must be in 1..12 », levée par PyYAML pendant la lecture, sans nom de fichier ni de ligne dans un message du projet. Le code de sortie est 1 : la faute ne passe pas, mais le message n'aide pas ;
   - une notion qui renvoie à une situation absente : `validate.py` le dit (« EXP-01 : situation SIT-99 inexistante »), `coverage.py` s'arrête sur « KeyError: 'SIT-99' ». La CI lance `validate.py` d'abord (`validate.yml`, l. 26-27 puis 30-31) : sans effet tant que l'ordre tient.
 - Correction proposée : dans `referentiel.load_yaml`, attraper l'erreur de lecture et la redonner avec le chemin du fichier ; rien à changer dans `coverage.py`, sinon une ligne dans son en-tête (« suppose un référentiel validé »).
+
+**Contre-vérification : réfuté.** Exagéré : aucune faute ne passe, et la trace dit où chercher. Essais refaits (`essais.py`) : code de sortie 1 dans les deux cas. Pour la date impossible, la trace nomme le fichier à sa huitième ligne (`referentiel.py`, l. 95 : `load_yaml(root / "data" / "relecture.yaml")`) et la cause à la dernière (« month must be in 1..12 ») ; les deux seuls champs de `data/` que PyYAML lit comme des dates (`date` de `data/relecture.yaml`, `checked` de `data/sources.yaml`) sont dans des fichiers que `referentiel.load` charge par leur nom, donc que la trace nomme. Une faute de syntaxe YAML, elle, donne déjà le fichier et la ligne (essai `rst12_yaml_casse`). Pour le renvoi vers une situation absente, le constat écrit lui-même « sans effet » : `validate.py`, lancé d'abord, le dit en clair. Si `load_yaml` est repris pour RST-04, y attraper l'erreur de lecture pour redonner le chemin coûte deux lignes ; ce n'est pas un constat à part.
 
 ## Périmètre : 191 notions et 49 situations
 
@@ -248,6 +252,8 @@ Le périmètre, lui, date du 7 novembre : « garde tout » (29 notions et 11 sit
 - 181 notions demandent un simulateur, 10 une activité (`activity: true`).
 - « Sans source » : 125 notions sans champ `sources` (compte refait ici ; c'est le constat REF-07 du rapport sur le contenu).
 
+**Contre-vérification des comptes :** refaits par un script écrit pour cette vérification (`perimetre2.py`) : les treize lignes du tableau et son total, les 82 notions jamais notion clé (11, 2 et 69 ; 26 des 29 ajoutées en v0.2), les 109 notions clés (49, 38, 22), les niveaux des situations, les 56 notions clés des 20 situations d'entrée N1, les 181 simulateurs et 10 activités, les 64 versions, les 44 pages et les groupes A à D du tableau plus bas sont exacts, à l'unité.
+
 ### Ce qui est mesuré de l'avancement
 
 - Du 7 au 13 novembre 2026, 64 versions au changelog, celle en cours comprise : 13 notions couvertes sur 191 (6,8 %), 3 situations rédigées sur 49, une scène.
@@ -273,8 +279,14 @@ Les 19 notions N3 : CMP-12, COU-06, EXP-12, LUM-15, LUM-18, MAP-17, MAP-18, MAP-
 
 1. Garder les 191 identifiants et les 49 situations comme catalogue : rien à retirer, rien à renuméroter. Retirer une notion coûte une entrée dans `retired.yaml` et ne rapporte rien tant qu'aucune fiche n'existe.
 2. Ne plus mesurer l'avancement sur 191. La phrase « toutes dans le périmètre de la V1 » (RST-10) fait de 6,8 % le chiffre de référence d'un projet dont la règle est « pas d'extension au-delà de la V1 minimale avant de l'avoir testée » (`CLAUDE.md`). Le chiffre utile est celui du jalon. `docs/cadrage.md`, l. 41, veut le taux « affiché dans l'outil et dans le dépôt » : l'accueil du site affiche le nombre de fiches (`build-pages.mjs`, l. 32 : « ${s} situations et ${n} notions »), pas le taux ; « couverture » et « coverage » ne désignent, dans `app/src/` et `app/scripts/`, que la couverture de l'autofocus.
+
+   **Contre-avis :** rien à changer dans les scripts : `coverage.py` affiche déjà les deux chiffres, « 13 notion(s) sur 191 » et « 13 sur 17 » pour le jalon, dans le résumé de la CI. Le taux sur 191 est la définition de « 100 % » de `docs/cadrage.md` (l. 37-42) : choisir le chiffre mis en avant est une décision de Julien, pas une correction. Le taux « affiché dans l'outil » n'est pas fait (recherche refaite dans `app/` : les deux mots n'y désignent que la couverture de l'autofocus, et l'accueil construit sur une copie ne les contient pas) : c'est une fonction absente, à mettre dans la file de travail si Julien la veut.
 3. Découper la suite en jalons, avec le mécanisme existant (`data/jalons.yaml`, contrôlé par `validate.py`, compté par `coverage.py`). Ordre proposé, à trancher : d'abord les situations d'entrée N1 jouables dans une scène existante ; puis les 20 situations d'entrée N1 et leurs 56 notions clés ; les groupes A, B et C dans un jalon « plus tard », sans date.
+
+   **Contre-avis :** l'ordre de la suite est déjà tranché par Julien (`docs/propositions.md`, section 3, « Tranché le 11 novembre 2026 : ordre de travail retenu tel quel ») : corrections après les tests et relecture des fiches, balance des blancs, situations qui réutilisent le parc, solveur « avant de multiplier les situations », puis les scènes choisies « selon les situations de niveau N1 qu'elles débloquent ». La proposition en reprend deux étapes et saute le solveur ; et `CLAUDE.md` interdit d'étendre avant d'avoir testé la V1 minimale : un deuxième jalon se décide après ce test. Le jalon « plus tard » ne tient pas dans le mécanisme existant (essai sur une copie, `proposition3.py`) : le schéma exige au moins une situation par jalon, `validate.py` exige toutes les notions clés de chaque situation listée, et aucune situation n'a toutes ses notions clés dans les groupes A, B et C (SIT-41 demande PLA-04 et MES-08, SIT-42 demande COU-02). Il faudrait changer le schéma et la règle, pour rétablir sous un autre nom le découpage que Julien a retiré le 7 novembre 2026, et sortir du périmètre ce qu'il y a fait entrer le même jour (`docs/cadrage.md`, l. 46 : drone, sous l'eau, restauration) : à lui poser comme une question, sans rien écrire dans `data/` avant sa réponse.
 4. Regrouper : rien à proposer ici au-delà de ce que le rapport sur le contenu a établi (REF-16 : quatre situations `SIT-V2-NN` doublent une situation du catalogue ; REF-13, sur huit groupes de notions voisines, a été réfuté à la contre-vérification).
+
+   **Contre-avis :** REF-16 a été réfuté lui aussi à la contre-vérification du rapport sur le contenu : les sept identifiants `SIT-V2-NN` restent. Il n'y a donc rien à regrouper.
 5. Avant d'ajouter une notion ou une situation : le critère du 10 novembre, écrit dans `docs/lire-le-referentiel.md` avec une définition de N1, N2 et N3 qui permette de classer (aujourd'hui trois mots).
 
 ## Vérifié
