@@ -30,13 +30,13 @@ Scripts et pages enregistrées : dossier `audit/documentation/` du bloc-notes de
 
 ## Sources
 
-Voir la section « Sources relues » en fin de rapport (remplie au fur et à mesure).
+Liste des pages relues : section « Sources relues », en fin de rapport. Les étiquettes, commits, dates et licences des moteurs, les versions du registre npm, le tableau du vocabulaire des marques de `docs/architecture.md` et le diamètre apparent du Soleil ont déjà été vérifiés par `sources.md` : non refaits.
 
 Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le site publié (`badmiaoo.github.io`), la documentation de GitHub (`docs.github.com`), la page du cours de Marc Levoy (`graphics.stanford.edu`, `sites.google.com`), les manuels de Fujifilm (`fujifilm-dsc.com`), ManualsLib, OpenGameArt, et les sites juridiques cités par `docs/architecture.md`.
 
 ## Reste à couvrir
 
-(Tenu à jour à chaque envoi.) Au deuxième envoi : sections 6 à 8 de `REPRISE.md` ; README confrontés à l'organisation du dépôt ; petites inexactitudes de `CHANGELOG.md`, `docs/historique.md` et `docs/pile-technique.md` ; classement final des constats.
+(Tenu à jour à chaque envoi.) Au troisième envoi : classement final des constats et relecture ; voir aussi, plus bas, ce qui n'a pas été couvert.
 
 ## Constats
 
@@ -61,6 +61,7 @@ Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le 
   | Ligne | Écrit | Dépôt |
   | --- | --- | --- |
   | 9 | « État au 8 novembre 2026 » | La l. 13 décrit la version 0.3.57 (histogrammes de l'écran de revue, fusionnée le 13 novembre) ; le titre n'a pas changé depuis la version 0.3.9. |
+  | 11 | « référentiel v0.2 » ; en anglais « curriculum v0.2 » | `CHANGELOG.md`, l. 8 : « Y : version du référentiel ». Y vaut 3 depuis la version 0.3.0, qui a retiré le champ `version` des 191 notions et des 49 situations : d'après la règle du dépôt, le référentiel est en v0.3. « v0.2 » reste juste pour le champ `since` (162 notions `v0.1`, 29 `v0.2`). |
   | 11 | « 96 sources » | `python3 scripts/validate.py` : « 172 sources ». Nombre d'entrées de `data/sources.yaml` aux tags : 96 de `v0.3.9` à `v0.3.11`, 107 à `v0.3.12`, 151 à `v0.3.53`, 172 à `v0.3.57`. Le nombre est faux depuis le 8 novembre (version 0.3.12). |
   | 13 | « quatre personnages » ; en anglais « four people » | Quatre modèles, cinq personnes : Dennis, Sophia, Nathan, et « Fabienne & Percy 001 - Mother and Child » (`app/public/scenes/parc/scene.json`), dont le défi SIT-05 compte les deux (« Dennis, Sophia, Fabienne et Percy dans la zone nette », `CHANGELOG.md`, version 0.3.38). |
   | 13 | « dans la zone couverte par l'autofocus (environ 90 % du cadre) » | Vrai pour le Nikon Z 6 seulement : 88 % × 100 % pour le Canon EOS RP (version 0.3.43), environ 96,4 % × 96,4 % pour le Sony A7 III (version 0.3.45). |
@@ -68,7 +69,7 @@ Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le 
   | 13 | « les fiches de 19 notions (les 16 de la V1 minimale, CMP-02, MES-06 et MES-07) » | Le jalon `v1-min` a 17 notions, CMP-02 comprise, depuis la version 0.3.56 (`data/jalons.yaml`) : 17 notions du jalon, plus MES-06 et MES-07. |
 
 - Juste dans la même phrase : 191 notions, 13 domaines, 49 situations ; « couverture 13 sur 191 » ; « Pas encore de flou de bougé ».
-- Correction proposée : remplacer le titre et les deux puces chiffrées par un état court qui ne se périme pas à chaque version (« État : voir `docs/etat-des-travaux.md` ; comptes : `python3 scripts/coverage.py` »), ou, si l'état reste dans le README, dater le titre du jour de la dernière version et corriger les six points. Écrire « quatre modèles de personnages (cinq personnes) ».
+- Correction proposée : remplacer le titre et les deux puces chiffrées par un état court qui ne se périme pas à chaque version (« État : voir `docs/etat-des-travaux.md` ; comptes : `python3 scripts/coverage.py` »), ou, si l'état reste dans le README, dater le titre du jour de la dernière version et corriger les sept points. Écrire « quatre modèles de personnages (cinq personnes) ».
 
 ### DOC-03 · faux · `docs/etat-des-travaux.md` : « Les commits d'avant le 12 novembre 2026 avaient Julien pour committer et n'étaient pas signés »
 
@@ -172,6 +173,32 @@ Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le 
 - Conséquence : faible tant que le lecteur passe par `CLAUDE.md` ; réelle pour qui ouvre le fichier seul (il fait 3 554 lignes et commence par des consignes à l'impératif), et pour `scripts/extract_reprise.py`, qui réécrirait `data/` d'après lui (CHX-06).
 - Correction proposée : trois lignes en tête de `REPRISE.md` (« Archive du 7 novembre 2026. Ne fait plus foi : règles dans `CLAUDE.md`, données dans `data/`, décisions dans `docs/historique.md`. Section 0 : instructions de la première session, périmées. »). Le fichier a déjà été modifié une fois ; « gardé tel quel » (README) devient « gardé comme archive, avec un avertissement en tête ».
 
+### DOC-10 · incohérent · « Scènes en 3D de synthèse » : la page des décisions ne porte pas celle du 8 novembre, qui met une photo réelle à 360° derrière les sujets
+
+- Endroit : `docs/cadrage.md`, l. 5 et 26 ; `CLAUDE.md`, l. 3 ; `README.md`, l. 12 ; `README.en.md`, l. 12.
+- Ce qui est écrit : « Scènes en 3D de synthèse dès la V1, à la place des photos réelles et de leur carte de profondeur (2.5D) » (`docs/cadrage.md`, l. 26, décisions du 7 novembre) ; « Scènes en 3D de synthèse » (`CLAUDE.md`, README).
+- Preuve : `docs/historique.md`, l. 101, 8 novembre : « Décision de Julien : le fond et l'éclairage viennent d'une photo à 360° (autumn_hockey, de Greg Zaal, CC0). En 3D, seulement le premier plan : personnages, chien, banc, poubelles. Pas d'arbre 3D en V1. » `docs/questions-ouvertes.md`, l. 12, le redit. `docs/cadrage.md` a des sections pour les 6, 7 et 10 novembre, aucune pour le 8 : les mots « photo à 360° » n'y sont pas, ni dans `CLAUDE.md`. Seul `README.md`, l. 13, écrit « fond photo à 360° », une ligne sous « Scènes en 3D de synthèse ».
+- Conséquence : la scène de la V1 minimale n'est pas « à la place des photos réelles » ; elle en garde une, avec ce que cela limite et que d'autres pages disent (fond à l'infini, perspective qui ne change pas quand l'appareil se déplace : `docs/propositions.md`, l. 81 ; hautes lumières du fond écrêtées : `docs/questions-ouvertes.md`, l. 24). Qui lit le cadrage ou `CLAUDE.md` seuls ne le sait pas. C'est aussi un écart au mot d'ordre de `CLAUDE.md`, l. 11 : dire ce qui n'est pas réaliste.
+- Correction proposée : dans `docs/cadrage.md`, une section « Décision du 8 novembre 2026 » (fond et éclairage tirés d'une photo à 360°, premier plan en 3D, pour la scène de parc ; la question reste ouverte pour les scènes suivantes) ; dans `CLAUDE.md` et les README, « sujets en 3D de synthèse devant une photo à 360° (scène de parc) ».
+
+### DOC-11 · à améliorer · `README.md` : le tableau du dépôt oublie `content/` et quatre parties de `docs/`, et l'état ne dit rien de quatre fonctions du site
+
+- Endroit : `README.md`, l. 13 et 17 à 27 ; `README.en.md`, mêmes lignes.
+- Preuve (tableau « Contenu du dépôt ») :
+  - `content/` n'a pas de ligne : c'est là que sont les 44 fiches (19 notions et 3 situations, en deux langues). Le dossier n'apparaît qu'à la l. 65, sous « Licence ». `.github/` et `requirements.txt` n'en ont pas non plus.
+  - Ligne `docs/` : la liste nomme onze pages et omet `docs/etat-des-travaux.md`, que `CLAUDE.md`, l. 6, donne comme le point de reprise, ainsi que `docs/audit/`, `docs/dossiers/` et `docs/specifications/`.
+  - Ligne `scripts/` : « Extraction, validation, couverture et contrôles (scènes 3D, dépôt public, changelog) » ; la routine de test, `scripts/test_app.cjs`, que `CLAUDE.md`, l. 30, impose à toute pull request qui touche `app/`, n'y est pas. La section « Contribuer » (l. 52 à 60) ne la cite pas non plus.
+- Preuve (l. 13, ce que fait le site et que la phrase ne dit pas) : le choix du boîtier de référence, six boîtiers en deux formats, qui change le champ, le bruit et la zone de l'autofocus (`app/src/camera/bodies.ts`, « Boîtier de référence » dans `app/src/i18n.ts`, l. 29) ; l'activité interactive de LUM-02 (version 0.3.50) ; les trois portes de l'accueil (version 0.3.46) ; le bouton « Télécharger les ressources du simulateur » (version 0.3.51).
+- Correction proposée : ajouter au tableau `content/`, `.github/` et `requirements.txt` ; écrire la ligne `docs/` par familles (« état des travaux, cadrage et décisions, technique, audit, dossiers de sources, spécifications ») plutôt que page par page ; nommer la routine de test dans la ligne `scripts/` et dans « Contribuer ». Pour l'état : voir DOC-02 (un état court qui renvoie au site et à `docs/etat-des-travaux.md`).
+
+### DOC-12 · à améliorer · Petites inexactitudes
+
+- `docs/pile-technique.md`, l. 94, et `docs/historique.md`, l. 144 : « les 34 Mo de la scène ». Le manifeste totalise 36 012 290 octets, soit 34,3 Mio ou 36,0 Mo ; le dépôt écrit ailleurs « Mio » (`CHANGELOG.md`, versions 0.3.9, 0.3.10 et 0.3.51 ; l'interface). Écrire « 34 Mio ».
+- `docs/questions-ouvertes.md`, l. 58 : la vitesse du chien « compte pour le flou de bougé de SIT-06 » ; l. 89 : « flou de bougé et de sujet ». La vitesse du chien règle la traînée du sujet (MVT-01), pas le bougé, mot que le dépôt garde pour le mouvement de l'appareil (« bougé de la main », `docs/cadrage.md`, l. 14 ; « Pas encore de flou de bougé », `README.md`, l. 13). Écrire « la traînée du chien dans SIT-06 ».
+- `docs/propositions.md`, l. 74 : « finir la relecture des 19 fiches ». Juste le 11 novembre (16 notions et 3 situations) ; il y en a 22 par langue depuis la version 0.3.57, et aucune n'est relue (`data/relecture.yaml` : `relues: []`).
+- `docs/etat-des-travaux.md` (écrit après la période auditée) : la légende de la file (l. 62) définit un état « Écrit : le code existe sur la machine de Claude, pas encore dans le dépôt », qu'aucune ligne ne porte, et la l. 87 garde deux travaux « faits cette nuit sur la machine de Claude », alors que la règle du 13 novembre, en tête du même fichier (l. 11), l'interdit ; l'étape 3 de « Comment reprendre » (l. 103) envoie encore au « premier sujet "Écrit" ou "À faire" de la file », que le point du 13 novembre remplace.
+- `docs/historique.md`, l. 206 (écrit après la période auditée, le 13 novembre à 5 h 40 UTC, commit 1987654) : « la limite hebdomadaire d'usage du modèle de Claude est atteinte, jusqu'au 14 novembre à 1 h UTC ». La branche de l'audit a reçu 67 commits le 13 novembre entre 6 h et 23 h UTC, et `docs/etat-des-travaux.md`, l. 13, place la suspension par une « limite propre au modèle utilisé » vers 23 h UTC ce jour-là. Je ne sais pas laquelle des deux pages décrit ce qui s'est passé ; elles ne disent pas la même chose.
+
 ## Vérifié
 
 - Liens internes : 16 liens relatifs dans les fichiers du lot, aucun cassé ; 506 chemins cités entre accents graves, 16 absents du dépôt, tous expliqués par leur phrase (`NOTICE.md` de Babylon.js, `docs/v2-3d.md` et `docs/audit/fiches.md` dits retirés, `docs/audit/README.md` annoncé comme à venir, `data/vocabulaire.yaml` et `content/fr/notions/EXP-01.md` donnés en exemple) (`liens.py`).
@@ -193,6 +220,15 @@ Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le 
 - `docs/propositions.md` : Wikipedia (source secondaire), « Umbra, penumbra and antumbra », révision 1379008615, lue le 14 novembre 2026 : « the region in which only a portion of the light source is obscured by the occluding body » et « for a collimated beam (such as a point source) of light, only the umbra is cast ». Guide Lowel de Tiffen : le soleil « so far away, it appears smaller », « the entire white cloudy sky is now the light source », « the reflector's surface becomes the light source ». Diamètre apparent du Soleil : vérifié par `sources.md`.
 - Décisions rapportées avec leur trace dans `docs/historique.md` : forme B de l'indicateur d'équilibre et « suivons ta reco » (l. 150-151), modes de zone et détection des yeux (l. 153-154), principe du 10 novembre (l. 159 ; `docs/cadrage.md`, l. 9), découpage du 10 novembre (l. 169-173), couverture de l'autofocus et partage égal pour l'A7 III (l. 185-190), plan des écrans (l. 191), propositions du 11 novembre (l. 194), densité du viseur (l. 197-198), grilles (l. 203). Les dates des règles de `CLAUDE.md` (7, 8, 9, 10 et 11 novembre) sont celles de ces entrées et de `CHANGELOG.md`.
 - Pull request 59 (version 0.3.53), lue sur GitHub : résultats de la routine reportés, limites de l'émulation dites, pas de lien de session (`CLAUDE.md`, l. 18 et 30).
+- Releases : 60 releases sur GitHub, une par tag, de `v0.2.3` à `v0.3.57`, chacune publiée dans la minute qui suit sa fusion (`CHANGELOG.md`, l. 3).
+- Nombres de sources annoncés par le changelog : 78 à la version 0.2.0, puis 3, 1, 8, 3 et 3 sources ajoutées (versions 0.3.2 à 0.3.6), soit 96 ; onze à la version 0.3.12 (107), neuf à la version 0.3.13 (116), dix et onze aux versions 0.3.56 et 0.3.57 (151, puis 172) : ce sont les nombres d'entrées de `data/sources.yaml` aux tags.
+- `CHANGELOG.md`, tailles de la scène : dossier `app/public/scenes/parc` de 19 258 444 octets à `v0.3.9` (« 18,4 Mio ») et de 36 029 661 octets à `v0.3.10` (« 34,4 Mio ») ; cinq fichiers `license.txt` dans le manifeste (version 0.3.55).
+- `docs/historique.md`, l. 133, contre `app/src/camera/photo.ts`, l. 44-47 : copies espacées de 4 px au plus, de 16 à 256 rendus, 5 s au plus.
+- `docs/etat-des-travaux.md`, l. 71 : `whiteBalanceEnabled`, `temperature` et `tint` existent dans `imageProcessingConfiguration.pure.js` de Babylon.js 9.35.0 ; l. 18 : 123 constats confirmés et 20 réfutés, sommes refaites sur les neuf rapports cités.
+- `REPRISE.md`, section 7 : 92 notions en N1, 80 en N2, 19 en N3 ; 381 renvois, dont 180 sans retour ; 82 notions clés d'aucune situation : ce sont les nombres que rend `scripts/coverage.py` aujourd'hui. Les sections 4, 5 et 10 (données) relèvent des rapports sur le référentiel et les sources.
+- « Pas d'emoji » (`CLAUDE.md`, l. 13) : aucun dans les fichiers suivis (recherche des plages Unicode des émojis dans les `.md`, `.ts`, `.mjs`, `.yaml`, `.html`, `.py`).
+- `docs/propositions.md`, l. 76 à 83 : SIT-28, SIT-V2-02 et SIT-V2-06 portent les titres cités ; SIT-04, SIT-23 et SIT-39 sont de niveau N1 et se passent près d'une fenêtre (`data/situations.yaml`).
+- `README.md`, l. 56 : le manifeste `scene.json` porte, pour chaque élément, ses auteurs, sa licence, et pour chaque fichier sa taille et son empreinte.
 
 ## Je ne sais pas
 
@@ -203,3 +239,21 @@ Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le 
 - Les limites de GitHub Pages (1 Go, 100 Go par mois, 10 minutes) : `docs.github.com` n'est pas joignable ; `sources.md` a vérifié que la page existe au commit cité, pas ces valeurs.
 - Le cours de Marc Levoy cité par `docs/lire-le-referentiel.md`, l. 26, et Benny the Rottweiler sous CC BY-SA 3.0 (`docs/historique.md`, l. 103) : hôtes non joignables.
 - Les mesures faites sur le téléphone de Julien ou sur la machine de Claude (0,8 s et 2,0 s, 53 minutes, 324 fichiers, tailles et vitesses mesurées dans les animations, island_tree_01 simplifié à 157 494 triangles) : non refaites.
+
+## Sources relues
+
+Toutes lues le 14 novembre 2026. Fichiers sous `pages/` du dossier de l'audit, dans le bloc-notes de la session.
+
+| Source | Adresse lue | Fichier (`pages/`) |
+| --- | --- | --- |
+| three.js, étiquette `r187` : `DepthOfFieldNode.js`, `BokehShader2.js`, `MotionBlur.js` | `https://raw.githubusercontent.com/mrdoob/three.js/r187/examples/jsm/…` | `three-*.js` |
+| Babylon.js, étiquette `9.35.0` : `thinCircleOfConfusionPostProcess.ts`, `thinMotionBlurPostProcess.ts` | `https://raw.githubusercontent.com/BabylonJS/Babylon.js/9.35.0/packages/dev/core/src/PostProcesses/…` | `babylon-*.ts` |
+| PlayCanvas, étiquette `v2.23.3` : `camera-frame.js` | `https://raw.githubusercontent.com/playcanvas/engine/v2.23.3/src/extras/render-passes/camera-frame.js` | `playcanvas-camera-frame.js` |
+| three-gpu-pathtracer, étiquette `v0.0.28` : `PhysicalCamera.js`, `README.md`, `package.json` | `https://raw.githubusercontent.com/gkjohnson/three-gpu-pathtracer/v0.0.28/…` | `pathtracer-*` |
+| Données de compatibilité de MDN, étiquette `v8.1.8` : `api/GPU.json`, `api/WebGL2RenderingContext.json` | `https://raw.githubusercontent.com/mdn/browser-compat-data/v8.1.8/api/…` | `mdn-*.json` |
+| Poly Haven, API : fiches de `island_tree_01` et de `jacaranda_tree`, liste des modèles, fichiers de `island_tree_01` ; fichier glTF 1k de `island_tree_01` | `https://api.polyhaven.com/info/…`, `https://api.polyhaven.com/assets?t=models`, `https://api.polyhaven.com/files/island_tree_01`, `https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/island_tree_01/island_tree_01_1k.gltf` | `ph-*.json`, `island_tree_01_1k.gltf` |
+| Wikipedia (source secondaire), « Umbra, penumbra and antumbra », révision 1379008615 | `https://en.wikipedia.org/w/index.php?title=Umbra,_penumbra_and_antumbra&oldid=1379008615` | `wiki-umbra-1379008615.html` |
+| Tiffen, guide Lowel, « Foundations of Lighting: Understanding Soft Light » | `https://tiffen.reamaze.com/kb/lowel-guides/foundations-of-lighting-understanding-soft-light` | `tiffen-soft-light.html` |
+| Art Adams, ProVideo Coalition, 27 décembre 2011 (page ouverte ; rien n'en est cité ici) | `https://www.provideocoalition.com/lighting_strategies_what_makes_soft_lights_cast_soft_shadows/` | `pvc-adams.html` |
+| GitHub, dépôt du projet : tags (`git ls-remote --tags origin`), releases, commits e89680d, 19a744b et 8be11bd, pull request 59 | outil GitHub de la session | (non enregistré) |
+| Babylon.js, paquet `@babylonjs/core` 9.35.0 : `Engines/abstractEngine.pure.js`, `Materials/imageProcessingConfiguration.pure.js` | `app/node_modules/@babylonjs/core/` | (dans le dépôt de travail) |
