@@ -206,6 +206,62 @@ Scripts, pages enregistrées et captures : dossier `audit/interface/` du bloc-no
 - Lien : les fiches ont le même défaut (FEX-15 et FMA-14, `docs/audit/fiches-exposition.md` et `docs/audit/fiches-mise-au-point.md`), qui renvoient ici la question de l'interface. But du projet (`CLAUDE.md`) : que le débutant maîtrise son boîtier.
 - Correction proposée, au choix de Julien : (a) le moins coûteux : une phrase dans la fenêtre « Boîtier de référence » (« La marque change le capteur, le bruit et la zone couverte par l'autofocus. Les noms des modes restent ceux de Nikon ; chez Canon, A s'appelle Av et S s'appelle Tv ; … ») et, dans la fenêtre « Exposition », les deux lettres (« A (Av chez Canon) ») ; (b) des libellés par marque pour les modes d'exposition, de mise au point et de déclenchement, chacun avec sa source (une table par marque dans `i18n.ts`) ; les cadences de rafale par boîtier demandent leurs propres sources. La voie (b) est une extension : à décider après les tests avec des débutants (`CLAUDE.md`).
 
+### INT-13 · incohérent · Routine : les profils « Android » et « iPhone » ne touchent jamais l'écran ; tous les gestes sont des clics de souris
+
+- Endroit : `scripts/test_app.cjs`, l. 9-11 (« Les profils mobiles émulent la taille d'écran, le toucher et l'identification du navigateur ») ; l. 85-91 (profils) ; les 109 appels à `page.click`, `page.mouse.*`, `page.check` et `selectOption` ; `CLAUDE.md`, section « Dépôt » (« Ces tests émulent l'écran, le toucher et le navigateur »).
+- Ce qui est fait : les profils `devices["Pixel 7"]` et `devices["iPhone 14"]` déclarent un écran tactile (`hasTouch`), mais la routine n'appelle jamais `page.tap` ni `page.touchscreen` (`grep -c "\.tap(\|touchscreen" scripts/test_app.cjs` : 0). Les touchers du viseur, le glissé qui relève l'appareil (l. 972-977) et l'appui tenu sur le déclencheur (l. 1080-1084) passent par `page.mouse`.
+- Preuve (essai, `toucher.cjs`, profil « iPhone 14 », Playwright 1.63.0, page de l'activité LUM-02) : type du pointeur reçu par la page.
+
+  | Appel | Événements reçus |
+  | --- | --- |
+  | `page.click` | `pointerdown` de type `mouse`, `mousedown` |
+  | `page.mouse.click` | `pointerdown` de type `mouse`, `mousedown` |
+  | `page.tap` | `pointerdown` de type `touch`, `touchstart`, `mousedown` |
+
+  Sur ce profil, `navigator.maxTouchPoints` vaut 1 : l'écran tactile est déclaré, mais aucun doigt ne s'y pose.
+- Conséquence : ce qui est propre au toucher n'est pas essayé. La rotation de l'appareil à un doigt (`app/src/scene.ts`, l. 116-117, `touch.singleFingerRotate = true`) n'est jamais jouée : la routine tourne l'appareil par l'entrée de la souris de Babylon.js. `touch-action: none` (`style.css`, l. 142), la capture du pointeur du déclencheur et l'annulation d'un toucher par le navigateur (`pointercancel`) ne sont pas vus non plus : le défaut COD-09 (`docs/audit/code.md` : un glissement du doigt arrête la rafale) ne pouvait pas être trouvé par la routine.
+- Correction proposée : sur les deux profils tactiles, remplacer les gestes du viseur, de la carte, de la photo et du déclencheur par des touchers (`page.tap`, `page.touchscreen.tap`, et pour le glissé et l'appui tenu des événements tactiles envoyés par le protocole de Chromium, `Input.dispatchTouchEvent`), en gardant la souris sur les profils d'ordinateur ; à défaut, corriger l'en-tête et `CLAUDE.md` : « émulent la taille d'écran et l'identification du navigateur ; les gestes sont ceux d'une souris ».
+
+### INT-14 · à améliorer · Routine : ce qui n'est jamais essayé, et où cet audit a trouvé des défauts
+
+- Endroit : `scripts/test_app.cjs` en entier ; nombre d'occurrences comptées par `grep -c`.
+- Preuve : la routine ouvre toutes les pages avec `?lang=fr`, sur quatre fenêtres fixes (1280 × 800 deux fois, Pixel 7 et iPhone 14 à la verticale).
+
+  | Jamais essayé | Occurrences dans la routine | Défaut trouvé par l'audit dans cette zone |
+  | --- | --- | --- |
+  | Simulateur et activité en anglais (`lang=en`, bouton `#lang`) ; fiches anglaises (`fiches/en`) | 0 ; 0 | viseur de 209 px en anglais sur l'iPhone 14 émulé, sous le seuil du contrôle « viseur assez grand » (INT-04) ; pastille coupée (INT-11) ; ancre en double (INT-01) |
+  | Téléphone à l'horizontale (`landscape`) | 0 | viseur de 117 × 78 px (INT-03) |
+  | Largeurs de 320 et 360 px (`setViewportSize`) | 0 | viseur de 159 à 216 px, pastilles coupées (INT-04, INT-11) |
+  | Clavier (`keyboard`) | 0 | INT-08 |
+  | Toucher | 0 | INT-13 |
+  | Thème sombre (`colorScheme`), mouvement réduit (`reducedMotion`) | 0 ; 0 | aucun (voir « Vérifié ») |
+  | Retardateur (`timer`), Continu H (`"ch"`, `chx`) | 0 ; 0 | COD-02 (`docs/audit/code.md`) |
+  | Boîtiers APS-C (`apsc`) | 0 | non cherché ici |
+  | Fenêtre « Crédits », lien « Enregistrer la photo », page des licences | 0 ; 0 ; 0 | non cherché ici |
+  | Défaut de départ de la mise au point | contrôle sans valeur (INT-05) | — |
+  | Erreurs de la console | relevées, non comptées (INT-06) | — |
+
+- Ce qui est bien couvert (lu dans le code, non rejoué) : exposition et modes (M, A, S, ISO auto, correction), bruit et profondeur de champ du viseur, grilles, loupe, vue de dessus, défis et bulletin, fiches par-dessus le simulateur, zones AF et détection, couverture AF par boîtier, rafale en Continu L, progression du chargement, téléchargement de l'accueil, activité LUM-02.
+- Correction proposée, sans allonger la routine de plus de quelques secondes par profil (ces contrôles ne calculent ni photo ni flou) : (1) après le chargement, passer en anglais par le bouton de langue, refaire « viseur assez grand » et un contrôle « aucune pastille ne dépasse du viseur », revenir en français ; (2) un profil « iPhone à l'horizontale » limité au chargement et aux contrôles de mise en page ; (3) sur le profil iPhone, les mêmes contrôles de mise en page à 320 px de large ; (4) les contrôles de calcul (pénombre, positions des grilles, sommes des histogrammes) vers des tests rapides, comme le propose ARC-05.
+
+### INT-12 · incohérent · Cadre horizontal ou vertical : il ne suit ni l'écran ni un choix, mais la place que le panneau laisse au viseur ; changer de mode AF peut le faire basculer
+
+- Endroit : `app/src/camera/viewfinder.ts`, l. 23-35 (`const portrait = canvasHeight > canvasWidth`) ; `docs/camera-physique.md`, l. 105 (« Viseur : cadre aux proportions du capteur (vertical si l'écran l'est) ») ; `app/src/style.css`, l. 81-87.
+- Ce qui est fait : le cadre est vertical quand la zone du viseur (`main`) est plus haute que large. Cette zone est ce que laissent l'en-tête et le panneau (INT-04) : sa forme ne dit pas comment le téléphone est tenu.
+- Preuve (mesures, `s1.cjs`, `s5.cjs`, `s6.cjs`, français, police Inter) :
+
+  | Fenêtre | Zone du viseur | Cadre |
+  | --- | --- | --- |
+  | iPhone 14 émulé, tenu à la verticale, 390 × 664 px | 390 × 266 px | 390 × 260 px, horizontal |
+  | Pixel 7 émulé, tenu à la verticale, 412 × 839 px | 412 × 441 px | 294 × 441 px, vertical |
+  | Fenêtre construite pour l'essai, 360 × 815 px, AF-S | 360 × 349,6 px | 360 × 239 px, horizontal |
+  | Même fenêtre, AF-C | 360 × 366,6 px | 244 × 367 px, vertical |
+
+  Deux téléphones tenus de la même façon cadrent donc l'un en largeur, l'autre en hauteur, contrairement à la phrase de la documentation. Et dans la dernière fenêtre, passer d'AF-S à AF-C fait basculer le cadre : la consigne sous les boutons perd une ligne (51 px, puis 34 px), la zone du viseur passe de 350 à 367 px de haut pour 360 px de large, et dépasse le carré. Cette fenêtre est construite pour montrer le mécanisme (captures `cadre-360x815-afs.png` et `cadre-360x815-afc.png`) ; sur un vrai téléphone, le seuil dépend de la police et de la langue.
+- Conséquences déjà écrites dans le dépôt : le résultat d'un défi change avec le cadre (« avec le cadre vertical du profil Android, la poubelle sort du cadre », `docs/camera-physique.md`, l. 540 ; `scripts/test_app.cjs`, l. 817-818), et la routine doit prévoir les deux cas (l. 616-620, 1035-1057).
+- Réalisme : sur un boîtier, c'est le photographe qui choisit de cadrer en hauteur ou en largeur, et la recette d'un portrait (SIT-01) peut le lui demander. Ici il ne choisit pas, et ne peut pas savoir pourquoi son cadre n'est pas celui d'un autre.
+- Correction proposée : séparer le cadrage de la mise en page. Un bouton du panneau (« Cadrage : horizontal / vertical »), dont la valeur de départ suit l'orientation de l'écran (`matchMedia("(orientation: portrait)")`) plutôt que la forme de `main` ; `frameFor` reçoit ce choix au lieu de le déduire. À défaut, corriger la phrase de `docs/camera-physique.md` (« vertical si la zone du viseur est plus haute que large ») et fixer la hauteur du viseur (INT-04) pour que le cadre ne bascule plus avec un texte.
+
 ## Vérifié
 
 (section remplie plus bas, au fur et à mesure)
