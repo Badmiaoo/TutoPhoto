@@ -144,6 +144,68 @@ Scripts, pages enregistrées et captures : dossier `audit/interface/` du bloc-no
 - Preuve : `grep -nE "vous|votre|ouchez|aintenez" app/src/i18n.ts` donne les sept lignes ci-dessus ; aucun « tu », « ton », « ta » dans la partie française de `i18n.ts`. `CLAUDE.md` demande le tutoiement ; aucune page de `docs/` ne décide du vouvoiement pour l'interface (`grep -i "tutoie\|vouvoie"` : rien).
 - Correction proposée : tutoyer dans le simulateur (« touche le viseur », « celui que tu touches », « Touche la carte », « maintiens le déclencheur appuyé », « Touche la photo », « ton appareil demande… »). Sept textes ; la routine n'en lit aucun.
 
+### INT-08 · à améliorer · Viseur, carte et photo ne répondent qu'au pointeur : quatre gestes du simulateur sont impossibles au clavier, et tourner l'appareil impose de glisser
+
+- Endroit : `app/src/scene.ts`, l. 112-119 ; `app/src/ui/shutter.ts`, l. 132-138 (point de mise au point) et l. 156 (loupe de l'écran de revue) ; `app/src/ui/topView.ts`, l. 74 (carte) ; `app/simulateur/index.html`, l. 26, 38 et 70 ; `app/src/main.ts`, l. 168.
+- Ce qui est fait :
+  - tourner l'appareil : `camera.inputs.removeByType("FreeCameraKeyboardMoveInput")` (« On tourne seulement : pas de clavier, de molette ni de manette, qui déplaceraient l'appareil ») ; il reste la souris et le toucher, en glissant ;
+  - choisir le point de mise au point : `pointerdown` et `pointerup` sur le canevas ;
+  - déplacer l'appareil : `click` sur la carte, un `<svg role="img">` sans `tabindex` ;
+  - voir la photo à 100 % à un endroit : `click` sur `<img id="review-image" alt="">`, sans `tabindex`.
+- Preuve (essai, `s3.cjs`, Chromium, fenêtre de 1280 × 800 px, AF-C et point sélectif) :
+
+  | Essai | Avant | Après |
+  | --- | --- | --- |
+  | Focus sur le canevas, puis six appuis sur chacune de seize touches (flèches, A, D, W, S, Q, E, Entrée, Espace, Page précédente, Origine, +, −) | « AF-C · Point · 6,7 m », repère à 50 % × 50 % | « AF-C · Point · 6,6 m » (les personnages bougent), repère à 50 % × 50 % : l'appareil n'a pas tourné, le point n'a pas bougé |
+  | Témoin : glissé de la souris sur le viseur | | « AF-C · Point · 500,0 m » : l'appareil a tourné |
+  | Témoin : clic dans le viseur | repère à 50 % × 50 % | repère à 35,8 % × 70 % |
+  | `focus()` sur la carte | | l'élément actif reste le canevas : la carte ne prend pas le focus (`tabIndex` −1) ; de même pour la photo |
+
+  Le canevas, lui, prend le focus : Babylon.js lui donne `tabindex="1"` (`canvasTabIndex = 1` par défaut, `@babylonjs/core` 9.35.0, `Engines/abstractEngine.pure.js`, l. 1050, appliqué par `Inputs/scene.inputManager.js`, l. 150). Ordre de tabulation mesuré sur l'iPhone 14 émulé (`s1.cjs`) : le canevas d'abord, puis « Accueil », « English », « Défis », « Crédits », « Licences », « Vue de dessus », l'indicateur d'équilibre, les molettes. Le premier arrêt de la tabulation est donc un élément placé après l'en-tête à l'écran, où aucune touche n'agit.
+- Critères (textes lus) : « Keyboard » (2.1.1, niveau A) : « All functionality of the content is operable through a keyboard interface without requiring specific timings for individual keystrokes, except where the underlying function requires input that depends on the path of the user's movement and not just the endpoints. » Tourner l'appareil d'un angle, choisir un point, placer l'appareil : seul le point d'arrivée compte. « Dragging Movements » (2.5.7, niveau AA) : « All functionality that uses a dragging movement for operation can be achieved by a single pointer without dragging, unless dragging is essential […] » : tourner l'appareil ne se fait qu'en glissant. « Focus Order » (2.4.3, niveau A) : « focusable components receive focus in an order that preserves meaning and operability ».
+- Ce qui marche au clavier (mesuré, voir « Vérifié ») : les molettes, les boutons, les fenêtres, le déclencheur.
+- Portée : le projet ne s'est donné aucun objectif d'accessibilité écrit ; ce constat dit ce qui manque, pas une promesse non tenue. Au-delà du clavier, des boutons de visée servent aussi sur un téléphone, où glisser sur un viseur de 260 px de haut manque de précision.
+- Correction proposée, par ordre de coût : (1) `canvasTabIndex: 0` dans les options du moteur (`main.ts`, l. 168), pour que le viseur prenne le focus à sa place dans la page ; (2) sur le canevas, les flèches tournent l'appareil d'un pas fixe (2° par exemple, valeur à choisir), Maj + flèches déplacent le point de mise au point, Entrée fait le point : quelques lignes dans `shutter.ts`, à côté des gestes du pointeur ; (3) la carte reçoit `tabindex="0"` et les flèches y déplacent l'appareil par pas de 0,5 m ; (4) la photo de l'écran de revue devient un bouton (ou reçoit `tabindex="0"`, `role="button"` et un nom), Entrée ouvrant la loupe au centre. Dire ces touches dans `sceneLabel` et `topViewMove`.
+
+### INT-09 · à améliorer · Des explications ne sont que dans des infobulles (`title`) : sur téléphone et au clavier, rien ne dit pourquoi la vitesse clignote
+
+- Endroit : `app/src/ui/cameraPanel.ts`, l. 585-587 (`limitText`), l. 725-726 (`output.title`), l. 732 (`loupeButton.title`), l. 746 (`meterValue.title`) ; `app/src/ui/reviewInfo.ts`, l. 153 ; `app/src/ui/shutter.ts`, l. 167 ; `app/src/i18n.ts`, l. 28, 40, 150, 162, 164-165, 207, 211.
+- Ce qui est fait : sept textes de `i18n.ts` ne sont écrits que dans un attribut `title` :
+
+  | Clé | Texte | Où |
+  | --- | --- | --- |
+  | `tooBright`, `tooDark` | « trop de lumière : photo surexposée », « pas assez de lumière : photo sous-exposée » | `title` de la valeur qui clignote, et du bouton de l'indicateur d'exposition |
+  | `meterHelp` | « 0 : exposition correcte. Plus : photo plus claire. Moins : photo plus sombre. » | `title` du bouton de l'indicateur d'exposition |
+  | `exposureButtonTitle` | « Mode d'exposition, correction d'exposition et ISO auto » | même `title` : c'est le seul texte qui dise ce qu'ouvre le bouton « M · −0,2 IL » |
+  | `isoChosen` | « valeur choisie : 100 » | `title` de l'ISO en italique, quand l'ISO auto l'a changé |
+  | `loupeHelp` | « Grossit l'image autour du point de mise au point, jusqu'à 100 % : un pixel de l'écran pour un photosite du capteur. » | `title` du bouton « Loupe » |
+  | `reviewInfoTitle` (0.3.57) | « Affichage de l'écran de revue : photo seule, histogrammes ou hautes lumières » | `title` du bouton « Infos » |
+  | `focusPoint` | « Point de mise au point » | `title` du repère, élément `aria-hidden="true"` avec `pointer-events: none` : personne ne peut le lire |
+
+- Preuve (essai, `s3.cjs`, mode A, ISO 6400, f/8 : la vitesse clignote à 1/4000 s) : `title` de la vitesse, « trop de lumière : photo surexposée » ; recherche de « trop de lumière » et de « surexpos » dans le texte affiché de la page (`document.body.innerText`) : absents ; la valeur n'a ni `aria-label` ni `aria-describedby`. Capture `sim-ordinateur-mode-A-clignote.png`.
+- Source : le standard HTML déconseille de s'appuyer sur `title` : « Relying on the title attribute is currently discouraged as many user agents do not expose the attribute in an accessible manner as required by this specification (e.g., requiring a pointing device such as a mouse to cause a tooltip to appear, which excludes keyboard-only users and touch-only users, such as anyone with a modern phone or tablet). » (WHATWG, *HTML Living Standard*, source du standard, l. 14795-14799, lue le 14 novembre 2026).
+- Conséquence : les modes A et S apprennent au débutant à lire un clignotement (fiches BOI-07 et BOI-08) ; sur son téléphone, le simulateur clignote sans dire « trop de lumière » ou « pas assez », alors que le texte est écrit et traduit. De même, rien ne dit ce que fait la loupe ni ce qu'ouvre le bouton « M · −0,2 IL ».
+- Correction proposée : écrire la limite là où l'on regarde, par exemple à la place de la consigne de mise au point tant que la valeur clignote (« Vitesse au maximum : trop de lumière, photo surexposée »), ou dans une pastille du viseur comme « Aperçu coupé » ; mettre `meterHelp` et `loupeHelp` dans les fenêtres (la fenêtre « Exposition » a déjà une note) ; donner au bouton de l'indicateur un nom accessible qui commence par son texte et finit par `exposureButtonTitle` ; supprimer `focusPoint`, ou en faire le nom du repère s'il devient atteignable (INT-08).
+
+### INT-10 · incohérent · La fenêtre « Boîtier de référence » propose Canon et Sony, mais tous les libellés restent ceux du Nikon Z 6
+
+- Endroit : `app/simulateur/index.html`, l. 158-163 (choix de la marque) ; `app/src/i18n.ts`, l. 47-63, 94-101, 151-160 (et les mêmes en anglais) ; `app/src/ui/cameraPanel.ts`, l. 554-575 et 946-975 (libellés écrits sans regarder la marque).
+- Preuve (essai, `s3.cjs`) : marque « Canon » choisie, le bouton du boîtier affiche « Canon EOS RP », et les fenêtres affichent : « Sélecteur de mode », « M : Manuel », « A : Auto à priorité ouverture », « S : Auto à priorité vitesse » ; « AF-S : AF ponctuel », « AF-C : AF continu », « AF point sélectif », « AF zone large (S) », « AF zone large (L) », « AF zone automatique », « Détect. visage-yeux AF zone auto » ; « Mode de déclenchement », « Vue par vue », « Continu L », « Continu H (5,5 vps) », « Continu H (étendu) (12 vps) ». Le bouton de l'indicateur affiche « A · +0,5 IL ». Mêmes textes avec « Sony ».
+- Preuve (sources, lues le 14 novembre 2026) :
+
+  | | Nikon Z 6 (manuel en ligne Z 7/Z 6) | Sony A7 III (guide d'aide) | Canon (manuel de l'EOS 850D, boîtier voisin) |
+  | --- | --- | --- | --- |
+  | Priorité à l'ouverture | « A Auto à priorité ouverture », « A Aperture-priority auto » | « A (Aperture Priority) », « Priorité ouvert. » | « Aperture-Priority AE Mode (Av) », « Mode d'exposition automatique avec priorité à l'ouverture (Av) » |
+  | Priorité à la vitesse | « S Auto à priorité vitesse », « S Shutter-priority auto » | « S (Shutter Priority) », « Priorité vitesse » | « Shutter-Priority AE Mode (Tv) », « Mode d'exposition automatique avec priorité à l'obturation (Tv) » |
+  | Autofocus sur sujet immobile, mobile | « AF-S AF ponctuel », « AF-C AF continu » ; « Single AF », « Continuous AF » | « AF ponctuel/AF continu » ; « Single-shot AF/Continuous AF » | « Autofocus One-Shot », « AF Servo » ; « One-Shot AF », « AI Servo AF », « Servo AF » |
+  | Zone de mise au point | « Mode de zone AF » : « AF point sélectif », « AF zone large (S) »… | « Zone mise au point » : « Large », « Zone », « Spot flexible »… | non relu |
+  | Vue par vue, rafale | « Mode de déclenchement », « Release mode » | « Entraînement », « Drive Mode » | « Mode d'acquisition », « Drive Mode » |
+
+  Adresses : Nikon, `https://onlinemanual.nikonimglib.com/z7_z6/fr/` et `…/en/`, pages `05_basic_settings_01.html`, `06_shooting_controls_01.html`, `06_shooting_controls_04.html` ; Sony, `https://helpguide.sony.net/ilc/1720/v1/fr/print.pdf` et `…/en/print.pdf` ; Canon, `https://cam.start.canon/fr/C002/manual/html/UG-03_CustomShooting_0030.html`, `…_0040.html`, `UG-04_AF-Drive_0020.html`, `UG-04_AF-Drive_0060.html`, et les mêmes sous `/en/`. Je n'ai pas cherché le manuel de l'EOS RP lui-même : les termes de Canon viennent de l'EOS 850D.
+- Ce que disent déjà les textes : les notes des fenêtres l'annoncent (« D'après le manuel du Nikon Z 6 », « Termes du manuel du Z 6 », « Termes et cadences du manuel du Nikon Z 6 »). Mais le choix de la marque laisse croire le contraire : avec « Canon EOS RP » affiché, la molette porte « A » et « S », que Canon nomme « Av » et « Tv », et la rafale annonce les cadences du Z 6. La marque ne change que le capteur, le bruit et la zone couverte par l'autofocus (`app/src/camera/bodies.ts`), ce que la fenêtre « Boîtier de référence » ne dit pas.
+- Lien : les fiches ont le même défaut (FEX-15 et FMA-14, `docs/audit/fiches-exposition.md` et `docs/audit/fiches-mise-au-point.md`), qui renvoient ici la question de l'interface. But du projet (`CLAUDE.md`) : que le débutant maîtrise son boîtier.
+- Correction proposée, au choix de Julien : (a) le moins coûteux : une phrase dans la fenêtre « Boîtier de référence » (« La marque change le capteur, le bruit et la zone couverte par l'autofocus. Les noms des modes restent ceux de Nikon ; chez Canon, A s'appelle Av et S s'appelle Tv ; … ») et, dans la fenêtre « Exposition », les deux lettres (« A (Av chez Canon) ») ; (b) des libellés par marque pour les modes d'exposition, de mise au point et de déclenchement, chacun avec sa source (une table par marque dans `i18n.ts`) ; les cadences de rafale par boîtier demandent leurs propres sources. La voie (b) est une extension : à décider après les tests avec des débutants (`CLAUDE.md`).
+
 ## Vérifié
 
 (section remplie plus bas, au fur et à mesure)
