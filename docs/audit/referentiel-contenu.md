@@ -1,10 +1,10 @@
 # Audit du lot « Référentiel : contenu des 191 notions et des 49 situations »
 
-> **Bilan de la contre-vérification, 14 novembre 2026 : 13 constats confirmés, 4 réfutés (REF-06, REF-13, REF-14, REF-16), 1 ajouté (REF-18, à contre-vérifier par un troisième agent).** Un second agent de Claude, qui n'a pas écrit le rapport, a essayé de réfuter chaque constat, en avocat du travail audité : il a relu l'endroit visé, rechargé les sources à leur adresse et refait les comptages avec ses propres scripts ; son verdict est écrit sous chaque constat. Confirmés en partie seulement : REF-04 (deux notions sur cinq sont dans le périmètre, les trois autres viennent des versions 0.3.56 et 0.3.57), REF-11 (BOI-04, pas RET-05) et REF-17 (le point 3 est réfuté : sur un reflex Nikon, le mode silencieux est un mode de déclenchement). Gravité baissée : REF-04 et REF-05 (« à améliorer »). Corrections corrigées ou réduites : REF-07 (pas de 94 `todo` identiques), REF-08 (pas de champ `terms` : `docs/architecture.md` prévoit déjà `data/vocabulaire.yaml`, par famille d'appareils), REF-03 (pas de renommage sans source), REF-05, REF-09, REF-11 et REF-12 (pas de BOI-35 en notion clé). Réfutés parce que déjà tranchés par Julien ou sans critère écrit : les niveaux (REF-06, REF-14), les situations `SIT-V2-NN` (REF-16), les recouvrements (REF-13). À corriger d'abord : le texte de MES-07 (REF-02), que les manuels contredisent pour le boîtier de référence, puis en un seul passage sur `data/` les sources des huit notions qui ont une fiche (REF-04, avec FMA-15), le champ `flash` (REF-01), le caisson étanche de SIT-42 (REF-10) et les petites corrections de REF-08, REF-09, REF-12, REF-15 et REF-17.
+> **Bilan de la contre-vérification, 14 novembre 2026 : 13 constats confirmés, 4 réfutés (REF-06, REF-13, REF-14, REF-16), 1 ajouté (REF-18). Constat ajouté, contre-vérifié à son tour le 14 novembre 2026 par un troisième agent : 1 confirmé (REF-18 ; correction à corriger), 0 réfuté.** Un second agent de Claude, qui n'a pas écrit le rapport, a essayé de réfuter chaque constat, en avocat du travail audité : il a relu l'endroit visé, rechargé les sources à leur adresse et refait les comptages avec ses propres scripts ; son verdict est écrit sous chaque constat. Confirmés en partie seulement : REF-04 (deux notions sur cinq sont dans le périmètre, les trois autres viennent des versions 0.3.56 et 0.3.57), REF-11 (BOI-04, pas RET-05) et REF-17 (le point 3 est réfuté : sur un reflex Nikon, le mode silencieux est un mode de déclenchement). Gravité baissée : REF-04 et REF-05 (« à améliorer »). Corrections corrigées ou réduites : REF-07 (pas de 94 `todo` identiques), REF-08 (pas de champ `terms` : `docs/architecture.md` prévoit déjà `data/vocabulaire.yaml`, par famille d'appareils), REF-03 (pas de renommage sans source), REF-05, REF-09, REF-11 et REF-12 (pas de BOI-35 en notion clé). Réfutés parce que déjà tranchés par Julien ou sans critère écrit : les niveaux (REF-06, REF-14), les situations `SIT-V2-NN` (REF-16), les recouvrements (REF-13). À corriger d'abord : le texte de MES-07 (REF-02), que les manuels contredisent pour le boîtier de référence, puis en un seul passage sur `data/` les sources des huit notions qui ont une fiche (REF-04, avec FMA-15), le champ `flash` (REF-01), le caisson étanche de SIT-42 (REF-10) et les petites corrections de REF-08, REF-09, REF-12, REF-15 et REF-17. S'y ajoute REF-18, dans le même passage : le texte de RET-05 (correction de la perspective au développement, avec deux sources), puis RET-05 en notion clé de SIT-16, avec BOI-04 ; ce que le constat disait du boîtier ne vaut que pour Nikon, parmi les trois manuels lus.
 
 - Date : 14 novembre 2026.
 - Demande : Julien, le 12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent, et le modifier si nécessaire ; le 13 novembre : finir l'audit et pousser le résultat.
-- Rapport écrit par un agent de Claude, puis contre-vérifié le même jour par un second agent (verdict sous chaque constat, bilan ci-dessus).
+- Rapport écrit par un agent de Claude, puis contre-vérifié le même jour par un second agent (verdict sous chaque constat, bilan ci-dessus) ; le constat que ce second agent a ajouté (REF-18) a été contre-vérifié le même jour par un troisième.
 - Bilan de l'audit, avant la contre-vérification : 17 constats (aucun « faux », 5 « incohérent », 1 « non sourcé », 11 « à améliorer »), 61 points vérifiés et justes, 15 « Je ne sais pas ». Aucune affirmation de photographie contraire à une source lue n'a été trouvée dans les textes ; une se lit de travers faute de dire d'où l'angle se mesure (OPT-12, REF-15), et une ne vaut pas pour deux des trois boîtiers lus (MES-07, REF-02). Les défauts sont ailleurs : le référentiel n'a pas suivi les fiches écrites depuis (sources, MES-07), des renvois et des notions clés manquent là où la situation en dépend (trépied, caisson étanche, verticales), huit groupes de notions se recouvrent, et quatre termes ne sont ceux d'aucun manuel.
 - Version auditée : copie de travail de la branche de l'audit (version 0.3.58 en cours) ; les derniers commits qui touchent `data/referentiel/` et `data/situations.yaml` datent du 11 novembre 2026.
 
@@ -38,6 +38,18 @@ Pages enregistrées, textes extraits et scripts : dossier `audit/referentiel-con
 4. Aucun navigateur, aucune modification du dépôt hors de ce rapport.
 
 Pages et scripts : dossier `audit/referentiel-contenu/refutation/` du bloc-notes de la session, hors du dépôt.
+
+### Contre-vérification du constat ajouté (14 novembre 2026)
+
+REF-18, ajouté par le second agent, n'avait été contre-vérifié par personne. Un troisième agent l'a repris :
+
+1. endroit visé relu (`data/referentiel/ret.yaml`, `data/situations.yaml`, BOI-04, OPT-07 et OPT-13) ; date des fichiers (`git log`) ; recherche, dans `data/`, `docs/`, `content/`, `REPRISE.md` et `app/src/`, de ce qui dirait déjà le constat ;
+2. sources rechargées à leur adresse le 14 novembre 2026 : les quatre pages de Nikon citées, la page de recadrage de l'EOS R5 dans les deux langues, le guide de l'ILCE-7M3 dans les deux langues, et une révision de Wikipedia lue en plus ; citations cherchées mot pour mot par un script écrit pour cela (`cite18.py`) ;
+3. calcul refait par un autre script (`ref18.py`) : niveaux des 49 situations d'après la règle de `data/situations.yaml` (aucun écart), niveaux de SIT-16 avec BOI-04, avec RET-05, puis avec les deux ; notions du domaine RET déjà notions clés d'une situation ; mots cherchés dans les textes des notions et des situations ;
+4. recherche d'une fonction équivalente chez Canon et chez Sony, que le constat disait ne pas avoir faite ;
+5. aucun navigateur, aucune modification du dépôt hors de ce rapport.
+
+Pages et scripts : dossier `audit/referentiel-contenu/troisieme/` du bloc-notes de la session, hors du dépôt (`pages/`, `scripts/`).
 
 ## Sources
 
@@ -73,6 +85,19 @@ Toutes lues le 14 novembre 2026. Fichiers sous `refutation/pages/`.
 | Lues en plus : Nikon, manuel en ligne Z 7/Z 6, menu Retouche, « Redresser » et « Perspective » (REF-18) | `https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_07_06.html`, `…/09_menu_guide_07_08.html`, et les mêmes en anglais | dans `nikon-fr/`, `nikon-en/` |
 
 Non lues pour la contre-vérification : Shutterbug, « Here's How to Use Zone Focusing for Fast & Precise Street Photography » (REF-03) : extrait de recherche, page non ouverte, l'hôte répond 403. Wikipedia n'a pas d'article « Zone focusing » ni « Zone focus » (réponse 404 le 14 novembre 2026).
+
+### Relues pour la contre-vérification du constat ajouté
+
+Toutes lues le 14 novembre 2026 par le troisième agent. Fichiers sous `troisieme/pages/`.
+
+| Source | Adresse lue | Fichier |
+| --- | --- | --- |
+| Nikon, manuel en ligne Z 7/Z 6, menu Retouche : « Redresser » et « Perspective » ; en anglais, « Straighten » et « Perspective Control » | `https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_07_06.html`, `…/fr/09_menu_guide_07_08.html`, `…/en/09_menu_guide_07_06.html`, `…/en/09_menu_guide_07_08.html` | `nikon-z6-fr-09_menu_guide_07_06.html`, `nikon-z6-fr-09_menu_guide_07_08.html`, `nikon-z6-en-09_menu_guide_07_06.html`, `nikon-z6-en-09_menu_guide_07_08.html` |
+| Canon, manuel en ligne EOS R5, « Cropping JPEG/HEIF Images » ; en français, « Recadrage des images JPEG/HEIF » | `https://cam.start.canon/en/C003/manual/html/UG-05_Playback_0220.html`, `https://cam.start.canon/fr/C003/manual/html/UG-05_Playback_0220.html` | `canon-r5-en-crop.html`, `canon-r5-fr-crop.html` |
+| Sony, guide d'aide ILCE-7M3 (PDF, « Copyright 2018 Sony Corporation »), en anglais et en français | les deux adresses du premier tableau | `sony-7m3-en-print.pdf`, `sony-7m3-fr-print.pdf` |
+| Lue en plus : Wikipedia (source secondaire), « Perspective control », révision 1376293807, en wikitexte | `https://en.wikipedia.org/w/index.php?title=Perspective_control&oldid=1376293807&action=raw` | `wiki-perspective-control-1376293807.wikitext` |
+
+Non rechargé : le reste du manuel de l'EOS R5 ; l'absence d'une correction de la perspective y est établie sur les 221 pages aspirées le même jour par le second agent.
 
 ### Non relues
 
@@ -326,6 +351,21 @@ Classés par gravité, dans l'ordre des rapports précédents : « non sourcé �
 - Preuve (source lue le 14 novembre 2026) : Nikon, manuel en ligne Z 7/Z 6, menu Retouche. Deux fonctions distinctes : « Redresser » (« faire tourner la photo […] jusqu'à cinq degrés », `https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_07_06.html`) et « Perspective » : « Créez des copies où les effets de perspective des objets hauts photographiés d'en bas sont réduits. […] un contrôle plus important de la perspective a pour résultat des bords plus rognés » (`…/fr/09_menu_guide_07_08.html` ; en anglais, « Perspective Control », « Create copies that reduce the effects of perspective in photos taken looking up from the base of a tall object », `…/en/09_menu_guide_07_08.html`).
 - Conséquence : pour « des verticales droites », le référentiel ne donne au débutant qu'un objectif à bascule et décentrement, alors que son boîtier corrige la perspective sur une copie, au prix de bords rognés. C'est aussi ce qui manque au constat REF-11 pour faire de RET-05 une notion clé de SIT-16.
 - Correction proposée : RET-05, explication « Ratio, horizon, verticales (correction de la perspective, qui rogne les bords), définition perdue », avec la page de Nikon en source ; RET-05 peut alors devenir notion clé de SIT-16 (niveaux recalculés avec BOI-04 et RET-05 : N2 à N3, inchangés). Sans nouvelle notion ni nouvel identifiant. Je ne sais pas si les boîtiers de Canon et de Sony ont une fonction équivalente : non cherché.
+
+**Contre-vérification : confirmé.** Correction à corriger. Les quatre citations sont mot pour mot dans les pages de Nikon rechargées le 14 novembre 2026, en français et en anglais (`cite18.py`) : « Redresser » ne fait que tourner la photo, « Perspective » est une autre ligne du menu Retouche. Recherche refaite dans `data/` par un script écrit pour cela (`ref18.py`, avec « fuyant », « keystone » et « straighten » en plus) : aucune notion ne parle de corriger la perspective après la prise ; rien non plus dans `docs/`, `content/` ni `REPRISE.md`. RET-05 et SIT-16 datent de la v0.1 (7 novembre 2026) : le constat est dans le périmètre. Niveaux de SIT-16 recalculés avec BOI-04 et RET-05 : N2 à N3, inchangés ; trois situations ont déjà une notion clé du domaine RET (SIT-30, SIT-32, SIT-36), et SIT-16 n'est dans aucun jalon.
+
+Deux phrases du constat sont écrites trop fort, sans le renverser :
+- « son boîtier corrige la perspective » ne vaut, parmi les trois manuels lus, que pour celui de Nikon. Cherché, ce que le constat n'avait pas fait : le recadrage de l'EOS R5 ne corrige que l'inclinaison (« You can correct image tilt by ±10° », page « Cropping JPEG/HEIF Images », rechargée le 14 novembre 2026 ; en français, « corriger l'inclinaison de l'image de ±10° »), et le reste de son manuel n'a pas de correction de la perspective (221 pages aspirées par le second agent, non rechargées) ; le guide de l'ILCE-7M3, rechargé dans les deux langues, ne contient ni « perspective » ni « redress ». Je ne sais pas ce qu'il en est des autres boîtiers du simulateur : manuels non lus ;
+- « ne donne au débutant qu'un objectif à bascule et décentrement » oublie BOI-04 (niveau électronique), que le constat REF-11 ajoute à SIT-16. Wikipedia (source secondaire), « Perspective control », révision 1376293807, lie le défaut à l'inclinaison de l'appareil : « Perspective distortion occurs in photographs when the film plane is not parallel to lines that are required to be parallel in the photo. »
+
+Correction retenue :
+- l'explication proposée pour RET-05 convient telle quelle : elle ne nomme pas le boîtier, et RET-05 est une notion du développement (introduction du domaine RET : « mini-développeur intégré »), pas du menu d'un boîtier ;
+- deux sources au lieu d'une : la page de Nikon (primaire : la correction existe, se fait sur une copie et rogne les bords) et, pour le développement, la même révision de Wikipedia (secondaire) : « Digital post-processing software provides means to correct converging verticals and other distortions introduced at image capture » ; « These transforms involve interpolation […] which degrades the image quality », ce qui appuie aussi « définition perdue » ;
+- dans le même passage, accorder la brique simulateur de RET-05 (« Outil de recadrage et de correction de la perspective, qui affiche la définition restante ») : sinon l'explication promet ce que l'outil spécifié ne fait pas ;
+- RET-05 devient alors notion clé de SIT-16, avec BOI-04 ;
+- à la rédaction de la fiche, pas avant : dire que la fonction du boîtier n'est sourcée que pour le Z 7/Z 6, et revoir l'intitulé anglais « crop, straighten » (chez Nikon, « Straighten » ne désigne que la rotation).
+
+Sans effet sur le simulateur aujourd'hui : la correction de la photo après la prise est renvoyée en V2 par Julien (`docs/camera-physique.md`, « Corriger la photo après la prise (V2 ; RET-01, RET-02) »), et ni RET-05 ni SIT-16 ne sont dans la file de travail.
 
 ## Intitulés et termes des manuels
 
