@@ -5,7 +5,7 @@
 - Date : 14 novembre 2026. Rapport écrit par un agent de Claude, à la demande de Julien (12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent ; 13 novembre : finir l'audit et le pousser).
 - Version auditée : copie de travail à la version 0.3.58. Les numéros de ligne de `data/sources.yaml` sont ceux de cette version.
 - Reprise : un premier agent, coupé par la limite d'usage le 13 novembre, avait écrit les scripts de relecture (date d'ajout, lecture des adresses, recherche des citations, cohérence de `used_in`) sans commencer le rapport. Ses scripts et ses pages enregistrées sont repris ; tout le texte de ce rapport est du 14 novembre.
-- Bilan : 9 constats (1 « faux », 2 « incohérent », 6 « à améliorer »), 38 points vérifiés et justes, 9 « Je ne sais pas ». Sur 151 entrées, 100 sont relues (75 à leur adresse, 25 à une autre adresse du même contenu) et 51 ne le sont pas, faute d'hôte joignable. Les citations et les nombres des libellés relus sont dans les pages ; les défauts sont dans la tenue du fichier : une adresse qui ne mène pas à la page nommée, un champ `used_in` qui ne suit aucune de ses deux définitions, des dates de lecture absentes pour les entrées du 7 novembre, des adresses citées hors du fichier.
+- Bilan : 9 constats (1 « faux », 2 « incohérent », 6 « à améliorer »), 40 points vérifiés et justes, 9 « Je ne sais pas ». Sur 151 entrées, 100 sont relues (75 à leur adresse, 25 à une autre adresse du même contenu) et 51 ne le sont pas, faute d'hôte joignable. Les citations et les nombres des libellés relus sont dans les pages ; les défauts sont dans la tenue du fichier : une adresse qui ne mène pas à la page nommée, un champ `used_in` qui ne suit aucune de ses deux définitions, des dates de lecture absentes pour les entrées du 7 novembre, des adresses citées hors du fichier.
 
 ## Périmètre
 
@@ -36,6 +36,22 @@ Sur les 151 entrées du lot :
 | Non relue : l'hôte répond 403 (contrôle contre les lectures automatiques) | 6 | `www.dpreview.com` (1), `photographylife.com` (2), `www.canon.co.uk` (3) |
 
 Wikipedia est une source secondaire. Dates de lecture : 13 novembre 2026 pour les pages lues à leur adresse, 14 novembre 2026 pour les autres adresses et pour les relectures à la main.
+
+Fichiers enregistrés, dans le dossier `audit/sources/` du bloc-notes de la session : la page de chaque entrée lue à son adresse est `pages/<identifiant>.html` (`pages/sony-ilce-7m3-help-guide.pdf` pour le guide de l'A7 III), et son texte extrait `texte/<identifiant>.txt`.
+
+Lues à une autre adresse ou en plus, le 14 novembre 2026 :
+
+| Source | Adresse lue | Fichier |
+| --- | --- | --- |
+| SPDX, textes des licences MIT, CC BY-SA 4.0, CC0 1.0, Apache-2.0 et CC BY 4.0, commit `3184648` | `raw.githubusercontent.com/spdx/license-list-data/31846481…/text/<licence>.txt` | `pages-alt/spdx-*.txt` |
+| GitHub, source de la documentation, dépôt `github/docs`, commit `8cd1075` : les cinq pages citées, `data/variables/large_files.yml`, `data/reusables/gated-features/secret-scanning.md` et `push-protection-for-users.md` ; la page « Tracking changes in a comment » aussi sur la branche `main` | `raw.githubusercontent.com/github/docs/8cd1075/…` | `pages-alt/ghdocs-*` |
+| Commits des étiquettes citées (three.js, Babylon.js, PlayCanvas, three-gpu-pathtracer, three-mesh-bvh, MDN, gitleaks), des commits cités de `spdx/license-list-data`, `github/docs` et `google/filament`, et des douze étiquettes de `mourner/suncalc` | `git fetch --depth=1 --filter=tree:0` et `git ls-remote --tags` sur `github.com` | `gitmeta/` (un dépôt vide par projet) |
+| Fichiers de licence aux étiquettes citées | `raw.githubusercontent.com/<dépôt>/<étiquette>/LICENSE` (`license.md` pour Babylon.js) | `pages-alt/lic-*` |
+| Registre npm : `xatlas-web`, `vite`, `typescript`, `@babylonjs/core` | `registry.npmjs.org/<paquet>` | `pages-alt/npm-*.json` |
+| Depth Anything V2, `README.md` et `LICENSE`, branche `main` ; SunCalc, `README.md`, `LICENSE` et `package.json`, branche `master` | `raw.githubusercontent.com/…` | `pages-alt/DepthAnything_*`, `pages-alt/mourner_suncalc_*` |
+| Romain Guy et Mathias Agopian, *Physically Based Rendering in Filament*, commit `e8669b6` ; bgfx, exemple 45-bokeh, branche `master` | `raw.githubusercontent.com/google/filament/e8669b6…/docs/Filament.md.html`, `raw.githubusercontent.com/bkaradzic/bgfx/master/examples/45-bokeh/…` | `pages-alt/filament-e8669b6.md.html`, `pages-alt/bgfx-*` |
+| Nikon, guide de référence du ZR, « a13: Manual focus ring in AF mode » (page sans date) | `https://onlinemanual.nikonimglib.com/zr/en/09-05-14.html` | `pages-lues/nikon-zr-a13.html` |
+| Nikon, guide de référence du Z 8, « a4: Focus Points Used » et « a10: Focus Point Wrap-Around » (pages sans date) | `https://onlinemanual.nikonimglib.com/z8/en/csma_focus_points_used_207.html`, `…/csma_focus_point_wrap-around_213.html` | `pages-lues/nikon-z8-csma_*.html` |
 
 ## Ce qui n'est pas couvert
 
@@ -178,13 +194,15 @@ Le fichier lui-même.
 Pages lues à leur adresse (13 novembre 2026).
 
 - Les 75 adresses répondent 200. Le titre de chaque page est celui que nomme le libellé, sauf `nikon-zr-mf-ring` (SRC-01) et `nikon-z8-guide` (SRC-06). Trois libellés nomment une section et non la page, et la section y est : `nikon-z8-time` (page « Exposure », section « Long Time-Exposures (Mode M Only) »), `sony-rx10iv-limiter` (page « Focus Mode », section « Focus range limiter »), `sony-a7iii-infinity` (page « Focus Mode », conseil sur la mise au point à l'infini).
-- Citations : 68 citations entre guillemets dans 28 libellés. 64 sont retrouvées par le script mot pour mot. Les 4 autres y sont aussi, relues à la main : pour deux, l'écart ne tient qu'à une espace née de l'extraction du texte (`nikon-z6-eisa-2019`, `nikon-z6-exposure-compensation`) ; pour deux, le libellé omet sans le signaler un renvoi interne (`nikon-z6-focus` : « using the sub-selector ( 0 The Sub-Selector ) or multi-selector ») ou un appel de note (`nikon-z6-product` : « 273-point *1 hybrid AF system »). Le sens n'en est pas changé.
+- Citations : 68 citations entre guillemets dans 28 libellés. 64 sont retrouvées par le script mot pour mot. Les 4 autres y sont aussi, relues à la main : pour deux, l'écart ne tient qu'à une espace née de l'extraction du texte (`nikon-z6-eisa-2019`, `nikon-z6-exposure-compensation`) ; pour deux, le libellé omet sans le signaler un renvoi interne (`nikon-z6-focus` : « using the sub-selector ( 0 The Sub-Selector ) or multi-selector ») ou un appel de note (`nikon-z6-product` : « 273-point *1 hybrid AF system » ; la note dit « In FX format with single-point AF. », condition que la seconde citation du libellé reprend). Le sens n'en est pas changé.
 - Wikipedia : les dix révisions des libellés sont celles des adresses, et les pages servies portent ce numéro (`wgRevisionId`).
 - Nombres des libellés, cherchés par un script puis à la main : `nikon-z6-specifications` (« 35.9 × 23.9 mm », « 24.5 million », « 1/8000 – 30 s in steps of 1/3 or 1/2 EV », « ISO 100 – 51200 ») ; `sony-ilce-7m3-help-guide` (« 35.6 mm × 23.8 mm », « Approx. 24 200 000 pixels », « 1/8 000 second to 30 seconds », « ISO 100 to ISO 51 200 », les onze titres de sections cités, « Copyright 2018 Sony Corporation ») ; `wikipedia-image-sensor-format` (22.30 × 14.90 ; 23.6–23.7 × 15.60) ; `wikipedia-sony-a6000` ; `wikipedia-circle-of-confusion` (« d /1500, or 0.029 mm ») ; `wikipedia-film-speed` (40:1, 10:1, « 70 pixels per cm », « 25 cm ») ; `wikipedia-shutter-speed` (« 1⁄1000 s » à « 1 s », « 2:1 ») ; `nikon-z6-release-mode` (« 1–5 frames per second », 5.5 et 12 fps) ; `nikon-z6-exposure-compensation` (−5 à +5 EV, 1/3 EV) ; `nikon-z6-iso-button` (« ISO 100 (Z 7) or 200 (Z 6) to Hi 2 ») ; `nikon-z6-iso-settings` (« 1/4000 s to 30 s ») ; `nikon-z6-defaults` ; `nikon-d850-auto-iso` (« 1/30 s », « ISO 64 »). Tous y sont.
 - Dates et auteurs : `photonstophotos-read-noise` (« Last revised: 2026-08-17 »), `photonstophotos-sensor-characteristics` (« Last revised: 2025-12-15 »), `pvc-adams-soft-light` (Art Adams, « December 27, 2011 »), `nikon-z6-launch-2018` (« August 23, 2018 »), `nikon-z6-eisa-2019` (« August 15, 2019 »), `sony-a9-metering` (« α9 Ver.5 or later »).
 - `haeberli-akeley-1990` : auteurs, titre, « SIGGRAPH '90 », pages 309 à 318 et DOI 10.1145/97879.97913 sont dans la fiche (métadonnées et liens de la page).
 - `wikipedia-angular-diameter` : « Sun 32′32″ – 31′27″ », soit de 0,524° à 0,542° ; `docs/propositions.md`, l. 25, dit la même chose et annonce une source première avant usage.
 - `polyhaven-license` : « Our assets are all licensed as CC0 » ; `sketchfab-download-api` : « Downloading models requires users to be authenticated with a Sketchfab account. »
+- Modèles : les 35 pages de manuels Canon, Sony et Nikon (hors manuel du Z 7 et du Z 6, relu par PHY, FEX et FMA) portent le nom du modèle que donne leur libellé (« ZR Reference Guide », « Z f Reference Guide », « D6 Online Manual », « EOS R5 Mark II », « ILCE-7M4 », etc.).
+- Dates de lecture : 56 libellés en portent une. Chacune est le jour de l'ajout de l'entrée, la veille, ou une relecture écrite comme telle.
 
 Pages citées par le seul référentiel, comparées à la spécification de la notion (relues à la main le 14 novembre 2026).
 
