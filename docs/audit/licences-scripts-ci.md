@@ -3,7 +3,7 @@
 - Date : 14 novembre 2026.
 - Demande : Julien, le 12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent, et le modifier si nécessaire ; le 13 novembre : finir l'audit et pousser le résultat.
 - Version auditée : copie de travail de la branche de l'audit, version 0.3.58 du changelog.
-- État : constats non contre-vérifiés.
+- Bilan de la contre-vérification, 14 novembre 2026 : 7 constats confirmés (LIC-08, LIC-01, LIC-02, LIC-03, LIC-05, LIC-04, LIC-07), 2 réfutés (LIC-06, LIC-09), 1 ajouté (LIC-10, à contre-vérifier par un troisième agent). Corrections réduites ou corrigées : LIC-08 (point 4), LIC-02, LIC-03, LIC-05 et LIC-04 ; gravité la plus basse pour LIC-03, LIC-05 et LIC-07. À corriger d'abord : LIC-01 (le contrôle ne lit pas ce qu'un commit ajoute et qu'un commit suivant retire ; lire les lignes ajoutées par chaque commit prend 3 secondes sur tout l'historique et ne signale qu'un cas, déjà consigné), puis la ligne de LIC-07 dans chaque workflow et la base introuvable de LIC-04.
 - Bilan : 9 constats (1 « incohérent », 8 « à améliorer », aucun « faux », aucun « non sourcé »), 31 points vérifiés et justes, 12 « Je ne sais pas ». Les licences annoncées sont celles des pages d'origine, les fichiers de Poly Haven sont identiques à l'origine, les actions de la CI sont bien épinglées sur les versions annoncées, et l'historique ne contient rien de privé qui ne soit déjà consigné. Ce qui manque : les contrôles lisent l'état final des fichiers de texte et croient ce qu'on leur déclare. Ils ne lisent ni le contenu des commits intermédiaires (LIC-01), ni les fichiers binaires (LIC-03), ni les fichiers de tiers hors des scènes (LIC-05), ni les licences des dépendances (LIC-09) ; et une pull request peut allonger elle-même la liste de ce qu'on lui tolère (LIC-06).
 - Écrit en deux fois : un premier agent a été coupé après LIC-03 ; le second a relancé ses scripts (mêmes résultats), puis écrit la suite.
 
@@ -25,6 +25,18 @@
 7. Aucune écriture dans le dépôt en dehors de ce rapport ; aucun navigateur ; aucune construction du site : le site construit qui a été lu est celui du 12 novembre 2026, présent dans la copie de travail (`app/dist/`, non suivi par git).
 
 Scripts d'essai, pages enregistrées et clones : dossier `audit/licences-scripts-ci/` du bloc-notes de la session, hors du dépôt (`scripts/`, `pages/`, `origines/`, `copie/` et `copie2/`). Les numéros de ligne sont ceux de la version 0.3.58.
+
+### Contre-vérification (14 novembre 2026)
+
+Un second agent de Claude a essayé de réfuter chaque constat, en avocat du travail audité. Son verdict est écrit sous chaque constat (« Contre-vérification »), et son objection aux recommandations sous la ligne « Contre-avis ».
+
+1. Pour chaque constat : relecture du code, des workflows et de la documentation à l'endroit cité, dans la version courante (0.3.58), et recherche de la date du travail visé (`git log -S`), pour écarter ce qui date du 12 novembre 2026 ou d'après.
+2. Essais refaits sur un autre clone et sur une copie de la scène, avec des scripts écrits pour la contre-vérification, sans reprendre ceux de l'audit : lignes fabriquées passées à `scan_text` (`essai_motifs.py`), `scan_text` sur les lignes ajoutées par chaque commit (`hist_ajouts.py`), motifs proposés par l'audit appliqués aux fichiers suivis, aux messages et à l'historique (`essai_corrections_lic02.py`), scènes modifiées (`essai_scenes.py`), changelogs fabriqués, pose des tags à blanc, comptes des licences du verrou npm et des métadonnées Python installées. Les valeurs fabriquées sont décrites ici, pas recopiées.
+3. Sources relues à leur adresse le 14 novembre 2026, citations cherchées mot pour mot dans les fichiers enregistrés : documentation de GitHub dans le dépôt `github/docs`, commit `d59b263` (`events-that-trigger-workflows.md`, `manually-run-a-workflow.md`, `workflow-syntax.md`, `dependency-caching.md`, `deployments-and-environments.md`, `email-addresses-reference.md`, `github-pages-limits.md`, `creating-a-github-pages-site.md`, `configuring-a-publishing-source-for-your-github-pages-site.md`, et dix textes réutilisés) ; texte de CC BY 4.0 dans le dépôt SPDX, commit `3184648` (citation de la section 2(b)(1) : exacte) ; configuration par défaut de gitleaks à l'étiquette `v8.30.1` ; étiquettes des cinq actions par `git ls-remote` (les cinq empreintes épinglées concordent) ; fichier d'empreintes de la release 8.30.1 de gitleaks (l'empreinte de `validate.yml` concorde).
+4. Site construit : celui du 12 novembre 2026 présent dans la copie de travail, lu sans le reconstruire ; code de Vite 8.3.6 et binaire de Rolldown 1.2.16 lus dans `app/node_modules/`.
+5. Non fait : gitleaks n'a pas été exécuté (refusé à l'audit, non retenté) ; aucun navigateur ; `renderpeople.com` : source non relue, hôte non joignable (un essai de plus) ; `docs.github.com`, `api.github.com` et les réglages du dépôt : non lus, comme à l'audit.
+
+Scripts et pages de la contre-vérification : sous-dossier `refutation/` du même dossier (`scripts/`, `pages/`, `clone/`, `racine/`).
 
 ## Sources
 
@@ -216,7 +228,7 @@ Corrections retenues : l'identifiant de session seul, le sous-domaine Notion (2)
 
   Les trois tags absents (`v0.2.0` à `v0.2.2`) et les quatre liens qui les visent sont déjà constatés ailleurs (`choix-et-outils.md`, CHX-10 ; `documentation.md`, DOC-04) : rien à ajouter ici.
 
-**Contre-vérification : confirmé.** Douze changelogs refaits sur un autre clone : base au nom mal écrit, code 0 et « 64 version(s) » ; version sautée, `0.4.7`, `7.0.0`, section sans rubrique, rubrique « Divers », lien vers un autre site, date de 2031 : code 0 ; « ## Notes » dans une section : `parse` rend pour corps « ### Ajouté / - Essai. », sans la suite ; titre sans crochets : ignoré sans `--base`, refusé avec, par le message qui ne dit pas la cause. Seul le cas 1 désarme un contrôle que `CLAUDE.md` demande de lancer, et la CI le rattrape sur la pull request (`workflow-syntax.md`, citation relue, exacte) : corriger 1 d'abord, puis 5, car un tag et une release tronqués ne se rattrapent pas (le workflow ne les réécrit jamais). Les corrections 2 à 4 portent sur des conventions tenues sans contrôle depuis 64 versions : justes, mais facultatives ; pour la 2, écrire « X reste à 0 » dans une constante, la règle prenant fin à la publication de la V1.
+**Contre-vérification : confirmé.** Treize essais refaits sur un autre clone : base au nom mal écrit, code 0 et « 64 version(s) » ; version sautée, `0.4.7`, `7.0.0`, section sans rubrique, rubrique « Divers », lien vers un autre site, date de 2031 : code 0 ; « ## Notes » dans une section : `parse` rend pour corps « ### Ajouté / - Essai. », sans la suite ; titre sans crochets : ignoré sans `--base`, refusé avec, par le message qui ne dit pas la cause. Seul le cas 1 désarme un contrôle que `CLAUDE.md` demande de lancer, et la CI le rattrape sur la pull request (`workflow-syntax.md`, citation relue, exacte) : corriger 1 d'abord, puis 5, car un tag et une release tronqués ne se rattrapent pas (le workflow ne les réécrit jamais). Les corrections 2 à 4 portent sur des conventions tenues sans contrôle depuis 64 versions : justes, mais facultatives ; pour la 2, écrire « X reste à 0 » dans une constante, la règle prenant fin à la publication de la V1.
 
 ### LIC-07 · à améliorer · `tag.yml` et `pages.yml` peuvent être lancés à la main sur une autre branche que `main`
 
@@ -340,7 +352,7 @@ Historique et confidentialité
 
 ## Je ne sais pas
 
-- Ce que gitleaks 8.30.1 arrête parmi les secrets que `check_public.py` laisse passer (LIC-02) : il n'a pas été lancé (voir « Ce qui n'a pas été couvert »).
+- Ce que gitleaks 8.30.1 arrête parmi les secrets que `check_public.py` laisse passer (LIC-02) : il n'a pas été lancé (voir « Ce qui n'a pas été couvert »). Contre-vérification : levé en partie, par la lecture de sa configuration par défaut, sans l'exécuter (voir LIC-02).
 - Ce que disent les conditions générales de Renderpeople, et si elles s'appliquent à des fichiers pris sur Sketchfab : hôte non joignable.
 - Ce qu'est l'« accord déjà obtenu » de `docs/etat-des-travaux.md` : la conversation n'est pas dans le dépôt (rapport `documentation.md`, DOC-05).
 - Si les 21 fichiers venus de Sketchfab sont ceux de l'archive d'origine, aux quatre textures réduites près : le téléchargement demande un compte. Leur structure, elle, correspond à l'API.
@@ -348,7 +360,7 @@ Historique et confidentialité
 - Si les descriptions des pull requests #1 à #14 contiennent bien le lien de session (`docs/publication.md`, l. 27), et ce que gardent les historiques d'édition : non lus.
 - Si un commentaire de pull request, une relecture ou un journal d'Actions contient une information privée : non lus. La règle de `CLAUDE.md` nomme les commentaires, et aucun contrôle ne les lit.
 - La date du commit `8cd1075` de `github/docs`, cité par `docs/licences.md` et `docs/publication.md` : une empreinte abrégée ne se récupère pas par `git fetch`. Les faits ont été relus dans un commit plus récent.
-- « même alors, le site publié reste public » (`docs/publication.md`, l. 3) : phrase non retrouvée dans la page lue, dont le texte passe par des fragments réutilisés que je n'ai pas tous ouverts.
-- Si les fragments de Vite et de Rolldown du site construit sont une « substantial portion » au sens de la licence MIT (LIC-08, point 4).
-- Si GitHub attribue encore des adresses « noreply » sans numéro (LIC-06).
-- Si l'application charge quelque chose depuis les adresses extérieures écrites dans le code de Babylon.js (`cdn.babylonjs.com`, `unpkg.com` : présentes comme chaînes dans le fichier construit) : pas de navigateur dans cet audit. Les pages elles-mêmes n'en chargent rien.
+- « même alors, le site publié reste public » (`docs/publication.md`, l. 3) : phrase non retrouvée dans la page lue, dont le texte passe par des fragments réutilisés que je n'ai pas tous ouverts. Contre-vérification : levé, le fait est dans une autre page que celle citée (voir LIC-10).
+- Si les fragments de Vite et de Rolldown du site construit sont une « substantial portion » au sens de la licence MIT (LIC-08, point 4). Contre-vérification : toujours inconnu ; l'origine des fragments, elle, est établie (voir LIC-08).
+- Si GitHub attribue encore des adresses « noreply » sans numéro (LIC-06). Contre-vérification : levé, cette forme reste celle des comptes créés avant le 18 juillet 2017 (voir LIC-06).
+- Si l'application charge quelque chose depuis les adresses extérieures écrites dans le code de Babylon.js (`cdn.babylonjs.com`, `unpkg.com` : présentes comme chaînes dans le fichier construit) : pas de navigateur dans cet audit. Les pages elles-mêmes n'en chargent rien. Contre-vérification : toujours inconnu sans navigateur ; lecture statique seulement : `app/src/` n'écrit aucune adresse extérieure hors de ses commentaires et n'appelle ni l'inspecteur ni l'environnement par défaut de Babylon.js, et les sept fichiers glTF ne déclarent aucune extension de compression (une seule extension, `KHR_materials_specular`, pour le chien), donc aucun décodeur à télécharger.
