@@ -1,12 +1,16 @@
 # Audit du lot « Documentation : exactitude, cohérence, décisions rapportées »
 
-État : constats non contre-vérifiés
+> **Bilan de la contre-vérification, 14 novembre 2026 : 8 constats confirmés, 4 réfutés (DOC-03, DOC-05, DOC-08, DOC-10), 0 ajouté.** Un autre agent de Claude a essayé de réfuter chaque constat : endroits relus et datés (`git blame`), comptes refaits avec ses propres scripts, état des commits, des tags et des releases lu dans l'API de GitHub ; son verdict est écrit sous chaque constat. Cinq des huit constats confirmés ne le sont qu'en partie : DOC-02 (trois lignes sur sept), DOC-06 (sept sur onze), DOC-07 (trois sur six), DOC-11 (une seule : `content/` absent du tableau du README) et DOC-12 (deux retouches sur cinq points). Gravité baissée : DOC-01 (« incohérent » : l'état anglais est daté, et il était juste à sa date) et DOC-06 (« à améliorer ») ; il reste 1 « faux » (DOC-02), 1 « incohérent » (DOC-01) et 6 « à améliorer ». Corrections corrigées : DOC-04 (ne pas redater les trois titres, que les tags et les releases recopient ; une phrase dans l'en-tête du changelog suffit), DOC-06 (garder le `todo` de MES-04), DOC-07 (ne pas réécrire l'objectif de couverture du cadrage). Réfutés : DOC-03 et DOC-05 portent sur des lignes de la version 0.3.54, hors de la période (pour DOC-03, la phrase reste à corriger en une ligne, et l'API de GitHub lève le « Je ne sais pas » : 29 commits du 10 au 12 novembre sont affichés « non vérifiés ») ; DOC-08 n'établit aucune attribution fausse ; DOC-10 est déjà dit dans douze fichiers. DOC-01, DOC-02, DOC-06 et DOC-07 recoupent CHX-01, CHX-10 et ARC-09 : à compter une fois. À corriger d'abord : les deux README, dans une seule modification (DOC-02 puis DOC-01 : un état court, sans inventaire ni compte, et la version anglaise remise à niveau) ; puis `docs/questions-ouvertes.md` réduit à ce qui est ouvert (DOC-06, avec CHX-01 et CHX-10) ; le reste tient en quelques lignes (DOC-04, DOC-07, DOC-09, DOC-11, DOC-12).
+
+Rapport écrit par un agent de Claude le 14 novembre 2026, à la demande de Julien ; un second agent a ensuite contre-vérifié chaque constat (méthode plus bas).
 
 - Date : 14 novembre 2026.
 - Demande : Julien, le 12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent, et le modifier si nécessaire.
 - Version auditée : copie de travail de la branche de l'audit (version 0.3.58 en cours), pour ce qui date de la version 0.3.53 ou d'avant. Ce qui a été écrit depuis (versions 0.3.54 à 0.3.58) est lu quand il rapporte le travail antérieur ; une erreur qui s'y trouve est notée, sans en faire le sujet de l'audit.
 - Bilan : 12 constats (3 « faux », 3 « incohérent », 6 « à améliorer », aucun « non sourcé »), 29 points vérifiés et justes, 7 « Je ne sais pas ». Les règles de `CLAUDE.md` sur le dépôt sont tenues (pas de push sur `main` hors le premier commit, adresses « noreply », un commit de fusion et une section de changelog par version, fichiers annoncés présents), et les faits chiffrés des pages relues se recalculent. Les défauts sont ceux d'une documentation que l'on complète sans la relire : la version anglaise du README abandonnée depuis la version 0.3.22, des nombres et des phrases restés à leur état du 7, du 8 ou du 9 novembre, des points tranchés encore écrits comme ouverts, et une décision (la photo à 360°) absente de la page des décisions. À corriger d'abord : DOC-05 (Renderpeople : Julien doit dire ce qu'il en est), DOC-01 et DOC-02 (ce que lit un visiteur du dépôt), DOC-06 et DOC-10.
 - Ce qui n'a pas été couvert est dit plus bas, dans « Ce qui n'a pas été couvert ».
+
+**Contre-avis :** l'ordre « à corriger d'abord » est à revoir. DOC-05 et DOC-10 en sortent. La question sur Renderpeople est déjà dans « Ce qui attend Julien » (`docs/etat-des-travaux.md`), par une ligne du 12 novembre : il n'y a rien à corriger avant sa réponse, et le fond relève du rapport sur les licences. La décision du 8 novembre est écrite dans `docs/historique.md` et redite dans onze autres fichiers : une ligne de plus dans `docs/cadrage.md` suffit, sans toucher `CLAUDE.md`. Restent en tête DOC-02 et DOC-01, à faire ensemble (un état court dans les deux README), puis DOC-06, qui n'est pas une correction à part : c'est la remise en ordre de `docs/questions-ouvertes.md` déjà retenue sous CHX-01 et CHX-10. Trois phrases du bilan sont à nuancer : il reste 1 « faux » et 1 « incohérent », pas 3 et 3 ; « des points tranchés encore écrits comme ouverts » ne vaut, pour la période, que pour des mentions restées après coup (les deux vraies contradictions datent du 12 novembre) ; et la photo à 360° n'est pas « absente de la page des décisions ».
 
 ## Périmètre
 
@@ -28,6 +32,17 @@
 5. Décisions de Julien : chaque décision rapportée est cherchée dans `docs/historique.md` et dans les messages de commit. La conversation entre Julien et Claude n'est pas dans le dépôt : une citation « mot pour mot » ne peut pas être contrôlée.
 
 Scripts et pages enregistrées : dossier `audit/documentation/` du bloc-notes de la session, hors du dépôt (`scripts/`, `pages/`). Les numéros de ligne sont ceux de la copie de travail du 14 novembre 2026.
+
+### Contre-vérification (14 novembre 2026)
+
+1. Pour chaque constat : relecture de l'endroit visé dans la copie de travail, et date de chaque ligne citée (`git blame`, `git log -S`), pour juger du périmètre : est hors de la période ce qui a été écrit le 12 novembre 2026 ou après (versions 0.3.54 et suivantes), comme dans les autres rapports.
+2. Comptes refaits sans reprendre les scripts de l'audit : auteurs, committers et en-têtes de signature des 108 commits hors fusions et des 63 fusions de `origin/main` ; sources de `data/sources.yaml` aux tags ; fiches par langue ; `python3 scripts/validate.py` et `python3 scripts/coverage.py` ; champs `todo` du référentiel ; total du manifeste de la scène ; mentions de la photo à 360° dans les pages. Pour DOC-04, un script écrit pour cette vérification (`dates_versions.py`) compare la date de chaque titre du changelog à celle de la fusion visée par son tag, en UTC et à l'heure de Paris, et contrôle le type du tag et le nombre de parents.
+3. GitHub, lu le 14 novembre 2026 par l'API REST du dépôt : le champ `verification` de chacun des 108 commits hors fusions (DOC-03, résultats dans `verif.txt`) ; le message du tag annoté et le nom de la release des versions 0.3.37, 0.3.53 et 0.3.57 (DOC-04) ; la liste des tags (`git ls-remote --tags origin`).
+4. Recherche du même constat dans le reste du dépôt et dans les autres rapports de `docs/audit/` : CHX-01, CHX-04, CHX-06, CHX-09, CHX-10 (`choix-et-outils.md`), RST-05 (`referentiel-structure.md`), ARC-09 (`architecture-application.md`) et leurs contre-vérifications.
+5. Aucune faute nouvelle à ajouter. Vu en passant : `docs/licences.md`, l. 10 (hors du lot), écrit encore « `content/` (à venir) » ; le modèle `metal_trash_can` contient bien deux poubelles (nœuds `metal_trash_can` et `metal_trash_can_rust` du fichier glTF), « poubelles » est juste ; le point « Si GitHub affiche les commits comme vérifiés » de la section « Je ne sais pas » est levé (DOC-03).
+6. Limites : celles de l'audit. La conversation entre Julien et Claude n'est pas dans le dépôt ; le site publié n'a pas été ouvert ; les points de la section « Vérifié » n'ont pas été repris un par un, seuls ceux qui touchent un constat l'ont été.
+
+Scripts et résultats de la contre-vérification : dossier `audit/documentation/refutation/` du bloc-notes de la session, hors du dépôt.
 
 ## Sources
 
@@ -144,7 +159,7 @@ Correction : la première voie (un état court, sans inventaire ni compte), qui 
 **Contre-vérification : confirmé**, pour sept lignes du tableau sur onze, et à la gravité « à améliorer ». Lignes relues et datées (`git blame`) : l'en-tête (l. 3, du 7 novembre ; 45 commits depuis, compte refait), le fond écrêté (l. 24, du 8), le chargement sans fin (l. 51, commit b6a148f du 9 ; le téléphone et le navigateur sont dans `docs/historique.md`, l. 139 et 144), LUM-02 (l. 61, deux états dans le même paragraphe), la règle de la médiane (l. 63, déjà comptée par CHX-10, confirmé), la lisibilité (l. 64) et les étapes sans état (l. 87, 89 et 90) sont bien restées en l'état. Quatre lignes sont à retirer :
 - l. 32 (grilles « à confirmer ») : écrite le 12 novembre (commit cd188a8, version 0.3.56), hors de la période ; la contre-vérification de CHX-01 l'avait déjà écartée pour cette raison ;
 - l. 83 (« On n'étend […] qu'après l'avoir testée ») : c'est la règle de `CLAUDE.md`, toujours en vigueur ; ce qui la contredit est la l. 31, écrite le 12 novembre, et CHX-04 est réfuté pour la même raison ;
-- l. 62 : elle nomme les trois chantiers dont les l. 77 à 79 donnent l'état (« Pour la photo, tranché le 8 novembre 2026 ») ; les poses longues et le viseur restent ouverts. Une liste et son détail, pas une contradiction ;
+- l. 62 : elle nomme les trois chantiers dont les l. 77 à 79 donnent l'état, un par un (flou de mouvement de la photo : « tranché le 8 novembre 2026 » ; premier plan et flash : « à vérifier »). Une liste et son détail, pas une contradiction ;
 - l. 68 (MES-04) : non établi, et la correction ferait perdre un rappel. La fiche source ce qu'elle dit, mais l'exercice du référentiel (« Rendre la neige blanche ») n'y est pas : « la scène de parc n'en a pas, l'exercice est adapté » (`content/fr/notions/MES-04.md`, l. 13). Ce que la cellule fait de la neige reste à sourcer quand SIT-03 ou SIT-13 seront écrites : ne pas retirer le `todo` ; au plus, le préciser.
 
 Une fois ces lignes ôtées, plus rien ne contredit une autre page : ce sont des mentions restées après coup, d'où la gravité. Correction : la revue ligne par ligne, dans la pull request qui réduit la page à ce qui est ouvert (voie B de CHX-01) et qui crée la table des décisions en attente (voie B de CHX-10), pas à part.
@@ -323,3 +338,13 @@ Toutes lues le 14 novembre 2026. Fichiers sous `pages/` du dossier de l'audit, d
 | Art Adams, ProVideo Coalition, 27 décembre 2011 (page ouverte ; rien n'en est cité ici) | `https://www.provideocoalition.com/lighting_strategies_what_makes_soft_lights_cast_soft_shadows/` | `pvc-adams.html` |
 | GitHub, dépôt du projet : tags (`git ls-remote --tags origin`), releases, commits e89680d, 19a744b et 8be11bd, pull request 59 | outil GitHub de la session | (non enregistré) |
 | Babylon.js, paquet `@babylonjs/core` 9.35.0 : `Engines/abstractEngine.pure.js`, `Materials/imageProcessingConfiguration.pure.js` | `app/node_modules/@babylonjs/core/` | (dans le dépôt de travail) |
+
+### Relues pour la contre-vérification
+
+Toutes lues le 14 novembre 2026. Fichiers sous le dossier de la contre-vérification, dans le bloc-notes de la session.
+
+| Source | Adresse lue | Fichier |
+| --- | --- | --- |
+| GitHub, dépôt du projet : champ `verification` des 108 commits hors fusions de `main` | API REST, `repos/Badmiaoo/TutoPhoto/commits/<sha>` | `verif.txt` |
+| GitHub, dépôt du projet : releases des tags `v0.3.37`, `v0.3.53` et `v0.3.57` (nom, date de publication) ; messages des tags annotés ; liste des tags | API REST, `repos/Badmiaoo/TutoPhoto/releases/tags/<tag>` ; `git ls-remote --tags origin` | (non enregistré) |
+| Poly Haven, API : fiche de `metal_trash_can` (ouverte ; rien n'en est cité, le compte des poubelles vient du fichier glTF du dépôt) | `https://api.polyhaven.com/info/metal_trash_can` | (non enregistré) |
