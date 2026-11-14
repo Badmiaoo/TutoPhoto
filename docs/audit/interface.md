@@ -315,6 +315,7 @@ Scripts, pages enregistrées et captures : dossier `audit/interface/` du bloc-no
   | « AF-C · Auto · œil · 6,6 m » | 108–282 | 274–382 | 8 px |
   | « AF-C · Auto · sujet le plus proche · 5,8 m » | 56–334 | 274–382 | 60 px |
   | « AF-C · Auto · closest subject · 5.8 m » | 70–320 | 307–382 | 13 px |
+| « AF-S · Auto · point touché · verrouillée à 14,9 m » (`s8.cjs`) | 35–356 | 274–382 | 82 px |
 
   En zone automatique sans visage, la fin de la pastille, c'est-à-dire la distance de mise au point, est sous le bouton « Vue de dessus » (même capture). Le repère du point, placé au-dessus des pastilles (`z-index: 1`), les recouvre aussi quand le point est en bas du cadre.
 - En plus : le bouton « Vue de dessus » fait 98,7 × 20,2 px (`s1.cjs`) et il est posé sur le viseur, qui est lui-même une cible (un toucher y choisit le point de mise au point) : un toucher à 2 px du bouton déplace le point. Critère « Target Size (Minimum) » (2.5.8, niveau AA), texte lu : « The size of the target for pointer inputs is at least 24 by 24 CSS pixels », avec une exception d'espacement qui ne joue pas ici, le cercle de 24 px du bouton coupant une autre cible.
@@ -363,6 +364,31 @@ Chacun est mineur ; ils sont regroupés pour être corrigés ensemble.
 - Portée : un simulateur d'exposition montre souvent un viseur trop clair ; c'est là que la zone AF et le sommet rouge se voient le moins.
 - Correction proposée : pour la zone AF, le même procédé que les grilles (un pointillé clair doublé d'un trait sombre : `box-shadow` ou `outline` à `rgb(0 0 0 / 0.35)`) ; pour la barre, une piste sans fond, bordée d'un trait de 1 px en `--discret` (6,30:1 et 7,23:1 contre le fond), la partie remplie en `--texte` se détachant alors du fond à 15,60:1 et 15,31:1 ; pour les sommets, un contour blanc d'un pixel, comme celui du point central (`.balance-point`).
 
+### INT-20 · à améliorer · Fenêtres sur téléphone : « Fermer » est tout en bas d'un contenu plus haut que l'écran, et la fenêtre se rouvre là où on l'a laissée
+
+- Endroit : `app/simulateur/index.html`, l. 198-223 (fenêtre « Mise au point » : le bouton « Fermer » après la note), l. 273-279 (fenêtre de fiche) ; `app/src/style.css`, l. 102-109 (`dialog { max-height: calc(100vh - 2rem) }`) et l. 908-912 ; `app/src/ui/cameraPanel.ts`, l. 298 (`el.afDialog.showModal()`, sans remise à zéro du défilement).
+- Preuve (essai, `s8.cjs`, iPhone 14 émulé, 390 × 664 px ; captures `sim-iphone-fenetre-af.png` et `sim-iphone-fenetre-af-reouverte.png`) :
+
+  | Fenêtre | Boîte | Contenu | « Fermer » |
+  | --- | --- | --- | --- |
+  | « Mise au point », première ouverture | 358 × 632 px | 725 px pour 630 visibles, défilement 0 | hors de la boîte : il faut défiler de 95 px |
+  | Même fenêtre, fermée par « Fermer » puis rouverte | 358 × 632 px | défilement 95 px, gardé | visible ; le titre « Mise au point » et la légende « Mode de mise au point » ne le sont plus |
+  | Fiche SIT-05, ouverte depuis « Défis » | 358 × 632 px | 1 195 px pour 630 visibles (1,9 écran) | à 1 148 px du haut : après toute la fiche |
+
+  1. Sur un téléphone, il n'y a pas de touche Échap, et toucher hors d'une fenêtre ouverte par `showModal` ne la ferme pas : le seul moyen de fermer est le bouton du bas. Pour la fiche, c'est après deux écrans de lecture.
+  2. La fenêtre garde son défilement d'une ouverture à l'autre, comme l'écran de revue (INT-17) : comme on la ferme toujours par le bas, elle se rouvre toujours par le bas, titre et premiers choix cachés. La fenêtre de fiche, elle, remet son défilement à zéro (`ficheDialog.ts`, l. 84-85) : le remède est déjà écrit pour un cas.
+- Non mesuré : les fenêtres « Exposition », « Aperçu » et « Mode de déclenchement », plus longues encore avec leurs notes (la note des grilles, la note du déclenchement) ; la même cause y produit le même effet.
+- Correction proposée : dans une seule fonction d'ouverture des fenêtres, `dialog.scrollTop = 0` avant `showModal()` ; un bouton de fermeture en haut à droite de chaque fenêtre, collé au défilement (`position: sticky; top: 0`), en plus de celui du bas ; fermeture par un toucher sur le fond (`click` dont la cible est la fenêtre elle-même). Les notes longues peuvent passer dans un `<details>` replié, comme « Limites et lecture » de l'indicateur d'équilibre.
+
+### INT-21 · à améliorer · Le bouton de l'indicateur d'exposition disparaît une demi-seconde sur deux quand il clignote ; la routine clique dessus dans cet état
+
+- Endroit : `app/src/style.css`, l. 448-456 (`.flashing`, `@keyframes clignote { to { visibility: hidden; } }`) ; `app/src/ui/cameraPanel.ts`, l. 745 ; `scripts/test_app.cjs`, l. 375-382 (`setExposure`) et l. 531.
+- Déjà établi : FEX-19 (`docs/audit/fiches-exposition.md`, confirmé par un second agent) montre que, hors des limites en mode A ou S, le bouton qui ouvre la fenêtre « Exposition » est invisible une demi-seconde par seconde et ne reçoit alors ni clic ni focus ; ce rapport renvoyait la correction ici. Je la reprends : une ligne, `@keyframes clignote { to { opacity: 0; } }`, que FEX-19 a vérifiée avec le réglage « réduire les animations » mais pas essayée telle quelle.
+- Ce que ce rapport ajoute : la routine clique sur ce bouton pendant qu'il clignote. À la l. 529, elle passe en mode S à 1/4000 s et ISO 100 : l'ouverture clignote à f/1,4 (c'est ce que le contrôle vérifie, `sDark.flashing`). À la l. 531, `setExposure({ autoIso: true })` commence par `page.click("#meter-value")`, puis coche la case de la fenêtre.
+- Preuve (essai, `s7.cjs`, Chromium en rendu logiciel, machine chargée par d'autres essais ; mode S, 1/4000 s, ISO 100, sans ISO auto : « S · −0,5 IL », « f/1,4 » qui clignote) : 40 appels à `page.click("#meter-value")`, le geste de la routine, chacun abandonné au bout de 20 s. La fenêtre s'est ouverte 28 fois ; 12 appels n'ont rien ouvert. Un appel a duré de 2,0 s à 20,0 s, alors qu'un clic sur un bouton fixe rend la main en moins d'une seconde : Playwright attend que le bouton soit visible et stable, et le clignotement le lui refuse une fois sur deux.
+- Lien avec l'échec non expliqué de la CI : `docs/etat-des-travaux.md`, l. 80, rapporte un arrêt du profil ordinateur « à l'entrée du mode S (`page.check: Timeout 300000ms exceeded`) », jamais reproduit. Si le clic de la l. 531 tombe dans une phase invisible, la fenêtre ne s'ouvre pas, et l'appel suivant, `page.check('#exposure-dialog input[name="autoIso"]')`, attend 300 s un élément d'une fenêtre fermée : c'est ce message. Je n'ai pas lu le journal de ce passage : c'est une hypothèse cohérente avec le message, pas une cause prouvée.
+- Correction proposée : la ligne de CSS ci-dessus (le bouton garde clics et focus, l'aspect ne change pas) ; puis rejouer `s7.cjs` : les 40 clics doivent ouvrir la fenêtre. La routine n'a rien à changer.
+
 ## Vérifié
 
 Contrastes (calcul, `contraste.py`, définitions du WCAG 2.2 ; seuil de 4,5:1 pour le texte, critère « Contrast (Minimum) », texte lu)
@@ -409,7 +435,7 @@ Routine
 1. Safari et un vrai téléphone. Tout est mesuré dans Chromium sans écran, en rendu logiciel, sur des fenêtres émulées. Je ne sais pas ce que donnent, sur un iPhone, `html, body { height: 100% }` et `max-height: calc(100vh - 2rem)` quand les barres de Safari se replient, ni la hauteur réelle du viseur.
 2. Police. Mes mesures sont faites avec Inter ; la CI emploie DejaVu Sans, plus large (238 ou 254 px de viseur sur l'iPhone 14 émulé, d'après `docs/etat-des-travaux.md`). Les seuils où un texte passe à la ligne (INT-04, INT-11, INT-12) changent avec la police ; les mécanismes non.
 3. Lecteur d'écran. Aucun essai avec VoiceOver, TalkBack ou NVDA : INT-15 décrit l'arbre d'accessibilité de Chromium et le code, pas ce qui est prononcé.
-4. Cause de l'échec non expliqué de la routine (`docs/etat-des-travaux.md`, l. 80 : `page.check: Timeout 300000ms exceeded` « à l'entrée du mode S »). Voir INT-20 : l'hypothèse du bouton qui clignote est cohérente avec le message, mais je n'ai pas lu le journal de ce passage.
+4. Cause de l'échec non expliqué de la routine (`docs/etat-des-travaux.md`, l. 80 : `page.check: Timeout 300000ms exceeded` « à l'entrée du mode S »). Voir INT-21 : l'hypothèse du bouton qui clignote est cohérente avec le message, mais je n'ai pas lu le journal de ce passage.
 5. Délais fixes de la routine (onze `waitForTimeout`, l. 337 à 1124). Deux sont suivis d'une lecture sans nouvel essai : l. 459 (2 s, puis lecture du bruit au point du sol) et l. 476-481 (1,5 s et 0,8 s, puis mesure de la netteté du fond). Je ne sais pas s'ils suffisent toujours dans la CI, où une image avec la profondeur de champ « peut prendre plusieurs secondes » (l. 310) ; je n'ai vu aucun échec qui le prouve.
 6. Manuel du Canon EOS RP et de l'EOS 2000D : non cherchés ; les termes de Canon viennent du manuel de l'EOS 850D. Les noms de grilles de Canon et l'illustration du Nikon D5600 cités par `gridNote` (0.3.56, hors du lot) ne sont pas relus.
 7. Numéros des critères du WCAG (2.1.1, 2.5.8…) : donnés de mémoire ; les fichiers source lus ne les portent pas, et la page publiée (`www.w3.org`) n'est pas joignable. Les noms et les textes des critères sont lus.
