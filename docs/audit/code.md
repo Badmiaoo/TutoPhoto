@@ -59,7 +59,15 @@ Ce lot est du code : il cite peu de sources extérieures.
 - Preuve (essai 1, mêmes conditions, 50 mm, f/8) : dix déplacements de 6 px faits après le déclenchement ; les 17 rendus de la photo ont tous `rotation.y` = 0,01496 rad au lieu de 0, soit un cadrage décalé de 0,01496 × 50 / 36 × 1500 = 31 px par rapport à celui du déclenchement. Après le calcul, le viseur lui-même a tourné de 0,015 rad : les déplacements reçus pendant le calcul s'appliquent à la reprise.
 - Conséquence : sur un téléphone, où un calcul dure de 1 à 5 s et une rafale plusieurs fois autant, un doigt qui glisse sur le viseur pendant le calcul gâche la photo, sans rien de physique : le mouvement n'a pas lieu pendant la pose mais pendant le calcul. C'est le geste même que la rafale demande (« suivre le chien ») : le doigt qui suit le sujet est encore sur le viseur quand le calcul commence. `replay.rotation` (`photo.ts`, l. 453) garde la dernière orientation, pas celle de la pose : la loupe recalcule alors une autre vue que la photo.
 - Ce que l'essai ne dit pas : la fréquence du cas sur un vrai téléphone. Le rendu logiciel étire le calcul (43 à 66 s ici).
-- Correction proposée : rendre sans mettre à jour la caméra, `scene.render(false)`, aux deux appels de `takePhoto` (l. 317 et 388) ; et, dans `Shutter.compute`, détacher les commandes le temps du calcul (`camera.detachControl()` avant, `camera.attachControl(canvas, true)` et `camera.cameraRotation.set(0, 0)` dans le `finally`), pour que les gestes faits pendant le calcul ne s'appliquent pas à la reprise. À vérifier dans un navigateur avant de fusionner, avec l'essai 1b : `rotation.y` constant, photo égale au témoin.
+- Correction proposée : rendre sans mettre à jour la caméra, `scene.render(false)`, aux deux appels de `takePhoto` (l. 317 et 388) ; et, dans `Shutter.compute`, détacher les commandes le temps du calcul (`camera.detachControl()` avant, `camera.attachControl(canvas, true)` et `camera.cameraRotation.set(0, 0)` dans le `finally`), pour que les gestes faits pendant le calcul ne s'appliquent pas à la reprise.
+- Correction essayée (essai 7, 14 novembre 2026, sur une seconde copie hors du dépôt qui porte ces cinq lignes ; `npx tsc --noEmit` passe ; 200 mm, f/8, souris glissée de 240 px sur le viseur pendant le calcul) :
+
+  | Copie | `rotation.y` pendant les rendus de la photo | `rotation.y` du viseur après le calcul |
+  | --- | --- | --- |
+  | non modifiée | de 0,01 à 0,10 rad (34 rendus) | 0,50 rad : le viseur a tourné de 29° |
+  | corrigée | 0 aux 54 rendus | 0 |
+
+  Sur la copie corrigée, la photo prise en glissant est nette sur le sujet et son fond est flou (`essai7-copie2-glisse.jpg`) : le déplacement de l'œil sur l'ouverture se fait toujours avec `scene.render(false)`. À refaire sur un téléphone avant de fusionner.
 
 ### COD-02 · faux · Retardateur : la vue est perdue sans message si la loupe de l'écran de revue calcule à la fin du compte à rebours ; le compte à rebours ne s'annule pas
 
@@ -144,7 +152,8 @@ Ce lot est du code : il cite peu de sources extérieures.
   | le même toucher en haut du cadre, hors calcul | « AF-S · Point · verrouillée à 500,0 m » | 20 %, `locked` |
 
 - Conséquence : le viseur montre un point vert sur le fond, à 500 m, avec une distance de 7,1 m ; la photo suivante est faite à 7,1 m (`shutter.ts`, l. 345-361 : verrou gardé, `focusDistance` = distance verrouillée). Le débutant croit avoir fait le point là où il a touché. En rafale, le point de la demande change aussi d'une vue à l'autre (`shutter.ts`, l. 360, lu à chaque vue).
-- Correction proposée : ne pas prendre les touchers du viseur pendant un calcul (`choosePoint` : `if (!this.panel.isEnabled()) return;`, le test que fait déjà `TopView`, `topView.ts`, l. 76 et 92). À vérifier avec l'essai 3.
+- Correction proposée : ne pas prendre les touchers du viseur pendant un calcul (`choosePoint` : `if (!this.panel.isEnabled()) return;`, le test que fait déjà `TopView`, `topView.ts`, l. 76 et 92).
+- Correction essayée (essai 7, même copie corrigée) : après un toucher en haut du cadre pendant le calcul, le repère reste à 85 % et l'indicateur à « verrouillée à 15,8 m » ; sur la copie non modifiée, le repère passe à 20 % avec la même distance.
 
 ### COD-08 · incohérent · Écran de revue : pendant le calcul de la loupe, « Revenir au viseur » et « Vue suivante » restent actifs, et le résultat de la loupe s'impose ensuite
 
@@ -234,10 +243,61 @@ Ce lot est du code : il cite peu de sources extérieures.
 - Ce que cela coûte : une exposition des sujets décalée de log₂(0,90) = −0,15 IL au plus, sans que rien ne le dise, jusqu'au rechargement de la page.
 - Correction proposée : s'abonner aux deux événements du moteur ; à la perte, afficher un message (« Affichage interrompu… ») ; à la restauration, recréer la texture d'éclairage (`environment.dispose()`, puis une nouvelle `HDRCubeTexture`), ou proposer de recharger la page. À vérifier avec l'essai 5c : rapports revenus à 1,000.
 
+### COD-13 · à améliorer · Petits défauts d'état et code mort
+
+Lus dans le code, sans essai. Aucun ne justifie une pull request à lui seul ; à corriger au passage.
+
+1. Le déclencheur part au clic droit et au clic du milieu : l'écouteur de `pointerdown` ne regarde pas le bouton de la souris (`app/src/ui/shutter.ts`, l. 142-145). Correction : `if (e.button !== 0) return;`.
+2. Changer de langue pendant un compte à rebours ou pendant le calcul d'une rafale remet le texte par défaut : `setLang` écrit « Déclencher » sur le bouton et « Calcul de la photo… » dans le bandeau (`shutter.ts`, l. 166-168), à la place de « Retardateur : 7 s » (jusqu'à la seconde suivante) ou de « Calcul de la vue 3/20… » (jusqu'à la vue suivante).
+3. Pendant qu'une rafale est tenue, l'observateur réécrit le texte du bouton à chaque image, même quand le nombre de vues n'a pas changé, et empile une orientation par image sans limite, y compris après les 20 vues du plafond (`shutter.ts`, l. 266-271) : 60 par seconde à 60 images par seconde, relues en entier pour chaque vue au relâchement (l. 292-298). Correction : n'écrire que si le nombre change ; ne plus relever au-delà de la dernière vue possible.
+4. `compute` applique deux fois la vue à la fin de chaque calcul : `panel.setEnabled(true)` appelle `update()`, donc `applyView()`, puis `panel.restoreView()` rappelle `applyView()` (`shutter.ts`, l. 246-247 ; `app/src/ui/cameraPanel.ts`, l. 646-648, 674 et 773).
+5. Code mort : la clé de texte `meter` n'est lue nulle part (`app/src/i18n.ts`, l. 26 et 260 ; recherche de `"meter"` dans `app/src/`) ; trois exports ne servent que dans leur fichier : `AF_COVERAGE` (`cameraPanel.ts`, l. 72), `MOVE_AREA` (`app/src/ui/topView.ts`, l. 23), `shadow` (`app/src/activities/lum02.ts`, l. 130).
+6. Deux commentaires orphelins : `app/src/scene.ts`, l. 77, « Résolue quand tous les fichiers de la scène sont chargés » précède un second commentaire pour le même champ, et il est faux (COD-06 : le fichier HDR n'est pas attendu) ; `app/src/ui/challenges.ts`, l. 128, le commentaire de `renderBulletin` est resté au-dessus de `ficheButton`.
+
 ## Vérifié
 
-À compléter.
+Points contrôlés et justes.
+
+Chargement et erreurs
+1. La progression ne peut pas perdre de fichier par débordement du tampon de la Resource Timing API (250 entrées par défaut) : le manifeste liste 36 fichiers, dont 31 sont comptés, plus le code et la feuille de style.
+2. La minuterie de la progression s'arrête quand le chargement finit ou échoue (`main.ts`, l. 79-82).
+3. Photo de fond ou modèle non reçu : « La scène n'a pas pu être chargée. » s'affiche (essai 2 : à 11 s et à 15 s).
+4. Une erreur JavaScript ou une promesse rejetée s'affiche à l'écran, quatre messages au plus, sans doublon (`main.ts`, l. 96-109).
+5. Une erreur pendant le calcul d'une photo remet la caméra, la projection, l'horloge et le viseur en état : `takePhoto` et `Shutter.compute` défont tout dans un `finally` (`photo.ts`, l. 458-472 ; `shutter.ts`, l. 240-250).
+
+Boucle de rendu et redimensionnement
+6. Relancer la boucle de rendu après chaque calcul n'en empile pas : `runRenderLoop` ignore une fonction déjà inscrite (`Engines/abstractEngine.pure.js`, l. 505-508), et `main.ts` passe toujours la même (l. 219 et 252).
+7. Perte et restauration du contexte WebGL : le viseur, l'autofocus, l'indicateur d'équilibre, le bruit du viseur et la photo reviennent (essais 5 et 5b) ; reste l'écart d'éclairage de COD-12.
+8. La loupe du viseur : la matrice modifiée fait bien x' = (x − centre) × grossissement (`cameraPanel.ts`, l. 919-924, avec x_ndc = m0 × x / z + m8), et `displayedToFrame` est l'inverse de `frameToDisplayed` (l. 651-662).
+
+États mémorisés
+9. Chaque champ lu dans `tutophoto.boitier` et `tutophoto.apercu` est validé avant d'être pris (`cameraPanel.ts`, l. 1053-1114), `tutophoto.defi` et `tutophoto.lang` aussi (`challenges.ts`, l. 70 ; `i18n.ts`, l. 486) ; un stockage indisponible est rattrapé partout (neuf `try` dans ces trois fichiers). Essai 9, 14 novembre 2026 : avec quatre valeurs invalides en mémoire (boîtier « x », mode « P », cadence « abc », défi « SIT-99 », langue « de »…), la page se charge avec les réglages par défaut, sans erreur ni diagnostic.
+10. « Aucun défi » est mémorisé sous la valeur `none`, que la relecture écarte comme inconnue : le résultat est juste (`challenges.ts`, l. 70 et 88-90).
+
+Déclencheur et écran de revue
+11. Un appui pendant un calcul, une série ou un compte à rebours est refusé (`shutter.ts`, l. 255), et le déclencheur est grisé pendant le calcul : il est dans le panneau (`index.html`, l. 152 ; `cameraPanel.ts`, l. 672).
+12. Au clavier, le déclencheur prend une vue : un clic sans pointeur (`detail` nul) vaut un appui bref (`shutter.ts`, l. 147-151).
+13. Les adresses des photos sont libérées : celles de la série précédente à chaque nouvelle série (l. 392), celle de la loupe à chaque nouvelle fenêtre, à chaque changement de vue et à chaque nouvelle série (l. 429, 489 et 539-542).
+14. L'observateur de la rafale est retiré au relâchement (l. 282), que la fin vienne de `pointerup`, de `pointercancel` ou de `lostpointercapture` (l. 146).
+15. Changer de boîtier ne touche pas aux photos déjà prises : la loupe recalcule avec le boîtier de la photo (`shutter.ts`, l. 474 et 485, `shot.request.body`).
+
+Fiches, crédits, langue
+16. Aucune écriture de HTML par chaîne dans le lot (`innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write` : aucune occurrence) ; les textes passent par `textContent`.
+17. Fenêtre de fiche : dans les 44 pages construites, les 252 liens du corps (hors fil d'Ariane et bouton d'action, que la fenêtre retire) sont soit en `https://`, soit vers une autre fiche, que la fenêtre garde chez elle (`ficheDialog.ts`, l. 33-39 et 62) : aucun lien relatif ne casse.
+18. Deux clics rapides sur deux fiches n'affichent que la dernière (`ficheDialog.ts`, l. 82).
+19. Les deux langues ont les mêmes 223 clés (`i18n.ts`) ; une seule n'est pas utilisée (COD-13).
+
+Activité LUM-02 et scripts
+20. `shadow()` : pour 120 cm à 200 cm, pénombre de 120 × 50 / 200 = 30 cm et ombre pleine de 30 × 250 / 200 − 30 = 7,5 cm ; pour 3 cm à 100 cm, 1,5 cm et 43,5 cm ; pour 80 cm à 80 cm, 50 cm et aucune ombre pleine.
+21. `litFraction()` : comparée à un tracé de rayons point par point sur 400 tirages (taille de 1 à 150 cm, distance de 20 à 400 cm, hauteur de −100 à 100 cm), écart maximal 0,0002.
+22. Les bornes des curseurs tiennent dans le schéma : distance au plus 400 cm, donc mur à 450 cm, pour un dessin large de 480 cm ; taille d'au moins 1 cm, donc pas de division par zéro (`activites/LUM-02/index.html`, l. 27-30).
+23. `build-pages.mjs` et `copy-licences.mjs` : lus en entier, aucun défaut trouvé ; la page construite sur la copie donne « Pages : accueil, 44 fiche(s), 0 relue(s) ».
 
 ## Je ne sais pas
 
-À compléter.
+1. Le comportement sur un vrai téléphone et dans Safari de tout ce qui est établi par essai (COD-01, COD-06, COD-07, COD-09, COD-11, COD-12) : les essais émulent l'écran, le toucher et le navigateur, pas le processeur graphique.
+2. La fréquence réelle de ces cas chez un débutant : aucun test avec des débutants n'a encore eu lieu.
+3. Le coût en millisecondes par image des écritures de COD-10, et le coût des trois minuteries sur un téléphone : non mesurés (ARC-06).
+4. La cause de l'écart d'éclairage après une restauration du contexte (COD-12), et ce que fait une perte du contexte pendant le calcul d'une photo.
+5. Comment un Nikon Z 6 annule un retardateur en cours (COD-02) : page non relue pour ce rapport.
+6. Si un appui long sur le déclencheur ouvre un menu ou une sélection de texte sur iPhone (COD-09) : Safari n'est pas émulé.
