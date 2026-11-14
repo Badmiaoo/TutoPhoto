@@ -26,6 +26,17 @@
 
 Scripts des essais, journaux et photos : dossier `audit/code/` du bloc-notes de la session, hors du dépôt (`scripts/`, `essais/`).
 
+### Contre-vérification (14 novembre 2026)
+
+Un second agent de Claude a essayé de réfuter chaque constat ; son verdict est écrit sous chacun.
+
+1. Pour chaque constat : relecture du code à l'endroit cité (version 0.3.58), et du code de Babylon.js 9.35.0 quand le constat en dépend ; date du code visé lue dans l'historique (`git blame`), pour écarter ce qui date du 12 novembre 2026 ou d'après.
+2. Recherche, dans le reste du dépôt (`docs/`, `CHANGELOG.md`, les autres rapports d'audit), de ce qui dirait déjà le constat ou le contredirait.
+3. Essais refaits dans un navigateur avec des scripts écrits pour la contre-vérification, sans reprendre ceux de l'audit : même navigateur (Chromium sans écran, rendu logiciel, Playwright 1.63.0), site construit de nouveau hors du dépôt sur une copie non modifiée de `app/` (`NODE_ENV=development`, pour lire l'orientation de la caméra), puis sur une seconde copie qui porte les corrections proposées pour COD-01 et COD-07. Mêmes limites que l'audit : ni processeur graphique, ni Safari, ni vrai téléphone.
+4. Source relue à son adresse le 14 novembre 2026 : Nikon, « Z 7/Z 6 Online Manual », page « The Release Mode/Self-Timer Button », `https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_04.html` (pour COD-02).
+
+Scripts, journaux, captures et page enregistrée : dossier `audit/code/refutation/` du bloc-notes de la session, hors du dépôt (`r01_rotation.cjs`, `r06_hdr.cjs`, `r07_etats.cjs`, `r09_tactile.cjs`, `r10_cout.cjs`, `r11_sans_webgl.cjs`, `r11b_correction.cjs`, `r12_contexte.cjs` ; `essais/` ; `pages/`).
+
 ## Sources
 
 Ce lot est du code : il cite peu de sources extérieures.
@@ -92,6 +103,10 @@ Classés du plus grave au moins grave ; les identifiants suivent l'ordre de déc
 
   Sur la copie corrigée, la photo prise en glissant est nette sur le sujet et son fond est flou (`essai7-copie2-glisse.jpg`) : le déplacement de l'œil sur l'ouverture se fait toujours avec `scene.render(false)`. À refaire sur un téléphone avant de fusionner.
 
+**Contre-vérification : confirmé.** Code de Babylon.js relu aux lignes citées, et essai refait avec un autre script (`r01_rotation.cjs`, 14 novembre 2026, 50 mm, f/8, 17 rendus par photo) : sans geste, `rotation.y` vaut 0 à tous les rendus ; souris tenue sur le viseur et déplacée de 120 px pendant le calcul, elle passe de 0 au premier rendu à 0,0028 rad au dernier, et le viseur a tourné de 0,059 rad à la reprise. Le code est du 8 au 10 novembre (dans le lot), et aucune autre page du dépôt ne le dit (ARC-08 décrit le protocole de suspension sans voir que la caméra garde ses commandes).
+
+Le constat sous-estime le cas du téléphone. Au doigt, Babylon.js ne lit pas un déplacement mais l'écart entre le doigt et son point d'appui, et l'applique à chaque `camera.update()` tant que le doigt reste posé (`Cameras/Inputs/freeCameraTouchInput.js`, l. 108 et 150-171 : `camera.cameraRotation.y = this._offsetX * …` dans `checkInputs`). Essai (profil Pixel 7 émulé) : un doigt posé sur le viseur, glissé de 80 px avant le déclenchement puis immobile, un second doigt sur le déclencheur ; `rotation.y` passe de 0,0298 à 0,0325 rad pendant les 17 rendus de la photo. Il n'est donc pas nécessaire de bouger le doigt pendant le calcul : il suffit qu'il soit encore posé, écarté de son point d'appui. Ce que cela donne sur un vrai téléphone, où le calcul dure une seconde et non dix : je ne sais pas.
+
 ### COD-09 · faux · Rafale au doigt : un glissement de 20 px du doigt sur le déclencheur arrête la rafale, doigt encore posé
 
 - Endroit : `app/src/ui/shutter.ts`, l. 139-146 ; `app/src/style.css`, l. 138-143 et 506-516.
@@ -127,6 +142,8 @@ Classés du plus grave au moins grave ; les identifiants suivent l'ordre de déc
 - Conséquence : le viseur montre un point vert sur le fond, à 500 m, avec une distance de 7,1 m ; la photo suivante est faite à 7,1 m (`shutter.ts`, l. 345-361 : verrou gardé, `focusDistance` = distance verrouillée). Le débutant croit avoir fait le point là où il a touché. En rafale, le point de la demande change aussi d'une vue à l'autre (`shutter.ts`, l. 360, lu à chaque vue).
 - Correction proposée : ne pas prendre les touchers du viseur pendant un calcul (`choosePoint` : `if (!this.panel.isEnabled()) return;`, le test que fait déjà `TopView`, `topView.ts`, l. 76 et 92).
 - Correction essayée (essai 7, même copie corrigée) : après un toucher en haut du cadre pendant le calcul, le repère reste à 85 % et l'indicateur à « verrouillée à 15,8 m » ; sur la copie non modifiée, le repère passe à 20 % avec la même distance.
+
+**Contre-vérification : confirmé.** Chemin relu ligne à ligne (`setFocusPoint` déplace le point puis appelle `touch()`, que `read()` abandonne sans toucher au verrou quand l'autofocus est suspendu), et essai refait avec un autre script (`r07_etats.cjs`, 14 novembre 2026, réglages par défaut, donc AF-S et point sélectif) : mêmes quatre états que le tableau, « verrouillée à 7,1 m » avec le repère à 20 % et la classe `locked` pendant le calcul et 3 s après, « verrouillée à 500,0 m » pour le même toucher hors calcul. AF-S est le mode par défaut depuis la version 0.3.36 : le cas ne demande aucun réglage. La correction proposée est la bonne (une ligne, le test que `TopView` fait déjà) ; la fenêtre où le cas se produit est la durée du calcul, courte pour une vue seule sur un téléphone (0,8 à 2,0 s), longue en rafale.
 
 ### COD-06 · faux · Fichier d'éclairage non reçu : compté comme reçu, scène affichée sans ses personnages, puis le déclencheur bloque la page sans fin
 
@@ -171,6 +188,8 @@ Classés du plus grave au moins grave ; les identifiants suivent l'ordre de déc
   Sur la capture (`essai8-ordinateur.png`), la bande où le message devrait être est d'une seule couleur (écart type 0 sur les trois canaux). Restent à l'écran : le voile du cadre du viseur sur toute la zone, le triangle de l'indicateur d'équilibre sans texte, la boîte de la vue de dessus vide avec deux boutons sans texte, le repère de mise au point, et, dans l'en-tête, le bouton « Défis » sans texte, qui n'ouvre rien (ces composants ne sont créés que dans la branche avec WebGL, `main.ts`, l. 159-314).
 - Conséquence : la personne dont le navigateur n'a pas WebGL ne lit aucune explication. La routine a un profil sans WebGL 2, pas de profil sans WebGL.
 - Correction proposée : `#scene[hidden] { display: none; }` dans `style.css` ; dans la branche sans WebGL, masquer aussi `#frame`, `#af-coverage`, `#focus-marker`, `#balance`, `#top-view` et `#challenge-button` (ou poser une classe sur `body` et une règle qui masque tout `main` sauf `#no-webgl`) ; un contrôle de plus dans la routine (le texte du message est visible : `elementFromPoint` en son centre le rend).
+
+**Contre-vérification : confirmé.** Essai refait avec un autre script (`r11_sans_webgl.cjs`, 14 novembre 2026) : mêmes rectangles au pixel près (canevas `hidden` mais `display: block`, de 51 à 800 px et de 100 à 839 px ; message de 816 à 868 px et de 855 à 927 px), et `elementFromPoint` au centre du message ne rend aucun élément. Le code est du 7 et du 8 novembre (dans le lot) ; aucune autre page du dépôt ne le dit. Précision sur la correction, essayée (`r11b_correction.cjs`) : la règle `#scene[hidden]` seule ne suffit pas, le message remonte en haut de `main` mais reste sous le voile du cadre (noir à 55 %) et sous l'indicateur d'équilibre, qui cache ses premiers mots ; avec les six éléments masqués, il est lisible. Les deux parties de la correction sont donc à faire ensemble ; la classe sur `body` est la forme la plus courte. Dans la routine, contrôler que le texte est lisible, pas seulement que `elementFromPoint` rend le message : le voile ne prend pas les touchers (`pointer-events: none`) et passerait ce contrôle.
 
 ### COD-02 · faux · Retardateur : la vue est perdue sans message si la loupe de l'écran de revue calcule à la fin du compte à rebours ; le compte à rebours ne s'annule pas
 
