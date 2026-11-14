@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+"""Index des constats des rapports d'audit (docs/audit/*.md), fait par lecture mécanique des rapports.
+Usage : index_constats.py <dépôt> <dossier de sortie>
+Écrit index-constats.json, index-constats.md, un index-<rapport>.md par rapport et table-rapports.md (lignes à recopier)."""
+import json, re, sys
+from pathlib import Path
+
+ORDRE = ["modele-physique", "fiches-exposition", "fiches-mise-au-point", "architecture-application",
+         "choix-et-outils", "sources", "referentiel-contenu", "referentiel-structure", "code", "interface",
+         "documentation", "licences-scripts-ci"]
+TITRE = re.compile(r"^### ([A-Z]{3}-\d+) · ([^·]+?) · (.*)$")
+VERDICT = re.compile(r"\*\*Contre-vérification : (confirmé|réfuté)")
+
+def lire(chemin):
+    lignes = chemin.read_text(encoding="utf-8").splitlines()
+    rapport = {"fichier": f"docs/audit/{chemin.name}", "titre": "", "bilan": "", "sections": [], "constats": []}
+    for i, l in enumerate(lignes):
+        if l.startswith("# ") and not rapport["titre"]:
+            rapport["titre"] = l[2:].strip()
+        if l.startswith("> **Bilan") and not rapport["bilan"]:
+            rapport["bilan"] = l[2:].strip()
+        if l.startswith("## "):
+            rapport["sections"].append({"ligne": i + 1, "titre": l[3:].strip()})
+    i = 0
+    while i < len(lignes):
+        m = TITRE.match(lignes[i])
+        if not m:
+            i += 1
+            continue
+        j = i + 1
+        while j < len(lignes) and not lignes[j].startswith("### ") and not lignes[j].startswith("## "):
+            j += 1
+        corps = lignes[i + 1:j]
+        verdicts = [(VERDICT.search(l).group(1), l.strip()) for l in corps if VERDICT.search(l)]
+        correction = [l.strip() for l in corps
+                      if re.match(r"^- (\*\*)?(Correction|Recommandation|Voies?)\b", l.strip())]
+        contre_avis = [l.strip() for l in corps if l.strip().startswith("**Contre-avis")]
+        rapport["constats"].append({
+            "id": m.group(1), "gravite_titre": m.group(2).strip(), "titre": m.group(3).strip(),
+            "ajoute": "ajouté à la contre-vérification" in m.group(3),
+            "lignes": [i + 1, j],
+            "verdict": verdicts[-1][0] if verdicts else None,
+            "nb_verdicts": len(verdicts),
+            "verdict_texte": [v[1] for v in verdicts],
+            "correction_audit": correction, "contre_avis": contre_avis,
+        })
+        i = j
+    return rapport
+
+def main():
+    depot, sortie = Path(sys.argv[1]), Path(sys.argv[2])
+    rapports, absents = [], []
+    for cle in ORDRE:
+        f = depot / "docs" / "audit" / f"{cle}.md"
+        if f.exists():
+            r = lire(f); r["cle"] = cle; rapports.append(r)
+        else:
+            absents.append(cle)
+    alertes = []
+    table = ["| Rapport | Constats | Confirmés | Réfutés | Dont ajoutés par le second agent |", "| --- | --- | --- | --- | --- |"]
+    md = ["# Index des constats d'audit (lecture mécanique des rapports)", "",
+          "Fait par index_constats.py. Le verdict est celui de la dernière ligne « Contre-vérification » sous le constat.",
+          "La gravité est celle du titre : la contre-vérification l'a parfois baissée (c'est dit dans le bilan du rapport et dans le verdict).", ""]
+    for r in rapports:
+        debut = len(md)
+        c = r["constats"]
+        conf = [x for x in c if x["verdict"] == "confirmé"]
+        refu = [x for x in c if x["verdict"] == "réfuté"]
+        sans = [x for x in c if x["verdict"] is None]
+        ajout = [x for x in c if x["ajoute"]]
+        for x in sans:
+            alertes.append(f"{x['id']} : pas de verdict ({r['fichier']})")
+        ids = [x["id"] for x in c]
+        for d in sorted({i for i in ids if ids.count(i) > 1}):
+            alertes.append(f"{d} : identifiant en double ({r['fichier']})")
+        r["comptes"] = {"constats": len(c), "confirmes": len(conf), "refutes": len(refu), "sans_verdict": len(sans), "ajoutes": len(ajout)}
+        table.append(f"| `{r['fichier']}` | {len(c)} | {len(conf)} | {len(refu)} | {len(ajout)} |")
+        md += [f"## {r['fichier']}", "", f"Titre : {r['titre']}", "",
+               f"Comptes : {len(c)} constats, {len(conf)} confirmés, {len(refu)} réfutés, {len(sans)} sans verdict, {len(ajout)} ajoutés par le second agent.", "",
+               "Bilan écrit en tête du rapport : " + (r["bilan"] or "(aucun)"), "",
+               "Sections (numéro de ligne, pour lire avec offset et limit) : " + " ; ".join(f"l. {s['ligne']} {s['titre']}" for s in r["sections"]), ""]
+        for x in c:
+            md += [f"### {x['id']} · {x['gravite_titre']} · {x['verdict'] or 'SANS VERDICT'} · l. {x['lignes'][0]}-{x['lignes'][1]}", "",
+                   f"Titre : {x['titre']}", ""]
+            for t in x["correction_audit"]:
+                md += ["Correction de l'audit : " + t, ""]
+            for t in x["verdict_texte"]:
+                md += [t, ""]
+            for t in x["contre_avis"]:
+                md += [t, ""]
+        sortie.mkdir(parents=True, exist_ok=True)
+        (sortie / f"index-{r['cle']}.md").write_text("\n".join(md[:5] + md[debut:]) + "\n", encoding="utf-8")
+    tot = {k: sum(r["comptes"][k] for r in rapports) for k in ("constats", "confirmes", "refutes", "ajoutes")}
+    table.append(f"| Total | {tot['constats']} | {tot['confirmes']} | {tot['refutes']} | {tot['ajoutes']} |")
+    sortie.mkdir(parents=True, exist_ok=True)
+    (sortie / "index-constats.json").write_text(json.dumps({"rapports": rapports, "absents": absents, "alertes": alertes, "total": tot}, ensure_ascii=False, indent=1), encoding="utf-8")
+    (sortie / "index-constats.md").write_text("\n".join(md) + "\n", encoding="utf-8")
+    (sortie / "table-rapports.md").write_text("\n".join(table) + "\n", encoding="utf-8")
+    print("\n".join(table))
+    print("Rapports absents :", ", ".join(absents) or "aucun")
+    print("Alertes :", len(alertes))
+    for a in alertes:
+        print("  -", a)
+
+main()
