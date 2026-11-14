@@ -5,7 +5,8 @@
 - Date : 14 novembre 2026.
 - Demande : Julien, le 12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent, et le modifier si nécessaire.
 - Version auditée : copie de travail de la branche de l'audit (version 0.3.58 en cours), pour ce qui date de la version 0.3.53 ou d'avant. Ce qui a été écrit depuis (versions 0.3.54 à 0.3.58) est lu quand il rapporte le travail antérieur ; une erreur qui s'y trouve est notée, sans en faire le sujet de l'audit.
-- Rapport écrit au fur et à mesure : ce qui n'est pas encore couvert est dit dans « Reste à couvrir », en bas de cet en-tête.
+- Bilan : 12 constats (3 « faux », 3 « incohérent », 6 « à améliorer », aucun « non sourcé »), 28 points vérifiés et justes, 7 « Je ne sais pas ». Les règles de `CLAUDE.md` sur le dépôt sont tenues (pas de push sur `main` hors le premier commit, adresses « noreply », un commit de fusion et une section de changelog par version, fichiers annoncés présents), et les faits chiffrés des pages relues se recalculent. Les défauts sont ceux d'une documentation que l'on complète sans la relire : la version anglaise du README abandonnée depuis la version 0.3.22, des nombres et des phrases restés à leur état du 7, du 8 ou du 9 novembre, des points tranchés encore écrits comme ouverts, et une décision (la photo à 360°) absente de la page des décisions. À corriger d'abord : DOC-05 (Renderpeople : Julien doit dire ce qu'il en est), DOC-01 et DOC-02 (ce que lit un visiteur du dépôt), DOC-06 et DOC-10.
+- Ce qui n'a pas été couvert est dit plus bas, dans « Ce qui n'a pas été couvert ».
 
 ## Périmètre
 
@@ -16,7 +17,7 @@
 
 ## Méthode
 
-1. Lecture complète des fichiers du lot (`REPRISE.md` : voir « Reste à couvrir »).
+1. Lecture complète des fichiers du lot, sauf `REPRISE.md` : ses sections 0, 1, 6 et 7 sont lues, ses sections 2 et 9 comparées par script à leur copie dans `docs/`, ses sections 3 et 8 lues dans leur version de `docs/` seulement ; ses sections 4, 5 et 10 sont des données, auditées par d'autres rapports.
 2. Chaque affirmation vérifiable est confrontée au dépôt : fichiers, scripts, comptes (`python3 scripts/coverage.py`, `python3 scripts/validate.py`), versions (`app/package.json`, workflows), historique git (`git log`, `git show`, `git ls-remote --tags origin`).
 3. Contrôles par script, écrits pour cet audit :
    - `versions.py` : pour chaque section de `CHANGELOG.md`, le tag, son type, le commit visé, sa date (UTC et heure de Paris), son nombre de parents, et la section en tête du changelog à ce commit ;
@@ -34,11 +35,17 @@ Liste des pages relues : section « Sources relues », en fin de rapport. Les é
 
 Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le site publié (`badmiaoo.github.io`), la documentation de GitHub (`docs.github.com`), la page du cours de Marc Levoy (`graphics.stanford.edu`, `sites.google.com`), les manuels de Fujifilm (`fujifilm-dsc.com`), ManualsLib, OpenGameArt, et les sites juridiques cités par `docs/architecture.md`.
 
-## Reste à couvrir
+## Ce qui n'a pas été couvert
 
-(Tenu à jour à chaque envoi.) Au troisième envoi : classement final des constats et relecture ; voir aussi, plus bas, ce qui n'a pas été couvert.
+- `CHANGELOG.md` : ce que chaque version annonce comme fonction n'est pas réessayé dans le code de son tag ; seuls sont contrôlés le tag, la date, les fichiers nommés, les comptes (sources, couverture, tailles) et quelques constantes. Les fonctions sont jugées par les rapports sur le modèle physique, le code et l'interface.
+- `REPRISE.md` : les sections 3 et 8 ne sont pas relues ligne à ligne dans l'archive.
+- Descriptions des pull requests : une seule lue (la 59).
+- `docs/etat-des-travaux.md` : le « point du 13 novembre », écrit pendant l'audit et modifié à chaque tranche, n'est pas audité ; seules les sections d'avant le sont, et deux de ses phrases font un constat (DOC-03, DOC-05).
+- Le site publié n'a pas été ouvert (hôte non joignable), et aucun navigateur n'a servi.
 
 ## Constats
+
+Classés du plus grave au moins grave ; les identifiants, attribués dans l'ordre de l'écriture, ne se suivent donc plus.
 
 ### DOC-01 · faux · `README.en.md` est resté à la version 0.3.22 : il dit qu'aucun contenu n'est écrit et ne décrit ni les fiches, ni l'accueil, ni la plupart des fonctions du simulateur
 
@@ -82,29 +89,11 @@ Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le 
   | 10 et 11 novembre, et un le 12 | 29 | Julien, adresse « noreply » de GitHub | le même |
   | 12 et 13 novembre | 9 | Julien | Claude |
 
-  Julien n'est donc committer que de 29 des 99 commits d'avant la forme actuelle, et il n'est ni auteur ni committer des 70 premiers.
+  Avant le 12 novembre : 98 commits hors fusions, dont 70 ont Claude pour auteur et pour committer, et 28 ont Julien. La phrase n'est donc vraie que pour 28 commits sur 98. Les 63 commits de fusion, eux, ont Julien pour auteur et GitHub pour committer.
 - Preuve (signature) : chacun des 108 commits porte un en-tête `gpgsig` (« -----BEGIN SSH SIGNATURE----- »), dès le premier (e89680d). Ils sont signés ; ce que GitHub en affiche (« Verified » ou non) dépend de la clé et du committer.
 - Je ne sais pas ce que GitHub affiche pour chaque période : l'outil de lecture utilisé ne rend pas le champ de vérification.
-- Conséquence : `CLAUDE.md`, l. 16, donne pour seule exception « le nom de Julien comme auteur des commits » ; les 70 premiers commits ont « Claude » pour auteur, ce qui n'enfreint rien, mais `docs/historique.md`, l. 83 (« Son nom comme auteur des commits est accepté », 7 novembre), laisse croire que les commits portaient son nom dès ce jour.
+- Conséquence : `CLAUDE.md`, l. 21, donne pour seule exception « le nom de Julien comme auteur des commits » ; les 70 premiers commits ont « Claude » pour auteur, ce qui n'enfreint rien, mais `docs/historique.md`, l. 83 (« Son nom comme auteur des commits est accepté », 7 novembre), laisse croire que les commits portaient son nom dès ce jour.
 - Correction proposée : écrire « Jusqu'au 10 novembre 2026, auteur et committer : Claude (adresse "noreply" d'Anthropic) ; les 10 et 11 novembre, auteur et committer : Julien ; depuis le 12 novembre, auteur Julien et committer Claude. Tous les commits portent une signature SSH ; ce que GitHub affiche pour chaque période est à relever sur la page des commits. »
-
-### DOC-04 · à améliorer · `CHANGELOG.md` : trois versions sans tag, trois versions datées de la veille de leur fusion, et rien ne dit de quoi la date est la date
-
-- Endroit : `CHANGELOG.md`, l. 3 (« le workflow […] pose le tag annoté `vX.Y.Z` sur le commit de fusion »), titres des sections 0.3.37, 0.3.53 et 0.3.57, liens des l. 950-953 ; `CLAUDE.md`, l. 31.
-- Preuve (`versions.py`, `git ls-remote --tags origin`) :
-  - 64 sections, 60 tags sur GitHub, de `v0.2.3` à `v0.3.57`, tous annotés, chacun sur un commit de fusion à deux parents du premier parent de `main`, et la section en tête du changelog à ce commit est bien celle de la version. La version 0.3.58 est en cours.
-  - Sans tag : `v0.2.0`, `v0.2.1`, `v0.2.2`. La section 0.2.4 l'explique (référence refusée au jeton du workflow, « commande pour poser le tag à la main ») ; les tags n'ont pas été posés depuis, et les quatre liens des l. 950-953 visent des tags absents. Déjà relevé par `choix-et-outils.md` (CHX-10, tableau) : non recompté ici.
-  - Dates : le titre porte le jour où la section a été écrite, pas celui de la fusion, pour trois versions.
-
-    | Version | Date du titre | Commit de fusion | Fusion (UTC) | Fusion (heure de Paris) |
-    | --- | --- | --- | --- | --- |
-    | 0.3.37 | 2026-11-10 | 07549b2 | 11 novembre, 0 h 33 | 11 novembre, 1 h 33 |
-    | 0.3.53 | 2026-11-11 | 7a19af2 | 12 novembre, 5 h 54 | 12 novembre, 6 h 54 |
-    | 0.3.57 | 2026-11-12 | 8a0c894 | 13 novembre, 6 h 08 | 13 novembre, 7 h 08 |
-
-    Les 57 autres versions étiquetées sont datées du jour de leur fusion, dans les deux fuseaux.
-  - `docs/historique.md`, l. 198-199, range de même la version 0.3.53 au 11 novembre, avant la demande de la nuit, alors qu'elle a été fusionnée après ; l. 207 écrit « Version 0.3.57 fusionnée » au 13 novembre, ce qui est juste.
-- Correction proposée : écrire dans l'en-tête du changelog ce qu'est la date (« date de la fusion, en heure de Paris ») et corriger les trois titres ; ou faire écrire la date par `scripts/changelog.py` au moment du tag. Pour les trois tags : voir CHX-10.
 
 ### DOC-05 · incohérent · Renderpeople : `docs/etat-des-travaux.md` parle d'un « accord déjà obtenu », `docs/questions-ouvertes.md` dit « Je ne sais pas », et aucune autre page n'en garde la trace
 
@@ -136,8 +125,34 @@ Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le 
   | 87, 89, 90 | Étapes 3 (pile technique), 5 (prouver le moteur) et 6 (rédiger les contenus), sans état | Les étapes 1 et 4 portent leur état (« fait le… », « Version 0.3.46 »). L'étape 3 est faite depuis le 7 novembre, l'étape 6 depuis les versions 0.3.39 et 0.3.40 pour le jalon ; de l'étape 5, il reste le flou de bougé. |
 
 - Déjà relevé ailleurs, non recompté : l. 65, SunCalc « n'affiche aucune version publiée » (SRC-02 : le dépôt porte douze étiquettes de version).
-- Juste : les dix cases de la l. 8 à la l. 18 (les deux cases non cochées sont bien ouvertes : scènes suivantes, droit à l'image) ; la liste des `todo` (l. 68 à 79), identique aux 27 champs `todo` du référentiel.
+- Juste : les onze cases de la l. 8 à la l. 18 (les deux cases non cochées sont bien ouvertes : scènes suivantes, droit à l'image) ; la liste des `todo` (l. 68 à 79), identique aux 27 champs `todo` du référentiel.
 - Correction proposée : passer la page en revue ligne par ligne, une fois ; retirer ce qui est fait (ou le dater « fait, version X »), corriger la l. 3, et remonter la l. 63 dans ce qui attend Julien. Retirer le `todo` de MES-04. La forme de la page (journal ou liste d'ouvert) relève de CHX-01.
+
+### DOC-10 · incohérent · « Scènes en 3D de synthèse » : la page des décisions ne porte pas celle du 8 novembre, qui met une photo réelle à 360° derrière les sujets
+
+- Endroit : `docs/cadrage.md`, l. 5 et 26 ; `CLAUDE.md`, l. 3 ; `README.md`, l. 12 ; `README.en.md`, l. 12.
+- Ce qui est écrit : « Scènes en 3D de synthèse dès la V1, à la place des photos réelles et de leur carte de profondeur (2.5D) » (`docs/cadrage.md`, l. 26, décisions du 7 novembre) ; « Scènes en 3D de synthèse » (`CLAUDE.md`, README).
+- Preuve : `docs/historique.md`, l. 101, 8 novembre : « Décision de Julien : le fond et l'éclairage viennent d'une photo à 360° (autumn_hockey, de Greg Zaal, CC0). En 3D, seulement le premier plan : personnages, chien, banc, poubelles. Pas d'arbre 3D en V1. » `docs/questions-ouvertes.md`, l. 12, le redit. `docs/cadrage.md` a des sections pour les 6, 7 et 10 novembre, aucune pour le 8 : les mots « photo à 360° » n'y sont pas, ni dans `CLAUDE.md`. Seuls les README, l. 13, écrivent « fond photo à 360° » (« 360° photo background »), une ligne sous « Scènes en 3D de synthèse ».
+- Conséquence : la scène de la V1 minimale n'est pas « à la place des photos réelles » ; elle en garde une, avec ce que cela limite et que d'autres pages disent (fond à l'infini, perspective qui ne change pas quand l'appareil se déplace : `docs/propositions.md`, l. 81 ; hautes lumières du fond écrêtées : `docs/questions-ouvertes.md`, l. 24). Qui lit le cadrage ou `CLAUDE.md` seuls ne le sait pas. C'est aussi un écart au mot d'ordre de `CLAUDE.md`, l. 11 : dire ce qui n'est pas réaliste.
+- Correction proposée : dans `docs/cadrage.md`, une section « Décision du 8 novembre 2026 » (fond et éclairage tirés d'une photo à 360°, premier plan en 3D, pour la scène de parc ; la question reste ouverte pour les scènes suivantes) ; dans `CLAUDE.md` et les README, « sujets en 3D de synthèse devant une photo à 360° (scène de parc) ».
+
+### DOC-04 · à améliorer · `CHANGELOG.md` : trois versions sans tag, trois versions datées de la veille de leur fusion, et rien ne dit de quoi la date est la date
+
+- Endroit : `CHANGELOG.md`, l. 3 (« le workflow […] pose le tag annoté `vX.Y.Z` sur le commit de fusion »), titres des sections 0.3.37, 0.3.53 et 0.3.57, liens des l. 950-953 ; `CLAUDE.md`, l. 34.
+- Preuve (`versions.py`, `git ls-remote --tags origin`) :
+  - 64 sections, 60 tags sur GitHub, de `v0.2.3` à `v0.3.57`, tous annotés, chacun sur un commit de fusion à deux parents du premier parent de `main`, et la section en tête du changelog à ce commit est bien celle de la version. La version 0.3.58 est en cours.
+  - Sans tag : `v0.2.0`, `v0.2.1`, `v0.2.2`. La section 0.2.4 l'explique (référence refusée au jeton du workflow, « commande pour poser le tag à la main ») ; les tags n'ont pas été posés depuis, et les quatre liens des l. 950-953 visent des tags absents. Déjà relevé par `choix-et-outils.md` (CHX-10, tableau) : non recompté ici.
+  - Dates : le titre porte le jour où la section a été écrite, pas celui de la fusion, pour trois versions.
+
+    | Version | Date du titre | Commit de fusion | Fusion (UTC) | Fusion (heure de Paris) |
+    | --- | --- | --- | --- | --- |
+    | 0.3.37 | 2026-11-10 | 07549b2 | 11 novembre, 0 h 33 | 11 novembre, 1 h 33 |
+    | 0.3.53 | 2026-11-11 | 7a19af2 | 12 novembre, 5 h 54 | 12 novembre, 6 h 54 |
+    | 0.3.57 | 2026-11-12 | 8a0c894 | 13 novembre, 6 h 08 | 13 novembre, 7 h 08 |
+
+    Les 57 autres versions étiquetées sont datées du jour de leur fusion, dans les deux fuseaux.
+  - `docs/historique.md`, l. 198-199, range de même la version 0.3.53 au 11 novembre, avant la demande de la nuit, alors qu'elle a été fusionnée après ; l. 207 écrit « Version 0.3.57 fusionnée » au 13 novembre, ce qui est juste.
+- Correction proposée : écrire dans l'en-tête du changelog ce qu'est la date (« date de la fusion, en heure de Paris ») et corriger les trois titres ; ou faire écrire la date par `scripts/changelog.py` au moment du tag. Pour les trois tags : voir CHX-10.
 
 ### DOC-07 · à améliorer · Phrases et en-têtes périmés dans les pages de cadrage : ce qui est annoncé comme à venir est fait, ou ne s'est pas fait
 
@@ -147,7 +162,7 @@ Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le 
   | --- | --- | --- |
   | `docs/cadrage.md`, l. 3 | « mis à jour le même jour [le 7 novembre] » | Deux sections sont du 10 novembre (commits ebe5c06 et 9182e02). |
   | `docs/cadrage.md`, l. 41 | Taux de couverture « affiché dans l'outil et dans le dépôt » | Dans le dépôt, oui (`scripts/coverage.py`, README). Dans le site, non : ni `app/scripts/build-pages.mjs`, ni `app/src/` n'affichent de couverture (recherche de « couverture » et de « coverage », hors couverture de l'autofocus). |
-  | `docs/contenus.md`, l. 77 | « Quand les simulateurs existeront, il faudra décider comment relier cette section au simulateur réel. » | Phrase du 7 novembre (commit 2cbca48). Le simulateur existe ; la décision n'a pas été prise : la brique « simulateur » est toujours comptée par la présence d'une section dans la fiche (`scripts/coverage.py`, l. 57). |
+  | `docs/contenus.md`, l. 77 | « Quand les simulateurs existeront, il faudra décider comment relier cette section au simulateur réel. » | Phrase du 7 novembre (commit 2cbca48). Le simulateur existe ; la décision n'a pas été prise : la brique « simulateur » est toujours comptée par la présence d'une section dans la fiche (`scripts/coverage.py`, l. 58). |
   | `docs/architecture.md`, l. 5 | « Cette page sera réécrite avec le choix de la pile technique. » | La pile technique est choisie depuis le 7 novembre ; la page n'a pas été modifiée depuis la version 0.3.0 (`git log`). `docs/propositions.md`, l. 86, la range dans « À reprendre au passage ». Le fond est jugé par ARC-09. |
   | `docs/lire-le-referentiel.md`, l. 7, 17 et 21 ; `docs/historique.md`, l. 7 | « (section 4) », « (section 5) », « (section 10) », « Les cinq décisions de la section 1 » | Ces numéros sont ceux de `REPRISE.md`, que la phrase ne nomme pas ; dans `docs/cadrage.md`, les décisions du 6 novembre ne sont plus cinq mais trois, plus une ligne « Remplacées ». |
   | `docs/historique.md`, l. 3 | « Section 9 de `REPRISE.md` […], copiée sans réécriture » | Vrai pour les l. 5 à 36 (vérifié, voir « Vérifié ») ; les 170 lignes suivantes, après le trait de la l. 38, sont le journal tenu depuis, sans titre qui le dise. |
@@ -160,7 +175,7 @@ Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le 
 - Endroit et preuve :
   1. `CLAUDE.md`, l. 11 : « à chaque choix de simulation, retenir le comportement le plus réaliste, sourcé, et dire ce qui ne l'est pas (Julien, 9 novembre 2026) ». Les mots rapportés (`docs/historique.md`, l. 154) : « fais ce qu'il y a de plus réaliste, ça reste une sandbox de simulation pour entraînement. Ça doit être le mot d'ordre partout. » « sourcé, et dire ce qui ne l'est pas » est la mise en forme de Claude ; l'exigence de source est de Julien, mais du lendemain (principe du 10 novembre, `docs/cadrage.md`, l. 9).
   2. `CHANGELOG.md`, version 0.3.38 (l. 293) : « Défis des trois situations de la V1 minimale, validés par Julien le 11 novembre 2026 ». `docs/historique.md`, l. 180 : « Julien, sur le point du matin : "Suivons tes propositions". Ordre retenu : un défi par situation, un bulletin après chaque photo, puis les fiches. » Ce qui est rapporté est l'accord sur un ordre de travail ; les critères de chaque défi (œil de Sophia net et fond hors de la zone nette, etc.) ne sont dits validés nulle part ailleurs, et le message du commit 2b26254 n'en parle pas.
-  3. `docs/pile-technique.md`, l. 87 : « Outillage de l'application. Décidé par Julien le 7 novembre 2026 » (TypeScript, Vite). `docs/historique.md`, l. 76 à 79, donne les mêmes choix sans dire qui les a faits, là où les entrées voisines écrivent « Julien passe le dépôt en public » ou « Décision de Julien » ; les messages des commits de la version 0.3.5 (c85c9bb, 88bebca, 69e2bc5) n'en disent rien.
+  3. `docs/pile-technique.md`, l. 87, section « Outillage de l'application » : « Décidé par Julien le 7 novembre 2026 » (TypeScript, Vite). `docs/historique.md`, l. 76 à 79, donne les mêmes choix sans dire qui les a faits, là où les entrées voisines écrivent « Julien passe le dépôt en public » ou « Décision de Julien » ; les messages des commits de la version 0.3.5 (c85c9bb, 88bebca, 69e2bc5) n'en disent rien.
 - Juste, pour comparaison : les autres attributions contrôlées ont leur trace dans `docs/historique.md`, souvent avec les mots de Julien (voir « Vérifié »). Les lectures de Claude sont dites comme telles à deux endroits : « "1,2,3" est comprise comme "les trois" » (l. 121) et « Claude le comprend comme la levée […] de l'attente des tests » (l. 199).
 - Correction proposée : dans `CLAUDE.md`, séparer la citation de sa mise en règle (« Julien, 9 novembre 2026 : "…" ; règle qu'en tire Claude : … ») ; dans le changelog et la pile technique, écrire ce qui a été validé au juste, ou demander à Julien de confirmer. Pour la suite : noter dans `docs/historique.md` les mots de Julien pour chaque décision, comme c'est fait depuis le 9 novembre.
 
@@ -168,18 +183,10 @@ Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le 
 
 - Endroit : `REPRISE.md`, l. 1 à 180 (section 0, « Instructions pour Claude Code »).
 - Ce qui est écrit : « Ce fichier fait foi » (l. 29) ; « lis-le en entier, par tranches, avant toute action » (l. 33) ; « Ces blocs sont la source de vérité du référentiel » (l. 34) ; « V1 en 2.5D […] V2 : uniquement le passage en 3D » (l. 27) ; « une pull request par livrable, que Julien relit et fusionne » (l. 56) ; « Ce qui est acté. Ne le rouvre pas sans demande de Julien » (l. 61 à 66 : 2.5D, découpage V1/V2, flash par captures) ; « Pas de 3D avant la validation de la maquette 2.5D » (l. 160 et 176).
-- Ce que disent les règles en vigueur : source de vérité `data/` ; 3D de synthèse dès la V1 ; Claude fusionne lui-même ; tout peut être remis en question (`CLAUDE.md`, l. 3 à 8 et 32).
+- Ce que disent les règles en vigueur : source de vérité `data/` ; 3D de synthèse dès la V1 ; Claude fusionne lui-même ; tout peut être remis en question (`CLAUDE.md`, l. 3 à 8 et 33).
 - Preuve : aucune ligne du fichier ne dit qu'il est remplacé. Depuis son premier commit (e89680d), une seule ligne a changé, la l. 29, à la version 0.3.6 (lien privé retiré). L'avertissement est ailleurs : `CLAUDE.md`, l. 6 et 8 (« Archive de reprise », « brouillon »), `README.md`, l. 24.
 - Conséquence : faible tant que le lecteur passe par `CLAUDE.md` ; réelle pour qui ouvre le fichier seul (il fait 3 554 lignes et commence par des consignes à l'impératif), et pour `scripts/extract_reprise.py`, qui réécrirait `data/` d'après lui (CHX-06).
 - Correction proposée : trois lignes en tête de `REPRISE.md` (« Archive du 7 novembre 2026. Ne fait plus foi : règles dans `CLAUDE.md`, données dans `data/`, décisions dans `docs/historique.md`. Section 0 : instructions de la première session, périmées. »). Le fichier a déjà été modifié une fois ; « gardé tel quel » (README) devient « gardé comme archive, avec un avertissement en tête ».
-
-### DOC-10 · incohérent · « Scènes en 3D de synthèse » : la page des décisions ne porte pas celle du 8 novembre, qui met une photo réelle à 360° derrière les sujets
-
-- Endroit : `docs/cadrage.md`, l. 5 et 26 ; `CLAUDE.md`, l. 3 ; `README.md`, l. 12 ; `README.en.md`, l. 12.
-- Ce qui est écrit : « Scènes en 3D de synthèse dès la V1, à la place des photos réelles et de leur carte de profondeur (2.5D) » (`docs/cadrage.md`, l. 26, décisions du 7 novembre) ; « Scènes en 3D de synthèse » (`CLAUDE.md`, README).
-- Preuve : `docs/historique.md`, l. 101, 8 novembre : « Décision de Julien : le fond et l'éclairage viennent d'une photo à 360° (autumn_hockey, de Greg Zaal, CC0). En 3D, seulement le premier plan : personnages, chien, banc, poubelles. Pas d'arbre 3D en V1. » `docs/questions-ouvertes.md`, l. 12, le redit. `docs/cadrage.md` a des sections pour les 6, 7 et 10 novembre, aucune pour le 8 : les mots « photo à 360° » n'y sont pas, ni dans `CLAUDE.md`. Seul `README.md`, l. 13, écrit « fond photo à 360° », une ligne sous « Scènes en 3D de synthèse ».
-- Conséquence : la scène de la V1 minimale n'est pas « à la place des photos réelles » ; elle en garde une, avec ce que cela limite et que d'autres pages disent (fond à l'infini, perspective qui ne change pas quand l'appareil se déplace : `docs/propositions.md`, l. 81 ; hautes lumières du fond écrêtées : `docs/questions-ouvertes.md`, l. 24). Qui lit le cadrage ou `CLAUDE.md` seuls ne le sait pas. C'est aussi un écart au mot d'ordre de `CLAUDE.md`, l. 11 : dire ce qui n'est pas réaliste.
-- Correction proposée : dans `docs/cadrage.md`, une section « Décision du 8 novembre 2026 » (fond et éclairage tirés d'une photo à 360°, premier plan en 3D, pour la scène de parc ; la question reste ouverte pour les scènes suivantes) ; dans `CLAUDE.md` et les README, « sujets en 3D de synthèse devant une photo à 360° (scène de parc) ».
 
 ### DOC-11 · à améliorer · `README.md` : le tableau du dépôt oublie `content/` et quatre parties de `docs/`, et l'état ne dit rien de quatre fonctions du site
 
@@ -187,7 +194,7 @@ Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le 
 - Preuve (tableau « Contenu du dépôt ») :
   - `content/` n'a pas de ligne : c'est là que sont les 44 fiches (19 notions et 3 situations, en deux langues). Le dossier n'apparaît qu'à la l. 65, sous « Licence ». `.github/` et `requirements.txt` n'en ont pas non plus.
   - Ligne `docs/` : la liste nomme onze pages et omet `docs/etat-des-travaux.md`, que `CLAUDE.md`, l. 6, donne comme le point de reprise, ainsi que `docs/audit/`, `docs/dossiers/` et `docs/specifications/`.
-  - Ligne `scripts/` : « Extraction, validation, couverture et contrôles (scènes 3D, dépôt public, changelog) » ; la routine de test, `scripts/test_app.cjs`, que `CLAUDE.md`, l. 30, impose à toute pull request qui touche `app/`, n'y est pas. La section « Contribuer » (l. 52 à 60) ne la cite pas non plus.
+  - Ligne `scripts/` : « Extraction, validation, couverture et contrôles (scènes 3D, dépôt public, changelog) » ; la routine de test, `scripts/test_app.cjs`, que `CLAUDE.md`, l. 32, impose à toute pull request qui touche `app/`, n'y est pas. La section « Contribuer » (l. 52 à 60) ne la cite pas non plus.
 - Preuve (l. 13, ce que fait le site et que la phrase ne dit pas) : le choix du boîtier de référence, six boîtiers en deux formats, qui change le champ, le bruit et la zone de l'autofocus (`app/src/camera/bodies.ts`, « Boîtier de référence » dans `app/src/i18n.ts`, l. 29) ; l'activité interactive de LUM-02 (version 0.3.50) ; les trois portes de l'accueil (version 0.3.46) ; le bouton « Télécharger les ressources du simulateur » (version 0.3.51).
 - Correction proposée : ajouter au tableau `content/`, `.github/` et `requirements.txt` ; écrire la ligne `docs/` par familles (« état des travaux, cadrage et décisions, technique, audit, dossiers de sources, spécifications ») plutôt que page par page ; nommer la routine de test dans la ligne `scripts/` et dans « Contribuer ». Pour l'état : voir DOC-02 (un état court qui renvoie au site et à `docs/etat-des-travaux.md`).
 
@@ -204,10 +211,10 @@ Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le 
 - Liens internes : 16 liens relatifs dans les fichiers du lot, aucun cassé ; 506 chemins cités entre accents graves, 16 absents du dépôt, tous expliqués par leur phrase (`NOTICE.md` de Babylon.js, `docs/v2-3d.md` et `docs/audit/fiches.md` dits retirés, `docs/audit/README.md` annoncé comme à venir, `data/vocabulaire.yaml` et `content/fr/notions/EXP-01.md` donnés en exemple) (`liens.py`).
 - `CHANGELOG.md`, fichiers annoncés : pour les 63 versions fusionnées, chaque fichier nommé dans la section est dans le diff du commit de fusion (`annonces.py`) ; seuls écarts, sans portée : `docs/historique.md` modifié par la version 0.3.44 et `CLAUDE.md` par la version 0.2.3 sans être nommés.
 - `CHANGELOG.md`, règle du numéro Y : entre `v0.2.3` et la branche de l'audit, aucune notion ni situation ajoutée, retirée ou changée de niveau ou de notions clés dans une version Z (`regle_y.py`) ; seul changement du référentiel : `activity: true` sur LUM-02 à la version 0.3.35, que la règle ne range pas parmi les reclassements. Le champ `version` retiré a bien fait passer Y à 3 (version 0.3.0).
-- « Jamais de push sur `main` » (`CLAUDE.md`, l. 26) : sur le premier parent de `main`, 64 commits, dont 63 fusions à deux parents (pas de squash) et un seul commit direct, le premier (`REPRISE.md`, e89680d), que `docs/historique.md`, l. 42, déclare.
-- « Commits uniquement avec une adresse "noreply" » (`CLAUDE.md`, l. 17) : trois adresses dans tout l'historique, toutes « noreply » (GitHub de Julien, Anthropic, GitHub pour les fusions). `python3 scripts/check_public.py --commits all` : « 175 fichier(s) texte, 311 commit(s) contrôlé(s) : 0 problème(s) », avec les 28 commits d'avant la règle listés dans `scripts/check_public_historique.txt`.
+- « Jamais de push sur `main` » (`CLAUDE.md`, l. 29) : sur le premier parent de `main`, 64 commits, dont 63 fusions à deux parents (pas de squash) et un seul commit direct, le premier (`REPRISE.md`, e89680d), que `docs/historique.md`, l. 42, déclare.
+- « Commits uniquement avec une adresse "noreply" » (`CLAUDE.md`, l. 22) : trois adresses dans tout l'historique, toutes « noreply » (GitHub de Julien, Anthropic, GitHub pour les fusions). `python3 scripts/check_public.py --commits all` : « 175 fichier(s) texte, 311 commit(s) contrôlé(s) : 0 problème(s) », avec les 28 commits d'avant la règle listés dans `scripts/check_public_historique.txt`.
 - `README.md` : 191 notions, 13 domaines, 49 situations ; couverture 13 sur 191 ; Node.js 22 (`app/package.json`, `engines` ; les trois workflows) ; `npm run build` fait bien la vérification des types, le simulateur, l'accueil et les fiches ; bouton « Crédits » présent (`app/src/i18n.ts`, l. 14).
-- `CLAUDE.md`, l. 30 : `routine.yml` lance un job par profil (ordinateur, android, iphone, webgl1) sur les pull requests qui touchent `app/`, `content/`, `data/`, la routine ou le workflow ; l. 20 : le job `confidentialite` de `validate.yml` lance `check_public.py --commits all`, puis gitleaks sur tout l'historique.
+- `CLAUDE.md`, l. 32 : `routine.yml` lance un job par profil (ordinateur, android, iphone, webgl1) sur les pull requests qui touchent `app/`, `content/`, `data/`, la routine ou le workflow ; l. 25 : le job `confidentialite` de `validate.yml` lance `check_public.py --commits all`, puis gitleaks sur tout l'historique.
 - Pages « copiées sans réécriture » : le corps de `docs/architecture.md` est identique, ligne pour ligne, à la section 2 de `REPRISE.md` (74 lignes), et les l. 5 à 36 de `docs/historique.md` à sa section 9 (21 lignes) ; seuls s'ajoutent le titre, la phrase d'en-tête et, pour l'architecture, l'avertissement (`copies.py`). `REPRISE.md` n'a changé que d'une ligne depuis son premier commit (lien privé retiré, version 0.3.6, déclaré dans `CHANGELOG.md` et `docs/historique.md`, l. 85).
 - `docs/contenus.md` contre `scripts/coverage.py` : titres des sections dans les deux langues, casse ignorée, commentaires HTML ignorés, section « Activité » pour une notion `activity: true`, règle de la situation réelle ; LEC-03 et RET-15 sont bien les deux seules notions sans situation. Contre `app/scripts/build-pages.mjs` : première ligne `# ID · Titre`, sections prévues seulement, balisage hors liste refusé, fiche sans traduction refusée, code sans fiche refusé ; textes du bandeau et de la marque « en relecture ».
 - Couverture annoncée, recalculée avec `scripts/coverage.py` de chaque tag sur une copie hors du dépôt : 11 sur 191 et 11 sur 16 à `v0.3.39`, 12 sur 191 et 12 sur 16 à `v0.3.40`, 13 sur 17 à `v0.3.56` (`CHANGELOG.md`, `docs/historique.md`, l. 182, 184 et 203).
@@ -219,7 +226,7 @@ Non relues, hôte non joignable depuis la session de travail (proxy : 403) : le 
 - `docs/historique.md`, comptes de la v0.1 à la v0.2 : 163 + 29 − 1 = 191 ; 24 notions de l'audit dans la liste ; 15 compléments ; 11 situations ; 177 + 12 + 2 = 191.
 - `docs/propositions.md` : Wikipedia (source secondaire), « Umbra, penumbra and antumbra », révision 1379008615, lue le 14 novembre 2026 : « the region in which only a portion of the light source is obscured by the occluding body » et « for a collimated beam (such as a point source) of light, only the umbra is cast ». Guide Lowel de Tiffen : le soleil « so far away, it appears smaller », « the entire white cloudy sky is now the light source », « the reflector's surface becomes the light source ». Diamètre apparent du Soleil : vérifié par `sources.md`.
 - Décisions rapportées avec leur trace dans `docs/historique.md` : forme B de l'indicateur d'équilibre et « suivons ta reco » (l. 150-151), modes de zone et détection des yeux (l. 153-154), principe du 10 novembre (l. 159 ; `docs/cadrage.md`, l. 9), découpage du 10 novembre (l. 169-173), couverture de l'autofocus et partage égal pour l'A7 III (l. 185-190), plan des écrans (l. 191), propositions du 11 novembre (l. 194), densité du viseur (l. 197-198), grilles (l. 203). Les dates des règles de `CLAUDE.md` (7, 8, 9, 10 et 11 novembre) sont celles de ces entrées et de `CHANGELOG.md`.
-- Pull request 59 (version 0.3.53), lue sur GitHub : résultats de la routine reportés, limites de l'émulation dites, pas de lien de session (`CLAUDE.md`, l. 18 et 30).
+- Pull request 59 (version 0.3.53), lue sur GitHub : résultats de la routine reportés, limites de l'émulation dites, pas de lien de session (`CLAUDE.md`, l. 23 et 32).
 - Releases : 60 releases sur GitHub, une par tag, de `v0.2.3` à `v0.3.57`, chacune publiée dans la minute qui suit sa fusion (`CHANGELOG.md`, l. 3).
 - Nombres de sources annoncés par le changelog : 78 à la version 0.2.0, puis 3, 1, 8, 3 et 3 sources ajoutées (versions 0.3.2 à 0.3.6), soit 96 ; onze à la version 0.3.12 (107), neuf à la version 0.3.13 (116), dix et onze aux versions 0.3.56 et 0.3.57 (151, puis 172) : ce sont les nombres d'entrées de `data/sources.yaml` aux tags.
 - `CHANGELOG.md`, tailles de la scène : dossier `app/public/scenes/parc` de 19 258 444 octets à `v0.3.9` (« 18,4 Mio ») et de 36 029 661 octets à `v0.3.10` (« 34,4 Mio ») ; cinq fichiers `license.txt` dans le manifeste (version 0.3.55).
