@@ -21,7 +21,7 @@
 3. Recherche dans tout l'historique (322 commits, toutes références, au premier passage ; 324 au second, mêmes résultats) : adresses et noms des auteurs et des committers, messages, lignes ajoutées par chaque commit (`git log --all -p -m`), métadonnées des fichiers binaires. Aucune valeur privée n'est recopiée dans ce rapport : elle est décrite, avec le commit et le fichier.
 4. Relecture des pages d'origine des modèles, textures et photos, quand l'hôte répond ; comparaison des empreintes des fichiers avec les fichiers d'origine.
 5. Workflows : lecture des cinq fichiers ; empreintes des actions comparées aux étiquettes par `git ls-remote` ; licence et version lues dans les fichiers de chaque action, au commit épinglé ; règles de GitHub (jeton, secrets, cache, approbation) lues dans le dépôt source de sa documentation.
-6. Dépendances : champ `license` de chaque paquet du verrou npm, du `package.json` de chaque paquet installé, et des registres npm et PyPI.
+6. Dépendances : champ `license` de chaque paquet du verrou npm et du `package.json` de chaque paquet installé ; registre npm pour sept paquets, PyPI pour les six paquets Python.
 7. Aucune écriture dans le dépôt en dehors de ce rapport ; aucun navigateur ; aucune construction du site : le site construit qui a été lu est celui du 12 novembre 2026, présent dans la copie de travail (`app/dist/`, non suivi par git).
 
 Scripts d'essai, pages enregistrées et clones : dossier `audit/licences-scripts-ci/` du bloc-notes de la session, hors du dépôt (`scripts/`, `pages/`, `origines/`, `copie/` et `copie2/`). Les numéros de ligne sont ceux de la version 0.3.58.
