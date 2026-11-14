@@ -127,6 +127,8 @@ Non relues : hôte non joignable d'ici.
 - Ce qui existe déjà : le rapport `choix-et-outils.md` (CHX-05) établit que le titre d'une fiche n'est pas comparé à celui du référentiel ; essai refait ici (titre de `EXP-04` remplacé : page produite). Ce constat-ci porte sur l'existence de l'identifiant.
 - Correction proposée : dans `validate.py`, un contrôle `check_content` d'une quinzaine de lignes : tout fichier `content/<langue>/notions/<ID>.md` porte l'identifiant d'une notion du référentiel, tout fichier `content/<langue>/situations/<ID>.md` celui d'une situation ; un identifiant retiré donne un message qui le dit. Le contrôle du titre proposé par CHX-05 va au même endroit.
 
+**Contre-vérification : confirmé.** Les trois essais sont refaits (`essais.py`) : `XYZ-99`, `MAP-13` (retiré, puis listé relu : page française sans bandeau) et une fiche `EXP-01` rangée sous `situations/` (en tête de la liste « Je suis en situation », avant SIT-01) sont publiées, et `validate.py` affiche « 0 erreur(s), 0 avertissement(s) » ; le code date du 11 novembre 2026, donc du lot. Le risque est faible (il faut la même faute dans le nom du fichier et dans son titre), le contrôle aussi. L'endroit proposé est le bon : la contre-vérification de CHX-05 a déjà retenu `scripts/validate.py` pour comparer la ligne 1 des fiches au référentiel, et la CI le lance sur chaque pull request, pas seulement sur celles qui touchent `data/` (`validate.yml`, l. 3-6). Un seul `check_content` pour les deux.
+
 ### RST-03 · à améliorer · « Identifiants stables, jamais renumérotés » : le contrôle ne voit que la réutilisation d'un identifiant déjà inscrit dans `retired.yaml`
 
 - Endroit : `scripts/validate.py`, l. 145-164 (`check_retired`) ; `CLAUDE.md`, « Identifiants stables, jamais renumérotés ; un identifiant retiré va dans `data/referentiel/retired.yaml` ».
@@ -138,6 +140,8 @@ Non relues : hôte non joignable d'ici.
 - État réel : aucun identifiant n'a été renuméroté ni supprimé depuis l'extraction (section « Vérifié ») ; le défaut est dans le contrôle, pas dans les données.
 - Correction proposée : une option `--base REF` à `validate.py`, sur le modèle de `scripts/changelog.py check --base` que la CI lance déjà (`validate.yml`, l. 32-42) : tout identifiant de notion ou de situation présent dans `REF` est encore dans le référentiel ou dans `retired.yaml`. Une vingtaine de lignes ; sans option, le script se comporte comme aujourd'hui.
 
+**Contre-vérification : confirmé.** Essais refaits (`essais.py`) : `RET-14` renommée `RET-16` et `RET-15` supprimée passent sans message, `MAP-13` recréée est refusée. Ce n'est pas une faute du travail audité (rien dans le dépôt ne dit que ce contrôle existe, et les données sont justes), mais une règle de `CLAUDE.md` sans garde : 78 notions ne sont ni notion clé ni dans le jalon, et 77 d'entre elles n'ont pas de fiche, si bien qu'aucun contrôle, présent ou proposé ailleurs (RST-02), ne verrait leur renommage. Correction à préciser : la CI ne récupère la branche cible qu'à l'étape du changelog (`validate.yml`, l. 38), après `validate.py` (l. 26-27) ; il faut remonter ce `git fetch`, et lire la base par `git show REF:fichier`, comme le fait `scripts/changelog.py`, sans seconde copie du dépôt.
+
 ### RST-04 · à améliorer · Une clé YAML écrite deux fois est acceptée en silence : la seconde écrase la première
 
 - Endroit : `scripts/referentiel.py`, l. 26-28 (`yaml.safe_load`).
@@ -147,6 +151,8 @@ Non relues : hôte non joignable d'ici.
   - un second bloc `notions:` ajouté à la fin de `lec.yaml` avec une seule notion : « 188 notions […] 0 erreur(s), 0 avertissement(s) ». LEC-01 à LEC-04 ont disparu sans message, parce qu'aucune n'est notion clé ni dans un jalon.
 - Quand cela arrive : un bloc recopié, une fusion de branches résolue à la main, un champ ajouté sans voir qu'il existe déjà plus bas. Les fichiers actuels n'ont aucune clé en double (le témoin et les comptes de la section « Vérifié » le montrent).
 - Correction proposée : dans `referentiel.load_yaml`, un chargeur dérivé de `yaml.SafeLoader` dont `construct_mapping` refuse une clé déjà vue, avec le fichier et la ligne (une dizaine de lignes, sans dépendance nouvelle).
+
+**Contre-vérification : confirmé.** Sources rechargées le 14 novembre 2026 : la phrase est dans la source de la spécification (définition « Mapping » de la section « Nodes », l. 891-892 du fichier), et `lib/yaml/constructor.py` de PyYAML 6.0.3 écrit bien `mapping[key] = value` à la l. 144, sans test ; le fichier est identique à celui du paquet installé. `yaml.org` répond 403 d'ici, comme le dit le rapport. Les deux essais sont refaits (`essais.py` : 20 notions N3 au lieu de 19 ; 188 notions au lieu de 191, sans message). La correction est essayée (`correction_rst04.py`) : un chargeur dérivé de `yaml.SafeLoader`, onze lignes, accepte les 18 fichiers actuels de `data/` et refuse les deux fautes en nommant le fichier et la ligne. Un seul endroit à changer : `data/` n'est lu en YAML que par `referentiel.load_yaml`.
 
 ### RST-05 · à améliorer · Le champ `since` et la règle du numéro Y ne sont contrôlés par rien
 
@@ -160,6 +166,8 @@ Non relues : hôte non joignable d'ici.
   - le champ `activity` n'est pas dans la liste « (niveau, notions clés) » : LUM-02 est passée en activité (`activity: true`, commit `9182e02`, 10 novembre 2026) sans changer Y. La règle ne dit pas si c'est un reclassement.
 - Correction proposée : avec l'option `--base` de RST-03, deux contrôles : un identifiant déjà présent dans la base garde son `since` ; un identifiant nouveau porte le Y de la version en tête de `CHANGELOG.md`. Dans `docs/lire-le-referentiel.md` : une ligne pour `retired.yaml` (`since` = version du retrait) et une pour dire si `activity` compte comme un reclassement (Julien tranche). `README.md` : « référentiel v0.3 », ou sans numéro.
 
+**Contre-vérification : confirmé**, à la gravité la plus basse, et correction à réduire. Essais refaits (`essais.py` : `EXP-15` en `v0.1` puis en `v9.9`, `since` de `EXP-01` changé, tous acceptés) ; comptes refaits (162 et 29, 38 et 11). Mais `since` n'est lu par aucun code (dans `scripts/` et `app/`, seuls les schémas le nomment) : une valeur fausse n'aurait pas d'effet, et aucune ne l'est. Des trois imprécisions, deux sont dites ailleurs : le `since` de `retired.yaml` relève de RST-11, et le `README.md` périmé (« État au 8 novembre 2026 ») de CHX-01. La deuxième n'est pas établie : la liste de la règle (« niveau, notions clés ») ne contient pas le retrait du champ `version`, et aucune notion ne porte `since: v0.3`, si bien que « référentiel v0.2 » se défend autant que « v0.3 » ; je ne sais pas laquelle des deux lectures Julien retient. À faire : si l'option `--base` de RST-03 est écrite, y ajouter les deux contrôles (quelques lignes) ; sinon rien. La question sur `activity` se pose à Julien avec les autres, sans urgence.
+
 ### RST-06 · à améliorer · Niveau des situations : un écart à la règle n'est qu'un avertissement, un champ `notes` quelconque le fait taire, et `level` peut dépasser `level_max`
 
 - Endroit : `scripts/validate.py`, l. 104-113 ; `data/situations.yaml`, l. 3 ; `.github/workflows/validate.yml`, l. 26-27.
@@ -171,6 +179,8 @@ Non relues : hôte non joignable d'ici.
 - État réel, juste : les 49 situations suivent la règle (recalcul par script, 0 écart) et aucune n'a de champ `notes` : la dérogation n'a jamais servi.
 - Correction proposée : en faire une erreur tant qu'aucune situation n'y déroge ; `level` supérieur à `level_max` toujours refusé ; si une dérogation devient nécessaire, un champ dédié (`level_reason`) plutôt que `notes`.
 
+**Contre-vérification : confirmé.** Correction à réduire. Code relu (`validate.py`, l. 112 : `if actual != expected and not s.get("notes")`) et essais refaits (`essais.py` : quatre avertissements et code 0 ; `level: N3` avec `level_max: N1`, un avertissement et code 0 ; avec `notes: ["x"]`, aucun message) ; les 49 situations suivent la règle et aucune n'a de note. L'avertissement est voulu (« ajustable à la main avec une raison dans notes », et la règle de la médiane reste « à confirmer », `docs/questions-ouvertes.md`, l. 63), mais un avertissement que la CI laisse au vert ne garde rien. À faire : l'écart sans note devient une erreur, et `level` au-dessus de `level_max` une erreur dans tous les cas. À ne pas faire maintenant : le champ `level_reason`, et le retrait de la dérogation par `notes`, qui est la règle écrite dans `data/situations.yaml`, l. 3 ; aucun script ne peut juger qu'une note est une raison.
+
 ### RST-07 · à améliorer · Les listes n'ont pas de contrôle de doublon : un renvoi répété fausse les comptes, une notion clé répétée déplace le niveau d'une situation
 
 - Endroit : `schemas/domaine.schema.json`, l. 42-45 et 65-72 ; `schemas/situations.schema.json`, l. 41-50 ; `scripts/validate.py`, l. 175-177 (doublons contrôlés pour les jalons seulement).
@@ -179,6 +189,8 @@ Non relues : hôte non joignable d'ici.
   - `SIT-04` avec `key_notions: [LUM-07, MAP-06, COU-03, COU-03, COU-03]` : la médiane passe de N1 à N2, `validate.py` ne donne qu'un avertissement de niveau (code 0), sans dire qu'une notion est répétée ;
   - une source répétée dans `sources` : acceptée.
 - Correction proposée : `"uniqueItems": true` sur les six listes d'identifiants des schémas (`situations` et `sources` d'une notion, `sources` d'un domaine, `key_notions` et `sources` d'une situation, `situations` et `notions` d'un jalon). Le contrôle écrit à la main pour les jalons (`validate.py`, l. 175-177) devient inutile.
+
+**Contre-vérification : confirmé.** Essais refaits (`essais.py` : 382 renvois dont 181 sans retour ; SIT-04 passe à N2 avec un seul avertissement de niveau ; source répétée acceptée) ; aucune liste actuelle n'a de doublon (`comptes.py`). La correction est essayée (`correction_rst07.py`) : `uniqueItems` posé à six endroits des schémas, qui couvrent sept listes et non six (les `sources` d'un domaine et d'une notion partagent la définition `ids_sources`) ; le témoin reste sans erreur et les trois fautes sont refusées. Réserve : le champ `situations` d'une notion est pris dans une alternative (`all` ou une liste), et le message du schéma y devient « is not valid under any of the given schemas », sans dire pourquoi ; pour ce champ, mieux vaut un contrôle écrit avec la fonction `duplicates` de `validate.py`, qui existe déjà et nomme le doublon.
 
 ### RST-11 · à améliorer · `docs/lire-le-referentiel.md` ne décrit pas tous les fichiers ni tous les champs que les schémas acceptent
 
