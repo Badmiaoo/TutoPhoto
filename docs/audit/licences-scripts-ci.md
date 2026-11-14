@@ -38,6 +38,17 @@ Un second agent de Claude a essayé de réfuter chaque constat, en avocat du tra
 
 Scripts et pages de la contre-vérification : sous-dossier `refutation/` du même dossier (`scripts/`, `pages/`, `clone/`, `racine/`).
 
+### Contre-vérification du constat ajouté (14 novembre 2026)
+
+LIC-10, ajouté par le second agent, n'avait été contre-vérifié par personne. Un troisième agent l'a repris :
+1. `docs/publication.md`, l. 3, relue dans la version courante et dans le commit `9595ca8` (`git show`, `git log -S`) ; recherche, dans le dépôt et dans les autres rapports de l'audit, de ce qui dirait déjà le constat ;
+2. source relue à son adresse le 14 novembre 2026, dans le dépôt `github/docs`, aux deux commits : `8cd1075`, celui que cite la phrase, et `d59b263`, celui lu par le constat (`https://raw.githubusercontent.com/github/docs/<commit>/<chemin>`). Fichiers lus : la page citée (`github-pages-limits.md`) et les trois textes qu'elle insère ; `data/reusables/pages/private_pages_are_public_warning.md` et `privately-publish-ghec-only.md` ; les pages « Creating a GitHub Pages site », « Configuring a publishing source for your GitHub Pages site », « What is GitHub Pages? », « Changing the visibility of your GitHub Pages site » et « Quickstart for GitHub Pages » ; l'index de la rubrique ; `data/variables/product.yml` ; `content/README.md` ;
+3. un script écrit pour cela (`lic10.py`) compare les fichiers des deux commits, suit les textes insérés par la page citée, et relève les pages qui insèrent l'avertissement ;
+4. correction essayée sur une copie du dépôt faite par `git archive`, hors du dépôt (`essai_correction.py`), puis `python3 scripts/validate.py` avant et après, et `scan_text` sur les deux fichiers modifiés ;
+5. non fait : la page rendue n'a pas été ouverte (`docs.github.com`, source non relue : hôte non joignable, refus 403 du proxy). Parmi les neuf pages lues, deux insèrent l'avertissement ; les autres pages du dépôt `github/docs` n'ont pas été parcourues.
+
+Pages, scripts et résultats : sous-dossier `contre2/` du même dossier (`pages/`, `scripts/`, `copie/`, `lic10-resultat.txt`).
+
 ## Sources
 
 Lues le 14 novembre 2026 (fichiers sous `pages/`, sauf mention).
