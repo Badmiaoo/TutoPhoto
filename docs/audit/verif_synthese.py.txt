@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+"""Contrôle mécanique de la synthèse docs/audit/README.md contre les rapports.
+Usage : verif_synthese.py <dépôt> <dossier de sortie de l'index>
+Refait l'index, puis vérifie : titres attendus, table des rapports recopiée, chaque constat confirmé dans le plan
+(ou dans la section « sans correction à faire maintenant ») et dans la table par gravité, chaque constat réfuté
+dans sa section, aucun identifiant inconnu. Code de sortie 1 s'il reste une erreur."""
+import json, re, subprocess, sys
+from pathlib import Path
+
+depot, sortie = Path(sys.argv[1]), Path(sys.argv[2])
+ici = Path(__file__).resolve().parent
+subprocess.run([sys.executable, str(ici / "index_constats.py"), str(depot), str(sortie)], check=True, stdout=subprocess.DEVNULL)
+index = json.loads((sortie / "index-constats.json").read_text(encoding="utf-8"))
+readme = depot / "docs" / "audit" / "README.md"
+erreurs, avis = [], []
+if index["absents"]:
+    erreurs.append("rapports absents : " + ", ".join(index["absents"]))
+for a in index["alertes"]:
+    erreurs.append("rapport : " + a)
+if not readme.exists():
+    print("ERREUR : docs/audit/README.md n'existe pas"); sys.exit(1)
+texte = readme.read_text(encoding="utf-8")
+lignes = texte.splitlines()
+
+TITRES = ["## En bref", "## Rapports", "## Constats confirmés, par gravité", "## Plan de corrections",
+          "## Décisions qui attendent Julien", "## Constats confirmés sans correction à faire maintenant",
+          "## Constats réfutés", "## Ce que l'audit n'a pas couvert", "## Je ne sais pas"]
+pos = []
+for t in TITRES:
+    p = [i for i, l in enumerate(lignes) if l.strip() == t]
+    if len(p) != 1:
+        erreurs.append(f"titre attendu une fois, trouvé {len(p)} fois : « {t} »")
+    pos.append(p[0] if p else -1)
+if all(p >= 0 for p in pos) and pos != sorted(pos):
+    erreurs.append("les titres de niveau 2 ne sont pas dans l'ordre attendu")
+
+def section(titre):
+    p = [i for i, l in enumerate(lignes) if l.strip() == titre]
+    if not p:
+        return ""
+    j = p[0] + 1
+    while j < len(lignes) and not lignes[j].startswith("## "):
+        j += 1
+    return "\n".join(lignes[p[0]:j])
+
+for l in (sortie / "table-rapports.md").read_text(encoding="utf-8").splitlines():
+    if l.strip() and l not in lignes:
+        erreurs.append("ligne de la table des rapports absente ou modifiée : " + l)
+
+PREFIXES = "PHY|FEX|FMA|ARC|CHX|SRC|REF|RST|COD|INT|DOC|LIC"
+ID = re.compile(rf"\b(?:{PREFIXES})-\d+\b")
+def ids(t):
+    return set(ID.findall(t))
+connus, confirmes, refutes = set(), set(), set()
+for r in index["rapports"]:
+    for c in r["constats"]:
+        connus.add(c["id"])
+        if c["verdict"] == "confirmé": confirmes.add(c["id"])
+        if c["verdict"] == "réfuté": refutes.add(c["id"])
+cle = lambda s: (s[:3], int(s[4:]))
+plan, sans, grav, refu = (section(t) for t in (TITRES[3], TITRES[5], TITRES[2], TITRES[6]))
+inconnus = ids(texte) - connus
+if inconnus:
+    erreurs.append("identifiants cités qui n'existent dans aucun rapport : " + ", ".join(sorted(inconnus, key=cle)))
+m = confirmes - ids(plan) - ids(sans)
+if m:
+    erreurs.append(f"{len(m)} constat(s) confirmé(s) ni dans le plan ni dans « sans correction à faire maintenant » : " + ", ".join(sorted(m, key=cle)))
+m = confirmes - ids(grav)
+if m:
+    erreurs.append(f"{len(m)} constat(s) confirmé(s) absents de la table par gravité : " + ", ".join(sorted(m, key=cle)))
+m = refutes - ids(refu)
+if m:
+    erreurs.append(f"{len(m)} constat(s) réfuté(s) absents de la section des constats réfutés : " + ", ".join(sorted(m, key=cle)))
+m = (ids(plan) | ids(sans)) & (ids(plan) & ids(sans))
+if m:
+    avis.append("constats à la fois dans le plan et dans « sans correction à faire maintenant » (à justifier dans le texte) : " + ", ".join(sorted(m, key=cle)))
+m = refutes & ids(plan)
+if m:
+    avis.append("constats réfutés cités dans le plan (vérifier que c'est pour dire qu'on ne les corrige pas) : " + ", ".join(sorted(m, key=cle)))
+m = refutes & ids(grav)
+if m:
+    erreurs.append("constats réfutés dans la table des constats confirmés : " + ", ".join(sorted(m, key=cle)))
+
+sujets = [l for l in plan.splitlines() if l.startswith("### ")]
+if not sujets:
+    erreurs.append("le plan n'a aucun sujet (titres de niveau 3 « ### Sujet n · titre »)")
+for n, l in enumerate(sujets, 1):
+    if not re.match(rf"^### Sujet {n} · \S", l):
+        erreurs.append(f"titre de sujet mal formé ou mal numéroté (attendu « ### Sujet {n} · titre ») : {l}")
+print(f"Constats : {len(connus)} ; confirmés : {len(confirmes)} ; réfutés : {len(refutes)} ; sujets du plan : {len(sujets)}")
+for a in avis:
+    print("AVIS :", a)
+for e in erreurs:
+    print("ERREUR :", e)
+print("Contrôle mécanique :", "échec" if erreurs else "réussi")
+sys.exit(1 if erreurs else 0)

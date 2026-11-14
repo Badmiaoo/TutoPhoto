@@ -1,0 +1,178 @@
+// Script du workflow de synthèse de l'audit (outil Workflow de Claude Code), version du 14 novembre 2026.
+// À lancer quand les douze rapports de docs/audit/ sont finis (chaque constat a sa ligne « Contre-vérification »).
+// Un seul agent à la fois, huit agents à la suite :
+//   1. quatre fiches de lot (hors du dépôt, dans le bloc-notes) : pour chaque constat confirmé, la correction retenue
+//      après contre-vérification ; les sujets de pull request proposés ; les questions pour Julien ;
+//   2. la synthèse docs/audit/README.md, écrite à partir des quatre fiches, avec le plan de corrections ;
+//   3. deux critiques de fidélité (la synthèse contre les rapports), puis une critique de cohérence du plan.
+// Outils, à copier dans <blocNotes>/audit/synthese/ sans le suffixe .txt : index_constats.py (index mécanique des
+// constats et de leurs verdicts), verif_lot.py (chaque constat du lot est dans la fiche), verif_synthese.py (chaque
+// constat confirmé est dans le plan ou dans la section « sans correction », chaque réfuté dans la sienne, table des
+// rapports recopiée, titres attendus). Le script d'envoi est celui de l'audit (voir audit-workflow.js.txt).
+//
+// Pour le lancer : args = { blocNotes: '<dossier temporaire de la session>' } ; après une coupure par la limite
+// d'usage, relancer avec resumeFromRunId : les agents finis ne sont pas refaits. args.depuis ('lots', 'synthese',
+// 'critique') saute les étapes déjà faites quand le journal du premier passage n'existe plus.
+export const meta = {
+  name: 'audit-synthese',
+  description: "Synthèse de l'audit : fiches de lot, synthèse et plan de corrections, critiques de fidélité et de cohérence ; un agent à la fois",
+  phases: [
+    { title: 'Lots', detail: 'une fiche par lot de rapports : corrections retenues, sujets proposés, questions' },
+    { title: 'Synthèse', detail: 'docs/audit/README.md : constats confirmés, plan de corrections, décisions' },
+    { title: 'Critique', detail: 'fidélité aux rapports, puis cohérence du plan' },
+  ],
+}
+
+const S = args.blocNotes
+const W = '/home/user/TutoPhoto'
+const D = `${S}/audit/synthese`
+
+const LOTS = [
+  { cle: 'simulation', nom: 'modèle physique et fiches', rapports: ['modele-physique', 'fiches-exposition', 'fiches-mise-au-point'] },
+  { cle: 'application', nom: "architecture, code et interface de l'application", rapports: ['architecture-application', 'code', 'interface'] },
+  { cle: 'donnees', nom: 'sources et référentiel', rapports: ['sources', 'referentiel-contenu', 'referentiel-structure'] },
+  { cle: 'projet', nom: 'choix de fond, documentation, licences, scripts et CI', rapports: ['choix-et-outils', 'documentation', 'licences-scripts-ci'] },
+]
+
+const commun = `Tu es un agent de Claude. Tu travailles pour Claude (orchestrateur), qui développe TutoPhoto pour Julien. Lis d'abord ${W}/docs/audit/consignes-agents.md.
+
+Contexte : Julien, le 12 novembre 2026, a demandé de remettre en question tout le travail fait avant ce jour par le modèle précédent, et de le modifier si nécessaire, « que ce soit l'archi, les choix stratégiques ou les outils » ; le 13 novembre : « tu va finir l'audit correctement. Tu pousse le résultat sur git. » L'audit est fait : douze rapports sous ${W}/docs/audit/ (constats numérotés PHY, FEX, FMA, ARC, CHX, SRC, REF, RST, COD, INT, DOC, LIC). Chaque constat a été écrit par un agent, puis un second agent a essayé de le réfuter et a écrit dessous « **Contre-vérification : confirmé.** » ou « **Contre-vérification : réfuté.** », avec sa preuve ; il a parfois corrigé la correction proposée ou baissé la gravité, et ajouté des constats, qu'un troisième agent a contre-vérifiés. Règle du projet : seuls les constats confirmés sont corrigés, chacun dans une pull request à venir, une par sujet. Reste la synthèse : ${W}/docs/audit/README.md, avec le plan de corrections. C'est ce document que Julien lira, et c'est de lui que repartira une session neuve de Claude, sans rien d'autre que le dépôt.
+
+Index mécanique des rapports, fait par un script (rien n'y est interprété) : dans ${D}/, un fichier index-<rapport>.md par rapport (pour chaque constat : gravité du titre, verdict, lignes du rapport, correction proposée par l'audit, texte entier de la contre-vérification ; en tête : le bilan du rapport et ses sections avec leur numéro de ligne), index-constats.json (les mêmes données) et table-rapports.md (les comptes). Pour le refaire : python3 ${D}/index_constats.py ${W} ${D}
+
+Règles :
+- Rien d'inventé, rien d'extrapolé. Tu ne dis que ce que les rapports établissent. Quand la contre-vérification a corrigé la correction ou la gravité de l'audit, c'est elle qui vaut. Ce qu'un rapport n'a pas pu vérifier reste « Je ne sais pas ». Ne présente pas comme essayé sur un téléphone, avec un processeur graphique ou dans Safari ce qui ne l'a été que dans Chromium en rendu logiciel.
+- Tu ne corriges rien dans le code, les données, les fiches ni les rapports : tu n'écris que le fichier que ta mission nomme. Aucune commande git qui écrit.
+- Français, tutoiement quand tu t'adresses à Julien, direct, sans emoji ni formule emphatique. Aucun chemin local, aucun nom de modèle d'intelligence artificielle (« le modèle précédent », « un agent de Claude »), aucune adresse électronique, aucun lien privé dans un fichier du dépôt.
+- La limite d'usage peut te couper : écris ton fichier au fur et à mesure. S'il existe déjà, un agent avant toi a été coupé : lis-le, garde ce qui est juste, continue.`
+
+const RESUME = {
+  type: 'object',
+  properties: {
+    fichier: { type: 'string' }, controle: { type: 'string' }, pousse: { type: 'boolean' },
+    changements: { type: 'array', items: { type: 'string' } }, resume: { type: 'string' },
+  },
+  required: ['fichier', 'controle', 'resume'],
+}
+
+const lot = (l) => agent(`${commun}
+
+Mission : écrire la fiche du lot « ${l.nom} », qui servira à l'agent de synthèse. Elle reste hors du dépôt.
+Rapports du lot : ${l.rapports.map((r) => `${W}/docs/audit/${r}.md (index : ${D}/index-${r}.md)`).join(' ; ')}.
+Lis les index du lot en entier. Lis dans chaque rapport, avec offset et limit : les sections de plan ou de recommandations et leurs lignes « Contre-avis », les questions posées à Julien, « Ce qui n'est pas couvert », « Je ne sais pas », « Ce qui est bien fait et doit rester » s'il y en a ; et tout constat dont l'index ne suffit pas à dire quoi corriger.
+
+Écris ${D}/lot-${l.cle}.md avec ces sections :
+- « ## Constats confirmés » : un tableau, une ligne par constat confirmé : identifiant ; gravité finale (celle du titre, ou celle que la contre-vérification a retenue : dis laquelle des deux) ; ce qui est établi, en une phrase, avec la limite de la preuve s'il y en a une (par exemple : « Chromium en rendu logiciel seulement ») ; la correction retenue après contre-vérification, précise (quoi changer, dans quels fichiers) ; « décision de Julien » si la correction en dépend.
+- « ## Sujets de pull request proposés » : regroupe les constats confirmés du lot en sujets cohérents, un sujet par pull request (règle du projet : une branche et une pull request par sujet, chacune faisable en une session). Pour chaque sujet : titre ; constats traités ; ce qu'il faut faire ; fichiers touchés ; tests à lancer (règles de CLAUDE.md selon ce qui est touché) ; ce dont il dépend (autre sujet, décision de Julien, source à trouver) ; taille (petite, moyenne, grande) ; et l'ordre que les rapports et leurs contre-avis recommandent à l'intérieur du lot, avec leur raison.
+- « ## Constats confirmés sans correction à faire maintenant » : ceux pour lesquels la contre-vérification dit de ne rien faire maintenant, avec sa raison.
+- « ## Constats réfutés » : identifiant et raison de la réfutation, en une ligne.
+- « ## Questions pour Julien » : chaque décision que les rapports lui renvoient : la question, les options, ce que l'audit recommande et ce que la contre-vérification en dit, les constats concernés, ce qu'elle bloque.
+- « ## Réglages que seul Julien peut faire » : s'il y en a (réglage de GitHub, par exemple), avec le chemin exact dans l'interface tel que le rapport le donne.
+- « ## Ce que les rapports n'ont pas couvert » et « ## Je ne sais pas » : regroupés, sans doublon, avec le rapport d'origine.
+- « ## Liens avec les autres lots » : constats qui renvoient à un constat d'un autre rapport, doublons signalés, corrections qui touchent les mêmes fichiers qu'un autre rapport.
+- « ## Ce qui est bien fait et doit rester » : ce que les rapports disent de garder, en quelques lignes.
+
+Contrôle, à lancer jusqu'à « réussi » : python3 ${D}/verif_lot.py ${D} ${D}/lot-${l.cle}.md ${l.rapports.join(' ')}
+Si le contrôle dit qu'un rapport manque ou qu'un constat n'a pas de verdict, arrête-toi et dis-le dans ta réponse : la synthèse ne doit pas partir d'un audit incomplet.
+
+Réponds par l'objet structuré : fichier ; controle (la dernière ligne du contrôle) ; resume (100 mots au plus : nombre de constats confirmés, de sujets, de questions, et ce qui passe en premier dans ce lot).`,
+  { label: `lot ${l.cle}`, phase: 'Lots', schema: RESUME, agentType: 'general-purpose' })
+
+const envoi = (etape) => `Contrôle mécanique, à lancer jusqu'à « réussi » : python3 ${D}/verif_synthese.py ${W} ${D}
+Puis envoie le fichier, depuis ${W} : bash ${S}/envoi-audit.sh "Audit : synthèse et plan de corrections, ${etape}" docs/audit/README.md
+Le script contrôle le fichier (aucun chemin local, aucun nom de modèle, aucune adresse électronique, aucun lien privé), fait le commit et pousse ; il écrit « ENVOYÉ » quand c'est fait. S'il refuse, lis son message, corrige, relance. Envoie après chaque grande étape, pas seulement à la fin.`
+
+const TITRES = `« ## En bref », « ## Rapports », « ## Constats confirmés, par gravité », « ## Plan de corrections », « ## Décisions qui attendent Julien », « ## Constats confirmés sans correction à faire maintenant », « ## Constats réfutés », « ## Ce que l'audit n'a pas couvert », « ## Je ne sais pas »`
+
+const synthese = () => agent(`${commun}
+
+Mission : écrire la synthèse de l'audit et le plan de corrections, ${W}/docs/audit/README.md, et l'envoyer.
+Matière : les quatre fiches de lot écrites par quatre agents, ${LOTS.map((l) => `${D}/lot-${l.cle}.md (${l.nom})`).join(' ; ')} ; ${D}/table-rapports.md ; les index et les rapports quand une fiche ne suffit pas. Lis aussi ${W}/docs/etat-des-travaux.md (ce qui suit l'audit : corrections, puis nouvelles fonctions) et ${W}/docs/cadrage.md.
+
+Le fichier a ces titres de niveau 2, dans cet ordre et écrits exactement ainsi (un contrôle les cherche) : ${TITRES}. Avant eux : un titre de niveau 1 et un en-tête court (date ; la demande de Julien, citée ; la méthode en trois lignes ; ce que couvre l'audit : le travail fait avant le 12 novembre 2026).
+- « En bref » : quinze lignes au plus. Ce que l'audit conclut ; les fautes les plus graves, avec leur identifiant ; ce qui tient ; par quoi le plan commence et pourquoi ; combien de décisions attendent Julien.
+- « Rapports » : recopie telles quelles les lignes de ${D}/table-rapports.md (le contrôle les compare caractère pour caractère), puis une ligne par rapport : ce qu'il conclut.
+- « Constats confirmés, par gravité » : tous les constats confirmés, groupés par gravité finale (« faux », « non sourcé », « incohérent », « à améliorer »), en tableaux : identifiant ; ce qui est établi, en une phrase ; sujet du plan qui le traite (« Sujet n ») ou « sans correction maintenant ».
+- « Plan de corrections » : des sujets numérotés, titres de niveau 3 écrits « ### Sujet 1 · titre », « ### Sujet 2 · titre », à la suite. Un sujet est une pull request : un seul sujet, faisable en une session, avec sa section de CHANGELOG. Pour chacun : constats traités (identifiants) ; ce qu'il faut faire, d'après la correction retenue par la contre-vérification ; fichiers touchés ; tests à lancer ; dépend de (autre sujet, décision de Julien numérotée, source à trouver) ; taille. Chaque constat confirmé est dans un sujet ou dans la section « sans correction à faire maintenant ».
+  Ordre du plan, à justifier en tête de section : d'abord ce qui trompe ou bloque un débutant sur le site publié aujourd'hui (fiche fausse, exercice injouable, faute visible de l'application), en petits sujets indépendants ; puis le socle qui protège la suite (tests rapides, formules communes, contrôles des données) avant les refontes qu'il protège ; puis les refontes ; puis le ménage de la documentation et des outils. À gravité égale, le petit et l'indépendant avant le gros. Un sujet qui dépend d'une décision de Julien vient après elle et le dit. Pas de nouvelle fonction dans un sujet de correction. Quand deux rapports recommandent des choses qui se contredisent ou touchent les mêmes fichiers, dis lequel l'emporte et pourquoi, ou fais-en une question pour Julien. Fusionne les sujets des fiches de lot qui se recouvrent ; ne garde pas un sujet par constat quand une même pull request en traite plusieurs au même endroit. Le Sujet 1 doit pouvoir être commencé par une session neuve sans attendre Julien : c'est le sujet suivant du projet.
+  Le plan est une proposition : Julien tranche. Dis-le en tête de section.
+- « Décisions qui attendent Julien » : numérotées (D1, D2, …) : la question, les options, la recommandation de l'audit et celle de la contre-vérification, les constats, les sujets bloqués. Puis les réglages que seul Julien peut faire, avec le chemin exact dans l'interface.
+- « Constats confirmés sans correction à faire maintenant » : identifiant et raison.
+- « Constats réfutés » : identifiant et raison, en une ligne chacun : ils ne sont pas à corriger.
+- « Ce que l'audit n'a pas couvert » : regroupé (hôtes non joignables et sources non relues, avec leur nombre ; essais faits dans Chromium en rendu logiciel seulement ; parties non lues), et ce que cela laisse sans réponse.
+- « Je ne sais pas » : ce qui reste invérifié et compte pour la suite.
+Écris pour Julien : phrases complètes, pas de jargon d'agent, chaque identifiant accompagné de ce qu'il désigne à sa première mention. Vise un document qu'on lit en entier : les preuves restent dans les rapports, auxquels tu renvoies.
+
+${envoi('première rédaction')}
+
+Réponds par l'objet structuré : fichier ; controle (dernière ligne du contrôle mécanique) ; pousse (vrai si le script a écrit « ENVOYÉ » pour ton dernier état) ; resume (120 mots au plus : nombre de sujets, les trois premiers, nombre de décisions pour Julien).`,
+  { label: 'synthèse', phase: 'Synthèse', schema: RESUME, agentType: 'general-purpose' })
+
+const fidelite = (lots) => agent(`${commun}
+
+Mission : prendre la synthèse ${W}/docs/audit/README.md en défaut contre les rapports, pour les lots ${lots.map((l) => `« ${l.nom} »`).join(' et ')}, puis la corriger et l'envoyer. Tu n'as écrit ni la synthèse ni les fiches de lot : ne te fie qu'aux rapports et à leurs index.
+Rapports à confronter : ${lots.flatMap((l) => l.rapports).map((r) => `${W}/docs/audit/${r}.md (index : ${D}/index-${r}.md)`).join(' ; ')}.
+Pour chaque constat de ces rapports cité dans la synthèse (table par gravité, sujets du plan, décisions, sections des constats sans correction et des constats réfutés), relis son verdict dans l'index, et le rapport quand l'index ne suffit pas. Cherche :
+- une correction qui n'est pas celle que la contre-vérification a retenue, ou une réserve qu'elle a posée et que la synthèse a perdue ;
+- une gravité qui n'est pas la gravité finale ;
+- une phrase plus forte que la preuve (essai dit « sur téléphone » alors qu'il est fait dans Chromium en rendu logiciel, « toujours » pour « 30 vues sur 46 », nombre faux) ;
+- un constat confirmé rangé « sans correction à faire maintenant » sans que le rapport le dise, ou l'inverse ;
+- un constat réfuté qui revient dans un sujet ;
+- une question que le rapport pose à Julien et qui manque, ou qui est reformulée de façon à orienter la réponse ;
+- un sujet qui mêle des corrections sans rapport, ou qui annonce plus que ce que les constats cités demandent ;
+- un fichier ou un test nommé qui n'existe pas dans le dépôt (vérifie les chemins).
+Dans le doute, la synthèse est fautive et tu la ramènes à ce que le rapport dit. Corrige directement dans le fichier, par retouches précises, sans le réécrire ; ne touche pas à ce qui concerne les autres rapports, sauf faute évidente que tu signales dans ta réponse.
+
+${envoi('critique de fidélité')}
+
+Réponds par l'objet structuré : fichier ; controle (dernière ligne du contrôle mécanique) ; pousse ; changements (une ligne par retouche : endroit, ce qui était écrit, ce que le rapport dit) ; resume (80 mots au plus).`,
+  { label: `fidélité ${lots.map((l) => l.cle).join('+')}`, phase: 'Critique', schema: RESUME, agentType: 'general-purpose' })
+
+const coherence = () => agent(`${commun}
+
+Mission : critiquer le plan de corrections de ${W}/docs/audit/README.md, le corriger et l'envoyer. Tu n'as écrit ni la synthèse ni les fiches de lot. Deux agents ont déjà confronté la synthèse aux rapports, constat par constat ; toi, tu juges le plan dans son ensemble, comme celui qui devra l'exécuter depuis une session neuve, sans autre mémoire que le dépôt.
+Lis la synthèse en entier, les quatre fiches de lot (${LOTS.map((l) => `${D}/lot-${l.cle}.md`).join(', ')}), ${W}/CLAUDE.md, ${W}/docs/etat-des-travaux.md, et les rapports là où tu doutes. Cherche :
+- un ordre qui ne tient pas : un sujet placé avant ce dont il dépend, une refonte avant les tests qui la protègent, une faute visible d'un débutant reléguée derrière du ménage ;
+- deux sujets qui touchent les mêmes fichiers dans des sens contraires, ou dont l'un défait l'autre ;
+- un sujet trop gros pour une pull request faite en une session, ou deux sujets qui n'en font qu'un ;
+- un sujet dont la description ne suffit pas pour le commencer (quoi changer, où, comment vérifier), le Sujet 1 d'abord : il doit pouvoir être commencé sans attendre Julien ;
+- un sujet qui dépend d'une décision de Julien sans le dire, une décision qui manque dans la liste ou qui n'y dit pas ce qu'elle bloque ;
+- des tests qui ne sont pas ceux que CLAUDE.md demande pour les fichiers touchés ;
+- une nouvelle fonction glissée dans un sujet de correction ;
+- « En bref » : une phrase que le reste du document ne soutient pas, une faute grave oubliée ;
+- des redites, du jargon, une phrase que Julien ne peut pas comprendre sans ouvrir un rapport ; le ton de CLAUDE.md.
+Corrige directement dans le fichier. Quand tu déplaces, fusionnes ou coupes des sujets, renumérote-les à la suite (« ### Sujet n · titre ») et mets à jour tous les renvois « Sujet n » du document, table par gravité comprise. Garde les neuf titres de niveau 2 tels quels.
+
+${envoi('critique du plan')}
+
+Réponds par l'objet structuré : fichier ; controle (dernière ligne du contrôle mécanique) ; pousse ; changements (une ligne par changement et sa raison) ; resume (100 mots au plus : le plan final en une phrase par groupe de sujets, et ce qui attend Julien).`,
+  { label: 'cohérence du plan', phase: 'Critique', schema: RESUME, agentType: 'general-purpose' })
+
+const depuis = (args && args.depuis) || 'lots'
+const etat = { lots: [], synthese: null, fidelite: [], coherence: null, coupe: null }
+const fin = (ou) => { etat.coupe = ou; log(`coupé : ${ou}`); return etat }
+
+if (depuis === 'lots') {
+  for (const l of LOTS) {
+    const r = await lot(l)
+    if (!r) return fin(`fiche du lot ${l.cle}`)
+    log(`lot ${l.cle} : ${r.controle}`)
+    etat.lots.push({ lot: l.cle, ...r })
+    if (!/réussi/.test(r.controle)) return fin(`fiche du lot ${l.cle} : contrôle en échec`)
+  }
+}
+if (depuis === 'lots' || depuis === 'synthese') {
+  etat.synthese = await synthese()
+  if (!etat.synthese) return fin('synthèse')
+  log(`synthèse : ${etat.synthese.controle}`)
+}
+for (const paire of [[LOTS[0], LOTS[1]], [LOTS[2], LOTS[3]]]) {
+  const r = await fidelite(paire)
+  if (!r) return fin(`critique de fidélité ${paire.map((l) => l.cle).join('+')}`)
+  log(`fidélité ${paire.map((l) => l.cle).join('+')} : ${(r.changements || []).length} retouche(s), ${r.controle}`)
+  etat.fidelite.push(r)
+}
+etat.coherence = await coherence()
+if (!etat.coherence) return fin('critique du plan')
+log(`cohérence : ${(etat.coherence.changements || []).length} changement(s), ${etat.coherence.controle}`)
+return etat
