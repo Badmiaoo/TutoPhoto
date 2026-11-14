@@ -5,7 +5,7 @@
 - Date : 14 novembre 2026. Rapport écrit par un agent de Claude, à la demande de Julien (12 novembre 2026 : remettre en question tout le travail fait avant ce jour par le modèle précédent ; 13 novembre : finir l'audit et le pousser).
 - Version auditée : copie de travail à la version 0.3.58. Les numéros de ligne de `data/sources.yaml` sont ceux de cette version.
 - Reprise : un premier agent, coupé par la limite d'usage le 13 novembre, avait écrit les scripts de relecture (date d'ajout, lecture des adresses, recherche des citations, cohérence de `used_in`) sans commencer le rapport. Ses scripts et ses pages enregistrées sont repris ; tout le texte de ce rapport est du 14 novembre.
-- Bilan : 9 constats (1 « faux », 2 « incohérent », 6 « à améliorer »), 37 points vérifiés et justes, 9 « Je ne sais pas ». Sur 151 entrées, 100 sont relues (75 à leur adresse, 25 à une autre adresse du même contenu) et 51 ne le sont pas, faute d'hôte joignable. Les citations et les nombres des libellés relus sont dans les pages ; les défauts sont dans la tenue du fichier : une adresse qui ne mène pas à la page nommée, un champ `used_in` qui ne suit aucune de ses deux définitions, des dates de lecture absentes pour les entrées du 7 novembre, des adresses citées hors du fichier.
+- Bilan : 9 constats (1 « faux », 2 « incohérent », 6 « à améliorer »), 38 points vérifiés et justes, 9 « Je ne sais pas ». Sur 151 entrées, 100 sont relues (75 à leur adresse, 25 à une autre adresse du même contenu) et 51 ne le sont pas, faute d'hôte joignable. Les citations et les nombres des libellés relus sont dans les pages ; les défauts sont dans la tenue du fichier : une adresse qui ne mène pas à la page nommée, un champ `used_in` qui ne suit aucune de ses deux définitions, des dates de lecture absentes pour les entrées du 7 novembre, des adresses citées hors du fichier.
 
 ## Périmètre
 
@@ -99,7 +99,7 @@ Neuf constats : 1 « faux », 2 « incohérent », 6 « à améliorer », class�
 - Ce que cet audit apporte : 36 de ces 75 pages ont été relues (34 à leur adresse le 13 novembre 2026, 2 dans les fichiers de leur dépôt GitHub le 14) et disent ce que leur libellé et leur notion en attendent, sauf `nikon-zr-mf-ring` (SRC-01), `nikon-z8-guide` (SRC-06) et la note de `suncalc` (SRC-02). Les 39 autres ne sont pas joignables d'ici : pour elles, je ne sais pas si la page a été ouverte le 7 novembre.
 - Correction proposée : remplacer la phrase d'en-tête et `checked` par un champ par entrée, par exemple `read: 2026-11-13` et `seen: page | extrait | releve-julien`, contrôlé par le schéma ; reporter dans ce champ ce que disent déjà les libellés datés ; pour les 36 pages relues ici, la date de cette relecture ; pour les 39 autres, `seen: inconnu`, à lever quand la fiche de la notion sera écrite.
 
-### SRC-06 · à améliorer · Quatre adresses imprécises ou instables
+### SRC-06 · à améliorer · Cinq adresses imprécises ou instables
 
 - Endroit : `data/sources.yaml`, l. 51-55, 142-145, 249-253, 670-679.
 - Preuve :
@@ -107,21 +107,21 @@ Neuf constats : 1 « faux », 2 « incohérent », 6 « à améliorer », class�
 | Source | Ce qui est écrit | Ce que la lecture montre | Correction proposée |
 | --- | --- | --- | --- |
 | `nikon-z8-guide` (MAP-22) | adresse de l'accueil du guide, `…/z8/en/` ; la note de l'entrée le dit : « pointer la page exacte à la rédaction » | les deux pages existent : `…/z8/en/csma_focus_points_used_207.html`, « a4: Focus Points Used » (« The number of available focus points is reduced to one quarter of the number available when [All points] is selected. ») ; `…/z8/en/csma_focus_point_wrap-around_213.html`, « a10: Focus Point Wrap-Around » (« focus-point selection will “wrap around” from top to bottom, bottom to top, right to left, and left to right ») | deux entrées, une par page, et retirer la note |
-| `canon-m50ii-metering` (MES-02) | `https://cam.start.canon/fa/C007/…` | la page servie est en anglais (`<html lang="en">`) ; la même page répond 200 sous `/en/C007/…`, forme des quatre autres adresses Canon du fichier | remplacer `/fa/` par `/en/` |
+| `canon-m50ii-metering` (MES-02) | `https://cam.start.canon/fa/C007/…` | la page servie est en anglais (`<html lang="en">`) ; la même page répond 200 sous `/en/C007/…`, forme des cinq autres adresses `cam.start.canon` du lot | remplacer `/fa/` par `/en/` |
 | `wikipedia-zone-system` (MES-13) | `https://en.wikipedia.org/wiki/Zone_System`, sans révision | les dix autres articles de Wikipedia du lot citent une révision (`oldid`) ; celui-ci renvoie à la page du jour (révision 1382492262 le 13 novembre 2026) | citer la révision lue |
 | `nikon-z6-launch-2018`, `nikon-z6-eisa-2019` | `https://www.nikon.com/news/2018/0823_mirrorless_01.htm`, `…/news/2019/0815_award_01.htm` | les deux adresses répondent par une redirection vers `https://www.nikon.com/company/news/2018/0823_mirrorless_01/` et `…/company/news/2019/0815_award_01/` ; le contenu est le bon | écrire l'adresse d'arrivée |
 
-- Pour MAP-22, la troisième affirmation de la notion (« rappeler une position mémorisée ») est portée par l'autre source, `canon-r5ii-af-area` : « Registering AF Points (Home Position) — You can register the position of a frequently used AF point. »
+- Pour MAP-22, la troisième affirmation de la notion (« rappeler une position mémorisée ») est portée par l'autre source, `canon-r5ii-af-area`, section « Registering AF Points (Home Position) » : « You can register the position of a frequently used AF point. »
 
-### SRC-07 · à améliorer · Deux sources viennent d'appareils à objectif fixe, sans que le libellé le dise ; l'une double une source déjà présente
+### SRC-07 · à améliorer · Deux sources viennent d'appareils que Sony ne range pas parmi ses boîtiers à objectif interchangeable, sans que le libellé le dise ; l'une double une source déjà présente
 
 - Endroit : `data/sources.yaml`, l. 189-196 ; MES-02 (`data/referentiel/mes.yaml`, l. 24) et MAP-14 (`data/referentiel/map.yaml`, l. 134).
 - Règle : `CLAUDE.md`, le public a « un boîtier reflex ou hybride (pas de smartphone, de compact ni de bridge) ».
 - Preuve :
-  - `sony-rx0ii-highlight` : la page s'intitule « Digital Still Camera DSC-RX0M2 », et non « Interchangeable Lens Digital Camera » comme les pages des boîtiers ILCE. Son texte sur la mesure « Highlight » est, mot pour mot, celui de `sony-a9-metering`, citée par la même notion : « Highlight : Measures the brightness while emphasizing the highlighted area on the screen. This mode is suitable for shooting the subject while avoiding overexposure. » La source n'apporte rien que l'α9, un hybride, ne dise déjà.
-  - `sony-rx10iv-limiter` : page « Digital Still Camera DSC-RX10M4 », titre « Focus Mode ». Le limiteur qu'elle décrit est un interrupteur de cet appareil : « When the focus range limiter switch is set to “∞-3m,” the camera focuses on subjects more than 3 m away in telephoto shooting ». C'est la seule source de MAP-14. Sur un reflex ou un hybride, je ne sais pas où se règle le limiteur : aucune source du fichier ne le dit.
+  - `sony-rx0ii-highlight` : l'en-tête de la page porte la catégorie « Digital Still Camera » et le modèle « DSC-RX0M2 », là où les pages des boîtiers ILCE portent « Interchangeable Lens Digital Camera » (`sony-a9-metering`). Son texte sur la mesure « Highlight » est, mot pour mot, celui de `sony-a9-metering`, citée par la même notion : « Highlight : Measures the brightness while emphasizing the highlighted area on the screen. This mode is suitable for shooting the subject while avoiding overexposure. » La source n'apporte rien que la page de l'α9 ne dise déjà.
+  - `sony-rx10iv-limiter` : même catégorie « Digital Still Camera », modèle « DSC-RX10M4 », page « Focus Mode ». Le limiteur qu'elle décrit est un interrupteur de cet appareil : « When the focus range limiter switch is set to “∞-3m,” the camera focuses on subjects more than 3 m away in telephoto shooting ». C'est la seule source de MAP-14. Où se règle le limiteur sur un reflex ou un hybride, aucune source du fichier ne le dit.
   - À l'inverse, `nikon-p1100-af-area` écrit dans son libellé « compact, pas un hybride ».
-- Correction proposée : retirer `sony-rx0ii-highlight` de MES-02 et du fichier ; écrire « appareil à objectif fixe » dans le libellé de `sony-rx10iv-limiter` et ajouter à MAP-14 un `todo` : sourcer le limiteur sur un objectif de reflex ou d'hybride avant d'écrire la fiche.
+- Correction proposée : retirer `sony-rx0ii-highlight` de MES-02 et du fichier ; écrire dans le libellé de `sony-rx10iv-limiter` que l'appareil n'est pas un boîtier à objectif interchangeable, comme le fait `nikon-p1100-af-area`, et ajouter à MAP-14 un `todo` : sourcer le limiteur sur un objectif de reflex ou d'hybride avant d'écrire la fiche.
 
 ### SRC-08 · à améliorer · Le droit français est cité par des commentaires, pas par les textes officiels
 
@@ -139,8 +139,8 @@ Neuf constats : 1 « faux », 2 « incohérent », 6 « à améliorer », class�
 - Ce qui est écrit : libellé, « la v2.0 a changé unités et conventions, version à figer » ; note, « Aucune version publiée affichée sur le dépôt : figer un commit (audit indépendant). »
 - Preuve (lue le 14 novembre 2026) :
   - `git ls-remote --tags https://github.com/mourner/suncalc` : douze étiquettes, de `v1.6.0` à `v2.1.4`. `v1.9.0` date du 7 février 2022, `v2.0.0` du 18 juin 2026, `v2.1.4` du 10 novembre 2026 (commit `e74c269`).
-  - `README.md`, branche `master`, l. 256-260 : « See the Releases page […] for the full changelog. Note that **v2.0** is a precision-focused rewrite with breaking changes to units and conventions ». `package.json` : `"version": "2.1.4"`.
-  - Le libellé est juste (licence à deux clauses, « Copyright (c) 2026, Volodymyr Agafonkin » ; changement d'unités à la v2.0). La note ne l'est plus, ou ne l'a jamais été : les étiquettes `v2.0.0` à `v2.1.3` existaient le 7 novembre. Je ne sais pas ce que la page du dépôt affichait ce jour-là (`github.com` répond 403 aux lectures de pages).
+  - `README.md`, branche `master`, l. 256-260 : « See the [Releases page](…) for the full changelog. Note that **v2.0** is a precision-focused rewrite with breaking changes to units and conventions » (adresse du lien abrégée). `package.json` : `"version": "2.1.4"`.
+  - Le libellé est juste (licence à deux clauses, « Copyright (c) 2026, Volodymyr Agafonkin » ; changement d'unités à la v2.0). La note ne l'est plus, ou ne l'a jamais été : les étiquettes `v2.0.0` à `v2.1.2` pointent des commits antérieurs au 7 novembre (`v2.0.1`, 11 juillet ; `v2.1.2`, 5 novembre 2026). Je ne sais pas ce que la page du dépôt affichait ce jour-là (`github.com` répond 403 aux lectures de pages).
 - Correction proposée : remplacer la note par « Figer une version étiquetée (2.1.4 le 14 novembre 2026) ; lire les notes de la version 2.0 avant d'écrire PLA-01 à PLA-03. »
 
 ### SRC-09 · à améliorer · Six pages n'ont été lues que par Julien, et leur seule trace est le libellé
@@ -158,7 +158,7 @@ Dépôts, licences et outils (lus le 14 novembre 2026).
 - `threejs-r187`, `babylonjs-9-35-0`, `playcanvas-2-23-3`, `three-gpu-pathtracer-0-0-28`, `mdn-bcd-8-1-8`, `gitleaks-8-30-1` : chaque étiquette pointe le commit du libellé, à la date du libellé (`7e89746`, 30 octobre 2026 ; `00bc37c`, 6 novembre 2026 ; `b7655d8`, 15 octobre 2026 ; `80d1888`, 2 novembre 2026 ; `29768a4`, 2 novembre 2026 ; `83d9cd6`, 12 mars 2026). Licences des libellés : ce sont celles des fichiers de licence à l'étiquette (MIT pour three.js, PlayCanvas, three-gpu-pathtracer et gitleaks, « Copyright (c) 2019 Zachary Rice » ; Apache-2.0 pour Babylon.js, fichier `license.md`).
 - `three-mesh-bvh-0-9-18` : l'étiquette `v0.9.18` existe (commit `1d92383`, 3 novembre 2026), licence MIT, « Copyright (c) 2018 Garrett Johnson ».
 - `spdx-mit`, `spdx-cc-by-sa-4`, `spdx-cc0`, `spdx-cc-by-4`, `spdx-apache-2` : les cinq textes existent au commit `3184648` du dépôt `spdx/license-list-data`, daté du 29 octobre 2026. Les clauses que citent `docs/licences.md` (l. 18 à 20 et 31) et `docs/questions-ouvertes.md` (l. 13) y sont, aux sections annoncées : notice à inclure (MIT) ; section 3(b)(1) de CC BY-SA 4.0, « a Creative Commons license with the same License Elements, this version or later, or a BY-SA Compatible License » ; section 2 de CC0 1.0, « Waiver » ; section 3(a)(1)(B) de CC BY 4.0, « indicate if You modified the Licensed Material » ; section 2(b)(1), « nor are publicity, privacy, and/or other similar personality rights ».
-- `github-pages-limits`, `github-secret-scanning`, `github-push-protection-users`, `github-large-files` : le commit `8cd1075` du dépôt `github/docs` est du 6 novembre 2026 (15 h 25, heure du Pacifique). Les cinq pages existent à ce commit, aux chemins des adresses citées.
+- `github-pages-limits`, `github-secret-scanning`, `github-push-protection-users`, `github-large-files`, `github-comment-history` : le commit `8cd1075` du dépôt `github/docs` est du 6 novembre 2026 (15 h 25, heure du Pacifique). Les cinq pages existent à ce commit, aux chemins des adresses citées.
 - `github-large-files` : « 50 MiB » (avertissement de Git), « 100 MiB » (blocage), « 25 MiB » (envoi par le navigateur) : valeurs du fichier `data/variables/large_files.yml` au même commit, que la page insère. Le libellé et `docs/licences.md`, l. 32, sont justes.
 - `github-secret-scanning` et `github-push-protection-users` (`docs/publication.md`, l. 19) : « Public repositories: […] runs automatically for free » et « Push protection for users is on by default for public repositories » sont dans les textes que ces deux pages insèrent (`data/reusables/gated-features/secret-scanning.md`, `data/reusables/gated-features/push-protection-for-users.md`).
 - `github-comment-history` : « Anyone with read access to a repository can view a comment's edit history. » est dans la page, identique au commit `8cd1075` et sur la branche `main` du 14 novembre 2026.
@@ -178,7 +178,7 @@ Le fichier lui-même.
 Pages lues à leur adresse (13 novembre 2026).
 
 - Les 75 adresses répondent 200. Le titre de chaque page est celui que nomme le libellé, sauf `nikon-zr-mf-ring` (SRC-01) et `nikon-z8-guide` (SRC-06). Trois libellés nomment une section et non la page, et la section y est : `nikon-z8-time` (page « Exposure », section « Long Time-Exposures (Mode M Only) »), `sony-rx10iv-limiter` (page « Focus Mode », section « Focus range limiter »), `sony-a7iii-infinity` (page « Focus Mode », conseil sur la mise au point à l'infini).
-- Citations : 68 citations entre guillemets dans 28 libellés. 64 sont dans la page mot pour mot. Les 4 autres y sont à un détail près : un renvoi interne omis (`nikon-z6-focus`, « using the sub-selector ( 0 The Sub-Selector ) or multi-selector »), un appel de note omis (`nikon-z6-product`, « 273-point *1 hybrid AF system »), une espace dans un appel de note (`nikon-z6-eisa-2019`), une virgule après la lettre du mode (`nikon-z6-exposure-compensation`).
+- Citations : 68 citations entre guillemets dans 28 libellés. 64 sont retrouvées par le script mot pour mot. Les 4 autres y sont aussi, relues à la main : pour deux, l'écart ne tient qu'à une espace née de l'extraction du texte (`nikon-z6-eisa-2019`, `nikon-z6-exposure-compensation`) ; pour deux, le libellé omet sans le signaler un renvoi interne (`nikon-z6-focus` : « using the sub-selector ( 0 The Sub-Selector ) or multi-selector ») ou un appel de note (`nikon-z6-product` : « 273-point *1 hybrid AF system »). Le sens n'en est pas changé.
 - Wikipedia : les dix révisions des libellés sont celles des adresses, et les pages servies portent ce numéro (`wgRevisionId`).
 - Nombres des libellés, cherchés par un script puis à la main : `nikon-z6-specifications` (« 35.9 × 23.9 mm », « 24.5 million », « 1/8000 – 30 s in steps of 1/3 or 1/2 EV », « ISO 100 – 51200 ») ; `sony-ilce-7m3-help-guide` (« 35.6 mm × 23.8 mm », « Approx. 24 200 000 pixels », « 1/8 000 second to 30 seconds », « ISO 100 to ISO 51 200 », les onze titres de sections cités, « Copyright 2018 Sony Corporation ») ; `wikipedia-image-sensor-format` (22.30 × 14.90 ; 23.6–23.7 × 15.60) ; `wikipedia-sony-a6000` ; `wikipedia-circle-of-confusion` (« d /1500, or 0.029 mm ») ; `wikipedia-film-speed` (40:1, 10:1, « 70 pixels per cm », « 25 cm ») ; `wikipedia-shutter-speed` (« 1⁄1000 s » à « 1 s », « 2:1 ») ; `nikon-z6-release-mode` (« 1–5 frames per second », 5.5 et 12 fps) ; `nikon-z6-exposure-compensation` (−5 à +5 EV, 1/3 EV) ; `nikon-z6-iso-button` (« ISO 100 (Z 7) or 200 (Z 6) to Hi 2 ») ; `nikon-z6-iso-settings` (« 1/4000 s to 30 s ») ; `nikon-z6-defaults` ; `nikon-d850-auto-iso` (« 1/30 s », « ISO 64 »). Tous y sont.
 - Dates et auteurs : `photonstophotos-read-noise` (« Last revised: 2026-08-17 »), `photonstophotos-sensor-characteristics` (« Last revised: 2025-12-15 »), `pvc-adams-soft-light` (Art Adams, « December 27, 2011 »), `nikon-z6-launch-2018` (« August 23, 2018 »), `nikon-z6-eisa-2019` (« August 15, 2019 »), `sony-a9-metering` (« α9 Ver.5 or later »).
@@ -201,6 +201,7 @@ Pages citées par le seul référentiel, comparées à la spécification de la n
 - LUM-17 : `nikon-zf-flash-modes` (« red-eye reduction lamp will light before the flash fires ») ; BOI-30 : `nikon-faq-diopter` (« Rotate the diopter adjustment control to adjust viewfinder focus. ») ; BOI-35 : `nikon-zf-snapbridge` (téléchargement des images, « Remote Photography ») ; BOI-34 : `nikon-zf-image-area` (« To calculate the approximate focal length of the lens in 35 mm format, multiply by 1.5. »).
 - EXP-13 : `nikon-d6-raw-bit-depth` (12 ou 14 bits) ; BOI-16 : `nikon-z7-raw-compression` (« reversible algorithm », « non-reversible algorithm ») et `sony-a7iv-raw-type` (Uncompressed, Lossless Comp, Compressed).
 - MES-13 : `wikipedia-zone-system` (« formulated by Ansel Adams and Fred Archer »).
+- Tableau du vocabulaire des marques (`docs/architecture.md`, l. 52 à 71) et BOI-27 : pour les douze pages joignables, chaque terme écrit dans le tableau est dans la page vers laquelle il pointe (« One-Shot AF », « Servo AF », « AF-S », « AF-C », « AF-A », « AF-area mode », « Focus Area », « Evaluative », « Partial », « Center-weighted average », « Matrix », « Highlight-weighted », « Multi », « Center », « Entire Screen Avg. », « Highlight », « Automatic AF », « Focus Point Link ») ; « AF method » est le mot de la page de l'EOS R5, « AF area » celui de la page de l'EOS R5 Mark II. Les termes de Fujifilm et l'« AI Servo AF » de l'EOS 80D ne sont pas relus : hôtes non joignables.
 
 ## Je ne sais pas
 
@@ -216,7 +217,7 @@ Pages citées par le seul référentiel, comparées à la spécification de la n
 
 ## Recensements
 
-Sept tableaux. Les nombres viennent des scripts du dossier `audit/sources/scripts/` du bloc-notes de la session.
+Sept recensements. Les nombres viennent des scripts du dossier `audit/sources/scripts/` du bloc-notes de la session.
 
 ### Sources jamais ouvertes
 
@@ -265,8 +266,8 @@ D'après leur propre libellé. Pour sept entrées, le libellé dit que la page n
 | `wikipedia-zone-system` | MES-13 | oui (note, et `todo` de la notion) | je ne sais pas |
 | `nikon-d5600-sensor` | capteur du D5600 ; site d'un tiers (`dslrbodies.com`), page non ouverte | non | Nikon ; PHY-15 |
 | `nikon-d5600-pixels` | définition du D5600 ; fiche d'un revendeur, page non ouverte | non | communiqué de Nikon du 10 novembre 2016 (PHY-15) |
-| `canon-80d-manualslib` | MAP-04 ; copie d'un manuel de Canon sur un site tiers | oui (note) | manuel de Canon |
-| `canon-psp` | COU-05 ; page d'un logiciel d'impression | oui (note, et `todo` de la notion) | je ne sais pas |
+| `canon-80d-manualslib` | MAP-04 ; manuel de Canon lu sur ManualsLib, un site tiers | oui (note : « Préférer le PDF officiel de Canon ») | manuel de Canon |
+| `canon-psp` | COU-05 ; page du manuel de Print Studio Pro, pas d'un boîtier | oui (note « source indirecte », et `todo` de la notion) | je ne sais pas |
 | `petapixel-perspective` | OPT-01, OPT-06 | oui (note) | je ne sais pas |
 | `haeberli-akeley-1990` | accumulation de rendus (`docs/camera-physique.md`, l. 67) ; fiche et résumé, pas l'article | oui | l'article (DOI 10.1145/97879.97913) |
 | `gustafsson-bokeh-single-pass` | flou du viseur ; lu dans le code de bgfx qui le reproduit | oui | l'article du blog |
@@ -301,7 +302,7 @@ Sens inverse, vérifié par `choix-et-outils.md` et refait ici : toutes les adre
 
 51 entrées, 37 hôtes. « Refus du proxy » : la sortie de la session n'autorise pas l'hôte (`CONNECT` refusé, code 403). « 403 de l'hôte » : l'hôte est joint et répond par une page de contrôle contre les lectures automatiques. Pour toutes : source non relue, hôte non joignable ; ni l'existence de la page ni son contenu ne sont vérifiés.
 
-| Hôte | Réponse | Sources (entre parenthèses : ce qui les cite) |
+| Hôte | Réponse | Sources (entre parenthèses : notions, domaines et situations qui la citent, puis son champ `used_in`) |
 | --- | --- | --- |
 | `photographylife.com` | 403 de l'hôte | `pl-iso-invariance` (EXP (domaine), EXP-06, EXP-08 ; `content/fr/notions/EXP-06.md`, `content/en/notions/EXP-06.md`) ; `pl-lens-compression` (NET (domaine), NET-01, OPT-01, OPT-06) |
 | `www.canon.co.uk` | 403 de l'hôte | `canon-eos-2000d-sensor` (`docs/camera-physique.md`) ; `canon-eos-rp-pixels` (`docs/camera-physique.md`, `app/src/camera/bodies.ts`) ; `canon-eos-rp-af` (MAP-06 ; `docs/camera-physique.md`, `app/src/camera/bodies.ts`, `content/fr/notions/MAP-06.md`, `content/en/notions/MAP-06.md`) |
