@@ -49,7 +49,7 @@ Non relues :
 
 ## Parties du périmètre pas encore traitées
 
-À ce stade de l'écriture : ce qu'obtient un contributeur extérieur par une pull request, licences des dépendances, `docs/licences.md` et `docs/publication.md` phrase par phrase, question de Renderpeople. Cette liste est mise à jour à chaque envoi.
+À ce stade de l'écriture : la liste des points vérifiés et celle des « Je ne sais pas » sont incomplètes, et les constats ne sont pas encore classés par gravité. Cette liste est mise à jour à chaque envoi.
 
 ## Constats
 
@@ -186,6 +186,63 @@ Non relues :
   - `pages.yml` : même déclencheur. Je ne sais pas si l'environnement `github-pages` du dépôt refuse les déploiements venus d'une autre branche : ce réglage ne se lit pas depuis la session.
 - Qui peut le faire : seulement un compte qui a le droit d'écrire dans le dépôt, donc Julien ou Claude. Ce n'est pas une faille ouverte à un tiers, c'est un geste à ne pas rater.
 - Correction proposée : une ligne dans chaque workflow, `if: github.ref == 'refs/heads/main'` sur le job `tag` et sur le job `build`. Le comportement ne dépend alors plus d'un réglage du dépôt.
+
+### LIC-08 · incohérent · Quatre phrases de la documentation des licences et de la publication ne disent pas ce que montrent le dépôt et le site construit
+
+- Endroit : `docs/licences.md`, l. 10 ; `docs/publication.md`, l. 12 et 27 ; `docs/pile-technique.md`, l. 90.
+- Ce qui est écrit, et la preuve :
+  1. `docs/licences.md`, l. 10 : « `content/` (à venir) ». Le dossier existe depuis le 11 novembre 2026 (commit « Fiches des notions et des situations de la V1 minimale ») et compte 44 fichiers suivis. Déjà vu en passant par le rapport `documentation.md`, hors de son lot.
+  2. `docs/publication.md`, l. 27 : « Les 28 commits faits par Claude du 7 au 8 novembre 2026 ». Les 28 commits de `scripts/check_public_historique.txt` datent tous du 7 novembre 2026, de 10 h 46 à 16 h 52 UTC (`git log -1 --format=%cI` sur chaque ligne). Le 8 novembre est le jour où la fuite a été vue.
+  3. `docs/publication.md`, l. 12 : l'exception acceptée par Julien porte sur son nom « comme auteur des commits de fusion ». Sur `main`, Julien est l'auteur de 101 commits sur 171, dont 38 ne sont pas des fusions (`git rev-list --count`). `CLAUDE.md`, l. 21, dit « auteur des commits », et `docs/audit/consignes-agents.md` demande depuis le 12 novembre son nom sur tous les commits. La page de publication est restée à l'ancienne formule.
+  4. `docs/pile-technique.md`, l. 90 : « le polyfill de préchargement de Vite est désactivé, si bien que le site publié ne contient que notre code et celui de Babylon.js ». Le fichier `assets/simulateur-*.js` de la construction du 12 novembre 2026 présente dans la copie de travail (4 175 464 octets ; configuration inchangée depuis le 11) contient la fonction de préchargement de Vite : les chaînes « vite:preloadError » et « modulepreload » y sont, et la première ne se trouve ni dans `app/src/` ni dans les paquets de Babylon.js, seulement dans `node_modules/vite/`. Le fichier commence aussi par des fonctions d'assemblage qui ont la forme de celles de Rolldown (non prouvé). Vite et Rolldown sont sous MIT (registre npm, relu le 14 novembre 2026), dont le texte demande : « The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software ». Je ne sais pas si ces quelques centaines d'octets sont une « substantial portion » ; la page `licences/` du site ne les mentionne pas.
+- Correction proposée : corriger les quatre phrases. Pour le point 4 : écrire « notre code, celui de Babylon.js et les fonctions d'assemblage de Vite et de Rolldown (MIT) », et recopier leurs deux fichiers de licence dans `licences/` (deux lignes dans `app/scripts/copy-licences.mjs`, une ligne dans la page). C'est le choix prudent, et il coûte deux fichiers.
+
+### LIC-09 · à améliorer · La règle « vérifier la licence de toute dépendance » ne repose sur aucun contrôle ; les licences sont propres aujourd'hui
+
+- Endroit : `CLAUDE.md`, l. 41 ; `app/package-lock.json` ; `requirements.txt`, l. 1-2 ; `.github/workflows/validate.yml`, l. 24-25 et 88-91.
+- Ce qui est fait : la licence des dépendances directes est relevée à la main et écrite dans la documentation (`docs/pile-technique.md`, l. 89-96 et 125 ; `requirements.txt`, l. 2 ; commentaires des workflows). Aucun script ne lit le champ `license` d'un paquet : dans `scripts/*.py` et `.github/workflows/*.yml`, le mot « licence » n'apparaît que dans `check_scenes.py` et dans des commentaires. Une pull request qui ajoute une dépendance sans licence, ou sous une licence dont le projet ne veut pas, passe donc la CI. Les dépendances indirectes (59 des 64 paquets du verrou npm, quatre paquets Python) ne sont relevées nulle part.
+- État réel, vérifié le 14 novembre 2026 (script `dependances.py`, registres npm et PyPI) :
+
+  | Ensemble | Paquets | Licences |
+  | --- | --- | --- |
+  | Verrou npm (`app/package-lock.json`) | 64 | Apache-2.0 : 25 ; MIT : 25 ; MPL-2.0 : 12 (`lightningcss` et ses binaires) ; ISC : 1 (`picocolors`) ; BSD-3-Clause : 1 (`source-map-js`) |
+  | Dont dans le site publié | 2 | `@babylonjs/core` et `@babylonjs/loaders`, Apache-2.0, licence et `NOTICE.md` recopiés dans `licences/` (plus les fragments de LIC-08, point 4) |
+  | Python, directs | 2 | PyYAML 6.0.3 et jsonschema 4.26.0 : MIT |
+  | Python, indirects (versions installées le 14 novembre) | 4 | `attrs`, `jsonschema-specifications`, `referencing`, `rpds-py` : MIT |
+  | Hors manifeste | 1 | Playwright 1.63.0 : Apache-2.0 |
+
+  Les 64 paquets du verrou viennent de `registry.npmjs.org` et portent une empreinte `integrity`. Pour les 22 paquets installés, le champ `license` de leur `package.json` est celui du verrou. Pour sept paquets relus au registre (les cinq dépendances directes, `rolldown`, `lightningcss`), licence et empreinte sont celles du verrou. `lightningcss` (MPL-2.0) est un outil de construction, marqué `dev` dans le verrou.
+- Correction proposée : une dizaine de lignes dans un script de contrôle lancé par `validate.yml` : lire `app/package-lock.json`, refuser un paquet sans champ `license` ou hors d'une liste (les cinq licences d'aujourd'hui). Pour Python : écrire les quatre dépendances indirectes dans `requirements.txt`, avec leur version et leur licence (le rapport `choix-et-outils.md`, CHX-08, relève déjà qu'elles ne sont pas épinglées).
+
+## Ce qu'un contributeur extérieur malveillant peut obtenir par une pull request
+
+État au 14 novembre 2026 : les 64 pull requests du dépôt viennent du même compte et de la même branche (liste lue par l'outil GitHub de la session). Aucune pull request d'un tiers n'a encore existé. Les citations viennent du dépôt `github/docs`, commit `d59b263` du 13 novembre 2026.
+
+| Ce qu'il viserait | Ce qu'il obtient | Preuve |
+| --- | --- | --- |
+| Les secrets du dépôt | Rien. | Les trois workflows lancés par une pull request (`validate.yml`, `description.yml`, `routine.yml`) utilisent l'événement `pull_request` ; aucun n'utilise `pull_request_target`, `issue_comment` ni `workflow_run` (recherche dans `.github/workflows/`). « With the exception of `GITHUB_TOKEN`, secrets are not passed to the runner when a workflow is triggered from a forked repository. The `GITHUB_TOKEN` has read-only permissions in pull requests from forked repositories. » Le seul secret cité par un workflow est ce jeton, dans `tag.yml`, lancé sur `main` seulement. |
+| Écrire dans le dépôt, poser un tag, publier le site | Rien avant la fusion. | Même citation ; `tag.yml` et `pages.yml` ne se déclenchent que sur `main` ou à la main, par un compte qui a le droit d'écrire (LIC-07). |
+| Exécuter son code sur les machines de GitHub | Oui : une pull request peut modifier les workflows, les scripts et les dépendances, et la CI les exécute tels quels. | `GITHUB_SHA` d'un événement `pull_request` : « Last merge commit on the `GITHUB_REF` branch ». Frein : « By default, all first-time contributors require approval to run workflows. » Je ne sais pas quel réglage a le dépôt. Coût possible : la routine lance quatre jobs de 60 minutes au plus par envoi (`routine.yml`, l. 28-32), le précédent étant annulé (l. 20-22) ; `validate.yml` et `description.yml` n'ont pas de durée limite propre. |
+| Empoisonner le cache npm lu par `main` | Rien. | « When a cache is created by a workflow run triggered on a pull request, the cache is created for the merge ref (`refs/pull/.../merge`). […] It cannot be restored by the base branch or other pull requests targeting that base branch. » |
+| Injecter une commande par le titre, la description ou le nom de branche | Rien. | Aucune expression `${{ … }}` tirée de l'événement n'est écrite dans une commande : les valeurs passent par `env:` (`validate.yml`, l. 33-34 ; `routine.yml`, l. 57-59), et le titre et la description sont lus dans le fichier de l'événement (`description.yml`, l. 29). |
+| Faire passer la CI au vert à tort | Oui. | La CI exécute les scripts de contrôle de la pull request elle-même : un `check_public.py`, un `check_scenes.py` ou un `changelog.py` modifié, ou une ligne ajoutée à la liste des tolérances (LIC-06, preuve 1), et les contrôles ne contrôlent plus rien. |
+| Après la fusion | Tout ce qu'a le dépôt. | Le code fusionné est publié sur le site (`pages.yml`) et `scripts/changelog.py` tourne avec le droit `contents: write` (`tag.yml`, l. 9-10 et 34). La seule barrière est la relecture avant la fusion. |
+
+Ce que cela demande, à la mesure d'un projet à un auteur :
+1. une phrase dans `docs/publication.md` : pour une pull request d'un tiers, la CI verte ne prouve rien sur `scripts/`, `.github/`, `requirements.txt`, `app/package.json`, `app/package-lock.json` et `scripts/check_public_historique.txt` ; ces fichiers se relisent avant d'approuver l'exécution des workflows, et avant de fusionner ;
+2. un réglage à faire par Julien (les outils de la session ne le lisent pas et ne le changent pas) : dans le dépôt, Settings, Actions, General, « Approval for running fork pull request workflows from contributors », choisir « Require approval for all external contributors ». Le réglage par défaut dispense d'approbation un compte dont une seule modification a déjà été fusionnée (« a user that has had any commit or pull request merged into the repository will not require approval ») ;
+3. les corrections de LIC-06 (liste des tolérances figée) et de LIC-07.
+
+Le rapport `choix-et-outils.md` a déjà constaté que rien, dans GitHub, n'empêche de pousser sur `main` ni de fusionner avec une CI rouge (CHX-03), et que rien ne dit à un tiers comment contribuer (CHX-09) : ces deux points ne sont pas repris ici.
+
+## Renderpeople : ce que dit la licence, et ce qui reste inconnu
+
+- Ce qui est établi, relu le 14 novembre 2026. Les quatre modèles de personnes sont publiés sur Sketchfab par le compte `renderpeople` (nom affiché « Renderpeople » ; la page du compte renvoie au site de la société). L'API de Sketchfab donne pour chacun : licence « CC Attribution », adresse `http://creativecommons.org/licenses/by/4.0/`, « Author must be credited. Commercial use is allowed. », téléchargeable, sans prix. Le `license.txt` de chaque archive dit la même chose. Les descriptions annoncent des textures « 8k » ; celles du dépôt font 2048 × 2048 px (mesuré dans les fichiers), ce que dit le champ `changes`.
+- Ce que la licence demande, et ce qui est fait. CC BY 4.0, section 3(a)(1) : nommer l'auteur, garder le lien vers l'œuvre, dire si elle a été modifiée, citer la licence avec son adresse. Le bouton « Crédits » affiche le titre avec son lien, l'auteur, la licence avec son lien et les modifications (`app/src/credits.ts`, l. 61-65) ; la page `licences/` renvoie au manifeste. C'est conforme.
+- Ce que la licence ne couvre pas. Section 2(b)(1) : « Moral rights, such as the right of integrity, are not licensed under this Public License, nor are publicity, privacy, and/or other similar personality rights; however, to the extent possible, the Licensor waives and/or agrees not to assert any such rights held by the Licensor to the limited extent necessary to allow You to exercise the Licensed Rights, but not otherwise. » La renonciation ne porte que sur les droits que détient le concédant, pas sur ceux des personnes scannées. La question de `docs/questions-ouvertes.md`, l. 13, est donc bien posée, et sa citation est exacte.
+- Ce que disent les conditions de Renderpeople : je ne sais pas. Le site de la société n'est pas joignable depuis la session (deux essais). Une recherche sur le Web, le 14 novembre 2026, renvoie à la page des conditions générales du site ; son résumé dit que les modèles gratuits y suivent les mêmes dispositions que les modèles payants, et que certains usages demandent un accord séparé ou un consentement écrit. C'est un extrait de recherche, page non ouverte : il ne prouve rien, il dit seulement que la page vaut d'être lue. Je ne sais pas non plus si ces conditions s'appliquent à des fichiers pris sur Sketchfab sous CC BY 4.0.
+- Ce que le dépôt en dit : `docs/etat-des-travaux.md` parle d'un « accord déjà obtenu », `docs/questions-ouvertes.md` dit « Je ne sais pas » (rapport `documentation.md`, DOC-05). Rien dans le dépôt ne dit ce qu'est cet accord.
+- Ce qui reste à faire, par Julien : lire la page des conditions générales de Renderpeople, ou leur écrire, et faire consigner la réponse (date, texte exact, portée) dans `docs/questions-ouvertes.md`. D'ici là, le risque est borné : les quatre modèles sont quatre dossiers de la scène, remplaçables sans toucher au reste.
 
 ## Vérifié
 
