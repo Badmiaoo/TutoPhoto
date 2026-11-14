@@ -170,7 +170,7 @@ Classés du plus grave au moins grave : deux constats « faux », quatre « inco
   | Pixel 7, 863 × 360 px | 79 px | 97,6 px | 183,4 px | 147 × 98 px | 328 × 86 px | de 83 à 63 px au-dessus : coupé |
 
   Le cadre couvre 3,6 % de la fenêtre de l'iPhone (117 × 78 sur 750 × 340). L'indicateur d'équilibre, déplié, recouvre la gauche du viseur et déborde en bas ; la vue de dessus recouvre la droite, et son bouton de repli est hors de la zone visible : on ne peut ni voir la carte, ni la refermer. Même mesure en anglais. La page ne défile pas (`scrollHeight` égal à la hauteur de la fenêtre) : rien ne permet d'agrandir le viseur.
-- Ce n'est écrit nulle part : ni `docs/`, ni la routine (`scripts/test_app.cjs`, quatre profils, tous deux téléphones à la verticale) ne parlent de l'orientation ; `grep -i "paysage\|landscape"` ne trouve rien dans `docs/`, `app/src/` et la routine.
+- Ce n'est écrit nulle part : ni `docs/`, ni la routine (`scripts/test_app.cjs`, quatre profils, dont deux téléphones, tenus à la verticale) ne parlent de l'orientation ; `grep -i "paysage\|landscape"` ne trouve rien dans `docs/`, `app/src/` et la routine.
 - Pourquoi c'est important : le cadre du simulateur est celui d'un capteur 3:2 ; tourner le téléphone pour le voir en grand est le geste attendu d'un débutant, et c'est là que le viseur disparaît.
 - Limite de la mesure : fenêtres de Playwright (barres du navigateur déduites) dans Chromium ; pas de vrai téléphone, pas de Safari.
 - Correction proposée (à choisir par Julien, la mise en page relève de sa décision) : pour une fenêtre basse (`@media (orientation: landscape) and (max-height: 500px)`), placer le panneau à côté du viseur plutôt que dessous (`body` en ligne, panneau en colonne étroite), réduire l'en-tête à une ligne, et replier la vue de dessus et l'indicateur d'après la place du viseur et non d'après la largeur de la fenêtre. À défaut, dans l'immédiat : dire dans la page qu'il faut tenir le téléphone à la verticale. Ajouter un profil « paysage » au contrôle « viseur assez grand » de la routine.
@@ -248,7 +248,7 @@ Classés du plus grave au moins grave : deux constats « faux », quatre « inco
   | « AF-C · Auto · œil · 6,6 m » | 108–282 | 274–382 | 8 px |
   | « AF-C · Auto · sujet le plus proche · 5,8 m » | 56–334 | 274–382 | 60 px |
   | « AF-C · Auto · closest subject · 5.8 m » | 70–320 | 307–382 | 13 px |
-| « AF-S · Auto · point touché · verrouillée à 14,9 m » (`s8.cjs`) | 35–356 | 274–382 | 82 px |
+  | « AF-S · Auto · point touché · verrouillée à 14,9 m » (`s8.cjs`) | 35–356 | 274–382 | 82 px |
 
   En zone automatique sans visage, la fin de la pastille, c'est-à-dire la distance de mise au point, est sous le bouton « Vue de dessus » (même capture). Le repère du point, placé au-dessus des pastilles (`z-index: 1`), les recouvre aussi quand le point est en bas du cadre.
 - En plus : le bouton « Vue de dessus » fait 98,7 × 20,2 px (`s1.cjs`) et il est posé sur le viseur, qui est lui-même une cible (un toucher y choisit le point de mise au point) : un toucher à 2 px du bouton déplace le point. Critère « Target Size (Minimum) » (2.5.8, niveau AA), texte lu : « The size of the target for pointer inputs is at least 24 by 24 CSS pixels », avec une exception d'espacement qui ne joue pas ici, le cercle de 24 px du bouton coupant une autre cible.
@@ -376,7 +376,7 @@ Classés du plus grave au moins grave : deux constats « faux », quatre « inco
   4. Le bouton de la mise au point affiche « AF-S · Point » et se nomme « Mise au point : AF-S : AF ponctuel, AF point sélectif » ; en zone large, « AF-C · Zone L » se nomme « Mise au point : AF-C : AF continu, AF zone large (L) » : le texte affiché n'est pas contenu dans le nom. Critère « Label in Name » (2.5.3, niveau A), texte lu : « the name contains the text that is presented visually ».
 - Preuve (code) :
   5. La photo de l'écran de revue a `alt=""` (l. 70) : pour l'arbre d'accessibilité, c'est une image de décor, alors qu'elle est le résultat de l'exercice et qu'elle se touche pour ouvrir la loupe.
-  6. Pendant le chargement, le message `#status` (`role="status"`, l. 98) est réécrit chaque seconde avec un compteur (« Chargement de la scène… 12 / 34 Mio reçus · 5 s », `main.ts`, l. 79-82) ; sur l'accueil, le bilan du téléchargement (`aria-live="polite"`) est réécrit toutes les 250 ms (`build-pages.mjs`, l. 417 et 534). Une zone vivante annonce chaque changement : c'est une annonce par seconde, ou quatre.
+  6. Pendant le chargement, le message `#status` (`role="status"`, l. 98) est réécrit chaque seconde avec un compteur (texte de la forme « Chargement de la scène… 12 / 34 Mio reçus · 5 s », `main.ts`, l. 79-82) ; sur l'accueil, le bilan du téléchargement (`aria-live="polite"`) est réécrit toutes les 250 ms (`build-pages.mjs`, l. 417 et 534). Une zone vivante annonce chaque changement : c'est une annonce par seconde, ou quatre.
   7. Dans l'activité LUM-02, la réponse à une question (« Juste. … », « Pas tout à fait. … ») apparaît dans un paragraphe sans rôle ni zone vivante (`lum02.ts`, l. 206-219). Critère « Status Messages » (4.1.3, niveau AA), texte lu : « status messages can be programmatically determined through role or properties such that they can be presented to the user by assistive technologies without receiving focus ».
   8. La barre de progression de l'accueil (`<progress max="100" value="0">`, l. 416) n'a pas de nom.
 - Limite : rien n'a été essayé avec un lecteur d'écran ; les points 5 à 8 sont lus dans le code. Un simulateur de photo reste un outil visuel : ces points comptent d'abord pour qui navigue au clavier avec une loupe d'écran ou une synthèse vocale d'appoint.
@@ -416,7 +416,7 @@ Chacun est mineur ; ils sont regroupés pour être corrigés ensemble.
 5. Orthographe anglaise mêlée. Britannique : « centre », « towards », « judgement » (`i18n.ts`, l. 433), « practising » (`build-pages.mjs`, l. 61), « towards » (`lum02.ts`, l. 112). Américaine : « Licenses », « licenses », « license » (`i18n.ts`, l. 247 et 250 ; `build-pages.mjs`, l. 76-77), « toward » (`i18n.ts`, l. 464). Correction : choisir une orthographe et s'y tenir.
 6. Groupes de boutons radio sans nom. `index.html`, l. 226 (fenêtre « Défis ») et l. 259 (fenêtre « Mode de déclenchement ») : `<fieldset>` sans `<legend>`, alors que les autres fenêtres en ont une. Correction : une légende, ou `aria-labelledby` vers le titre de la fenêtre.
 7. Trois boutons du même nom. `index.html`, l. 228-230, et `app/src/ui/challenges.ts`, l. 121 : les trois boutons de la fenêtre « Défis » s'appellent tous « Fiche ». Correction : `aria-label` « Fiche SIT-01 », etc.
-8. Fiche ouverte par-dessus le simulateur : son titre devient un titre de niveau 2 (`app/src/ui/ficheDialog.ts`, l. 64-69), au même niveau que ses sections. Correction : sections en niveau 3 dans la fenêtre, ou titre repéré par `aria-labelledby` seulement.
+8. Fiche ouverte par-dessus le simulateur : son titre devient un titre de niveau 2 (`app/src/ui/ficheDialog.ts`, l. 63-69), au même niveau que ses sections. Correction : sections en niveau 3 dans la fenêtre, ou titre repéré par `aria-labelledby` seulement.
 
 ## Vérifié
 
@@ -431,7 +431,7 @@ Contrastes (calcul, `contraste.py`, définitions du WCAG 2.2 ; seuil de 4,5:1 po
 Mise en page (essais, `pages2.cjs`, `s1.cjs`, `s4.cjs`)
 7. Accueil, fiche française, fiche anglaise, activité LUM-02 : aucun débordement horizontal à 320 et à 390 px de large, en clair et en sombre.
 8. Simulateur : la page a la largeur et la hauteur de la fenêtre à 390 × 664, 750 × 340 et 863 × 360 px ; aucune erreur dans la console pendant ces essais.
-9. Cibles des pages statiques sous 24 px : toutes relèvent d'une exception du critère « Target Size (Minimum) » (texte lu). Bouton de langue de l'accueil, 59,7 × 21 px, seul dans l'en-tête (espacement) ; liens des listes, 20 px de haut, espacés de plus de 24 px (espacement) ; fil d'Ariane et liens du pied, 17 à 19 px, dans une phrase ; curseurs de l'activité, 16 px de haut, taille fixée par le navigateur.
+9. Cibles des pages statiques sous 24 px : toutes relèvent d'une exception du critère « Target Size (Minimum) » (texte lu). Bouton de langue de l'accueil, 59,7 × 21 px, seul dans l'en-tête (espacement) ; liens des listes, 20 px de haut, un par ligne, à plus de 24 px l'un de l'autre d'après la feuille de style (interligne de 26 px et 6 px de marge ; espacement) ; fil d'Ariane et liens du pied, 17 à 19 px, dans une phrase ; curseurs de l'activité, 16 px de haut, taille fixée par le navigateur.
 10. Cibles du simulateur : boutons des molettes 32 × 32 px, boutons du panneau 32 px de haut, déclencheur 40 px, indicateur d'équilibre 41,6 × 36,7 px ; « Accueil » (50,3 × 17 px) et « Licences » (61 × 17 px) à plus de 24 px des boutons voisins (espacement) ; dans les fenêtres, boutons radio de 13 × 13 px dans des étiquettes de 20 px de haut, une ligne tous les 26 px. Exception : le bouton « Vue de dessus » (INT-11).
 
 Clavier et focus (essais, `s1.cjs`, `s3.cjs`)
