@@ -296,7 +296,7 @@ Scripts, pages enregistrées et captures : dossier `audit/interface/` du bloc-no
 
 ### INT-11 · à améliorer · Indications du viseur coupées ou recouvertes sur téléphone : « Aperçu coupé » perd ses deux bouts, la distance de mise au point passe sous « Vue de dessus »
 
-- Endroit : `app/src/style.css`, l. 543-571 (`.preview-badge` : centrée, `white-space: nowrap`, sans largeur maximale ; `.af-badge` en bas, au centre) et l. 343-354 (`.top-view`, en bas à droite, `z-index: 1`) ; `app/src/ui/cameraPanel.ts`, l. 992-993 et 1045-1050 (textes des pastilles).
+- Endroit : `app/src/style.css`, l. 543-571 (`.preview-badge` : centrée, `white-space: nowrap`, sans largeur maximale ; `.af-badge` en bas, au centre) et l. 343-354 (`.top-view`, en bas à droite, `z-index: 1`) ; `app/src/ui/cameraPanel.ts`, l. 994-995 et 1048-1050 (textes des pastilles).
 - Preuve (mesures, `s2.cjs`, fenêtre de 664 px de haut, police Inter ; aperçu entièrement coupé, zone automatique sans détection) :
 
   | Largeur | « Aperçu coupé : luminosité, bruit, profondeur de champ et indicateur » (454 px) | « Preview off: brightness, noise, depth of field and indicator » (391 px) |
@@ -322,7 +322,7 @@ Scripts, pages enregistrées et captures : dossier `audit/interface/` du bloc-no
 
 ### INT-17 · à améliorer · Sur téléphone, la photo prise s'affiche plus petite que le viseur, « Revenir au viseur » est hors de l'écran, et la photo suivante s'ouvre déjà défilée
 
-- Endroit : `app/src/style.css`, l. 708-735 (`.review` : `position: absolute; inset: 0` dans `main`, `overflow-y: auto`) et l. 757-764 (`.review img { max-height: calc(100% - 6rem) }`) ; `app/src/ui/shutter.ts` (ouverture de l'écran de revue : aucune remise à zéro du défilement) ; `docs/etat-des-travaux.md`, l. 82 (défilement gardé : défaut déjà noté).
+- Endroit : `app/src/style.css`, l. 708-735 (`.review` : `position: absolute; inset: 0` dans `main`, `overflow-y: auto`) et l. 757-764 (`.review img { max-height: calc(100% - 6rem) }`) ; `app/src/ui/shutter.ts`, l. 514 et 524 (`this.el.review.hidden = false` : l'écran de revue est rouvert sans remise à zéro du défilement ; `grep scrollTop` ne trouve rien dans ce fichier) ; `docs/etat-des-travaux.md`, l. 82 (défilement gardé : défaut déjà noté).
 - Ce qui est fait : l'écran de revue occupe la zone du viseur, pas l'écran ; le panneau du boîtier reste affiché dessous. La photo y est limitée à la hauteur de la zone moins 6 rem.
 - Preuve (essai, `s5.cjs`, iPhone 14 émulé, 390 × 664 px, deux photos aux réglages de départ ; captures `sim-iphone-revue-1.png` et `sim-iphone-revue-2.png`) :
 
@@ -339,7 +339,44 @@ Scripts, pages enregistrées et captures : dossier `audit/interface/` du bloc-no
 
 ## Vérifié
 
-(section remplie plus bas, au fur et à mesure)
+Contrastes (calcul, `contraste.py`, définitions du WCAG 2.2 ; seuil de 4,5:1 pour le texte, critère « Contrast (Minimum) », texte lu)
+1. `style.css`, thème clair : texte 15,60:1, texte discret 6,30:1, erreur 7,53:1, réussi 6,09:1 sur le fond ; déclencheur et bouton enfoncé 15,60:1.
+2. `style.css`, thème sombre : 15,31:1, 7,23:1, 8,48:1, 11,14:1 ; déclencheur 15,31:1.
+3. `pages.css` (accueil et fiches) : texte 16,30:1 et 15,31:1 (clair, sombre), texte discret 6,39:1 et 7,67:1, liens 5,88:1 et 10,06:1, bouton plein 5,88:1 et 10,06:1, bandeau de relecture 10,32:1 et 10,10:1.
+4. `lum02.css` : texte, texte discret, liens, erreur, réussi de 5,63:1 à 15,60:1 en clair, de 7,23:1 à 15,31:1 en sombre.
+5. Pastilles et calques du viseur (texte blanc sur noir à 60 %) : 5,74:1 dans le pire cas, une scène blanche derrière.
+6. Histogrammes de l'écran de revue (0.3.57, hors du lot) : rouge, vert, bleu de 3,19:1 à 5,25:1 sur les deux fonds, au-dessus des 3:1 demandés à un graphique.
+
+Mise en page (essais, `pages2.cjs`, `s1.cjs`, `s4.cjs`)
+7. Accueil, fiche française, fiche anglaise, activité LUM-02 : aucun débordement horizontal à 320 et à 390 px de large, en clair et en sombre.
+8. Simulateur : la page a la largeur et la hauteur de la fenêtre à 390 × 664, 750 × 340 et 863 × 360 px ; aucune erreur dans la console pendant ces essais.
+9. Cibles des pages statiques sous 24 px : toutes relèvent d'une exception du critère « Target Size (Minimum) » (texte lu). Bouton de langue de l'accueil, 59,7 × 21 px, seul dans l'en-tête (espacement) ; liens des listes, 20 px de haut, espacés de plus de 24 px (espacement) ; fil d'Ariane et liens du pied, 17 à 19 px, dans une phrase ; curseurs de l'activité, 16 px de haut, taille fixée par le navigateur.
+10. Cibles du simulateur : boutons des molettes 32 × 32 px, boutons du panneau 32 px de haut, déclencheur 40 px, indicateur d'équilibre 41,6 × 36,7 px ; « Accueil » (50,3 × 17 px) et « Licences » (61 × 17 px) à plus de 24 px des boutons voisins (espacement) ; dans les fenêtres, boutons radio de 13 × 13 px dans des étiquettes de 20 px de haut, une ligne tous les 26 px. Exception : le bouton « Vue de dessus » (INT-11).
+
+Clavier et focus (essais, `s1.cjs`, `s3.cjs`)
+11. Après le canevas (INT-08), les 22 boutons et liens du simulateur prennent le focus dans l'ordre du document : en-tête, « Vue de dessus », indicateur d'équilibre (à l'écran, l'indicateur est au-dessus de la vue de dessus), molettes, boutons du panneau, déclencheur ; aucun n'est masqué par un autre élément.
+12. L'indicateur de focus du navigateur est gardé partout (`outline` calculé : `auto 1px` sur les 23 arrêts) ; aucune règle `outline: none` dans les trois feuilles de style.
+13. Fenêtres (`<dialog>` ouvert par `showModal`) : Entrée sur le bouton ouvre la fenêtre, le focus va au premier bouton radio, les flèches changent le choix, Tab reste dans la fenêtre, Échap la ferme et rend le focus au bouton d'ouverture.
+14. Déclencheur au clavier : un clic sans pointeur vaut un appui bref (`shutter.ts`, l. 147-151, lu ; non essayé).
+
+Mouvement (CSS lu, essai `s6.cjs`)
+15. Avec « réduire les animations », la valeur hors limites ne clignote plus (`animation: none` mesuré) et reste dans la couleur d'erreur (`rgb(155, 28, 28)`), comme le dit `docs/camera-physique.md`, l. 490.
+16. Clignotements : une alternance par seconde pour la valeur hors limites, une toutes les deux secondes pour les hautes lumières ; le critère « Three Flashes or Below Threshold » (texte lu) vise plus de trois éclairs par seconde.
+
+Langue et libellés
+17. `lang` de la page : posé dans chaque page et mis à jour au changement de langue (`main.ts`, l. 112 ; `build-pages.mjs`, l. 302 et 442 ; `lum02.ts`, l. 231) ; le lien de langue des fiches porte `hreflang` et `lang`.
+18. `i18n.ts` : 223 clés en français, les mêmes 223 en anglais, dans le même ordre (script) ; ponctuation française (espace avant « : », « ; », « ? ») et anglaise (sans espace) respectée dans tous les textes ; une seule clé jamais lue, `meter` (déjà relevée par FEX-11).
+19. Termes du Nikon Z 6, français : « AF ponctuel », « AF continu », « Mode de mise au point », « Mode de zone AF », « AF point sélectif », « AF zone large (S) », « AF zone large (L) », « AF zone automatique », « Détect. visage-yeux AF zone auto », « Détection visage/yeux activée », « Détection des visages activée », « Détection des animaux », « Mode de déclenchement », « Vue par vue », « Continu L », « Continu H », « Continu H (étendu) », « Retardateur », « Sélecteur de mode », « Auto à priorité ouverture », « Auto à priorité vitesse », « Correction d'exposition », « Contrôle de la sensibilité auto. », « Sensibilité maximale », « Vitesse d'obturation minimale », « vps » : tous trouvés mot pour mot dans le manuel en ligne français (75 pages lues, `termes_nikon.py`).
+20. Termes du Nikon Z 6, anglais : « Single AF », « Continuous AF », « Focus mode », « AF-area mode », « Single-point AF », « Wide-area AF (S) », « Wide-area AF (L) », « Auto-area AF », « Auto-area AF face/eye detection », « Face and eye detection on », « Face detection on », « Animal detection », « Release mode », « Single frame », « Continuous L », « Continuous H », « Continuous H (extended) », « Self-timer », « Mode dial », « Aperture-priority auto », « Shutter-priority auto », « Exposure compensation », « Auto ISO sensitivity control », « Maximum sensitivity », « Minimum shutter speed », « fps » : tous trouvés mot pour mot dans le manuel en ligne anglais (75 pages lues).
+21. « ISO auto » sur la molette : le manuel dit que l'écran de prise de vue affiche « ISO AUTO » (`06_shooting_controls_02.html`, en français et en anglais) ; l'interface l'écrit avec une seule majuscule.
+22. Citations des notes : « Apply settings to live view » (Nikon, réglage d8) et « intended as a guide only » (Nikon, histogrammes) sont dans le manuel anglais ; « Live View Display », « Rule of 3rds Grid » et « Grille règle des tiers » sont dans le guide d'aide du Sony A7 III (anglais et français).
+23. Libellés du simulateur cités entre guillemets par les fiches (sections « Simulateur », « Exercice », « Défi », « Activité », « Recette ») : 40 en français, 39 en anglais, tous présents dans l'interface, tels quels ou composés (« Vitesse (auto) », « Infos : histogrammes ») ; les autres textes entre guillemets sont des termes des manuels.
+24. Accueil et activité LUM-02 : tutoiement partout (INT-07 pour le simulateur).
+
+Routine
+25. `checkLinks`, joué seul sur le site construit dans la copie : 48 pages, 515 liens, aucun cassé ; il ne voit pas l'ancre en double (INT-01).
+26. Le contrôle « exposition par défaut : M et ISO auto (Z 6) » lit l'état avant tout réglage (l. 395-397) ; les contrôles de grilles, d'histogrammes et de couverture AF comparent des mesures à des valeurs calculées, avec des tolérances écrites.
+27. Les attentes de la mise au point (`waitBadge`, `waitMetres`, `balanceLine`) attendent un état de la page, pas une durée ; il reste onze délais fixes (`waitForTimeout`, de 0,5 à 2,5 s), voir « Je ne sais pas ».
 
 ## Je ne sais pas
 
