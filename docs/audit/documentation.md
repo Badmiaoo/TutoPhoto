@@ -231,6 +231,8 @@ Rien à corriger. La conversation n'étant pas dans le dépôt, seul Julien peut
 - Conséquence : faible tant que le lecteur passe par `CLAUDE.md` ; réelle pour qui ouvre le fichier seul (il fait 3 554 lignes et commence par des consignes à l'impératif), et pour `scripts/extract_reprise.py`, qui réécrirait `data/` d'après lui (CHX-06).
 - Correction proposée : trois lignes en tête de `REPRISE.md` (« Archive du 7 novembre 2026. Ne fait plus foi : règles dans `CLAUDE.md`, données dans `data/`, décisions dans `docs/historique.md`. Section 0 : instructions de la première session, périmées. »). Le fichier a déjà été modifié une fois ; « gardé tel quel » (README) devient « gardé comme archive, avec un avertissement en tête ».
 
+**Contre-vérification : confirmé**, à la gravité la plus basse. Lignes relues (l. 27, 29, 33, 34, 56, 61, 160 et 176 : citations exactes) ; un seul commit a touché le fichier depuis le premier (9595ca8, version 0.3.6, une ligne), et rien, dans le fichier, ne dit qu'il est remplacé. Le risque est faible et déjà en partie couvert : `CLAUDE.md`, chargé à chaque session, le dit « archive » et « brouillon » (l. 6 et 8), `README.md` aussi (l. 24), et CHX-06 (confirmé) traite le même risque par une autre voie (réécrire les l. 6 et 8 de `CLAUDE.md`, supprimer `scripts/extract_reprise.py`). L'avertissement en tête reste utile, parce qu'il voyage avec le fichier, dont la section 0 s'adresse à Claude à l'impératif. Il ne casse rien : seul `scripts/extract_reprise.py` lit le fichier, par ses blocs `# fichier:` ; aucun workflow ne le compare à `data/`. Correction juste ; à faire dans la pull request de CHX-06, avec la ligne des deux README.
+
 ### DOC-11 · à améliorer · `README.md` : le tableau du dépôt oublie `content/` et quatre parties de `docs/`, et l'état ne dit rien de quatre fonctions du site
 
 - Endroit : `README.md`, l. 13 et 17 à 27 ; `README.en.md`, mêmes lignes.
@@ -241,6 +243,14 @@ Rien à corriger. La conversation n'étant pas dans le dépôt, seul Julien peut
 - Preuve (l. 13, ce que fait le site et que la phrase ne dit pas) : le choix du boîtier de référence, six boîtiers en deux formats, qui change le champ, le bruit et la zone de l'autofocus (`app/src/camera/bodies.ts`, « Boîtier de référence » dans `app/src/i18n.ts`, l. 29) ; l'activité interactive de LUM-02 (version 0.3.50) ; les trois portes de l'accueil (version 0.3.46) ; le bouton « Télécharger les ressources du simulateur » (version 0.3.51).
 - Correction proposée : ajouter au tableau `content/`, `.github/` et `requirements.txt` ; écrire la ligne `docs/` par familles (« état des travaux, cadrage et décisions, technique, audit, dossiers de sources, spécifications ») plutôt que page par page ; nommer la routine de test dans la ligne `scripts/` et dans « Contribuer ». Pour l'état : voir DOC-02 (un état court qui renvoie au site et à `docs/etat-des-travaux.md`).
 
+**Contre-vérification : confirmé**, pour une seule ligne : `content/` manque au tableau. Le dossier date du 11 novembre (commit b8cefde, version 0.3.39) et porte les 44 fiches ; la version qui l'a créé a mis à jour la l. 13 du README, pas le tableau. Le reste est à retirer :
+- les quatre parties de `docs/` datent toutes du 12 novembre ou d'après (`docs/etat-des-travaux.md` et `docs/dossiers/` : commit 66cb9b3, version 0.3.54 ; `docs/specifications/` : cd188a8, version 0.3.56 ; `docs/audit/` : 1987654, le 13) : hors de la période. La ligne `docs/` écrite par familles reste une bonne idée, à faire avec DOC-02 ;
+- la routine de test absente du README : déjà dit et mesuré par la contre-vérification de CHX-09 (« au plus : trois lignes "Tester" dans les deux README ») ; à compter là ;
+- `.github/` et `requirements.txt` : le README les nomme où ils servent (l. 45 et 64) ; un tableau du dépôt n'a pas à lister chaque fichier ;
+- les quatre fonctions que l'état ne cite pas : un inventaire incomplet n'est pas une erreur, et CHX-01 (confirmé) comme DOC-02 proposent justement de retirer cet inventaire des README. Lui ajouter quatre fonctions irait à l'inverse.
+
+Vu en passant, hors du lot : `docs/licences.md`, l. 10, écrit encore « `content/` (à venir) » ; à signaler au rapport `licences-scripts-ci.md`.
+
 ### DOC-12 · à améliorer · Petites inexactitudes
 
 - `docs/pile-technique.md`, l. 94, et `docs/historique.md`, l. 144 : « les 34 Mo de la scène ». Le manifeste totalise 36 012 290 octets, soit 34,3 Mio ou 36,0 Mo ; le dépôt écrit ailleurs « Mio » (`CHANGELOG.md`, versions 0.3.9, 0.3.10 et 0.3.51 ; l'interface). Écrire « 34 Mio ».
@@ -248,6 +258,11 @@ Rien à corriger. La conversation n'étant pas dans le dépôt, seul Julien peut
 - `docs/propositions.md`, l. 74 : « finir la relecture des 19 fiches ». Juste le 11 novembre (16 notions et 3 situations) ; il y en a 22 par langue depuis la version 0.3.57, et aucune n'est relue (`data/relecture.yaml` : `relues: []`).
 - `docs/etat-des-travaux.md` (écrit après la période auditée) : la légende de la file (l. 62) définit un état « Écrit : le code existe sur la machine de Claude, pas encore dans le dépôt », qu'aucune ligne ne porte, et la l. 87 garde deux travaux « faits cette nuit sur la machine de Claude », alors que la règle du 13 novembre, en tête du même fichier (l. 11), l'interdit ; l'étape 3 de « Comment reprendre » (l. 103) envoie encore au « premier sujet "Écrit" ou "À faire" de la file », que le point du 13 novembre remplace.
 - `docs/historique.md`, l. 206 (écrit après la période auditée, le 13 novembre à 5 h 40 UTC, commit 1987654) : « la limite hebdomadaire d'usage du modèle de Claude est atteinte, jusqu'au 14 novembre à 1 h UTC ». La branche de l'audit a reçu 67 commits le 13 novembre entre 6 h et 23 h UTC, et `docs/etat-des-travaux.md`, l. 13, place la suspension par une « limite propre au modèle utilisé » vers 23 h UTC ce jour-là. Je ne sais pas laquelle des deux pages décrit ce qui s'est passé ; elles ne disent pas la même chose.
+
+**Contre-vérification : confirmé**, pour deux retouches d'un mot sur cinq points. Restent : « 34 Mo » (le manifeste totalise 36 012 290 octets sur 36 fichiers, soit 34,34 Mio ou 36,0 Mo, somme refaite ; à écrire « 34 Mio » à la l. 94 de `docs/pile-technique.md` et à la l. 144 de `docs/historique.md`), et la l. 58 de `docs/questions-ouvertes.md` (du 8 novembre), où la vitesse du chien est rapportée au « flou de bougé », terme que le référentiel réserve au mouvement de l'appareil (`data/referentiel/mvt.yaml` : « Flou de bougé », « camera shake »). À retirer :
+- la l. 89 de la même page : « flou de bougé et de sujet » distingue justement le bougé de l'appareil et le flou du sujet ; l'emploi est correct ;
+- `docs/propositions.md`, l. 74 : « 19 fiches » était juste à sa date (commit 8bb0776, 11 novembre), dans une section datée ; les trois fiches de plus viennent des versions 0.3.56 et 0.3.57, hors de la période ;
+- les deux derniers points portent sur des lignes écrites les 12 et 13 novembre, ce que le constat dit lui-même : hors de la période. Ils sont à reprendre quand `docs/etat-des-travaux.md` sera réécrit, sans les compter ici.
 
 ## Vérifié
 
