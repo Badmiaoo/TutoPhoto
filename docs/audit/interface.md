@@ -262,6 +262,81 @@ Scripts, pages enregistrées et captures : dossier `audit/interface/` du bloc-no
 - Réalisme : sur un boîtier, c'est le photographe qui choisit de cadrer en hauteur ou en largeur, et la recette d'un portrait (SIT-01) peut le lui demander. Ici il ne choisit pas, et ne peut pas savoir pourquoi son cadre n'est pas celui d'un autre.
 - Correction proposée : séparer le cadrage de la mise en page. Un bouton du panneau (« Cadrage : horizontal / vertical »), dont la valeur de départ suit l'orientation de l'écran (`matchMedia("(orientation: portrait)")`) plutôt que la forme de `main` ; `frameFor` reçoit ce choix au lieu de le déduire. À défaut, corriger la phrase de `docs/camera-physique.md` (« vertical si la zone du viseur est plus haute que large ») et fixer la hauteur du viseur (INT-04) pour que le cadre ne bascule plus avec un texte.
 
+### INT-15 · à améliorer · Ce que l'arbre d'accessibilité ne dit pas : viseur absent, valeurs sans nom, bouton nommé « M · −0,2 IL », messages réécrits chaque seconde
+
+- Endroit : `app/simulateur/index.html`, l. 26, 70, 98, 108, 146, 149 ; `app/src/main.ts`, l. 79-82 et 121 ; `app/src/ui/cameraPanel.ts`, l. 957-961 ; `app/scripts/build-pages.mjs`, l. 416-417 et 534 ; `app/src/activities/lum02.ts`, l. 206-219.
+- Preuve (essai, `s6.cjs` : arbre d'accessibilité du simulateur chargé, lu par `locator("body").ariaSnapshot()` de Playwright dans Chromium, 48 lignes, fichier `sorties/aria-simulateur.txt`) :
+  1. Le viseur n'y est pas. La zone `main` commence par le paragraphe « AF-S · Point · 26,7 m » ; aucun nœud ne porte « Viseur : un parc en automne. Faire glisser pour tourner l'appareil. ». Ce texte (`sceneLabel`) est posé par `aria-label` sur un `<canvas>` sans rôle (`index.html`, l. 26 ; `main.ts`, l. 121), alors que le canevas prend le focus (INT-08) : l'élément qui reçoit le focus en premier n'a ni rôle ni nom exposés.
+  2. Les quatre valeurs des molettes sont des `status` sans nom : « status: f/8 », « status: 1/100 s », « status: "100" », « status: 50 mm ». Le nom de la molette (« Ouverture ») est un texte voisin, sans lien avec la valeur.
+  3. Le bouton qui ouvre la fenêtre « Exposition » s'appelle « M · −0,2 IL » : son nom est sa valeur ; ce qu'il ouvre n'est que dans son `title` (INT-09). Il porte en plus `aria-live="polite"` (l. 146).
+  4. Le bouton de la mise au point affiche « AF-S · Point » et se nomme « Mise au point : AF-S : AF ponctuel, AF point sélectif » ; en zone large, « AF-C · Zone L » se nomme « Mise au point : AF-C : AF continu, AF zone large (L) » : le texte affiché n'est pas contenu dans le nom. Critère « Label in Name » (2.5.3, niveau A), texte lu : « the name contains the text that is presented visually ».
+- Preuve (code) :
+  5. La photo de l'écran de revue a `alt=""` (l. 70) : pour l'arbre d'accessibilité, c'est une image de décor, alors qu'elle est le résultat de l'exercice et qu'elle se touche pour ouvrir la loupe.
+  6. Pendant le chargement, le message `#status` (`role="status"`, l. 98) est réécrit chaque seconde avec un compteur (« Chargement de la scène… 12 / 34 Mio reçus · 5 s », `main.ts`, l. 79-82) ; sur l'accueil, le bilan du téléchargement (`aria-live="polite"`) est réécrit toutes les 250 ms (`build-pages.mjs`, l. 417 et 534). Une zone vivante annonce chaque changement : c'est une annonce par seconde, ou quatre.
+  7. Dans l'activité LUM-02, la réponse à une question (« Juste. … », « Pas tout à fait. … ») apparaît dans un paragraphe sans rôle ni zone vivante (`lum02.ts`, l. 206-219). Critère « Status Messages » (4.1.3, niveau AA), texte lu : « status messages can be programmatically determined through role or properties such that they can be presented to the user by assistive technologies without receiving focus ».
+  8. La barre de progression de l'accueil (`<progress max="100" value="0">`, l. 416) n'a pas de nom.
+- Limite : rien n'a été essayé avec un lecteur d'écran ; les points 5 à 8 sont lus dans le code. Un simulateur de photo reste un outil visuel : ces points comptent d'abord pour qui navigue au clavier avec une loupe d'écran ou une synthèse vocale d'appoint.
+- Correction proposée, quelques attributs : `role="img"` sur le canevas (ou `role="application"` quand il répondra au clavier, INT-08) ; `aria-labelledby` de chaque valeur vers le nom de sa molette ; un nom pour le bouton de l'indicateur (« M · −0,2 IL : mode d'exposition, correction et ISO auto »), sans `aria-live` ; les noms accessibles commencent par le texte affiché (« AF-S · Point : AF ponctuel, AF point sélectif ») ; `alt` de la photo rempli avec sa légende ; le compteur du chargement dans un élément voisin marqué `aria-hidden="true"`, le message seul restant dans la zone `status` ; `role="status"` sur la réponse de l'activité ; `aria-label` sur la barre de progression.
+
+### INT-16 · à améliorer · « Vitesse : plus » allonge la pose et « Ouverture : plus » ferme le diaphragme : le nom des boutons dit l'inverse du geste
+
+- Endroit : `app/src/ui/cameraPanel.ts`, l. 681-691 (`step`) et l. 728-729 (noms accessibles) ; `app/src/i18n.ts`, l. 20-25 et 254-259 (`aperture`, `shutter`, `decrease`, `increase`) ; `app/simulateur/index.html`, l. 104-135.
+- Ce qui est fait : chaque molette a un nom (« Ouverture », « Vitesse », « ISO », « Focale »), une valeur et deux boutons « − » et « + », nommés pour les lecteurs d'écran « Ouverture : moins », « Ouverture : plus », « Vitesse : moins », « Vitesse : plus » (en anglais « Aperture: less », « Shutter speed: more »…). La règle est écrite dans le code : « « + » augmente la valeur affichée : nombre f, durée de pose, ISO, focale. »
+- Preuve (code) :
+
+  ```ts
+  // L'échelle des vitesses va de 30 s à 1/4000 s : une pose plus longue est un indice plus petit.
+  if (dial === "shutter" && this.exposureMode !== "A") this.settings.shutter = clamp(this.settings.shutter - delta, SCALES.shutter);
+  ```
+
+  et la routine s'en sert dans ce sens : quinze appuis sur « − » de l'ouverture mènent de f/8 à f/1,4 (`scripts/test_app.cjs`, l. 473), seize appuis sur « − » de la vitesse mènent de 1/100 s à 1/4000 s (l. 488 et 510).
+- Conséquence : « Vitesse : plus » donne 1/80 s après 1/100 s, soit une vitesse plus lente ; « Ouverture : plus » donne f/9 après f/8, soit une ouverture plus petite. Pour deux molettes sur quatre, le nom du bouton dit le contraire de ce qui arrive à la grandeur nommée ; pour l'ISO et la focale, il dit juste. À l'écran, le « + » à côté de « 1/100 s » fait baisser le nombre affiché (100, puis 80). La fiche EXP-04 dit du nombre f : « Plus il est grand, plus l'image projetée sur le capteur est sombre » ; le bouton qui se nomme « Ouverture : plus » augmente ce nombre, donc réduit l'ouverture.
+- Ce qui est juste : la règle est la même pour les quatre molettes (le nombre f, la durée, l'ISO et la focale augmentent avec « + »), et les valeurs affichées sont exactes.
+- Correction proposée : garder les signes, changer les noms. Noms accessibles et infobulles qui disent l'effet : « Ouverture : fermer d'un tiers de cran (nombre f plus grand) » et « ouvrir d'un tiers de cran (nombre f plus petit) » ; « Vitesse : pose plus longue » et « pose plus courte » ; « ISO : plus bas », « plus haut » ; « Focale : plus courte », « plus longue ». Si Julien préfère que « + » veuille dire « plus de vitesse », inverser les deux boutons de la vitesse et adapter la routine (l. 474, 485, 488, 541, 553, 767, 786).
+
+### INT-11 · à améliorer · Indications du viseur coupées ou recouvertes sur téléphone : « Aperçu coupé » perd ses deux bouts, la distance de mise au point passe sous « Vue de dessus »
+
+- Endroit : `app/src/style.css`, l. 543-571 (`.preview-badge` : centrée, `white-space: nowrap`, sans largeur maximale ; `.af-badge` en bas, au centre) et l. 343-354 (`.top-view`, en bas à droite, `z-index: 1`) ; `app/src/ui/cameraPanel.ts`, l. 992-993 et 1045-1050 (textes des pastilles).
+- Preuve (mesures, `s2.cjs`, fenêtre de 664 px de haut, police Inter ; aperçu entièrement coupé, zone automatique sans détection) :
+
+  | Largeur | « Aperçu coupé : luminosité, bruit, profondeur de champ et indicateur » (454 px) | « Preview off: brightness, noise, depth of field and indicator » (391 px) |
+  | --- | --- | --- |
+  | 320 px | coupée de 67 px de chaque côté | coupée de 35 px de chaque côté |
+  | 360 px | coupée de 47 px de chaque côté | coupée de 15 px de chaque côté |
+  | 390 px | coupée de 32 px de chaque côté | entière, sans marge |
+  | 430 px | coupée de 12 px de chaque côté | entière |
+
+  Sur l'iPhone 14 émulé, on lit « …erçu coupé : luminosité, bruit, profondeur de champ et indicat… » (capture `pastilles-fr-390.png`) : le viseur coupe ce qui dépasse (`main { overflow: hidden }`).
+- Preuve (mesures, `s5.cjs`, iPhone 14 émulé, position horizontale en pixels) : la pastille de mise au point et le bloc « Vue de dessus » sont à la même hauteur (21 px communs), le second par-dessus.
+
+  | Pastille | Étendue | Bloc « Vue de dessus » | Recouvrement |
+  | --- | --- | --- | --- |
+  | « AF-S · Point · 26,7 m » | 120–270 | 274–382 | 0 px |
+  | « AF-C · Auto · œil · 6,6 m » | 108–282 | 274–382 | 8 px |
+  | « AF-C · Auto · sujet le plus proche · 5,8 m » | 56–334 | 274–382 | 60 px |
+  | « AF-C · Auto · closest subject · 5.8 m » | 70–320 | 307–382 | 13 px |
+
+  En zone automatique sans visage, la fin de la pastille, c'est-à-dire la distance de mise au point, est sous le bouton « Vue de dessus » (même capture). Le repère du point, placé au-dessus des pastilles (`z-index: 1`), les recouvre aussi quand le point est en bas du cadre.
+- En plus : le bouton « Vue de dessus » fait 98,7 × 20,2 px (`s1.cjs`) et il est posé sur le viseur, qui est lui-même une cible (un toucher y choisit le point de mise au point) : un toucher à 2 px du bouton déplace le point. Critère « Target Size (Minimum) » (2.5.8, niveau AA), texte lu : « The size of the target for pointer inputs is at least 24 by 24 CSS pixels », avec une exception d'espacement qui ne joue pas ici, le cercle de 24 px du bouton coupant une autre cible.
+- Correction proposée : `max-width: calc(100% - 1rem)`, `white-space: normal` et `text-align: center` sur `.preview-badge` ; un texte court quand tout est coupé (« Aperçu coupé » seul, le détail restant dans la fenêtre) ; la pastille de mise au point alignée à gauche (`left: 0.5rem`, sans `translateX`) avec une largeur maximale qui s'arrête au bloc « Vue de dessus » ; `min-height: 1.5rem` sur `.top-view-toggle`. Contrôle à ajouter à la routine : aucune pastille ne dépasse du viseur ni ne passe sous la vue de dessus (INT-14).
+
+### INT-17 · à améliorer · Sur téléphone, la photo prise s'affiche plus petite que le viseur, « Revenir au viseur » est hors de l'écran, et la photo suivante s'ouvre déjà défilée
+
+- Endroit : `app/src/style.css`, l. 708-735 (`.review` : `position: absolute; inset: 0` dans `main`, `overflow-y: auto`) et l. 757-764 (`.review img { max-height: calc(100% - 6rem) }`) ; `app/src/ui/shutter.ts` (ouverture de l'écran de revue : aucune remise à zéro du défilement) ; `docs/etat-des-travaux.md`, l. 82 (défilement gardé : défaut déjà noté).
+- Ce qui est fait : l'écran de revue occupe la zone du viseur, pas l'écran ; le panneau du boîtier reste affiché dessous. La photo y est limitée à la hauteur de la zone moins 6 rem.
+- Preuve (essai, `s5.cjs`, iPhone 14 émulé, 390 × 664 px, deux photos aux réglages de départ ; captures `sim-iphone-revue-1.png` et `sim-iphone-revue-2.png`) :
+
+  | | Zone de revue | Contenu | Défilement | Photo | « Revenir au viseur » |
+  | --- | --- | --- | --- | --- | --- |
+  | Première photo | 266 px de haut | 402 px | 0 px | 220 × 146 px, haut à 12 px | de 358 à 390 px : hors de la zone |
+  | Après un défilement à la molette jusqu'en bas | 266 px | 402 px | 136 px | haut à −124 px | de 222 à 254 px : visible |
+  | Seconde photo, après « Revenir au viseur » et un nouveau déclenchement | 266 px | 434 px | 136 px, gardé | haut à −124 px : 22 px de la photo visibles | de 254 à 286 px : coupé |
+
+  1. La photo fait 220 × 146 px, alors que le cadre du viseur où elle a été composée fait 390 × 260 px : un tiers de sa surface (32 120 px² contre 101 400). C'est le résultat de l'exercice, et il est plus petit que l'aperçu.
+  2. Sous la photo, le bouton « Infos », la légende, le bulletin, la consigne et les boutons font 402 px pour 266 px visibles : « Revenir au viseur » et « Enregistrer la photo » ne se voient qu'après défilement, pendant que le panneau du boîtier, inutile à ce moment, occupe 298 px.
+  3. Le défaut noté dans `docs/etat-des-travaux.md` est reproduit : la seconde photo s'ouvre avec le défilement de la première (136 px), et l'on ne voit que les 22 derniers pixels de la photo.
+- Correction proposée : (1) à l'ouverture de l'écran de revue et à chaque changement de vue, `review.scrollTop = 0` (une ligne dans `shutter.ts`) ; (2) sur téléphone, l'écran de revue couvre aussi le panneau (`.review` placé par rapport à la page, sous l'en-tête, ou panneau masqué tant que la revue est ouverte) ; (3) la photo prend toute la largeur (`max-height` levée quand la zone défile), les boutons « Revenir au viseur » et « Enregistrer » restant collés en bas (`position: sticky; bottom: 0`). Contrôle à ajouter à la routine : après deux photos, haut de la photo visible et photo au moins aussi large que le cadre du viseur.
+
 ## Vérifié
 
 (section remplie plus bas, au fur et à mesure)
