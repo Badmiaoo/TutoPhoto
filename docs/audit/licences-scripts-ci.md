@@ -25,21 +25,31 @@ Scripts d'essai, pages enregistrées et clone : dossier `audit/licences-scripts-
 
 ## Sources
 
-Lues le 14 novembre 2026 (fichiers sous `pages/`).
+Lues le 14 novembre 2026 (fichiers sous `pages/`, sauf mention).
 
 | Source | Adresse lue | Fichier (`pages/`) |
 | --- | --- | --- |
 | Poly Haven, API, fiches de `autumn_hockey`, `painted_wooden_bench`, `metal_trash_can` | `https://api.polyhaven.com/info/<identifiant>` et `https://api.polyhaven.com/files/<identifiant>` | `ph-info-*.json`, `ph-files-*.json` |
 | Poly Haven, page « License » | `https://polyhaven.com/license` | `ph-license.html` |
+| Poly Haven, les 15 fichiers d'origine de la scène | adresses `origin` de `scene.json` (`https://dl.polyhaven.org/…`) | dossier `origines/` |
 | Sketchfab, API, fiches des cinq modèles de la scène | `https://api.sketchfab.com/v3/models/<identifiant>` | `sf-api-*.json` |
+| Sketchfab, page du modèle « Dennis Posed 004 » | adresse `source` de `scene.json` | `sf-model-dennis.html` |
+| SPDX, textes des licences MIT, CC BY-SA 4.0, CC BY 4.0, CC0 1.0 et Apache-2.0, commit `3184648` cité par `docs/licences.md` | `https://raw.githubusercontent.com/spdx/license-list-data/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/<licence>.txt` | `spdx-*.txt` |
+| Étiquettes des cinq actions et de gitleaks | `git ls-remote --tags https://github.com/<dépôt>` | `ls-remote-*.txt` |
+| Licence, `package.json` et `action.yml` de chaque action, au commit épinglé | `https://raw.githubusercontent.com/actions/<action>/<commit>/…` | `upload-pages-artifact-action.yml` (les autres : lus, non gardés) |
+| gitleaks 8.30.1, liste des empreintes et archive `linux_x64` de la release | `https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/…` | dossier `gitleaks/` |
+| PyPI, fiches de PyYAML 6.0.3 et de jsonschema 4.26.0 | `https://pypi.org/pypi/<paquet>/<version>/json` | `pypi-*.json` |
+| Documentation de GitHub, dépôt `github/docs`, commit `d59b263` du 13 novembre 2026 : `events-that-trigger-workflows.md`, `dependency-caching.md`, `workflow-syntax.md`, `secure-use.md`, et les textes réutilisés `pull_request_forked_repos_link.md`, `forked-secrets.md`, `workflow-run-approve-public-fork.md`, `workflows-from-public-fork-setting.md` | `https://raw.githubusercontent.com/github/docs/d59b2631959db46d71ca5f7748ec04311c6d0870/…` | `ghdocs-*.md` |
 
 Non relues :
-- Renderpeople (`renderpeople.com`, conditions générales) : source non relue, hôte non joignable.
-- Creative Commons (`creativecommons.org`, textes des licences) : source non relue, hôte non joignable.
+- Renderpeople (`renderpeople.com`, conditions générales) : source non relue, hôte non joignable (deux essais : `curl`, puis l'outil de lecture de pages).
+- Creative Commons (`creativecommons.org`, textes des licences) : source non relue, hôte non joignable. Les textes ont été lus dans le dépôt SPDX, au commit que cite `docs/licences.md`.
+- `docs.github.com` : hôte non joignable. Les pages ont été lues dans leur dépôt source, `github/docs`.
+- `api.github.com` et les pages de `github.com` : refus 403 du proxy. Seuls `git ls-remote`, les fichiers bruts et les fichiers des releases répondent.
 
 ## Parties du périmètre pas encore traitées
 
-À ce stade de l'écriture : licences des dépendances, polices et images du site, empreintes des fichiers de la scène comparées à l'origine, `scripts/changelog.py`, `scripts/check_scenes.py`, workflows de la CI. Cette liste est mise à jour à chaque envoi.
+À ce stade de l'écriture : workflows de la CI (permissions, déclencheurs, ce qu'obtient un contributeur extérieur), licences des dépendances, `docs/licences.md` et `docs/publication.md` phrase par phrase, question de Renderpeople. Cette liste est mise à jour à chaque envoi.
 
 ## Constats
 
@@ -89,6 +99,57 @@ Non relues :
   - les 322 commits n'ont que quatre couples de noms : « Julien Touzeau » et « Claude » comme auteurs, « Claude », « GitHub » et « Julien Touzeau » comme committers, toujours avec une adresse « noreply » ;
   - les 60 étiquettes de version sont posées par `tag.yml` à partir du changelog, lui-même contrôlé comme fichier.
 - Correction proposée : dans `docs/publication.md`, écrire ce que le script ne lit pas (fichiers binaires, noms de fichiers, noms d'auteurs, étiquettes) ; dans le script, lire aussi `%an` et `%cn` et les chemins de `git ls-files` avec `scan_text` (quelques lignes). Pour les images : une règle écrite suffit tant que les seuls fichiers binaires sont ceux des scènes (« toute image ajoutée au dépôt est d'abord vidée de ses métadonnées »), le contrôle des scènes listant déjà chaque fichier.
+
+### LIC-04 · à améliorer · `scripts/changelog.py check` : une base introuvable passe en silence, et trois règles écrites en tête du changelog ne sont pas contrôlées
+
+- Endroit : `scripts/changelog.py`, l. 95-106 (`cmd_check`), l. 31-32 et 54-69 (`parse`) ; `CHANGELOG.md`, l. 5-13 ; `CLAUDE.md`, l. 34.
+- Ce qui est écrit : `CLAUDE.md` : chaque pull request « ajoute sa section à `CHANGELOG.md` (contrôlée par `python3 scripts/changelog.py check --base origin/main`) ». `CHANGELOG.md` : « X : 0 jusqu'à la publication de la V1 », « Z : tout le reste […] ; remis à 0 quand Y augmente », « Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré ».
+- Preuve : 32 changelogs fabriqués, passés au script sur un clone (`essai_changelog.py` ; aucun commit, le fichier est remis après chaque cas). Passent à tort, code de sortie 0 :
+  1. `--base` vers une référence qui n'existe pas, avec un changelog sans nouvelle section : « CHANGELOG.md : 64 version(s) ». L. 96-97 : `shown = git("show", f"{base}:{CHANGELOG}", check=False)`, puis `if shown.returncode == 0:` sans autre branche. Une faute de frappe dans le nom de la base, ou un clone qui n'a pas `origin/main`, désarme donc le contrôle que `CLAUDE.md` demande de lancer avant chaque pull request. Dans la CI, l'étape récupère la base juste avant (`validate.yml`, l. 38), et un échec de `git fetch` arrête l'étape (« By default, fail-fast behavior is enforced using `set -e` for both `sh` and `bash` », `workflow-syntax.md` du dépôt `github/docs`) : le trou est du côté de la machine de travail, pas de la CI ;
+  2. numérotation : `0.3.60` après `0.3.58` (version sautée), `0.4.7` (Y augmente, Z n'est pas remis à 0), `7.0.0` (X) : acceptés. Le script exige seulement une version plus grande (l. 100) ;
+  3. rubriques : une section sans rubrique (texte libre), une rubrique « Divers », une rubrique seule sans aucun changement dessous : acceptées. Seule la section vide est refusée (l. 74) ;
+  4. lien du bas de fichier : `[0.3.59]: https://example.com/` et une comparaison entre deux versions sans rapport sont acceptés. Seule la présence du lien est contrôlée (l. 32 et 76) ;
+  5. titres que le script ne voit pas : « `## 0.3.59 - 2026-11-14` » (sans crochets), « `### [0.3.59] - …` », « `##[0.3.59] - …` ». Sans `--base` : code 0, « 64 version(s) », la section est ignorée. Avec `--base` : refus, mais par le message « la pull request doit ajouter une version plus récente que 0.3.58 », qui ne dit pas la cause ;
+  6. un sous-titre de niveau 2 dans une section (« `## Notes` ») : accepté, et tout ce qui le suit sort de la section (l. 54-55). `parse` rend alors pour corps « ### Ajouté / - Essai. », sans la suite : le tag et la release seraient tronqués ;
+  7. le texte d'une version déjà publiée, réécrit : accepté. Le tag et la release, créés une seule fois (l. 174 et 193), garderaient l'ancien texte ;
+  8. une date dans le futur (`2031-01-01`) : acceptée.
+- Ce qui est juste (15 cas arrêtés) : pas de nouvelle section ; titre sans tiret, date au format `14/11/2026`, date impossible, préfixe « v », espace en fin de titre ; lien du bas manquant ; section vide ; date antérieure à celle de la version précédente ; section placée ailleurs qu'en tête ; version en double ; version publiée retirée. Les fins de ligne Windows ne gênent pas.
+- État réel du fichier : les 64 sections respectent les trois règles non contrôlées. Numérotation continue, sans saut ; quatre noms de rubrique seulement (Modifié 61 fois, Ajouté 48, Corrigé 13, Retiré 1) ; les 63 liens de comparaison suivent tous le modèle `compare/v<précédente>...v<version>`. Et les 60 tags portent, mot pour mot, le texte actuel de leur section, sur le commit que `introducing_commit` retrouve (comparaison faite pour chaque version). Rien n'a donc dérivé : les contrôles manquants peuvent être ajoutés sans toucher au fichier.
+- Correction proposée (une vingtaine de lignes dans `cmd_check` et `parse`) :
+  1. base illisible : erreur « base introuvable », au lieu du silence ;
+  2. avec `--base` : la version en tête vaut celle de la base plus (0, 0, 1) ou plus (0, 1, remise à 0) ; X reste à 0 ;
+  3. dans les sections ajoutées : chaque titre de niveau 3 est l'une des quatre rubriques, et la section a au moins une ligne de liste ;
+  4. le lien d'une section ajoutée vaut `…/compare/v<précédente>...v<version>` ;
+  5. erreur pour toute ligne « ## » placée après le premier titre de version et qui n'est pas un titre de version : cela couvre les cas 5 et 6.
+
+  Les trois tags absents (`v0.2.0` à `v0.2.2`) et les quatre liens qui les visent sont déjà constatés ailleurs (`choix-et-outils.md`, CHX-10 ; `documentation.md`, DOC-04) : rien à ajouter ici.
+
+### LIC-05 · à améliorer · `scripts/check_scenes.py` croit le manifeste sur parole, et ne regarde que `app/public/scenes/`
+
+- Endroit : `scripts/check_scenes.py`, l. 30 et 66-103 ; `schemas/scene.schema.json`, l. 49 ; `docs/licences.md`, l. 29-33 ; `CLAUDE.md`, l. 41-42.
+- Ce qui est écrit : `docs/licences.md` : le script « refuse un fichier absent du manifeste, une empreinte ou une taille qui ne correspond pas, une licence autre que CC0 ou CC BY, et les fichiers trop lourds » ; « Pour les modèles de Sketchfab, le fichier `license.txt` fourni dans l'archive (titre, auteur, licence, texte de crédit) est gardé à côté du modèle ». `CLAUDE.md` : « Vérifier la licence de toute dépendance, de tout modèle et de toute scène avant de l'ajouter » ; « modèles et textures 3D de tiers sous CC0 ou CC BY uniquement, avec auteur, adresse d'origine et licence dans les métadonnées de la scène ».
+- Preuve : 27 scènes modifiées, passées au script sur un clone (`essai_check_scenes.py` ; la scène est remise après chaque cas). Passent à tort, « 0 erreur(s) » :
+  1. le manifeste déclare « CC0-1.0 » pour un modèle dont le `license.txt` et le fichier glTF (`asset.extras.license`) disent « CC-BY-4.0 ». Le bouton « Crédits » lit le manifeste (`app/src/credits.ts`, l. 61-62) : il afficherait CC0 ;
+  2. le `license.txt` d'un modèle réécrit en « CC-BY-NC-4.0 », empreinte mise à jour dans le manifeste, qui dit toujours CC BY 4.0 ;
+  3. un auteur, dans le manifeste, différent de celui du `license.txt` et du fichier glTF ;
+  4. une image de tiers posée hors des scènes (`app/public/img/photo.jpg`), un modèle posé dans `app/src/` : le script ne parcourt que `app/public/scenes/` (l. 30), et aucun autre contrôle ne regarde les images ;
+  5. un fichier glTF dont une texture est une adresse extérieure (`https://…`), empreinte mise à jour : le site chargerait un fichier que le manifeste ne liste pas ;
+  6. une texture remplacée par une autre, empreinte mise à jour, sans champ `changes` : indétectable sans le fichier d'origine ;
+  7. une date de lecture impossible (`2026-99-99`) ou dans le futur : le schéma ne contrôle que la forme (l. 49) ;
+  8. une situation inconnue du référentiel (`SIT-99`) dans `situations`.
+- Ce qui est juste (16 cas arrêtés) : licence absente, CC BY-NC, CC BY-SA, adresse du texte d'une autre licence ; auteur absent ou vide ; adresse d'origine absente ou en `http` ; fichier absent du manifeste, modifié d'un octet, listé mais absent, listé par deux éléments ; fichier de 26 Mio ; chemin qui sort du dossier ; dossier de scène sans manifeste.
+- État réel de la scène (vérifié, rien n'est faux aujourd'hui) :
+  - les cinq modèles de Sketchfab : titre, adresse d'origine, auteur et licence du manifeste sont ceux de leur `license.txt` et de leur fichier glTF (comparaison par script), et ceux de l'API de Sketchfab relue le 14 novembre 2026 (« CC Attribution », `http://creativecommons.org/licenses/by/4.0/`) ;
+  - les 15 fichiers de Poly Haven sont identiques, octet pour octet, à ceux de leur adresse d'origine retéléchargés le 14 novembre 2026 ;
+  - les sept fichiers glTF ne citent que des fichiers locaux, tous listés ;
+  - aucun fichier d'image, de police, de son ou de modèle n'est suivi par git hors de `app/public/scenes/` (`git ls-files`).
+- Correction proposée :
+  1. dans `check_scenes.py`, pour chaque élément qui a un `license.txt` au format de Sketchfab ou un fichier glTF avec `asset.extras` : comparer licence, auteur et adresse d'origine au manifeste (une quinzaine de lignes ; les cinq modèles passent) ;
+  2. refuser, dans un fichier glTF, une `uri` qui n'est pas un fichier listé de la scène ;
+  3. refuser tout fichier binaire suivi par git hors de `app/public/scenes/` (ou toute extension d'image, de police, de son, de vidéo, de modèle), avec une liste d'exceptions vide au départ : c'est aussi ce qui manque à `check_public.py` (LIC-03) ;
+  4. `verified` : une vraie date, pas dans le futur (`datetime.date.fromisoformat`).
+
+  Le cas 6 ne se contrôle que par un nouveau téléchargement : à refaire à la main quand une scène change, comme ici.
 
 ## Vérifié
 
