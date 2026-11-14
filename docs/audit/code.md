@@ -30,7 +30,8 @@ Scripts des essais, journaux et photos : dossier `audit/code/` du bloc-notes de 
 
 Ce lot est du code : il cite peu de sources extérieures.
 
-- Lue : Babylon.js, paquet `@babylonjs/core` 9.35.0, dans `app/node_modules/` (fichiers cités dans les constats).
+- Lue le 14 novembre 2026 : Babylon.js, paquet `@babylonjs/core` 9.35.0, dans `app/node_modules/` (`scene.pure.js`, `Cameras/camera.pure.js`, `Cameras/targetCamera.pure.js`, `Cameras/Inputs/freeCameraMouseInput.js`, `Cameras/Inputs/freeCameraTouchInput.js`, `Engines/abstractEngine.pure.js`, `Materials/Textures/hdrCubeTexture.pure.js`, `Materials/Textures/baseTexture.pure.js`).
+- Lues pour situer les constats : `docs/camera-physique.md` (l. 75, 145-146, 431-442), `docs/audit/architecture-application.md` (ARC-06, ARC-07, ARC-08, ARC-14 et « Hors du périmètre »), `docs/audit/choix-et-outils.md` (CHX-05).
 - Non relues : les pages des manuels citées dans les commentaires de `cameraPanel.ts`, `shutter.ts` et `lum02.ts` ; elles sont relues par `docs/audit/modele-physique.md`, `docs/audit/fiches-exposition.md` et `docs/audit/fiches-mise-au-point.md`.
 
 ## Essais dans un navigateur
@@ -190,7 +191,7 @@ Classés du plus grave au moins grave ; les identifiants suivent l'ordre de déc
 - Ce qui est fait : `compute` ne grise que les boutons du panneau du boîtier (`setEnabled`, `cameraPanel.ts`, l. 672 : `this.el.panel.querySelectorAll("button")`). Les boutons de l'écran de revue restent actifs pendant le calcul de la loupe, et la suite de `magnify` (l. 489-498) s'exécute sans regarder ce qui s'est passé entre-temps : `showCaption` remet `review.hidden = false` (l. 514), et la fenêtre de la loupe est posée quelle que soit la vue affichée.
 - Preuve (essai 3b, 14 novembre 2026) :
   - loupe lancée, puis « Revenir au viseur » pendant le calcul : l'écran de revue se ferme, puis revient tout seul à la fin du calcul, 5,7 s plus tard, avec la fenêtre de la loupe ;
-  - rafale de deux vues, loupe lancée sur la vue 1, puis « Vue suivante » pendant le calcul : le compteur passe à « Vue 2/2 » et la vue 2 s'affiche ; à la fin du calcul, l'image est remplacée par la fenêtre de la loupe de la vue 1, sous le compteur « Vue 2/2 ». « Photo entière » montre ensuite la vue 2.
+  - rafale de deux vues, loupe lancée sur la vue 1, puis « Vue suivante » pendant le calcul : le compteur passe à « Vue 2/2 » et la vue 2 s'affiche ; à la fin du calcul, l'image est remplacée par la fenêtre de la loupe de la vue 1, sous le compteur « Vue 2/2 ». D'après le code (l. 441-445), « Photo entière » montre ensuite la vue 2 ; non essayé.
 - Conséquence : en triant une rafale (c'est l'usage annoncé, `shutter.ts`, l. 12), on peut regarder à 100 % une autre vue que celle que le compteur désigne, et juger nette la mauvaise.
 - Correction proposée : à la reprise de `magnify`, jeter le résultat si l'écran de revue a été fermé ou si la vue a changé (`if (this.el.review.hidden || this.shots[this.shotIndex] !== shot) { URL.revokeObjectURL(photo.url); return; }`) ; ou griser les boutons de l'écran de revue pendant le calcul, comme ceux du panneau.
 
@@ -228,7 +229,7 @@ Classés du plus grave au moins grave ; les identifiants suivent l'ordre de déc
     | 20 s après la restauration | 111,83 | 68,40 | 76,79 | 46,16 |
     | Rapport après / avant | 0,953 | 0,902 | 0,947 | 1,000 |
 
-    Le fond (photo à 360°) est inchangé ; les objets éclairés par le fichier HDR perdent de 5 à 10 %. La console porte, à la restauration : « WebGL: INVALID_OPERATION: texImage2D: type HALF_FLOAT_OES but ArrayBufferView is not NULL and not Uint16Array » ; la texture d'éclairage est en demi-flottants (`type` 2).
+    Le fond (photo à 360°) est inchangé ; les objets éclairés par le fichier HDR perdent de 5 à 10 %. Une cinquième zone, la poubelle, n'est pas retenue : le chien passe devant elle (94,42 ; 94,42 ; 88,63 puis 85,68 vingt secondes après). La console porte, à la restauration : « WebGL: INVALID_OPERATION: texImage2D: type HALF_FLOAT_OES but ArrayBufferView is not NULL and not Uint16Array » ; la texture d'éclairage est en demi-flottants (`type` 2).
 - Ce que je ne sais pas : la cause exacte (quelle partie de la texture d'éclairage n'est pas reconstruite) ; la fréquence d'une perte de contexte sur un téléphone (onglet en arrière-plan, mémoire graphique) ; ce que fait une perte pendant le calcul d'une photo, non essayé ; si un vrai processeur graphique donne le même écart que le rendu logiciel.
 - Ce que cela coûte : une exposition des sujets décalée de log₂(0,90) = −0,15 IL au plus, sans que rien ne le dise, jusqu'au rechargement de la page.
 - Correction proposée : s'abonner aux deux événements du moteur ; à la perte, afficher un message (« Affichage interrompu… ») ; à la restauration, recréer la texture d'éclairage (`environment.dispose()`, puis une nouvelle `HDRCubeTexture`), ou proposer de recharger la page. À vérifier avec l'essai 5c : rapports revenus à 1,000.
