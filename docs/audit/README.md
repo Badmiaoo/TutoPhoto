@@ -708,20 +708,313 @@ Sous chaque sujet, « ce qu'il faut faire » résume la correction retenue par l
 
 ## Décisions qui attendent Julien
 
-Section en cours d'écriture.
+36 décisions, dans l'ordre du plan : d'abord les 14 qui bloquent un sujet ou une partie de sujet (D1 à D14), puis les 22 qui ne bloquent rien aujourd'hui (D15 à D36). Pour chacune : les options, ce que recommande l'audit, ce que recommande la contre-vérification, les constats, ce qui est bloqué.
+
+### Décisions qui bloquent un sujet
+
+**D1. Retardateur : un second appui annule-t-il le compte à rebours ?** (COD-02)
+- Options : oui, comme un choix de TutoPhoto, dit comme tel dans la fenêtre « Mode de déclenchement » ; non, ne rien changer.
+- Audit : l'annulation. Contre-vérification : à toi de trancher ; les deux pages relues du manuel du Z 6 ne disent pas comment arrêter un compte à rebours lancé, il n'y a donc aucun comportement sourcé.
+- Bloque : cette part du Sujet 9, et elle seule.
+
+**D2. Le champ `used_in` de `data/sources.yaml` : le retirer ou le garder ?** (SRC-03)
+- Options : (a) le retirer, et faire calculer par `scripts/validate.py` la liste des fichiers qui citent chaque source ; (b) le garder, avec la définition « les fichiers où l'adresse apparaît », un contrôle dans l'autre sens et 34 écarts à corriger.
+- Audit : (a), parce que le champ recopie une information que le dépôt contient déjà. Contre-vérification : (a), à compléter dans le même changement par le contrôle inverse (toute adresse des fiches, du code et de la documentation est dans le fichier), sinon elle retire une protection.
+- Bloque : le Sujet 31 ; la forme du contrôle de REF-04 ; les lignes `used_in` des Sujets 13 et 44.
+
+**D3. Le vocabulaire de chaque marque : sous quelle forme le donner ?** (FEX-15, FMA-14, INT-10, REF-08)
+- Options : dans les fiches, une phrase par fiche. Dans le référentiel, un champ `terms` par notion, ou la forme déjà prévue par `docs/architecture.md` : `data/vocabulaire.yaml`, « un terme par marque et par famille d'appareils, chacun avec sa source ». Dans l'interface, une phrase dans la fenêtre « Boîtier de référence » (avec les termes de Canon et leur source, ou réduite à « Les noms des modes et des menus restent ceux du Nikon Z 6 »), ou des libellés par marque.
+- Audit : la phrase par fiche ; le champ `terms` pour le référentiel ; pour l'interface, à ton choix, les libellés par marque après les tests.
+- Contre-vérification : la phrase par fiche est proportionnée, avec la réserve sur le manuel de Canon lu (celui de l'EOS 850D) ; le champ `terms` contredit la forme déjà prévue et ne sait pas dire qu'un réglage change de nom d'un modèle à l'autre : « à trancher par Julien, sur la forme déjà prévue » ; pour l'interface, la phrase, les libellés par marque étant une extension.
+- Bloque : le Sujet 17. Les cinq corrections de termes du Sujet 29 n'en dépendent pas.
+
+**D4. Six boîtiers de référence : le dire à l'écran, ou en garder moins ? Et que faire de trois capteurs sans source primaire ?** (question du rapport sur les choix ; PHY-15)
+- Ce qu'est un boîtier dans le code, d'après le rapport : la taille du capteur, son nombre de pixels, son bruit, et la couverture de l'autofocus pour trois sur six. Tout le reste (commandes, termes, cadences, réglages par défaut) vient du manuel du Nikon Z 6, et la fenêtre « Boîtier de référence » ne le dit pas.
+- Options : garder six boîtiers et l'écrire dans la fenêtre ; ne garder que ceux dont le manuel est lu ; sourcer chaque boîtier, ce qui multiplie le travail de chaque fonction. Pour le capteur du Nikon D5600, du Sony A6000 et du Canon EOS 2000D, dont les pages d'origine ne sont pas joignables depuis l'environnement de Claude : écrire « source secondaire » avec la révision de Wikipedia, ou relever toi-même les fiches des constructeurs, comme pour l'EOS RP.
+- Audit : garder six et l'écrire. Contre-vérification : pas de contre-avis sur les six boîtiers ; pour les capteurs, les deux options.
+- Bloque : la phrase de la fenêtre dans le Sujet 17 ; une part du Sujet 33.
+
+**D5. « f/5,6 » ou « f/5.6 » en français ?** (FEX-16)
+- Options : la virgule partout (celle de l'interface et du manuel français de Canon) ; le point partout (celui des fiches, de la documentation et d'une note de l'interface).
+- Audit : aligner les fiches sur l'interface est le plus court ; l'inverse demande une source pour ce qu'affiche un boîtier. Contre-vérification : un indice pour l'autre sens, la page française du manuel du Z 6 garde le point pour une valeur affichée par l'appareil (« ±0.0 ») et met la virgule dans son texte courant ; quel que soit le choix, la note de l'objectif doit suivre. Ce qu'affiche un boîtier réglé en français : je ne sais pas.
+- Bloque : le Sujet 18 ; à connaître de préférence avant les Sujets 5, 6 et 15, qui retouchent les mêmes lignes.
+
+**D6. Trois changements de `CLAUDE.md`, à accepter avant qu'ils soient écrits** (INT-13, CHX-01, CHX-06)
+- La phrase « Ces tests émulent l'écran, le toucher et le navigateur » : la routine n'envoie aucun toucher. Proposition du rapport, tant que la routine n'est pas refaite : « émulent la taille d'écran et l'identification du navigateur ; les gestes sont ceux d'une souris ».
+- Une table « quelle page pour quelle information » : `CHANGELOG.md` pour le récit par version, `docs/historique.md` pour tes décisions, `docs/etat-des-travaux.md` pour l'état, la file et les décisions en attente, `docs/questions-ouvertes.md` pour ce qui est ouvert.
+- La l. 8 : n'y changer que « et `docs/` qui en est copié » (cinq des douze pages de la racine de `docs/` seulement disent venir de `REPRISE.md`) ; la rédaction te sera proposée.
+- Les contre-vérifications demandent que chaque changement de `CLAUDE.md`, qui porte tes règles, te soit proposé avant d'être écrit.
+- Bloque : une ligne des Sujets 19, 41, 43 et 46 ; le reste de ces sujets part sans.
+
+**D7. Titre anglais d'une fiche : un vrai titre dans le champ `title.en` du référentiel, ou un titre de fiche libre ?** (CHX-05)
+- Aujourd'hui, `title.en` amorce le glossaire, et les fiches anglaises traduisent le titre français : 17 titres diffèrent par la majuscule, 3 par les mots (BOI-07, BOI-08, EXP-06). En anglais, le bouton du bulletin affiche le libellé du référentiel et ouvre une fiche titrée autrement.
+- Audit : trancher les trois titres. Contre-vérification : écrire d'abord la règle, que tu tranches.
+- Bloque : la partie anglaise du contrôle du Sujet 22.
+
+**D8. Les trois tags `v0.2.0`, `v0.2.1` et `v0.2.2` : les poser, ou y renoncer ?** (CHX-10)
+- Options : tu les poses à la main (la commande est dans le résumé du workflow `tag.yml`) ; ou `scripts/changelog.py` cesse de les réessayer, et les quatre liens du bas de `CHANGELOG.md` visent les commits. Sans réponse : trois avertissements à chaque passage de `tag.yml`, et quatre liens cassés.
+- Audit : les deux voies, sans choisir. Contre-vérification : confirme les faits.
+- Bloque : cette part du Sujet 24.
+
+**D9. Deux lectures de la règle du numéro Y des versions** (RST-05)
+- Le passage d'une notion en activité (LUM-02, le 10 novembre 2026) compte-t-il comme un reclassement ? La règle ne nomme que « niveau, notions clés ». Le référentiel est-il à la version « v0.2 » ou « v0.3 » ?
+- Contre-vérification : sans urgence ; « je ne sais pas laquelle des deux lectures Julien retient ».
+- Relevé en préparant cette synthèse, non dit par les rapports : le Sujet 30 change les notions clés de cinq situations, ce que la même règle nomme ; lu comme un reclassement, il donnerait la première version 0.4.0.
+- Bloque : le numéro de version du Sujet 30 ; une ligne du Sujet 31.
+
+**D10. Les refontes de l'architecture : lesquelles, et dans quel ordre ?** (ARC-01, ARC-02, ARC-05, ARC-06, ARC-07, ARC-09, ARC-12, ARC-13)
+- Options : le plan de l'audit, neuf refontes sans changement visible avant les fonctions nouvelles ; ou le plan réduit par la contre-vérification : la version à l'écran, les tests rapides avec les formules communes, le diagnostic avec les capacités de l'appareil, le développement partagé, le magasin de réglages sans identifiant de boîtier, la carte de l'application copiée tout de suite ; trois autres refontes « quand elles rapportent », une retirée.
+- Audit : les neuf, dans l'ordre. Contre-vérification : neuf pull requests sans changement visible, c'est beaucoup pour un « mini projet » quand chaque commit qui touche `app/` attend 20 à 27 minutes de routine.
+- Le plan ci-dessus suit la contre-vérification.
+- Bloque : les Sujets 37 et 38, et, derrière eux, la balance des blancs et l'histogramme en direct.
+
+**D11. Un seul développement pour le viseur et la photo : le faire ?** (ARC-01, ARC-08)
+- Options : ne rien faire (chaque fonction d'image s'écrit deux fois, et l'écart entre le viseur et la photo grandit) ; le développement partagé ; une seule chaîne pour tout, écartée par le rapport.
+- Audit : le développement partagé, avant la balance des blancs et l'histogramme en direct. Contre-vérification : oui, avec deux corrections ; la refonte change l'image du viseur, c'est donc une proposition à te faire avant de produire, à ne lancer qu'avec les chiffres du diagnostic relevés sur ton téléphone.
+- Bloque : le Sujet 37. La spécification de la balance des blancs a été reportée pour cette raison : la fonction serait écrite deux fois tant que les deux chaînes ne sont pas réunies.
+
+**D12. La mise en page du simulateur sur téléphone : quelle refonte ?** (INT-04, INT-12, INT-03, INT-17, INT-11, INT-20, INT-14)
+- À choisir : comment rendre la hauteur du viseur indépendante des textes (trois lignes réservées à la consigne, ou la consigne sortie du panneau) ; que faire du téléphone tenu à l'horizontale (le panneau à côté du viseur, ou, à défaut, dire de le tenir à la verticale) ; un écran de revue qui couvre aussi le panneau, avec la photo sur toute la largeur ; un bouton de fermeture en haut des fenêtres.
+- Audit : la refonte, la hauteur du viseur d'abord. Contre-vérification : les deux formes simples proposées ne suffisent pas (il faut trois lignes et non deux ; un viseur à part fixe de la fenêtre cacherait le déclencheur à 320 px de large) ; à essayer dans un navigateur avant de choisir.
+- Bloque : le Sujet 39.
+
+**D13. Deux notices de licence, à ajouter ou non** (PHY-19, LIC-08)
+- bgfx : la boucle du flou du viseur reprend celle d'un exemple de cette bibliothèque. Options : ajouter sa mention de copyright et sa licence BSD à 2 clauses à `docs/licences.md` et aux crédits, ou ne rien ajouter. Audit : te le soumettre. Contre-vérification : « Je ne sais pas si ces lignes y sont soumises ; ajouter la notice coûte peu et lève le doute. »
+- Vite et Rolldown : le fichier construit contient quelques fonctions d'assemblage de ces deux outils. Options : corriger seulement la phrase de la documentation, ou, en plus, recopier leurs licences dans `licences/`. Audit : la copie, « c'est le choix prudent, et il coûte deux fichiers ». Contre-vérification : réduite au premier bloc de la licence de Vite et à la licence de Rolldown, « si Julien retient le choix prudent ». Si ces fragments sont une « substantial portion » au sens de la licence MIT : je ne sais pas.
+- Bloque : ces deux parts du Sujet 44.
+
+**D14. Après les corrections : les tests avec des débutants d'abord, ou les nouvelles fonctions ?** (règle « pas d'extension au-delà de la V1 minimale avant de l'avoir testée avec des débutants » ; CHX-10)
+- Options : la règle tient, et aucune fonction nouvelle ne vient avant les tests ; elle est levée, et il faut la retirer de `CLAUDE.md` et de `docs/questions-ouvertes.md` en disant ce qui la remplace ; voie intermédiaire de l'audit : garder l'extension, mais plafonner ce qui attend une validation.
+- Audit : garder la règle et placer les tests juste après les corrections ; dans les deux cas, écrire la réponse dans `CLAUDE.md`. Ses raisons : aucune fiche n'est relue, chaque fonction ajoutée apporte ses choix à confirmer, et le protocole de test est prêt (il ne manque que la grille de relevé et la version à l'écran). En sens inverse : tes mots de la nuit du 11 au 12 novembre (« vas aussi loins que possible »), et le fait que les tests dépendent de ta disponibilité et de celle de cinq personnes.
+- Contre-vérification : la question est à poser, avec deux faits que l'audit omettait : tu as demandé toi-même les grilles, l'histogramme et la balance des blancs le 9 novembre, et tu as mis les grilles (CMP-02) dans le jalon de la V1 minimale le 12. Seule la version 0.3.57 étend hors du jalon sans réponse de toi. Le constat qui te reprochait ces extensions est réfuté ; la question reste.
+- Bloque : deux lignes du Sujet 41 ; l'ordre du travail après le plan.
+
+### Décisions qui ne bloquent aucun sujet aujourd'hui
+
+Simulateur : des changements de comportement, que les contre-vérifications ne retiennent pas comme corrections.
+
+| N° | Question | Options | Audit | Contre-vérification | Constat |
+| --- | --- | --- | --- | --- | --- |
+| D15 | Étalonner l'éclairage de la scène ? | Le laisser et l'écrire (fait par le Sujet 15) ; ou mesurer dans un rendu, puis baisser l'éclairage des objets 3D. | Mesurer, puis régler (un facteur de l'ordre de 0,47). | Seulement après la mesure, avec une valeur « de l'ordre de 0,5 », dans la pull request de la mesure de la lumière : le réglage change l'image de départ et les mesures de bruit de la documentation. | PHY-06 |
+| D16 | Garder la scène à 12,5 IL et un indicateur gradué en dixièmes d'IL ? | Placer la scène sur un cran ; graduer l'indicateur par tiers ; ne rien changer. | L'une des deux premières. | Pas nécessaire aux fiches ; à décider avec la mesure de la lumière. | FEX-01 |
+| D17 | Cinq écarts entre le référentiel et le simulateur (diaphragme animé, rideau animé, « l'appareil explique son choix », alerte de vitesse trop lente, mode silencieux) : objectif à garder, ou référentiel à réécrire ? | Pour chaque écart : le garder comme objectif, ou réécrire la brique simulateur de la notion. | Une phrase par fiche, ou changer le référentiel. | Pas de phrase dans les fiches ; une ligne par écart dans `docs/etat-des-travaux.md`, à trancher une par une. | FEX-08 |
+| D18 | En AF-S, montrer le visage détecté avant le toucher, comme le décrit le manuel ? | Garder le comportement et l'écrire dans la fiche (Sujet 6) ; ou relancer la détection en AF-S sans refaire la mise au point, et effacer la cible quand le mode change. | Le changement. | Confirme le défaut du repère resté ambre au retour de l'AF-C ; ne tranche pas le changement. | FMA-22 |
+| D19 | Défi SIT-06 : juger aussi si le chien est visible ? | Ajouter le contrôle de visibilité au défi ; ou s'en tenir à la phrase de la fiche. | L'ajouter. | À revoir une fois le Sujet 4 fait : avant, le défi échouerait sur un chien visible. | FMA-19 |
+| D20 | Les défis doivent-ils juger l'exposition ? | Un critère d'exposition, dont le seuil est à sourcer ; ou la phrase seule (Sujet 6). | Un critère, ou au moins l'écart d'exposition répété à côté du verdict. | Pas maintenant : l'absence de jugement est un choix écrit, que tu as validé le 11 novembre 2026, faute de critère sourcé ; la phrase suffit. | FMA-17 |
+| D21 | Bulletin : mesurer le bruit sur la photo plutôt que dans le viseur ? | Garder les deux approximations, qui sont écrites ; ou faire rendre ses mesures par le calcul de la photo. | La mesure sur la photo. | Faisable, mais change une ligne du bulletin que tu as validé le 11 novembre ; à proposer quand viendront les situations dont les critères portent sur les pixels. | ARC-10 |
+| D22 | Laisser choisir le sens du cadre, horizontal ou vertical ? | Un bouton « Cadrage » ; ou rien de plus que le Sujet 39. | Le bouton, avec une valeur de départ qui suit l'écran. | Une fonction nouvelle, pas avant les tests avec des débutants ; ne pas suivre l'orientation de l'écran avant la refonte de la mise en page. | INT-12 |
+| D23 | Des commandes au clavier pour le viseur, la carte et la photo ? | Flèches pour tourner l'appareil et déplacer le point, Entrée pour faire le point ou ouvrir la loupe ; ou rien. | Les ajouter. | À toi de décider, pas avant les tests avec des débutants ; les pas (2°, 0,5 m) sont à choisir. | INT-08 |
+| D24 | Un repli pour les appareils sans rendu en flottants ? | Une somme en demi-flottants, par exemple ; ou seulement le message et le déclenchement refusé (Sujet 26). | Constat ajouté par le second agent. | À ne décider que si un appareil réel en a besoin. | ARC-13 |
+| D25 | Relever le plafond du flou du viseur à densité 2 ? | Garder le plafond et l'écrire (Sujet 15) ; le porter à 32 px CSS (environ 680 échantillons pour une boucle qui en admet 400) ; une passe de flou à échelle réduite, à évaluer. | L'une ou l'autre des deux premières, coût à mesurer sur ton téléphone. | D'abord l'écrire ; pas de relèvement sans mesure sur téléphone. | PHY-08 |
+| D26 | Une scène où le sujet court vers l'appareil ? | L'ajouter plus tard ; ou non. | C'est ce que le référentiel demande pour MAP-04 (« en ponctuel la netteté décroche, en continu elle suit »). | Une extension : pas avant le test de la V1 minimale. | FMA-11 |
+
+Référentiel et périmètre :
+
+| N° | Question | Options | Audit | Contre-vérification | Constat |
+| --- | --- | --- | --- | --- | --- |
+| D27 | La brique « situation réelle » : quelle règle de couverture ? | Garder la règle du 7 novembre (une notion a la brique dès qu'une des situations de son champ `situations` est rédigée) ; ou prendre la définition du site (la brique compte quand une situation rédigée cite la notion dans sa section « Notions »). | La définition du site : la colonne « Situation réelle » passerait de 30 à 12, la couverture resterait à 13. | Pas une correction d'office : les deux règles sont écrites ; la section « Notions » des fiches deviendrait une seconde source de ce qui relie une notion à une situation. | RST-09 |
+| D28 | Le jalon de la V1 minimale, plafonné à 13 notions couvertes sur 17 : par quelle voie le débloquer ? | Trois renvois (SIT-01 pour EXP-04 et EXP-06, SIT-06 pour EXP-05) ; ou `situations: all` pour EXP-04, EXP-05 et EXP-06, avec six sections « Situation réelle » à écrire et à sourcer. Les deux donnent 16 sur 17. | Écrire la règle des « réglages de base » et leur donner `situations: all`. | Pas de faute à corriger ; elle chiffre les deux voies sans en retenir une. | RST-08 (réfuté comme constat ; la décision reste) |
+| D29 | Le périmètre : 191 notions et 49 situations, au regard de ton critère du 10 novembre (« des débutants », « pas des professionnels ») ? | Garder le catalogue entier ; mettre en avant l'avancement sur le jalon plutôt que sur 191 ; découper la suite en jalons et reporter trois groupes (35 notions) ; écrire le critère avant d'ajouter une notion. | Ces propositions, sans rien retirer. | Garder le catalogue : pas de contre-avis. L'ordre de la suite est déjà tranché par toi le 11 novembre ; un jalon « plus tard » ne tient pas dans le mécanisme existant et rétablirait le découpage que tu as retiré le 7 novembre : à te poser comme une question, sans rien écrire dans `data/` avant ta réponse. | aucun (section « Périmètre » de `referentiel-structure.md`) |
+| D30 | Les niveaux N1, N2 et N3 : un critère écrit ? | Écrire un critère qui permette de classer ; ou garder les trois mots actuels (« débutant », « intermédiaire », « avancé »). | Deux reclassements proposés. | Sans critère écrit, aucun reclassement ne peut être prouvé ; les deux cas te sont renvoyés (l'épreuvage, RET-12, au niveau N1 ; l'ISO auto, MES-10, au niveau N2). | REF-06, REF-14 (réfutés) |
+| D31 | Flash : SIT-V2-04 (nature morte à deux lumières) est-elle `required` ou `optional` ? Un portrait en plein soleil (SIT-02) dépend-il du flash ? | SIT-V2-04 : `optional` si les deux lumières peuvent être des lampes, `required` sinon. SIT-02 : garder `flash: required`, ou non. | Te renvoie les deux choix. | SIT-V2-04 : `required` tant que la situation garde la notion clé « Flash déporté et studio » ; c'est ce que fait le Sujet 29 sans réponse. | REF-01 |
+
+Projet :
+
+| N° | Question | Options | Audit | Contre-vérification | Constat |
+| --- | --- | --- | --- | --- | --- |
+| D32 | Deux attentes anciennes, à confirmer ou à corriger : le viseur sans flou de mouvement (« lecture de Claude », 8 novembre) ; la règle de la médiane pour le niveau d'entrée d'une situation (« à confirmer en écrivant les premiers défis », 7 novembre). | Les rapports ne donnent pas d'options. | Les faire entrer dans la table des décisions en attente (Sujet 41). | D'accord. Le Sujet 21 fait d'un écart à la règle de la médiane une erreur, sans changer la règle. | CHX-10, DOC-06, RST-06 |
+| D33 | Les scènes suivantes : encore une photo à 360° pour décor ? | Une photo à 360° (hautes lumières écrêtées, perspective et éclairage figés, lumière non mesurée) ; ou un décor en 3D (un seul arbre pèse 66,3 Mo, 11,9 Mo une fois simplifié). | « Je ne sais pas trancher sans le dossier relu ; à décider scène par scène, en écrivant à l'écran ce que le fond ne simule pas. » | Pas de contre-avis. | CHX-10 |
+| D34 | Bilingue : écrire l'anglais en même temps que le français, ou après sa relecture ? | Comme aujourd'hui ; ou la relecture d'abord sur le français, l'anglais remis d'aplomb ensuite. | Garder les deux arbres ; faire porter la relecture d'abord sur le français. | La relecture dans les deux langues est ta décision du 11 novembre 2026 : à toi de la réordonner. | aucun |
+| D35 | Renderpeople : y a-t-il un accord ? De qui, de quand, pour quel usage ? | Lire leurs conditions générales, ou leur écrire, et faire consigner la réponse (date, texte exact, portée). | Le rapport des licences te le demande : les quatre modèles sont publiés sous CC BY 4.0, qui ne couvre pas les droits de la personnalité des personnes scannées, et le site est public. | À ta réponse, une entrée datée dans `docs/historique.md`. | DOC-05 (réfuté comme constat : la question t'est déjà posée) |
+| D36 | Trois choses laissées à ton choix : essayer une fois de créer une pull request par l'API REST de GitHub, pour voir si le pied avec le lien de session y est ajouté aussi ; un garde-fou de cinq lignes sur les licences des dépendances livrées dans le site ; ouvrir le projet à d'autres contributeurs. | Les faire ou non. | — | « Si Julien le veut », « si un garde-fou est voulu ». | CHX-11, LIC-09, CHX-09 (réfutés) |
+
+Choix que les rapports laissent ouverts et que la pull request concernée proposera, sans les compter parmi les décisions : l'orthographe anglaise à retenir, britannique ou américaine (INT-19, Sujet 11) ; l'endroit où écrire la limite d'exposition, une pastille du viseur ou la note de la fenêtre « Exposition » (INT-09, Sujet 35) ; l'endroit de la phrase « Le défi ne juge ni l'exposition ni le bruit », les trois fiches de situation ou la note de la fenêtre « Défis » (FMA-17, Sujet 6) ; pour l'activité de LUM-02, la mention « au-delà du mur dessiné » ou un curseur borné à 55 cm (FMA-10, Sujet 12).
+
+### Réglages que seul Julien peut faire
+
+1. **Règle de branche sur `main`** (CHX-03). Chemin donné par le rapport : dans le dépôt, Settings, puis Rules, puis Rulesets, puis New branch ruleset. Le rapport précise que ce chemin n'a pas été relu dans la documentation de GitHub, dont le site n'est pas joignable : à vérifier à l'écran. À régler : pull request obligatoire ; contrôles requis `validate`, `confidentialite`, `app` et `description` ; aucune approbation requise, sinon la règle « Claude fusionne lui-même ses pull requests » ne tient plus. À ne pas requérir : les quatre jobs de la routine, tant que son workflow est filtré par chemins. Je ne sais pas si le job d'une matrice peut être requis par son nom, ni sous quelle identité l'outil de Claude fusionne.
+2. **Approbation des workflows lancés par les pull requests de tiers** (rapport des licences). Chemin donné par le rapport : Settings, Actions, General, « Approval for running fork pull request workflows from contributors », choisir « Require approval for all external contributors ». Ces libellés ont été lus dans la source de la documentation de GitHub, pas à l'écran, et le réglage actuel du dépôt n'a pas pu être lu. La contre-vérification juge que le point pèse peu : le réglage par défaut demande déjà l'approbation d'un premier contributeur, et aucun secret n'est exposé.
+3. **Les trois tags**, si tu choisis de les poser (D8) : la commande est dans le résumé du workflow `tag.yml`. Ce n'est pas un réglage, et le rapport ne donne pas de chemin dans l'interface.
+4. **Des hôtes à ajouter à l'environnement de Claude**, pas avant la rédaction des fiches concernées : `www.legifrance.gouv.fr` et `eur-lex.europa.eu`, pour écrire le contenu juridique des notions PLA-07 et PLA-09 à partir des textes officiels ; `fujifilm-dsc.com`, pour la source de la notion MES-12. Les rapports ne donnent pas le chemin de ce réglage.
+
+Ce que les rapports te demandent aussi, et qui n'est pas un réglage :
+- des essais sur ton téléphone : la photo prise un doigt posé sur le viseur, avant de fusionner le Sujet 3 (COD-01) ; la rafale tenue, doigt qui glisse (COD-09, Sujet 2) ; la texture d'éclairage recréée après une perte de contexte (COD-12, Sujet 8) ; les chiffres de l'affichage de diagnostic et les capacités de rendu en flottants, à relever à la fusion du Sujet 26 ; la fluidité du viseur avant de fusionner le Sujet 37 ; le coût d'un plafond de flou relevé (D25). La version 0.3.53 (densité du viseur plafonnée à 2) reste aussi à juger ;
+- des pages que toi seul peux relever : les fiches des constructeurs pour trois capteurs (D4) ; les conditions générales de Renderpeople (D35).
 
 ## Constats confirmés sans correction à faire maintenant
 
-Section en cours d'écriture.
+Deux constats confirmés n'ont aucune correction à faire aujourd'hui :
+
+- ARC-03 (la scène est écrite dans le code) : rien à faire avant la deuxième scène. La V1 minimale n'a qu'une scène ; ce qui est écrit en dur coûtera la même chose à sortir le jour de la deuxième scène qu'aujourd'hui, et un vocabulaire de rôles dessiné sur une seule scène serait un format figé trop tôt.
+- REF-05 (BOI-09, « lumière stable » dans l'explication et « lumière changeante » dans l'exercice) : la contradiction n'est pas entière, et remplacer l'exercice ferait perdre à la notion son lien avec sa situation. L'explication se complète à la rédaction de la fiche, pas avant.
+
+Les autres constats de cette section sont aussi dans le plan, pour la part qui se corrige. Ce tableau dit la part que la contre-vérification écarte ou reporte : c'est ce qu'un sujet ne doit pas faire, même si l'audit le proposait.
+
+| Constat | Ce qui n'est pas à faire maintenant | Raison donnée par la contre-vérification |
+| --- | --- | --- |
+| PHY-01 | Coder le filé. | Le filé est une notion hors de la V1 minimale ; corriger la documentation suffit. |
+| PHY-06 | Régler l'éclairage de la scène tout de suite. | Seulement après une mesure dans un rendu, avec la mesure de la lumière (D15). |
+| PHY-08 | Relever le plafond du flou du viseur. | Pas sans mesure sur téléphone (D25). |
+| PHY-11 | Simuler la diffraction. | La phrase « non simulée » suffit ; l'audit lui-même renvoie la simulation à plus tard. |
+| PHY-13 | Remplacer les capacités des photosites par celles de la page du bruit de lecture. | La page ne dit pas d'où elles viennent ; l'effet sur le bruit est de 2 % au plus. |
+| PHY-14 | Compter les pixels de l'image, et non les pixels effectifs, pour le bruit. | Rien de lu ne dit lequel des deux nombres couvre le capteur ; l'effet est de 0,4 %. |
+| FEX-01 | Déplacer la scène sur un cran, ou graduer l'indicateur par tiers. | Pas nécessaire pour deux phrases d'exercice (D16). |
+| FEX-02 | Changer l'état de départ (ISO auto activé). | C'est l'état du Z 6. |
+| FEX-08 | Écrire dans les fiches ce que le référentiel prévoit et que TutoPhoto ne dessine pas encore. | Cela met du suivi de projet sous les yeux du débutant et promet des fonctions hors de la V1 minimale (D17). |
+| FEX-09 | Écrire quand corriger l'exposition (neige, contre-jour). | Ce n'est dans aucune page lue. |
+| FEX-12 | Recopier dans la fiche BOI-12 la liste de ce qui n'est pas simulé. | La liste est tenue à un seul endroit. |
+| FEX-15, FMA-14 | Changer les lettres M, A et S, les libellés de la fenêtre « Mise au point » ou le titre « Collimateurs ». | Pas dans la même modification que les fiches ; le titre vient du référentiel. |
+| FEX-18, FMA-09 | Ajouter « source secondaire » aux seules fiches visées. | La règle s'écrit une fois et s'applique à toutes les fiches (Sujet 32). |
+| FMA-11 | Ajouter une scène où le sujet court vers l'appareil. | Une extension (D26). |
+| FMA-15 | Retirer de NET-01 une source que sa fiche ne cite pas. | Renvoyé aux rapports du référentiel et des sources, qui ne le tranchent pas : l'entrée est parmi les sources non relues. |
+| FMA-17 | Ajouter un critère d'exposition aux défis. | Il demanderait un seuil sourcé, qui manque (D20). |
+| FMA-19 | Juger dans le défi si le chien est visible. | Pas avant le Sujet 4 (D19). |
+| FMA-22 | Changer la détection du simulateur en AF-S. | Non tranché (D18). |
+| FMA-23 | Déplacer les deux points des yeux du chien. | Ils sont justes. |
+| ARC-02 | Poser les textes par un attribut de la page ; découper `cameraPanel.ts`. | Le premier retire au compilateur le contrôle des clés de texte ; le second vient après le magasin, seulement si le fichier reste trop gros. |
+| ARC-05, INT-13 | Découper la routine en étapes indépendantes ; y envoyer de vrais touchers. | Après le magasin de réglages, ou pas du tout : sans lui, chaque étape rechargerait la scène en rendu logiciel. Les gestes au toucher se font avec ce découpage, pas à part. |
+| ARC-07 | Réunir aussi le cercle de confusion et le champ de vue ; lire les titres des notions dans `data/` à la construction. | « Propre, pas urgent » ; un lecteur de YAML de plus et une étape avant la construction. |
+| ARC-08 | Une refonte à part pour la suspension du viseur. | C'est une consigne pour le Sujet 37. |
+| ARC-09 | Réécrire la partie « produit » de `docs/architecture.md`. | Elle attend la fin des refontes. |
+| ARC-10 | Faire rendre ses mesures par le calcul de la photo. | Priorité basse ; l'écart est écrit et dit à l'écran (D21). |
+| ARC-13 | Un repli pour les appareils sans rendu en flottants. | Seulement si un appareil réel en a besoin (D24). |
+| COD-02 | Attendre la fin du calcul en cours avant de prendre la vue du retardateur. | Un état de plus ; la ligne retenue suffit. |
+| COD-06 | Griser le déclencheur tant que la scène n'est pas prête. | Double emploi avec l'attente bornée. |
+| COD-09 | Ajouter `user-select: none` et `-webkit-touch-callout: none`. | Ils répondent à un défaut que personne n'a constaté. |
+| COD-13 | Retirer la seconde application de la vue en fin de calcul ; retirer trois `export` sans emploi. | Le premier ferait dépendre la remise de la projection d'un effet de bord ; les tests rapides importeront les seconds. |
+| INT-04 | Réserver deux lignes à la consigne ; un viseur à part fixe de la fenêtre. | Il faut trois lignes ; le déclencheur serait caché à 320 px de large. |
+| INT-08, INT-10, INT-12 | Des commandes au clavier, des libellés par marque, un bouton « Cadrage ». | Des fonctions nouvelles, pas avant les tests avec des débutants (D23, D3, D22). |
+| INT-12 | Faire suivre au cadre l'orientation de l'écran. | Pas avant la refonte de la mise en page : le cadre du téléphone émulé tomberait à 47 % de sa surface. |
+| INT-11, INT-15, INT-16 | Une hauteur minimale pour le bouton « Vue de dessus » ; un rôle d'image sur le canevas ; inverser les deux boutons de la vitesse. | Le critère ne le demande pas ; c'est déjà fait ; cela casserait la règle commune aux quatre molettes. |
+| SRC-04 | Écrire « inconnu » sur les entrées non relues. | L'absence de date de lecture le dit déjà. |
+| SRC-05 | Faire entrer dans `data/sources.yaml` les adresses des dossiers de `docs/dossiers/`. | La règle (le dossier porte ses citations ; les sources entrent à l'implémentation) est déjà suivie et écrite. |
+| SRC-06 | Remplacer deux adresses de Nikon qui redirigent vers leur nouvelle adresse. | Une redirection permanente n'est pas une faute ; à faire à la prochaine modification des fichiers qui les citent. |
+| SRC-07, SRC-10 | Trouver dès maintenant les sources de remplacement pour MAP-14 et MES-12. | À faire avant d'écrire la fiche, d'où les `todo` ; les hôtes ne sont pas joignables. |
+| REF-03 | Renommer MAP-16. | Le nom proposé n'a pas plus de source que l'actuel. |
+| REF-07 | 94 `todo` identiques ; des révisions de Wikipedia pour sept notions. | Ils noieraient les `todo` utiles ; Wikipedia n'entre qu'à la rédaction de la fiche, doublée d'une source primaire. |
+| REF-08 | Un champ `terms` par notion. | Il contredit la forme déjà prévue (D3). |
+| REF-11 | Écrire que tenir l'appareil de niveau suffit à garder les verticales droites. | Je ne sais pas : à sourcer à la rédaction de la fiche. |
+| REF-12 | Mettre BOI-35 en notion clé de SIT-28. | Elle obligerait à simuler un « téléphone virtuel ». |
+| REF-17 | Changer « silencieux » dans BOI-12 ; changer le lieu de SIT-07. | Sur un reflex Nikon, le mode silencieux est bien un mode de déclenchement ; une notion clé de SIT-07 parle justement des LED. |
+| REF-18 | Dire dans le référentiel quel boîtier corrige la perspective. | À la rédaction de la fiche : la fonction n'est sourcée que pour le Z 6. |
+| RST-05 | Tout contrôle du champ `since`, si l'option `--base` du Sujet 22 n'est pas écrite. | Le champ n'est lu par aucun code, et aucune valeur n'est fausse. |
+| RST-06 | Un champ pour la raison d'un écart de niveau ; retirer la dérogation par `notes`. | La dérogation est la règle écrite, et la règle de la médiane reste à confirmer (D32). |
+| RST-09 | Changer la règle de couverture. | Une proposition à trancher (D27). |
+| RST-10 | Un jalon par tranche ; réécrire une phrase datée de `docs/cadrage.md`. | Une proposition à trancher (D29) ; une décision datée ne se réécrit pas. |
+| CHX-01 | Produire les pages d'état par un script. | Un outil de plus à entretenir pour un dépôt de cette taille. |
+| CHX-02 | Réécrire la comparaison des moteurs ; rouvrir le choix du moteur. | C'est le compte rendu d'une décision ; le coût d'un changement est certain, le gain n'est pas établi. |
+| CHX-03 | Rendre la routine obligatoire avant fusion. | Son workflow est filtré par chemins ; il faudrait le refaire, ce qui ne vient qu'avec une refonte de la routine. |
+| CHX-05 | Produire les titres à la construction ; contrôler les titres anglais. | Un lecteur de YAML de plus ; la règle du titre anglais n'est pas écrite (D7). |
+| CHX-06 | Déplacer `REPRISE.md` sous `docs/`. | Cela casse les renvois de cinq pages pour peu de gain. |
+| DOC-02 | Changer « référentiel v0.2 » et « environ 90 % du cadre ». | Le premier se défend, l'objection au second est fausse. |
+| DOC-04 | Redater les trois titres du changelog. | La date est recopiée dans le tag et la release, qui ne se réécrivent pas. |
+| DOC-06 | Retirer le `todo` de MES-04. | Ce que la cellule fait de la neige reste à sourcer. |
+| DOC-07 | Changer l'objectif « taux de couverture affiché dans l'outil » de `docs/cadrage.md`. | C'est un objectif du cadrage ; l'afficher est une fonction à mettre dans la file, pas une correction. |
+| DOC-11, DOC-12 | Allonger le tableau et l'inventaire du README ; changer « 19 fiches » dans `docs/propositions.md`. | Le plan retire l'inventaire ; « 19 fiches » était juste à sa date. |
+| LIC-01 | Figer la liste des tolérances du contrôle. | Elle doit pouvoir s'allonger, sous relecture. |
+| LIC-02 | Deux motifs de plus (session sans schéma, secret sans guillemets) ; un motif d'adresse postale. | Les deux premiers refusent des fichiers existants ; il n'y a pas de motif fiable pour le troisième. |
+| LIC-03 | Vider de leurs métadonnées tous les fichiers ajoutés. | Impossible pour les fichiers de tiers des scènes, gardés identiques à leur origine. |
+| LIC-04 | Rendre obligatoires les contrôles de numérotation, de rubriques et de lien. | « Justes, mais facultatifs ». |
+| LIC-05 | Refuser tout fichier binaire hors des scènes. | Aucun fichier à contrôler aujourd'hui ; à écrire quand le premier arrive. |
+| LIC-08 | Recopier en entier la licence de Vite. | 98 196 octets, dont 79 sections sur des dépendances qui ne sont pas dans le site. |
 
 ## Constats réfutés
 
-Section en cours d'écriture.
+Ces 26 constats ne sont pas à corriger. La dernière colonne dit ce que la contre-vérification en garde quand même, et où cela va.
+
+| Constat | Ce qu'il affirmait | Pourquoi il est réfuté | Ce qui en reste |
+| --- | --- | --- | --- |
+| PHY-16 | Les exemples de la documentation sont calculés avec les libellés, pas avec les valeurs exactes des crans. | Exagéré : au degré de précision écrit, trois exemples sur quatre ne changent pas, le quatrième bouge de 1 %. | Au plus une phrase sur cet écart. |
+| FEX-10 | L'explication de la fiche EXP-06 est trop dense pour un débutant. | Un jugement de rédaction, pas un fait prouvé ; l'explication suit le référentiel. | À signaler à la relecture et au test avec des débutants. |
+| FMA-05 | La fiche MAP-06 prête la couverture de l'autofocus du Z 6 à trois autres boîtiers. | Déjà dit dans la fiche et la documentation, d'après une décision de Julien du 11 novembre 2026 ; la correction introduirait une erreur. | Au plus, nommer les trois boîtiers. |
+| FMA-20 | Trois chiffres des fiches ne sont pas ceux du simulateur. | Exagéré : les écarts sont plus petits que ce dont l'affichage varie d'un instant à l'autre. | « Environ », si ces phrases sont retouchées. |
+| ARC-04 | Le simulateur n'a aucune mesure de la lumière. | Faits exacts, mais c'est le doublon de PHY-12, et la mesure de la lumière est une fonction prévue, pas une refonte. | Son ordre : après le Sujet 37 et l'étalonnage (D15). |
+| ARC-11 | Un boîtier devrait avoir un identifiant propre, pas un couple marque et format. | Le couple applique une décision de Julien du 8 novembre 2026, et aucun besoin cité n'est dans la file. | Le Sujet 38 se fait sans identifiant de boîtier. |
+| COD-10 | Au repos, trois minuteries réécrivent sans cesse des textes inchangés. | Le coût avancé ne se retrouve pas à la mesure (moins de 1 % du temps, en rendu logiciel). | À reprendre si le relevé du Sujet 26 montre un coût. |
+| CHX-04 | Deux versions ont étendu la V1 minimale malgré la règle de `CLAUDE.md`. | Hors de la période, et exagéré : Julien a demandé lui-même ces fonctions. | La question D14. |
+| CHX-07 | Une pull request de fiches lance quatre fois le scénario 3D complet. | Hors de la période ; ce déclenchement est voulu. | Un niveau « pages » rapide, si la routine est refaite. |
+| CHX-08 | Les versions sont épinglées, et rien ne dit comment les faire avancer. | Exagéré : aucune vulnérabilité connue ; ces versions sont celles de l'environnement de Claude. | Au plus deux lignes (message de la routine, Sujet 19 ; `docs/pile-technique.md`, Sujet 42). |
+| CHX-09 | Rien ne dit à un contributeur extérieur comment tester ni proposer un changement. | Deux affirmations fausses : les README ont une section « Contribuer ». | Trois lignes « Tester » (Sujet 40) ; D36. |
+| CHX-11 | Chaque pull request naît avec le lien de la session, puis est corrigée. | Déjà dit dans le dépôt ; le contrôle par pull request est le filet qui fonctionne. | Une idée d'essai (D36). |
+| SRC-08 | Le droit français est cité par des commentaires, pas par les textes officiels. | Aucune erreur n'est montrée ; la règle porte sur le contenu juridique à écrire, et les `todo` sont déjà posés. | Les textes officiels seront à lire pour écrire PLA-07 et PLA-09. |
+| SRC-09 | Six pages n'ont été lues que par Julien. | Le constat dit lui-même que ce n'est pas une faute : c'est la voie décidée par Julien le 11 novembre 2026. | Rien. |
+| REF-06 | La notion RET-12, de niveau N1, demande un savoir classé N3 ailleurs. | Repose sur un critère de niveau qui n'est écrit nulle part. | D30. |
+| REF-13 | Huit groupes de notions se recouvrent. | Les intitulés disent déjà ce qui va où : une progression, pas un doublon. | À la rédaction des fiches de BOI-04 et de MES-06, dire où sont les grilles et l'histogramme en direct. |
+| REF-14 | L'ISO auto (MES-10) devrait être au niveau N1. | Son niveau N2 est une décision du 7 novembre 2026, acceptée par Julien. | D30. |
+| REF-16 | Les sept situations `SIT-V2-NN` sont des exercices plus que des situations. | Exagéré, et contraire à la décision du 11 novembre 2026 qui en retient deux pour le parc. | Les sept identifiants restent. |
+| RST-08 | Le jalon ne peut pas dépasser 13 notions couvertes sur 17. | Déjà écrit dans le dépôt et déjà posé à Julien : pas une faute. | D28. |
+| RST-12 | Deux scripts s'arrêtent sur une trace Python au lieu d'un message. | Exagéré : aucune faute ne passe, et la trace nomme le fichier. | Deux lignes, dans le Sujet 21. |
+| DOC-03 | Une phrase de `docs/etat-des-travaux.md` sur les commits non signés est fausse. | Hors de la période, et la conséquence avancée ne tient pas. | La phrase est inexacte : une ligne, dans le Sujet 41. |
+| DOC-05 | Deux pages se contredisent sur un accord de Renderpeople. | Hors de la période ; la question est déjà posée à Julien. | D35. |
+| DOC-08 | Trois phrases prêtent à Julien plus que ses mots. | Aucune des trois attributions n'est montrée fausse. | Rien. |
+| DOC-10 | La page des décisions ne porte pas celle du 8 novembre (une photo réelle pour décor). | Déjà dit dans `docs/historique.md` et dans onze autres fichiers. | Au plus une ligne dans `docs/cadrage.md` (Sujet 42). |
+| LIC-06 | `scripts/check_public.py` tolère trop pour lui-même et refuse à tort. | Les faits sont exacts, mais ce ne sont pas des défauts. | Deux retouches, dans le Sujet 23 : le numéro facultatif dans l'adresse « noreply » admise, une phrase en tête de la liste des tolérances. |
+| LIC-09 | La règle « vérifier la licence de toute dépendance » ne repose sur aucun contrôle. | C'est une règle de conduite, et tout est propre. | Un garde-fou possible (D36). |
+
+Plusieurs constats confirmés ne le sont qu'en partie ; la part réfutée est écrite sous chacun, dans son rapport : FEX-09, FEX-12, FMA-08, SRC-05, SRC-06, REF-04, REF-11, REF-17, RST-10, INT-09, INT-11, INT-15, CHX-10, DOC-02, DOC-06, DOC-07, DOC-11, DOC-12, LIC-02 et LIC-05.
 
 ## Ce que l'audit n'a pas couvert
 
-Section en cours d'écriture.
+**Sources non relues, hôtes non joignables.**
+- Sur les 151 entrées de `data/sources.yaml` examinées, 51 n'ont pas pu être relues (37 hôtes, non joignables depuis l'environnement de Claude ou qui refusent les lectures automatiques). 21 ne sont citées que par le référentiel, pour des notions sans fiche. Les 30 autres ont leur adresse dans la documentation, le code ou une fiche : 12 portent des valeurs du simulateur ou des phrases d'une fiche (dont les six pages que Julien a relevées lui-même et les capteurs de trois boîtiers), 7 portent le droit, 11 appuient des pages de documentation.
+- Les 21 entrées ajoutées le 12 novembre 2026 sont hors du périmètre.
+- Parmi ce qui n'a pas été lu : les fiches de Canon et de Sony pour plusieurs boîtiers ; les manuels du Canon EOS RP et de l'EOS 2000D (les termes de Canon cités viennent du manuel de l'EOS 850D) ; les deux articles sur lesquels s'appuie la fiche EXP-06, vérifiés seulement contre les extraits gardés dans le dépôt ; les normes de sensibilité, connues par l'article de Wikipedia qui les résume ; les textes officiels du droit ; les conditions générales de Renderpeople.
+- La documentation de GitHub a été lue dans son dépôt source, pas à son adresse : les chemins d'interface cités ne sont pas vérifiés à l'écran. Les pages publiées des règles d'accessibilité n'ont pas été relues.
+- Ce que cela laisse sans réponse : si ces 51 pages existent encore et disent ce que leur libellé affirme.
+
+**Essais faits dans Chromium en rendu logiciel seulement.**
+- Tous les essais dans un navigateur sont faits dans Chromium sans écran, en rendu logiciel. Les « téléphones » sont des profils émulés : taille d'écran, identification du navigateur, et touchers envoyés par le protocole de Chromium quand l'essai le dit. Aucun essai sur un vrai téléphone, avec un processeur graphique, dans Safari ni avec un lecteur d'écran.
+- Le rendu logiciel étire les durées (une photo s'y calcule en 10 s environ, contre 0,8 à 2,0 s sur le téléphone de Julien d'après la documentation) et ralentit l'horloge de la scène. L'ordre des événements n'en dépend pas ; la fréquence d'un cas chez un utilisateur, si.
+- Le rapport du modèle physique n'a employé aucun navigateur, sauf pour PHY-21 : PHY-06, PHY-07 et PHY-08 sont établis par le code et le calcul. Les rapports des sources, du référentiel, des choix, de la documentation et des licences n'ont ni ouvert de navigateur ni construit le site ; le site publié n'a pas été ouvert.
+- Les mesures de mise en page sont faites avec une autre police que celle de la CI : les seuils changent avec la police, les mécanismes non.
+- Aucun rapport n'a rejoué la routine en entier, et aucune des refontes recommandées n'a été écrite, hors l'essai des tests rapides : leurs coûts sont des estimations.
+- Ce que cela laisse sans réponse : le comportement, sur un vrai appareil, de tout ce qui est établi par essai, et la fréquence réelle de ces cas chez un débutant.
+
+**Parties non lues.**
+- Les versions 0.3.54 à 0.3.57, hors de la période : la routine dans la CI, la progression du chargement, les grilles de cadrage, les histogrammes de l'écran de revue. Vu en passant, sans constat : la section « Grilles de cadrage » de `docs/camera-physique.md` se contredit sur le nombre de grilles.
+- `REPRISE.md` n'est pas relu en entier ; le contenu des dossiers de sources et des spécifications non plus ; l'organisation de `docs/camera-physique.md` n'est jugée par aucun rapport ; les sections de `CHANGELOG.md` ne sont pas réessayées une à une ; le « point du 13 novembre » de `docs/etat-des-travaux.md`, écrit pendant l'audit, n'est pas audité.
+- Dans le référentiel : seuls les intitulés anglais sont lus ; les phrases des domaines de composition, de lecture d'image, de retouche et de planification ne sont pas confrontées à une source ; les 180 renvois sans retour d'une notion vers une situation n'ont été jugés un par un par personne.
+- L'interface en anglais dans le simulateur (ses libellés sont lus dans le code, pas à l'écran), et les pages des fiches telles que le site les publie.
+- Ce qui n'est pas dans git : les descriptions des pull requests (une seule lue), leurs commentaires, les journaux d'Actions, les textes des releases ; les réglages du dépôt autres que la protection de `main`. L'outil de recherche de secrets de la CI n'a pas été lancé par l'agent ; sa configuration a été lue et rejouée, à titre indicatif. Les 21 fichiers venus de Sketchfab n'ont pas été comparés à leur origine.
+- Des remarques « vues en passant », devenues le constat d'aucun rapport : la ligne du bruit de l'indicateur d'équilibre qui saute d'une lecture à l'autre au point visé de départ ; un bulletin qui écrit une traînée « au-delà du flou acceptable » avec le même chiffre que la limite ; en mode A, une vitesse qui clignote pour une photo à +1/6 IL seulement ; les contours de la photo et du viseur non lissés ; les réglages des quatre molettes non mémorisés. Elles sont établies par le code ou par une lecture, non mesurées.
+- Les fiches de lot de `docs/audit/synthese/`, dont cette page est tirée, n'ont pas été relues par un second agent.
 
 ## Je ne sais pas
 
-Section en cours d'écriture.
+Ce qui reste invérifié et compte pour la suite. Le détail est dans la section « Je ne sais pas » de chaque rapport.
+
+Sur un vrai appareil :
+- ce que donnent, sur un téléphone, avec un processeur graphique ou dans Safari, les fautes établies par essai et leurs corrections (COD-01, COD-06, COD-07, COD-09, COD-11, COD-12, FMA-23), et à quelle fréquence un débutant les rencontre ;
+- si l'éclairage rend bien les objets 3D environ deux fois trop clairs par rapport au fond : c'est déduit des fichiers, pas mesuré dans un rendu (PHY-06) ;
+- le bruit de la loupe à densité 2 dans un navigateur (PHY-07) ;
+- si le plafond de 5 s interrompt le calcul d'une photo sur les téléphones des testeurs (PHY-21) ;
+- le coût réel d'une image du viseur, et si un viseur rendu en demi-flottants reste fluide (ARC-06, ARC-01) ;
+- quels téléphones n'exposent pas le rendu en flottants (ARC-13) ;
+- la hauteur réelle du viseur sur un iPhone, quand les barres de Safari se replient.
+
+Sur la routine et la CI :
+- la cause de l'échec non expliqué de la routine du 12 novembre 2026 (délai dépassé à l'entrée du mode S) : INT-21 montre qu'un clic perdu sur le bouton qui clignote donnerait ce message, sans prouver que c'en est la cause ;
+- pourquoi le même profil dure de 7 à 23 minutes d'un passage à l'autre.
+
+Sur ce que font les vrais boîtiers :
+- ce que la visée d'un hybride montre du flou de mouvement (PHY-03) ;
+- ce qu'un Z 6 affiche pour un écart de 1/6 IL, la règle de l'option « Auto » de sa vitesse minimale, ce qu'il fait quand le sol entre dans une zone large, ce qu'il affiche en AF-S avant la mi-course, comment il annule un retardateur en cours ;
+- ce qu'affiche un boîtier réglé en français pour une ouverture à décimale (D5) ;
+- les noms des modes sur le Canon EOS RP et le Canon EOS 2000D, deux des six boîtiers du simulateur.
+
+Sur les sources et le droit :
+- si les 51 pages non relues existent encore et disent ce que leur libellé affirme ;
+- une source pour l'addition des variances du bruit photonique et du bruit de lecture (PHY-04) ;
+- si les lignes reprises d'un exemple de bgfx créent une obligation de licence, et si les fragments de Vite et de Rolldown sont une « substantial portion » au sens de la licence MIT (D13) ;
+- si un accord de Renderpeople existe, sur quoi il porte, et ce que disent ses conditions générales (D35) ;
+- si le droit français écrit dans `docs/architecture.md` est exact.
+
+Sur GitHub :
+- le chemin exact, à l'écran, pour créer une règle de branche, et si le job d'une matrice peut être requis par son nom ;
+- sous quelle identité l'outil de Claude fusionne ;
+- le réglage actuel du dépôt pour l'approbation des workflows des tiers, et si l'environnement de publication refuse les déploiements venus d'une autre branche.
+
+Sur le projet :
+- si 191 notions et 49 situations sont utiles à un débutant, et si un débutant lit sans peine les formules des fiches : aucun test avec des débutants n'a eu lieu ;
+- la langue des cinq testeurs prévus, donc ce que l'anglais apporte aux tests de la V1 minimale ;
+- si la vitesse du chien (3,5 m/s) et sa taille sont réalistes : le code les donne comme des valeurs choisies, sans source.
