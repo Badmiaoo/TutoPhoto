@@ -129,7 +129,7 @@ Depuis le 15 novembre 2026, Claude suit le plan de corrections de l'audit (`docs
 
 ### La version du site à l'écran (Sujet 1 du plan, ARC-12, version 0.3.59)
 
-Les choix 1, 2 et 5 sont des questions pour Julien (`docs/etat-des-travaux.md`, « Ce qui attend Julien »). Mesures : Chromium en rendu logiciel, écrans émulés ; rien sur un vrai téléphone ni dans Safari.
+Les choix 1, 2 et 5 étaient des questions pour Julien. Il y a répondu le 15 novembre 2026 : choix 1 confirmé (le numéro reste dans le script) ; choix 2 changé (la ligne de version passe au-dessus de la liste des crédits, dans la pull request 65) ; choix 5 changé (la version est ajoutée aux deux messages, dans la pull request 65). Les choix 3, 4 et 6 à 9 restent à confirmer. Mesures : Chromium en rendu logiciel, écrans émulés ; rien sur un vrai téléphone ni dans Safari.
 
 | N° | Choix fait | Pourquoi | Autre voie |
 | --- | --- | --- | --- |
