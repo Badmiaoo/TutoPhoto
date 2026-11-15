@@ -14,6 +14,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readVersion } from "./version.mjs";
 
 const app = join(dirname(fileURLToPath(import.meta.url)), "..");
 const root = join(app, "..");
@@ -50,6 +51,7 @@ const TEXT = {
     licences: "Licences",
     contentLicence: "Textes sous licence CC BY-SA 4.0, code sous licence MIT.",
     source: "Code source",
+    version: (v) => `Version ${v}`,
     switchLang: "English",
     anchors: { situation: "situation", train: "entrainement", learn: "apprendre" },
   },
@@ -76,6 +78,7 @@ const TEXT = {
     licences: "Licenses",
     contentLicence: "Texts under the CC BY-SA 4.0 license, code under the MIT license.",
     source: "Source code",
+    version: (v) => `Version ${v}`,
     switchLang: "Français",
     anchors: { situation: "situation", train: "practice", learn: "learn" },
   },
@@ -132,6 +135,20 @@ function readReviewed() {
   });
   if (!seenKey) fail("data/relecture.yaml : clé « relues » absente");
   return reviewed;
+}
+
+/**
+ * Version du site (version 0.3.59) : le numéro du premier titre de version de CHANGELOG.md, par le lecteur commun à
+ * cette construction et à celle du simulateur (version.mjs, vite.config.ts). Sans titre de version, c'est un problème
+ * comme un autre : aucune page n'est produite.
+ */
+function siteVersion() {
+  try {
+    return readVersion();
+  } catch (error) {
+    fail(error.message);
+    return "";
+  }
 }
 
 /** Taille de la scène de parc, d'après son manifeste (somme des fichiers), en Mio. */
@@ -315,10 +332,14 @@ ${script}
 `;
 }
 
-const footer = (lang, up) => {
+// Pied commun à l'accueil et aux fiches. Seul l'accueil donne la version du site (plan de corrections de l'audit,
+// Sujet 1) : il passe son numéro, les fiches n'en passent pas.
+const footer = (lang, up, version = null) => {
   const t = TEXT[lang];
   return `<footer>
-  <p>${t.contentLicence} <a href="${up}licences/">${t.licences}</a> · <a href="https://github.com/Badmiaoo/TutoPhoto">${t.source}</a></p>
+  <p>${t.contentLicence} <a href="${up}licences/">${t.licences}</a> · <a href="https://github.com/Badmiaoo/TutoPhoto">${t.source}</a></p>${
+    version === null ? "" : `\n  <p>${escapeHtml(t.version(version))}</p>`
+  }
 </footer>`;
 };
 
@@ -425,7 +446,7 @@ ${byDomain.join("\n")}
 </section>
 <p class="mark">${t.reviewLegend}</p>
 </main>
-${footer(lang, "")}
+${footer(lang, "", ctx.version)}
 </div>`;
 }
 
@@ -580,6 +601,7 @@ const PREFETCH_SCRIPT = `<script>
 
 const domains = readDomains();
 const reviewed = readReviewed();
+const version = siteVersion();
 const all = Object.fromEntries(LANGS.map((lang) => [lang, readFiches(lang)]));
 for (const lang of LANGS) {
   const other = lang === "fr" ? "en" : "fr";
@@ -590,6 +612,7 @@ const ctxFor = (lang) => ({
   fiches: all[lang],
   domains,
   reviewed,
+  version,
   sceneMib: sceneMib(),
   // Situations dont la section « Notions » cite la notion.
   situationsOf: (nid) =>

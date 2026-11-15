@@ -1,7 +1,9 @@
 // Crédits de la scène : auteurs, licences et adresses d'origine, lus dans scene.json.
 // Les licences CC BY exigent d'attribuer l'œuvre ; on attribue aussi les éléments CC0, par courtoisie.
+// La fenêtre donne aussi la version du site (version 0.3.59).
 
 import { t, type Lang } from "./i18n";
+import { siteVersion } from "./version";
 
 interface Bilingual {
   fr: string;
@@ -66,4 +68,12 @@ export function renderCredits(list: HTMLElement, manifest: SceneManifest, lang: 
     }
     list.append(item);
   }
+}
+
+/**
+ * Écrit la version du site dans la fenêtre des crédits. À part de renderCredits : la version ne dépend pas du
+ * manifeste de la scène, et doit se lire même quand la scène ne se charge pas.
+ */
+export function renderVersion(target: HTMLElement, lang: Lang): void {
+  target.textContent = siteVersion(lang);
 }

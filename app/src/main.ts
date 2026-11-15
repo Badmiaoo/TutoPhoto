@@ -1,7 +1,7 @@
 import "./style.css";
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { createScene } from "./scene";
-import { loadManifest, renderCredits } from "./credits";
+import { loadManifest, renderCredits, renderVersion } from "./credits";
 import { CameraPanel } from "./ui/cameraPanel";
 import { Shutter } from "./ui/shutter";
 import { DOME_RADIUS, EYE_HEIGHT } from "./scene";
@@ -14,6 +14,7 @@ import { ChallengePicker } from "./ui/challenges";
 import { FicheDialog } from "./ui/ficheDialog";
 import { ReviewInfo } from "./ui/reviewInfo";
 import { initialLang, rememberLang, t, type Lang } from "./i18n";
+import { siteVersion } from "./version";
 
 function element<T extends HTMLElement>(id: string): T {
   const found = document.getElementById(id);
@@ -101,7 +102,12 @@ function report(key: ProblemKey, detail: string): void {
 
 function renderProblems(): void {
   const colon = lang === "fr" ? " : " : ": ";
-  diagnostic.textContent = problems.map((p) => `${t(lang, p.key)}${colon}${p.detail}`).join(" · ");
+  const parts = problems.map((p) => `${t(lang, p.key)}${colon}${p.detail}`);
+  // La version du site suit le message d'un problème (version 0.3.59), pour rattacher une capture d'écran à une
+  // version. Sans problème, la ligne reste vide et masquée : la routine de test le contrôle (« aucun problème
+  // affiché »).
+  if (parts.length > 0) parts.push(siteVersion(lang));
+  diagnostic.textContent = parts.join(" · ");
   diagnostic.hidden = problems.length === 0;
 }
 
@@ -116,6 +122,7 @@ function applyLang(): void {
   creditsButton.textContent = t(lang, "credits");
   element("credits-title").textContent = t(lang, "creditsTitle");
   element("credits-intro").textContent = t(lang, "creditsIntro");
+  renderVersion(element("credits-version"), lang);
   element("credits-close").textContent = t(lang, "close");
   element("no-webgl").textContent = t(lang, "noWebgl");
   canvas.setAttribute("aria-label", t(lang, "sceneLabel"));
