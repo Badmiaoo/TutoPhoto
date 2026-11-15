@@ -9,16 +9,15 @@ Synthèse écrite le 15 novembre 2026 par un agent de Claude, à partir des douz
 
 ## En bref
 
-- L'audit compte 186 constats : 160 confirmés et 26 réfutés. Gravité finale des 160 : 11 « faux », 6 « non sourcé », 21 « incohérent », 122 « à améliorer ».
-- Ce qu'il conclut : le cœur tient, les fautes sont aux bords. Elles sont dans ce qu'un débutant joue à la lettre, dans ce qui se passe pendant le calcul d'une photo, dans ce que les contrôles ne regardent pas, et dans une documentation que l'on complète sans la relire.
-- Fautes de l'application les plus graves : pendant le calcul d'une photo, un glissé sur le viseur fait tourner l'appareil entre les rendus (COD-01) et un toucher déplace le repère de mise au point sans faire le point (COD-07) ; au doigt, la rafale s'arrête si le doigt glisse sur le déclencheur (COD-09) ; après « Photo entière », la loupe de l'écran de revue agrandit un autre point que celui touché (COD-14) ; la page se fige ou reste muette si le fichier d'éclairage ou WebGL manquent (COD-06, COD-11).
-- Fautes les plus gênantes pour qui suit une fiche : quand l'indicateur d'exposition clignote, son bouton ne répond qu'une demi-seconde sur deux (FEX-19, repris par INT-21) ; la recette de SIT-06, le chien qui court, échoue le plus souvent parce que l'autofocus perd l'œil du chien (FMA-23, FMA-19) ; les exercices d'exposition supposent l'ISO auto désactivé alors qu'il est activé au départ (FEX-02) ; la vue de dessus et le bulletin ne jugent pas les mêmes points (FMA-12).
-- Fautes hors du site : la routine de test dit vert à tort (INT-05, INT-06) et n'envoie aucun toucher (INT-13) ; la documentation du modèle annonce un filé et un étalonnage de la scène que le code ne fait pas (PHY-01, PHY-06) ; les deux README sont périmés (DOC-02, DOC-01).
-- Ce qui tient : les formules du modèle sont celles de leurs sources et leurs exemples se recalculent ; les citations des sources se retrouvent dans les pages joignables ; les données du référentiel sont saines ; les licences annoncées sont celles des pages d'origine ; les règles du dépôt ont été tenues (63 fusions avec une CI verte). Le choix du moteur n'est pas rouvert, et aucune décision de Julien n'est remise en cause.
-- Le plan propose 46 sujets, un par pull request, en quatre parties : ce qui trompe ou bloque un débutant aujourd'hui, le socle de contrôles et de tests, les corrections de données puis les refontes, le ménage de la documentation et des outils.
-- Il commence par afficher la version du site à l'écran (Sujet 1, ARC-12) : c'est petit, cela ne touche pas au rendu, et les corrections suivantes sont à confirmer par Julien sur son téléphone, ce qui demande de savoir quelle version il regarde. Viennent ensuite quatre corrections d'une ligne déjà essayées (Sujet 2), puis ce qui se passe pendant le calcul d'une photo (Sujet 3).
-- 36 décisions attendent Julien ; 14 bloquent un sujet ou une partie de sujet, les 22 autres ne bloquent rien aujourd'hui. S'y ajoutent deux réglages de GitHub et des essais sur son téléphone.
-- Limite de toutes les preuves : les essais sont faits dans Chromium en rendu logiciel, sur des écrans émulés. Rien n'a été essayé sur un téléphone, avec un processeur graphique ni dans Safari, et 51 des 151 sources examinées n'ont pas pu être relues.
+- 186 constats dans douze rapports : 160 confirmés, 26 réfutés. Gravité finale des confirmés : 11 « faux », 6 « non sourcé », 21 « incohérent », 122 « à améliorer ».
+- Ce que l'audit conclut : le cœur tient, les fautes sont aux bords. Elles sont dans ce qu'un débutant joue à la lettre, dans le calcul d'une photo, dans ce que les contrôles ne regardent pas, et dans une documentation complétée sans être relue.
+- Application : pendant le calcul d'une photo, un glissé fait tourner l'appareil (COD-01) et un toucher déplace le repère sans faire le point (COD-07) ; la rafale au doigt s'arrête si le doigt glisse (COD-09) ; la loupe de l'écran de revue agrandit un autre point que celui touché (COD-14) ; la page se fige ou reste muette quand le chargement échoue (COD-06, COD-11).
+- Fiches : le bouton de l'indicateur d'exposition ne répond qu'une demi-seconde sur deux quand il clignote (FEX-19) ; la recette du chien qui court échoue le plus souvent, l'autofocus perdant le chien (FMA-23, FMA-19) ; les exercices d'exposition ignorent que l'ISO auto est activé au départ (FEX-02).
+- Outils et documentation : la routine de test dit vert à tort (INT-05, INT-06) ; la documentation annonce un filé et un étalonnage que le code ne fait pas (PHY-01, PHY-06) ; les deux README sont périmés (DOC-02, DOC-01).
+- Ce qui tient : les formules du modèle et leurs sources, les citations, les données du référentiel, les licences, les règles du dépôt (63 fusions avec une CI verte). Le choix du moteur n'est pas rouvert.
+- Le plan propose 46 sujets, un par pull request, en quatre parties. Il commence par afficher la version du site (Sujet 1, ARC-12), parce que les corrections suivantes sont à confirmer par Julien sur son téléphone et que rien ne lui dit quelle version il regarde ; puis quatre corrections d'une ligne déjà essayées (Sujet 2) et le calcul d'une photo (Sujet 3).
+- 36 décisions attendent Julien : 14 bloquent un sujet ou une partie de sujet, 22 ne bloquent rien aujourd'hui. S'y ajoutent deux réglages de GitHub et des essais sur son téléphone.
+- Limite de toutes les preuves : les essais sont faits dans Chromium en rendu logiciel, sur des écrans émulés ; rien sur un téléphone, avec un processeur graphique ni dans Safari ; 51 des 151 sources examinées n'ont pas pu être relues.
 
 ## Rapports
 
@@ -90,7 +89,7 @@ La gravité est celle du titre du constat, sauf quand la contre-vérification l'
 | --- | --- | --- |
 | PHY-06 | La documentation annonce une scène mise à l'échelle : rien de tel dans le code, et l'éclairage des objets 3D est environ deux fois plus fort que le fond (établi par les fichiers et le calcul, non mesuré dans un rendu). | Sujet 15 pour la documentation ; le réglage attend D15 |
 | PHY-07 | Sur un écran de densité 2, la loupe du viseur montre un bruit plus faible qu'attendu (calculé à partir du code, non mesuré dans un navigateur). | Sujet 16 |
-| PHY-08 | Le plafond du flou du viseur est compté en pixels calculés : à densité 2, il vaut la moitié sur le capteur, et les exemples de la documentation ne valent plus. | Sujet 15 ; relever le plafond attend D25 |
+| PHY-08 | Le plafond du flou du viseur est compté en pixels calculés : à densité 2, il vaut la moitié sur le capteur, et les exemples de la documentation ne valent plus. | Sujet 15 ; Sujet 16 si D25 décide de relever le plafond |
 | PHY-09 | Une note de l'interface dit les réglages par défaut de la rafale et du retardateur « choisis », alors que le manuel du Z 6 les donne. | Sujet 15 |
 | FEX-01 | Fiches EXP-04 et EXP-05, exercices : aucune vitesse ne « met la cellule à 0 », et f/4 affiche +0,8 IL, pas +1 IL ; la réponse et la leçon sont justes. | Sujet 5 |
 | FEX-02 | Fiches EXP-04, EXP-05 et EXP-06 : au départ l'ISO auto est activé, comme sur le Z 6, et les fiches ne le disent pas ; fermer le diaphragme ne bouge alors ni l'indicateur ni le viseur. | Sujet 5 |
@@ -179,7 +178,7 @@ Architecture de l'application :
 | ARC-03 | La scène est écrite dans le code, et ce qui lui est propre est réparti dans dix fichiers. | sans correction maintenant |
 | ARC-05 | Aucun test rapide des formules ; la routine est un seul scénario de 862 lignes, qui prend de 20 à 27 minutes dans la CI. | Sujet 25 |
 | ARC-06 | Ni le coût d'une image du viseur ni la mémoire graphique ne sont mesurés. | Sujet 26 |
-| ARC-07 | Les mêmes formules et les mêmes constantes sont écrites à plusieurs endroits. | Sujet 25 |
+| ARC-07 | Les mêmes formules et les mêmes constantes sont écrites à plusieurs endroits. | Sujet 25 ; Sujet 22 pour les titres recopiés |
 | ARC-08 | La suspension du viseur pendant le calcul d'une photo est écrite à la main, à un seul endroit. | Sujet 37 |
 | ARC-09 | `docs/architecture.md` décrit encore un moteur 2.5D ; aucune page ne décrit la structure de l'application. | Sujet 27 |
 | ARC-10 | La ligne « bruit » du bulletin vient du viseur, pas de la photo. | Sujet 15 pour une phrase ; le reste sans correction maintenant (D21) |
@@ -316,6 +315,7 @@ Un sujet marqué « attend Dn » est sauté tant que la décision manque, et rep
 - Mesure de la lumière : une contre-vérification la place après le développement partagé et après l'étalonnage de la scène, une autre met l'étalonnage dans la même pull request qu'elle. Les deux se tiennent : c'est une fonction de la file de travail, pas un sujet de correction ; elle vient après le Sujet 37, et l'étalonnage se décide avec elle (D15).
 - Champ `used_in` des sources : sa correction (Sujet 31) attend D2, alors que plusieurs corrections ajoutent des valeurs à ce champ (Sujets 13 et 44). Elles n'attendent pas : elles suivent la forme en vigueur le jour où elles sont écrites.
 - Le rapport des sources demandait un seul passage sur `data/sources.yaml`, celui du référentiel un seul passage sur `data/`. Le plan les coupe (Sujets 28 et 31 ; Sujets 29 et 30), parce qu'une moitié attend une décision et l'autre non, et pour garder chaque sujet à la taille d'une session.
+- Fichiers communs à plusieurs sujets (`app/src/i18n.ts`, `scripts/test_app.cjs`, `scripts/validate.py`, `data/sources.yaml`, `docs/camera-physique.md`, `docs/pile-technique.md`) : un seul sujet est ouvert à la fois, ils ne se gênent donc pas ; quand un sujet prépare l'autre, c'est écrit sous « Dépend de ».
 - Constats qui se recouvrent, traités une seule fois : FEX-19 et INT-21 (Sujet 2) ; FMA-21 et RST-09, qui demandent la même ligne dans la fiche de SIT-01 (Sujet 14) ; FMA-15 et REF-04 (Sujet 29) ; CHX-05, RST-02 et la part d'ARC-07 sur les titres, un seul contrôle (Sujet 22) ; DOC-01, DOC-02 et CHX-01 pour les README (Sujet 40) ; DOC-07 et ARC-09 pour `docs/architecture.md` (Sujet 27) ; PHY-19 et LIC-08 pour les notices de licence (Sujet 44).
 
 **Tests communs** (règles de `CLAUDE.md`, non répétés sous chaque sujet) :
@@ -324,7 +324,7 @@ Un sujet marqué « attend Dn » est sauté tant que la décision manque, et rep
 - si elle touche `app/` : `cd app && npm run build`, puis `node scripts/test_app.cjs --photo` (ordinateur, Android, iPhone, WebGL 1), les quatre jobs de la routine verts dans la CI, et, dans la pull request, ce que ces tests n'émulent pas (ni le processeur graphique ni Safari ; et, tant que la routine n'est pas refaite, aucun toucher : INT-13) ;
 - si elle touche `content/` : la CI lance aussi la routine (elle se déclenche sur `content/**` et `data/**`) ; rejouer dans le simulateur chaque exercice ou recette réécrit, puisque c'est en les jouant à la lettre que les rapports ont trouvé les défauts.
 
-Sous chaque sujet, « ce qu'il faut faire » résume la correction retenue par la contre-vérification ; le texte exact (phrases des fiches, lignes de code essayées) est sous le constat, dans son rapport. Les numéros de ligne sont ceux de la version 0.3.58.
+Sous chaque sujet, « ce qu'il faut faire » résume la correction retenue par la contre-vérification ; le texte exact (phrases des fiches, lignes de code essayées) est sous le constat, dans son rapport. Les numéros de ligne sont ceux des rapports (versions 0.3.56 à 0.3.58 selon le rapport) : à revérifier dans le fichier avant de le modifier.
 
 **Première partie : ce qui trompe ou bloque un débutant aujourd'hui**
 
@@ -394,7 +394,7 @@ Sous chaque sujet, « ce qu'il faut faire » résume la correction retenue par l
 
 ### Sujet 9 · Écran de revue, loupe et retardateur : ce qui reste actif pendant un calcul
 - Constats : COD-08, COD-02, COD-05, COD-04 ; COD-13 pour trois petits défauts du déclencheur.
-- À faire : un numéro de la vue affichée, comparé à la reprise de `magnify`, pour jeter une loupe dont la vue a changé ; pas de loupe pendant un compte à rebours ; le détail de l'erreur gardé et ajouté à la légende d'une rafale tronquée ; le résumé des réglages fabriqué dans la langue courante ; le déclencheur limité au bouton principal de la souris.
+- À faire : un numéro de la vue affichée, comparé à la reprise de `magnify`, pour jeter une loupe dont la vue a changé ; pas de loupe pendant un compte à rebours ; le détail de l'erreur gardé et ajouté à la légende d'une rafale tronquée ; le résumé des réglages fabriqué dans la langue courante ; le déclencheur limité au bouton principal de la souris ; pendant une rafale tenue, le texte du bouton réécrit seulement quand le nombre de vues change (juste, sans urgence). Pour le texte remis un instant par défaut au changement de langue, le rapport n'écrit aucune correction.
 - Fichiers : `app/src/ui/shutter.ts`, `app/src/ui/cameraPanel.ts`, `app/src/i18n.ts`.
 - Tests : communs à `app/` ; les cas des rapports, par des gestes programmés dans la page : loupe puis « Revenir au viseur », « Vue suivante » ou « Photo entière » pendant le calcul ; retardateur puis loupe ; rafale dont une vue échoue ; changement de langue après une photo ; clic droit. La routine ne joue aucun de ces cas.
 - Dépend de : D1 pour l'annulation du retardateur par un second appui, et pour elle seule.
@@ -445,7 +445,7 @@ Sous chaque sujet, « ce qu'il faut faire » résume la correction retenue par l
 - À faire : dans `app/src/i18n.ts`, en français et en anglais : les réglages par défaut du Z 6 dits comme tels (`releaseNote`, PHY-09), la cellule qui donne la même valeur quel que soit le cadrage (`exposureNote`, PHY-12), la diffraction non simulée (`lensNote`, PHY-11). Dans `docs/camera-physique.md` : pas de filé, l'appareil reste immobile pendant chaque pose (PHY-01) ; le viseur sans flou de mouvement dit comme un choix de TutoPhoto (PHY-03) ; le passage sur la scène « mise à l'échelle » réécrit d'après ce que fait le code (PHY-06) ; le plafond du flou écrit en pixels calculés et en millimètres de capteur, les mesures datées « densité 1 » (PHY-08) ; cinq phrases périmées (PHY-10) ; la diffraction et la mesure de la lumière dans les listes « non simulé » ; « boucle reprise de l'algorithme de Gustafsson, tel que le reproduit l'exemple 45-bokeh de bgfx » à la place de « sans copie » (PHY-19) ; ce que devient une photo interrompue par le plafond de 5 s (PHY-21) ; l. 521, les critères d'un défi sont calculés sur la géométrie de la scène, pas « sur la photo » (ARC-10) ; l. 105, « vertical si la zone du viseur est plus haute que large » (INT-12).
 - Fichiers : `docs/camera-physique.md`, `app/src/i18n.ts`.
 - Tests : communs à `app/`.
-- Dépend de : rien. Les phrases de PHY-12 sont provisoires : elles partiront avec la mesure de la lumière. `lensNote` suit aussi D5.
+- Dépend de : rien. Les phrases de PHY-12, comme celle de FEX-09 au Sujet 13, sont provisoires : elles partiront avec la mesure de la lumière. `lensNote` suit aussi D5.
 - Taille : moyenne.
 
 ### Sujet 16 · Loupe du viseur à densité 2 : le bruit
@@ -708,7 +708,7 @@ Sous chaque sujet, « ce qu'il faut faire » résume la correction retenue par l
 
 ## Décisions qui attendent Julien
 
-36 décisions, dans l'ordre du plan : d'abord les 14 qui bloquent un sujet ou une partie de sujet (D1 à D14), puis les 22 qui ne bloquent rien aujourd'hui (D15 à D36). Pour chacune : les options, ce que recommande l'audit, ce que recommande la contre-vérification, les constats, ce qui est bloqué.
+Cette section s'adresse à toi, Julien. 36 décisions, dans l'ordre du plan : d'abord les 14 qui bloquent un sujet ou une partie de sujet (D1 à D14), puis les 22 qui ne bloquent rien aujourd'hui (D15 à D36). Pour chacune : les options, ce que recommande l'audit, ce que recommande la contre-vérification, les constats, ce qui est bloqué.
 
 ### Décisions qui bloquent un sujet
 
@@ -975,7 +975,7 @@ Plusieurs constats confirmés ne le sont qu'en partie ; la part réfutée est é
 - `REPRISE.md` n'est pas relu en entier ; le contenu des dossiers de sources et des spécifications non plus ; l'organisation de `docs/camera-physique.md` n'est jugée par aucun rapport ; les sections de `CHANGELOG.md` ne sont pas réessayées une à une ; le « point du 13 novembre » de `docs/etat-des-travaux.md`, écrit pendant l'audit, n'est pas audité.
 - Dans le référentiel : seuls les intitulés anglais sont lus ; les phrases des domaines de composition, de lecture d'image, de retouche et de planification ne sont pas confrontées à une source ; les 180 renvois sans retour d'une notion vers une situation n'ont été jugés un par un par personne.
 - L'interface en anglais dans le simulateur (ses libellés sont lus dans le code, pas à l'écran), et les pages des fiches telles que le site les publie.
-- Ce qui n'est pas dans git : les descriptions des pull requests (une seule lue), leurs commentaires, les journaux d'Actions, les textes des releases ; les réglages du dépôt autres que la protection de `main`. L'outil de recherche de secrets de la CI n'a pas été lancé par l'agent ; sa configuration a été lue et rejouée, à titre indicatif. Les 21 fichiers venus de Sketchfab n'ont pas été comparés à leur origine.
+- Ce qui n'est pas dans git : les descriptions des pull requests (une seule lue), leurs commentaires, les journaux d'Actions, les textes des releases ; les réglages du dépôt autres que la protection de `main`. gitleaks, l'outil de recherche de secrets de la CI, n'a pas été lancé par l'agent ; sa configuration a été lue et rejouée, à titre indicatif. Les 21 fichiers venus de Sketchfab n'ont pas été comparés à leur origine.
 - Des remarques « vues en passant », devenues le constat d'aucun rapport : la ligne du bruit de l'indicateur d'équilibre qui saute d'une lecture à l'autre au point visé de départ ; un bulletin qui écrit une traînée « au-delà du flou acceptable » avec le même chiffre que la limite ; en mode A, une vitesse qui clignote pour une photo à +1/6 IL seulement ; les contours de la photo et du viseur non lissés ; les réglages des quatre molettes non mémorisés. Elles sont établies par le code ou par une lecture, non mesurées.
 - Les fiches de lot de `docs/audit/synthese/`, dont cette page est tirée, n'ont pas été relues par un second agent.
 
