@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.59] - 2026-11-15
+
+Sujet 1 du plan de corrections de l'audit (`docs/audit/README.md`) : la version du site à l'écran (ARC-12). En cours d'écriture.
+
+### Modifié
+
+- `docs/etat-des-travaux.md`, `docs/historique.md` : Sujet 1 en cours ; règle de branche sur `main` posée par Julien le 15 novembre 2026.
+
 ## [0.3.58] - 2026-11-15
 
 ### Ajouté
@@ -890,6 +898,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.59]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.58...v0.3.59
 [0.3.58]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.57...v0.3.58
 [0.3.57]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.56...v0.3.57
 [0.3.56]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.55...v0.3.56
