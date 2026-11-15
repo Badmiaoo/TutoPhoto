@@ -16,13 +16,14 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 ### Ajouté
 
-- `docs/audit/` : audit du travail fait avant le 12 novembre 2026, demandé par Julien. Douze rapports (modèle physique, fiches d'exposition, fiches de mise au point, architecture de l'application, choix et outils, sources, contenu du référentiel, structure du référentiel, code, interface, documentation, licences, scripts et CI), chaque constat avec sa preuve et le verdict d'un second agent qui a essayé de le réfuter : 186 constats, 160 confirmés, 26 réfutés.
+- `docs/audit/` : audit du travail fait avant le 12 novembre 2026, demandé par Julien. Douze rapports (modèle physique ; fiches d'exposition ; fiches de mise au point ; architecture de l'application ; choix et outils ; sources ; contenu du référentiel ; structure du référentiel ; code ; interface ; documentation ; licences, scripts et CI), chaque constat avec sa preuve et le verdict d'un autre agent qui a essayé de le réfuter (un second agent ; un troisième pour les neuf constats que le second a ajoutés) : 186 constats, 160 confirmés, 26 réfutés. Onze rapports sont nouveaux ; celui du modèle physique est modifié (voir plus bas).
 - `docs/audit/README.md` : synthèse de l'audit et plan de corrections en 48 sujets, un par pull request ; 37 décisions qui attendent Julien ; réglages de GitHub que lui seul peut faire.
 - `docs/audit/` garde aussi les scripts des deux workflows d'agents, les consignes des agents, les outils de la synthèse (index des constats et de leurs verdicts, contrôles de couverture du plan) et les quatre fiches de lot de la synthèse (`docs/audit/synthese/`, documents de travail).
 
 ### Modifié
 
 - `CLAUDE.md` : règle de reprise (Julien, 13 novembre 2026). Chaque pull request fusionnée suffit à repartir d'une session neuve ; un seul sujet à la fois, poussé dès son premier commit ; `/clear` après chaque fusion ; seuls les constats d'audit contre-vérifiés sont corrigés.
+- `docs/audit/modele-physique.md`, ajouté par la version 0.3.57 avec 20 constats non contre-vérifiés : contre-vérification écrite sous chaque constat, un constat ajouté par le second agent (PHY-21) ; 20 confirmés, 1 réfuté (PHY-16).
 - `docs/etat-des-travaux.md` : état après l'audit, sujet suivant (Sujet 1 du plan de corrections), ce qui attend Julien. `docs/historique.md`.
 
 ## [0.3.57] - 2026-11-12
