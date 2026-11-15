@@ -12,16 +12,18 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
-## [0.3.58] - 2026-11-13
+## [0.3.58] - 2026-11-15
 
 ### Ajouté
 
-- `docs/audit/` : audit du travail fait avant le 12 novembre 2026, demandé par Julien. Un rapport par lot (modèle physique, fiches, architecture et outils, sources, référentiel, interface et code, documentation), chaque constat avec sa preuve et sa contre-vérification par un second agent ; une synthèse avec le plan de corrections (`docs/audit/README.md`). Le script du workflow et les consignes des agents y sont gardés.
+- `docs/audit/` : audit du travail fait avant le 12 novembre 2026, demandé par Julien. Douze rapports (modèle physique, fiches d'exposition, fiches de mise au point, architecture de l'application, choix et outils, sources, contenu du référentiel, structure du référentiel, code, interface, documentation, licences, scripts et CI), chaque constat avec sa preuve et le verdict d'un second agent qui a essayé de le réfuter : 186 constats, 160 confirmés, 26 réfutés.
+- `docs/audit/README.md` : synthèse de l'audit et plan de corrections en 48 sujets, un par pull request ; 37 décisions qui attendent Julien ; réglages de GitHub que lui seul peut faire.
+- `docs/audit/` garde aussi les scripts des deux workflows d'agents, les consignes des agents, les outils de la synthèse (index des constats et de leurs verdicts, contrôles de couverture du plan) et les quatre fiches de lot de la synthèse (`docs/audit/synthese/`, documents de travail).
 
 ### Modifié
 
 - `CLAUDE.md` : règle de reprise (Julien, 13 novembre 2026). Chaque pull request fusionnée suffit à repartir d'une session neuve ; un seul sujet à la fois, poussé dès son premier commit ; `/clear` après chaque fusion ; seuls les constats d'audit contre-vérifiés sont corrigés.
-- `docs/etat-des-travaux.md`, `docs/historique.md`.
+- `docs/etat-des-travaux.md` : état après l'audit, sujet suivant (Sujet 1 du plan de corrections), ce qui attend Julien. `docs/historique.md`.
 
 ## [0.3.57] - 2026-11-12
 
