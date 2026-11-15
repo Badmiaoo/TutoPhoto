@@ -20,7 +20,7 @@ Sujet 1 du plan de corrections de l'audit (`docs/audit/README.md`) : la version 
 
 - La version du site à l'écran : le numéro `X.Y.Z` du premier titre de version de ce fichier, lu à la construction. Sur une pull request, c'est la version à venir ; sur `main`, la version publiée. Il s'affiche à trois endroits :
   - le pied de l'accueil, en français et en anglais : « Version 0.3.59 » ;
-  - la fenêtre des crédits du simulateur, sous la liste : « Version du site : 0.3.59 » (« Site version: 0.3.59 »). Elle est écrite dès l'ouverture de la page, avant la fin du chargement de la scène ;
+  - la fenêtre des crédits du simulateur, sous la liste : « Version du site : 0.3.59 » (« Site version: 0.3.59 »). Elle est écrite dès l'ouverture de la page, avant la fin du chargement de la scène. Quand la liste dépasse la fenêtre, la ligne se lit après défilement : c'est le cas en français sur les écrans émulés de la routine (1280 × 800, Pixel 7, iPhone 14) ;
   - la ligne de diagnostic du simulateur, à la suite du message d'un problème : « Erreur : … · Version du site : 0.3.59 ». Sans problème, la ligne reste vide et masquée, comme avant.
 - `app/scripts/version.mjs` : le seul lecteur de ce titre, commun aux deux constructions. `app/vite.config.ts` donne le numéro au simulateur par l'option `define` de Vite (`app/src/version.ts`) ; `app/scripts/build-pages.mjs` l'écrit dans le pied de l'accueil. Si le changelog n'a aucun titre « ## [X.Y.Z] - AAAA-MM-JJ », ou si le premier est mal formé, le lecteur échoue et la construction s'arrête : ni numéro vide ni « undefined » à l'écran. `app/scripts/version.d.mts` déclare ses types pour `vite.config.ts` ; `app/tsconfig.json` ne change pas.
 - Ce qui n'est pas fait :
@@ -32,7 +32,8 @@ Sujet 1 du plan de corrections de l'audit (`docs/audit/README.md`) : la version 
 ### Modifié
 
 - Le numéro étant écrit dans le script du simulateur, le nom de ce fichier (`assets/simulateur-<empreinte>.js`, 4,18 Mo, 984 ko en gzip d'après Vite) change désormais à chaque version, même quand le code du simulateur ne change pas. Constaté sur des constructions hors dépôt : les versions 0.3.57 et 0.3.58 donnaient le même site, fichier pour fichier ; depuis cette version, changer le seul premier titre de version du changelog change le nom du script, et avec lui `simulateur/index.html` et la liste du bouton « Télécharger les ressources du simulateur » de l'accueil ; la feuille de style et l'activité de LUM-02 gardent leur nom. Effet sur le cache du navigateur : non mesuré. On ne sait pas si le navigateur réutilisait auparavant le script d'une version à l'autre : les en-têtes de GitHub Pages n'ont pas été lus (un agent de relecture l'a tenté : refus 403 du proxy de la session).
-- `docs/etat-des-travaux.md` : Sujet 1 fait, sujet suivant (Sujet 2), où lire la version à l'écran pour juger une version sur un téléphone ; règle de branche sur `main` posée par Julien le 15 novembre 2026.
+- `docs/etat-des-travaux.md` : Sujet 1 fait, sujet suivant (Sujet 2), où lire la version à l'écran pour juger une version sur un téléphone ; règle de branche sur `main` posée par Julien le 15 novembre 2026, et ce que Claude en a lu (`main` est dite protégée par la liste des branches ; le contenu de la règle n'a pas été relu) ; un échec de la routine sur le profil iphone pendant ce sujet, expliqué en partie par le défilement gardé de l'écran de revue (INT-17), et ce que le Sujet 2 doit en faire ; deux défauts de la fenêtre des crédits antérieurs à cette version, non corrigés.
+- `docs/propositions.md` : section 5, les neuf choix faits par Claude pour ce sujet, dont trois questions pour Julien.
 - `docs/pile-technique.md` (la version à l'écran, dans l'organisation du site), `docs/historique.md`.
 
 ## [0.3.58] - 2026-11-15
