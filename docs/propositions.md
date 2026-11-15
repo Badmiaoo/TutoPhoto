@@ -127,6 +127,19 @@ Spécification : `docs/specifications/histogramme-revue.md`, avec ses écarts. S
 
 Depuis le 15 novembre 2026, Claude suit le plan de corrections de l'audit (`docs/audit/README.md`), une proposition que Julien n'a pas encore tranchée : le texte de chaque sujet du plan tient lieu de proposition. Les choix ci-dessous tranchent ce que le plan laisse ouvert, ou disent une conséquence qu'il n'écrit pas. Julien peut les confirmer, ou les annuler : chaque sujet a sa version, que l'on retire par `git revert -m 1` de son commit de fusion.
 
+### Règles de `CLAUDE.md` réécrites le 15 novembre 2026 (version 0.3.59)
+
+Julien a demandé le 15 novembre 2026 que Claude décide sans l'attendre, qu'il crée lui-même la session suivante après chaque fusion, et que les tests avec des débutants ne bloquent pas (`docs/etat-des-travaux.md`, « Mandat en cours », avec ses mots). La rédaction est de Claude ; Julien peut la corriger.
+
+| N° | Avant | Après |
+| --- | --- | --- |
+| 1 | « Proposer l'approche avant de produire ; Julien tranche. » | « Claude décide et produit sans attendre Julien ; il note chaque choix dans `docs/propositions.md`, avec sa raison et l'autre voie, et Julien confirme ou annule après coup (Julien, 15 novembre 2026). Une question pour Julien lui est posée dans la session, par une question à choix ; elle ne suspend que le travail qui en dépend. » |
+| 2 | « Après chaque fusion, Claude dit à Julien de lancer `/clear`, et le travail repart d'une session neuve […] » | La même règle, complétée : « Si Julien est là, Claude lui dit de lancer `/clear` ; sinon Claude crée lui-même la session suivante sur le dépôt, avec la consigne de reprendre à partir de ce fichier, et la session finie s'arrête (Julien, 15 novembre 2026). » |
+| 3 | « Pas d'extension au-delà de la V1 minimale avant de l'avoir testée avec des débutants. » | « Les tests avec des débutants ne bloquent pas le travail (Julien, 15 novembre 2026) : Claude continue avec ses propres tests et tient à jour `docs/tests-a-faire-faire.md`, la liste des tests que Julien fera faire ; leurs résultats servent à ajuster. » |
+| 4 | (rien) | Une ligne en tête : « Mandat de Julien (15 novembre 2026) : finir la V1 en reprenant tout ce que l'audit a remonté, puis enchaîner sur la V2, Claude travaillant seul avec des relances automatiques. […] » |
+
+Non touché : la première ligne (« bilingue FR/EN », « V1 minimale d'abord […], testée avec des débutants »), qui change avec le retrait de l'anglais ; les trois changements de D6, qui viennent avec leurs sujets.
+
 ### La version du site à l'écran (Sujet 1 du plan, ARC-12, version 0.3.59)
 
 Les choix 1, 2 et 5 étaient des questions pour Julien. Il y a répondu le 15 novembre 2026 : choix 1 confirmé (le numéro reste dans le script) ; choix 2 changé (la ligne de version passe au-dessus de la liste des crédits, dans la pull request 65) ; choix 5 changé (la version est ajoutée aux deux messages, dans la pull request 65). Les choix 3, 4 et 6 à 9 restent à confirmer. Mesures : Chromium en rendu logiciel, écrans émulés ; rien sur un vrai téléphone ni dans Safari.

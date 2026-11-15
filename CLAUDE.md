@@ -4,6 +4,7 @@ Simulateur photo open source, bilingue FR/EN, pour débutants avec un boîtier r
 Publication : site statique sur GitHub Pages (https://badmiaoo.github.io/TutoPhoto/), à chaque fusion sur `main` ; tout tourne dans le navigateur. Moteur 3D : Babylon.js (`docs/pile-technique.md`).
 Source de vérité : `data/` (référentiel, situations, sources, jalons). Contexte et décisions : `docs/`.
 Archive de reprise : `REPRISE.md`. État des travaux, pour reprendre à tout moment : `docs/etat-des-travaux.md`.
+Mandat de Julien (15 novembre 2026) : finir la V1 en reprenant tout ce que l'audit a remonté, puis enchaîner sur la V2, Claude travaillant seul avec des relances automatiques. Ses mots, et ce que Claude en fait : `docs/etat-des-travaux.md`, « Mandat en cours ».
 
 `REPRISE.md`, et `docs/` qui en est copié, sont un brouillon : probablement incomplet, mal écrit par endroits, avec des erreurs. Tout peut être remis en question, arguments et sources à l'appui ; Julien tranche.
 
@@ -14,7 +15,7 @@ Archive de reprise : `REPRISE.md`. État des travaux, pour reprendre à tout mom
 - Ne jamais inventer, extrapoler ou deviner. Information invérifiable : « Je ne sais pas ».
 - Toute affirmation factuelle est sourcée (auteur, date, lien) ; les sources vont dans `data/sources.yaml`.
 - Expliquer le calcul de toute donnée discutable.
-- Proposer l'approche avant de produire ; Julien tranche.
+- Claude décide et produit sans attendre Julien ; il note chaque choix dans `docs/propositions.md`, avec sa raison et l'autre voie, et Julien confirme ou annule après coup (Julien, 15 novembre 2026). Une question pour Julien lui est posée dans la session, par une question à choix ; elle ne suspend que le travail qui en dépend.
 - Contenu juridique pays par pays, à partir des textes officiels.
 
 ## Dépôt public : rien ne doit filtrer (`docs/publication.md`)
@@ -34,9 +35,9 @@ Archive de reprise : `REPRISE.md`. État des travaux, pour reprendre à tout mom
 - Chaque pull request fusionnée est une version : elle ajoute sa section à `CHANGELOG.md` (contrôlée par `python3 scripts/changelog.py check --base origin/main`), et le workflow `tag.yml` pose le tag annoté `vX.Y.Z` sur son commit de fusion et publie la release GitHub. Numérotation dans `CHANGELOG.md`.
 - Chaque pull request met à jour `docs/etat-des-travaux.md`, qui doit suffire à reprendre depuis une session neuve, sans rien d'autre que le dépôt : où on en est, la file de travail, ce qui attend Julien (Julien, 12 et 13 novembre 2026).
 - Un seul sujet à la fois. Son premier commit est poussé aussitôt, dans une pull request en brouillon, et chaque étape ensuite : aucun sujet commencé ne reste sur la machine de Claude (Julien, 13 novembre 2026).
-- Après chaque fusion, Claude dit à Julien de lancer `/clear`, et le travail repart d'une session neuve, à partir de `docs/etat-des-travaux.md` : une longue conversation relit tout son contenu à chaque action et épuise la limite d'usage (Julien, 13 novembre 2026).
+- Après chaque fusion, le travail repart d'une session neuve, à partir de `docs/etat-des-travaux.md` : une longue conversation relit tout son contenu à chaque action et épuise la limite d'usage (Julien, 13 novembre 2026). Si Julien est là, Claude lui dit de lancer `/clear` ; sinon Claude crée lui-même la session suivante sur le dépôt, avec la consigne de reprendre à partir de ce fichier, et la session finie s'arrête (Julien, 15 novembre 2026).
 - Audit du travail antérieur (`docs/audit/`) : ne corriger que les constats contre-vérifiés par un second agent.
 - Identifiants stables, jamais renumérotés ; un identifiant retiré va dans `data/referentiel/retired.yaml`.
-- Pas d'extension au-delà de la V1 minimale avant de l'avoir testée avec des débutants.
+- Les tests avec des débutants ne bloquent pas le travail (Julien, 15 novembre 2026) : Claude continue avec ses propres tests et tient à jour `docs/tests-a-faire-faire.md`, la liste des tests que Julien fera faire ; leurs résultats servent à ajuster.
 - Vérifier la licence de toute dépendance, de tout modèle et de toute scène avant de l'ajouter.
 - Licences (`docs/licences.md`) : code sous MIT, contenus et données sous CC BY-SA 4.0 ; modèles et textures 3D de tiers sous CC0 ou CC BY uniquement, avec auteur, adresse d'origine et licence dans les métadonnées de la scène.
