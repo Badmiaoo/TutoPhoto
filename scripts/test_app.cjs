@@ -30,7 +30,9 @@
 // - le rendu est à la densité de l'écran plafonnée à 2 (pixels CSS × min(densité, 2), version 0.3.53) et le cadre a les
 //   proportions du capteur ;
 // - à ISO 6400, le bruit du viseur varie d'une image à l'autre ; aperçu coupé, il disparaît ;
-// - au 135 mm à f/1.4, la profondeur de champ du viseur floute le fond ; coupée, le fond redevient net ;
+// - au 135 mm à f/1.4, la profondeur de champ du viseur floute le fond ; coupée, le fond redevient net ; les deux
+//   mesures se font appareil déplacé de 6 m vers la gauche par la vue de dessus, là où aucun personnage n'entre
+//   dans la zone mesurée, puis l'appareil est ramené au départ (version 0.3.59) ;
 // - la loupe passe à 100 % et l'indique ;
 // - grilles de cadrage (CMP-02, version 0.3.56) : aucune ligne par défaut ; « Tiers », choisi dans la fenêtre
 //   « Aperçu », trace quatre lignes à 1/3 et 2/3 du cadre, « Seize cases » six lignes à 1/4, 1/2 et 3/4, à 1 pixel
@@ -138,9 +140,12 @@ async function frameNoise(page) {
 }
 
 /**
- * Netteté d'une zone de fond : moyenne de la valeur absolue du laplacien, en niveaux de gris. Zone en haut à
- * gauche du cadre (de 15 à 35 % de sa largeur, de 2 à 20 % de sa hauteur) : au 135 mm, elle ne montre que le
- * fond, alors que le haut du canevas contient aussi les têtes nettes des personnages.
+ * Netteté d'une zone du cadre : moyenne de la valeur absolue du laplacien, en niveaux de gris. Zone en haut à
+ * gauche du cadre (de 15 à 35 % de sa largeur, de 2 à 20 % de sa hauteur). Au 135 mm, appareil au point de
+ * départ, cette zone ne montre pas que le fond (mesuré le 15 novembre 2026 sur le profil ordinateur, cadre de
+ * 1280 × 800) : la tête de Sophia, qui bouge, y entre par la droite pendant une partie de son animation, et le
+ * promeneur la traverse. L'appelant déplace donc l'appareil là où la zone ne montre que le fond (contrôle
+ * « profondeur de champ du viseur »).
  */
 async function sharpness(page) {
   return page.evaluate(
@@ -473,6 +478,32 @@ async function runProfile(browser, name, base) {
     await clicks('[data-dial="focal"][data-step="1"]', 4);
     await clicks('[data-dial="aperture"][data-step="-1"]', 15);
     await clicks('[data-dial="shutter"][data-step="-1"]', 14);
+    // Les deux mesures doivent comparer le même fond. Appareil au point de départ, ce n'était pas toujours le cas :
+    // la tête de Sophia (animée, presque dans le plan de netteté) et le promeneur (à 12,5 m, x de −5 à 5 m) passent
+    // dans la zone mesurée, et l'horloge de la scène avance entre les deux mesures. Selon l'instant, le contrôle
+    // échouait avec l'effet en place (« 1.40 avec, 2.34 sans », profil ordinateur, CI du 15 novembre 2026) et
+    // pouvait réussir sans effet. Appareil déplacé à x = −6 m (bord de la zone permise, même orientation), le cadre
+    // du 135 mm couvre à 12,5 m, en paysage, x de −7,7 à −4,3 m, et la zone mesurée x de −7,2 à −6,5 m (cadre
+    // vertical : plus étroit) : aucun personnage n'y va. Le critère n'a pas changé.
+    // Position de l'appareil, lue sur la vue de dessus : le centre du triangle qui le représente (ui/topView.ts),
+    // en mètres, x vers la droite et y = −z ; la vue de dessus doit être dépliée pour que ce triangle suive l'appareil.
+    const cameraAt = (x, z = null) =>
+      page.waitForFunction(
+        ([targetX, targetZ]) => {
+          const points = document.querySelector("#top-view-map .top-camera polygon")?.getAttribute("points");
+          if (!points) return false;
+          const corners = points.split(" ").map((point) => point.split(",").map(Number));
+          const centre = (k) => corners.reduce((sum, corner) => sum + corner[k], 0) / corners.length;
+          return Math.abs(centre(0) - targetX) < 0.05 && (targetZ === null || Math.abs(-centre(1) - targetZ) < 0.05);
+        },
+        [x, z],
+        { timeout: 30000 },
+      );
+    if (topCollapsed) await page.click("#top-view-toggle");
+    // Toucher à x = −7 m, z = 0 : l'application ramène l'appareil au bord de la zone permise, x = −6 m.
+    const dofMap = await page.locator("#top-view-map").boundingBox();
+    await page.mouse.click(dofMap.x + ((-7 + 8) / 16) * dofMap.width, dofMap.y + ((0 + 15) / 22) * dofMap.height);
+    await cameraAt(-6);
     await setDof(true);
     await page.waitForTimeout(1500);
     const blurred = await sharpness(page);
@@ -481,6 +512,10 @@ async function runProfile(browser, name, base) {
     await page.waitForTimeout(800);
     const sharp = await sharpness(page);
     check("profondeur de champ du viseur", blurred < 0.6 * sharp, `netteté du fond ${blurred.toFixed(2)} avec, ${sharp.toFixed(2)} sans`);
+    // Retour au point de départ avant la suite, vue de dessus repliée comme elle l'était.
+    await page.click("#top-view-reset");
+    await cameraAt(0, 0);
+    if (topCollapsed) await page.click("#top-view-toggle");
     await clicks('[data-dial="focal"][data-step="-1"]', 4);
     await clicks('[data-dial="aperture"][data-step="1"]', 15);
     await clicks('[data-dial="shutter"][data-step="1"]', 14);
