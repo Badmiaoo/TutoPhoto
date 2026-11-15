@@ -14,11 +14,25 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 ## [0.3.59] - 2026-11-15
 
-Sujet 1 du plan de corrections de l'audit (`docs/audit/README.md`) : la version du site à l'écran (ARC-12). En cours d'écriture.
+Sujet 1 du plan de corrections de l'audit (`docs/audit/README.md`) : la version du site à l'écran (constat ARC-12, `docs/audit/architecture-application.md`). Jusqu'ici, rien à l'écran ne disait quelle version le navigateur avait chargée.
+
+### Ajouté
+
+- La version du site à l'écran : le numéro `X.Y.Z` du premier titre de version de ce fichier, lu à la construction. Sur une pull request, c'est la version à venir ; sur `main`, la version publiée. Il s'affiche à trois endroits :
+  - le pied de l'accueil, en français et en anglais : « Version 0.3.59 » ;
+  - la fenêtre des crédits du simulateur, sous la liste : « Version du site : 0.3.59 » (« Site version: 0.3.59 »). Elle est écrite dès l'ouverture de la page, avant la fin du chargement de la scène ;
+  - la ligne de diagnostic du simulateur, à la suite du message d'un problème : « Erreur : … · Version du site : 0.3.59 ». Sans problème, la ligne reste vide et masquée, comme avant.
+- `app/scripts/version.mjs` : le seul lecteur de ce titre, commun aux deux constructions. `app/vite.config.ts` donne le numéro au simulateur par l'option `define` de Vite (`app/src/version.ts`) ; `app/scripts/build-pages.mjs` l'écrit dans le pied de l'accueil. Si le changelog n'a aucun titre « ## [X.Y.Z] - AAAA-MM-JJ », ou si le premier est mal formé, le lecteur échoue et la construction s'arrête : ni numéro vide ni « undefined » à l'écran. `app/scripts/version.d.mts` déclare ses types pour `vite.config.ts` ; `app/tsconfig.json` ne change pas.
+- Ce qui n'est pas fait :
+  - le numéro est écrit sans date : la date du titre est celle de la section du changelog, pas celle de la publication ;
+  - le plan ne demande la version qu'à ces trois endroits : les fiches, la page des licences et l'activité de LUM-02 ne l'affichent pas ; le message d'un chargement en échec et celui d'un navigateur sans WebGL non plus (la fenêtre des crédits reste alors le moyen de la lire) ;
+  - `app/package.json` garde `"version": "0.0.0"` : il n'est pas la source de la version ;
+  - aucun contrôle n'est ajouté à la routine de test, le plan n'en demandant pas. Essais faits pour cette version dans Chromium en rendu logiciel, sur des écrans émulés (ordinateur, Pixel 7, iPhone 14) : rien sur un vrai téléphone, avec un processeur graphique ni dans Safari.
 
 ### Modifié
 
-- `docs/etat-des-travaux.md`, `docs/historique.md` : Sujet 1 en cours ; règle de branche sur `main` posée par Julien le 15 novembre 2026.
+- `docs/etat-des-travaux.md` : Sujet 1 fait, sujet suivant (Sujet 2), où lire la version à l'écran pour juger une version sur un téléphone ; règle de branche sur `main` posée par Julien le 15 novembre 2026.
+- `docs/pile-technique.md` (la version à l'écran, dans l'organisation du site), `docs/historique.md`.
 
 ## [0.3.58] - 2026-11-15
 
