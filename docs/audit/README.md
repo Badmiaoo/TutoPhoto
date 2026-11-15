@@ -118,7 +118,7 @@ Modèle physique :
 | PHY-10 | Cinq phrases du début de `docs/camera-physique.md` sont périmées. | Sujet 15 |
 | PHY-11 | La diffraction n'est ni simulée ni dite. | Sujet 15 |
 | PHY-12 | En modes A et S, la cellule donne la même mesure quel que soit le cadrage ; le débutant ne le lit nulle part. | Sujet 15 |
-| PHY-13 | La capacité des photosites est donnée comme « modèle proposé », alors que la page de la source fait ce calcul. | Sujet 33 |
+| PHY-13 | Le calcul de la saturation selon la sensibilité (capacité × 100 / ISO) est donné comme « modèle proposé », alors que la page de la source fait ce calcul. | Sujet 33 |
 | PHY-14 | « La forme exacte de l'image n'est pas lue dans les sources » est faux pour trois boîtiers. | Sujet 33 |
 | PHY-15 | Deux tableaux de la documentation disent encore « page non ouverte » pour l'EOS RP ; le capteur de trois boîtiers n'a qu'une source secondaire. Aucune valeur n'est fausse. | Sujet 33 ; D4 |
 | PHY-17 | L'indicateur d'équilibre calcule la traînée du sujet au point de mise au point, pas à la position du sujet comme le fait le bulletin. | Sujet 7 |
@@ -165,7 +165,7 @@ Fiches de mise au point, de netteté, de mouvement et de lumière ; situations ;
 | FMA-16 | Fiche NET-06, exercice : après le déplacement de l'appareil, il faut refaire la mise au point, et l'exercice ne le dit pas. | Sujet 6 |
 | FMA-17 | Un défi est « réussi » sur une photo surexposée de 3,8 IL : aucun défi ne juge l'exposition, choix écrit que le débutant ne lit nulle part. | Sujet 6 ; D20 |
 | FMA-18 | Fiche SIT-05 : au 50 mm, le défi réussit à toutes les ouvertures ; la profondeur de champ n'y joue pas. | Sujet 14 |
-| FMA-19 | Fiche SIT-06 : le défi est « réussi » sur une vue où la tête du chien est cachée, et, recette suivie à la lettre, la mise au point quitte le chien dans 30 vues sur 46, en rendu logiciel (sur les neuf regardées une à une : cinq derrière un personnage, deux au bord du cadre que l'autofocus ne couvre pas, deux à découvert). | Sujet 4 ; D19 |
+| FMA-19 | Fiche SIT-06 : le défi est « réussi » sur une vue où la tête du chien est cachée, et, recette suivie à la lettre, la mise au point quitte le chien dans 30 vues sur 46, en rendu logiciel (pour les neuf vues perdues qui ont été regardées une à une : cinq derrière un personnage, deux au bord du cadre que l'autofocus ne couvre pas, deux à découvert). | Sujet 4 ; D19 |
 | FMA-21 | La section « Notions » des fiches SIT-01 et SIT-06 ne liste pas toutes les notions que la recette cite. | Sujet 14 |
 | FMA-23 | En AF-C, à certains instants du galop, la détection perd l'œil du chien alors que rien ne le cache, et la mise au point saute au sujet le plus proche (3 instants sur 110, horloge figée ; 29 mesures sur 90 en rendu logiciel, où un retard d'une image de la carte de profondeur pèse le plus). | Sujet 4 |
 
@@ -180,7 +180,7 @@ Architecture de l'application :
 | ARC-06 | Ni le coût d'une image du viseur ni la mémoire graphique ne sont mesurés. | Sujet 26 |
 | ARC-07 | Les mêmes formules et les mêmes constantes sont écrites à plusieurs endroits. | Sujet 25 ; Sujet 22 pour les titres recopiés |
 | ARC-08 | La suspension du viseur pendant le calcul d'une photo est écrite à la main, à un seul endroit. | Sujet 37 |
-| ARC-09 | `docs/architecture.md` décrit encore un moteur 2.5D ; aucune page ne décrit la structure de l'application. | Sujet 27 |
+| ARC-09 | `docs/architecture.md` décrit encore un moteur 2.5D, et se dit elle-même « en partie caduque » ; aucune page ne décrit la structure de l'application. | Sujet 27 |
 | ARC-10 | La ligne « bruit » du bulletin vient du viseur, pas de la photo. | Sujet 15 pour une phrase ; le reste sans correction maintenant (D21) |
 | ARC-12 | Le site publié ne dit nulle part quelle version il est. | Sujet 1 |
 | ARC-13 | La photo et l'autofocus supposent le rendu dans des textures en flottants, et aucune capacité de l'appareil n'est lue. | Sujet 26 |
@@ -540,7 +540,7 @@ Sous chaque sujet, « ce qu'il faut faire » résume la correction retenue par l
 
 ### Sujet 27 · La carte de l'application dans `docs/architecture.md`
 - Constats : ARC-09 ; DOC-07 pour la promesse de réécriture de la même page.
-- À faire : copier la section « Carte de l'application » du rapport d'architecture sous le bandeau de `docs/architecture.md`, avec le nombre corrigé (71 éléments de la page passés aux classes), puis la tenir à jour à chaque refonte ; ne garder la liste des contrôles de la routine qu'à un endroit. La réécriture de la partie « produit » de la page attend la fin des refontes.
+- À faire : copier la section « Carte de l'application » du rapport d'architecture sous le bandeau de `docs/architecture.md`, avec le nombre corrigé (71 éléments de la page passés aux classes), puis la tenir à jour à chaque refonte ; ne garder la liste des contrôles de la routine qu'à un endroit. La réécriture de la partie « produit » de la page attend la fin des refontes. Le constat relève aussi, sans écrire de correction, que les « 0,5 Mo de code inutilisé » de la l. 94 de `docs/pile-technique.md` sont un majorant : seule la part des shaders pour WebGPU est sûre.
 - Fichiers : `docs/architecture.md`, `docs/pile-technique.md`.
 - Tests : communs ; une relecture par un second agent, que demande le rapport.
 - Dépend de : rien.
@@ -590,7 +590,7 @@ Sous chaque sujet, « ce qu'il faut faire » résume la correction retenue par l
 
 ### Sujet 33 · Sources du modèle : bruit, champ de vue, critère « figé », capacités, capteurs
 - Constats : PHY-02, PHY-04, PHY-05, PHY-13, PHY-14, PHY-15, PHY-18, PHY-20, FMA-06.
-- À faire : dans `data/sources.yaml`, la page de William J. Claff sur le gain (source de la loi du bruit), l'article de Wikipedia sur l'angle de champ (source secondaire) et le communiqué de Nikon du 10 novembre 2016 à la place de `nikon-d5600-pixels` ; dans la documentation et les commentaires du code : l'addition des variances écrite comme une hypothèse de TutoPhoto, le champ de vue donné pour une mise au point à l'infini, les deux hypothèses du bruit, le calcul de la capacité cité à sa source sans remplacer les valeurs, la taille de l'image de trois boîtiers, les tableaux des boîtiers mis à jour ; dans `bodies.ts`, les quatre points de bruit de lecture du D5600 ; le critère « figé » cité à sa source, secondaire (Wikipedia citant Wall, 1889), et dit comme un choix, dans la documentation, le code et la fiche MVT-01, en une passe (PHY-20, FMA-06) ; dans la même fiche, la phrase sur ce que juge le bulletin, le déplacement du corps et non celui des pattes (FMA-06).
+- À faire : dans `data/sources.yaml`, la page de William J. Claff sur le gain (source de la loi du bruit), l'article de Wikipedia sur l'angle de champ (source secondaire) et le communiqué de Nikon du 10 novembre 2016 à la place de `nikon-d5600-pixels` ; dans la documentation et les commentaires du code : l'addition des variances écrite comme une hypothèse de TutoPhoto, le champ de vue donné pour une mise au point à l'infini, les deux hypothèses du bruit, le calcul de la saturation cité à sa source, avec les capacités de cette page données comme recoupement, sans remplacer les valeurs, la taille de l'image de trois boîtiers, les tableaux des boîtiers mis à jour ; dans `bodies.ts`, les quatre points de bruit de lecture du D5600 ; le critère « figé » cité à sa source, secondaire (Wikipedia citant Wall, 1889), et dit comme un choix, dans la documentation, le code et la fiche MVT-01, en une passe (PHY-20, FMA-06) ; dans la même fiche, la phrase sur ce que juge le bulletin, le déplacement du corps et non celui des pattes (FMA-06).
 - Fichiers : `data/sources.yaml`, `docs/camera-physique.md`, `app/src/camera/noise.ts`, `exposure.ts`, `bodies.ts`, `bulletin.ts`, `app/src/ui/balance.ts`, `content/fr/notions/MVT-01.md`, `content/en/notions/MVT-01.md`.
 - Tests : communs à `data/`, à `app/` et à `content/`.
 - Dépend de : D4 pour le capteur de trois boîtiers ; le Sujet 28 d'abord (même fichier).
@@ -726,7 +726,7 @@ Cette section s'adresse à toi, Julien. 36 décisions, dans l'ordre du plan : d'
 - Options : dans les fiches, une phrase par fiche. Dans le référentiel, un champ `terms` par notion, ou la forme déjà prévue par `docs/architecture.md` : `data/vocabulaire.yaml`, « un terme par marque et par famille d'appareils, chacun avec sa source ». Dans l'interface, une phrase dans la fenêtre « Boîtier de référence » (avec les termes de Canon et leur source, ou réduite à « Les noms des modes et des menus restent ceux du Nikon Z 6 »), ou des libellés par marque.
 - Audit : la phrase par fiche ; le champ `terms` pour le référentiel ; pour l'interface, à ton choix, les libellés par marque après les tests.
 - Contre-vérification : la phrase par fiche est proportionnée, avec la réserve sur le manuel de Canon lu (celui de l'EOS 850D) ; le champ `terms` contredit la forme déjà prévue et ne sait pas dire qu'un réglage change de nom d'un modèle à l'autre : « à trancher par Julien, sur la forme déjà prévue » ; pour l'interface, la phrase, les libellés par marque étant une extension.
-- Bloque : le Sujet 17. Les cinq corrections de termes du Sujet 29 n'en dépendent pas.
+- Bloque : la phrase de la fenêtre dans le Sujet 17 ; les phrases des fiches, pour lesquelles les rapports ne donnent qu'une option, n'attendent pas. Les cinq corrections de termes du Sujet 29 n'en dépendent pas.
 
 **D4. Six boîtiers de référence : le dire à l'écran, ou en garder moins ? Et que faire de trois capteurs sans source primaire ?** (question du rapport sur les choix ; PHY-15)
 - Ce qu'est un boîtier dans le code, d'après le rapport : la taille du capteur, son nombre de pixels, son bruit, et la couverture de l'autofocus pour trois sur six. Tout le reste (commandes, termes, cadences, réglages par défaut) vient du manuel du Nikon Z 6, et la fenêtre « Boîtier de référence » ne le dit pas.
@@ -769,7 +769,7 @@ Cette section s'adresse à toi, Julien. 36 décisions, dans l'ordre du plan : d'
 - Bloque : les Sujets 37 et 38, et, derrière eux, la balance des blancs et l'histogramme en direct.
 
 **D11. Un seul développement pour le viseur et la photo : le faire ?** (ARC-01, ARC-08)
-- Options : ne rien faire (chaque fonction d'image s'écrit deux fois, et l'écart entre le viseur et la photo grandit) ; le développement partagé ; une seule chaîne pour tout, écartée par le rapport.
+- Options : ne rien faire (d'après l'audit, chaque fonction du développement s'écrit deux fois, et l'écart entre le viseur et la photo grandit) ; le développement partagé ; une seule chaîne pour tout, écartée par le rapport.
 - Audit : le développement partagé, avant la balance des blancs et l'histogramme en direct. Contre-vérification : oui, avec deux corrections ; la refonte change l'image du viseur, c'est donc une proposition à te faire avant de produire, à ne lancer qu'avec les chiffres du diagnostic relevés sur ton téléphone.
 - Bloque : le Sujet 37. La spécification de la balance des blancs a été reportée pour cette raison : la fonction serait écrite deux fois tant que les deux chaînes ne sont pas réunies.
 
@@ -804,7 +804,7 @@ Simulateur : des changements de comportement, que les contre-vérifications ne r
 | D21 | Bulletin : mesurer le bruit sur la photo plutôt que dans le viseur ? | Garder les deux approximations, qui sont écrites ; ou faire rendre ses mesures par le calcul de la photo. | La mesure sur la photo. | Faisable, mais change une ligne du bulletin que tu as validé le 11 novembre ; à proposer quand viendront les situations dont les critères portent sur les pixels. | ARC-10 |
 | D22 | Laisser choisir le sens du cadre, horizontal ou vertical ? | Un bouton « Cadrage » ; ou rien de plus que le Sujet 39. | Le bouton, avec une valeur de départ qui suit l'écran. | Une fonction nouvelle, pas avant les tests avec des débutants ; ne pas suivre l'orientation de l'écran avant la refonte de la mise en page. | INT-12 |
 | D23 | Des commandes au clavier pour le viseur, la carte et la photo ? | Flèches pour tourner l'appareil et déplacer le point, Entrée pour faire le point ou ouvrir la loupe ; ou rien. | Les ajouter. | À toi de décider, pas avant les tests avec des débutants ; les pas (2°, 0,5 m) sont à choisir. | INT-08 |
-| D24 | Un repli pour les appareils sans rendu en flottants ? | Une somme en demi-flottants, par exemple ; ou seulement le message et le déclenchement refusé (Sujet 26). | Constat ajouté par le second agent. | À ne décider que si un appareil réel en a besoin. | ARC-13 |
+| D24 | Un repli pour les appareils sans rendu en flottants ? | Une somme en demi-flottants, par exemple ; ou seulement le message et le déclenchement refusé (Sujet 26). | Le constat, ajouté par le second agent : ne décider d'un repli que si un appareil réel en a besoin. | Le troisième agent ne le conteste pas ; un repli en demi-flottants lirait aussi `colorBufferHalfFloat`. | ARC-13 |
 | D25 | Relever le plafond du flou du viseur à densité 2 ? | Garder le plafond et l'écrire (Sujet 15) ; le porter à 32 px CSS (environ 680 échantillons pour une boucle qui en admet 400) ; une passe de flou à échelle réduite, à évaluer. | L'une ou l'autre des deux premières, coût à mesurer sur ton téléphone. | D'abord l'écrire ; pas de relèvement sans mesure sur téléphone. | PHY-08 |
 | D26 | Une scène où le sujet court vers l'appareil ? | L'ajouter plus tard ; ou non. | C'est ce que le référentiel demande pour MAP-04 (« en ponctuel la netteté décroche, en continu elle suit »). | Une extension : pas avant le test de la V1 minimale. | FMA-11 |
 
@@ -871,7 +871,7 @@ Les autres constats de cette section sont aussi dans le plan, pour la part qui s
 | FMA-19 | Juger dans le défi si le chien est visible. | Pas avant le Sujet 4 (D19). |
 | FMA-22 | Changer la détection du simulateur en AF-S. | Non tranché (D18). |
 | FMA-23 | Déplacer les deux points des yeux du chien. | Ils sont justes. |
-| ARC-02 | Poser les textes par un attribut de la page ; découper `cameraPanel.ts`. | Le premier retire au compilateur le contrôle des clés de texte ; le second vient après le magasin, seulement si le fichier reste trop gros. |
+| ARC-02 | Poser les textes par un attribut de la page ; découper `cameraPanel.ts`. | Le premier retire au compilateur le contrôle des clés de texte : à ne faire qu'avec le test rapide qui le remplace ; le second vient après le magasin, seulement si le fichier reste trop gros. |
 | ARC-05, INT-13 | Découper la routine en étapes indépendantes ; y envoyer de vrais touchers. | Après le magasin de réglages, ou pas du tout : sans lui, chaque étape rechargerait la scène en rendu logiciel. Les gestes au toucher se font avec ce découpage, pas à part. |
 | ARC-07 | Réunir aussi le cercle de confusion et le champ de vue ; lire les titres des notions dans `data/` à la construction. | « Propre, pas urgent » ; un lecteur de YAML de plus et une étape avant la construction. |
 | ARC-08 | Une refonte à part pour la suspension du viseur. | C'est une consigne pour le Sujet 37. |
@@ -880,12 +880,13 @@ Les autres constats de cette section sont aussi dans le plan, pour la part qui s
 | ARC-13 | Un repli pour les appareils sans rendu en flottants. | Seulement si un appareil réel en a besoin (D24). |
 | COD-02 | Attendre la fin du calcul en cours avant de prendre la vue du retardateur. | Un état de plus ; la ligne retenue suffit. |
 | COD-06 | Griser le déclencheur tant que la scène n'est pas prête. | Double emploi avec l'attente bornée. |
-| COD-09 | Ajouter `user-select: none` et `-webkit-touch-callout: none`. | Ils répondent à un défaut que personne n'a constaté. |
+| COD-09 | Ajouter `user-select: none` et `-webkit-touch-callout: none`. | Non essayés ; ils répondent à un défaut que personne n'a constaté : à n'ajouter que si le menu de l'appui long se montre sur un vrai téléphone. |
 | COD-13 | Retirer la seconde application de la vue en fin de calcul ; retirer trois `export` sans emploi. | Le premier ferait dépendre la remise de la projection d'un effet de bord ; les tests rapides importeront les seconds. |
 | INT-04 | Réserver deux lignes à la consigne ; un viseur à part fixe de la fenêtre. | Il faut trois lignes ; le déclencheur serait caché à 320 px de large. |
 | INT-08, INT-10, INT-12 | Des commandes au clavier, des libellés par marque, un bouton « Cadrage ». | Des fonctions nouvelles, pas avant les tests avec des débutants (D23, D3, D22). |
 | INT-12 | Faire suivre au cadre l'orientation de l'écran. | Pas avant la refonte de la mise en page : le cadre du téléphone émulé tomberait à 47 % de sa surface. |
-| INT-11, INT-15, INT-16 | Une hauteur minimale pour le bouton « Vue de dessus » ; un rôle d'image sur le canevas ; inverser les deux boutons de la vitesse. | Le critère ne le demande pas ; c'est déjà fait ; cela casserait la règle commune aux quatre molettes. |
+| INT-09 | Écrire la limite d'exposition à la place de la consigne de mise au point. | Cela changerait la hauteur du panneau, donc celle du viseur (INT-04) ; une pastille du viseur ou la note de la fenêtre « Exposition » ne déplacent rien. |
+| INT-11, INT-15, INT-16 | Une hauteur minimale pour le bouton « Vue de dessus » ; un rôle d'image sur le canevas et un `alt` à remplir sur la photo ; inverser les deux boutons de la vitesse. | Le critère ne le demande pas ; le canevas a déjà un rôle et un nom, et l'`alt` est déjà écrit à chaque photo ; cela casserait la règle commune aux quatre molettes. |
 | SRC-04 | Écrire « inconnu » sur les entrées non relues. | L'absence de date de lecture le dit déjà. |
 | SRC-05 | Faire entrer dans `data/sources.yaml` les adresses des dossiers de `docs/dossiers/`. | La règle (le dossier porte ses citations ; les sources entrent à l'implémentation) est déjà suivie et écrite. |
 | SRC-06 | Remplacer deux adresses de Nikon qui redirigent vers leur nouvelle adresse. | Une redirection permanente n'est pas une faute ; à faire à la prochaine modification des fichiers qui les citent. |
@@ -925,10 +926,10 @@ Ces 26 constats ne sont pas à corriger. La dernière colonne dit ce que la cont
 | Constat | Ce qu'il affirmait | Pourquoi il est réfuté | Ce qui en reste |
 | --- | --- | --- | --- |
 | PHY-16 | Les exemples de la documentation sont calculés avec les libellés, pas avec les valeurs exactes des crans. | Exagéré : au degré de précision écrit, trois exemples sur quatre ne changent pas, le quatrième bouge de 1 %. | Au plus une phrase sur cet écart. |
-| FEX-10 | L'explication de la fiche EXP-06 est trop dense pour un débutant. | Un jugement de rédaction, pas un fait prouvé ; l'explication suit le référentiel. | À signaler à la relecture et au test avec des débutants. |
+| FEX-10 | L'explication de la fiche EXP-06 est trop dense pour un débutant. | Un jugement de rédaction, pas un fait prouvé ; l'explication suit le référentiel. | À signaler à la relecture et au test avec des débutants, comme les trois remarques de la section « Lisibilité pour un débutant » du rapport des fiches de mise au point (MVT-01, NET-01 et NET-06, MAP-06), qui ne sont pas des constats. |
 | FMA-05 | La fiche MAP-06 prête la couverture de l'autofocus du Z 6 à trois autres boîtiers. | Déjà dit dans la fiche et la documentation, d'après une décision de Julien du 11 novembre 2026 ; la correction introduirait une erreur. | Au plus, nommer les trois boîtiers. |
 | FMA-20 | Trois chiffres des fiches ne sont pas ceux du simulateur. | Exagéré : les écarts sont plus petits que ce dont l'affichage varie d'un instant à l'autre. | « Environ », si ces phrases sont retouchées. |
-| ARC-04 | Le simulateur n'a aucune mesure de la lumière. | Faits exacts, mais c'est le doublon de PHY-12, et la mesure de la lumière est une fonction prévue, pas une refonte. | Son ordre : après le Sujet 37 et l'étalonnage (D15). |
+| ARC-04 | Le simulateur n'a aucune mesure de la lumière. | Faits exacts, mais c'est le doublon de PHY-12, et la mesure de la lumière est une fonction prévue, pas une refonte. | Son ordre : après le Sujet 37 et l'étalonnage (D15), les sources du comportement de la mesure d'abord. |
 | ARC-11 | Un boîtier devrait avoir un identifiant propre, pas un couple marque et format. | Le couple applique une décision de Julien du 8 novembre 2026, et aucun besoin cité n'est dans la file. | Le Sujet 38 se fait sans identifiant de boîtier. |
 | COD-10 | Au repos, trois minuteries réécrivent sans cesse des textes inchangés. | Le coût avancé ne se retrouve pas à la mesure (moins de 1 % du temps, en rendu logiciel). | À reprendre si le relevé du Sujet 26 montre un coût. |
 | CHX-04 | Deux versions ont étendu la V1 minimale malgré la règle de `CLAUDE.md`. | Hors de la période, et exagéré : Julien a demandé lui-même ces fonctions. | La question D14. |
@@ -976,7 +977,7 @@ Plusieurs constats confirmés ne le sont qu'en partie ; la part réfutée est é
 - Dans le référentiel : seuls les intitulés anglais sont lus ; les phrases des domaines de composition, de lecture d'image, de retouche et de planification ne sont pas confrontées à une source ; les 180 renvois sans retour d'une notion vers une situation n'ont été jugés un par un par personne.
 - L'interface en anglais dans le simulateur (ses libellés sont lus dans le code, pas à l'écran), et les pages des fiches telles que le site les publie.
 - Ce qui n'est pas dans git : les descriptions des pull requests (une seule lue), leurs commentaires, les journaux d'Actions, les textes des releases ; les réglages du dépôt autres que la protection de `main`. gitleaks, l'outil de recherche de secrets de la CI, n'a pas été lancé par l'agent ; sa configuration a été lue et rejouée, à titre indicatif. Les 21 fichiers venus de Sketchfab n'ont pas été comparés à leur origine.
-- Des remarques « vues en passant », devenues le constat d'aucun rapport : la ligne du bruit de l'indicateur d'équilibre qui saute d'une lecture à l'autre au point visé de départ ; un bulletin qui écrit une traînée « au-delà du flou acceptable » avec le même chiffre que la limite ; en mode A, une vitesse qui clignote pour une photo à +1/6 IL seulement ; les contours de la photo et du viseur non lissés ; les réglages des quatre molettes non mémorisés. Elles sont établies par le code ou par une lecture, non mesurées.
+- Des remarques « vues en passant », devenues le constat d'aucun rapport : la ligne du bruit de l'indicateur d'équilibre qui saute d'une lecture à l'autre au point visé de départ ; un bulletin qui écrit une traînée « au-delà du flou acceptable » avec le même chiffre que la limite ; en mode A, une vitesse qui clignote pour une photo à +1/6 IL seulement ; les contours de la photo et du viseur non lissés ; les réglages des quatre molettes non mémorisés ; le flou du viseur, qui ne connaît pas le sol de la photo à 360° au-delà du sol de 40 m de côté ; l'avertissement de Vite, à chaque construction, sur l'option `inlineDynamicImports`, dépréciée. Les deux premières sont vues dans un essai (Chromium, rendu logiciel) ; les autres sont établies par le code ou le calcul, sans essai.
 - Les fiches de lot de `docs/audit/synthese/`, dont cette page est tirée, n'ont pas été relues par un second agent.
 
 ## Je ne sais pas
@@ -989,7 +990,10 @@ Sur un vrai appareil :
 - le bruit de la loupe à densité 2 dans un navigateur (PHY-07) ;
 - si le plafond de 5 s interrompt le calcul d'une photo sur les téléphones des testeurs (PHY-21) ;
 - le coût réel d'une image du viseur, et si un viseur rendu en demi-flottants reste fluide (ARC-06, ARC-01) ;
-- quels téléphones n'exposent pas le rendu en flottants (ARC-13) ;
+- quels téléphones n'exposent pas le rendu en flottants (ARC-13), et si le Chrome du téléphone de Julien expose l'extension qui mesure le temps du processeur graphique (ARC-06) ;
+- ce que donnent, avec un processeur graphique, les rafales de la recette de SIT-06 (FMA-19), et l'effet du retard d'une image de la carte de profondeur hors de la détection du chien (FMA-23) ;
+- la cause de l'écart d'éclairage après la restauration du contexte WebGL, et ce que fait une perte de contexte pendant le calcul d'une photo (COD-12) ;
+- pourquoi, à +4,5 IL, le rapport signal sur bruit lu est plus bas que le calcul (50:1 lus, 60:1 attendus ; FEX-05) ;
 - la hauteur réelle du viseur sur un iPhone, quand les barres de Safari se replient.
 
 Sur la routine et la CI :
