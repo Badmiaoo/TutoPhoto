@@ -296,7 +296,415 @@ Licences, scripts et CI :
 
 ## Plan de corrections
 
-Section en cours d'écriture.
+Ce plan est une proposition : Julien tranche l'ordre, le découpage et chaque décision qu'il nomme. Un sujet est une pull request, donc une version, avec sa section de `CHANGELOG.md`. Aucun sujet n'ajoute de fonction.
+
+**Ordre, et pourquoi.**
+1. D'abord ce qui trompe ou bloque un débutant sur le site publié aujourd'hui : faute visible de l'application, exercice injouable, fiche qui dit autre chose que le simulateur (Sujets 1 à 18), en petits sujets indépendants, le plus court d'abord à gravité égale.
+2. Puis le socle qui protège la suite : routine qui ne dit plus vert à tort, contrôles des données et de la publication, tests rapides des formules, mesure du coût du viseur (Sujets 19 à 27).
+3. Puis les corrections des données et des sources, que ce socle garde, et les refontes (Sujets 28 à 39). Les corrections de données passent avant les refontes parce qu'elles sont petites, qu'elles ne touchent rien de publié, et que les refontes attendent de toute façon des décisions de Julien et des relevés sur son téléphone.
+4. Enfin le ménage de la documentation et des outils (Sujets 40 à 46).
+
+Une exception à la première règle : le Sujet 1 (la version du site à l'écran) n'est pas une faute qui trompe un débutant. Il passe en tête parce que trois des sujets suivants sont à confirmer par Julien sur son téléphone, et qu'aujourd'hui rien ne lui dit quelle version il regarde ; le rapport d'architecture le demande « seul, et en premier », il tient en quelques lignes et ne touche pas au rendu. Si Julien préfère, les Sujets 1 et 2 s'échangent.
+
+Un sujet marqué « attend Dn » est sauté tant que la décision manque, et repris dès qu'elle est prise. Le Sujet 41 (pages de reprise) est rangé avec la documentation ; il peut remonter si Julien le veut, puisque chaque session neuve lit `docs/etat-des-travaux.md`. De même le Sujet 19 : tant qu'il n'est pas fait, une erreur JavaScript laisse la CI verte.
+
+**Arbitrages entre rapports.**
+- Refontes : l'audit de l'architecture en proposait neuf, sa contre-vérification en garde cinq. Le plan suit la contre-vérification (Sujets 1, 25, 26, 37 et 38, et la carte de l'application au Sujet 27) ; la décision D10 la soumet à Julien.
+- Bruit de la loupe (PHY-07, Sujet 16) et développement partagé (ARC-01, Sujet 37) touchent les mêmes fichiers, et aucun rapport ne dit lequel passe d'abord. Le plan met PHY-07 avant : le défaut touche les écrans de densité 2, la correction est locale, et le contrôle qu'elle ajoute à la routine protégera la refonte, qui attend une décision. Si Julien retient la refonte tout de suite, PHY-07 se fait dedans.
+- Traînée du sujet : PHY-17 demande une seule formule pour l'indicateur d'équilibre et le bulletin (Sujet 7), ARC-07 demande de sortir les formules dans des modules sans rendu (Sujet 25). Le Sujet 7 passe d'abord, parce que le défaut se voit ; le Sujet 25 déplace ensuite cette formule unique.
+- Suspension de l'indicateur d'équilibre (ARC-14) : le rapport d'architecture la plaçait avec l'affichage de diagnostic, une contre-vérification la veut « sans attendre ». Elle va au Sujet 3, avec les deux autres corrections qui portent sur le calcul d'une photo.
+- Mesure de la lumière : une contre-vérification la place après le développement partagé et après l'étalonnage de la scène, une autre met l'étalonnage dans la même pull request qu'elle. Les deux se tiennent : c'est une fonction de la file de travail, pas un sujet de correction ; elle vient après le Sujet 37, et l'étalonnage se décide avec elle (D15).
+- Champ `used_in` des sources : sa correction (Sujet 31) attend D2, alors que plusieurs corrections ajoutent des valeurs à ce champ (Sujets 13 et 44). Elles n'attendent pas : elles suivent la forme en vigueur le jour où elles sont écrites.
+- Le rapport des sources demandait un seul passage sur `data/sources.yaml`, celui du référentiel un seul passage sur `data/`. Le plan les coupe (Sujets 28 et 31 ; Sujets 29 et 30), parce qu'une moitié attend une décision et l'autre non, et pour garder chaque sujet à la taille d'une session.
+- Constats qui se recouvrent, traités une seule fois : FEX-19 et INT-21 (Sujet 2) ; FMA-21 et RST-09, qui demandent la même ligne dans la fiche de SIT-01 (Sujet 14) ; FMA-15 et REF-04 (Sujet 29) ; CHX-05, RST-02 et la part d'ARC-07 sur les titres, un seul contrôle (Sujet 22) ; DOC-01, DOC-02 et CHX-01 pour les README (Sujet 40) ; DOC-07 et ARC-09 pour `docs/architecture.md` (Sujet 27) ; PHY-19 et LIC-08 pour les notices de licence (Sujet 44).
+
+**Tests communs** (règles de `CLAUDE.md`, non répétés sous chaque sujet) :
+- toute pull request : `python3 scripts/check_public.py --commits all` ; une section dans `CHANGELOG.md`, contrôlée par `python3 scripts/changelog.py check --base origin/main` ; `docs/etat-des-travaux.md` mis à jour ; la description réécrite aussitôt sans le lien de session ; CI verte sur le dernier commit ; fusion par commit de fusion, puis vérification du tag ;
+- si elle touche `data/` : `python3 scripts/validate.py` ;
+- si elle touche `app/` : `cd app && npm run build`, puis `node scripts/test_app.cjs --photo` (ordinateur, Android, iPhone, WebGL 1), les quatre jobs de la routine verts dans la CI, et, dans la pull request, ce que ces tests n'émulent pas (ni le processeur graphique ni Safari ; et, tant que la routine n'est pas refaite, aucun toucher : INT-13) ;
+- si elle touche `content/` : la CI lance aussi la routine (elle se déclenche sur `content/**` et `data/**`) ; rejouer dans le simulateur chaque exercice ou recette réécrit, puisque c'est en les jouant à la lettre que les rapports ont trouvé les défauts.
+
+Sous chaque sujet, « ce qu'il faut faire » résume la correction retenue par la contre-vérification ; le texte exact (phrases des fiches, lignes de code essayées) est sous le constat, dans son rapport. Les numéros de ligne sont ceux de la version 0.3.58.
+
+**Première partie : ce qui trompe ou bloque un débutant aujourd'hui**
+
+### Sujet 1 · La version du site à l'écran
+- Constats : ARC-12.
+- À faire : lire à la construction le premier titre de version de `CHANGELOG.md`, par un seul lecteur commun à `app/vite.config.ts` et à `app/scripts/build-pages.mjs` (pas deux expressions régulières), et l'écrire dans le pied de l'accueil, dans la fenêtre des crédits du simulateur et dans la ligne de diagnostic. Sur une pull request, ce titre est la version à venir ; sur `main`, la version publiée.
+- Fichiers : `app/vite.config.ts`, `app/scripts/build-pages.mjs`, le lecteur commun (à créer), `app/src/credits.ts` et `app/src/main.ts`.
+- Tests : communs à `app/` ; le numéro se retrouve aux trois endroits dans le site construit.
+- Dépend de : rien.
+- Taille : petite.
+
+### Sujet 2 · Quatre corrections d'une ligne, déjà essayées
+- Constats : FEX-19 et INT-21 (même défaut), COD-09, COD-14, INT-17 (le défilement gardé seulement).
+- À faire : dans `app/src/style.css`, faire clignoter l'indicateur d'exposition par l'opacité (`@keyframes clignote { to { opacity: 0; } }`) et non par `visibility: hidden`, et poser `touch-action: none` sur `.shutter-button` ; dans `app/src/ui/shutter.ts`, appeler `this.dropLoupe()` dans `showWhole` (en retirant l'appel devenu redondant de `showFrame`) et remettre `review.scrollTop` à zéro dans `showCaption`. Deux contrôles de plus dans la routine : deux loupes séparées par « Photo entière » sur une même photo ; après deux photos, le haut de la photo est visible.
+- Fichiers : `app/src/style.css`, `app/src/ui/shutter.ts`, `scripts/test_app.cjs`.
+- Tests : communs à `app/` ; clics et focus sur le bouton pendant qu'il clignote (mode S à 1/4000 s sans ISO auto), tous suivis de l'ouverture de la fenêtre ; doigt glissé sur le déclencheur par le protocole de Chromium, la rafale ne s'arrête qu'au lever du doigt.
+- Dépend de : rien. COD-09 est à confirmer par Julien sur son téléphone.
+- Taille : petite.
+
+### Sujet 3 · Pendant le calcul d'une photo : caméra, toucher du viseur, indicateur d'équilibre
+- Constats : COD-01, COD-07, ARC-14.
+- À faire : rendre les vues de la photo sans mettre à jour la caméra (`scene.render(false)` aux deux appels de `takePhoto`) et détacher ses commandes le temps du calcul, dans `Shutter.compute`, en les rattachant dans le `finally` ; dans `choosePoint`, ne pas prendre les touchers du viseur quand `panel.isEnabled()` est faux ; dans `balance.ts`, ni rafraîchissement ni lecture pendant un calcul, sans effacer la dernière lecture, et le commentaire de la l. 219 corrigé.
+- Fichiers : `app/src/camera/photo.ts`, `app/src/ui/shutter.ts`, `app/src/ui/balance.ts`.
+- Tests : communs à `app/` ; ceux des rapports : orientation de la caméra constante à tous les rendus et à la reprise, souris tenue et déplacée, puis doigt posé et écarté (profil Pixel 7 émulé) ; en AF-S, un toucher pendant le calcul laisse le repère inchangé ; aucune lecture de pixels par l'indicateur pendant le calcul, plus d'erreur WebGL.
+- Dépend de : rien pour l'écrire. La contre-vérification de COD-01 demande de refaire l'essai sur un téléphone avant de fusionner : essai de Julien, sur la version qu'affiche le Sujet 1.
+- Taille : petite.
+
+### Sujet 4 · SIT-06 : la mise au point qui suit le chien
+- Constats : FMA-23, FMA-19.
+- À faire : dans le code, d'après le troisième agent : préparer les squelettes avant le rendu de la carte de profondeur du viseur (`skeleton.prepare(true)` sur `scene.onBeforeRenderTargetsRenderObservable`), lire 3 × 3 pixels autour de l'œil et retenir la surface la plus proche de lui, ne pas déplacer les points des yeux. Dans la routine : un contrôle que la détection ne lâche pas le chien à découvert. Dans la fiche de SIT-06, en français et en anglais : la recette dit que la mise au point suit le chien tant que sa tête est visible et dans la zone couverte par l'autofocus, et saute au sujet le plus proche quand il passe derrière le groupe ; la section « Défi » dit que le défi ne juge pas si le chien est caché. Accorder `docs/camera-physique.md` (l. 385, 388 et 403).
+- Fichiers : `app/src/camera/faces.ts`, `app/src/camera/autofocus.ts`, `scripts/test_app.cjs`, `content/fr/situations/SIT-06.md`, `content/en/situations/SIT-06.md`, `docs/camera-physique.md`.
+- Tests : communs à `app/` et à `content/` ; refaire les mesures du troisième agent (détection à découvert, horloge libre). Elles restent en rendu logiciel.
+- Dépend de : rien. Juger dans le défi si le chien est visible (D19) vient après ce sujet, pas dedans.
+- Taille : moyenne. Si la session est courte, la phrase de la recette part seule d'abord : elle reste vraie après la correction du code.
+
+### Sujet 5 · Fiches d'exposition : des exercices jouables à la lettre
+- Constats : FEX-02, FEX-01, FEX-05, FEX-06, FEX-13, FMA-13, FEX-17.
+- À faire, en français et en anglais : dire en tête de la section « Simulateur » de EXP-04, EXP-05 et EXP-06 que l'ISO auto est activé au départ et où le désactiver, sans changer cet état de départ, qui est celui du Z 6 ; écrire les valeurs que l'indicateur affiche vraiment (−0,2 IL, +0,8 IL) ; réécrire l'exercice de EXP-06 (la réponse, où viser, deux comparaisons annoncées) ; écrire en entier les réglages des exercices de MES-04, MES-10, BOI-08 et BOI-12 ; écrire « Avec le boîtier de départ (Nikon Z 6) et le 50 mm » et les vitesses qui valent en APS-C (FEX-13 et FMA-13, ensemble) ; « f/2 ou davantage ».
+- Fichiers : `content/fr/notions/` et `content/en/notions/` : EXP-04, EXP-05, EXP-06, MES-04, MES-10, BOI-07, BOI-08, BOI-12, MVT-01.
+- Tests : communs à `content/`.
+- Dépend de : pour FEX-05, les rapports signal sur bruit à écrire sont à relever sur le point visé retenu, et l'audit demande de le faire dans un navigateur avec processeur graphique, que l'environnement de Claude n'a pas : sans ce relevé, FEX-05 part à part. Si D5 est tranchée, l'appliquer dans la même passe.
+- Taille : moyenne.
+
+### Sujet 6 · Fiches de mise au point : exercices et recettes qui échouent ou n'annoncent pas ce qu'ils montrent
+- Constats : FMA-16, FMA-01, FMA-11, FMA-22, FMA-03, FMA-02, FMA-08, FMA-17.
+- À faire, en français et en anglais : NET-06, retoucher l'œil après avoir déplacé l'appareil ; MAP-04, un exercice qui nomme le défi et le mode, et qui dit ce qu'il montre vraiment dans le parc (FMA-01, FMA-11) ; MAP-09, ce que fait TutoPhoto en AF-S et en AF-C (part « fiche » de FMA-22) ; SIT-05 et MAP-05, la règle de la zone large dite comme celle de TutoPhoto ; MAP-06, « Les collimateurs ne couvrent que cette zone », puis le recadrage ; trois formulations (FMA-08) ; la phrase « Le défi ne juge ni l'exposition ni le bruit : lis aussi la ligne « Exposition » du bulletin », dans les trois fiches de situation ou dans la note de la fenêtre « Défis ». Ajouter à `data/sources.yaml` la page « The Sub-Selector » du manuel du Z 6 (« Focus Lock »).
+- Fichiers : `content/fr/` et `content/en/` : MAP-04, MAP-05, MAP-06, MAP-09, NET-06, LUM-02, SIT-01, SIT-05, SIT-06 ; `data/sources.yaml` ; `app/src/i18n.ts` si la phrase va dans la note de la fenêtre « Défis ».
+- Tests : communs à `data/` et à `content/` ; à `app/` si `i18n.ts` change.
+- Dépend de : rien. Les changements du simulateur que ces constats évoquent (D18, D20, D26) n'en font pas partie.
+- Taille : moyenne.
+
+### Sujet 7 · Vue de dessus et indicateur d'équilibre : juger les mêmes points que le bulletin
+- Constats : FMA-12, PHY-17.
+- À faire : `topView.ts` juge les personnages et le chien sur leurs yeux, comme le bulletin, et garde la position au sol pour le dessin ; écrire la règle du cercle commun à deux personnages (vert si les deux sont dans la zone nette). `balance.ts` calcule la traînée à la position du sujet, par la fonction de `bulletin.ts` : une seule formule. Pour la recherche du sujet visé : la profondeur lue sous le point dans la carte du viseur, ou la recherche actuelle gardée et sa limite écrite ; ne pas chercher « le long du rayon », comme le proposait l'audit (faux positif).
+- Fichiers : `app/src/ui/topView.ts`, `app/src/ui/balance.ts`, `app/src/camera/bulletin.ts`, `docs/camera-physique.md`.
+- Tests : communs à `app/` ; rejouer l'essai de FMA-12 (85 mm, f/1,4, défi SIT-05 : la vue de dessus et le bulletin disent la même chose) et le cas de PHY-17 (AF-S verrouillé sur un personnage, puis recadrage sur le chien).
+- Dépend de : le Sujet 3 d'abord (même fichier `balance.ts`).
+- Taille : moyenne.
+
+### Sujet 8 · Échecs dits à l'écran : fichier d'éclairage perdu, WebGL absent, contexte perdu
+- Constats : COD-06, COD-11, COD-12 ; COD-13 pour un commentaire faux de `scene.ts` (l. 77).
+- À faire : COD-06, l'essentiel d'abord : le fichier d'éclairage attendu par `ready`, pour retrouver « La scène n'a pas pu être chargée. », et les deux attentes de `scene.whenReadyAsync()` de `takePhoto` bornées ; ensuite : nommer le fichier en échec, proposer « Recharger », ne compter un fichier comme reçu que s'il l'est, écrire dans la fenêtre « Crédits » que le manifeste manque. Ne pas griser le déclencheur. COD-11 : `#scene[hidden] { display: none; }` et masquer les éléments du viseur, les deux ensemble, avec un contrôle de routine (le texte du message est lisible). COD-12 : un message à la perte du contexte, et la texture d'éclairage recréée à sa restauration.
+- Fichiers : `app/src/scene.ts`, `app/src/main.ts`, `app/src/camera/photo.ts`, `app/src/style.css`, `app/src/i18n.ts`, `app/src/credits.ts`, `scripts/test_app.cjs`.
+- Tests : communs à `app/` ; requête du fichier d'éclairage coupée (message, page qui ne se fige plus au déclenchement) ; `getContext` qui rend `null` ; contexte perdu puis restauré (rapports de luminosité revenus à 1).
+- Dépend de : rien. COD-12 est à refaire sur un téléphone, et peut partir à part si la session est courte.
+- Taille : moyenne.
+
+### Sujet 9 · Écran de revue, loupe et retardateur : ce qui reste actif pendant un calcul
+- Constats : COD-08, COD-02, COD-05, COD-04 ; COD-13 pour trois petits défauts du déclencheur.
+- À faire : un numéro de la vue affichée, comparé à la reprise de `magnify`, pour jeter une loupe dont la vue a changé ; pas de loupe pendant un compte à rebours ; le détail de l'erreur gardé et ajouté à la légende d'une rafale tronquée ; le résumé des réglages fabriqué dans la langue courante ; le déclencheur limité au bouton principal de la souris.
+- Fichiers : `app/src/ui/shutter.ts`, `app/src/ui/cameraPanel.ts`, `app/src/i18n.ts`.
+- Tests : communs à `app/` ; les cas des rapports, par des gestes programmés dans la page : loupe puis « Revenir au viseur », « Vue suivante » ou « Photo entière » pendant le calcul ; retardateur puis loupe ; rafale dont une vue échoue ; changement de langue après une photo ; clic droit. La routine ne joue aucun de ces cas.
+- Dépend de : D1 pour l'annulation du retardateur par un second appui, et pour elle seule.
+- Taille : moyenne.
+
+### Sujet 10 · Adresse et mémoire : `?lang=` et `?defi=`
+- Constats : COD-03 ; COD-13 pour un commentaire orphelin de `challenges.ts`.
+- À faire : retirer chaque paramètre de l'adresse une fois lu et mémorisé (`history.replaceState`), paramètre par paramètre, et mémoriser la langue donnée par l'adresse ; même mécanique dans l'activité de LUM-02, que le constat signale.
+- Fichiers : `app/src/i18n.ts`, `app/src/ui/challenges.ts`, `app/scripts/build-pages.mjs`, `app/src/activities/lum02.ts`.
+- Tests : communs à `app/` ; le chemin de la contre-vérification (arrivée par `simulateur/?lang=fr&defi=SIT-05`, autre choix dans la page, rechargement ; accueil ouvert avec `?lang=en`, puis aller et retour vers le simulateur).
+- Dépend de : rien.
+- Taille : petite.
+
+### Sujet 11 · Textes du simulateur et des pages : tutoiement, ancre en double, libellés
+- Constats : INT-07, INT-01, INT-19 (points 1 à 5) ; COD-13 pour une clé de texte sans emploi.
+- À faire : tutoyer les sept textes français du simulateur ; donner au bloc anglais de l'accueil un identifiant propre, et faire échouer `checkLinks` quand un identifiant est porté par deux éléments ; un titre de page propre au simulateur, un seul mot anglais pour « traînée », les noms français des réglages de Sony et de Nikon, « {pct}% », une seule orthographe anglaise ; retirer la clé `meter`.
+- Fichiers : `app/src/i18n.ts`, `app/scripts/build-pages.mjs`, `app/simulateur/index.html`, `app/src/activities/lum02.ts`, `scripts/test_app.cjs`.
+- Tests : communs à `app/`.
+- Dépend de : rien. Le rapport ne dit pas quelle orthographe anglaise retenir, britannique ou américaine : à proposer dans la pull request.
+- Taille : petite.
+
+### Sujet 12 · Activité de LUM-02 : pénombre hors du mur, légende, lisibilité du schéma
+- Constats : FMA-10, INT-02.
+- À faire : quand la pénombre dépasse le mur dessiné, l'écrire (« au-delà du mur dessiné ») ou borner le curseur à 55 cm ; sans ombre pleine, retirer « ombre pleine au centre » de la légende ; une phrase sur ce que le schéma ne simule pas ; une source bordée d'un contour sombre et large de quelques pixels, sans toucher à sa hauteur ; des rayons à 3:1 de contraste au moins ; « source », « objet », « mur » écrits dans le dessin.
+- Fichiers : `app/src/activities/lum02.ts`, `app/src/activities/lum02.css`, `app/activites/LUM-02/index.html`.
+- Tests : communs à `app/` ; la page aux positions des curseurs que cite FMA-10, dans les deux langues ; contrastes recalculés.
+- Dépend de : rien.
+- Taille : petite.
+
+### Sujet 13 · Fiches d'exposition : limites du simulateur, formulations, liens vers les sources
+- Constats : FEX-03, FEX-04, FEX-07, FEX-08, FEX-09, FEX-11, FEX-12, FEX-14.
+- À faire, en français et en anglais : EXP-06, la limite d'ISO 6400 dite comme un choix ; BOI-12, les liens vers « Specifications » et « Defaults », et « jusqu'à environ 12 vues par seconde » ; EXP-05 et BOI-07, les limites de TutoPhoto distinguées de celles du Z 6 ; MES-10, « le mode P n'est pas simulé », et, pour les autres écarts au référentiel, une ligne par écart dans `docs/etat-des-travaux.md`, pas de phrase de suivi dans les fiches (FEX-08) ; MES-04, la cellule qui mesure partout la même chose ; un seul nom, « l'indicateur d'exposition », les titres exacts des deux pages de Nikon, les liens vers les pages françaises du manuel (FEX-11) ; trois retouches (FEX-12) ; MES-10, la vitesse minimale de l'ISO auto et « le bas de la plage normale », aussi dans `exposureModes.ts` et dans `docs/camera-physique.md` (FEX-14).
+- Fichiers : fiches EXP-04, EXP-05, EXP-06, MES-04, MES-10, BOI-07 et BOI-12, dans les deux langues ; `data/sources.yaml` ; `docs/camera-physique.md` ; `app/src/camera/exposureModes.ts` ; `app/src/i18n.ts` ; `docs/etat-des-travaux.md`.
+- Tests : communs à `data/`, à `content/` et à `app/`.
+- Dépend de : rien pour écrire. Les lignes `used_in` de FEX-04 et de FEX-11 suivent D2 si elle est tranchée. Les cinq écarts de FEX-08 attendent ensuite D17.
+- Taille : moyenne.
+
+### Sujet 14 · Fiches de mise au point et situations : limites à dire et compléments
+- Constats : FMA-04, FMA-07, FMA-18, FMA-21, RST-09 (la ligne de SIT-01).
+- À faire, en français et en anglais : NET-06, le fond photo ne change pas de perspective quand l'appareil se déplace ; SIT-01, une ligne « Lumière » dans la recette ; SIT-05 ou NET-01, la phrase « pour voir la profondeur de champ jouer » ; dans `docs/contenus.md`, la règle de la section « Notions » (les notions clés, puis toute notion que la recette cite), et trois codes à ajouter : BOI-07 et MAP-04 dans SIT-01, MAP-09 dans SIT-06. BOI-07 dans SIT-01 est la ligne que demande aussi RST-09 : la page de BOI-07 y gagne sa section « Situations ».
+- Fichiers : fiches NET-06, SIT-01, SIT-05 (ou NET-01) et SIT-06, dans les deux langues ; `docs/contenus.md`.
+- Tests : communs à `content/` ; `python3 scripts/coverage.py` donne les mêmes comptes.
+- Dépend de : rien. La règle de couverture elle-même attend D27.
+- Taille : petite.
+
+### Sujet 15 · Notes de l'interface et documentation du modèle : ce qui est annoncé à tort, périmé ou non dit
+- Constats : PHY-01, PHY-03, PHY-06, PHY-08, PHY-09, PHY-10, PHY-11, PHY-12, PHY-19 et PHY-21 pour une phrase chacun ; une phrase aussi pour ARC-10 et pour INT-12.
+- À faire : dans `app/src/i18n.ts`, en français et en anglais : les réglages par défaut du Z 6 dits comme tels (`releaseNote`, PHY-09), la cellule qui donne la même valeur quel que soit le cadrage (`exposureNote`, PHY-12), la diffraction non simulée (`lensNote`, PHY-11). Dans `docs/camera-physique.md` : pas de filé, l'appareil reste immobile pendant chaque pose (PHY-01) ; le viseur sans flou de mouvement dit comme un choix de TutoPhoto (PHY-03) ; le passage sur la scène « mise à l'échelle » réécrit d'après ce que fait le code (PHY-06) ; le plafond du flou écrit en pixels calculés et en millimètres de capteur, les mesures datées « densité 1 » (PHY-08) ; cinq phrases périmées (PHY-10) ; la diffraction et la mesure de la lumière dans les listes « non simulé » ; « boucle reprise de l'algorithme de Gustafsson, tel que le reproduit l'exemple 45-bokeh de bgfx » à la place de « sans copie » (PHY-19) ; ce que devient une photo interrompue par le plafond de 5 s (PHY-21) ; l. 521, les critères d'un défi sont calculés sur la géométrie de la scène, pas « sur la photo » (ARC-10) ; l. 105, « vertical si la zone du viseur est plus haute que large » (INT-12).
+- Fichiers : `docs/camera-physique.md`, `app/src/i18n.ts`.
+- Tests : communs à `app/`.
+- Dépend de : rien. Les phrases de PHY-12 sont provisoires : elles partiront avec la mesure de la lumière. `lensNote` suit aussi D5.
+- Taille : moyenne.
+
+### Sujet 16 · Loupe du viseur à densité 2 : le bruit
+- Constats : PHY-07 ; PHY-08 pour le plafond du flou, seulement si D25 le décide après une mesure sur téléphone.
+- À faire : mesurer d'abord le bruit de la loupe à densité 2 dans un navigateur (le constat est un calcul) ; puis, quand la loupe grossit, tirer le bruit sur la grille des pixels CSS ; sans loupe, ne rien changer. Corriger la l. 239 de `docs/camera-physique.md`, et ajouter la mesure à la routine.
+- Fichiers : `app/src/ui/cameraPanel.ts`, `app/src/camera/noise.ts`, `docs/camera-physique.md`, `scripts/test_app.cjs`.
+- Tests : communs à `app/` ; bruit mesuré à densité 1 (inchangé) et à densité 2.
+- Dépend de : la mesure préalable ; le Sujet 15 d'abord (même documentation).
+- Taille : moyenne.
+
+### Sujet 17 · Termes de Canon et de Sony : une phrase par fiche, une phrase dans la fenêtre du boîtier
+- Constats : FEX-15, FMA-14, INT-10.
+- À faire (attend D3 et D4) : une phrase par fiche (BOI-07, BOI-08, BOI-12, MAP-04, MAP-05, MAP-06, MAP-09, dans les deux langues) avec les termes de Sony et de Canon relevés par les rapports, et la réserve sur le manuel de Canon lu, celui de l'EOS 850D et non ceux des boîtiers du simulateur ; une phrase dans la fenêtre « Boîtier de référence » ; les sources de Canon dans `data/sources.yaml`. Dans la même modification, ne changer ni les lettres M, A et S de la fenêtre « Exposition », ni les libellés de la fenêtre « Mise au point », ni le titre « Collimateurs ».
+- Fichiers : les quatorze fiches, `app/src/i18n.ts`, `app/simulateur/index.html`, `data/sources.yaml`.
+- Tests : communs à `data/`, à `content/` et à `app/`.
+- Dépend de : D3 et D4.
+- Taille : moyenne.
+
+### Sujet 18 · Écriture des ouvertures en français
+- Constats : FEX-16.
+- À faire (attend D5) : une seule écriture dans les fiches françaises et dans l'interface, la note `lensNote` comprise.
+- Fichiers : selon le choix, cinq fiches françaises (EXP-04, BOI-08, MAP-06, NET-01 et SIT-06 : quatorze écritures) ou `app/src/ui/cameraPanel.ts` ; `app/src/i18n.ts`.
+- Tests : communs à `content/` ou à `app/`.
+- Dépend de : D5. Si elle est tranchée avant les Sujets 5 et 6, ce sujet se fond en eux.
+- Taille : petite.
+
+**Deuxième partie : le socle qui protège la suite**
+
+### Sujet 19 · Routine de test : les contrôles qui disent vert à tort
+- Constats : INT-05, INT-06, INT-13 (deux phrases).
+- À faire : contrôler le réglage de départ de la mise au point juste après le chargement, corriger l'en-tête de la routine (« AF-S ») et renommer le contrôle existant ; à la fin de chaque profil, un contrôle « aucune erreur de la page ni de la console » et une seconde lecture du diagnostic ; corriger la phrase de l'en-tête qui annonce « le toucher ».
+- Fichiers : `scripts/test_app.cjs` ; `CLAUDE.md` pour la même phrase, après accord (D6).
+- Tests : la routine sur les quatre profils ; une erreur JavaScript injectée dans la page doit donner un échec et un code de sortie non nul.
+- Dépend de : rien ; D6 pour la ligne de `CLAUDE.md`.
+- Taille : petite.
+
+### Sujet 20 · Construction des pages : identifiants `SIT-V2-NN` acceptés, fiche vide refusée
+- Constats : RST-01, RST-13.
+- À faire : une seule expression pour les identifiants de fiche, partagée par `build-pages.mjs` (trois endroits) et par `ficheDialog.ts` (deux endroits), et `schemas/relecture.schema.json` qui accepte les deux formes ; les identifiants ne changent pas. Dans `scripts/coverage.py`, une situation est rédigée quand sa fiche a une section « Recette » (« Recipe ») non vide ; dans `build-pages.mjs`, une fiche sans section, ou avec une section vide, arrête la construction en nommant le fichier ; `docs/contenus.md`, l. 37, le dit.
+- Fichiers : `app/scripts/build-pages.mjs`, `app/src/ui/ficheDialog.ts`, `schemas/relecture.schema.json`, `scripts/coverage.py`, `docs/contenus.md`.
+- Tests : communs à `app/` et à `data/` ; sur une copie : une fiche `SIT-V2-02` se construit, `XYZ-98` reste refusé, une fiche réduite à son titre arrête la construction ; `coverage.py` inchangé. Pour `ficheDialog.ts`, un essai dans un navigateur, que le rapport n'a pas fait.
+- Dépend de : rien. À faire avant l'étape 7 de la file de travail (situations jouables dans le parc, dont SIT-V2-02 et SIT-V2-06), qui échouerait à la construction.
+- Taille : petite.
+
+### Sujet 21 · Contrôles du référentiel : clés en double, doublons de listes, niveaux
+- Constats : RST-04, RST-07, RST-06.
+- À faire : dans `scripts/referentiel.py`, un chargeur YAML qui refuse une clé déjà vue, avec le fichier et la ligne, et qui redonne le chemin du fichier sur une erreur de lecture ; `"uniqueItems": true` à six endroits des schémas, et un contrôle par la fonction `duplicates` pour le champ `situations` d'une notion ; un écart de niveau sans note, et un `level` au-dessus de `level_max`, deviennent des erreurs. La dérogation par `notes` reste.
+- Fichiers : `scripts/referentiel.py`, `scripts/validate.py`, `schemas/domaine.schema.json`, `schemas/situations.schema.json`, `schemas/jalons.schema.json`.
+- Tests : `python3 scripts/validate.py` sans erreur ni avertissement sur le dépôt tel quel ; les fautes des essais du rapport, refaites sur une copie, sont refusées avec un message qui nomme l'endroit ; `coverage.py` inchangé.
+- Dépend de : rien.
+- Taille : petite à moyenne.
+
+### Sujet 22 · Contrôles des fiches et des identifiants : fiche sans notion, titres, identifiant disparu
+- Constats : RST-02, CHX-05, RST-03, RST-05 ; la part d'ARC-07 qui porte sur les dix titres de `challenges.ts`.
+- À faire : dans `scripts/validate.py`, un seul contrôle `check_content` : tout fichier de `content/` porte l'identifiant d'une notion ou d'une situation du référentiel, et un identifiant retiré donne un message qui le dit ; la ligne 1 de chaque fiche française porte le titre du référentiel ; les dix titres de `app/src/ui/challenges.ts` sont ceux de `data/`, dans les deux langues. Une option `--base REF` : tout identifiant présent dans la base est encore dans le référentiel ou dans `retired.yaml` ; avec elle, les deux contrôles du champ `since` (RST-05). Dans `.github/workflows/validate.yml`, remonter le `git fetch` avant `validate.py`.
+- Fichiers : `scripts/validate.py`, `.github/workflows/validate.yml`.
+- Tests : `validate.py` sans erreur sur le dépôt (les 22 fiches françaises et les dix titres passent aujourd'hui) ; sur une copie, refus d'une fiche `XYZ-99`, d'une fiche `MAP-13`, de `RET-14` renommée, de `RET-15` supprimée, d'un titre changé à la main.
+- Dépend de : le Sujet 21 d'abord (mêmes scripts). Le contrôle des titres anglais attend D7.
+- Taille : moyenne.
+
+### Sujet 23 · `scripts/check_public.py` : lire ce que chaque commit ajoute
+- Constats : LIC-01, LIC-02, LIC-03.
+- À faire : appliquer le contrôle aux lignes ajoutées par chaque commit de la plage, avec une liste de tolérances (commit et type de problème) où est inscrit le commit `e89680d`, seul cas de tout l'historique et déjà consigné ; trois motifs de plus (identifiant de session seul, sous-domaine Notion, « BLOCK » dans le motif de clé privée) ; les noms d'auteurs et les chemins des fichiers passés au contrôle ; dans `docs/publication.md`, ce que le script ne lit pas (fichiers binaires, UTF-16, étiquettes) et le fait que l'adresse postale n'est contrôlée par aucun script. Au passage, deux retouches gardées d'un constat réfuté (voir « Constats réfutés »).
+- Fichiers : `scripts/check_public.py`, `scripts/check_public_historique.txt`, `docs/publication.md`.
+- Tests : communs ; `check_public.py --commits all` rend 0 problème sur tout l'historique ; sur un clone hors du dépôt, avec des valeurs fabriquées : un fichier ajouté puis retiré est signalé, les formes retenues sont arrêtées, les lignes existantes qui décrivent la fuite passent toujours.
+- Dépend de : rien. Ne pas reprendre les deux motifs que la contre-vérification abandonne (session sans schéma, secret sans guillemets) : ils refusent des fichiers existants.
+- Taille : moyenne.
+
+### Sujet 24 · Pose des tags et contrôle du changelog
+- Constats : LIC-07, LIC-04, DOC-04, CHX-10 (les trois tags).
+- À faire : `if: github.ref == 'refs/heads/main'` sur le job `tag` de `tag.yml` et sur le job `build` de `pages.yml` ; dans `scripts/changelog.py check`, une erreur « base introuvable », puis une erreur pour toute ligne « ## » placée après le premier titre de version et qui n'est pas un titre de version (les contrôles de numérotation, de rubriques et de lien sont facultatifs) ; dans l'en-tête de `CHANGELOG.md`, « la date est celle du jour où la section est écrite ; la date de la fusion est celle du tag », sans redater les trois titres ; pour les tags `v0.2.0`, `v0.2.1` et `v0.2.2`, ce que D8 décide.
+- Fichiers : `.github/workflows/tag.yml`, `.github/workflows/pages.yml`, `scripts/changelog.py`, `CHANGELOG.md`.
+- Tests : communs ; sur un clone : base au nom mal écrit, code de sortie non nul ; « ## Notes » dans une section, erreur ; les sections actuelles passent. La condition des deux workflows ne se vérifie qu'après la fusion, par le tag, la release et la publication de cette version même.
+- Dépend de : D8 pour les trois tags ; le reste part sans.
+- Taille : petite.
+
+### Sujet 25 · Tests rapides des formules, et formules communes
+- Constats : ARC-05, ARC-07 ; INT-14 pour les contrôles de calcul de la routine.
+- À faire : des tests en TypeScript dans `app/tests/`, lancés par le lanceur de Node.js 22 (`npm test`, et le job `app` de la CI), sans autre dépendance que `@types/node`, écrits d'abord sur le code actuel ; puis les formules sorties des fichiers de rendu vers `camera/optics.ts` et `camera/noiseModel.ts`, en commençant par ce qui peut diverger sans bruit (la traînée, la loi du bruit en TypeScript, les nombres 1500 et 500) ; les contrôles de calcul de la routine (pénombre de LUM-02, positions des grilles, sommes des histogrammes) portés vers ces tests. Aucun changement de comportement.
+- Fichiers : `app/tests/` (à créer), `app/package.json`, le workflow qui porte le job `app`, `app/src/camera/optics.ts` et `noiseModel.ts` (à créer), `app/src/camera/noise.ts`, `photo.ts`, `bulletin.ts`, `app/src/ui/balance.ts`.
+- Tests : `npm test` ; communs à `app/` ; la routine, inchangée, doit passer, et les histogrammes de trois photos de référence (par défaut, sous-exposée, surexposée) sont égaux avant et après, au tirage du bruit près.
+- Dépend de : rien. Vérifier la licence de `@types/node` (MIT d'après le registre npm, lu le 13 novembre 2026).
+- Taille : grande. Seul l'essai des tests sans dépendance a été fait par le rapport.
+
+### Sujet 26 · Affichage de diagnostic et capacités de l'appareil
+- Constats : ARC-06, ARC-13.
+- À faire : un affichage ouvert par un paramètre de l'adresse : images par seconde, durée d'une image, durée des textures de rendu, capacités de rendu en flottants. Au démarrage, lire les deux capacités (`textureFloatRender`, `textureHalfFloatRender`) ; si l'une manque, un message dans les deux langues et un déclenchement refusé dans `Shutter`. Écrire l'exigence à un seul endroit, la section des navigateurs de `docs/pile-technique.md`.
+- Fichiers : `app/src/main.ts`, `app/src/ui/shutter.ts`, `app/src/i18n.ts`, le module de l'affichage (à créer), `docs/pile-technique.md`, `docs/camera-physique.md`.
+- Tests : communs à `app/` ; rien ne change sans le paramètre ; pour ARC-13, les quatre cas de l'essai (témoins en WebGL 2 et en WebGL 1 sans alerte ; extension masquée, message affiché et déclenchement refusé).
+- Dépend de : le Sujet 1, pour rattacher le relevé à une version. À la fusion, Julien relève les chiffres sur son téléphone, et ils sont écrits dans la documentation comme point de départ.
+- Taille : moyenne.
+
+### Sujet 27 · La carte de l'application dans `docs/architecture.md`
+- Constats : ARC-09 ; DOC-07 pour la promesse de réécriture de la même page.
+- À faire : copier la section « Carte de l'application » du rapport d'architecture sous le bandeau de `docs/architecture.md`, avec le nombre corrigé (71 éléments de la page passés aux classes), puis la tenir à jour à chaque refonte ; ne garder la liste des contrôles de la routine qu'à un endroit. La réécriture de la partie « produit » de la page attend la fin des refontes.
+- Fichiers : `docs/architecture.md`, `docs/pile-technique.md`.
+- Tests : communs ; une relecture par un second agent, que demande le rapport.
+- Dépend de : rien.
+- Taille : petite.
+
+**Troisième partie : corrections des données et des sources, puis refontes**
+
+### Sujet 28 · Entrées de `data/sources.yaml` : adresses, libellés, sources venues de compacts
+- Constats : SRC-01, SRC-06, SRC-07, SRC-10, SRC-02, SRC-05 (deux entrées).
+- À faire : l'adresse et le libellé de `nikon-zr-mf-ring` ; `nikon-z8-guide` scindée en deux entrées, et la notion MAP-22 mise à jour ; `/fa/` remplacé par `/en/` pour `canon-m50ii-metering`, dans le fichier et dans `docs/architecture.md` ; la révision de `wikipedia-zone-system` ; le retrait de `sony-rx0ii-highlight` ; les libellés de `sony-rx10iv-limiter` et de `fujifilm-x100t-photometry`, avec un `todo` sur MAP-14 et sur MES-12 ; la note de `suncalc`, et la même phrase dans `docs/questions-ouvertes.md`, l. 65 ; deux entrées pour les pages npm de `@babylonjs/loaders` et de `babylonjs-gltf2interface`.
+- Fichiers : `data/sources.yaml`, `data/referentiel/map.yaml`, `data/referentiel/mes.yaml`, `docs/architecture.md`, `docs/questions-ouvertes.md`.
+- Tests : communs à `data/` ; chercher dans le dépôt l'identifiant et l'adresse de chaque entrée scindée, retirée ou déplacée avant de la toucher.
+- Dépend de : rien.
+- Taille : petite.
+
+### Sujet 29 · Référentiel : textes, champs et sources qui n'ont pas suivi
+- Constats : REF-02, REF-04, FMA-15, REF-01, REF-08, REF-03, REF-15, REF-17, RST-10.
+- À faire : MES-07 d'abord (les zones brûlées se repèrent à la lecture ; en visée, par les zébras, que certains boîtiers réservent à la vidéo) ; les sources des huit notions qui ont une fiche (cinq pour REF-04, trois pour FMA-15), et, dans `docs/lire-le-referentiel.md`, « le champ `sources` contient au moins les sources de la fiche » ; `flash: required` pour SIT-V2-01, SIT-V2-05 et SIT-V2-04 ; cinq termes (MAP-02, MAP-17, MAP-12, MES-02, BOI-33) ; une phrase dans MAP-16 ; l'angle d'OPT-12 et sa source secondaire ; MVT-08, MAP-04 et un `todo` sur BOI-31 ; une note de report en V2 sur RET-01 et sur RET-02.
+- Fichiers : `data/referentiel/` (mes, cmp, boi, map, net, lum, opt, mvt, ret), `data/situations.yaml`, `data/sources.yaml`, `docs/lire-le-referentiel.md`.
+- Tests : communs à `data/` ; `coverage.py` inchangé ; le recoupement de REF-04 refait : plus aucun écart entre les sources des 19 fiches et celles de leur notion.
+- Dépend de : rien. Le contrôle automatique de REF-04 dans `validate.py` attend le Sujet 31. Pour SIT-V2-04, la valeur de la contre-vérification s'applique sans réponse à D31.
+- Taille : moyenne.
+
+### Sujet 30 · Situations : trépied, caisson étanche, verticales, autoportrait
+- Constats : REF-09, REF-10, REF-11, REF-18, REF-12.
+- À faire : les renvois de MVT-12 (trépied) et de LUM-04, et MVT-12 en notion clé de SIT-21 et de SIT-33 ; PLA-08 et SIT-42, le caisson étanche ; BOI-04 en notion clé de SIT-16 ; RET-05, le texte, la brique simulateur et deux sources, puis RET-05 en notion clé de SIT-16 ; BOI-01 retirée des notions clés de SIT-28 et passée à `situations: all` ; les sources ajoutées à MVT-12, à MAP-08 et à RET-05.
+- Fichiers : `data/situations.yaml`, `data/referentiel/` (mvt, lum, pla, ret, boi, map), `data/sources.yaml`.
+- Tests : communs à `data/` ; les niveaux des cinq situations restent ceux que les contre-vérifications ont recalculés ; le jalon ne change pas.
+- Dépend de : le Sujet 21 de préférence, dont les contrôles gardent les listes éditées à la main ; D9, parce que ce sujet change des notions clés, ce que nomme la règle du numéro Y (à confirmer avant d'écrire la section du changelog).
+- Taille : moyenne.
+
+### Sujet 31 · Tenue de `data/sources.yaml` : champ `used_in`, date de lecture, règle d'entrée ; `docs/lire-le-referentiel.md`
+- Constats : SRC-03, SRC-04, SRC-05 (la règle), RST-11.
+- À faire (attend D2). Si la voie (a) est retenue : retirer `used_in` du fichier et du schéma ; `scripts/validate.py` calcule les fichiers qui citent chaque source et l'avertissement « citée nulle part », et contrôle dans l'autre sens que toute adresse `https` de `content/`, de `app/src/` et de `docs/` (hors `docs/dossiers/` et `docs/audit/`) est dans le fichier, sauf une courte liste d'adresses techniques. Avec la voie (b) : la définition écrite, le contrôle dans l'autre sens, 34 écarts corrigés. Dans les deux cas : un champ facultatif `read` (date de lecture), le champ `checked` retiré, la phrase d'en-tête remplacée par ce qui est vrai ; la règle d'entrée d'une adresse ; les quatre lignes qui manquent à `docs/lire-le-referentiel.md` ; le contrôle de REF-04.
+- Fichiers : `data/sources.yaml`, `schemas/sources.schema.json`, `scripts/validate.py`, `docs/lire-le-referentiel.md`, les trois spécifications de `docs/specifications/`.
+- Tests : communs à `data/` ; aucune source « citée nulle part » ; les 113 liens des fiches et les identifiants entre crochets de `app/src/` restent reconnus.
+- Dépend de : D2 ; le Sujet 28 d'abord ; D9 pour une ligne de `docs/lire-le-referentiel.md`.
+- Taille : moyenne.
+
+### Sujet 32 · Fiches : dire qu'une source est secondaire, accorder les dates de lecture
+- Constats : FEX-18, FMA-09.
+- À faire : écrire la règle une fois dans `docs/contenus.md` (une source secondaire est dite telle dans la fiche) et l'appliquer à toutes les fiches en une passe, pas aux seules fiches visées ; compléter les libellés de `wikipedia-f-number`, de `wikipedia-shutter-speed` et de `wikipedia-circle-of-confusion` (ce que les fiches en tirent, lecture du 11 novembre 2026) ; donner une date de lecture dans MVT-01.
+- Fichiers : `docs/contenus.md`, `data/sources.yaml`, les fiches qui citent une source secondaire.
+- Tests : communs à `data/` et à `content/`.
+- Dépend de : le Sujet 31, dont le champ `read` est fait pour ces dates.
+- Taille : petite.
+
+### Sujet 33 · Sources du modèle : bruit, champ de vue, critère « figé », capacités, capteurs
+- Constats : PHY-02, PHY-04, PHY-05, PHY-13, PHY-14, PHY-15, PHY-18, PHY-20, FMA-06.
+- À faire : dans `data/sources.yaml`, la page de William J. Claff sur le gain (source de la loi du bruit), l'article de Wikipedia sur l'angle de champ (source secondaire) et le communiqué de Nikon du 10 novembre 2016 à la place de `nikon-d5600-pixels` ; dans la documentation et les commentaires du code : l'addition des variances écrite comme une hypothèse de TutoPhoto, le champ de vue donné pour une mise au point à l'infini, les deux hypothèses du bruit, le calcul de la capacité cité à sa source sans remplacer les valeurs, la taille de l'image de trois boîtiers, les tableaux des boîtiers mis à jour ; dans `bodies.ts`, les quatre points de bruit de lecture du D5600 ; le critère « figé » cité à sa source et dit comme un choix, dans la documentation, le code et la fiche MVT-01, en une passe (PHY-20, FMA-06).
+- Fichiers : `data/sources.yaml`, `docs/camera-physique.md`, `app/src/camera/noise.ts`, `exposure.ts`, `bodies.ts`, `bulletin.ts`, `app/src/ui/balance.ts`, `content/fr/notions/MVT-01.md`, `content/en/notions/MVT-01.md`.
+- Tests : communs à `data/`, à `app/` et à `content/`.
+- Dépend de : D4 pour le capteur de trois boîtiers ; le Sujet 28 d'abord (même fichier).
+- Taille : moyenne.
+
+### Sujet 34 · Sources primaires de treize notions sans fiche
+- Constats : REF-07.
+- À faire, sans urgence d'après la contre-vérification : ajouter à `data/sources.yaml` et aux treize notions (BOI-02, BOI-06, BOI-11, BOI-14, BOI-19, LUM-12, MAP-02, MAP-08, MAP-10, MAP-11, MAP-12, MES-05, MES-09) les pages de Nikon, de Canon et de Sony du tableau du constat, chaque page relue à son adresse avant d'écrire l'entrée ; le texte de BOI-19 (« un traitement après la pose ») ; dans `docs/lire-le-referentiel.md`, « une notion sans champ `sources` n'est pas encore sourcée : elle l'est à la rédaction de sa fiche ». Pas de `todo` en série.
+- Fichiers : `data/sources.yaml`, `data/referentiel/` (boi, lum, map, mes), `docs/lire-le-referentiel.md`.
+- Tests : communs à `data/`.
+- Dépend de : le Sujet 31, pour la forme des entrées.
+- Taille : petite à moyenne.
+
+### Sujet 35 · Accessibilité : noms, rôles, infobulles, contrastes
+- Constats : INT-15, INT-16, INT-09, INT-08 (première étape), INT-19 (points 6 à 8), INT-18.
+- À faire : les attributs listés sous INT-15 ; des noms accessibles qui disent l'effet de chaque bouton de molette, sans inverser les boutons ; la limite d'exposition écrite ailleurs que dans une infobulle, deux aides déplacées dans les fenêtres ; le canevas atteignable au clavier (`canvasTabIndex: 0`) ; une légende pour les deux groupes de boutons radio, un nom propre à chacun des trois boutons « Fiche », le niveau des titres d'une fiche ouverte par-dessus le simulateur ; trois repères graphiques portés au-dessus de 3:1 de contraste (INT-18, le moins pressant des constats, peut partir à part).
+- Fichiers : `app/simulateur/index.html`, `app/src/ui/cameraPanel.ts`, `app/src/i18n.ts`, `app/src/main.ts`, `app/scripts/build-pages.mjs`, `app/src/activities/lum02.ts`, `app/src/ui/challenges.ts`, `app/src/ui/ficheDialog.ts`, `app/src/style.css`.
+- Tests : communs à `app/` ; l'arbre d'accessibilité de Chromium lu par son protocole ; l'ordre de tabulation ; contrastes recalculés. Aucun essai avec un lecteur d'écran n'a été fait par les rapports.
+- Dépend de : rien. Pour INT-09, la note de la fenêtre « Exposition » ne dépend pas de la mise en page ; une pastille du viseur serait à accorder avec le Sujet 39. Le projet n'a pas d'objectif d'accessibilité écrit.
+- Taille : moyenne.
+
+### Sujet 36 · Photo interrompue par le plafond de 5 s : garder le flou
+- Constats : PHY-21 (le code).
+- À faire : choisir l'ordre de parcours des rendus et le contrôler par un script pour tous les nombres de rendus de 16 à 256, puis dans un navigateur. Candidat essayé par le troisième agent : les mêmes paires point-instant, parcourues « le plus loin d'abord », avec un biais vers le bord du disque à réduire ou à écrire. Ne pas coder tel quel le parcours proposé par le constat. Ajouter à la routine une photo à grand flou (135 mm à f/1.4).
+- Fichiers : `app/src/camera/photo.ts`, `docs/camera-physique.md`, `scripts/test_app.cjs`.
+- Tests : communs à `app/` ; le script de contrôle de l'ordre ; le flou du fond mesuré sur une photo interrompue. En rendu logiciel, une photo au 135 mm à f/1.4 a pris de 31 à 117 s : à compter pour la durée de la routine.
+- Dépend de : le Sujet 25 de préférence, où le script de contrôle a sa place.
+- Taille : moyenne.
+
+### Sujet 37 · Un seul développement pour le viseur et la photo
+- Constats : ARC-01, ARC-08.
+- À faire (attend D10 et D11) : le viseur rend la lumière linéaire dans des textures en demi-flottants, son flou travaille sur cette texture, puis le même fragment GLSL que celui de la photo fait gains, exposition, bruit, écrêtage et courbe. Deux corrections de la contre-vérification : pour un appareil sans rendu en demi-flottants, le repli est un viseur sans effets d'aperçu, pas l'ancienne chaîne ; ne basculer `applyByPostProcess` qu'une fois le développement compilé et attaché. Avec la refonte, un propriétaire unique de la chaîne du viseur, lectures de l'indicateur d'équilibre comprises (ARC-08).
+- Fichiers : `app/src/camera/noise.ts`, `viewfinderDof.ts`, `photo.ts`, `autofocus.ts`, `app/src/ui/cameraPanel.ts`, `shutter.ts`, `balance.ts`, `app/src/main.ts`, `scripts/test_app.cjs`.
+- Tests : communs à `app/` ; photo inchangée (histogrammes de référence du Sujet 25) ; contrôles du viseur de la routine (bruit à ISO 6400, flou au 135 mm à f/1.4, bruit de la loupe du Sujet 16) ; chiffres du diagnostic avant et après sur le téléphone de Julien ; version isolée, annulable par `git revert -m 1`.
+- Dépend de : D10 et D11 ; les Sujets 25 et 26, et les chiffres du Sujet 26 relevés par Julien ; son essai avant de fusionner (si le viseur en demi-flottants reste fluide : je ne sais pas).
+- Taille : grande. D'après le rapport, cette refonte précède la balance des blancs et l'histogramme en direct, puis la mesure de la lumière.
+
+### Sujet 38 · Magasin de réglages
+- Constats : ARC-02 (premier temps).
+- À faire : une table typée où chaque réglage a sa valeur par défaut et sa validation, avec une lecture, une écriture et un abonnement uniques, que le panneau, l'autofocus et le déclencheur lisent ; mêmes noms et mêmes valeurs des clés du stockage ; pas d'identifiant de boîtier (constat réfuté).
+- Fichiers : `app/src/ui/cameraPanel.ts`, `app/src/camera/autofocus.ts`, `app/src/ui/shutter.ts`, `app/src/main.ts`, le module du magasin (à créer).
+- Tests : communs à `app/` ; tests rapides (validation, aller et retour avec la mémoire, relecture de ce que le stockage contient aujourd'hui) et contrôles de mémoire de la routine.
+- Dépend de : le Sujet 25 ; D10 pour l'ordre.
+- Taille : grande.
+
+### Sujet 39 · Mise en page du simulateur sur téléphone
+- Constats : INT-04, INT-12, INT-03, INT-17 (corrections 2 et 3), INT-11, INT-20 ; INT-14 pour les contrôles de mise en page.
+- À faire (attend D12, et un essai dans un navigateur avant de choisir) : d'abord une hauteur de viseur qui ne dépend pas des textes du panneau (INT-04), ce qui supprime la bascule du cadre (INT-12) ; puis le téléphone tenu à l'horizontale (INT-03), l'écran de revue (INT-17), les pastilles (INT-11), les fenêtres (INT-20 : défilement remis à zéro à l'ouverture, bouton de fermeture en haut). Les contrôles de la routine en anglais, à 320 px et à l'horizontale entrent avec les corrections qu'ils vérifient : ajoutés avant, ils mettraient la CI au rouge.
+- Fichiers : `app/src/style.css`, `app/simulateur/index.html`, `app/src/ui/shutter.ts`, `cameraPanel.ts`, `topView.ts`, `balance.ts`, `app/src/i18n.ts`, `scripts/test_app.cjs`, `.github/workflows/routine.yml` si un profil s'ajoute.
+- Tests : communs à `app/` ; les mesures des rapports refaites aux six largeurs, dans les deux langues et les deux modes AF. Les seuils dépendent de la police : Inter dans les mesures du rapport, DejaVu Sans dans la CI.
+- Dépend de : D12.
+- Taille : grande. Découpage possible si elle ne tient pas en une session : (a) INT-04, INT-12, INT-11 et les contrôles en anglais et à 320 px ; (b) INT-17 et INT-20 ; (c) INT-03 et le profil à l'horizontale.
+
+**Quatrième partie : documentation et outils**
+
+### Sujet 40 · Les deux README : un état court, la version anglaise remise à niveau
+- Constats : DOC-02, DOC-01, DOC-11, CHX-01 (les README).
+- À faire : dans `README.md`, remplacer le titre daté et les puces chiffrées par un état court, sans inventaire des fonctions ni compte, qui renvoie au site et à `CHANGELOG.md` ; réécrire les l. 7 à 13 et 20 de `README.en.md` d'après le README français corrigé ; ajouter `content/` au tableau « Contenu du dépôt » des deux fichiers. Au passage, trois lignes « Tester » (voir « Constats réfutés »).
+- Fichiers : `README.md`, `README.en.md`.
+- Tests : communs ; relire les deux fichiers côte à côte, puisqu'aucun contrôle ne les compare.
+- Dépend de : rien.
+- Taille : petite.
+
+### Sujet 41 · Pages de reprise : un seul état, une table « Décisions en attente »
+- Constats : CHX-10, DOC-06, CHX-01 (les journaux), DOC-12 (une ligne de `docs/questions-ouvertes.md`).
+- À faire : `docs/etat-des-travaux.md` réécrit, pas complété : un seul état, une seule file, sans récit, et une table « Décisions en attente » (la question, sa date, la page du détail, ce qui se passe sans réponse) où entrent les trois attentes anciennes et les décisions de cette page ; `docs/questions-ouvertes.md` réduit à ce qui est ouvert, par la revue ligne par ligne de DOC-06 ; les autres pages renvoient à la table et n'écrivent plus « à confirmer ». Règle pour la suite : `CHANGELOG.md` est le seul récit par version, `docs/historique.md` ne reçoit que les décisions de Julien, datées et citées.
+- Fichiers : `docs/etat-des-travaux.md`, `docs/questions-ouvertes.md`, `docs/camera-physique.md` (l. 13 et 76), `docs/propositions.md` ; `CLAUDE.md` pour la table « quelle page pour quelle information », après accord (D6).
+- Tests : communs ; refaire la recherche de l'audit (« à confirmer », « comprise comme », « lecture de Claude », « à trancher ») et vérifier que chaque résultat est dans la table ou n'est pas une attente.
+- Dépend de : la fusion de la pull request de l'audit ; D6 pour la table de `CLAUDE.md` ; D14 pour la l. 40 de `CLAUDE.md` et la l. 83 de `docs/questions-ouvertes.md`, qui ne changent pas avant.
+- Taille : moyenne.
+
+### Sujet 42 · Phrases périmées : `docs/pile-technique.md`, le cadrage, les contenus
+- Constats : CHX-02, DOC-07, DOC-12 (« 34 Mio »).
+- À faire : dans `docs/pile-technique.md`, corriger les l. 77-78 et 83 et ajouter sous « Décision » une note datée (les deux effets de Babylon.js ne servent plus depuis la version 0.3.23 ; ce que le moteur fournit aujourd'hui ; pourquoi on le garde), sans réécrire les sections « Options » et « Recommandation » ; « 34 Mio » à la l. 94, et à la l. 144 de `docs/historique.md` ; l'en-tête de `docs/cadrage.md` ; la phrase de `docs/contenus.md`, l. 77.
+- Fichiers : `docs/pile-technique.md`, `docs/historique.md`, `docs/cadrage.md`, `docs/contenus.md`.
+- Tests : communs.
+- Dépend de : rien.
+- Taille : petite.
+
+### Sujet 43 · `REPRISE.md` dit qu'il est une archive ; `scripts/extract_reprise.py` supprimé
+- Constats : CHX-06, DOC-09.
+- À faire : supprimer le script (l'historique de git le garde) ; trois lignes d'avertissement en tête de `REPRISE.md` (« Archive du 7 novembre 2026. Ne fait plus foi… ») ; deux lignes des deux README ; dans `CLAUDE.md`, l. 8, ne changer que « et `docs/` qui en est copié », après accord (D6).
+- Fichiers : `scripts/extract_reprise.py`, `REPRISE.md`, `README.md`, `README.en.md`, `CLAUDE.md`.
+- Tests : communs ; vérifier qu'aucun workflow ni aucune page n'appelle plus le script.
+- Dépend de : D6 pour la ligne de `CLAUDE.md` ; le Sujet 40 d'abord (mêmes fichiers).
+- Taille : petite.
+
+### Sujet 44 · Documentation des licences et de la publication
+- Constats : LIC-08, LIC-10, PHY-19 (la notice).
+- À faire : les quatre phrases de LIC-08 (`docs/licences.md`, l. 10 ; `docs/publication.md`, l. 12 et 27 ; `docs/pile-technique.md`, l. 90, et `app/vite.config.ts`, l. 8 : « notre code, celui de Babylon.js et les fonctions d'assemblage de Vite et de Rolldown (MIT) ») ; `docs/publication.md`, l. 3 : « même alors, hors GitHub Enterprise Cloud, le site publié reste public », avec un lien après chaque moitié de la phrase et une entrée dans `data/sources.yaml`. Selon D13 : la copie, dans `licences/`, du premier bloc de la licence de Vite et de la licence de Rolldown ; la mention de copyright et la licence de bgfx dans `docs/licences.md` et dans les crédits.
+- Fichiers : `docs/licences.md`, `docs/publication.md`, `docs/pile-technique.md`, `data/sources.yaml`, `app/vite.config.ts` ; selon D13, `app/scripts/copy-licences.mjs`, la page des licences et `app/src/credits.ts`.
+- Tests : communs à `data/` et à `app/` ; si des licences sont recopiées, les retrouver dans le site construit.
+- Dépend de : D13 pour les copies et la notice ; les phrases partent sans.
+- Taille : petite ; moyenne avec les copies.
+
+### Sujet 45 · `scripts/check_scenes.py` : croiser le manifeste avec les fichiers de la scène
+- Constats : LIC-05.
+- À faire : comparer au manifeste la licence, l'auteur et l'adresse d'origine du fichier `license.txt` et des métadonnées du fichier glTF ; refuser dans un fichier glTF une `uri` qui n'est ni un fichier listé de la scène ni une `uri` en `data:` ; exiger pour `verified` une vraie date, au plus un jour dans le futur. Mettre à jour `docs/licences.md` (l. 29 à 33), qui décrit ce que le script fait.
+- Fichiers : `scripts/check_scenes.py`, `docs/licences.md`.
+- Tests : communs ; `python3 scripts/check_scenes.py` sans erreur sur la scène actuelle ; les cas des essais du rapport refusés sur une copie de la scène.
+- Dépend de : rien. À faire avant l'ajout d'une nouvelle scène.
+- Taille : petite.
+
+### Sujet 46 · `docs/pile-technique.md` coupé en deux
+- Constats : CHX-01 (seconde moitié).
+- À faire : la comparaison des moteurs, figée à sa date, garde le chemin `docs/pile-technique.md` ; l'outillage (versions, licences, organisation du site, routine) passe dans une page de référence, sans récit des versions ; les renvois changent dans la même pull request (`data/sources.yaml`, `routine.yml`, et `CLAUDE.md` après accord).
+- Fichiers : `docs/pile-technique.md`, une nouvelle page sous `docs/`, `data/sources.yaml`, `.github/workflows/routine.yml`, les pages qui renvoient à l'outillage.
+- Tests : communs à `data/` ; rechercher tous les renvois à `docs/pile-technique.md` avant et après.
+- Dépend de : les Sujets 42 et 44 d'abord, qui corrigent des lignes de la page ; à accorder avec le Sujet 27.
+- Taille : moyenne.
+
+**Sans pull request : un réglage de Julien.** CHX-03 se corrige par une règle de branche sur `main`, que seul Julien peut activer ; le chemin est sous « Décisions qui attendent Julien », parmi les réglages. Elle n'attend aucun sujet.
+
+**Ce qui suit le plan.** Le point 6 de l'ordre de travail de `docs/etat-des-travaux.md` : les nouvelles fonctions (balance des blancs, histogramme en direct, puis la suite de la file), ou les tests avec des débutants d'abord, selon D14.
 
 ## Décisions qui attendent Julien
 
