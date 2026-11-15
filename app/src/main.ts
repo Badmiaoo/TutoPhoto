@@ -111,6 +111,16 @@ function renderProblems(): void {
   diagnostic.hidden = problems.length === 0;
 }
 
+/**
+ * Message d'un échec, suivi de la version du site : « La scène n'a pas pu être chargée. Version du site : X.Y.Z. »
+ * (version 0.3.59, demande de Julien du 15 novembre 2026). Pour un chargement en échec et pour un navigateur sans
+ * WebGL : une capture d'écran de l'un ou de l'autre se rattache ainsi à une version. Le message d'un chargement en
+ * cours ne la porte pas.
+ */
+function withVersion(message: string): string {
+  return `${message} ${siteVersion(lang)}.`;
+}
+
 window.addEventListener("error", (event) => report("problemError", event.message || String(event.error)));
 window.addEventListener("unhandledrejection", (event) => report("problemError", String(event.reason)));
 
@@ -124,10 +134,11 @@ function applyLang(): void {
   element("credits-intro").textContent = t(lang, "creditsIntro");
   renderVersion(element("credits-version"), lang);
   element("credits-close").textContent = t(lang, "close");
-  element("no-webgl").textContent = t(lang, "noWebgl");
+  element("no-webgl").textContent = withVersion(t(lang, "noWebgl"));
   canvas.setAttribute("aria-label", t(lang, "sceneLabel"));
   langButton.textContent = t(lang, "switchLang");
-  status.textContent = statusKey ? t(lang, statusKey) + (statusKey === "loading" ? loadingProgress() : "") : "";
+  status.textContent =
+    statusKey === "loading" ? t(lang, "loading") + loadingProgress() : statusKey === "loadError" ? withVersion(t(lang, "loadError")) : "";
   status.hidden = statusKey === null;
   manifest.then((m) => renderCredits(creditsList, m, lang)).catch(() => undefined);
   cameraPanel?.setLang(lang);
@@ -144,7 +155,14 @@ langButton.addEventListener("click", () => {
   rememberLang(lang);
   applyLang();
 });
-creditsButton.addEventListener("click", () => creditsDialog.showModal());
+creditsButton.addEventListener("click", () => {
+  creditsDialog.showModal();
+  // La fenêtre s'ouvre en haut, où est la ligne de version (version 0.3.59). Sans cela, elle gardait le défilement de
+  // l'ouverture d'avant : à 1280 × 800, en français, fermée par son bouton du bas puis rouverte, elle cachait cette
+  // ligne (mesuré dans Chromium ; constat INT-20 de l'audit, corrigé ici pour cette seule fenêtre). La remise à zéro
+  // vient après showModal() : demandée fenêtre fermée, elle n'a pas d'effet.
+  creditsDialog.scrollTop = 0;
+});
 // Fiches ouvertes par-dessus le simulateur (bulletin, fenêtre « Défis ») : indépendant de la scène 3D.
 ficheDialog = new FicheDialog(
   {

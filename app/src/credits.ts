@@ -1,6 +1,6 @@
 // Crédits de la scène : auteurs, licences et adresses d'origine, lus dans scene.json.
 // Les licences CC BY exigent d'attribuer l'œuvre ; on attribue aussi les éléments CC0, par courtoisie.
-// La fenêtre donne aussi la version du site (version 0.3.59).
+// La fenêtre donne aussi la version du site, au-dessus de la liste des crédits (version 0.3.59).
 
 import { t, type Lang } from "./i18n";
 import { siteVersion } from "./version";

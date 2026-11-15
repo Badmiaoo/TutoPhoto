@@ -1,4 +1,5 @@
-// Version du site, pour la fenêtre des crédits et la ligne de diagnostic (constat ARC-12 de l'audit, version 0.3.59).
+// Version du site, pour la fenêtre des crédits, la ligne de diagnostic et les messages d'un chargement en échec ou
+// d'un navigateur sans WebGL (constat ARC-12 de l'audit, version 0.3.59).
 // Vite remplace __TUTOPHOTO_VERSION__ à la construction (option « define » de vite.config.ts) par le numéro du
 // premier titre de version de CHANGELOG.md, lu par scripts/version.mjs : sur une pull request, la version à venir ;
 // sur main, la version publiée. À n'importer que du simulateur : la construction de l'activité de LUM-02
