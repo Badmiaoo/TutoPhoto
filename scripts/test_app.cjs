@@ -44,7 +44,8 @@
 // - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne ;
 // - avec --photo, histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07, version 0.3.57) : par défaut,
 //   ni histogramme ni clignotement ; « Infos » une fois : quatre histogrammes (luminance, rouge, vert, bleu), la
-//   somme des colonnes de chacun égale au nombre de pixels de la photo ; photo surexposée de 3,2 IL : part écrêtée
+//   somme des colonnes de chacun égale au nombre de pixels de la photo ; photo surexposée de 3,2 IL : elle s'ouvre en
+//   haut de l'écran de revue, sans défilement gardé de la photo d'avant (INT-17, version 0.3.59), part écrêtée
 //   supérieure à 0 dans le texte, puis « Infos » encore une fois : zones écrêtées posées sur la photo, sans prendre
 //   les touchers ; photo sous-exposée de 3,2 IL : aucune zone, plus de la moitié des pixels de luminance dans la
 //   moitié gauche ; retour à « photo seule » et aux réglages de départ ;
@@ -766,6 +767,20 @@ async function runProfile(browser, name, base) {
       };
       await clicks('[data-dial="shutter"][data-step="1"]', 8);
       await shoot();
+      // La photo suivante s'ouvre en haut de l'écran de revue (constat INT-17 de l'audit, version 0.3.59). Sur les
+      // petits écrans, « Infos » puis « Revenir au viseur » ont fait défiler l'écran de revue de la première photo ;
+      // ce défilement était gardé, et la photo, sans hauteur tant qu'elle n'est pas chargée, pouvait être poussée
+      // hors de l'écran par l'ancrage du défilement de Chromium : le contrôle « zones écrêtées posées sur la photo »,
+      // plus bas, lisait alors l'en-tête au centre de la photo (profil iphone, CI du 15 novembre 2026).
+      const reopened = await page.evaluate(() => {
+        const review = document.getElementById("review");
+        return { scroll: review.scrollTop, top: document.getElementById("review-image").getBoundingClientRect().top - review.getBoundingClientRect().top };
+      });
+      check(
+        "photo suivante : écran de revue ouvert en haut",
+        reopened.scroll === 0 && reopened.top >= 0,
+        `défilement ${reopened.scroll.toFixed(0)} px ; haut de la photo à ${reopened.top.toFixed(0)} px du haut de l'écran de revue`,
+      );
       await page.click("#review-info");
       const over = await reviewInfo();
       check(
