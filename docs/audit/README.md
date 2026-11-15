@@ -475,7 +475,7 @@ Sous chaque sujet, « ce qu'il faut faire » résume la correction retenue par l
 - Fichiers : `docs/camera-physique.md`, `app/src/i18n.ts`.
 - Tests : communs à `app/`.
 - Dépend de : rien. Les phrases de PHY-12, comme celle de FEX-09 au Sujet 15, sont provisoires : elles partiront avec la mesure de la lumière. `lensNote` suit aussi D5.
-- Taille : moyenne.
+- Taille : moyenne. Si la session est courte, les trois notes de l'interface partent d'abord : elles seules se voient à l'écran.
 
 ### Sujet 18 · Loupe du viseur à densité 2 : le bruit
 - Constats : PHY-07 ; PHY-08 pour le plafond du flou, seulement si D25 le décide après une mesure sur téléphone.
@@ -798,6 +798,7 @@ Cette section s'adresse à toi, Julien. 37 décisions : d'abord les 14 qui bloqu
 - Bloque : les Sujets 40 et 41, et, derrière eux, la balance des blancs et l'histogramme en direct.
 
 **D11. Un seul développement pour le viseur et la photo : le faire ?** (ARC-01, ARC-08)
+- De quoi il s'agit : le développement est ce qui fait l'image à partir de la lumière calculée (exposition, courbe, écrêtage, bruit). Il est écrit deux fois, une pour le viseur et une pour la photo.
 - Options : ne rien faire (d'après l'audit, chaque fonction du développement s'écrit deux fois, et l'écart entre le viseur et la photo grandit) ; le développement partagé ; une seule chaîne pour tout, écartée par le rapport.
 - Audit : le développement partagé, avant la balance des blancs et l'histogramme en direct. Contre-vérification : oui, avec deux corrections ; la refonte change l'image du viseur, c'est donc une proposition à te faire avant de produire, à ne lancer qu'avec les chiffres du diagnostic relevés sur ton téléphone.
 - Bloque : le Sujet 40. La spécification de la balance des blancs a été reportée pour cette raison : la fonction serait écrite deux fois tant que les deux chaînes ne sont pas réunies.
