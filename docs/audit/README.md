@@ -11,11 +11,11 @@ Synthèse écrite le 15 novembre 2026 par un agent de Claude, à partir des douz
 
 - 186 constats dans douze rapports : 160 confirmés, 26 réfutés. Gravité finale des confirmés : 11 « faux », 6 « non sourcé », 21 « incohérent », 122 « à améliorer ».
 - Ce que l'audit conclut : le cœur tient, les fautes sont aux bords. Elles sont dans ce qu'un débutant joue à la lettre, dans le calcul d'une photo, dans ce que les contrôles ne regardent pas, et dans une documentation complétée sans être relue.
-- Application : pendant le calcul d'une photo, un glissé fait tourner l'appareil (COD-01) et un toucher déplace le repère sans faire le point (COD-07) ; la rafale au doigt s'arrête si le doigt glisse (COD-09) ; la loupe de l'écran de revue agrandit un autre point que celui touché (COD-14) ; la page se fige ou reste muette quand le chargement échoue (COD-06, COD-11).
-- Fiches : le bouton de l'indicateur d'exposition ne répond qu'une demi-seconde sur deux quand il clignote (FEX-19) ; la recette du chien qui court échoue le plus souvent, l'autofocus perdant le chien (FMA-23, FMA-19) ; les exercices d'exposition ignorent que l'ISO auto est activé au départ (FEX-02).
+- Application : pendant le calcul d'une photo, un glissé fait tourner l'appareil (COD-01) et, en AF-S, un toucher déplace le repère sans faire le point (COD-07) ; la rafale au doigt s'arrête si le doigt glisse de 20 px (COD-09, toucher émulé) ; après « Photo entière », la loupe de l'écran de revue agrandit un autre point que celui touché (COD-14) ; la page se fige au déclenchement quand le fichier d'éclairage n'est pas arrivé (COD-06), et reste muette dans un navigateur sans WebGL (COD-11).
+- Fiches : le bouton de l'indicateur d'exposition ne répond qu'une demi-seconde sur deux quand il clignote (FEX-19) ; la recette du chien qui court, suivie à la lettre, perd le chien dans 30 vues sur 46 (FMA-19, FMA-23 ; vues prises en rendu logiciel, où l'une des deux causes de FMA-23 pèse six fois plus qu'à 60 images par seconde) ; les exercices d'exposition ignorent que l'ISO auto est activé au départ (FEX-02).
 - Outils et documentation : la routine de test dit vert à tort (INT-05, INT-06) ; la documentation annonce un filé et un étalonnage que le code ne fait pas (PHY-01, PHY-06) ; les deux README sont périmés (DOC-02, DOC-01).
 - Ce qui tient : les formules du modèle et leurs sources, les citations, les données du référentiel, les licences, les règles du dépôt (63 fusions avec une CI verte). Le choix du moteur n'est pas rouvert.
-- Le plan propose 46 sujets, un par pull request, en quatre parties. Il commence par afficher la version du site (Sujet 1, ARC-12), parce que les corrections suivantes sont à confirmer par Julien sur son téléphone et que rien ne lui dit quelle version il regarde ; puis quatre corrections d'une ligne déjà essayées (Sujet 2) et le calcul d'une photo (Sujet 3).
+- Le plan propose 46 sujets, un par pull request, en quatre parties. Il commence par afficher la version du site (Sujet 1, ARC-12), parce que trois des sujets suivants sont à confirmer par Julien sur son téléphone et que rien ne lui dit quelle version il regarde ; puis quatre corrections d'une ligne, dont trois déjà essayées (Sujet 2) et le calcul d'une photo (Sujet 3).
 - 36 décisions attendent Julien : 14 bloquent un sujet ou une partie de sujet, 22 ne bloquent rien aujourd'hui. S'y ajoutent deux réglages de GitHub et des essais sur son téléphone.
 - Limite de toutes les preuves : les essais sont faits dans Chromium en rendu logiciel, sur des écrans émulés ; rien sur un téléphone, avec un processeur graphique ni dans Safari ; 51 des 151 sources examinées n'ont pas pu être relues.
 
@@ -40,15 +40,15 @@ Synthèse écrite le 15 novembre 2026 par un agent de Claude, à partir des douz
 Ce que chaque rapport conclut :
 
 - `modele-physique.md` : les formules du cœur du modèle (exposition, bruit, zone nette, traînée, modes A et S) sont celles de leurs sources, et les exemples chiffrés se recalculent. Les défauts sont aux bords : ce que la documentation promet et que le code ne fait pas (filé, étalonnage de la scène), et ce que le passage à la densité de l'écran a changé sans que le bruit et le flou du viseur suivent. Le reste est fait de sources à citer et de limites à écrire. Aucun navigateur n'a été employé pour ce rapport, sauf pour un constat.
-- `fiches-exposition.md` : les explications disent ce que disent les sources relues, et les chiffres se recalculent avec le boîtier de départ. Les défauts sont dans les exercices joués à la lettre (ISO auto activé au départ, valeurs que l'indicateur ne peut pas afficher, boîtiers APS-C) et dans un bouton qui ne répond pas quand il clignote.
-- `fiches-mise-au-point.md` : les sources disent ce que les fiches leur font dire, à deux phrases près. Les recettes de SIT-01 et de SIT-05 réussissent leur défi ; celle de SIT-06, suivie à la lettre, échoue le plus souvent, parce que la détection perd le chien. La vue de dessus et le bulletin ne jugent pas les mêmes points.
+- `fiches-exposition.md` : les explications disent ce que disent les sources relues, et les chiffres se recalculent avec le boîtier de départ. Les défauts sont dans les exercices joués à la lettre (ISO auto activé au départ, valeurs que l'indicateur ne peut pas afficher, boîtiers APS-C) et dans un bouton qui, quand il clignote, ne répond qu'une fois sur deux.
+- `fiches-mise-au-point.md` : les sources disent ce que les fiches leur font dire, à deux phrases près. Les recettes de SIT-01 et de SIT-05 réussissent leur défi ; celle de SIT-06, suivie à la lettre, échoue le plus souvent : l'autofocus continu perd le chien dans 30 vues sur 46, prises en rendu logiciel, où l'une des causes pèse six fois plus qu'à 60 images par seconde. La vue de dessus et le bulletin ne jugent pas les mêmes points.
 - `architecture-application.md` : la photo calculée par accumulation et la scène pilotée par une horloge sont à garder. Ce qui pèse : le viseur et la photo ne partagent pas leur développement, les réglages sont câblés à la main, il n'y a ni test rapide des formules, ni mesure du coût du viseur, ni version affichée. La contre-vérification ramène le plan de neuf refontes à cinq.
 - `choix-et-outils.md` : les choix de fond ont presque tous une décision de Julien, datée et écrite, et leurs sources disent ce que la documentation leur fait dire ; le choix du moteur n'est pas rouvert. Sont confirmés : une documentation qui se recouvre, des décisions en attente dispersées, et l'absence de protection de `main` dans GitHub. Le rapport pose des questions de fond à Julien.
 - `sources.md` : quand la page est joignable, les citations et les nombres des libellés y sont (68 citations : 64 retrouvées mot pour mot, 4 avec un écart qui ne change pas le sens). Aucun constat ne change une valeur du simulateur ni une phrase d'une fiche. Les défauts sont dans la tenue du fichier des sources. 51 entrées sur 151 n'ont pas pu être relues.
 - `referentiel-contenu.md` : aucune affirmation de photographie contraire à une source lue, à deux réserves près. Les défauts : des textes du référentiel qui n'ont pas suivi les fiches ou les manuels, des renvois et des notions clés qui manquent à quelques situations. Que 125 notions n'aient pas encore de source est l'état voulu et écrit.
 - `referentiel-structure.md` : les données sont saines et les comptes exacts. Les défauts sont dans ce que les contrôles ne regardent pas, et dans les identifiants `SIT-V2-NN`, que la construction des pages refuse. Sa section sur le périmètre pose des questions à Julien sans rien retirer.
-- `code.md` : des fautes visibles pendant le calcul d'une photo, sur l'écran de revue et en cas d'échec du chargement. Les corrections tiennent le plus souvent en quelques lignes, essayées sur des copies. Rien ne fuit au fil des photos et les erreurs du calcul sont rattrapées.
-- `interface.md` : les contrastes des textes et les termes du Nikon Z 6 sont justes. Les défauts : une routine qui dit vert à tort et n'envoie aucun toucher, une mise en page sur téléphone qui dépend de la longueur des textes (une seule refonte, à décider par Julien), un simulateur qui vouvoie, des noms accessibles à compléter.
+- `code.md` : des fautes visibles pendant le calcul d'une photo, sur l'écran de revue et en cas d'échec du chargement. Les corrections tiennent le plus souvent en quelques lignes ; six sont essayées dans un navigateur (COD-01, COD-07, COD-09, COD-11, COD-12, COD-14). Rien ne fuit au fil des photos et les erreurs du calcul sont rattrapées.
+- `interface.md` : les contrastes des textes et les termes du Nikon Z 6 sont justes. Les défauts : une routine qui dit vert à tort et n'envoie aucun toucher, une mise en page pour téléphone, mesurée sur des fenêtres émulées, qui dépend de la longueur des textes (une seule refonte, à décider par Julien), un simulateur qui vouvoie, des noms accessibles à compléter.
 - `documentation.md` : les deux README et la page des questions ouvertes n'ont pas suivi les versions ; le reste tient en quelques lignes. Les décisions sont datées et attribuées.
 - `licences-scripts-ci.md` : les licences annoncées sont celles des pages d'origine, et l'historique ne contient rien de privé qui ne soit déjà consigné dans `docs/publication.md`. Les défauts : des contrôles qui ne lisent que l'état final des fichiers et croient ce qu'on leur déclare, deux workflows que l'on peut lancer hors de `main`, quatre phrases inexactes.
 
@@ -61,8 +61,8 @@ La gravité est celle du titre du constat, sauf quand la contre-vérification l'
 | Constat | Ce qui est établi | Traité par |
 | --- | --- | --- |
 | PHY-01 | `docs/camera-physique.md` annonce qu'en rafale, suivre le chien « donne un filé » ; le code garde l'appareil immobile pendant chaque pose, il n'y a pas de filé. | Sujet 15 |
-| PHY-02 | La documentation dit le bruit de lecture du Nikon D5600 « non mesuré » au-delà d'ISO 2546, alors que la source a quatre points jusqu'à ISO 6400 ; faux pour le texte seulement, le rendu ne change pas. | Sujet 33 |
-| COD-01 | Pendant le calcul d'une photo, un glissé sur le viseur fait tourner l'appareil entre les rendus : la photo est en surimpression et le viseur a tourné à la reprise. | Sujet 3 |
+| PHY-02 | La documentation dit le bruit de lecture du Nikon D5600 « non mesuré » au-delà d'ISO 2546, alors que la source a quatre points jusqu'à ISO 6400 ; faux pour le texte seulement, le rendu ne change pas (le bilan du rapport dit cette gravité « à baisser », sans nommer le niveau). | Sujet 33 |
+| COD-01 | Pendant le calcul d'une photo, un glissé sur le viseur fait tourner l'appareil entre les rendus : la photo est en surimpression et le viseur a tourné à la reprise (essayé à la souris ; au doigt émulé, il suffit que le doigt reste posé, écarté de son point d'appui). | Sujet 3 |
 | COD-06 | Si le fichier d'éclairage n'arrive pas, il est compté comme reçu, la scène s'affiche sans ses objets, et un appui sur le déclencheur fige la page. | Sujet 8 |
 | COD-07 | En AF-S, toucher le viseur pendant le calcul d'une photo déplace le repère sans faire le point : le repère reste vert et la photo suivante part à l'ancienne distance. | Sujet 3 |
 | COD-09 | Rafale au doigt : un glissement de 20 px sur le déclencheur arrête la rafale, doigt encore posé (toucher émulé). | Sujet 2 |
@@ -138,7 +138,7 @@ Fiches d'exposition, de mesure et de boîtier :
 | FEX-08 | Le référentiel prévoit ce que le simulateur n'a pas (diaphragme animé, rideau animé, mode silencieux…), sans que les fiches le disent. | Sujet 13 ; D17 |
 | FEX-09 | Fiche MES-04 : elle ne dit pas que la cellule de TutoPhoto mesure partout la même chose. | Sujet 13 |
 | FEX-11 | Vocabulaire : deux noms pour l'indicateur d'exposition, « loupe » dans un texte anglais, deux titres de pages de Nikon mal cités, liens français manquants. | Sujet 13 |
-| FEX-12 | Trois petites inexactitudes dans les fiches EXP-05 et EXP-06. | Sujet 13 |
+| FEX-12 | Trois petites inexactitudes dans les fiches EXP-05, EXP-06 et MES-10. | Sujet 13 |
 | FEX-13 | « 1/1000 s fige le chien » ne vaut qu'en plein format ; avec les trois boîtiers APS-C du simulateur, il faut 1/1250 s. | Sujet 5 |
 | FEX-14 | Fiche MES-10 : trois formulations plus larges que les pages lues sur la vitesse minimale de l'ISO auto. | Sujet 13 |
 | FEX-15 | Les fiches BOI-07, BOI-08 et BOI-12 n'ont que les noms de Nikon, alors que quatre des six boîtiers du simulateur sont des Sony ou des Canon. | Sujet 17 |
@@ -165,15 +165,15 @@ Fiches de mise au point, de netteté, de mouvement et de lumière ; situations ;
 | FMA-16 | Fiche NET-06, exercice : après le déplacement de l'appareil, il faut refaire la mise au point, et l'exercice ne le dit pas. | Sujet 6 |
 | FMA-17 | Un défi est « réussi » sur une photo surexposée de 3,8 IL : aucun défi ne juge l'exposition, choix écrit que le débutant ne lit nulle part. | Sujet 6 ; D20 |
 | FMA-18 | Fiche SIT-05 : au 50 mm, le défi réussit à toutes les ouvertures ; la profondeur de champ n'y joue pas. | Sujet 14 |
-| FMA-19 | Fiche SIT-06 : le défi est « réussi » sur une vue où la tête du chien est cachée, et, recette suivie à la lettre, la mise au point quitte le chien. | Sujet 4 ; D19 |
+| FMA-19 | Fiche SIT-06 : le défi est « réussi » sur une vue où la tête du chien est cachée, et, recette suivie à la lettre, la mise au point quitte le chien dans 30 vues sur 46, en rendu logiciel (sur les neuf regardées une à une : cinq derrière un personnage, deux au bord du cadre que l'autofocus ne couvre pas, deux à découvert). | Sujet 4 ; D19 |
 | FMA-21 | La section « Notions » des fiches SIT-01 et SIT-06 ne liste pas toutes les notions que la recette cite. | Sujet 14 |
-| FMA-23 | En AF-C, la détection perd l'œil du chien alors que rien ne le cache, et la mise au point saute au sujet le plus proche. | Sujet 4 |
+| FMA-23 | En AF-C, à certains instants du galop, la détection perd l'œil du chien alors que rien ne le cache, et la mise au point saute au sujet le plus proche (3 instants sur 110, horloge figée ; 29 mesures sur 90 en rendu logiciel, où un retard d'une image de la carte de profondeur pèse le plus). | Sujet 4 |
 
 Architecture de l'application :
 
 | Constat | Ce qui est établi | Traité par |
 | --- | --- | --- |
-| ARC-01 | Le viseur et la photo ne partagent pas leur développement (exposition, courbe, écrêtage, bruit) : chaque fonction d'image s'écrit deux fois. | Sujet 37 |
+| ARC-01 | Le viseur et la photo ne partagent pas leur développement (exposition, courbe, écrêtage, bruit), qui s'écrit deux fois ; la profondeur de champ et le flou de mouvement, eux, ont deux chaînes par une décision de Julien du 8 novembre 2026. | Sujet 37 |
 | ARC-02 | Un réglage du boîtier se câble à la main à huit endroits de `cameraPanel.ts` et dans plusieurs autres fichiers. | Sujet 38 |
 | ARC-03 | La scène est écrite dans le code, et ce qui lui est propre est réparti dans dix fichiers. | sans correction maintenant |
 | ARC-05 | Aucun test rapide des formules ; la routine est un seul scénario de 862 lignes, qui prend de 20 à 27 minutes dans la CI. | Sujet 25 |
@@ -252,16 +252,16 @@ Interface et routine de test :
 
 | Constat | Ce qui est établi | Traité par |
 | --- | --- | --- |
-| INT-01 | L'identifiant `situation` est porté par deux éléments de l'accueil : depuis une fiche anglaise, le fil d'Ariane vise le bloc français masqué. | Sujet 11 |
+| INT-01 | L'identifiant `situation` est porté par deux éléments de l'accueil : depuis une fiche de situation anglaise, le fil d'Ariane vise le bloc français masqué. | Sujet 11 |
 | INT-02 | Activité de LUM-02 : la source de lumière du schéma fait 4 × 2 px à 390 px de large, à 1,62:1 de contraste. | Sujet 12 |
 | INT-03 | Téléphone émulé tenu à l'horizontale : le cadre fait 117 × 78 px. | Sujet 39 |
-| INT-04 | La hauteur du viseur dépend de chaque texte du panneau : de 159 à 266 px pour la même fenêtre. | Sujet 39 |
+| INT-04 | La hauteur du viseur dépend de chaque texte du panneau : de 159 à 266 px pour une même hauteur de fenêtre (664 px), selon la largeur, la langue et le mode AF. | Sujet 39 |
 | INT-06 | Routine : une erreur JavaScript pendant le scénario ne la fait pas échouer. | Sujet 19 |
 | INT-08 | Le viseur, la carte et la photo ne répondent qu'au pointeur, pas au clavier. | Sujet 35 ; D23 |
 | INT-09 | Huit textes ne sont écrits que dans des infobulles, invisibles au doigt et au clavier. | Sujet 35 |
 | INT-10 | Aucun libellé ne dépend de la marque choisie : avec un Canon ou un Sony, tout reste dit dans les termes du Nikon Z 6. | Sujet 17 |
 | INT-11 | Sur téléphone émulé, deux pastilles du viseur sont coupées ou recouvertes. | Sujet 39 |
-| INT-14 | La routine n'essaie jamais l'anglais, le téléphone à l'horizontale, 320 px de large, le clavier, le toucher, le retardateur, ni plusieurs autres cas. | Sujets 25 et 39 |
+| INT-14 | La routine n'essaie jamais le simulateur, l'activité ni les fiches en anglais (l'accueil, lui, l'est), le téléphone à l'horizontale, 320 px de large, le clavier, le toucher, le retardateur, ni plusieurs autres cas. | Sujets 25 et 39 |
 | INT-15 | Six défauts de l'arbre d'accessibilité (valeurs sans nom, rôles manquants, messages réécrits en boucle). | Sujet 35 |
 | INT-16 | Les noms accessibles « Ouverture : plus » et « Vitesse : plus » disent l'inverse de la grandeur nommée. | Sujet 35 |
 | INT-17 | Sur téléphone émulé, la photo prise s'affiche plus petite que le viseur, et la suivante s'ouvre déjà défilée. | Sujet 2 pour le défilement, Sujet 39 pour le reste |
