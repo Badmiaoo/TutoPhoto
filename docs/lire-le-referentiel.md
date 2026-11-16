@@ -7,7 +7,7 @@ _Repris de la section 3 de `REPRISE.md` (7 novembre 2026), puis mis à jour le m
 Champs d'une notion (section 4) :
 
 - `id` : identifiant stable, préfixe du domaine et numéro, jamais renuméroté.
-- `title.fr`, `title.en` : intitulés ; l'anglais amorce le glossaire FR/EN.
+- `title` : intitulé, en français (une chaîne ; jusqu'à la version 0.3.60, un objet à deux champs, `fr` et `en`).
 - `level` : N1 débutant, N2 intermédiaire, N3 avancé.
 - `spec` : la spécification des trois premières briques, pas leur contenu. `explanation` : ce que la personne doit comprendre. `simulator` : ce qu'elle manipule. `exercise` : ce qu'elle doit réussir. La quatrième brique est la situation réelle.
 - `activity: true` : la notion ne se simule pas ; une activité interactive remplace le simulateur.
@@ -16,7 +16,7 @@ Champs d'une notion (section 4) :
 
 Champs d'une situation (section 5) : `where_when`, `intention`, `key_notions`, `flash` (`required` ou `optional`), `level` et `level_max` (règle dans le bloc), `sources` quand la situation vient d'un cours.
 
-Champs d'un jalon (`data/jalons.yaml`, ajouté le 7 novembre 2026) : `id`, `title.fr`, `title.en`, `decided` (date de la décision), `goal`, `situations`, `notions`. Un jalon contient toutes les notions clés de ses situations ; `scripts/validate.py` le contrôle, et `scripts/coverage.py` donne sa couverture. Premier jalon : `v1-min`, la V1 minimale (scène de parc).
+Champs d'un jalon (`data/jalons.yaml`, ajouté le 7 novembre 2026) : `id`, `title`, `decided` (date de la décision), `goal`, `situations`, `notions`. Un jalon contient toutes les notions clés de ses situations ; `scripts/validate.py` le contrôle, et `scripts/coverage.py` donne sa couverture. Premier jalon : `v1-min`, la V1 minimale (scène de parc).
 
 Champs d'une source (section 10) : `id`, `group`, `label`, `url`, `note` éventuelle, et `used_in` quand elle n'est citée que dans un document en prose.
 
