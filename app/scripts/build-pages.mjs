@@ -64,7 +64,11 @@ const escapeHtml = (text) =>
 
 // --- Données ------------------------------------------------------------------------------------------------------
 
-/** Titres des domaines, lus dans le bloc « domain: » de chaque fichier du référentiel (format contrôlé par validate.py). */
+/**
+ * Titres des domaines, lus dans le bloc « domain: » de chaque fichier du référentiel. validate.py n'en contrôle que le
+ * schéma (« id », « title » : chaîne non vide), pas l'écriture. Celle qui est lue ici : « id » puis « title », deux
+ * espaces de retrait, le titre entre guillemets doubles ; sinon la construction échoue, avec le nom du fichier.
+ */
 function readDomains() {
   const dir = join(root, "data", "referentiel");
   const domains = {};
