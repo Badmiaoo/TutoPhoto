@@ -105,7 +105,7 @@ export class ChallengePicker {
   }
 
   private update(): void {
-    const tr = (key: MessageKey) => t(key);
+    const tr = t;
     this.el.button.textContent = this.active ? `${tr("challengeShort")} ${this.active}` : tr("challengesTitle");
     const dialog = this.el.dialog;
     dialog.querySelector("#challenge-title")!.textContent = tr("challengesTitle");
@@ -139,7 +139,7 @@ export function renderBulletin(
   bulletin: Bulletin,
   extra: { exposureOffset: number; focusDistance: number; challenge: ChallengeId | null; noise: NoiseReading | null; longSideMm: number },
 ): void {
-  const tr = (key: MessageKey) => t(key);
+  const tr = t;
   const decimal = (value: number, digits = 1) => {
     const text = value.toFixed(digits);
     return text.replace(".", ",");

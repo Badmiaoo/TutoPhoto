@@ -16,7 +16,7 @@ import type { Autofocus } from "../camera/autofocus";
 import type { SceneTimeControl } from "../camera/photo";
 import { blurLimitMm, sharpZone } from "../camera/sharpZone";
 import { LANDMARKS, type EyeControl } from "../scene";
-import { t, type MessageKey } from "../texts";
+import { t } from "../texts";
 import type { CameraPanel } from "./cameraPanel";
 
 /** Zone où l'appareil peut aller, en mètres (x vers la droite, z vers le groupe). */
@@ -95,7 +95,7 @@ export class TopView {
   }
 
   private draw(): void {
-    const tr = (key: MessageKey) => t(key);
+    const tr = t;
     const el = this.el;
     el.root.classList.toggle("collapsed", !this.expanded);
     el.toggle.setAttribute("aria-expanded", String(this.expanded));

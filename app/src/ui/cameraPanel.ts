@@ -398,7 +398,7 @@ export class CameraPanel {
 
   /** « A · f/4 · 1/200 s · ISO 100 (auto) · corr. +1,0 IL · 50 mm ». */
   private summary(resolved: ResolvedExposure): string {
-    const tr = (key: MessageKey) => t(key);
+    const tr = t;
     const iso = `ISO ${this.label("iso", resolved)}${this.autoIso ? ` (${tr("setByCamera")})` : ""}`;
     const parts = [this.exposureMode, this.label("aperture", resolved), this.label("shutter", resolved), iso];
     if (this.compensation !== 0) parts.push(`${tr("compensationShort")} ${this.compensationText(this.compensation)} ${tr("meterUnit")}`);
@@ -548,7 +548,7 @@ export class CameraPanel {
 
   /** Bouton et fenêtre « Mode de déclenchement ». */
   private updateRelease(): void {
-    const tr = (key: MessageKey) => t(key);
+    const tr = t;
     const fpsText = (fps: number) => `${String(fps).replace(".", ",")} ${tr("releaseFpsShort")}`;
     const labels: Record<ReleaseKind, string> = {
       single: tr("releaseSingle"),
@@ -705,7 +705,7 @@ export class CameraPanel {
   }
 
   private update(): void {
-    const tr = (key: MessageKey) => t(key);
+    const tr = t;
     const colon = " : ";
     const resolved = this.resolved();
     for (const dial of ["aperture", "shutter", "iso", "focal"] as const) {
@@ -889,7 +889,7 @@ export class CameraPanel {
    * coordonnées normalisées, soit m0 et m5 multipliés et m8, m9 décalés. La zone grossie reste dans le cadre.
    */
   private applyLoupe(frame: Frame, body: Body): void {
-    const tr = (key: MessageKey) => t(key);
+    const tr = t;
     this.camera.unfreezeProjectionMatrix();
     this.loupeZoom = this.loupeLevel < 0 ? 1 : this.zoomAt(this.loupeLevel, frame, body);
     const touch = this.camera.inputs.attached["touch"] as FreeCameraTouchInput | undefined;
@@ -944,7 +944,7 @@ export class CameraPanel {
    * distance, verrou), repère.
    */
   private updateFocus(): void {
-    const tr = (key: MessageKey) => t(key);
+    const tr = t;
     const colon = " : ";
     const single = this.focusMode === "single";
     const short = single ? "AF-S" : "AF-C";

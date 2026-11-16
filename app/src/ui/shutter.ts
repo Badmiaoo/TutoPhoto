@@ -160,7 +160,7 @@ export class Shutter {
   }
 
   applyTexts(): void {
-    const tr = (key: MessageKey) => t(key);
+    const tr = t;
     this.el.button.textContent = tr("shutterButton");
     this.el.marker.title = tr("focusPoint");
     this.el.progressLabel.textContent = tr("computing");
@@ -444,7 +444,7 @@ export class Shutter {
     this.el.reviewWhole.hidden = true;
     this.el.reviewHint.hidden = false;
     this.lastCaption = () => {
-      const tr = (key: MessageKey) => t(key);
+      const tr = t;
       const areaKeys: Record<AreaMode, MessageKey> = { point: "areaPointShort", wideS: "areaWideSShort", wideL: "areaWideLShort", auto: "areaAutoShort" };
       const targetKeys: Record<NonNullable<Shot["target"]>, MessageKey> = { eye: "targetEye", face: "targetFace", nearest: "targetNearest", point: "targetPoint" };
       const what = target ? ` · ${tr(targetKeys[target])}` : "";
@@ -537,7 +537,7 @@ export class Shutter {
 
   /** « 64 rendus, calculée en 1,2 s » ; « 120/256 » si le calcul a été arrêté par la limite de temps. */
   private computedText(photo: PhotoResult): string {
-    const tr = (key: MessageKey) => t(key);
+    const tr = t;
     const samples = photo.samples < photo.plannedSamples ? `${photo.samples}/${photo.plannedSamples}` : `${photo.samples}`;
     return `${samples} ${tr("renders")}, ${tr("computedIn")} ${this.decimal(photo.milliseconds / 1000, 1)} s`;
   }

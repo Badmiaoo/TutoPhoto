@@ -145,7 +145,7 @@ export class ReviewInfo {
   }
 
   private render(): void {
-    const tr = (key: MessageKey) => t(key);
+    const tr = t;
     const { el, tones } = this;
     el.button.textContent = `${tr("reviewInfo")}${tr("balanceColon")}${tr(DISPLAY_KEYS[this.display])}`;
     el.button.title = tr("reviewInfoTitle");
@@ -189,7 +189,7 @@ export class ReviewInfo {
 
   /** « Pixels à la valeur maximale sur au moins une couche : 3,2 % de l'image », ou « Aucun pixel… ». */
   private clippingText(tones: PhotoTones, highlights: boolean): string {
-    const tr = (key: MessageKey) => t(key);
+    const tr = t;
     const colon = tr("balanceColon");
     if (tones.clipped === 0) return highlights ? `${tr("clippedNone")}${colon}${tr("clippedNothingBlinks")}` : tr("clippedNone");
     const decimal = (value: number) => value.toFixed(1).replace(".", ",");

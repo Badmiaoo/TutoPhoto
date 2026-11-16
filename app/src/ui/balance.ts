@@ -33,7 +33,7 @@ import type { NoiseReading } from "./challenges";
 import { noiseParameters } from "../camera/noise";
 import { PHOTO_LONG_SIDE, type SceneTimeControl } from "../camera/photo";
 import type { CameraPanel } from "./cameraPanel";
-import { t, type MessageKey } from "../texts";
+import { t } from "../texts";
 
 const REFRESH_MS = 300;
 /** Côté du carré de pixels lus autour du point visé, pour moyenner le bruit du viseur. */
@@ -111,7 +111,7 @@ export class BalanceIndicator {
     if (!this.enabled || this.busy) return;
     this.busy = true;
     try {
-      const tr = (key: MessageKey) => t(key);
+      const tr = t;
       const s = this.panel.current();
       const f = s.focalMm;
       const N = s.aperture;
