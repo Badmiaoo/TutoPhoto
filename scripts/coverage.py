@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Comptes du référentiel et couverture des contenus en français et en anglais.
+"""Comptes du référentiel et couverture des contenus.
 
 Usage : python3 scripts/coverage.py [racine du dépôt]
 
@@ -13,14 +13,9 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import referentiel  # noqa: E402
 
-LANGS = ["fr", "en"]
-# Titres de section (niveau 2) attendus dans une fiche de notion, par brique et par langue.
-HEADINGS = {
-    "fr": {"explanation": "Explication", "simulator": "Simulateur", "activity": "Activité",
-           "exercise": "Exercice", "situation": "Situation réelle"},
-    "en": {"explanation": "Explanation", "simulator": "Simulator", "activity": "Activity",
-           "exercise": "Exercise", "situation": "Real-world situation"},
-}
+# Titres de section (niveau 2) attendus dans une fiche de notion, par brique.
+HEADINGS = {"explanation": "Explication", "simulator": "Simulateur", "activity": "Activité",
+            "exercise": "Exercice", "situation": "Situation réelle"}
 BRICKS = [("explanation", "Explication"), ("simulator", "Simulateur ou activité"),
           ("exercise", "Exercice"), ("situation", "Situation réelle")]
 
@@ -44,28 +39,26 @@ def sections(text):
 
 def content_coverage(ref):
     content = ref.root / "content"
-    written = {lang: {s["id"] for s in ref.situations
-                      if text_of(content / lang / "situations" / f"{s['id']}.md").strip()}
-               for lang in LANGS}
-    bricks = {}  # (notion, langue) -> ensemble des briques présentes
+    written = {s["id"] for s in ref.situations
+               if text_of(content / "situations" / f"{s['id']}.md").strip()}
+    bricks = {}  # notion -> ensemble des briques présentes
+    h = HEADINGS
     for n in ref.notions:
-        for lang in LANGS:
-            h = HEADINGS[lang]
-            present = sections(text_of(content / lang / "notions" / f"{n['id']}.md"))
-            got = set()
-            if h["explanation"].lower() in present:
-                got.add("explanation")
-            if h["activity" if n.get("activity") else "simulator"].lower() in present:
-                got.add("simulator")
-            if h["exercise"].lower() in present:
-                got.add("exercise")
-            sits = n["situations"]
-            if sits == "all" or not sits:
-                if h["situation"].lower() in present:
-                    got.add("situation")
-            elif any(s in written["fr"] and s in written["en"] for s in sits):
+        present = sections(text_of(content / "notions" / f"{n['id']}.md"))
+        got = set()
+        if h["explanation"].lower() in present:
+            got.add("explanation")
+        if h["activity" if n.get("activity") else "simulator"].lower() in present:
+            got.add("simulator")
+        if h["exercise"].lower() in present:
+            got.add("exercise")
+        sits = n["situations"]
+        if sits == "all" or not sits:
+            if h["situation"].lower() in present:
                 got.add("situation")
-            bricks[(n["id"], lang)] = got
+        elif any(s in written for s in sits):
+            got.add("situation")
+        bricks[n["id"]] = got
     return bricks, written
 
 
@@ -100,16 +93,14 @@ def main():
                + ", ".join(f"{top[lv]} en {lv}" for lv in referentiel.LEVELS) + ".")
 
     bricks, written = content_coverage(ref)
-    covered = [n["id"] for n in notions if all(len(bricks[(n["id"], lang)]) == 4 for lang in LANGS)]
+    covered = [n["id"] for n in notions if len(bricks[n["id"]]) == 4]
     pct = f"{100 * len(covered) / len(notions) if notions else 0:.1f}".replace(".", ",")  # virgule décimale
     out.append("\n## Couverture des contenus\n")
-    out.append(f"Couverture : {len(covered)} notion(s) sur {len(notions)} ({pct} %) ont leurs quatre briques "
-               "en français et en anglais.\n")
-    out.append("| Brique | FR | EN |")
-    out.append("| --- | --- | --- |")
+    out.append(f"Couverture : {len(covered)} notion(s) sur {len(notions)} ({pct} %) ont leurs quatre briques.\n")
+    out.append("| Brique | Notions |")
+    out.append("| --- | --- |")
     for key, label in BRICKS:
-        out.append(f"| {label} | " + " | ".join(
-            str(sum(1 for n in notions if key in bricks[(n['id'], lang)])) for lang in LANGS) + " |")
+        out.append(f"| {label} | {sum(1 for n in notions if key in bricks[n['id']])} |")
     out.append("")
     out.append("| Domaine | Couvertes | Notions |")
     out.append("| --- | --- | --- |")
@@ -117,17 +108,16 @@ def main():
         mine = [n["id"] for n in notions if n["_domain"] == d["id"]]
         out.append(f"| {d['id']} | {len([i for i in mine if i in covered])} | {len(mine)} |")
     out.append("")
-    out.append(f"Situations rédigées : {len(written['fr'])} sur {len(situations)} en français, "
-               f"{len(written['en'])} sur {len(situations)} en anglais.")
+    out.append(f"Situations rédigées : {len(written)} sur {len(situations)}.")
     out.append("")
-    out.append("| Jalon | Notions couvertes | Situations rédigées FR et EN |")
+    out.append("| Jalon | Notions couvertes | Situations rédigées |")
     out.append("| --- | --- | --- |")
     for j in ref.jalons:
         done = len([i for i in j["notions"] if i in covered])
-        both = len([s for s in j["situations"] if s in written["fr"] and s in written["en"]])
+        both = len([s for s in j["situations"] if s in written])
         out.append(f"| {j['id']} · {j['title']['fr']} | {done} sur {len(j['notions'])} | {both} sur {len(j['situations'])} |")
     out.append("")
-    out.append("Contenus lus dans `content/fr/` et `content/en/` ; règles dans `docs/contenus.md` ; jalons dans `data/jalons.yaml`.")
+    out.append("Contenus lus dans `content/` ; règles dans `docs/contenus.md` ; jalons dans `data/jalons.yaml`.")
     print("\n".join(out))
     return 0
 

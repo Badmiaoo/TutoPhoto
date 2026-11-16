@@ -13,7 +13,7 @@ import { TopView } from "./ui/topView";
 import { ChallengePicker } from "./ui/challenges";
 import { FicheDialog } from "./ui/ficheDialog";
 import { ReviewInfo } from "./ui/reviewInfo";
-import { initialLang, rememberLang, t, type Lang } from "./i18n";
+import { t } from "./texts";
 import { siteVersion } from "./version";
 
 function element<T extends HTMLElement>(id: string): T {
@@ -23,7 +23,6 @@ function element<T extends HTMLElement>(id: string): T {
 }
 
 const canvas = element<HTMLCanvasElement>("scene");
-const langButton = element<HTMLButtonElement>("lang");
 const creditsButton = element<HTMLButtonElement>("credits");
 const creditsDialog = element<HTMLDialogElement>("credits-dialog");
 const creditsList = element<HTMLUListElement>("credits-list");
@@ -31,7 +30,6 @@ const status = element<HTMLParagraphElement>("status");
 const diagnostic = element<HTMLParagraphElement>("diagnostic");
 // Le simulateur est sous simulateur/ depuis la version 0.3.46 : la scène est un dossier plus haut.
 const manifest = loadManifest("../scenes/parc/scene.json");
-let lang: Lang = initialLang();
 
 /** Densité maximale de calcul du viseur, en pixels calculés par pixel CSS (version 0.3.53, choix de Julien). */
 const MAX_DEVICE_RATIO = 2;
@@ -61,11 +59,11 @@ function loadingProgress(): string {
   const total = sceneFiles.reduce((sum, f) => sum + f.bytes, 0);
   const received = total - missing.reduce((sum, f) => sum + f.bytes, 0);
   const fill = (text: string) => text.replace("{s}", String(seconds));
-  if (missing.length === 0) return ` ${fill(t(lang, "loadingPreparing"))}`;
-  let text = ` ${fill(t(lang, "loadingProgress")).replace("{done}", String(Math.round(received / MIB))).replace("{total}", String(Math.round(total / MIB)))}`;
+  if (missing.length === 0) return ` ${fill(t("loadingPreparing"))}`;
+  let text = ` ${fill(t("loadingProgress")).replace("{done}", String(Math.round(received / MIB))).replace("{total}", String(Math.round(total / MIB)))}`;
   if (seconds >= MISSING_AFTER_S) {
     const names = missing.slice(0, 3).map((f) => f.path.split("/").pop());
-    text += ` · ${t(lang, "loadingMissing").replace("{files}", names.join(", ") + (missing.length > 3 ? "…" : ""))}`;
+    text += ` · ${t("loadingMissing").replace("{files}", names.join(", ") + (missing.length > 3 ? "…" : ""))}`;
   }
   return text;
 }
@@ -79,7 +77,7 @@ manifest
 // Mise à jour de la progression chaque seconde, tant que la scène se charge.
 const loadingTimer = window.setInterval(() => {
   if (statusKey !== "loading") window.clearInterval(loadingTimer);
-  else status.textContent = t(lang, "loading") + loadingProgress();
+  else status.textContent = t("loading") + loadingProgress();
 }, 1000);
 let statusKey: "loading" | "loadError" | null = "loading";
 let cameraPanel: CameraPanel | null = null;
@@ -101,12 +99,12 @@ function report(key: ProblemKey, detail: string): void {
 }
 
 function renderProblems(): void {
-  const colon = lang === "fr" ? " : " : ": ";
-  const parts = problems.map((p) => `${t(lang, p.key)}${colon}${p.detail}`);
+  const colon = " : ";
+  const parts = problems.map((p) => `${t(p.key)}${colon}${p.detail}`);
   // La version du site suit le message d'un problème (version 0.3.59), pour rattacher une capture d'écran à une
   // version. Sans problème, la ligne reste vide et masquée : la routine de test le contrôle (« aucun problème
   // affiché »).
-  if (parts.length > 0) parts.push(siteVersion(lang));
+  if (parts.length > 0) parts.push(siteVersion());
   diagnostic.textContent = parts.join(" · ");
   diagnostic.hidden = problems.length === 0;
 }
@@ -119,43 +117,36 @@ function renderProblems(): void {
  * plan). Le message d'un chargement en cours ne la porte pas.
  */
 function withVersion(message: string): string {
-  return `${message} ${siteVersion(lang)}.`;
+  return `${message} ${siteVersion()}.`;
 }
 
 window.addEventListener("error", (event) => report("problemError", event.message || String(event.error)));
 window.addEventListener("unhandledrejection", (event) => report("problemError", String(event.reason)));
 
-function applyLang(): void {
-  document.documentElement.lang = lang;
-  element("subtitle").textContent = t(lang, "subtitle");
-  element("licences").textContent = t(lang, "licences");
-  element("home").textContent = t(lang, "home");
-  creditsButton.textContent = t(lang, "credits");
-  element("credits-title").textContent = t(lang, "creditsTitle");
-  element("credits-intro").textContent = t(lang, "creditsIntro");
-  renderVersion(element("credits-version"), lang);
-  element("credits-close").textContent = t(lang, "close");
-  element("no-webgl").textContent = withVersion(t(lang, "noWebgl"));
-  canvas.setAttribute("aria-label", t(lang, "sceneLabel"));
-  langButton.textContent = t(lang, "switchLang");
+function applyTexts(): void {
+  element("subtitle").textContent = t("subtitle");
+  element("licences").textContent = t("licences");
+  element("home").textContent = t("home");
+  creditsButton.textContent = t("credits");
+  element("credits-title").textContent = t("creditsTitle");
+  element("credits-intro").textContent = t("creditsIntro");
+  renderVersion(element("credits-version"));
+  element("credits-close").textContent = t("close");
+  element("no-webgl").textContent = withVersion(t("noWebgl"));
+  canvas.setAttribute("aria-label", t("sceneLabel"));
   status.textContent =
-    statusKey === "loading" ? t(lang, "loading") + loadingProgress() : statusKey === "loadError" ? withVersion(t(lang, "loadError")) : "";
+    statusKey === "loading" ? t("loading") + loadingProgress() : statusKey === "loadError" ? withVersion(t("loadError")) : "";
   status.hidden = statusKey === null;
-  manifest.then((m) => renderCredits(creditsList, m, lang)).catch(() => undefined);
-  cameraPanel?.setLang(lang);
-  shutter?.setLang(lang);
-  balance?.setLang(lang);
-  topView?.setLang(lang);
-  challenges?.setLang(lang);
-  ficheDialog?.setLang(lang);
+  manifest.then((m) => renderCredits(creditsList, m)).catch(() => undefined);
+  cameraPanel?.applyTexts();
+  shutter?.applyTexts();
+  balance?.applyTexts();
+  topView?.applyTexts();
+  challenges?.applyTexts();
+  ficheDialog?.applyTexts();
   renderProblems();
 }
 
-langButton.addEventListener("click", () => {
-  lang = lang === "fr" ? "en" : "fr";
-  rememberLang(lang);
-  applyLang();
-});
 creditsButton.addEventListener("click", () => {
   creditsDialog.showModal();
   // La fenêtre s'ouvre en haut, où est la ligne de version (version 0.3.59). Sans cela, elle gardait le défilement de
@@ -172,16 +163,15 @@ ficheDialog = new FicheDialog(
     page: element<HTMLAnchorElement>("fiche-page"),
     close: element<HTMLButtonElement>("fiche-close"),
   },
-  lang,
 );
-applyLang();
+applyTexts();
 
 if (!Engine.isSupported()) {
   canvas.hidden = true;
   element("camera-panel").hidden = true;
   statusKey = null;
   element("no-webgl").hidden = false;
-  applyLang();
+  applyTexts();
 } else {
   // Viseur calculé à la densité de l'écran (version 0.3.52, demande de Julien du 11 novembre 2026 : la scène
   // paraissait pixelisée sur son téléphone). Par défaut, Babylon.js calcule l'image à la taille en pixels CSS
@@ -226,7 +216,6 @@ if (!Engine.isSupported()) {
       afCoverage: element("af-coverage"),
       focusHint: element("focus-hint"),
     },
-    lang,
     noise,
   );
   const panel = cameraPanel;
@@ -245,7 +234,6 @@ if (!Engine.isSupported()) {
   const render = () => scene.render();
   challenges = new ChallengePicker(
     { button: element<HTMLButtonElement>("challenge-button"), dialog: element<HTMLDialogElement>("challenge-dialog") },
-    lang,
   );
   shutter = new Shutter(
     engine,
@@ -276,7 +264,6 @@ if (!Engine.isSupported()) {
       reviewBulletin: element("review-bulletin"),
     },
     () => engine.runRenderLoop(render),
-    lang,
     noise,
     dof,
     autofocus,
@@ -297,7 +284,6 @@ if (!Engine.isSupported()) {
         limits: element("review-info-limits"),
         note: element("review-info-note"),
       },
-      lang,
     ),
   );
   balance = new BalanceIndicator(
@@ -320,7 +306,6 @@ if (!Engine.isSupported()) {
       noise: element("balance-noise"),
       note: element("balance-note"),
     },
-    lang,
   );
   panel.attachBalance(balance);
   topView = new TopView(
@@ -336,7 +321,6 @@ if (!Engine.isSupported()) {
       map: document.getElementById("top-view-map") as unknown as SVGSVGElement,
       note: element("top-view-note"),
     },
-    lang,
   );
   ready
     .then((waiting) => {
@@ -347,7 +331,7 @@ if (!Engine.isSupported()) {
       console.error(error);
       statusKey = "loadError";
     })
-    .finally(applyLang);
+    .finally(applyTexts);
   engine.runRenderLoop(render);
   // La taille du canevas change aussi sans que la fenêtre change : quand le panneau du boîtier passe sur
   // plusieurs lignes, par exemple après l'affichage des textes. Sans redimensionnement du moteur, le rendu

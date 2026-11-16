@@ -2,22 +2,22 @@
 // Le défi se choisit dans la fenêtre « Défis » de l'en-tête ; le bulletin s'affiche sous chaque photo, défi ou non.
 
 import { CHALLENGES, type Bulletin, type ChallengeId, type Criterion } from "../camera/bulletin";
-import { t, type Lang, type MessageKey } from "../i18n";
+import { t, type MessageKey } from "../texts";
 
 const STORAGE_KEY = "tutophoto.defi";
 
 /** Titres des notions à revoir, repris du référentiel (data/referentiel). */
-const NOTION_TITLES: Record<string, { fr: string; en: string }> = {
-  "BOI-08": { fr: "Priorité à la vitesse", en: "shutter priority, S/Tv" },
-  "BOI-12": { fr: "Modes d'entraînement", en: "drive modes" },
-  "MAP-04": { fr: "AF ponctuel ou continu", en: "single AF, continuous AF" },
-  "MAP-05": { fr: "Modes de zone AF", en: "AF area modes" },
-  "MAP-06": { fr: "Collimateurs", en: "AF points" },
-  "MAP-09": { fr: "Détection des yeux et des sujets", en: "eye, face, subject detection" },
-  "MES-10": { fr: "ISO auto", en: "auto ISO" },
-  "MVT-01": { fr: "Figer le mouvement", en: "freezing motion" },
-  "NET-01": { fr: "Profondeur de champ", en: "depth of field" },
-  "NET-06": { fr: "Distance sujet-fond", en: "subject-background distance" },
+const NOTION_TITLES: Record<string, string> = {
+  "BOI-08": "Priorité à la vitesse",
+  "BOI-12": "Modes d'entraînement",
+  "MAP-04": "AF ponctuel ou continu",
+  "MAP-05": "Modes de zone AF",
+  "MAP-06": "Collimateurs",
+  "MAP-09": "Détection des yeux et des sujets",
+  "MES-10": "ISO auto",
+  "MVT-01": "Figer le mouvement",
+  "NET-01": "Profondeur de champ",
+  "NET-06": "Distance sujet-fond",
 };
 
 const CHALLENGE_KEYS: Record<ChallengeId, { title: MessageKey; goal: MessageKey }> = {
@@ -63,7 +63,6 @@ export class ChallengePicker {
 
   constructor(
     private readonly el: ChallengeElements,
-    private lang: Lang,
   ) {
     try {
       const saved = window.localStorage.getItem(STORAGE_KEY);
@@ -101,13 +100,12 @@ export class ChallengePicker {
     return this.active;
   }
 
-  setLang(lang: Lang): void {
-    this.lang = lang;
+  applyTexts(): void {
     this.update();
   }
 
   private update(): void {
-    const tr = (key: MessageKey) => t(this.lang, key);
+    const tr = (key: MessageKey) => t(key);
     this.el.button.textContent = this.active ? `${tr("challengeShort")} ${this.active}` : tr("challengesTitle");
     const dialog = this.el.dialog;
     dialog.querySelector("#challenge-title")!.textContent = tr("challengesTitle");
@@ -138,14 +136,13 @@ function ficheButton(id: string, label: string): HTMLButtonElement {
 
 export function renderBulletin(
   list: HTMLElement,
-  lang: Lang,
   bulletin: Bulletin,
   extra: { exposureOffset: number; focusDistance: number; challenge: ChallengeId | null; noise: NoiseReading | null; longSideMm: number },
 ): void {
-  const tr = (key: MessageKey) => t(lang, key);
+  const tr = (key: MessageKey) => t(key);
   const decimal = (value: number, digits = 1) => {
     const text = value.toFixed(digits);
-    return lang === "fr" ? text.replace(".", ",") : text;
+    return text.replace(".", ",");
   };
   const metres = (value: number) => (Number.isFinite(value) ? `${decimal(value)} m` : "∞");
   const name = (id: string) => (THING_KEYS[id] ? tr(THING_KEYS[id]) : id);
@@ -196,7 +193,7 @@ export function renderBulletin(
       if (line.className) li.className = line.className;
       // Notions à revoir : chacune ouvre sa fiche (« À revoir : NET-01 Profondeur de champ ; NET-06 … »).
       line.fiches?.forEach((id, i) => {
-        li.append(i === 0 ? " " : " ; ", ficheButton(id, `${id} ${NOTION_TITLES[id]?.[lang] ?? ""}`.trim()));
+        li.append(i === 0 ? " " : " ; ", ficheButton(id, `${id} ${NOTION_TITLES[id] ?? ""}`.trim()));
       });
       return li;
     }),

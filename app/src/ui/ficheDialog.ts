@@ -1,10 +1,10 @@
 // Fiche d'une notion ou d'une situation, ouverte par-dessus le simulateur (décision de Julien du 11 novembre 2026 :
-// on ne perd ni la scène ni les réglages). La fenêtre affiche la page statique de la fiche (fiches/<langue>/<ID>.html,
+// on ne perd ni la scène ni les réglages). La fenêtre affiche la page statique de la fiche (fiches/<ID>.html,
 // produite par app/scripts/build-pages.mjs), sans son en-tête ni son bouton vers le simulateur. Les liens vers
 // d'autres fiches restent dans la fenêtre ; les liens vers les sources s'ouvrent dans un nouvel onglet.
 // Tout élément qui porte data-fiche="ID" (bulletin, fenêtre « Défis ») ouvre la fiche ID.
 
-import { t, type Lang } from "../i18n";
+import { t } from "../texts";
 
 const ID = /^[A-Z]{3}-\d{2}$/;
 
@@ -16,14 +16,11 @@ interface FicheElements {
 }
 
 export class FicheDialog {
-  private lang: Lang;
   private current: string | null = null;
 
   constructor(
     private readonly el: FicheElements,
-    lang: Lang,
   ) {
-    this.lang = lang;
     document.addEventListener("click", (e) => {
       const opener = (e.target as Element | null)?.closest<HTMLElement>("[data-fiche]");
       if (!opener?.dataset.fiche) return;
@@ -37,20 +34,19 @@ export class FicheDialog {
       e.preventDefault();
       void this.open(m[1]);
     });
-    this.setLang(lang);
+    this.applyTexts();
   }
 
-  setLang(lang: Lang): void {
-    this.lang = lang;
-    this.el.page.textContent = t(lang, "fichePage");
-    this.el.close.textContent = t(lang, "close");
+  applyTexts(): void {
+    this.el.page.textContent = t("fichePage");
+    this.el.close.textContent = t("close");
     if (this.current && this.el.dialog.open) void this.open(this.current);
   }
 
   async open(id: string): Promise<void> {
     if (!ID.test(id)) return;
     this.current = id;
-    const url = `../fiches/${this.lang}/${id}.html`;
+    const url = `../fiches/${id}.html`;
     this.el.page.href = url;
     let nodes: Node[];
     try {
@@ -75,7 +71,7 @@ export class FicheDialog {
     } catch {
       const p = document.createElement("p");
       p.id = "fiche-title";
-      p.textContent = `${id} : ${t(this.lang, "ficheUnavailable")}`;
+      p.textContent = `${id} : ${t("ficheUnavailable")}`;
       nodes = [p];
     }
     // La fiche a pu changer pendant le chargement (deux clics rapides) : on n'affiche que la dernière.

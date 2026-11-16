@@ -53,7 +53,7 @@ export interface ThingMeasure {
 }
 
 export interface Criterion {
-  /** Clé du texte (i18n), complétée par les valeurs. */
+  /** Clé du texte (texts.ts), complétée par les valeurs. */
   key: "eyeSharp" | "backgroundBlurred" | "groupSharp" | "dogInFrame" | "dogSharp" | "dogFrozen";
   ok: boolean;
   /** Valeurs à afficher. */

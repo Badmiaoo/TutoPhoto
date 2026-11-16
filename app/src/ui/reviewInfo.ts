@@ -28,7 +28,7 @@
 // display options » du Z 6, qui choisit les pages affichées.
 
 import { TONE_CHANNELS, TONE_LEVELS, columnHeights, type PhotoTones, type ToneChannel } from "../camera/histogram";
-import { t, type Lang, type MessageKey } from "../i18n";
+import { t, type MessageKey } from "../texts";
 
 const STORAGE_KEY = "tutophoto.revue";
 const DISPLAYS = ["photo", "histograms", "highlights"] as const;
@@ -75,7 +75,6 @@ export class ReviewInfo {
 
   constructor(
     private readonly el: ReviewInfoElements,
-    private lang: Lang,
   ) {
     this.display = this.restore();
     for (const channel of TONE_CHANNELS) {
@@ -94,7 +93,7 @@ export class ReviewInfo {
       this.plots.push({ channel, svg, path, caption });
     }
     el.button.addEventListener("click", () => this.next());
-    // Les zones écrêtées suivent la photo : sa place change avec la fenêtre, la langue, le bulletin, la loupe.
+    // Les zones écrêtées suivent la photo : sa place change avec la fenêtre, le bulletin, la loupe.
     if (typeof ResizeObserver !== "undefined") {
       const observer = new ResizeObserver(() => this.place());
       observer.observe(el.review);
@@ -105,8 +104,7 @@ export class ReviewInfo {
     this.render();
   }
 
-  setLang(lang: Lang): void {
-    this.lang = lang;
+  applyTexts(): void {
     this.render();
   }
 
@@ -147,7 +145,7 @@ export class ReviewInfo {
   }
 
   private render(): void {
-    const tr = (key: MessageKey) => t(this.lang, key);
+    const tr = (key: MessageKey) => t(key);
     const { el, tones } = this;
     el.button.textContent = `${tr("reviewInfo")}${tr("balanceColon")}${tr(DISPLAY_KEYS[this.display])}`;
     el.button.title = tr("reviewInfoTitle");
@@ -191,10 +189,10 @@ export class ReviewInfo {
 
   /** « Pixels à la valeur maximale sur au moins une couche : 3,2 % de l'image », ou « Aucun pixel… ». */
   private clippingText(tones: PhotoTones, highlights: boolean): string {
-    const tr = (key: MessageKey) => t(this.lang, key);
+    const tr = (key: MessageKey) => t(key);
     const colon = tr("balanceColon");
     if (tones.clipped === 0) return highlights ? `${tr("clippedNone")}${colon}${tr("clippedNothingBlinks")}` : tr("clippedNone");
-    const decimal = (value: number) => (this.lang === "fr" ? value.toFixed(1).replace(".", ",") : value.toFixed(1));
+    const decimal = (value: number) => value.toFixed(1).replace(".", ",");
     const share = (100 * tones.clipped) / (tones.width * tones.height);
     // Une part non nulle ne s'écrit pas « 0,0 % ».
     const value = share < 0.1 ? `${tr("lessThan")} ${decimal(0.1)}` : decimal(share);

@@ -63,12 +63,12 @@ sources:
     group: "Physique, rendu et technique"
     label: "DPReview, What is ISO invariance, and should I care? (Richard Butler, publié le 27 juillet 2026, mis à jour le 16 septembre 2026). Texte relevé par Julien le 11 novembre 2026, le site refusant les lectures automatiques : « ISO invariance is an assessment of how much or little improvement in noise you get by increasing gain » ; un cran de gain écrête le cran le plus clair des hautes lumières ; « Setting ISO higher than you need will result in capturing less light than you might others, and this reduction in light leaves the image looking noisier » ; un capteur est ISO invariant quand un cran d'ISO retire un cran de plage dynamique"
     url: "https://www.dpreview.com/articles/iso-invar/"
-    used_in: [content/fr/notions/EXP-06.md, content/en/notions/EXP-06.md]
+    used_in: [content/notions/EXP-06.md]
   - id: pl-iso-invariance
     group: "Physique, rendu et technique"
     label: "Photography Life, ISO Invariance Explained (Spencer Cox, mis à jour le 22 août 2022). Texte relevé par Julien le 11 novembre 2026, le site refusant les lectures automatiques : bruit photonique, « Photon noise occurs due to fluctuations in photons from in the scene in front of your camera. It has nothing to do with the camera itself! », égal à la racine carrée du nombre de photons ; bruit de lecture, qui vient de l'appareil ; ISO étendus simulés : « Those ISO values don't provide any image quality benefit, and actually harm your image quality by making it much easier to “clip” detail in the highlights »"
     url: "https://photographylife.com/iso-invariance-explained"
-    used_in: [content/fr/notions/EXP-06.md, content/en/notions/EXP-06.md]
+    used_in: [content/notions/EXP-06.md]
   - id: petapixel-perspective
     group: "Physique, rendu et technique"
     label: "PetaPixel, Perspective Distortion, Or: Why Lens Compression Doesn't Exist (23 mai 2018)"
@@ -173,7 +173,7 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony α9 (ILCE-9), Focus Mode : AF-S « locks the focus once focusing is complete », AF-C « continues to focus while the shutter button is pressed and held halfway down » (lu le 9 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1650/v1/en/contents/TP0001486782.html"
-    used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts, content/en/notions/MAP-04.md, content/fr/notions/MAP-04.md]
+    used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts, content/notions/MAP-04.md]
   - id: sony-a9-metering
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony α9 (ILCE-9, version 5 ou ultérieure), Metering Mode"
@@ -481,17 +481,17 @@ sources:
     group: "Physique, rendu et technique"
     label: "Wikipedia, F-number, « Typical one-third-stop f-number scale » (révision 1382682702, source secondaire, lue le 8 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=F-number&oldid=1382682702"
-    used_in: [docs/camera-physique.md, content/en/notions/EXP-04.md, content/fr/notions/EXP-04.md]
+    used_in: [docs/camera-physique.md, content/notions/EXP-04.md]
   - id: wikipedia-shutter-speed
     group: "Physique, rendu et technique"
     label: "Wikipedia, Shutter speed : crans normalisés de 1/1000 à 1 s, échelle 2:1 (révision 1382495283, source secondaire, lue le 8 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Shutter_speed&oldid=1382495283"
-    used_in: [docs/camera-physique.md, content/en/notions/EXP-05.md, content/fr/notions/EXP-05.md]
+    used_in: [docs/camera-physique.md, content/notions/EXP-05.md]
   - id: wikipedia-film-speed
     group: "Physique, rendu et technique"
     label: "Wikipedia, Film speed, tableau des valeurs ISO par tiers (révision 1383727213, source secondaire, lue le 8 novembre 2026) ; vitesse fondée sur le bruit : rapports signal sur bruit par pixel de 40:1 (« excellent image quality ») et 10:1 (« acceptable image quality »), pour 70 pixels par cm vus à 25 cm (lu le 10 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213"
-    used_in: [docs/camera-physique.md, app/src/ui/balance.ts, content/en/notions/EXP-06.md, content/fr/notions/EXP-06.md]
+    used_in: [docs/camera-physique.md, app/src/ui/balance.ts, content/notions/EXP-06.md]
   - id: nikon-z6-specifications
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Specifications : capteur 35.9 × 23.9 mm, 24.5 millions de pixels effectifs, vitesses 1/8000 – 30 s par pas de 1/3 ou 1/2 IL, ISO 100 – 51200 (lu le 8 novembre 2026)"
@@ -546,12 +546,12 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon Royaume-Uni, EOS RP, Specifications, autofocus : « Phase-difference detection system with image sensor (Dual Pixel CMOS AF) », « Coverage: 88% horizontal and 100% vertical coverage », note « Coverage vary depending on the lens used » ; « 4779 AF positions available » en sélection manuelle d'un point (page relevée par Julien le 11 novembre 2026, le site refusant les lectures automatiques)"
     url: "https://www.canon.co.uk/cameras/eos-rp/specifications/"
-    used_in: [docs/camera-physique.md, app/src/camera/bodies.ts, content/fr/notions/MAP-06.md, content/en/notions/MAP-06.md]
+    used_in: [docs/camera-physique.md, app/src/camera/bodies.ts, content/notions/MAP-06.md]
   - id: sony-ilce-7m3-af
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony Inde, α7 III, page des fonctions (4D FOCUS) : « This camera features 693 phase-detection AF points covering approx. 93% of image area plus 425 densely positioned contrast-detection AF points », sans répartition entre largeur et hauteur (page relevée par Julien le 11 novembre 2026, le site refusant les lectures automatiques)"
     url: "https://www.sony.co.in/interchangeable-lens-cameras/products/ilce-7m3-body-kit/feature2"
-    used_in: [docs/camera-physique.md, app/src/camera/bodies.ts, content/fr/notions/MAP-06.md, content/en/notions/MAP-06.md]
+    used_in: [docs/camera-physique.md, app/src/camera/bodies.ts, content/notions/MAP-06.md]
   - id: sony-ilce-6000-af
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony Moyen-Orient et Afrique, α6000, page du produit : « 179 phase detection points (covering almost the entire image) », sans pourcentage (page relevée par Julien le 11 novembre 2026, le site refusant les lectures automatiques)"
@@ -561,22 +561,22 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Focus : AF-S « focus will lock while the shutter-release button is pressed halfway », collimateur qui passe du rouge au vert, priorité à la mise au point par défaut ; AF-C « focuses continuously while the shutter-release button is pressed halfway », priorité au déclenchement par défaut ; AF-area mode : zone large (S) et (L), « the camera will assign priority to the closest subject », zones (L) plus grandes que les zones (S), sans dimensions ; Touch Shutter, « Touch the display to focus on the selected point » sans déclencher (lu le 9 novembre 2026). Relu le 10 novembre 2026 : « The focus point can be positioned using the sub-selector or multi-selector » ; réglage a5 (Focus points used), « Every other point » pour n'utiliser qu'un quart des points"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/05_basic_settings_01.html"
-    used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts, content/en/notions/MAP-04.md, content/en/notions/MAP-05.md, content/en/notions/MAP-06.md, content/en/notions/MAP-09.md, content/fr/notions/MAP-04.md, content/fr/notions/MAP-05.md, content/fr/notions/MAP-06.md, content/fr/notions/MAP-09.md]
+    used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts, content/notions/MAP-04.md, content/notions/MAP-05.md, content/notions/MAP-06.md, content/notions/MAP-09.md]
   - id: nikon-z6-focus-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Mise au point : termes « AF ponctuel », « AF continu », « Mode de zone AF », « AF point sélectif », « AF zone large (S) » et « (L) », « AF zone automatique » (lu le 9 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/05_basic_settings_01.html"
-    used_in: [docs/camera-physique.md, content/fr/notions/MAP-05.md]
+    used_in: [docs/camera-physique.md, content/notions/MAP-05.md]
   - id: nikon-z6-a4
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé a4 Auto-Area AF Face/Eye Detection : « Face and eye detection on », « Face detection on », « Animal detection », « Off » ; « one or the other of the subject's eyes, or on the subject's face if the eyes are not detected » (lu le 9 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_a04.html"
-    used_in: [docs/camera-physique.md, app/src/camera/faces.ts, content/en/notions/MAP-09.md, content/fr/notions/MAP-09.md]
+    used_in: [docs/camera-physique.md, app/src/camera/faces.ts, content/notions/MAP-09.md]
   - id: nikon-z6-a4-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, a4 : Détect. visage-yeux AF zone auto ; termes « Détection visage/yeux activée », « Détection des visages activée », « Détection des animaux », « Désactivée » (lu le 9 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_a04.html"
-    used_in: [docs/camera-physique.md, content/fr/notions/MAP-09.md]
+    used_in: [docs/camera-physique.md, content/notions/MAP-09.md]
   - id: nikon-p1100-af-area
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne COOLPIX P1100, AF area mode : sans visage détecté, « the camera automatically selects one or more of the nine focus areas containing the subject closest to the camera » (compact, pas un hybride ; lu le 9 novembre 2026)"
@@ -586,37 +586,37 @@ sources:
     group: "Physique, rendu et technique"
     label: "Wikipedia, Circle of confusion : flou acceptable d/1500 (0,029 mm en plein format) ; diamètre du flou c = A × |S₂ − S₁| / S₂ × f / (S₁ − f) (révision 1335590423, source secondaire, lue le 10 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Circle_of_confusion&oldid=1335590423"
-    used_in: [docs/camera-physique.md, app/src/ui/balance.ts, app/src/camera/sharpZone.ts, content/en/notions/MVT-01.md, content/en/notions/NET-01.md, content/en/notions/NET-06.md, content/fr/notions/MVT-01.md, content/fr/notions/NET-01.md, content/fr/notions/NET-06.md]
+    used_in: [docs/camera-physique.md, app/src/ui/balance.ts, app/src/camera/sharpZone.ts, content/notions/MVT-01.md, content/notions/NET-01.md, content/notions/NET-06.md]
   - id: nikon-z6-release-mode
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The Release Mode/Self-Timer Button : Single frame, Continuous L (1–5 vps), Continuous H (environ 5,5 vps), Continuous H (extended) (12 vps au Z 6), Self-timer ; table des cadences maximales (12 vps en JPEG en Continuous H (extended)) (lu le 10 novembre 2026). Réglages d2 (Max. Continuous Release, de 1 à 200 vues) et c2 (Self-Timer) lus le même jour."
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_04.html"
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/en/notions/BOI-12.md, content/fr/notions/BOI-12.md]
+    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/notions/BOI-12.md]
   - id: nikon-z6-release-mode-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande mode de déclenchement/retardateur : termes « Vue par vue », « Continu L », « Continu H », « Continu H (étendu) », « Retardateur » (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_04.html"
-    used_in: [docs/camera-physique.md, content/fr/notions/BOI-12.md]
+    used_in: [docs/camera-physique.md, content/notions/BOI-12.md]
   - id: nikon-z6-mode-dial
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The Mode Dial : P, S (« you choose the shutter speed while the camera automatically selects the aperture that will produce the optimal exposure »), A (l'inverse), M ; en M avec l'ISO auto, « ISO sensitivity will automatically be adjusted for optimal exposure at the selected shutter speed and aperture » ; indicateurs d'exposition par tiers d'IL (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_01.html"
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/en/notions/BOI-07.md, content/en/notions/BOI-08.md, content/en/notions/MES-10.md, content/fr/notions/MES-10.md]
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/MES-10.md]
   - id: nikon-z6-mode-dial-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Sélecteur de mode : termes « Auto à priorité vitesse », « Auto à priorité ouverture », « Manuel » (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_01.html"
-    used_in: [docs/camera-physique.md, content/fr/notions/BOI-07.md, content/fr/notions/BOI-08.md]
+    used_in: [docs/camera-physique.md, content/notions/BOI-07.md, content/notions/BOI-08.md]
   - id: nikon-z6-indicators
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Indicators and Error Messages : « Exposure indicators and shutter speed or aperture display flash », « Subject too bright; photo will be overexposed », « Subject too dark; photo will be underexposed » (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/13_troubleshooting_02.html"
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/en/notions/BOI-07.md, content/en/notions/BOI-08.md, content/fr/notions/BOI-07.md, content/fr/notions/BOI-08.md]
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/BOI-07.md, content/notions/BOI-08.md]
   - id: nikon-z6-exposure-compensation
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The E (Exposure Compensation) Button : de −5 à +5 IL par tiers ; « Exposure compensation is not reset when the camera is turned off » ; « In mode M, exposure compensation affects only the exposure indicator », l'ISO auto en tenant compte (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_03.html"
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/en/notions/MES-04.md, content/en/notions/MES-10.md, content/fr/notions/MES-04.md, content/fr/notions/MES-10.md]
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/MES-04.md, content/notions/MES-10.md]
   - id: nikon-z6-exposure-compensation-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande E (correction d'exposition) : terme « correction d'exposition » (lu le 10 novembre 2026)"
@@ -626,12 +626,12 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The S (ISO Sensitivity) Button : l'ISO auto agit « if optimal exposure cannot be achieved at the value selected » ; sensibilité maximale de ISO 200 (Z 6) à Hi 2 ; « ISO AUTO » affiché, et la valeur modifiée ; une valeur choisie plus haute que le maximum sert à sa place (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_02.html"
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/en/notions/EXP-06.md, content/fr/notions/EXP-06.md]
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/EXP-06.md]
   - id: nikon-z6-iso-settings
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, ISO sensitivity settings : Maximum sensitivity ; Minimum shutter speed, « below which auto ISO sensitivity control will kick in to prevent underexposure in modes P and A », de 1/4000 s à 30 s ou Auto selon la focale ; vitesse sous le minimum si la sensibilité maximale ne suffit pas (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_03_08.html"
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/en/notions/MES-10.md, content/fr/notions/MES-10.md]
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/MES-10.md]
   - id: nikon-z6-iso-settings-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Réglage de la sensibilité : termes « Contrôle de la sensibilité auto. », « Sensibilité maximale », « Vitesse d'obturation minimale » (lu le 10 novembre 2026)"
@@ -641,17 +641,17 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Defaults : ISO 100 en P, S, A, M, contrôle de la sensibilité auto activé, sensibilité maximale 51200 (Z 6), vitesse minimale Auto ; Focus mode Single AF, AF-area mode Single-point AF ; a4 Face and eye detection on ; c2 retardateur 10 s ; d1 Continu L 3 vps (lu le 10 novembre 2026) ; d9 Framing grid display Off ; g6 Highlight display, Display pattern Off, Highlight display threshold 248 ; aucune ligne pour Playback display options (relu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html"
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/en/notions/BOI-12.md, content/en/notions/MAP-04.md, content/en/notions/MES-10.md, content/fr/notions/BOI-12.md, content/fr/notions/MAP-04.md, content/fr/notions/MES-10.md, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/dossiers/balance-des-blancs.md, docs/dossiers/viseur-aides.md]
+    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/notions/BOI-12.md, content/notions/MAP-04.md, content/notions/MES-10.md, content/notions/CMP-02.md, docs/dossiers/balance-des-blancs.md, docs/dossiers/viseur-aides.md]
   - id: nikon-d850-auto-iso
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne D850, Auto ISO Sensitivity Control : « the minimum value for auto ISO sensitivity is automatically set to ISO 64 » ; en P et A, « sensitivity will only be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed » ; vitesse minimale fixée à 1/30 s avec un objectif sans données (lu le 10 novembre 2026). Autre boîtier que le Z 6 : retenu là où le manuel du Z 6 ne dit rien."
     url: "https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_02.html"
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, app/src/ui/cameraPanel.ts, content/en/notions/MES-10.md, content/fr/notions/MES-10.md]
+    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, app/src/ui/cameraPanel.ts, content/notions/MES-10.md]
   - id: wikipedia-umbra-penumbra
     group: "Physique, rendu et technique"
     label: "Wikipedia, Umbra, penumbra and antumbra : la pénombre est la zone où la source n'est cachée qu'en partie ; avec une source ponctuelle, seule l'ombre pleine existe (révision 1379008615, source secondaire, lue le 11 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Umbra,_penumbra_and_antumbra&oldid=1379008615"
-    used_in: [docs/propositions.md, content/fr/notions/LUM-02.md, content/en/notions/LUM-02.md, app/src/activities/lum02.ts]
+    used_in: [docs/propositions.md, content/notions/LUM-02.md, app/src/activities/lum02.ts]
   - id: wikipedia-angular-diameter
     group: "Physique, rendu et technique"
     label: "Wikipedia, Angular diameter : diamètre apparent du Soleil vu de la Terre, de 31′27″ à 32′32″ (révision 1368815265, source secondaire, lue le 11 novembre 2026)"
@@ -661,17 +661,17 @@ sources:
     group: "Cours et pédagogie"
     label: "Tiffen (Lowel), Foundations of Lighting: Understanding Soft Light : « A soft light source would be one that appears larger in relative size than the subject being lit » ; le soleil, très loin, « appears smaller » et donne une lumière plus dure ; par ciel couvert, « the entire white cloudy sky is now the light source » ; reculer la source la rend plus petite et plus dure ; un réflecteur devient la source (lu le 11 novembre 2026)"
     url: "https://tiffen.reamaze.com/kb/lowel-guides/foundations-of-lighting-understanding-soft-light"
-    used_in: [content/fr/notions/LUM-02.md, content/en/notions/LUM-02.md, docs/propositions.md, app/src/activities/lum02.ts]
+    used_in: [content/notions/LUM-02.md, docs/propositions.md, app/src/activities/lum02.ts]
   - id: pvc-adams-soft-light
     group: "Cours et pédagogie"
     label: "Art Adams (directeur de la photographie), LIGHTING STRATEGIES: What Makes Soft Lights Cast Soft Shadows?, ProVideo Coalition, 27 décembre 2011 : une grande source est cachée peu à peu par l'objet, d'où l'ombre douce ; « Soft light is dependent on how big the source is in relation to the object it is lighting » ; une grande source lointaine paraît minuscule, comme le soleil (lu le 11 novembre 2026)"
     url: "https://www.provideocoalition.com/lighting_strategies_what_makes_soft_lights_cast_soft_shadows/"
-    used_in: [content/fr/notions/LUM-02.md, content/en/notions/LUM-02.md, docs/propositions.md, app/src/activities/lum02.ts]
+    used_in: [content/notions/LUM-02.md, docs/propositions.md, app/src/activities/lum02.ts]
   - id: nikon-z6-launch-2018
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, communiqué du 23 août 2018, « Nikon introduces the new Nikon Z mount system, and releases two full-frame mirrorless cameras: the Nikon Z 7 and Nikon Z 6 » : « the Z 6 has 273 focus points*, enabling broad coverage of approximately 90% of the imaging area both horizontally and vertically », « * With FX (36x24) format and single-point AF » (lu le 10 novembre 2026)"
     url: "https://www.nikon.com/news/2018/0823_mirrorless_01.htm"
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/en/notions/MAP-06.md, content/fr/notions/MAP-06.md]
+    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/notions/MAP-06.md]
   - id: nikon-z6-eisa-2019
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, communiqué du 15 août 2019 sur les prix EISA : « 273*2 focus points that provide good coverage of the imaging area — approximately 90% both horizontally and vertically », « *2 With recording of still images using the FX (36x24) image area and single-point AF » (lu le 10 novembre 2026)"
@@ -681,7 +681,7 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, page du produit Z 6 : « 273-point hybrid AF system offering accurate focus across 90% of the frame » ; fiche technique, « Focus points (in photo mode, FX format, single-point AF) 273 (single-point AF) » (lu le 10 novembre 2026)"
     url: "https://imaging.nikon.com/imaging/lineup/mirrorless/z_6/"
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/en/notions/MAP-06.md, content/fr/notions/MAP-06.md]
+    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/notions/MAP-06.md]
   - id: nikon-z6-apply-settings-live-view
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé d8 Apply Settings to Live View (lu le 9 novembre 2026)"
@@ -701,17 +701,17 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé d9 Framing Grid Display : « Choose On to display a grid for reference when framing shots. » ; la page ne décrit pas le tracé du quadrillage (lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d09.html"
-    used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [app/src/ui/cameraPanel.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: canon-850d-grid-display
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS 850D, « Grid Display When Shooting » : grilles « 3x3 », « 6x4 » et « 3x3+diag » (« Displays grid lines in a 6x4 pattern to help you level the camera vertically and horizontally. ») ; boîtier voisin, pas un boîtier du simulateur (lu le 12 novembre 2026)"
     url: "https://cam.start.canon/en/C002/manual/html/UG-09_Set-up_0200.html"
-    used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md]
+    used_in: [app/src/ui/cameraPanel.ts, content/notions/CMP-02.md, docs/camera-physique.md]
   - id: canon-r6-shooting-info-display
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS R6, « Shooting Information Display » : « A grid can be displayed on the screen and viewfinder. » ; la capture du menu montre « Off », « 3x3 », « 6x4 », « 3x3+diag » avec leurs icônes ; boîtier voisin, pas un boîtier du simulateur (lu le 12 novembre 2026)"
     url: "https://cam.start.canon/en/C004/manual/html/UG-03_Shooting-1_0360.html"
-    used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md]
+    used_in: [app/src/ui/cameraPanel.ts, content/notions/CMP-02.md, docs/camera-physique.md]
   - id: nikon-z6-f2
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé f2 Custom Control Assignment, « Framing grid display » : « Press the control to turn the framing grid display on or off. » (lu le 12 novembre 2026)"
@@ -721,52 +721,52 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, d9 : Affichage du quadrillage : « Choisissez Activé pour afficher un quadrillage de référence lors du cadrage des images. » (lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_d09.html"
-    used_in: [content/fr/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-grid-line
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III), Grid Line : « Rule of 3rds Grid », « Place main subjects close to one of the grid lines that divide the image into thirds for a well-balanced composition » ; « Square Grid », « Diag. + Square Grid », « Off » ; ni le nombre de cases, ni le tracé des diagonales, ni le réglage par défaut ne sont donnés (lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001653165.html"
-    used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [app/src/ui/cameraPanel.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-grid-line-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Quadrillage : termes « Grille règle des tiers », « Grille carrée », « Diag. + Grille carrée », « OFF » ; « Positionnez les principaux sujets à proximité de l'une des lignes du quadrillage qui divise l'image en trois pour une composition bien équilibrée » (apostrophes typographiques dans la page ; lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001663039.html"
-    used_in: [content/fr/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a6000-grid-line
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-6000 (A6000), Grid Line (Copyright 2014 Sony Corporation) : mêmes types et mêmes textes que l'A7 III ; « Off (default setting): Does not display the grid line. » (lu le 12 novembre 2026). La page française à la même adresse répond 404."
     url: "https://helpguide.sony.net/gbmig/45349331/v1/en/contents/TP0000518347.html"
-    used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [app/src/ui/cameraPanel.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: nikon-d5600-digitutor-framing-grid
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, Digitutor D5600, Framing Grid (Live View) (© 2025 Nikon Corporation) : affichage « Framing grid » de la visée écran ; son illustration montre trois lignes verticales et trois lignes horizontales, soit seize cases, le texte ne donnant pas ce nombre (page d'aide, pas le manuel ; lue le 12 novembre 2026)"
     url: "https://imaging.nikon.com/imaging/support/digitutor/d5600/functions/framing_grid_liveview.html"
-    used_in: [app/src/ui/cameraPanel.ts, content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [app/src/ui/cameraPanel.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: wikipedia-rule-of-thirds
     group: "Cours et pédagogie"
     label: "Wikipedia, Rule of thirds : image divisée en neuf parties égales par deux lignes horizontales et deux lignes verticales, éléments importants sur ces lignes ou à leurs croisements ; « to discourage placement of the subject at the center » ; expression écrite pour la première fois par John Thomas Smith en 1797 ; réserves de George Field (1845) et étude d'Amirshahi et collègues (2014) (révision 1383322855 du 2 novembre 2026, source secondaire, lue le 12 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Rule_of_thirds&oldid=1383322855"
-    used_in: [content/en/notions/CMP-02.md, content/fr/notions/CMP-02.md]
+    used_in: [content/notions/CMP-02.md]
   - id: nikon-z6-photo-information
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Photo Information : à la lecture, la commande DISP fait défiler les pages d'information, dont « None (image only) », « RGB histogram » et « Highlights », affichées seulement si elles sont sélectionnées dans « Playback display options » ; « Histogram (RGB channel) », puis canaux rouge, vert et bleu ; « Highlights (areas that may be overexposed) » ; « Histograms show tone distribution, with pixel brightness (tone) plotted on the horizontal axis and the number of pixels on the vertical axis. » ; « Camera histograms are intended as a guide only and may differ from those displayed in imaging applications. » ; avec la loupe, « The histogram will be updated to show only the data for the portion of the image visible in the display. » ; la page ne définit pas « RGB channel » et ne dit ni comment les hautes lumières sont marquées ni à quel seuil (lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/08_more_about_playback_02.html"
-    used_in: [app/src/camera/histogram.ts, app/src/ui/reviewInfo.ts, content/en/notions/MES-06.md, content/en/notions/MES-07.md, content/fr/notions/MES-06.md, content/fr/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [app/src/camera/histogram.ts, app/src/ui/reviewInfo.ts, content/notions/MES-06.md, content/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: nikon-z6-photo-information-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Informations sur les photos : « Histogramme RVB », « Histogramme (canal RVB) », canaux rouge, vert et bleu ; « Hautes lumières (zones susceptibles d'être surexposées) » ; « la luminosité des pixels (tons) figurant sur l'axe horizontal et le nombre de pixels figurant sur l'axe vertical » ; « Les histogrammes de l'appareil photo ne doivent servir que de référence. » (apostrophes typographiques dans la page ; lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/08_more_about_playback_02.html"
-    used_in: [content/fr/notions/MES-06.md, content/fr/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [content/notions/MES-06.md, content/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: nikon-z6-g6
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé g6 Highlight Display, groupe « g: Movie » : des hachures indiquent les hautes lumières en vidéo ; « Highlight display threshold », « If 255 is selected, the highlight display will show only areas that are potentially overexposed. » ; seule valeur de seuil écrite dans les pages lues (lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_g06.html"
-    used_in: [app/src/camera/histogram.ts, content/en/notions/MES-07.md, content/fr/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [app/src/camera/histogram.ts, content/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: nikon-z6-g6-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, g6 : Affichage des hautes lumières : « Si 255 est sélectionné, seules les zones susceptibles d'être surexposées seront indiquées. » (lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_g06.html"
-    used_in: [content/fr/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [content/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: nikon-z6-camera-controls
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Camera Controls, The DISP Button : en mode photo, la commande DISP fait défiler « Indicators on », « Simplified display », « Histogram », « Virtual horizon », « Information display », « Flash info » ; l'histogramme n'est pas affiché quand le réglage d8 (Apply settings to live view) est sur Off (lu le 12 novembre 2026)"
@@ -776,29 +776,29 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III), Switching the screen display (while shooting/during playback) : à la lecture, « Display Info. → Histogram → No Disp. Info. → Display Info. » ; « If the image has an overexposed or underexposed area, the corresponding section will blink on the histogram display (overexposed/underexposed warning). » ; « The settings for playback are also applied in [Auto Review]. » ; « A peak at the right or left end of the histogram indicates that the image has an overexposed or underexposed area, respectively. You cannot correct such defects using a computer after shooting. » ; le seuil du clignotement n'est pas donné (lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001653116.html"
-    used_in: [app/src/ui/reviewInfo.ts, content/en/notions/MES-06.md, content/en/notions/MES-07.md, content/fr/notions/MES-06.md, content/fr/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [app/src/ui/reviewInfo.ts, content/notions/MES-06.md, content/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-switching-display-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Changement d'affichage d'écran (pendant la prise de vue ou la lecture) : « Si l'image présente des zones surexposées ou sous-exposées, la partie correspondante clignote sur l'affichage de l'histogramme (avertissement surexposition/sous-exposition). » ; « Vous ne pourrez pas corriger de tels défauts au moyen d'un ordinateur après la prise de vue. » (apostrophes typographiques dans la page ; lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001662878.html"
-    used_in: [content/fr/notions/MES-06.md, content/fr/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [content/notions/MES-06.md, content/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-icons
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III), List of icons on the monitor : écran de lecture « Histogram display », « Histogram (Luminance/R/G/B) » (lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001667671.html"
-    used_in: [app/src/camera/histogram.ts, content/en/notions/MES-06.md, content/fr/notions/MES-06.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [app/src/camera/histogram.ts, content/notions/MES-06.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-zebra
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III), Zebra Setting : « Sets a zebra pattern, which appears over part of an image if the brightness level of that part meets the IRE level that you have set. » ; pour la surexposition, « The zebra pattern will appear over areas with a brightness level equal to or higher than the value you set. » ; la page ne définit pas l'échelle IRE et ne liste pas les valeurs (lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001667679.html"
-    used_in: [content/en/notions/MES-07.md, content/fr/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [content/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-zebra-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Régl. zebra : motif zébré « sur une portion d'une image si le niveau de luminosité de cette portion atteint le niveau IRE que vous avez défini » (apostrophes typographiques dans la page ; lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001667947.html"
-    used_in: [content/fr/notions/MES-07.md, docs/camera-physique.md]
+    used_in: [content/notions/MES-07.md, docs/camera-physique.md]
   - id: wikipedia-srgb
     group: "Physique, rendu et technique"
     label: "Wikipedia, sRGB, section « Primaries » : matrice du sRGB linéaire vers XYZ, dont la ligne Y vaut 0,2126 ; 0,7152 ; 0,0722, « these 4-digit coefficients should be considered exact » (révision 1378992844 du 7 octobre 2026, source secondaire, lue le 12 novembre 2026). TutoPhoto applique ces coefficients aux valeurs encodées de la photo pour son histogramme de luminance : c'est son choix, pas celui de la norme."
     url: "https://en.wikipedia.org/w/index.php?title=SRGB&oldid=1378992844"
-    used_in: [app/src/camera/histogram.ts, content/en/notions/MES-06.md, content/fr/notions/MES-06.md, docs/camera-physique.md, docs/dossiers/balance-des-blancs.md]
+    used_in: [app/src/camera/histogram.ts, content/notions/MES-06.md, docs/camera-physique.md, docs/dossiers/balance-des-blancs.md]

@@ -100,7 +100,7 @@ const MAX_ISO_FIRST = 3;
 const DEFAULT_MIN_SHUTTER = "1/30";
 const CL_RATES = [1, 2, 3, 4, 5] as const;
 const TIMER_DELAYS = [2, 5, 10, 20] as const;
-import { t, type Lang, type MessageKey } from "../i18n";
+import { t, type MessageKey } from "../texts";
 
 /** Écart maximal affiché par la cellule, en IL. */
 const METER_RANGE = 3;
@@ -250,7 +250,6 @@ export class CameraPanel {
   private focalIndex = DEFAULT_FOCAL_INDEX;
   private brand: Brand = "nikon";
   private format: Format = "ff";
-  private lang: Lang;
   private frame: Frame | null = null;
   private preview: Preview = { all: true, brightness: true, noise: true, depthOfField: true, balance: true, grid: "none" };
   /** Grille dont les lignes sont tracées dans le cadre ; null avant le premier tracé. */
@@ -287,10 +286,8 @@ export class CameraPanel {
     private readonly scene: Scene,
     private readonly camera: UniversalCamera,
     private readonly el: PanelElements,
-    lang: Lang,
     private readonly noise: ViewfinderNoise,
   ) {
-    this.lang = lang;
     this.baseAngularSensibility = camera.angularSensibility;
     const touch = camera.inputs.attached["touch"] as FreeCameraTouchInput | undefined;
     this.baseTouchSensibility = touch ? touch.touchAngularSensibility : null;
@@ -362,8 +359,7 @@ export class CameraPanel {
     this.update();
   }
 
-  setLang(lang: Lang): void {
-    this.lang = lang;
+  applyTexts(): void {
     this.update();
   }
 
@@ -402,7 +398,7 @@ export class CameraPanel {
 
   /** « A · f/4 · 1/200 s · ISO 100 (auto) · corr. +1,0 IL · 50 mm ». */
   private summary(resolved: ResolvedExposure): string {
-    const tr = (key: MessageKey) => t(this.lang, key);
+    const tr = (key: MessageKey) => t(key);
     const iso = `ISO ${this.label("iso", resolved)}${this.autoIso ? ` (${tr("setByCamera")})` : ""}`;
     const parts = [this.exposureMode, this.label("aperture", resolved), this.label("shutter", resolved), iso];
     if (this.compensation !== 0) parts.push(`${tr("compensationShort")} ${this.compensationText(this.compensation)} ${tr("meterUnit")}`);
@@ -414,7 +410,7 @@ export class CameraPanel {
   private compensationText(thirds: number): string {
     const value = (Math.abs(thirds) / 3).toFixed(1);
     const sign = thirds > 0 ? "+" : thirds < 0 ? "−" : "±";
-    return `${sign}${this.lang === "fr" ? value.replace(".", ",") : value}`;
+    return `${sign}${value.replace(".", ",")}`;
   }
 
   /** Indicateur d'équilibre, créé après le panneau. */
@@ -552,8 +548,8 @@ export class CameraPanel {
 
   /** Bouton et fenêtre « Mode de déclenchement ». */
   private updateRelease(): void {
-    const tr = (key: MessageKey) => t(this.lang, key);
-    const fpsText = (fps: number) => `${this.lang === "fr" ? String(fps).replace(".", ",") : fps} ${tr("releaseFpsShort")}`;
+    const tr = (key: MessageKey) => t(key);
+    const fpsText = (fps: number) => `${String(fps).replace(".", ",")} ${tr("releaseFpsShort")}`;
     const labels: Record<ReleaseKind, string> = {
       single: tr("releaseSingle"),
       cl: `${tr("releaseCL")} · ${fpsText(this.clRate)}`,
@@ -583,7 +579,7 @@ export class CameraPanel {
 
   /** Pourquoi la vitesse (A) ou l'ouverture (S) clignote : trop ou pas assez de lumière. */
   private limitText(resolved: ResolvedExposure): string {
-    return t(this.lang, resolved.offset - this.compensation / 3 > 0 ? "tooBright" : "tooDark");
+    return t(resolved.offset - this.compensation / 3 > 0 ? "tooBright" : "tooDark");
   }
 
   /** Fenêtre « Exposition » : mode, correction, ISO auto. */
@@ -692,7 +688,7 @@ export class CameraPanel {
 
   /** Libellé d'un réglage retenu par l'appareil (ou choisi, pour les listes de la fenêtre « Exposition »). */
   private label(dial: Dial, resolved: { settings: ExposureSettings } = this.resolved()): string {
-    const decimal = (text: string) => (this.lang === "fr" ? text.replace(".", ",") : text);
+    const decimal = (text: string) => text.replace(".", ",");
     const settings = resolved.settings;
     switch (dial) {
       case "aperture":
@@ -709,8 +705,8 @@ export class CameraPanel {
   }
 
   private update(): void {
-    const tr = (key: MessageKey) => t(this.lang, key);
-    const colon = this.lang === "fr" ? " : " : ": ";
+    const tr = (key: MessageKey) => t(key);
+    const colon = " : ";
     const resolved = this.resolved();
     for (const dial of ["aperture", "shutter", "iso", "focal"] as const) {
       const box = this.el.panel.querySelector<HTMLElement>(`[data-box="${dial}"]`);
@@ -741,7 +737,7 @@ export class CameraPanel {
     const sign = indicator > 0.05 ? "+" : indicator < -0.05 ? "−" : "";
     const amount = Math.abs(indicator).toFixed(1);
     const correction = this.compensation !== 0 ? ` · ${tr("compensationShort")} ${this.compensationText(this.compensation)}` : "";
-    this.el.meterValue.textContent = `${this.exposureMode} · ${sign}${this.lang === "fr" ? amount.replace(".", ",") : amount} ${tr("meterUnit")}${correction}`;
+    this.el.meterValue.textContent = `${this.exposureMode} · ${sign}${amount.replace(".", ",")} ${tr("meterUnit")}${correction}`;
     this.el.meterValue.classList.toggle("flashing", resolved.flashing !== null);
     this.el.meterValue.title = `${tr("exposureButtonTitle")}. ${tr("meterHelp")}${resolved.flashing ? ` ${this.limitText(resolved)}.` : ""}`;
     this.updateExposureDialog(tr);
@@ -753,7 +749,7 @@ export class CameraPanel {
     this.updatePreview(tr, colon);
 
     const body = this.body();
-    const mm = (value: number) => (this.lang === "fr" ? String(value).replace(".", ",") : String(value));
+    const mm = (value: number) => String(value).replace(".", ",");
     this.el.bodyButton.textContent = body.model;
     this.el.bodyButton.title = `${tr("bodyTitle")}${colon}${body.model}`;
     this.el.bodyDialog.querySelector("#body-title")!.textContent = tr("bodyTitle");
@@ -765,7 +761,7 @@ export class CameraPanel {
     this.el.bodyDialog.querySelector("#body-close")!.textContent = tr("close");
     const sensors = BODIES.filter((b) => b.brand === this.brand)
       .map((b) => `${b.model}${colon}${mm(b.sensorWidthMm)} × ${mm(b.sensorHeightMm)} mm`)
-      .join(this.lang === "fr" ? " ; " : "; ");
+      .join(" ; ");
     this.el.bodyDialog.querySelector("#sensor-note")!.textContent = `${tr("sensor")}${colon}${sensors}`;
     for (const input of this.el.bodyDialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) {
       input.checked = input.value === (input.name === "brand" ? this.brand : this.format);
@@ -893,7 +889,7 @@ export class CameraPanel {
    * coordonnées normalisées, soit m0 et m5 multipliés et m8, m9 décalés. La zone grossie reste dans le cadre.
    */
   private applyLoupe(frame: Frame, body: Body): void {
-    const tr = (key: MessageKey) => t(this.lang, key);
+    const tr = (key: MessageKey) => t(key);
     this.camera.unfreezeProjectionMatrix();
     this.loupeZoom = this.loupeLevel < 0 ? 1 : this.zoomAt(this.loupeLevel, frame, body);
     const touch = this.camera.inputs.attached["touch"] as FreeCameraTouchInput | undefined;
@@ -948,8 +944,8 @@ export class CameraPanel {
    * distance, verrou), repère.
    */
   private updateFocus(): void {
-    const tr = (key: MessageKey) => t(this.lang, key);
-    const colon = this.lang === "fr" ? " : " : ": ";
+    const tr = (key: MessageKey) => t(key);
+    const colon = " : ";
     const single = this.focusMode === "single";
     const short = single ? "AF-S" : "AF-C";
     const areaShort = tr(AREA_KEYS[this.areaMode].short);
@@ -987,7 +983,7 @@ export class CameraPanel {
     if (!af) return;
     const locked = af.locked();
     const meters = af.distance().toFixed(1);
-    const distance = `${this.lang === "fr" ? meters.replace(".", ",") : meters} m`;
+    const distance = `${meters.replace(".", ",")} m`;
     // Zone automatique : ce sur quoi l'appareil a fait le point (œil, visage, sujet le plus proche, point touché).
     const target = this.areaMode === "auto" ? af.target() : null;
     const what = target ? `${tr(TARGET_KEYS[target.kind])} · ` : "";

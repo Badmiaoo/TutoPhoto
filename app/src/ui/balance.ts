@@ -33,7 +33,7 @@ import type { NoiseReading } from "./challenges";
 import { noiseParameters } from "../camera/noise";
 import { PHOTO_LONG_SIDE, type SceneTimeControl } from "../camera/photo";
 import type { CameraPanel } from "./cameraPanel";
-import { t, type Lang, type MessageKey } from "../i18n";
+import { t, type MessageKey } from "../texts";
 
 const REFRESH_MS = 300;
 /** Côté du carré de pixels lus autour du point visé, pour moyenner le bruit du viseur. */
@@ -69,7 +69,6 @@ export class BalanceIndicator {
     private readonly autofocus: Autofocus,
     private readonly panel: CameraPanel,
     private readonly el: BalanceElements,
-    private lang: Lang,
   ) {
     setInterval(() => void this.refresh(), REFRESH_MS);
     // Petit écran : le triangle seul au départ ; un toucher affiche ou masque les lignes.
@@ -83,17 +82,16 @@ export class BalanceIndicator {
       apply();
     });
     apply();
-    this.setLang(lang);
+    this.applyTexts();
   }
 
-  setLang(lang: Lang): void {
-    this.lang = lang;
-    this.el.title.textContent = t(lang, "balanceTitle");
-    this.el.note.textContent = t(lang, "balanceNote");
+  applyTexts(): void {
+    this.el.title.textContent = t("balanceTitle");
+    this.el.note.textContent = t("balanceNote");
     const limits = this.el.root.querySelector("#balance-limits");
-    if (limits) limits.textContent = t(lang, "balanceLimits");
-    this.el.toggle.setAttribute("aria-label", t(lang, "balanceToggle"));
-    this.el.toggle.title = t(lang, "balanceToggle");
+    if (limits) limits.textContent = t("balanceLimits");
+    this.el.toggle.setAttribute("aria-label", t("balanceToggle"));
+    this.el.toggle.title = t("balanceToggle");
   }
 
   /** Interrupteur de l'indicateur, dans la fenêtre « Aperçu ». */
@@ -113,7 +111,7 @@ export class BalanceIndicator {
     if (!this.enabled || this.busy) return;
     this.busy = true;
     try {
-      const tr = (key: MessageKey) => t(this.lang, key);
+      const tr = (key: MessageKey) => t(key);
       const s = this.panel.current();
       const f = s.focalMm;
       const N = s.aperture;
@@ -247,6 +245,6 @@ export class BalanceIndicator {
 
   private decimal(value: number, digits: number): string {
     const text = value.toFixed(digits);
-    return this.lang === "fr" ? text.replace(".", ",") : text;
+    return text.replace(".", ",");
   }
 }

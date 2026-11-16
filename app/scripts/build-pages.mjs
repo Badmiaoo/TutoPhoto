@@ -1,15 +1,15 @@
 // Pages statiques du site, produites après Vite : l'accueil (dist/index.html) et les fiches des notions et des
-// situations (dist/fiches/fr|en/<identifiant>.html), d'après content/ (docs/contenus.md). Décisions de Julien du
+// situations (dist/fiches/<identifiant>.html), d'après content/ (docs/contenus.md). Décisions de Julien du
 // 11 novembre 2026 : accueil à la racine, simulateur sous simulateur/, fiches publiées avec un bandeau « en cours
 // de relecture » tant qu'elles ne sont pas listées dans data/relecture.yaml, convertisseur écrit pour TutoPhoto.
 //
 // Le convertisseur ne reconnaît que ce qu'emploient les fiches : un titre de niveau 1 (« # ID · Titre »), des
 // sections de niveau 2 aux titres de docs/contenus.md, des paragraphes, des listes à tirets, du gras (**…**) et des
 // liens [texte](https://…). Tout le reste fait échouer la construction, comme un code de notion ou de situation
-// sans fiche dans la même langue : une fiche mal formée se voit avant la publication.
+// sans fiche : une fiche mal formée se voit avant la publication.
 //
-// Les pages se lisent sans JavaScript ; un petit script retient la langue choisie, au même endroit que le simulateur
-// (clé « tutophoto.lang », app/src/i18n.ts).
+// Le site est en français seul depuis la version 0.3.60 (décision de Julien du 15 novembre 2026). Les pages se lisent
+// sans JavaScript ; le seul script de l'accueil est celui du pré-téléchargement.
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -19,7 +19,6 @@ import { readVersion } from "./version.mjs";
 const app = join(dirname(fileURLToPath(import.meta.url)), "..");
 const root = join(app, "..");
 const dist = join(app, "dist");
-const LANGS = ["fr", "en"];
 // Ordre des domaines de scripts/referentiel.py (DOMAIN_ORDER).
 const DOMAIN_ORDER = ["EXP", "MES", "BOI", "MAP", "NET", "MVT", "OPT", "LUM", "COU", "CMP", "PLA", "RET", "LEC"];
 const ID = /\b(?:[A-Z]{3}-\d{2})\b/g;
@@ -28,72 +27,36 @@ const problems = [];
 const fail = (msg) => problems.push(msg);
 
 const TEXT = {
-  fr: {
-    tagline: "Simulateur photo pour débutants, avec un reflex ou un hybride.",
-    status: (n, s) => `Version en construction : une scène de parc, ${s} situations et ${n} notions.`,
-    situationDoor: "Je suis en situation",
-    situationIntro: "Chaque situation donne sa recette de réglages, avec les raisons de chaque réglage et un plan B.",
-    trainDoor: "Je m'entraîne",
-    trainIntro: "Le simulateur : un boîtier virtuel dans la scène de parc, en entraînement libre ou avec un défi par situation.",
-    trainSize: (mib) => `Il télécharge la scène 3D, ${mib} Mio.`,
-    prefetch: "Télécharger les ressources du simulateur",
-    prefetchNote: "Pour mesurer ton réseau ou préparer le simulateur à l'avance : la progression et le débit s'affichent en direct.",
-    learnDoor: "J'apprends",
-    learnIntro: "Chaque notion a une explication, ce qu'en montre le simulateur et un exercice.",
-    openSimulator: "Ouvrir le simulateur",
-    playChallenge: "Jouer le défi",
-    doActivity: "Faire l'activité",
-    simulator: "Simulateur",
-    reviewMark: "en relecture",
-    reviewLegend: "Une fiche marquée « en relecture » n'a pas encore été vérifiée.",
-    banner: "Fiche en cours de relecture : son contenu et ses sources n'ont pas encore été vérifiés par les relecteurs de TutoPhoto.",
-    situations: "Situations",
-    licences: "Licences",
-    contentLicence: "Textes sous licence CC BY-SA 4.0, code sous licence MIT.",
-    source: "Code source",
-    version: (v) => `Version ${v}`,
-    switchLang: "English",
-    anchors: { situation: "situation", train: "entrainement", learn: "apprendre" },
-  },
-  en: {
-    tagline: "A photography simulator for beginners with a DSLR or a mirrorless camera.",
-    status: (n, s) => `Work in progress: a park scene, ${s} situations and ${n} notions.`,
-    situationDoor: "I'm in a situation",
-    situationIntro: "Each situation gives its recipe of settings, with the reason for each setting and a plan B.",
-    trainDoor: "I'm practising",
-    trainIntro: "The simulator: a virtual camera in the park scene, for free practice or with one challenge per situation.",
-    trainSize: (mib) => `It downloads the 3D scene, ${mib} MiB.`,
-    prefetch: "Download the simulator's resources",
-    prefetchNote: "To check your network or prepare the simulator in advance: progress and speed are shown live.",
-    learnDoor: "I'm learning",
-    learnIntro: "Each notion has an explanation, what the simulator shows of it, and an exercise.",
-    openSimulator: "Open the simulator",
-    playChallenge: "Play the challenge",
-    doActivity: "Do the activity",
-    simulator: "Simulator",
-    reviewMark: "under review",
-    reviewLegend: "A page marked “under review” has not been checked yet.",
-    banner: "This page is under review: its content and sources have not yet been checked by TutoPhoto's reviewers.",
-    situations: "Situations",
-    licences: "Licenses",
-    contentLicence: "Texts under the CC BY-SA 4.0 license, code under the MIT license.",
-    source: "Source code",
-    version: (v) => `Version ${v}`,
-    switchLang: "Français",
-    anchors: { situation: "situation", train: "practice", learn: "learn" },
-  },
+  tagline: "Simulateur photo pour débutants, avec un reflex ou un hybride.",
+  status: (n, s) => `Version en construction : une scène de parc, ${s} situations et ${n} notions.`,
+  situationDoor: "Je suis en situation",
+  situationIntro: "Chaque situation donne sa recette de réglages, avec les raisons de chaque réglage et un plan B.",
+  trainDoor: "Je m'entraîne",
+  trainIntro: "Le simulateur : un boîtier virtuel dans la scène de parc, en entraînement libre ou avec un défi par situation.",
+  trainSize: (mib) => `Il télécharge la scène 3D, ${mib} Mio.`,
+  prefetch: "Télécharger les ressources du simulateur",
+  prefetchNote: "Pour mesurer ton réseau ou préparer le simulateur à l'avance : la progression et le débit s'affichent en direct.",
+  learnDoor: "J'apprends",
+  learnIntro: "Chaque notion a une explication, ce qu'en montre le simulateur et un exercice.",
+  openSimulator: "Ouvrir le simulateur",
+  playChallenge: "Jouer le défi",
+  doActivity: "Faire l'activité",
+  simulator: "Simulateur",
+  reviewMark: "en relecture",
+  reviewLegend: "Une fiche marquée « en relecture » n'a pas encore été vérifiée.",
+  banner: "Fiche en cours de relecture : son contenu et ses sources n'ont pas encore été vérifiés par les relecteurs de TutoPhoto.",
+  situations: "Situations",
+  licences: "Licences",
+  contentLicence: "Textes sous licence CC BY-SA 4.0, code sous licence MIT.",
+  source: "Code source",
+  version: (v) => `Version ${v}`,
+  anchors: { situation: "situation", train: "entrainement", learn: "apprendre" },
 };
 
-// Titres des sections, par type de fiche et par langue (docs/contenus.md).
+// Titres des sections, par type de fiche (docs/contenus.md).
 const SECTIONS = {
-  notions: {
-    fr: ["Explication", "Simulateur", "Activité", "Exercice", "Situation réelle"],
-    en: ["Explanation", "Simulator", "Activity", "Exercise", "Real-world situation"],
-  },
-  situations: {
-    fr: ["Où, quand, quoi, pourquoi", "Recette", "Défi", "Notions"],
-    en: ["Where, when, what, why", "Recipe", "Challenge", "Notions"],
-  },
+  notions: ["Explication", "Simulateur", "Activité", "Exercice", "Situation réelle"],
+  situations: ["Où, quand, quoi, pourquoi", "Recette", "Défi", "Notions"],
 };
 
 const escapeHtml = (text) =>
@@ -101,24 +64,24 @@ const escapeHtml = (text) =>
 
 // --- Données ------------------------------------------------------------------------------------------------------
 
-/** Titres des domaines, lus dans le bloc « domain: » de chaque fichier du référentiel (format contrôlé par validate.py). */
+/** Titres français des domaines, lus dans le bloc « domain: » de chaque fichier du référentiel (format contrôlé par validate.py). */
 function readDomains() {
   const dir = join(root, "data", "referentiel");
   const domains = {};
   for (const name of readdirSync(dir)) {
     if (!name.endsWith(".yaml") || name === "retired.yaml") continue;
     const text = readFileSync(join(dir, name), "utf8");
-    const m = /^domain:\n  id: ([A-Z]{3})\n  title: \{fr: "([^"]+)", en: "([^"]+)"\}$/m.exec(text);
+    const m = /^domain:\n  id: ([A-Z]{3})\n  title: \{fr: "([^"]+)", en: "[^"]+"\}$/m.exec(text);
     if (!m) {
       fail(`data/referentiel/${name} : bloc « domain » non reconnu (id puis title sur une ligne)`);
       continue;
     }
-    domains[m[1]] = { fr: m[2], en: m[3] };
+    domains[m[1]] = m[2];
   }
   return domains;
 }
 
-/** Fiches relues : data/relecture.yaml, une ligne par fiche et par langue, sous la forme exacte de son en-tête. */
+/** Fiches relues : data/relecture.yaml, une ligne par fiche, sous la forme exacte de son en-tête. */
 function readReviewed() {
   const reviewed = new Set();
   const lines = readFileSync(join(root, "data", "relecture.yaml"), "utf8").split("\n");
@@ -129,8 +92,8 @@ function readReviewed() {
       seenKey = true;
       return;
     }
-    const m = /^  - \{fiche: ((?:[A-Z]{3})-\d{2}), langue: (fr|en), date: \d{4}-\d{2}-\d{2}\}$/.exec(line);
-    if (seenKey && m) reviewed.add(`${m[2]}/${m[1]}`);
+    const m = /^  - \{fiche: ((?:[A-Z]{3})-\d{2}), date: \d{4}-\d{2}-\d{2}\}$/.exec(line);
+    if (seenKey && m) reviewed.add(m[1]);
     else fail(`data/relecture.yaml:${i + 1} : ligne non reconnue`);
   });
   if (!seenKey) fail("data/relecture.yaml : clé « relues » absente");
@@ -181,15 +144,15 @@ function prefetchFiles() {
   return files;
 }
 
-/** Lit les fiches d'une langue : { id: { kind, title, sections: [{ title, lines }] } }. */
-function readFiches(lang) {
+/** Lit les fiches : { id: { kind, title, sections: [{ title, lines }] } }. */
+function readFiches() {
   const fiches = {};
   for (const kind of ["notions", "situations"]) {
-    const dir = join(root, "content", lang, kind);
+    const dir = join(root, "content", kind);
     for (const name of readdirSync(dir).sort()) {
       if (!name.endsWith(".md")) continue;
       const id = name.slice(0, -3);
-      const where = `content/${lang}/${kind}/${name}`;
+      const where = `content/${kind}/${name}`;
       const lines = readFileSync(join(dir, name), "utf8").split("\n");
       const first = lines.findIndex((l) => l.trim() !== "");
       const h1 = /^# ((?:[A-Z]{3})-\d{2}) · (.+)$/.exec(lines[first] ?? "");
@@ -202,7 +165,7 @@ function readFiches(lang) {
         const at = `${where}:${first + 2 + i}`;
         if (line.startsWith("## ")) {
           const title = line.slice(3).trim();
-          if (!SECTIONS[kind][lang].includes(title)) fail(`${at} : section « ${title} » non prévue par docs/contenus.md`);
+          if (!SECTIONS[kind].includes(title)) fail(`${at} : section « ${title} » non prévue par docs/contenus.md`);
           sections.push({ title, lines: [] });
         } else if (line.trim() === "" || sections.length > 0) {
           if (sections.length > 0) sections[sections.length - 1].lines.push({ line, at });
@@ -230,7 +193,7 @@ function inline(text, at, ctx) {
     return escaped.replace(ID, (id) => {
       if (id === ctx.self) return id;
       if (!ctx.fiches[id]) {
-        fail(`${at} : ${id} n'a pas de fiche en ${ctx.lang}`);
+        fail(`${at} : ${id} n'a pas de fiche`);
         return id;
       }
       return `<a href="${id}.html">${id}</a>`;
@@ -310,13 +273,9 @@ footer { max-width: 44rem; margin: 0 auto; padding: 1rem; border-top: 1px solid 
 .prefetch-errors { color: var(--muted); font-size: 0.9rem; }
 `;
 
-/** Retient la langue de la page, ou celle qu'on choisit, comme le simulateur. */
-const LANG_SCRIPT = (lang) =>
-  `<script>try { localStorage.setItem("tutophoto.lang", ${JSON.stringify(lang)}); } catch (e) {}</script>`;
-
-function page({ lang, title, description, css, body, script = "" }) {
+function page({ title, description, css, body, script = "" }) {
   return `<!doctype html>
-<html lang="${lang}">
+<html lang="fr">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -334,8 +293,8 @@ ${script}
 
 // Pied commun à l'accueil et aux fiches. Seul l'accueil donne la version du site (plan de corrections de l'audit,
 // Sujet 1) : il passe son numéro, les fiches n'en passent pas.
-const footer = (lang, up, version = null) => {
-  const t = TEXT[lang];
+const footer = (up, version = null) => {
+  const t = TEXT;
   return `<footer>
   <p>${t.contentLicence} <a href="${up}licences/">${t.licences}</a> · <a href="https://github.com/Badmiaoo/TutoPhoto">${t.source}</a></p>${
     version === null ? "" : `\n  <p>${escapeHtml(t.version(version))}</p>`
@@ -343,10 +302,9 @@ const footer = (lang, up, version = null) => {
 </footer>`;
 };
 
-function fichePage(lang, id, fiche, ctx) {
-  const t = TEXT[lang];
-  const other = lang === "fr" ? "en" : "fr";
-  const reviewed = ctx.reviewed.has(`${lang}/${id}`);
+function fichePage(id, fiche, ctx) {
+  const t = TEXT;
+  const reviewed = ctx.reviewed.has(id);
   const sections = fiche.sections
     .map((s) => `<section>\n<h2>${escapeHtml(s.title)}</h2>\n${block(s.lines, { ...ctx, self: id })}\n</section>`)
     .join("\n");
@@ -355,27 +313,26 @@ function fichePage(lang, id, fiche, ctx) {
     const list = ctx.situationsOf(id).map((sid) => `<li><a href="${sid}.html">${sid} · ${escapeHtml(ctx.fiches[sid].title)}</a></li>`);
     if (list.length) related = `<section>\n<h2>${t.situations}</h2>\n<ul>\n${list.join("\n")}\n</ul>\n</section>`;
   }
-  const domain = fiche.kind === "notions" ? ctx.domains[id.slice(0, 3)]?.[lang] : null;
+  const domain = fiche.kind === "notions" ? ctx.domains[id.slice(0, 3)] : null;
   const door = fiche.kind === "notions" ? [t.learnDoor, t.anchors.learn] : [t.situationDoor, t.anchors.situation];
   // Une situation qui a une section « Défi » ouvre le simulateur avec ce défi (simulateur/?defi=…, version 0.3.47).
-  const hasChallenge = fiche.kind === "situations" && fiche.sections.some((s) => s.title === SECTIONS.situations[lang][2]);
+  const hasChallenge = fiche.kind === "situations" && fiche.sections.some((s) => s.title === SECTIONS.situations[2]);
   // Une notion qui a une section « Activité » et une page d'activité construite par Vite (activites/<ID>/, version
   // 0.3.50) propose l'activité à la place du simulateur.
   const hasActivity =
     fiche.kind === "notions" &&
-    fiche.sections.some((s) => s.title === SECTIONS.notions[lang][2]) &&
+    fiche.sections.some((s) => s.title === SECTIONS.notions[2]) &&
     existsSync(join(dist, "activites", id, "index.html"));
   const action = hasChallenge
-    ? `<a class="button" href="../../simulateur/?lang=${lang}&amp;defi=${id}">${t.playChallenge}</a>`
+    ? `<a class="button" href="../simulateur/?defi=${id}">${t.playChallenge}</a>`
     : hasActivity
-      ? `<a class="button" href="../../activites/${id}/?lang=${lang}">${t.doActivity}</a>`
-      : `<a class="button" href="../../simulateur/?lang=${lang}">${t.openSimulator}</a>`;
-  const crumb = `<a href="../../?lang=${lang}#${door[1]}">${door[0]}</a>${domain ? ` · ${escapeHtml(capitalize(domain))}` : ""}`;
+      ? `<a class="button" href="../activites/${id}/">${t.doActivity}</a>`
+      : `<a class="button" href="../simulateur/">${t.openSimulator}</a>`;
+  const crumb = `<a href="../#${door[1]}">${door[0]}</a>${domain ? ` · ${escapeHtml(capitalize(domain))}` : ""}`;
   const body = `<header class="bar">
-  <a class="brand" href="../../?lang=${lang}">TutoPhoto</a>
+  <a class="brand" href="../">TutoPhoto</a>
   <nav>
-    <a href="../../simulateur/?lang=${lang}">${t.simulator}</a>
-    <a href="../${other}/${id}.html" hreflang="${other}" lang="${other}" data-lang="${other}">${t.switchLang}</a>
+    <a href="../simulateur/">${t.simulator}</a>
   </nav>
 </header>
 <main class="fiche">
@@ -386,36 +343,32 @@ ${sections}
 ${related}
 <p class="actions">${action}</p>
 </main>
-${footer(lang, "../../")}`;
+${footer("../")}`;
   return page({
-    lang,
     title: `${id} · ${fiche.title} · TutoPhoto`,
     description: `${id} · ${fiche.title}`,
-    css: "../../pages.css",
+    css: "../pages.css",
     body,
-    script: LANG_SCRIPT(lang),
   });
 }
 
 const capitalize = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
-function homeBlock(lang, all, ctx) {
-  const t = TEXT[lang];
-  const fiches = all[lang];
+function homeBody(ctx) {
+  const t = TEXT;
+  const fiches = ctx.fiches;
   const item = (id) => {
-    const mark = ctx.reviewed.has(`${lang}/${id}`) ? "" : ` <span class="mark">· ${t.reviewMark}</span>`;
-    return `<li><a href="fiches/${lang}/${id}.html"><span class="code">${id}</span>${escapeHtml(fiches[id].title)}</a>${mark}</li>`;
+    const mark = ctx.reviewed.has(id) ? "" : ` <span class="mark">· ${t.reviewMark}</span>`;
+    return `<li><a href="fiches/${id}.html"><span class="code">${id}</span>${escapeHtml(fiches[id].title)}</a>${mark}</li>`;
   };
   const situations = Object.keys(fiches).filter((id) => fiches[id].kind === "situations").sort();
   const notions = Object.keys(fiches).filter((id) => fiches[id].kind === "notions");
   const byDomain = DOMAIN_ORDER.filter((d) => notions.some((id) => id.startsWith(`${d}-`))).map((d) => {
     const ids = notions.filter((id) => id.startsWith(`${d}-`)).sort();
-    return `<h3>${escapeHtml(capitalize(ctx.domains[d]?.[lang] ?? d))}</h3>\n<ul>\n${ids.map(item).join("\n")}\n</ul>`;
+    return `<h3>${escapeHtml(capitalize(ctx.domains[d] ?? d))}</h3>\n<ul>\n${ids.map(item).join("\n")}\n</ul>`;
   });
-  return `<div class="lang-block" lang="${lang}" data-lang-block="${lang}"${lang === "fr" ? "" : " hidden"}>
-<header class="bar">
+  return `<header class="bar">
   <span class="brand">TutoPhoto</span>
-  <nav><button type="button" class="lang-switch" data-to="${lang === "fr" ? "en" : "fr"}">${t.switchLang}</button></nav>
 </header>
 <main>
 <h1>TutoPhoto</h1>
@@ -431,7 +384,7 @@ ${situations.map(item).join("\n")}
 <section class="door" id="${t.anchors.train}">
 <h2>${t.trainDoor}</h2>
 <p>${t.trainIntro} ${t.trainSize(ctx.sceneMib)}</p>
-<p class="actions-row"><a class="button" href="simulateur/?lang=${lang}">${t.openSimulator}</a> <button type="button" class="button secondary" data-prefetch>${t.prefetch}</button></p>
+<p class="actions-row"><a class="button" href="simulateur/">${t.openSimulator}</a> <button type="button" class="button secondary" data-prefetch>${t.prefetch}</button></p>
 <p class="mark">${t.prefetchNote}</p>
 <div class="prefetch" data-prefetch-panel hidden>
 <progress max="100" value="0"></progress>
@@ -446,71 +399,34 @@ ${byDomain.join("\n")}
 </section>
 <p class="mark">${t.reviewLegend}</p>
 </main>
-${footer(lang, "", ctx.version)}
-</div>`;
+${footer("", ctx.version)}`;
 }
-
-// Accueil : les deux langues dans la page, une seule affichée (paramètre ?lang=, choix retenu, langue du navigateur,
-// comme initialLang() dans app/src/i18n.ts) ; sans JavaScript, le français.
-const HOME_SCRIPT = `<script>
-(function () {
-  var lang = new URLSearchParams(location.search).get("lang");
-  if (lang !== "fr" && lang !== "en") {
-    try { lang = localStorage.getItem("tutophoto.lang"); } catch (e) { lang = null; }
-  }
-  if (lang !== "fr" && lang !== "en") lang = navigator.language.toLowerCase().indexOf("fr") === 0 ? "fr" : "en";
-  function show(l, remember) {
-    document.documentElement.lang = l;
-    document.querySelectorAll("[data-lang-block]").forEach(function (b) { b.hidden = b.getAttribute("data-lang-block") !== l; });
-    if (remember) { try { localStorage.setItem("tutophoto.lang", l); } catch (e) {} }
-  }
-  document.querySelectorAll(".lang-switch").forEach(function (b) {
-    b.addEventListener("click", function () { show(b.getAttribute("data-to"), true); });
-  });
-  show(lang, false);
-})();
-</script>`;
 
 // Pré-téléchargement des ressources du simulateur (version 0.3.51). Trois téléchargements à la fois ; les octets
 // sont comptés à mesure qu'ils arrivent (flux de la réponse), d'où une barre en direct. Débit = octets reçus × 8 ÷ durée.
 // Les fichiers vont dans le cache ordinaire du navigateur (option A, décision de Julien du 11 novembre 2026) : ce
 // qu'il en garde dépend du serveur et du navigateur, d'où la formulation prudente du bilan.
 const PREFETCH_TEXT = {
-  fr: {
-    progress: "{done} / {total} Mio · {pct} % · {time} · {rate} Mbit/s",
-    stall: "aucune donnée reçue depuis {s} s",
-    done: "Téléchargé : {total} Mio en {time}, débit moyen {rate} Mbit/s.",
-    cache: "Si le navigateur garde ces fichiers en mémoire, le simulateur s'ouvrira plus vite.",
-    failed: "{n} fichier(s) en échec : réessaie, ou change de réseau.",
-    retry: "Réessayer les fichiers en échec",
-    network: "erreur réseau",
-    min: "min",
-  },
-  en: {
-    progress: "{done} / {total} MiB · {pct} % · {time} · {rate} Mbit/s",
-    stall: "no data received for {s} s",
-    done: "Downloaded: {total} MiB in {time}, average speed {rate} Mbit/s.",
-    cache: "If the browser keeps these files, the simulator will open faster.",
-    failed: "{n} file(s) failed: try again, or change networks.",
-    retry: "Retry the failed files",
-    network: "network error",
-    min: "min",
-  },
+  progress: "{done} / {total} Mio · {pct} % · {time} · {rate} Mbit/s",
+  stall: "aucune donnée reçue depuis {s} s",
+  done: "Téléchargé : {total} Mio en {time}, débit moyen {rate} Mbit/s.",
+  cache: "Si le navigateur garde ces fichiers en mémoire, le simulateur s'ouvrira plus vite.",
+  failed: "{n} fichier(s) en échec : réessaie, ou change de réseau.",
+  retry: "Réessayer les fichiers en échec",
+  network: "erreur réseau",
+  min: "min",
 };
 
 const PREFETCH_SCRIPT = `<script>
 (function () {
   var files = JSON.parse(document.getElementById("prefetch-files").textContent);
-  var TEXT = ${JSON.stringify(PREFETCH_TEXT)};
+  var t = ${JSON.stringify(PREFETCH_TEXT)};
   var total = files.reduce(function (sum, f) { return sum + f.bytes; }, 0);
   var MIB = 1048576;
   var STALL_S = 15;
   var PARALLEL = 3;
   document.querySelectorAll("[data-prefetch]").forEach(function (button) {
-    var block = button.closest("[data-lang-block]");
-    var lang = block.getAttribute("data-lang-block");
-    var t = TEXT[lang];
-    var panel = block.querySelector("[data-prefetch-panel]");
+    var panel = document.querySelector("[data-prefetch-panel]");
     var bar = panel.querySelector("progress");
     var status = panel.querySelector(".prefetch-status");
     var errors = panel.querySelector(".prefetch-errors");
@@ -518,7 +434,7 @@ const PREFETCH_SCRIPT = `<script>
     var got = {};
     var ok = {};
     var running = false;
-    var num = function (v, d) { var x = v.toFixed(d); return lang === "fr" ? x.replace(".", ",") : x; };
+    var num = function (v, d) { return v.toFixed(d).replace(".", ","); };
     var duration = function (s) { return s < 60 ? Math.round(s) + " s" : Math.floor(s / 60) + " " + t.min + " " + Math.round(s % 60) + " s"; };
     button.addEventListener("click", function () {
       if (running) return;
@@ -602,39 +518,30 @@ const PREFETCH_SCRIPT = `<script>
 const domains = readDomains();
 const reviewed = readReviewed();
 const version = siteVersion();
-const all = Object.fromEntries(LANGS.map((lang) => [lang, readFiches(lang)]));
-for (const lang of LANGS) {
-  const other = lang === "fr" ? "en" : "fr";
-  for (const id of Object.keys(all[lang])) if (!all[other][id]) fail(`${id} : fiche en ${lang} sans fiche en ${other}`);
-}
-const ctxFor = (lang) => ({
-  lang,
-  fiches: all[lang],
+const fiches = readFiches();
+const ctx = {
+  fiches,
   domains,
   reviewed,
   version,
   sceneMib: sceneMib(),
   // Situations dont la section « Notions » cite la notion.
   situationsOf: (nid) =>
-    Object.entries(all[lang])
+    Object.entries(fiches)
       .filter(([, f]) => f.kind === "situations")
-      .filter(([, f]) => f.sections.some((s) => SECTIONS.situations[lang].indexOf(s.title) === 3 && s.lines.some((l) => l.line.includes(nid))))
+      .filter(([, f]) => f.sections.some((s) => SECTIONS.situations.indexOf(s.title) === 3 && s.lines.some((l) => l.line.includes(nid))))
       .map(([sid]) => sid)
       .sort(),
-});
+};
 
 const outputs = [];
-for (const lang of LANGS) {
-  const ctx = ctxFor(lang);
-  for (const [id, fiche] of Object.entries(all[lang])) outputs.push([join("fiches", lang, `${id}.html`), fichePage(lang, id, fiche, ctx)]);
-}
+for (const [id, fiche] of Object.entries(fiches)) outputs.push([join("fiches", `${id}.html`), fichePage(id, fiche, ctx)]);
 const home = page({
-  lang: "fr",
   title: "TutoPhoto",
-  description: `${TEXT.fr.tagline} ${TEXT.en.tagline}`,
+  description: TEXT.tagline,
   css: "pages.css",
-  body: LANGS.map((lang) => homeBlock(lang, all, ctxFor(lang))).join("\n"),
-  script: `<script type="application/json" id="prefetch-files">${JSON.stringify(prefetchFiles()).replace(/</g, "\\u003c")}</script>\n${HOME_SCRIPT}\n${PREFETCH_SCRIPT}`,
+  body: homeBody(ctx),
+  script: `<script type="application/json" id="prefetch-files">${JSON.stringify(prefetchFiles()).replace(/</g, "\\u003c")}</script>\n${PREFETCH_SCRIPT}`,
 });
 outputs.push(["index.html", home], ["pages.css", CSS]);
 

@@ -190,12 +190,12 @@ def check_jalons(ref):
 
 
 def check_relecture(ref):
-    """Une fiche relue existe dans sa langue, et n'est listée qu'une fois par langue (data/relecture.yaml)."""
-    for dup in duplicates([(r["fiche"], r["langue"]) for r in ref.relues]):
-        error(f"relecture : fiche {dup[0]} en double en {dup[1]}")
+    """Une fiche relue existe, et n'est listée qu'une fois (data/relecture.yaml)."""
+    for dup in duplicates([r["fiche"] for r in ref.relues]):
+        error(f"relecture : fiche {dup} en double")
     for r in ref.relues:
         kind = "situations" if r["fiche"].startswith("SIT-") else "notions"
-        path = ref.root / "content" / r["langue"] / kind / f"{r['fiche']}.md"
+        path = ref.root / "content" / kind / f"{r['fiche']}.md"
         if not path.is_file():
             error(f"relecture : {ref.rel(path)} introuvable")
 
