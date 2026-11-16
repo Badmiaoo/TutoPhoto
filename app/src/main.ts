@@ -114,8 +114,9 @@ function renderProblems(): void {
 /**
  * Message d'un échec, suivi de la version du site : « La scène n'a pas pu être chargée. Version du site : X.Y.Z. »
  * (version 0.3.59, demande de Julien du 15 novembre 2026). Pour un chargement en échec et pour un navigateur sans
- * WebGL : une capture d'écran de l'un ou de l'autre se rattache ainsi à une version. Le message d'un chargement en
- * cours ne la porte pas.
+ * WebGL. Une capture d'écran d'un chargement en échec se rattache ainsi à une version ; le message d'un navigateur
+ * sans WebGL, lui, n'est pas visible à l'écran tant que le constat COD-11 de l'audit n'est pas corrigé (Sujet 10 du
+ * plan). Le message d'un chargement en cours ne la porte pas.
  */
 function withVersion(message: string): string {
   return `${message} ${siteVersion(lang)}.`;

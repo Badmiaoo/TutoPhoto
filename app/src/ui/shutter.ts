@@ -517,9 +517,10 @@ export class Shutter {
   /**
    * Affiche l'écran de revue, défilement remis à zéro : chaque vue s'ouvre en haut, la photo visible (constat
    * INT-17 de l'audit, version 0.3.59). Masqué entre deux photos, l'écran de revue gardait le défilement de la vue
-   * d'avant. Et la photo n'a aucune hauteur tant qu'elle n'est pas chargée : dans Chromium, quand une image était
-   * rendue avant ce chargement, l'ancrage du défilement ajoutait la hauteur de la photo au défilement gardé, et la
-   * photo sortait de l'écran. La remise à zéro vient après l'affichage : sur un élément masqué, elle n'a pas d'effet.
+   * d'avant. Et la photo n'avait aucune hauteur tant qu'elle n'était pas chargée : dans Chromium, quand une image
+   * était rendue avant ce chargement, l'ancrage du défilement ajoutait la hauteur de la photo au défilement gardé,
+   * et la photo sortait de l'écran. La remise à zéro vient après l'affichage : sur un élément masqué, elle n'a pas
+   * d'effet.
    */
   private openReview(): void {
     this.el.review.hidden = false;

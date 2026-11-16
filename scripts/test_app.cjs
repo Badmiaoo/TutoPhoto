@@ -142,7 +142,7 @@ async function frameNoise(page) {
 /**
  * Netteté d'une zone du cadre : moyenne de la valeur absolue du laplacien, en niveaux de gris. Zone en haut à
  * gauche du cadre (de 15 à 35 % de sa largeur, de 2 à 20 % de sa hauteur). Au 135 mm, appareil au point de
- * départ, cette zone ne montre pas que le fond (mesuré le 15 novembre 2026 sur le profil ordinateur, cadre de
+ * départ, cette zone ne montre pas que le fond (mesuré le 15 novembre 2026 sur le profil ordinateur, fenêtre de
  * 1280 × 800) : la tête de Sophia, qui bouge, y entre par la droite pendant une partie de son animation, et le
  * promeneur la traverse. L'appelant déplace donc l'appareil là où la zone ne montre que le fond (contrôle
  * « profondeur de champ du viseur »).
@@ -802,11 +802,13 @@ async function runProfile(browser, name, base) {
       };
       await clicks('[data-dial="shutter"][data-step="1"]', 8);
       await shoot();
-      // La photo suivante s'ouvre en haut de l'écran de revue (constat INT-17 de l'audit, version 0.3.59). Sur les
-      // petits écrans, « Infos » puis « Revenir au viseur » ont fait défiler l'écran de revue de la première photo ;
-      // ce défilement était gardé, et la photo, sans hauteur tant qu'elle n'est pas chargée, pouvait être poussée
-      // hors de l'écran par l'ancrage du défilement de Chromium : le contrôle « zones écrêtées posées sur la photo »,
-      // plus bas, lisait alors l'en-tête au centre de la photo (profil iphone, CI du 15 novembre 2026).
+      // La photo suivante s'ouvre en haut de l'écran de revue (constat INT-17 de l'audit, version 0.3.59). Sur le
+      // profil iphone, avec la police de la CI (viseur de 238 px), « Infos » a fait défiler l'écran de revue de la
+      // première photo de 36 px ; ce défilement était gardé, et la photo, sans hauteur tant qu'elle n'était pas
+      // chargée, pouvait être poussée hors de l'écran par l'ancrage du défilement de Chromium : le contrôle « zones
+      // écrêtées posées sur la photo », plus bas, lisait alors l'en-tête au centre de la photo (CI du 15 novembre
+      // 2026). Sur les profils android et ordinateur, rien ne fait défiler l'écran de revue avant cette photo : ce
+      // contrôle y réussit aussi sur le site d'avant la correction, il n'y distingue pas le défaut.
       const reopened = await page.evaluate(() => {
         const review = document.getElementById("review");
         return { scroll: review.scrollTop, top: document.getElementById("review-image").getBoundingClientRect().top - review.getBoundingClientRect().top };
