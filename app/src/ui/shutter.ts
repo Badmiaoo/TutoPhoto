@@ -24,7 +24,7 @@ import type { CameraPanel, CurrentSettings, ReleaseMode } from "./cameraPanel";
 import type { ViewfinderNoise } from "../camera/noise";
 import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
 import type { AreaMode, Autofocus, FocusMode } from "../camera/autofocus";
-import { t, type Lang, type MessageKey } from "../i18n";
+import { t, type MessageKey } from "../texts";
 import { judgeChallenge, measureShot, type Bulletin, type ChallengeId, type SceneThing } from "../camera/bulletin";
 import type { FaceSubject } from "../camera/faces";
 import { LANDMARKS } from "../scene";
@@ -117,7 +117,6 @@ export class Shutter {
     private readonly panel: CameraPanel,
     private readonly el: ShutterElements,
     private readonly resumeRendering: () => void,
-    private lang: Lang,
     private readonly noise: ViewfinderNoise,
     private readonly dof: ViewfinderDepthOfField,
     private readonly autofocus: Autofocus,
@@ -156,13 +155,12 @@ export class Shutter {
     el.reviewImage.addEventListener("click", (e) => void this.magnify(e));
     panel.onViewChange(() => this.placeMarker());
     autofocus.onChange(() => this.placeMarker());
-    this.setLang(lang);
+    this.applyTexts();
     requestAnimationFrame(() => this.placeMarker());
   }
 
-  setLang(lang: Lang): void {
-    this.lang = lang;
-    const tr = (key: MessageKey) => t(lang, key);
+  applyTexts(): void {
+    const tr = t;
     this.el.button.textContent = tr("shutterButton");
     this.el.marker.title = tr("focusPoint");
     this.el.progressLabel.textContent = tr("computing");
@@ -175,7 +173,7 @@ export class Shutter {
     if (this.shots.length > 1) this.el.reviewCount.textContent = `${tr("reviewFrame")} ${this.shotIndex + 1}/${this.shots.length}`;
     if (this.lastCaption) this.el.reviewCaption.textContent = this.lastCaption();
     if (!this.el.reviewBulletin.hidden) this.showBulletin();
-    this.info.setLang(lang);
+    this.info.applyTexts();
   }
 
   /** Toucher le viseur : avec la loupe, le point touché est ramené au cadre complet. */
@@ -225,8 +223,8 @@ export class Shutter {
     this.busy = true;
     this.panel.setEnabled(false);
     this.el.progressLabel.textContent = frame
-      ? `${t(this.lang, "computingFrame")} ${frame.index + 1}/${frame.count}…`
-      : t(this.lang, "computing");
+      ? `${t("computingFrame")} ${frame.index + 1}/${frame.count}…`
+      : t("computing");
     this.el.progress.hidden = false;
     this.el.progressBar.style.width = "0%";
     this.engine.stopRenderLoop();
@@ -267,7 +265,7 @@ export class Shutter {
         const now = this.time.now();
         samples.push({ t0: now, rotation: this.camera.rotation.clone() });
         const count = Math.min(MAX_BURST, 1 + Math.floor((now - start) / interval + 1e-9));
-        this.el.button.textContent = `${t(this.lang, "burstCount")} ${count} ${t(this.lang, count === 1 ? "burstFrame" : "burstFrames")}`;
+        this.el.button.textContent = `${t("burstCount")} ${count} ${t(count === 1 ? "burstFrame" : "burstFrames")}`;
       });
     }
     this.press = { start, samples, observer, mode };
@@ -280,7 +278,7 @@ export class Shutter {
     if (!press) return;
     this.press = null;
     if (press.observer) this.scene.onBeforeRenderObservable.remove(press.observer);
-    this.el.button.textContent = t(this.lang, "shutterButton");
+    this.el.button.textContent = t("shutterButton");
     if (press.mode.kind === "single") {
       await this.shootSeries([press.samples[0]], null);
       return;
@@ -307,7 +305,7 @@ export class Shutter {
   /** Retardateur : compte à rebours en secondes, puis une vue. */
   private startCountdown(delay: number): void {
     let left = delay;
-    const show = () => (this.el.button.textContent = `${t(this.lang, "timerCountdown")} ${left} s`);
+    const show = () => (this.el.button.textContent = `${t("timerCountdown")} ${left} s`);
     show();
     const tick = () => {
       left--;
@@ -317,7 +315,7 @@ export class Shutter {
         return;
       }
       this.countdown = null;
-      this.el.button.textContent = t(this.lang, "shutterButton");
+      this.el.button.textContent = t("shutterButton");
       void this.shootSeries([{ t0: this.time.now(), rotation: this.camera.rotation.clone() }], null);
     };
     this.countdown = window.setTimeout(tick, 1000);
@@ -413,7 +411,7 @@ export class Shutter {
   private showBulletin(): void {
     const shot = this.shots[this.shotIndex];
     if (!shot) return;
-    renderBulletin(this.el.reviewBulletin, this.lang, shot.bulletin, {
+    renderBulletin(this.el.reviewBulletin, shot.bulletin, {
       exposureOffset: Math.log2(shot.settings.exposure),
       focusDistance: shot.photo.focusDistance,
       challenge: shot.challenge,
@@ -431,7 +429,7 @@ export class Shutter {
     this.el.reviewSave.href = shot.photo.url;
     const many = this.shots.length > 1;
     this.el.reviewSeries.hidden = !many;
-    this.el.reviewCount.textContent = many ? `${t(this.lang, "reviewFrame")} ${index + 1}/${this.shots.length}` : "";
+    this.el.reviewCount.textContent = many ? `${t("reviewFrame")} ${index + 1}/${this.shots.length}` : "";
     this.el.reviewPrev.disabled = index === 0;
     this.el.reviewNext.disabled = index === this.shots.length - 1;
     this.showWhole();
@@ -446,7 +444,7 @@ export class Shutter {
     this.el.reviewWhole.hidden = true;
     this.el.reviewHint.hidden = false;
     this.lastCaption = () => {
-      const tr = (key: MessageKey) => t(this.lang, key);
+      const tr = t;
       const areaKeys: Record<AreaMode, MessageKey> = { point: "areaPointShort", wideS: "areaWideSShort", wideL: "areaWideLShort", auto: "areaAutoShort" };
       const targetKeys: Record<NonNullable<Shot["target"]>, MessageKey> = { eye: "targetEye", face: "targetFace", nearest: "targetNearest", point: "targetPoint" };
       const what = target ? ` · ${tr(targetKeys[target])}` : "";
@@ -491,7 +489,7 @@ export class Shutter {
       this.setImage(photo.url, photo.width, photo.height);
       this.el.reviewWhole.hidden = false;
       this.el.reviewHint.hidden = false;
-      this.lastCaption = () => `${t(this.lang, "loupe")} 100${t(this.lang, "percent")} · ${this.computedText(photo)}`;
+      this.lastCaption = () => `${t("loupe")} 100${t("percent")} · ${this.computedText(photo)}`;
       this.el.reviewBulletin.hidden = true;
       this.showCaption();
       // Avec la loupe, histogrammes et zones écrêtées portent sur la partie affichée, comme sur le Z 6.
@@ -532,21 +530,21 @@ export class Shutter {
     const detail = error instanceof Error ? error.message : String(error);
     this.el.reviewBulletin.hidden = true;
     this.info.show(null);
-    this.lastCaption = () => `${t(this.lang, "photoError")} (${detail})`;
+    this.lastCaption = () => `${t("photoError")} (${detail})`;
     this.el.reviewCaption.textContent = this.lastCaption();
     this.openReview();
   }
 
   /** « 64 rendus, calculée en 1,2 s » ; « 120/256 » si le calcul a été arrêté par la limite de temps. */
   private computedText(photo: PhotoResult): string {
-    const tr = (key: MessageKey) => t(this.lang, key);
+    const tr = t;
     const samples = photo.samples < photo.plannedSamples ? `${photo.samples}/${photo.plannedSamples}` : `${photo.samples}`;
     return `${samples} ${tr("renders")}, ${tr("computedIn")} ${this.decimal(photo.milliseconds / 1000, 1)} s`;
   }
 
   private decimal(value: number, digits: number): string {
     const text = value.toFixed(digits);
-    return this.lang === "fr" ? text.replace(".", ",") : text;
+    return text.replace(".", ",");
   }
 
   private dropLoupe(): void {

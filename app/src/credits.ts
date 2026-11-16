@@ -2,7 +2,7 @@
 // Les licences CC BY exigent d'attribuer l'œuvre ; on attribue aussi les éléments CC0, par courtoisie.
 // La fenêtre donne aussi la version du site, au-dessus de la liste des crédits (version 0.3.59).
 
-import { t, type Lang } from "./i18n";
+import { t } from "./texts";
 import { siteVersion } from "./version";
 
 interface Bilingual {
@@ -48,23 +48,23 @@ function link(href: string, text: string): HTMLAnchorElement {
   return a;
 }
 
-/** Remplit la liste des crédits dans la langue demandée. */
-export function renderCredits(list: HTMLElement, manifest: SceneManifest, lang: Lang): void {
+/** Remplit la liste des crédits. */
+export function renderCredits(list: HTMLElement, manifest: SceneManifest): void {
   list.replaceChildren();
   for (const asset of manifest.assets) {
     const item = document.createElement("li");
     const role = document.createElement("span");
     role.className = "role";
-    role.textContent = asset.role[lang];
+    role.textContent = asset.role.fr;
     item.append(
       role,
       document.createElement("br"),
       link(asset.source, asset.title),
-      ` ${t(lang, "by")} ${asset.authors.join(", ")}, `,
+      ` ${t("by")} ${asset.authors.join(", ")}, `,
       link(asset.license_url, LICENSE_NAMES[asset.license]),
     );
     if (asset.changes) {
-      item.append(document.createElement("br"), `${t(lang, "changes")} ${asset.changes[lang]}`);
+      item.append(document.createElement("br"), `${t("changes")} ${asset.changes.fr}`);
     }
     list.append(item);
   }
@@ -74,6 +74,6 @@ export function renderCredits(list: HTMLElement, manifest: SceneManifest, lang: 
  * Écrit la version du site dans la fenêtre des crédits. À part de renderCredits : la version ne dépend pas du
  * manifeste de la scène, et doit se lire même quand la scène ne se charge pas.
  */
-export function renderVersion(target: HTMLElement, lang: Lang): void {
-  target.textContent = siteVersion(lang);
+export function renderVersion(target: HTMLElement): void {
+  target.textContent = siteVersion();
 }

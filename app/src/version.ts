@@ -5,14 +5,14 @@
 // sur main, la version publiée. À n'importer que du simulateur : la construction de l'activité de LUM-02
 // (vite.activites.config.ts) ne définit pas cette constante.
 
-import { t, type Lang } from "./i18n";
+import { t } from "./texts";
 
 declare const __TUTOPHOTO_VERSION__: string;
 
 /** Numéro de la version, sous la forme X.Y.Z. */
 export const VERSION: string = __TUTOPHOTO_VERSION__;
 
-/** « Version du site : X.Y.Z », dans la langue demandée. */
-export function siteVersion(lang: Lang): string {
-  return t(lang, "siteVersion").replace("{version}", VERSION);
+/** « Version du site : X.Y.Z ». */
+export function siteVersion(): string {
+  return t("siteVersion").replace("{version}", VERSION);
 }

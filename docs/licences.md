@@ -7,7 +7,7 @@ Décidé par Julien le 7 novembre 2026. Les clauses citées ici ont été lues d
 | Quoi | Où | Licence |
 | --- | --- | --- |
 | Code | `scripts/`, `schemas/`, `.github/`, `app/` (hors modèles, textures et photos de tiers) | MIT ([`LICENSE`](../LICENSE)) |
-| Contenus | `content/` (à venir), `docs/`, `README.md`, `README.en.md`, `CHANGELOG.md`, `CLAUDE.md`, `REPRISE.md` | CC BY-SA 4.0 ([`LICENSES/CC-BY-SA-4.0.txt`](../LICENSES/CC-BY-SA-4.0.txt)) |
+| Contenus | `content/`, `docs/`, `README.md`, `CHANGELOG.md`, `CLAUDE.md`, `REPRISE.md` | CC BY-SA 4.0 ([`LICENSES/CC-BY-SA-4.0.txt`](../LICENSES/CC-BY-SA-4.0.txt)) |
 | Données | `data/` (référentiel, situations, sources, jalons) | CC BY-SA 4.0 |
 | Modèles, textures et photos 3D faits par d'autres | `app/public/scenes/` | la licence de chaque élément, qui doit être CC0 ou CC BY |
 

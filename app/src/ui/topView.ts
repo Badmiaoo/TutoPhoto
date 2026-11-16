@@ -16,7 +16,7 @@ import type { Autofocus } from "../camera/autofocus";
 import type { SceneTimeControl } from "../camera/photo";
 import { blurLimitMm, sharpZone } from "../camera/sharpZone";
 import { LANDMARKS, type EyeControl } from "../scene";
-import { t, type Lang, type MessageKey } from "../i18n";
+import { t } from "../texts";
 import type { CameraPanel } from "./cameraPanel";
 
 /** Zone où l'appareil peut aller, en mètres (x vers la droite, z vers le groupe). */
@@ -37,7 +37,6 @@ interface TopViewElements {
 }
 
 export class TopView {
-  private lang: Lang;
   private expanded: boolean;
   private readonly layers: Record<"area" | "zone" | "field" | "focus" | "things" | "camera", SVGGElement>;
 
@@ -48,9 +47,7 @@ export class TopView {
     private readonly autofocus: Autofocus,
     private readonly panel: CameraPanel,
     private readonly el: TopViewElements,
-    lang: Lang,
   ) {
-    this.lang = lang;
     // Replié sur petit écran, comme l'indicateur d'équilibre.
     this.expanded = window.innerWidth > 700;
     el.map.setAttribute("viewBox", `${MAP.minX} ${-MAP.maxZ} ${MAP.maxX - MAP.minX} ${MAP.maxZ - MAP.minZ}`);
@@ -78,11 +75,10 @@ export class TopView {
       this.draw();
     });
     setInterval(() => this.draw(), REFRESH_MS);
-    this.setLang(lang);
+    this.applyTexts();
   }
 
-  setLang(lang: Lang): void {
-    this.lang = lang;
+  applyTexts(): void {
     this.draw();
   }
 
@@ -99,7 +95,7 @@ export class TopView {
   }
 
   private draw(): void {
-    const tr = (key: MessageKey) => t(this.lang, key);
+    const tr = t;
     const el = this.el;
     el.root.classList.toggle("collapsed", !this.expanded);
     el.toggle.setAttribute("aria-expanded", String(this.expanded));
@@ -164,7 +160,7 @@ export class TopView {
     });
     this.layers.things.replaceChildren(...shapes);
 
-    const decimal = (value: number) => (this.lang === "fr" ? value.toFixed(1).replace(".", ",") : value.toFixed(1));
+    const decimal = (value: number) => value.toFixed(1).replace(".", ",");
     const farText = Number.isFinite(zone.far) ? `${decimal(zone.far)} m` : "∞";
     el.note.textContent = `${tr("topViewZone")} ${decimal(zone.near)} m – ${farText}. ${tr("topViewMove")}`;
   }

@@ -85,10 +85,11 @@ Propres à certaines marques ou à certains modèles :
 - Séquences d'images sans trou entre les images pour les poses longues, ou flou interpolé entre elles ([Tabellion et al., 2023](https://arxiv.org/abs/2308.01379)).
 - Métadonnées : lieu, date, heure, matériel, auteur, licence, plage de focales et de rotation.
 
-## Bilinguisme
+## Langue
 
-- Chaque texte passe par une clé. Une notion n'est couverte que si ses quatre briques existent en français et en anglais.
-- Les intitulés du référentiel forment la première version du glossaire FR/EN.
+- TutoPhoto est en français seul depuis la version 0.3.60 (décision de Julien du 15 novembre 2026). Avant, le projet était bilingue, français et anglais.
+- Les textes de l'interface du simulateur restent sous une clé, dans une seule table (`app/src/texts.ts`).
+- Les champs `en` du référentiel et de la scène sont encore dans les fichiers ; leur retrait est prévu en version 0.3.61 (`docs/propositions.md`, section 5, « Retrait de l'anglais »).
 - Les contenus juridiques s'écrivent pays par pays, ils ne se traduisent pas.
 
 ## Droits

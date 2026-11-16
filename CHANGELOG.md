@@ -12,6 +12,57 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.60] - 2026-11-16
+
+Retrait de l'anglais, première des deux pull requests : le site en français seul. Décision de Julien du 15 novembre 2026 : « Retire la traduction anglaise, on garde tout en full français. » Découpage et choix de Claude : `docs/propositions.md`, section 5, « Retrait de l'anglais » (choix 1 à 14). La seconde pull request, version 0.3.61, retirera les champs `en` du référentiel et de la scène.
+
+Ce qui n'est pas fait :
+
+- Les champs `en` de `data/referentiel/*.yaml`, de `data/situations.yaml`, de `data/jalons.yaml` et de `app/public/scenes/parc/scene.json`, avec leurs schémas : ils sont encore là, et leurs lecteurs lisent la clé `fr` (choix 11). C'est la version 0.3.61. `docs/lire-le-referentiel.md` et la phrase de `docs/licences.md` sur le rôle des éléments d'une scène décrivent encore ces champs.
+- L'historique n'est pas réécrit (choix 6 et 12) : sections passées de ce fichier, `docs/historique.md`, `docs/audit/`, `REPRISE.md`, décisions datées, spécifications des fonctions déjà faites, dossiers de recherche. Ils citent encore l'anglais, `app/src/i18n.ts`, `content/fr/` ou `fiches/fr/`.
+- Aucune redirection des anciennes adresses des fiches.
+
+Relecture : la mise en œuvre a été relue par deux agents, l'un pour le code et le comportement du site, l'autre pour la vérité des documents. Ils ont rendu 13 constats. Un troisième agent en a repris 12 pour chercher à les réfuter, en relisant lui-même le code et les documents ; le treizième porte sur la description de la pull request et est traité à part, hors du dépôt. Verdicts des 12 : 11 confirmés, 1 confirmé en partie, aucun réfuté. Celui qui n'est confirmé qu'en partie dit incomplète la liste de ce que la seconde pull request doit faire : les quatre schémas étaient déjà nommés dans `docs/etat-des-travaux.md`, le reste manquait. Les 12 sont corrigés dans cette version : la fiche rechargée à la fin du chargement (« Corrigé ») ; les deux-points écrits de deux façons, la clé `meter` lue nulle part et les noms hérités des deux langues dans `scripts/coverage.py` (« Modifié », « Retiré ») ; dans les documents, « dans les deux langues » au présent, la liste de la seconde pull request, la règle de couverture de `docs/cadrage.md` réécrite sans trace de l'ancienne, deux choix sans ligne dans `docs/propositions.md` (choix 13 et 14), la place de « Ce qui n'est pas fait » et de « Essais » dans cette section (ils étaient des puces de « Retiré »), `docs/tests-a-faire-faire.md` non tenu à jour, le titre du point en tête de `docs/etat-des-travaux.md` et « `content/` (à venir) » dans `docs/licences.md`. Le relecteur de code a aussi vérifié, sans constat, avant ces corrections : la table des textes comparée clé par clé avec celle de la version 0.3.59 (224 clés avant, 223 après, seule `switchLang` retirée, aucune valeur française changée) ; les 241 liens internes du site construit, sans lien cassé ; le champ `used_in` de `data/sources.yaml` (172 sources avant et après, tous les chemins existent).
+
+Essais : `python3 scripts/validate.py` (0 erreur, 0 avertissement), `python3 scripts/coverage.py`, `npm run build`, `python3 scripts/check_public.py --commits all` (0 problème). Sur la machine de Claude, routine `node scripts/test_app.cjs --photo`, un profil à la fois : profils ordinateur et iphone sur le site construit depuis le commit fcb77de, qui porte les corrections de code de la relecture, 64 lignes « ok » et 0 échec chacun ; profils android et webgl1 sur le site construit depuis le commit cf9a91b, avant ces corrections, 64 lignes « ok » et 0 échec chacun, non relancés sur cette machine depuis (la CI lance les quatre profils sur le dernier commit ; ses résultats sont dans la description de la pull request). Une ligne pour les liens internes des pages, 63 pour le profil ; 63 lignes avant cette version : un contrôle retiré, deux ajoutés. Deux essais hors routine, par l'agent qui a repris les constats, dans Chromium, site construit depuis le commit fcb77de. Le premier : la clé `tutophoto.lang` enregistrée à « en » avant l'ouverture des pages, écrans émulés de 1280 × 800 et d'un iPhone 14 ; l'accueil, la fiche NET-01 et le simulateur s'ouvrent en français, sans erreur de console, la ligne de diagnostic du simulateur reste vide, et la clé reste dans le stockage. Le relecteur de code avait fait le même essai, avec le même résultat. Le second, à 1280 × 800, le chargement de la scène ralenti de 15 s : la fiche SIT-01 ouverte depuis la fenêtre « Défis » pendant le chargement, défilée de 300 px. Avant la correction (commit 30da5af), elle est téléchargée deux fois et revient en haut à la fin du chargement ; après, une fois, et elle garde son défilement. Limites : Chromium en rendu logiciel, écrans émulés (1280 × 800 avec et sans WebGL 2, Pixel 7, iPhone 14) ; rien sur un vrai téléphone, avec un processeur graphique ni dans Safari.
+
+Phrase périmée de la section 0.3.59, laissée telle qu'elle a été publiée :
+
+- Sa rubrique « Modifié » dit « `docs/etat-des-travaux.md` : Sujet 1 fait, sujet suivant (Sujet 2) ». Le sujet suivant était le retrait de l'anglais, décidé par Julien le 15 novembre 2026 ; le Sujet 2 vient après. `docs/etat-des-travaux.md` le disait correctement.
+
+### Ajouté
+
+- Routine de test (`scripts/test_app.cjs`), deux contrôles par profil : « accueil ouvert avec ?lang=en : en français » et « simulateur ouvert avec ?lang=en : en français, sans bouton de langue ». La routine ouvre désormais le simulateur avec `?lang=en`, paramètre retiré, pour toute sa suite : les contrôles qui lisent un texte français de l'interface vérifient donc aussi que ce paramètre est ignoré.
+
+### Modifié
+
+- Simulateur : une seule langue. `app/src/i18n.ts` devient `app/src/texts.ts`, une seule table de textes en français, sous les mêmes clés ; la fonction `t` ne prend plus de langue. Les méthodes `setLang(lang)` des composants de l'interface et la fonction `applyLang()` de `app/src/main.ts` deviennent `applyTexts()`, sans argument : elles écrivent les textes, il n'y a plus de langue à changer. Les deux-points qui séparent deux textes assemblés sont écrits d'une seule façon, dans le gabarit (« … : … ») ; avant, une partie passait par la clé `balanceColon`, une autre par une constante locale. Les nombres gardent l'écriture française qu'ils avaient (virgule décimale, espace devant les deux-points et le point-virgule).
+- Accueil et fiches (`app/scripts/build-pages.mjs`) : une seule langue dans la page d'accueil, au lieu de deux blocs dont un masqué. Le seul script de l'accueil est celui du bouton « Télécharger les ressources du simulateur » ; les fiches n'ont plus de script.
+- Adresses des fiches : `fiches/EXP-04.html` au lieu de `fiches/fr/EXP-04.html`. Les anciennes adresses, `fiches/fr/…` et `fiches/en/…`, ne mènent plus nulle part : aucune redirection n'est posée (choix 2).
+- Liens internes sans `?lang=` : accueil, fiches, simulateur, activité de LUM-02. Une adresse qui porte encore `?lang=en` ouvre la page en français (choix 3).
+- Contenus : `content/fr/notions/` et `content/fr/situations/` deviennent `content/notions/` et `content/situations/` (19 fiches de notions, 3 de situations, textes inchangés).
+- `data/relecture.yaml` et `schemas/relecture.schema.json` : une ligne par fiche, sans champ `langue` (`- {fiche: NET-01, date: 2026-11-12}`). La liste est vide ; `scripts/validate.py`, `app/scripts/build-pages.mjs` et la routine lisent la nouvelle forme.
+- `data/sources.yaml`, champ `used_in` : les chemins `content/fr/…` deviennent `content/…`, les chemins `content/en/…` sont retirés ; aucune source n'est retirée (choix 9). `python3 scripts/validate.py` : 0 erreur, 0 avertissement.
+- `scripts/coverage.py` : couverture en français seul. Une notion est couverte quand ses quatre briques existent ; la table des briques a une colonne au lieu de deux. Les comptes ne changent pas : 13 notions couvertes sur 191 (6,8 %), 3 situations rédigées sur 49, les fiches anglaises ayant eu les mêmes sections que les françaises. Deux restes des deux langues sont repris, la variable `both`, renommée `drafted`, et l'alias `h`, retiré : la sortie du script est identique à l'octet près avant et après.
+- Routine de test : adresses et sélecteurs adaptés (fiches sous `fiches/`, plus de bloc de langue dans l'accueil). Le contrôle de l'accueil vérifie en plus qu'il ne reste aucun élément de choix de langue ; celui de la fiche NET-01 ne lit plus la clé `tutophoto.lang`.
+- `CLAUDE.md`, première ligne : « en français » à la place de « bilingue FR/EN » (choix 8).
+- `README.md` : plus de lien vers une version anglaise ; « en français » à la place de « en français et en anglais ».
+- Documents mis à jour : `docs/contenus.md` (emplacement, titres des sections, règle de couverture, publication), `docs/pile-technique.md`, `docs/architecture.md` (la section « Bilinguisme » devient « Langue »), `docs/cadrage.md` (la décision du 6 novembre 2026 est dite remplacée ; règle de couverture, avec le rappel de l'ancienne), `docs/licences.md` (dont « `content/` (à venir) », devenu « `content/` » : le dossier porte 22 fiches), `docs/questions-ouvertes.md`, `docs/specifications/balance-des-blancs.md` (spécification reportée), `docs/historique.md` (une entrée datée), `docs/propositions.md` (choix 9 à 14), `docs/etat-des-travaux.md` (le point en tête devient « Point du 16 novembre 2026 »), `docs/tests-a-faire-faire.md` (test T4).
+- `docs/audit/README.md` : une note datée du 16 novembre 2026, en tête du plan de corrections, dit que les parts anglaises des sujets tombent et donne les chemins qui ont changé. Les sujets et les rapports ne sont pas réécrits.
+
+### Corrigé
+
+- Simulateur, fenêtre d'une fiche (`app/src/ui/ficheDialog.ts`) : une fiche ouverte pendant le chargement de la scène n'est plus téléchargée une seconde fois ni remise en haut à la fin du chargement. La ligne en cause rechargeait la fiche ouverte au changement de langue ; depuis le retrait de la bascule, son seul effet était celui-là. Constat de la relecture (ci-dessus).
+
+### Retiré
+
+- La traduction anglaise du site : textes anglais du simulateur, de l'accueil, des fiches, de l'activité de LUM-02 et de la page des licences.
+- Le bouton de langue du simulateur, de l'accueil, des fiches et de l'activité de LUM-02 ; le paramètre `?lang=` ; la clé `tutophoto.lang` du stockage du navigateur, qui n'est plus lue ni écrite (une clé déjà enregistrée chez un visiteur y reste, sans effet).
+- `content/en/` (22 fiches en anglais : 19 notions et 3 situations) et `README.en.md`. Ils restent dans l'historique du dépôt (tag `v0.3.59`).
+- Les titres anglais des notions recopiés dans `app/src/ui/challenges.ts` (choix 11).
+- Routine de test : le contrôle « accueil : bouton de langue », qui n'a plus d'objet (choix 10).
+- Deux clés de la table des textes du simulateur : `balanceColon` (« : », remplacée par le texte écrit dans le gabarit) et `meter` (« Exposition », lue nulle part, déjà dans la version 0.3.59). La table a 221 clés.
+
 ## [0.3.59] - 2026-11-15
 
 Sujet 1 du plan de corrections de l'audit (`docs/audit/README.md`) : la version du site à l'écran (constat ARC-12, `docs/audit/architecture-application.md`). Jusqu'ici, rien à l'écran ne disait quelle version le navigateur avait chargée. Avec elle, sur décision de Julien du 15 novembre 2026 : la correction de deux contrôles de la routine de test qui échouaient par intermittence dans la CI, l'un par un défaut de l'application (l'écran de revue), l'autre par un défaut de la routine.
@@ -928,6 +979,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.60]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.59...v0.3.60
 [0.3.59]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.58...v0.3.59
 [0.3.58]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.57...v0.3.58
 [0.3.57]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.56...v0.3.57
