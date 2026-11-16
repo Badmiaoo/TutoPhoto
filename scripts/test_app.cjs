@@ -14,7 +14,8 @@
 // construit mène à un fichier qui existe, et chaque ancre à un élément de la page visée.
 //
 // Contrôles, pour chaque profil :
-// - l'accueil s'affiche dans la langue demandée, sans défilement horizontal, et le bouton de langue change de bloc ;
+// - l'accueil s'affiche en français, sans bouton de langue ni défilement horizontal ; ouvert avec « ?lang=en »,
+//   paramètre retiré en version 0.3.60, il reste en français, comme le simulateur ;
 //   « Télécharger les ressources du simulateur » remplit sa barre et donne un bilan sans échec (version 0.3.51) ;
 // - une fiche (NET-01) s'affiche sans défilement horizontal, avec le bandeau de relecture tant qu'elle n'est pas
 //   listée dans data/relecture.yaml, et son bouton mène au simulateur ;
@@ -216,33 +217,45 @@ function checkLinks(root) {
 }
 
 /** Fiche relue dans data/relecture.yaml (même forme de ligne que app/scripts/build-pages.mjs). */
-function isReviewed(id, lang) {
+function isReviewed(id) {
   const text = fs.readFileSync(path.join(__dirname, "..", "data", "relecture.yaml"), "utf8");
-  return new RegExp(`^  - \\{fiche: ${id}, langue: ${lang}, date: `, "m").test(text);
+  return new RegExp(`^  - \\{fiche: ${id}, date: `, "m").test(text);
 }
 
 /** Accueil et fiche, avant le simulateur. */
 async function checkPages(page, base, name, check) {
   const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-  await page.goto(`${base}/?lang=fr`);
-  const home = await page.evaluate(() => {
-    const shown = [...document.querySelectorAll("[data-lang-block]")].filter((b) => !b.hidden).map((b) => b.dataset.langBlock);
-    const block = document.querySelector("[data-lang-block]:not([hidden])");
-    return { shown, lang: document.documentElement.lang, items: block ? block.querySelectorAll("li a[href^='fiches/']").length : 0 };
-  });
+  // Lecture de l'accueil : langue de la page, fiches listées, premier titre de porte, restes d'un choix de langue.
+  const readHome = () =>
+    page.evaluate(() => ({
+      lang: document.documentElement.lang,
+      items: document.querySelectorAll("main li a[href^='fiches/']").length,
+      door: document.querySelector("main h2")?.textContent ?? "",
+      switches: document.querySelectorAll(".lang-switch, [data-lang-block], [data-lang], [hreflang]").length,
+    }));
+  await page.goto(`${base}/`);
+  const home = await readHome();
   const homeOverflow = await overflow();
   check(
-    "accueil en français",
-    home.shown.join() === "fr" && home.lang === "fr" && home.items > 0 && homeOverflow <= 0,
-    `bloc ${home.shown.join()}, ${home.items} fiches listées, débordement ${homeOverflow} px`,
+    "accueil en français, sans bouton de langue",
+    home.lang === "fr" && home.items > 0 && home.door === "Je suis en situation" && home.switches === 0 && homeOverflow <= 0,
+    `langue ${home.lang}, ${home.items} fiches listées, « ${home.door} », ${home.switches} élément(s) de choix de langue, débordement ${homeOverflow} px`,
+  );
+  // Le paramètre ?lang= est retiré (version 0.3.60) : une adresse qui le porte encore ouvre l'accueil en français.
+  await page.goto(`${base}/?lang=en`);
+  const homeEn = await readHome();
+  check(
+    "accueil ouvert avec ?lang=en : en français",
+    homeEn.lang === "fr" && homeEn.items === home.items && homeEn.door === "Je suis en situation",
+    `langue ${homeEn.lang}, ${homeEn.items} fiches listées, « ${homeEn.door} »`,
   );
   // Bouton « Télécharger les ressources du simulateur » (version 0.3.51) : barre à 100 %, bilan sans échec.
-  await page.click("[data-lang-block='fr'] [data-prefetch]");
+  await page.click("[data-prefetch]");
   const prefetch = await page
-    .waitForFunction(() => /Téléchargé|échec/.test(document.querySelector("[data-lang-block='fr'] .prefetch-status")?.textContent ?? ""), null, { timeout: 120000 })
+    .waitForFunction(() => /Téléchargé|échec/.test(document.querySelector(".prefetch-status")?.textContent ?? ""), null, { timeout: 120000 })
     .then(() =>
       page.evaluate(() => {
-        const block = document.querySelector("[data-lang-block='fr']");
+        const block = document.querySelector("main");
         return { text: block.querySelector(".prefetch-status").textContent, value: block.querySelector(".prefetch progress").value, errors: block.querySelectorAll(".prefetch-errors li").length };
       }),
     )
@@ -253,38 +266,31 @@ async function checkPages(page, base, name, check) {
     `${prefetch.text.slice(0, 90)} ; barre ${Math.round(prefetch.value)} % ; ${prefetch.errors} échec(s)`,
   );
   if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-accueil.png`), fullPage: true });
-  await page.click("[data-lang-block='fr'] .lang-switch");
-  const switched = await page.evaluate(() => ({
-    shown: [...document.querySelectorAll("[data-lang-block]")].filter((b) => !b.hidden).map((b) => b.dataset.langBlock).join(),
-    saved: localStorage.getItem("tutophoto.lang"),
-  }));
-  check("accueil : bouton de langue", switched.shown === "en" && switched.saved === "en", `bloc ${switched.shown}, langue retenue ${switched.saved}`);
-  await page.goto(`${base}/fiches/fr/NET-01.html`);
+  await page.goto(`${base}/fiches/NET-01.html`);
   const fiche = await page.evaluate(() => ({
     title: document.querySelector("h1")?.textContent ?? "",
     banner: document.querySelectorAll(".banner").length,
     sections: [...document.querySelectorAll("h2")].map((h) => h.textContent).join(", "),
     simulator: document.querySelector(".actions a")?.getAttribute("href") ?? "",
-    saved: localStorage.getItem("tutophoto.lang"),
   }));
   const ficheOverflow = await overflow();
-  const banner = isReviewed("NET-01", "fr") ? 0 : 1;
+  const banner = isReviewed("NET-01") ? 0 : 1;
   check(
     "fiche NET-01 en français",
-    fiche.title.startsWith("NET-01") && fiche.banner === banner && fiche.simulator === "../../simulateur/?lang=fr" && fiche.saved === "fr" && ficheOverflow <= 0,
+    fiche.title.startsWith("NET-01") && fiche.banner === banner && fiche.simulator === "../simulateur/" && ficheOverflow <= 0,
     `${fiche.title} ; bandeau de relecture : ${fiche.banner ? "oui" : "non"} ; sections : ${fiche.sections} ; débordement ${ficheOverflow} px`,
   );
   if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-fiche.png`), fullPage: true });
-  await page.goto(`${base}/fiches/fr/SIT-05.html`);
+  await page.goto(`${base}/fiches/SIT-05.html`);
   const play = await page.evaluate(() => {
     const a = document.querySelector(".actions a");
     return { text: a?.textContent ?? "", href: a?.getAttribute("href") ?? "" };
   });
-  check("fiche SIT-05 : bouton « Jouer le défi »", play.text === "Jouer le défi" && play.href === "../../simulateur/?lang=fr&defi=SIT-05", `« ${play.text} » → ${play.href}`);
+  check("fiche SIT-05 : bouton « Jouer le défi »", play.text === "Jouer le défi" && play.href === "../simulateur/?defi=SIT-05", `« ${play.text} » → ${play.href}`);
   // Activité LUM-02 (version 0.3.50).
-  await page.goto(`${base}/fiches/fr/LUM-02.html`);
+  await page.goto(`${base}/fiches/LUM-02.html`);
   const toActivity = await page.evaluate(() => document.querySelector(".actions a")?.getAttribute("href") ?? "");
-  await page.goto(`${base}/activites/LUM-02/?lang=fr`);
+  await page.goto(`${base}/activites/LUM-02/`);
   await page.click('[data-preset="window"]');
   const penumbra = await page.evaluate(() => document.getElementById("act-penumbra").textContent);
   await page.click('[data-question="0"][data-answer="0"]');
@@ -292,7 +298,7 @@ async function checkPages(page, base, name, check) {
   const activityOverflow = await overflow();
   check(
     "activité LUM-02 : pénombre et question",
-    toActivity === "../../activites/LUM-02/?lang=fr" && /30,0 cm/.test(penumbra) && /passed/.test(feedback) && activityOverflow <= 0,
+    toActivity === "../activites/LUM-02/" && /30,0 cm/.test(penumbra) && /passed/.test(feedback) && activityOverflow <= 0,
     `fiche → ${toActivity} ; ${penumbra} ; réponse : ${feedback} ; débordement ${activityOverflow} px`,
   );
   if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-activite-LUM-02.png`), fullPage: true });
@@ -323,7 +329,20 @@ async function runProfile(browser, name, base) {
   const started = Date.now();
   try {
     await checkPages(page, base, name, check);
-    await page.goto(`${base}/simulateur/?lang=fr`);
+    // Le simulateur est ouvert avec « ?lang=en », paramètre retiré en version 0.3.60 : il doit s'ouvrir en français,
+    // sans bouton de langue. Toute la suite de la routine lit des textes français sur cette page.
+    await page.goto(`${base}/simulateur/?lang=en`);
+    const french = await page.evaluate(() => ({
+      lang: document.documentElement.lang,
+      subtitle: document.getElementById("subtitle")?.textContent ?? "",
+      button: document.getElementById("lang") ? 1 : 0,
+      saved: localStorage.getItem("tutophoto.lang"),
+    }));
+    check(
+      "simulateur ouvert avec ?lang=en : en français, sans bouton de langue",
+      french.lang === "fr" && french.subtitle.startsWith("Simulateur photo") && french.button === 0 && french.saved === null,
+      `langue ${french.lang}, « ${french.subtitle} », ${french.button} bouton de langue, clé tutophoto.lang : ${french.saved}`,
+    );
     const loaded = await page
       .waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 })
       .then(() => true)
@@ -909,7 +928,7 @@ async function runProfile(browser, name, base) {
       });
       check(
         "bulletin : fiche ouverte par-dessus le simulateur",
-        fromBulletin.title.startsWith("NET-01") && fromBulletin.banner === (isReviewed("NET-01", "fr") ? 0 : 1) && fromLink.title.startsWith("SIT-01"),
+        fromBulletin.title.startsWith("NET-01") && fromBulletin.banner === (isReviewed("NET-01") ? 0 : 1) && fromLink.title.startsWith("SIT-01"),
         `${fromBulletin.title} (bandeau : ${fromBulletin.banner ? "oui" : "non"}) puis ${fromLink.title}`,
       );
       await clicks('[data-dial="aperture"][data-step="-1"]', 9);
@@ -1156,7 +1175,7 @@ async function runProfile(browser, name, base) {
     // au chargement de finir et au message de se vider (échec isolé du 11 novembre 2026 sur la machine de Claude,
     // puis dans la CI le 12, les deux fois sur le profil webgl1, texte lu vide). Si l'attente échoue, sa raison est
     // gardée.
-    await page.goto(`${base}/simulateur?lang=fr&defi=SIT-06`);
+    await page.goto(`${base}/simulateur?defi=SIT-06`);
     const progress = await page
       .waitForFunction(() => {
         const text = document.getElementById("status")?.textContent ?? "";

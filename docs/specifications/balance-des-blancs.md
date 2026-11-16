@@ -46,7 +46,7 @@ Le dossier n'a pas été relu par un second agent : chaque citation et chaque co
 - `app/src/camera/whiteBalance.ts` (nouveau) : w(T), g(K), réglages et températures, avec les sources en commentaire.
 - `app/src/camera/photo.ts` : gains dans le shader de finition, sur la somme en lumière linéaire, avant l'exposition et l'écrêtage.
 - Viseur : un post-traitement de plus, attaché seulement quand les gains ne valent pas (1 ; 1 ; 1), placé avant le bruit ; il décode, multiplie, réencode. Limite à dire : l'image du viseur est déjà écrêtée quand il s'applique, la photo non.
-- `app/src/ui/cameraPanel.ts`, `app/simulateur/index.html`, `app/src/i18n.ts`, `app/src/style.css`, `app/src/ui/shutter.ts` (légende).
+- `app/src/ui/cameraPanel.ts`, `app/simulateur/index.html`, `app/src/texts.ts` (`app/src/i18n.ts` jusqu'à la version 0.3.59), `app/src/style.css`, `app/src/ui/shutter.ts` (légende).
 - `scripts/test_app.cjs` et la liste des contrôles en tête du fichier.
 
 ## 6. Ce qui n'est pas simulé, à dire
@@ -66,7 +66,7 @@ Le dossier n'a pas été relu par un second agent : chaque citation et chaque co
 
 ## 8. Fiches
 
-En français et en anglais, au format de `docs/contenus.md`.
+En français, au format de `docs/contenus.md` (la spécification demandait aussi l'anglais, retiré par décision de Julien du 15 novembre 2026).
 - COU-02 : Explication (définition et réglages d'après le manuel du Z 6), Simulateur (fenêtre, modèle, hypothèse, ce qui n'est pas simulé), Exercice adapté au parc (celui du référentiel, « neutraliser un intérieur éclairé à l'ampoule », demande une autre scène) : photographier la scène en « Automatique », « Nuageux », « Ombre » et « Incandescent », et dire lequel rend le haut blanc de Sophia le plus neutre, et pourquoi.
 - COU-01 : seulement si les pages lues suffisent à écrire son explication sans rien inventer ; sinon, le dire et la laisser pour plus tard.
 

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Simulateur photo open source, bilingue FR/EN, pour débutants avec un boîtier reflex ou hybride (pas de smartphone, de compact ni de bridge). Scènes en 3D de synthèse ; V1 minimale d'abord (scène de parc : SIT-01, SIT-05, SIT-06), testée avec des débutants.
+Simulateur photo open source, en français, pour débutants avec un boîtier reflex ou hybride (pas de smartphone, de compact ni de bridge). Scènes en 3D de synthèse ; V1 minimale d'abord (scène de parc : SIT-01, SIT-05, SIT-06), testée avec des débutants.
 Publication : site statique sur GitHub Pages (https://badmiaoo.github.io/TutoPhoto/), à chaque fusion sur `main` ; tout tourne dans le navigateur. Moteur 3D : Babylon.js (`docs/pile-technique.md`).
 Source de vérité : `data/` (référentiel, situations, sources, jalons). Contexte et décisions : `docs/`.
 Archive de reprise : `REPRISE.md`. État des travaux, pour reprendre à tout moment : `docs/etat-des-travaux.md`.

@@ -29,7 +29,7 @@ Décisions de Julien, sur le bilan de la V1 minimale :
 
 ## Décisions du 6 novembre 2026
 
-- Bilingue français et anglais dès la V1 : chaque notion, situation et texte d'interface a une clé stable et deux langues.
+- Bilingue français et anglais dès la V1 : chaque notion, situation et texte d'interface a une clé stable et deux langues. Remplacée le 15 novembre 2026 : Julien retire la traduction anglaise, TutoPhoto est en français seul (version 0.3.60 pour le site).
 - Les situations sont le cœur de la V1 : on part de « où, quand, quoi, pourquoi » pour arriver aux réglages.
 - Toute la maîtrise du boîtier est au programme : modes, menus, mise au point, modes AF, collimateurs, mesure, obturateur, fichiers.
 - Remplacées le 7 novembre : « V1 en 2.5D, maquette 2.5D validée avant de lancer la 3D » et « V2 : uniquement le passage en 3D et les contenus qu'il débloque ».
@@ -37,7 +37,7 @@ Décisions de Julien, sur le bilan de la V1 minimale :
 ## Ce que « 100 % » veut dire
 
 - Le référentiel liste toutes les notions, chacune avec un identifiant stable (ex. MAP-06).
-- Une notion est couverte quand ses quatre briques existent en français et en anglais : explication, simulateur, exercice, situation réelle. Si une notion ne se simule pas, une activité interactive remplace le simulateur.
+- Une notion est couverte quand ses quatre briques existent : explication, simulateur, exercice, situation réelle. Si une notion ne se simule pas, une activité interactive remplace le simulateur.
 - Taux de couverture = notions couvertes ÷ notions du référentiel, affiché dans l'outil et dans le dépôt.
 - Ajouter ou retirer une notion passe par une proposition de modification du référentiel, comme pour le code.
 
