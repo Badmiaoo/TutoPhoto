@@ -44,7 +44,8 @@
 // - indicateur d'équilibre : zone nette et bruit excellent aux réglages par défaut ; au même point du sol,
 //   immobile, le rapport signal/bruit à ISO 6400 tombe sous 40 % de celui à ISO 100 (environ 17 % attendus :
 //   6 IL de sensibilité en plus, 0,87 IL d'exposition en plus, bruit photonique) ; traînée du chien évaluée ;
-// - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne ;
+// - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne ; après « Photo
+//   entière », une seconde loupe sur la même photo montre le point touché (COD-14, version 0.3.62) ;
 // - avec --photo, histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07, version 0.3.57) : par défaut,
 //   ni histogramme ni clignotement ; « Infos » une fois : quatre histogrammes (luminance, rouge, vert, bleu), la
 //   somme des colonnes de chacun égale au nombre de pixels de la photo ; photo surexposée de 3,2 IL : elle s'ouvre en
@@ -809,6 +810,97 @@ async function runProfile(browser, name, base) {
       const caption = await page.evaluate(() => document.getElementById("review-caption").textContent);
       check("loupe de l'écran de revue", /100/.test(caption), caption);
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-loupe.png`), timeout: 120000 });
+
+      // Deux loupes séparées par « Photo entière », sur la même photo (constat COD-14 de l'audit, version 0.3.62).
+      // La première loupe, ci-dessus, est au centre. Après « Photo entière », la photo est touchée à 85 % de sa
+      // largeur et à 80 % de sa hauteur : la seconde loupe doit montrer cet endroit. Avant la correction, le toucher
+      // était lu comme une position dans la fenêtre de la première loupe, et la seconde loupe montrait un voisin du
+      // centre. Mesure, sur une seule photo (les sujets bougent d'une photo à l'autre ; la loupe rejoue l'instant de
+      // la photo) : la fenêtre de la loupe et une zone de la photo entière sont réduites à 12 × 4 cases, et l'écart est
+      // la moyenne, sur les cases, de la différence de luminance en valeur absolue (niveaux de 0 à 255). L'écart est
+      // pris avec la zone touchée, puis avec la zone du centre. La place d'une zone dans la photo entière vient de la
+      // taille de l'image complète du Nikon Z 6 (24,5 millions de pixels, capteur de 35,9 × 23,9 mm : sensorPixels,
+      // app/src/camera/bodies.ts) et de celle de la fenêtre, qui est à 100 % ; calcul de magnify
+      // (app/src/ui/shutter.ts). La photo entière est relue à l'adresse du lien « Enregistrer ». Le contrôle demande
+      // un écart avec la zone touchée inférieur à 10 niveaux, et inférieur à l'écart avec la zone du centre. Mesuré le
+      // 16 novembre 2026 pour six points touchés, hors de la routine, mêmes réglages : avec la correction, de 0,4 à
+      // 1,1 niveau (ordinateur) et de 1,4 à 3,3 (Pixel 7 émulé) ; sans elle, de 54 à 77 (ordinateur) et de 52 à 110
+      // (Pixel 7 émulé). Dans la routine, profil ordinateur, sur le site construit sans la correction : 28,9 niveaux,
+      // le contrôle échoue ; avec la correction : 0,6.
+      await page.click("#review-whole");
+      await page.waitForFunction(() => document.getElementById("review-whole").hidden && document.getElementById("review-image").complete, null, { timeout: 300000 });
+      const secondTouch = { u: 0.85, v: 0.8 };
+      const wholeBox = await page.locator("#review-image").boundingBox();
+      await page.mouse.click(wholeBox.x + wholeBox.width * secondTouch.u, wholeBox.y + wholeBox.height * secondTouch.v);
+      await page.waitForFunction(
+        () => document.getElementById("progress").hidden && !document.getElementById("review-whole").hidden && document.getElementById("review-image").complete,
+        null,
+        { timeout: 300000 },
+      );
+      const secondLoupe = await page.evaluate(async ({ u, v }) => {
+        const COLUMNS = 12;
+        const ROWS = 4;
+        const load = (src) =>
+          new Promise((resolve, reject) => {
+            const image = new Image();
+            image.onload = () => resolve(image);
+            image.onerror = () => reject(new Error("image illisible"));
+            image.src = src;
+          });
+        // Luminance moyenne (Rec. 709) de chaque case d'une zone de l'image, donnée en pixels de l'image.
+        const cells = (image, x0, y0, width, height) => {
+          const c = document.createElement("canvas");
+          c.width = image.naturalWidth;
+          c.height = image.naturalHeight;
+          const g = c.getContext("2d");
+          g.drawImage(image, 0, 0);
+          const out = [];
+          for (let row = 0; row < ROWS; row++) {
+            for (let column = 0; column < COLUMNS; column++) {
+              const xa = Math.min(c.width - 1, Math.round(x0 + (column * width) / COLUMNS));
+              const xb = Math.min(c.width, Math.max(xa + 1, Math.round(x0 + ((column + 1) * width) / COLUMNS)));
+              const ya = Math.min(c.height - 1, Math.round(y0 + (row * height) / ROWS));
+              const yb = Math.min(c.height, Math.max(ya + 1, Math.round(y0 + ((row + 1) * height) / ROWS)));
+              const d = g.getImageData(xa, ya, xb - xa, yb - ya).data;
+              let sum = 0;
+              for (let i = 0; i < d.length; i += 4) sum += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+              out.push(sum / (d.length / 4));
+            }
+          }
+          return out;
+        };
+        const gap = (a, b) => a.reduce((sum, value, i) => sum + Math.abs(value - b[i]), 0) / a.length;
+        const loupe = await load(document.getElementById("review-image").src);
+        const photo = await load(document.getElementById("review-save").href);
+        const long = Math.sqrt((24.5e6 * 35.9) / 23.9);
+        const portrait = photo.naturalHeight > photo.naturalWidth;
+        const fullWidth = Math.round(portrait ? 24.5e6 / long : long);
+        const fullHeight = Math.round(portrait ? long : 24.5e6 / long);
+        const width = loupe.naturalWidth;
+        const height = loupe.naturalHeight;
+        // Fenêtre centrée sur le point, ramenée dans l'image complète, puis rapportée à la photo entière.
+        const zone = (x, y) => {
+          const left = Math.min(fullWidth - width, Math.max(0, Math.round(x * fullWidth - width / 2)));
+          const top = Math.min(fullHeight - height, Math.max(0, Math.round(y * fullHeight - height / 2)));
+          const sx = photo.naturalWidth / fullWidth;
+          const sy = photo.naturalHeight / fullHeight;
+          return cells(photo, left * sx, top * sy, width * sx, height * sy);
+        };
+        const shown = cells(loupe, 0, 0, width, height);
+        return {
+          touched: gap(shown, zone(u, v)),
+          centre: gap(shown, zone(0.5, 0.5)),
+          loupe: `${width}×${height}`,
+          photo: `${photo.naturalWidth}×${photo.naturalHeight}`,
+          caption: document.getElementById("review-caption").textContent,
+        };
+      }, secondTouch);
+      check(
+        "revue : après « Photo entière », la seconde loupe montre le point touché",
+        /100/.test(secondLoupe.caption) && secondLoupe.touched < 10 && secondLoupe.touched < secondLoupe.centre,
+        `toucher à 85 % et 80 % : écart de ${secondLoupe.touched.toFixed(1)} niveau(x) avec la zone touchée, de ${secondLoupe.centre.toFixed(1)} avec celle du centre ; fenêtre ${secondLoupe.loupe}, photo ${secondLoupe.photo}`,
+      );
+      if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-loupe-2.png`), timeout: 120000 });
       await page.click("#review-back");
 
       // Photo surexposée, puis sous-exposée (MES-06, MES-07). Réglages de départ : M, f/8, 1/4000 s, ISO 6400, soit
