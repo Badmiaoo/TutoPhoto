@@ -37,7 +37,7 @@ Décisions de Julien, sur le bilan de la V1 minimale :
 ## Ce que « 100 % » veut dire
 
 - Le référentiel liste toutes les notions, chacune avec un identifiant stable (ex. MAP-06).
-- Une notion est couverte quand ses quatre briques existent : explication, simulateur, exercice, situation réelle. Si une notion ne se simule pas, une activité interactive remplace le simulateur.
+- Une notion est couverte quand ses quatre briques existent : explication, simulateur, exercice, situation réelle. Jusqu'à la version 0.3.59, la règle les demandait en français et en anglais. Si une notion ne se simule pas, une activité interactive remplace le simulateur.
 - Taux de couverture = notions couvertes ÷ notions du référentiel, affiché dans l'outil et dans le dépôt.
 - Ajouter ou retirer une notion passe par une proposition de modification du référentiel, comme pour le code.
 
