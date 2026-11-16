@@ -12,6 +12,35 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.61] - 2026-11-16
+
+Retrait de l'anglais, seconde des deux pull requests : le référentiel et la scène en français seul. Décision de Julien du 15 novembre 2026 : « Retire la traduction anglaise, on garde tout en full français. » Choix de Claude : `docs/propositions.md`, section 5, « Retrait de l'anglais » (choix 15 et 16 pour cette version). Rien ne change de ce que le visiteur voit, hors le numéro de version : l'accueil, les fiches et la fenêtre « Crédits » affichent les mêmes textes qu'avant. Numérotation : retirer un champ n'ajoute, ne retire ni ne reclasse aucune notion ni aucune situation, donc c'est Z qui augmente.
+
+Ce qui n'est pas fait :
+
+- L'historique n'est pas réécrit (choix 6 et 12) : sections passées de ce fichier, `docs/historique.md`, `docs/audit/` (hors les deux notes datées dites plus bas), `REPRISE.md`, décisions datées, spécifications des fonctions déjà faites, dossiers de recherche. Ils citent encore l'anglais, les champs `title.en` ou `scripts/extract_reprise.py`. Les blocs YAML de `REPRISE.md` portent encore les champs `en`.
+- Les titres anglais retirés ne sont recopiés nulle part (choix 7) ; ils restent dans l'historique du dépôt (tag `v0.3.60`), comme `scripts/extract_reprise.py`.
+- Le reste du Sujet 45 du plan de corrections (l'avertissement en tête de `REPRISE.md`, la ligne 8 de `CLAUDE.md`) : seule la suppression du script est avancée.
+- `docs/tests-a-faire-faire.md` n'est pas modifié : cette version n'ajoute rien à voir sur un téléphone.
+
+Essais : `python3 scripts/validate.py` (191 notions, 49 situations, 172 sources, 1 jalon ; 0 erreur, 0 avertissement), `python3 scripts/check_scenes.py` (8 éléments, 36 fichiers ; 0 erreur), `npm run build`, `python3 scripts/changelog.py check --base origin/main`, `python3 scripts/check_public.py --commits all` (0 problème). Conversion : faite par un script jetable, hors du dépôt ; le diff de `data/` ne porte que sur des lignes `title:` (254 retirées, 254 ajoutées), et les données chargées avant et après, l'ancien objet ramené à sa valeur `fr`, sont identiques (référentiel, situations, jalon, manifeste de la scène). Schémas : dans une copie du dépôt, `data/referentiel/lec.yaml`, `data/situations.yaml` et `data/jalons.yaml` remis tour à tour à l'ancienne forme font échouer `scripts/validate.py` (« is not of type 'string' », code de sortie 1) ; l'ancien manifeste de la scène donne 13 erreurs contre le nouveau schéma, et un seul `title`, `role` ou `changes` remis en objet en donne une. `python3 scripts/coverage.py` : sortie identique à l'octet près avant et après (13 notions couvertes sur 191). Site construit avant et après les changements de code, comparé fichier par fichier : les 22 fiches sont identiques ; l'accueil ne diffère que par le nom haché et la taille du script du simulateur et par la taille de `scene.json`, dans la liste du bouton de téléchargement ; le script du simulateur ne diffère que par les deux lectures `.role.fr` et `.changes.fr`, devenues `.role` et `.changes` ; `scene.json` est le fichier converti. Routine `node scripts/test_app.cjs --photo` sur la machine de Claude, un profil à la fois, site construit depuis le commit 8cbf2d9 (le dernier qui touche au code ou aux données) : ordinateur, android, iphone et webgl1, 64 lignes « ok » et 0 échec chacun ; la CI lance les quatre profils sur le dernier commit, ses résultats sont dans la description de la pull request. Hors routine, dans Chromium à 1280 × 800 : la fenêtre « Crédits » du simulateur, ouverte sur le site construit avant et après, donne le même texte pour les 8 éléments (rôle en français, titre, auteur, licence, et « Modifications : … » pour les 4 modèles de Renderpeople), sans erreur de console ; la routine ne lit pas cette liste. Chromium en rendu logiciel, écrans émulés : rien sur un vrai téléphone, avec un processeur graphique ni dans Safari.
+
+### Modifié
+
+- Référentiel (`data/referentiel/*.yaml`, `data/situations.yaml`, `data/jalons.yaml`) : un titre est une chaîne, `title: "Exposition"` au lieu de `title: {fr: "Exposition", en: "exposure"}` (choix 15). 254 titres : 13 de domaines, 191 de notions, 49 de situations, 1 de jalon. Les textes français sont inchangés.
+- Manifeste de la scène du parc (`app/public/scenes/parc/scene.json`) : `title` de la scène, `role` de chaque élément (8) et `changes` des éléments modifiés (4) sont des chaînes, la valeur française d'avant. Le fichier passe de 17 371 à 16 355 octets ; l'accueil, qui donne sa taille au bouton « Télécharger les ressources du simulateur », suit.
+- Schémas : `schemas/domaine.schema.json` (titre du domaine, titre de chaque notion), `schemas/situations.schema.json`, `schemas/jalons.schema.json` et `schemas/scene.schema.json` (`title`, `role`, `changes`) exigent une chaîne non vide et refusent l'ancien objet.
+- Lecteurs : `app/scripts/build-pages.mjs` (expression régulière des titres de domaines), `app/src/credits.ts` (`role`, `changes` et titre de la scène lus directement), `scripts/coverage.py` (titres des domaines et du jalon). `scripts/validate.py`, `scripts/check_scenes.py` et `scripts/referentiel.py` ne lisent pas ces champs : ils passent par les schémas.
+- Documents : `docs/lire-le-referentiel.md` (champ `title` d'une notion et d'un jalon), `docs/licences.md` (le rôle d'un élément de scène n'est plus dit « en français et en anglais »), `docs/architecture.md` (section « Langue »), `docs/etat-des-travaux.md` (version 0.3.60 fusionnée, cette pull request, sujet suivant : le Sujet 2), `docs/propositions.md` (choix 15 et 16).
+- `docs/audit/README.md`, deux notes datées, sans réécrire le reste : la note du 16 novembre 2026 en tête du plan dit le retrait des champs `en` fait dans cette version ; une note sous le Sujet 45 dit `scripts/extract_reprise.py` supprimé.
+
+### Retiré
+
+- Les champs `en` des titres du référentiel (254) et du manifeste de la scène (13 : le titre, 8 rôles, 4 modifications).
+- Dans les schémas : `$defs/bilingue` (`schemas/domaine.schema.json`), `$defs/bilingual` (`schemas/scene.schema.json`) et les deux objets `fr`/`en` écrits sur place (`schemas/situations.schema.json`, `schemas/jalons.schema.json`).
+- Le type `Bilingual` de `app/src/credits.ts`.
+- `scripts/extract_reprise.py` (choix 16) : lancé dans le dépôt, il réécrivait le référentiel, les situations et les sources depuis `REPRISE.md`, champs `en` compris. Aucun workflow, script ni document vivant ne l'appelait. Sa suppression était prévue au Sujet 45 du plan de corrections (constat CHX-06) ; elle est avancée.
+
 ## [0.3.60] - 2026-11-16
 
 Retrait de l'anglais, première des deux pull requests : le site en français seul. Décision de Julien du 15 novembre 2026 : « Retire la traduction anglaise, on garde tout en full français. » Découpage et choix de Claude : `docs/propositions.md`, section 5, « Retrait de l'anglais » (choix 1 à 14). La seconde pull request, version 0.3.61, retirera les champs `en` du référentiel et de la scène.
@@ -979,6 +1008,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.61]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.60...v0.3.61
 [0.3.60]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.59...v0.3.60
 [0.3.59]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.58...v0.3.59
 [0.3.58]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.57...v0.3.58
