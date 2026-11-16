@@ -356,6 +356,7 @@ Sous chaque sujet, « ce qu'il faut faire » résume la correction retenue par l
 - Tests : communs à `app/` ; clics et focus sur le bouton pendant qu'il clignote (mode S à 1/4000 s sans ISO auto), tous suivis de l'ouverture de la fenêtre, et un clic pas plus long que le témoin sans clignotement (INT-21) ; doigt glissé sur le déclencheur par le protocole de Chromium, la rafale ne s'arrête qu'au lever du doigt.
 - Dépend de : rien. COD-09 est à confirmer par Julien sur son téléphone, après la fusion (D37).
 - Taille : petite. Ces quatre corrections n'ont en commun que leur taille : les réunir est un choix de ce plan, pas des rapports.
+- Note du 15 novembre 2026 : la remise à zéro du défilement de l'écran de revue (INT-17) est faite dans la version 0.3.59, avec la pull request du Sujet 1. Raison : ce défaut faisait échouer par intermittence un contrôle de la routine dans la CI (profil iphone : la photo, sans hauteur tant qu'elle n'était pas chargée, était poussée hors de l'écran par l'ancrage du défilement de Chromium, ajouté au défilement gardé), et Julien a décidé le 15 novembre que la correction entrait dans cette pull request. Elle est dans `openReview` (`app/src/ui/shutter.ts`), qu'appellent `showCaption` et `showError`. Le contrôle de routine « après deux photos, le haut de la photo est visible » est fait aussi, sous le nom « photo suivante : écran de revue ouvert en haut ». Il reste à ce sujet : FEX-19 et INT-21, COD-09, COD-14, et le contrôle des deux loupes.
 
 ### Sujet 3 · Pendant le calcul d'une photo : caméra, toucher du viseur, indicateur d'équilibre
 - Constats : COD-01, COD-07, ARC-14.
@@ -420,6 +421,7 @@ Sous chaque sujet, « ce qu'il faut faire » résume la correction retenue par l
 - Tests : communs à `app/` ; requête du fichier d'éclairage coupée (message, page qui ne se fige plus au déclenchement) ; `getContext` qui rend `null` ; contexte perdu puis restauré (rapports de luminosité revenus à 1).
 - Dépend de : rien. COD-12 est à confirmer par Julien sur son téléphone, après la fusion (D37), et peut partir à part si la session est courte : sa correction n'est essayée que dans Chromium en rendu logiciel, et la cause de l'écart d'éclairage reste inconnue.
 - Taille : moyenne.
+- Note du 15 novembre 2026 : depuis la version 0.3.59, le message d'un chargement en échec et le texte du message d'un navigateur sans WebGL sont suivis de la version (« La scène n'a pas pu être chargée. Version du site : X.Y.Z. », demande de Julien). COD-11 reste entier : le message d'un navigateur sans WebGL n'est toujours pas visible à l'écran (mesuré de nouveau ce jour-là). Les tests de ce sujet qui lisent ces messages comptent avec la version.
 
 ### Sujet 11 · Écran de revue, loupe et retardateur : ce qui reste actif pendant un calcul
 - Constats : COD-08, COD-02, COD-05, COD-04 ; COD-13 pour trois petits défauts du déclencheur.
@@ -680,6 +682,7 @@ Sous chaque sujet, « ce qu'il faut faire » résume la correction retenue par l
 - Tests : communs à `app/` ; les mesures des rapports refaites aux six largeurs, dans les deux langues et les deux modes AF. Les seuils dépendent de la police : Inter dans les mesures du rapport, DejaVu Sans dans la CI.
 - Dépend de : D12, que Julien tranche sur pièces : la première étape du sujet est l'essai des formes possibles dans un navigateur (écrans émulés), fait par Claude, dont les captures accompagnent la question.
 - Taille : grande. Découpage possible si elle ne tient pas en une session : (a) INT-04, INT-12, INT-11 et les contrôles en anglais et à 320 px ; (b) INT-17 et INT-20 ; (c) INT-03 et le profil à l'horizontale.
+- Note du 15 novembre 2026 : depuis la version 0.3.59, la fenêtre « Crédits » s'ouvre défilement remis à zéro (INT-20, pour cette seule fenêtre), parce que la ligne de version y est passée en haut. Constaté en le faisant, dans Chromium : la remise à zéro n'a d'effet qu'après `showModal()` ; demandée fenêtre fermée, elle n'en a pas, alors que la correction proposée par INT-20 la place avant. Les autres fenêtres restent à faire ici.
 
 **Quatrième partie : documentation et outils**
 

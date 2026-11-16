@@ -1,7 +1,7 @@
 import "./style.css";
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { createScene } from "./scene";
-import { loadManifest, renderCredits } from "./credits";
+import { loadManifest, renderCredits, renderVersion } from "./credits";
 import { CameraPanel } from "./ui/cameraPanel";
 import { Shutter } from "./ui/shutter";
 import { DOME_RADIUS, EYE_HEIGHT } from "./scene";
@@ -14,6 +14,7 @@ import { ChallengePicker } from "./ui/challenges";
 import { FicheDialog } from "./ui/ficheDialog";
 import { ReviewInfo } from "./ui/reviewInfo";
 import { initialLang, rememberLang, t, type Lang } from "./i18n";
+import { siteVersion } from "./version";
 
 function element<T extends HTMLElement>(id: string): T {
   const found = document.getElementById(id);
@@ -101,8 +102,24 @@ function report(key: ProblemKey, detail: string): void {
 
 function renderProblems(): void {
   const colon = lang === "fr" ? " : " : ": ";
-  diagnostic.textContent = problems.map((p) => `${t(lang, p.key)}${colon}${p.detail}`).join(" · ");
+  const parts = problems.map((p) => `${t(lang, p.key)}${colon}${p.detail}`);
+  // La version du site suit le message d'un problème (version 0.3.59), pour rattacher une capture d'écran à une
+  // version. Sans problème, la ligne reste vide et masquée : la routine de test le contrôle (« aucun problème
+  // affiché »).
+  if (parts.length > 0) parts.push(siteVersion(lang));
+  diagnostic.textContent = parts.join(" · ");
   diagnostic.hidden = problems.length === 0;
+}
+
+/**
+ * Message d'un échec, suivi de la version du site : « La scène n'a pas pu être chargée. Version du site : X.Y.Z. »
+ * (version 0.3.59, demande de Julien du 15 novembre 2026). Pour un chargement en échec et pour un navigateur sans
+ * WebGL. Une capture d'écran d'un chargement en échec se rattache ainsi à une version ; le message d'un navigateur
+ * sans WebGL, lui, n'est pas visible à l'écran tant que le constat COD-11 de l'audit n'est pas corrigé (Sujet 10 du
+ * plan). Le message d'un chargement en cours ne la porte pas.
+ */
+function withVersion(message: string): string {
+  return `${message} ${siteVersion(lang)}.`;
 }
 
 window.addEventListener("error", (event) => report("problemError", event.message || String(event.error)));
@@ -116,11 +133,13 @@ function applyLang(): void {
   creditsButton.textContent = t(lang, "credits");
   element("credits-title").textContent = t(lang, "creditsTitle");
   element("credits-intro").textContent = t(lang, "creditsIntro");
+  renderVersion(element("credits-version"), lang);
   element("credits-close").textContent = t(lang, "close");
-  element("no-webgl").textContent = t(lang, "noWebgl");
+  element("no-webgl").textContent = withVersion(t(lang, "noWebgl"));
   canvas.setAttribute("aria-label", t(lang, "sceneLabel"));
   langButton.textContent = t(lang, "switchLang");
-  status.textContent = statusKey ? t(lang, statusKey) + (statusKey === "loading" ? loadingProgress() : "") : "";
+  status.textContent =
+    statusKey === "loading" ? t(lang, "loading") + loadingProgress() : statusKey === "loadError" ? withVersion(t(lang, "loadError")) : "";
   status.hidden = statusKey === null;
   manifest.then((m) => renderCredits(creditsList, m, lang)).catch(() => undefined);
   cameraPanel?.setLang(lang);
@@ -137,7 +156,14 @@ langButton.addEventListener("click", () => {
   rememberLang(lang);
   applyLang();
 });
-creditsButton.addEventListener("click", () => creditsDialog.showModal());
+creditsButton.addEventListener("click", () => {
+  creditsDialog.showModal();
+  // La fenêtre s'ouvre en haut, où est la ligne de version (version 0.3.59). Sans cela, elle gardait le défilement de
+  // l'ouverture d'avant : à 1280 × 800, en français, fermée par son bouton du bas puis rouverte, elle cachait cette
+  // ligne (mesuré dans Chromium ; constat INT-20 de l'audit, corrigé ici pour cette seule fenêtre). La remise à zéro
+  // vient après showModal() : demandée fenêtre fermée, elle n'a pas d'effet.
+  creditsDialog.scrollTop = 0;
+});
 // Fiches ouvertes par-dessus le simulateur (bulletin, fenêtre « Défis ») : indépendant de la scène 3D.
 ficheDialog = new FicheDialog(
   {
