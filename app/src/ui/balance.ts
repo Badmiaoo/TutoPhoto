@@ -160,8 +160,8 @@ export class BalanceIndicator {
         motion = ratio <= 1 ? "ok" : "bad";
         this.el.motion.textContent =
           ratio <= 1
-            ? `${shutterText} · ${who}${tr("balanceColon")}${tr("balanceSharp")} (${pixelText})`
-            : `${shutterText} · ${who}${tr("balanceColon")}${tr("balanceTrail")} ${this.decimal(ratio, 1)} ${tr("balanceTimesLimit")} (${pixelText})`;
+            ? `${shutterText} · ${who} : ${tr("balanceSharp")} (${pixelText})`
+            : `${shutterText} · ${who} : ${tr("balanceTrail")} ${this.decimal(ratio, 1)} ${tr("balanceTimesLimit")} (${pixelText})`;
       } else {
         this.el.motion.textContent = `${shutterText} · ${tr("balanceStill")}`;
       }

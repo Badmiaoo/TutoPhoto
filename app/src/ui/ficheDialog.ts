@@ -40,7 +40,6 @@ export class FicheDialog {
   applyTexts(): void {
     this.el.page.textContent = t("fichePage");
     this.el.close.textContent = t("close");
-    if (this.current && this.el.dialog.open) void this.open(this.current);
   }
 
   async open(id: string): Promise<void> {

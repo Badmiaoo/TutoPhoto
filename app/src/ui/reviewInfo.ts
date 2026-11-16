@@ -147,7 +147,7 @@ export class ReviewInfo {
   private render(): void {
     const tr = t;
     const { el, tones } = this;
-    el.button.textContent = `${tr("reviewInfo")}${tr("balanceColon")}${tr(DISPLAY_KEYS[this.display])}`;
+    el.button.textContent = `${tr("reviewInfo")} : ${tr(DISPLAY_KEYS[this.display])}`;
     el.button.title = tr("reviewInfoTitle");
     el.limits.textContent = tr("reviewInfoLimits");
     el.note.textContent = tr("reviewInfoNote");
@@ -190,15 +190,14 @@ export class ReviewInfo {
   /** « Pixels à la valeur maximale sur au moins une couche : 3,2 % de l'image », ou « Aucun pixel… ». */
   private clippingText(tones: PhotoTones, highlights: boolean): string {
     const tr = t;
-    const colon = tr("balanceColon");
-    if (tones.clipped === 0) return highlights ? `${tr("clippedNone")}${colon}${tr("clippedNothingBlinks")}` : tr("clippedNone");
+    if (tones.clipped === 0) return highlights ? `${tr("clippedNone")} : ${tr("clippedNothingBlinks")}` : tr("clippedNone");
     const decimal = (value: number) => value.toFixed(1).replace(".", ",");
     const share = (100 * tones.clipped) / (tones.width * tones.height);
     // Une part non nulle ne s'écrit pas « 0,0 % ».
     const value = share < 0.1 ? `${tr("lessThan")} ${decimal(0.1)}` : decimal(share);
     // Espace insécable devant « % » en français : le nombre et son unité ne se séparent pas en fin de ligne.
     const percent = tr("percent").replace(" ", "\u00a0");
-    const text = `${tr("clippedShare")}${colon}${value}${percent} ${tr(this.part ? "clippedOfPart" : "clippedOfImage")}`;
+    const text = `${tr("clippedShare")} : ${value}${percent} ${tr(this.part ? "clippedOfPart" : "clippedOfImage")}`;
     if (!highlights) return text;
     const still = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     return `${text}. ${tr(still ? "clippedStill" : "clippedBlink")}`;

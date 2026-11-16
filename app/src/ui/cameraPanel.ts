@@ -706,7 +706,6 @@ export class CameraPanel {
 
   private update(): void {
     const tr = t;
-    const colon = " : ";
     const resolved = this.resolved();
     for (const dial of ["aperture", "shutter", "iso", "focal"] as const) {
       const box = this.el.panel.querySelector<HTMLElement>(`[data-box="${dial}"]`);
@@ -719,10 +718,10 @@ export class CameraPanel {
       output.classList.toggle("by-camera", byCamera || (dial === "iso" && resolved.isoAltered));
       output.classList.toggle("flashing", resolved.flashing === dial);
       output.title =
-        dial === "iso" && resolved.isoAltered ? `${tr("isoChosen")}${colon}${isoLabel(this.settings.iso)}` : resolved.flashing === dial ? this.limitText(resolved) : "";
+        dial === "iso" && resolved.isoAltered ? `${tr("isoChosen")} : ${isoLabel(this.settings.iso)}` : resolved.flashing === dial ? this.limitText(resolved) : "";
       for (const button of box.querySelectorAll<HTMLButtonElement>("button[data-step]")) button.disabled = !this.enabled || byCamera;
-      box.querySelector<HTMLButtonElement>('[data-step="-1"]')!.setAttribute("aria-label", `${name}${colon}${tr("decrease")}`);
-      box.querySelector<HTMLButtonElement>('[data-step="1"]')!.setAttribute("aria-label", `${name}${colon}${tr("increase")}`);
+      box.querySelector<HTMLButtonElement>('[data-step="-1"]')!.setAttribute("aria-label", `${name} : ${tr("decrease")}`);
+      box.querySelector<HTMLButtonElement>('[data-step="1"]')!.setAttribute("aria-label", `${name} : ${tr("increase")}`);
     }
 
     this.el.loupeButton.title = tr("loupeHelp");
@@ -746,12 +745,12 @@ export class CameraPanel {
     this.noise.setEnabled(this.showsNoise());
     this.dof?.setEnabled(this.showsDepthOfField());
     this.balance?.setEnabled(this.showsBalance());
-    this.updatePreview(tr, colon);
+    this.updatePreview(tr);
 
     const body = this.body();
     const mm = (value: number) => String(value).replace(".", ",");
     this.el.bodyButton.textContent = body.model;
-    this.el.bodyButton.title = `${tr("bodyTitle")}${colon}${body.model}`;
+    this.el.bodyButton.title = `${tr("bodyTitle")} : ${body.model}`;
     this.el.bodyDialog.querySelector("#body-title")!.textContent = tr("bodyTitle");
     this.el.bodyDialog.querySelector("#brand-legend")!.textContent = tr("brand");
     this.el.bodyDialog.querySelector("#format-legend")!.textContent = tr("format");
@@ -760,9 +759,9 @@ export class CameraPanel {
     this.el.bodyDialog.querySelector("#lens-note")!.textContent = tr("lensNote");
     this.el.bodyDialog.querySelector("#body-close")!.textContent = tr("close");
     const sensors = BODIES.filter((b) => b.brand === this.brand)
-      .map((b) => `${b.model}${colon}${mm(b.sensorWidthMm)} × ${mm(b.sensorHeightMm)} mm`)
+      .map((b) => `${b.model} : ${mm(b.sensorWidthMm)} × ${mm(b.sensorHeightMm)} mm`)
       .join(" ; ");
-    this.el.bodyDialog.querySelector("#sensor-note")!.textContent = `${tr("sensor")}${colon}${sensors}`;
+    this.el.bodyDialog.querySelector("#sensor-note")!.textContent = `${tr("sensor")} : ${sensors}`;
     for (const input of this.el.bodyDialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) {
       input.checked = input.value === (input.name === "brand" ? this.brand : this.format);
     }
@@ -945,7 +944,6 @@ export class CameraPanel {
    */
   private updateFocus(): void {
     const tr = t;
-    const colon = " : ";
     const single = this.focusMode === "single";
     const short = single ? "AF-S" : "AF-C";
     const areaShort = tr(AREA_KEYS[this.areaMode].short);
@@ -953,7 +951,7 @@ export class CameraPanel {
     this.el.afButton.title = tr("afTitle");
     this.el.afButton.setAttribute(
       "aria-label",
-      `${tr("afTitle")}${colon}${tr(single ? "afSingle" : "afContinuous")}, ${tr(AREA_KEYS[this.areaMode].label)}`,
+      `${tr("afTitle")} : ${tr(single ? "afSingle" : "afContinuous")}, ${tr(AREA_KEYS[this.areaMode].label)}`,
     );
     const dialog = this.el.afDialog;
     dialog.querySelector("#af-title")!.textContent = tr("afTitle");
@@ -1011,7 +1009,7 @@ export class CameraPanel {
   }
 
   /** Textes de la fenêtre de l'aperçu, cases cochées, grille choisie, et rappel dans le viseur de ce qui n'est pas montré. */
-  private updatePreview(tr: (key: MessageKey) => string, colon: string): void {
+  private updatePreview(tr: (key: MessageKey) => string): void {
     const dialog = this.el.previewDialog;
     this.el.previewButton.textContent = tr("previewButton");
     this.el.previewButton.title = tr("previewTitle");
@@ -1043,7 +1041,7 @@ export class CameraPanel {
     if (!this.showsBalance()) hidden.push(tr("previewBalanceShort"));
     this.el.previewBadge.hidden = hidden.length === 0;
     const list = hidden.length > 1 ? `${hidden.slice(0, -1).join(", ")}${tr("and")}${hidden[hidden.length - 1]}` : hidden.join("");
-    this.el.previewBadge.textContent = `${tr("previewOff")}${colon}${list}`;
+    this.el.previewBadge.textContent = `${tr("previewOff")} : ${list}`;
   }
 
   private restorePreview(): void {

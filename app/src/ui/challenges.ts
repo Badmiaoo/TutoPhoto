@@ -160,13 +160,13 @@ export function renderBulletin(
   for (const m of bulletin.measures) {
     if (!m.inFrame || m.trailMm === 0) continue;
     const verdict = tr(m.frozen ? "bulletinFrozen" : "bulletinTrail");
-    lines.push({ text: `${name(m.id)}${tr("balanceColon")}${tr("bulletinTrailIs")} ${decimal(m.trailPx)} px, ${verdict} (${tr("bulletinLimit")} ${decimal(limitPx)} px)` });
+    lines.push({ text: `${name(m.id)} : ${tr("bulletinTrailIs")} ${decimal(m.trailPx)} px, ${verdict} (${tr("bulletinLimit")} ${decimal(limitPx)} px)` });
   }
   if (extra.challenge) {
     const keys = CHALLENGE_KEYS[extra.challenge];
     const passed = bulletin.criteria.every((c) => c.ok);
     lines.push({
-      text: `${tr("challengeShort")} ${extra.challenge} · ${tr(keys.title)}${tr("balanceColon")}${tr(passed ? "challengePassed" : "challengeRetry")}`,
+      text: `${tr("challengeShort")} ${extra.challenge} · ${tr(keys.title)} : ${tr(passed ? "challengePassed" : "challengeRetry")}`,
       className: passed ? "passed" : "failed",
     });
     for (const c of bulletin.criteria) {
@@ -178,7 +178,7 @@ export function renderBulletin(
         .filter(Boolean)
         .map(name)
         .join(", ");
-      if (!c.ok && names) detail += `${tr("balanceColon")}${tr(c.key === "backgroundBlurred" ? "critStillSharp" : "critMissed")} ${names}`;
+      if (!c.ok && names) detail += ` : ${tr(c.key === "backgroundBlurred" ? "critStillSharp" : "critMissed")} ${names}`;
       lines.push({ text: `${tr(c.ok ? "critOk" : "critFailed")} ${tr(CRITERION_KEYS[c.key])}${detail}`, className: c.ok ? "passed" : "failed" });
     }
     const review = [...new Set(bulletin.criteria.filter((c) => !c.ok).flatMap((c) => c.notions))];

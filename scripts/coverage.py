@@ -42,19 +42,18 @@ def content_coverage(ref):
     written = {s["id"] for s in ref.situations
                if text_of(content / "situations" / f"{s['id']}.md").strip()}
     bricks = {}  # notion -> ensemble des briques présentes
-    h = HEADINGS
     for n in ref.notions:
         present = sections(text_of(content / "notions" / f"{n['id']}.md"))
         got = set()
-        if h["explanation"].lower() in present:
+        if HEADINGS["explanation"].lower() in present:
             got.add("explanation")
-        if h["activity" if n.get("activity") else "simulator"].lower() in present:
+        if HEADINGS["activity" if n.get("activity") else "simulator"].lower() in present:
             got.add("simulator")
-        if h["exercise"].lower() in present:
+        if HEADINGS["exercise"].lower() in present:
             got.add("exercise")
         sits = n["situations"]
         if sits == "all" or not sits:
-            if h["situation"].lower() in present:
+            if HEADINGS["situation"].lower() in present:
                 got.add("situation")
         elif any(s in written for s in sits):
             got.add("situation")
@@ -114,8 +113,8 @@ def main():
     out.append("| --- | --- | --- |")
     for j in ref.jalons:
         done = len([i for i in j["notions"] if i in covered])
-        both = len([s for s in j["situations"] if s in written])
-        out.append(f"| {j['id']} · {j['title']['fr']} | {done} sur {len(j['notions'])} | {both} sur {len(j['situations'])} |")
+        drafted = len([s for s in j["situations"] if s in written])
+        out.append(f"| {j['id']} · {j['title']['fr']} | {done} sur {len(j['notions'])} | {drafted} sur {len(j['situations'])} |")
     out.append("")
     out.append("Contenus lus dans `content/` ; règles dans `docs/contenus.md` ; jalons dans `data/jalons.yaml`.")
     print("\n".join(out))
