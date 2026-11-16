@@ -35,6 +35,7 @@ Essais : `python3 scripts/validate.py` (191 notions, 49 situations, 172 sources,
 - Lecteurs : `app/scripts/build-pages.mjs` (expression régulière des titres de domaines), `app/src/credits.ts` (`role` et `changes` lus directement ; le titre de la scène, que ce fichier ne lit pas, n'y change que de type), `scripts/coverage.py` (titres des domaines et du jalon). `scripts/validate.py`, `scripts/check_scenes.py` et `scripts/referentiel.py` ne lisent pas ces champs : ils passent par les schémas.
 - Documents : `docs/lire-le-referentiel.md` (champ `title` d'une notion et d'un jalon), `docs/licences.md` (le rôle d'un élément de scène n'est plus dit « en français et en anglais »), `docs/architecture.md` (section « Langue »), `docs/etat-des-travaux.md` (version 0.3.60 fusionnée, cette pull request, sujet suivant : le Sujet 2), `docs/propositions.md` (choix 15 et 16).
 - `docs/audit/README.md`, deux notes datées, sans réécrire le reste : la note du 16 novembre 2026 en tête du plan dit le retrait des champs `en` fait dans cette version ; une note sous le Sujet 45 dit `scripts/extract_reprise.py` supprimé.
+- `README.md` : la ligne qui décrit `scripts/` ne cite plus l'extraction, le seul script d'extraction étant supprimé (« Retiré »). Relevé par l'agent qui a repris les constats de la relecture, hors des 4 constats.
 
 ### Corrigé
 
