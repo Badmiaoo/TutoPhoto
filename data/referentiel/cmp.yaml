@@ -1,11 +1,11 @@
 # fichier: data/referentiel/cmp.yaml
 domain:
   id: CMP
-  title: {fr: "Composition et cadrage", en: "composition and framing"}
+  title: "Composition et cadrage"
   intro: "Quatorze notions : on compose en tournant, en zoomant et en se déplaçant dans la scène 3D."
 notions:
   - id: CMP-01
-    title: {fr: "Cadrer", en: "framing, orientation, aspect ratio"}
+    title: "Cadrer"
     level: N1
     spec:
       explanation: "Ce qui entre dans le cadre, l'orientation, le format"
@@ -14,7 +14,7 @@ notions:
     situations: all
     since: v0.1
   - id: CMP-02
-    title: {fr: "Tiers, centre, symétrie", en: "rule of thirds, symmetry"}
+    title: "Tiers, centre, symétrie"
     level: N1
     spec:
       explanation: "Placer le sujet ; savoir quand centrer"
@@ -23,7 +23,7 @@ notions:
     situations: [SIT-01, SIT-16]
     since: v0.1
   - id: CMP-03
-    title: {fr: "Lignes", en: "leading lines, diagonals"}
+    title: "Lignes"
     level: N1
     spec:
       explanation: "Guider le regard"
@@ -32,7 +32,7 @@ notions:
     situations: [SIT-10, SIT-15]
     since: v0.1
   - id: CMP-04
-    title: {fr: "Horizon", en: "horizon placement, level"}
+    title: "Horizon"
     level: N1
     spec:
       explanation: "Hauteur de l'horizon selon l'intérêt du ciel ; horizon droit"
@@ -41,7 +41,7 @@ notions:
     situations: [SIT-10]
     since: v0.1
   - id: CMP-05
-    title: {fr: "Simplifier", en: "negative space, clean background"}
+    title: "Simplifier"
     level: N1
     spec:
       explanation: "Retirer les éléments parasites, laisser respirer le sujet"
@@ -50,7 +50,7 @@ notions:
     situations: [SIT-15, SIT-23]
     since: v0.1
   - id: CMP-06
-    title: {fr: "Profondeur et premiers plans", en: "depth, foreground"}
+    title: "Profondeur et premiers plans"
     level: N2
     spec:
       explanation: "Construire des plans successifs"
@@ -59,7 +59,7 @@ notions:
     situations: [SIT-11, SIT-V2-03]
     since: v0.1
   - id: CMP-07
-    title: {fr: "Point de vue", en: "point of view: height, angle, distance"}
+    title: "Point de vue"
     level: N1
     spec:
       explanation: "Se baisser, monter, s'approcher change l'image"
@@ -68,7 +68,7 @@ notions:
     situations: [SIT-39, SIT-V2-02, SIT-V2-06]
     since: v0.1
   - id: CMP-08
-    title: {fr: "Cadre dans le cadre, motifs", en: "frame within a frame, patterns"}
+    title: "Cadre dans le cadre, motifs"
     level: N2
     spec:
       explanation: "Portes, fenêtres, répétitions, ruptures de motif"
@@ -77,7 +77,7 @@ notions:
     situations: [SIT-15, SIT-16]
     since: v0.1
   - id: CMP-09
-    title: {fr: "Équilibre et poids visuel", en: "visual balance"}
+    title: "Équilibre et poids visuel"
     level: N2
     spec:
       explanation: "Contraste, taille, couleur et netteté attirent l'œil"
@@ -86,7 +86,7 @@ notions:
     situations: [SIT-23]
     since: v0.1
   - id: CMP-10
-    title: {fr: "Direction et espace", en: "lead room, gaze"}
+    title: "Direction et espace"
     level: N1
     spec:
       explanation: "Laisser de l'espace devant un regard ou un mouvement"
@@ -95,7 +95,7 @@ notions:
     situations: [SIT-09]
     since: v0.1
   - id: CMP-11
-    title: {fr: "Échelle", en: "scale, human element"}
+    title: "Échelle"
     level: N2
     spec:
       explanation: "Donner la taille d'un paysage avec un élément connu"
@@ -104,7 +104,7 @@ notions:
     situations: [SIT-10]
     since: v0.1
   - id: CMP-12
-    title: {fr: "Enfreindre les règles", en: "breaking the rules"}
+    title: "Enfreindre les règles"
     level: N3
     activity: true
     spec:
@@ -114,7 +114,7 @@ notions:
     situations: all
     since: v0.1
   - id: CMP-13
-    title: {fr: "Choisir son sujet", en: "subject"}
+    title: "Choisir son sujet"
     level: N1
     activity: true
     spec:
@@ -124,7 +124,7 @@ notions:
     situations: all
     since: v0.2
   - id: CMP-14
-    title: {fr: "Diriger une personne", en: "posing"}
+    title: "Diriger une personne"
     level: N2
     spec:
       explanation: "Placer et guider une personne : posture, mains, regard, mise à l'aise"

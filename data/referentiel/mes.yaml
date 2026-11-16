@@ -1,11 +1,11 @@
 # fichier: data/referentiel/mes.yaml
 domain:
   id: MES
-  title: {fr: "Mesure et contrôle de l'exposition", en: "metering and exposure control"}
+  title: "Mesure et contrôle de l'exposition"
   intro: "Treize notions : comprendre ce que la cellule mesure, la corriger, puis placer ses tons."
 notions:
   - id: MES-01
-    title: {fr: "Ce que mesure la cellule", en: "how metering works"}
+    title: "Ce que mesure la cellule"
     level: N1
     spec:
       explanation: "La cellule mesure la lumière renvoyée et ramène la zone mesurée vers un gris moyen ; la mesure multizone corrige en partie selon la répartition des tons, mais une scène très claire ou très sombre la trompe encore"
@@ -14,7 +14,7 @@ notions:
     situations: [SIT-13, SIT-31]
     since: v0.1
   - id: MES-02
-    title: {fr: "Modes de mesure", en: "metering modes"}
+    title: "Modes de mesure"
     level: N1
     spec:
       explanation: "Multizone, pondérée centrale, spot et variantes de marque : quand utiliser chacune"
@@ -24,7 +24,7 @@ notions:
     sources: [canon-m50ii-metering, nikon-zr-metering, sony-a9-metering, fujifilm-xt4-photometry, sony-rx0ii-highlight, fujifilm-gfx100-photometry]
     since: v0.1
   - id: MES-03
-    title: {fr: "Pièges de la mesure", en: "metering traps"}
+    title: "Pièges de la mesure"
     level: N1
     spec:
       explanation: "Neige, fond noir, contre-jour, nuit : pourquoi la cellule se trompe"
@@ -33,7 +33,7 @@ notions:
     situations: [SIT-13, SIT-19, SIT-31]
     since: v0.1
   - id: MES-04
-    title: {fr: "Correction d'exposition", en: "exposure compensation"}
+    title: "Correction d'exposition"
     level: N1
     spec:
       explanation: "Décaler la cible de la cellule en P, A et S, et en M avec ISO auto"
@@ -45,7 +45,7 @@ notions:
     sources: [nikon-z6-exposure-compensation, nikon-z6-exposure-compensation-fr]
     since: v0.1
   - id: MES-05
-    title: {fr: "Mémorisation d'exposition", en: "AE lock"}
+    title: "Mémorisation d'exposition"
     level: N2
     spec:
       explanation: "Mesurer sur une zone, recadrer, garder l'exposition"
@@ -54,7 +54,7 @@ notions:
     situations: [SIT-03, SIT-19, SIT-30]
     since: v0.1
   - id: MES-06
-    title: {fr: "Histogramme", en: "histogram"}
+    title: "Histogramme"
     level: N1
     spec:
       explanation: "Lire la répartition des tons et repérer l'écrêtage, couche par couche"
@@ -63,7 +63,7 @@ notions:
     situations: [SIT-10, SIT-13]
     since: v0.1
   - id: MES-07
-    title: {fr: "Alertes de surexposition et zébras", en: "highlight alerts, zebras"}
+    title: "Alertes de surexposition et zébras"
     level: N1
     spec:
       explanation: "Repérer en direct les zones brûlées"
@@ -72,7 +72,7 @@ notions:
     situations: [SIT-02, SIT-13]
     since: v0.1
   - id: MES-08
-    title: {fr: "Bracketing d'exposition", en: "exposure bracketing"}
+    title: "Bracketing d'exposition"
     level: N2
     spec:
       explanation: "Sécuriser une prise ou préparer une fusion HDR : nombre de vues, écart ; certaines marques font aussi varier la balance des blancs ou l'optimiseur de plage dynamique"
@@ -82,7 +82,7 @@ notions:
     sources: [nikon-z50ii-bracketing]
     since: v0.1
   - id: MES-09
-    title: {fr: "Posemètre en manuel", en: "metering in manual mode"}
+    title: "Posemètre en manuel"
     level: N1
     spec:
       explanation: "Lire l'échelle d'exposition du viseur en M"
@@ -91,7 +91,7 @@ notions:
     situations: [SIT-17, SIT-21]
     since: v0.1
   - id: MES-10
-    title: {fr: "ISO auto", en: "auto ISO"}
+    title: "ISO auto"
     level: N2
     spec:
       explanation: "Plafond d'ISO, vitesse minimale, ISO auto en M avec correction"
@@ -101,7 +101,7 @@ notions:
     sources: [nikon-z6-iso-button, nikon-z6-iso-settings, nikon-z6-iso-settings-fr, nikon-z6-defaults, nikon-d850-auto-iso]
     since: v0.1
   - id: MES-11
-    title: {fr: "Mesure incidente", en: "incident metering"}
+    title: "Mesure incidente"
     level: N3
     spec:
       explanation: "Mesurer la lumière reçue par le sujet plutôt que celle qu'il renvoie"
@@ -110,7 +110,7 @@ notions:
     situations: [SIT-02, SIT-04]
     since: v0.1
   - id: MES-12
-    title: {fr: "Mesure spot liée au collimateur", en: "spot metering linked to the focus point"}
+    title: "Mesure spot liée au collimateur"
     level: N2
     spec:
       explanation: "Sur certains boîtiers, la mesure spot se fait sous le collimateur choisi plutôt qu'au centre : un sujet décentré s'expose sans recadrer"
@@ -120,7 +120,7 @@ notions:
     sources: [sony-a7iv-spot-point, fujifilm-x100t-photometry]
     since: v0.2
   - id: MES-13
-    title: {fr: "Système de zones", en: "zone system"}
+    title: "Système de zones"
     level: N3
     spec:
       explanation: "Placer un ton choisi sur une valeur voulue et prévoir où tombent les autres ; méthode d'Ansel Adams et Fred Archer, adaptée au numérique"

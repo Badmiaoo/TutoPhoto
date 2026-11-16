@@ -1,12 +1,12 @@
 # fichier: data/referentiel/net.yaml
 domain:
   id: NET
-  title: {fr: "Netteté et profondeur de champ", en: "sharpness and depth of field"}
+  title: "Netteté et profondeur de champ"
   intro: "Neuf notions. La profondeur de champ dépend de l'ouverture, de la focale, de la distance et de la taille du capteur."
   sources: [pl-lens-compression, wikipedia-circle-of-confusion]
 notions:
   - id: NET-01
-    title: {fr: "Profondeur de champ", en: "depth of field"}
+    title: "Profondeur de champ"
     level: N1
     spec:
       explanation: "La zone de netteté acceptable et ses quatre leviers"
@@ -16,7 +16,7 @@ notions:
     sources: [pl-lens-compression]
     since: v0.1
   - id: NET-02
-    title: {fr: "Netteté perçue", en: "circle of confusion, viewing size"}
+    title: "Netteté perçue"
     level: N3
     spec:
       explanation: "La netteté dépend aussi de la taille d'affichage"
@@ -27,7 +27,7 @@ notions:
       - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
     since: v0.1
   - id: NET-03
-    title: {fr: "Hyperfocale", en: "hyperfocal distance"}
+    title: "Hyperfocale"
     level: N2
     spec:
       explanation: "Faire le point pour étendre la netteté jusqu'à l'infini"
@@ -38,7 +38,7 @@ notions:
       - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
     since: v0.1
   - id: NET-04
-    title: {fr: "Diffraction", en: "diffraction"}
+    title: "Diffraction"
     level: N2
     spec:
       explanation: "Pourquoi fermer au maximum fait perdre du piqué"
@@ -49,7 +49,7 @@ notions:
       - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
     since: v0.1
   - id: NET-05
-    title: {fr: "Bokeh", en: "bokeh"}
+    title: "Bokeh"
     level: N2
     spec:
       explanation: "Qualité du flou, forme des points lumineux, lames du diaphragme"
@@ -58,7 +58,7 @@ notions:
     situations: [SIT-17, SIT-27, SIT-34]
     since: v0.1
   - id: NET-06
-    title: {fr: "Distance sujet-fond", en: "subject-background distance"}
+    title: "Distance sujet-fond"
     level: N1
     spec:
       explanation: "Plus le fond est loin du sujet, plus il est flou"
@@ -68,7 +68,7 @@ notions:
     sources: [wikipedia-circle-of-confusion]
     since: v0.1
   - id: NET-07
-    title: {fr: "Pourquoi c'est flou", en: "diagnosing blur"}
+    title: "Pourquoi c'est flou"
     level: N1
     spec:
       explanation: "Distinguer bougé, flou de sujet, mise au point ratée, profondeur trop courte, diffraction"
@@ -77,7 +77,7 @@ notions:
     situations: all
     since: v0.1
   - id: NET-08
-    title: {fr: "Empilement de mise au point", en: "focus stacking"}
+    title: "Empilement de mise au point"
     level: N3
     spec:
       explanation: "Fusionner plusieurs mises au point quand la profondeur ne suffit pas"
@@ -86,7 +86,7 @@ notions:
     situations: [SIT-11, SIT-22]
     since: v0.1
   - id: NET-09
-    title: {fr: "Aperçu de profondeur de champ", en: "depth-of-field preview"}
+    title: "Aperçu de profondeur de champ"
     level: N2
     spec:
       explanation: "Fermer le diaphragme à la valeur choisie pour juger la zone nette avant de déclencher"

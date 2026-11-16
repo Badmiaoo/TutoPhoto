@@ -1,9 +1,6 @@
 {
   "id": "parc",
-  "title": {
-    "fr": "Le parc",
-    "en": "The park"
-  },
+  "title": "Le parc",
   "situations": [
     "SIT-01",
     "SIT-05",
@@ -13,10 +10,7 @@
     {
       "id": "autumn_hockey",
       "title": "Autumn Hockey",
-      "role": {
-        "fr": "Fond et éclairage : photo à 360° d'un parc en automne, par ciel couvert",
-        "en": "Background and lighting: 360° photo of a park in autumn, overcast"
-      },
+      "role": "Fond et éclairage : photo à 360° d'un parc en automne, par ciel couvert",
       "authors": [
         "Greg Zaal"
       ],
@@ -43,10 +37,7 @@
     {
       "id": "painted_wooden_bench",
       "title": "Painted Wooden Bench",
-      "role": {
-        "fr": "Banc",
-        "en": "Bench"
-      },
+      "role": "Banc",
       "authors": [
         "Kirill Sannikov"
       ],
@@ -91,10 +82,7 @@
     {
       "id": "metal_trash_can",
       "title": "Metal Trash Can",
-      "role": {
-        "fr": "Poubelles",
-        "en": "Trash cans"
-      },
+      "role": "Poubelles",
       "authors": [
         "GurJas Studios"
       ],
@@ -157,10 +145,7 @@
     {
       "id": "nathan_animated_003",
       "title": "Nathan Animated 003 - Walking 3D Man",
-      "role": {
-        "fr": "Homme qui marche, en arrière-plan",
-        "en": "Man walking, in the background"
-      },
+      "role": "Homme qui marche, en arrière-plan",
       "authors": [
         "Renderpeople"
       ],
@@ -169,10 +154,7 @@
       "license_url": "https://creativecommons.org/licenses/by/4.0/",
       "license_checked_at": "https://api.sketchfab.com/v3/models/143a2b1ea5eb4385ae90a73657aca3bc",
       "verified": "2026-11-08",
-      "changes": {
-        "fr": "Texture de couleur réduite de 8192 à 2048 px de côté.",
-        "en": "Color texture downscaled from 8192 to 2048 px per side."
-      },
+      "changes": "Texture de couleur réduite de 8192 à 2048 px de côté.",
       "files": [
         {
           "path": "nathan_animated_003/license.txt",
@@ -203,10 +185,7 @@
     {
       "id": "sophia_animated_003",
       "title": "Sophia Animated 003 - Animated 3D Woman",
-      "role": {
-        "fr": "Femme debout (portrait, groupe)",
-        "en": "Woman standing (portrait, group)"
-      },
+      "role": "Femme debout (portrait, groupe)",
       "authors": [
         "Renderpeople"
       ],
@@ -215,10 +194,7 @@
       "license_url": "https://creativecommons.org/licenses/by/4.0/",
       "license_checked_at": "https://api.sketchfab.com/v3/models/dc448c3be0e74f96a55fb475a13433cf",
       "verified": "2026-11-08",
-      "changes": {
-        "fr": "Texture de couleur réduite de 8192 à 2048 px de côté.",
-        "en": "Color texture downscaled from 8192 to 2048 px per side."
-      },
+      "changes": "Texture de couleur réduite de 8192 à 2048 px de côté.",
       "files": [
         {
           "path": "sophia_animated_003/license.txt",
@@ -249,10 +225,7 @@
     {
       "id": "dennis_posed_004",
       "title": "Dennis Posed 004 - Male Standing Business Model",
-      "role": {
-        "fr": "Homme debout (groupe)",
-        "en": "Man standing (group)"
-      },
+      "role": "Homme debout (groupe)",
       "authors": [
         "Renderpeople"
       ],
@@ -261,10 +234,7 @@
       "license_url": "https://creativecommons.org/licenses/by/4.0/",
       "license_checked_at": "https://api.sketchfab.com/v3/models/e211ffd52a96416e89c0cc415a388d61",
       "verified": "2026-11-08",
-      "changes": {
-        "fr": "Texture de couleur réduite de 8192 à 2048 px de côté.",
-        "en": "Color texture downscaled from 8192 to 2048 px per side."
-      },
+      "changes": "Texture de couleur réduite de 8192 à 2048 px de côté.",
       "files": [
         {
           "path": "dennis_posed_004/license.txt",
@@ -295,10 +265,7 @@
     {
       "id": "fabienne_percy_posed_001",
       "title": "Fabienne & Percy 001 - Mother and Child",
-      "role": {
-        "fr": "Mère et enfant (groupe)",
-        "en": "Mother and child (group)"
-      },
+      "role": "Mère et enfant (groupe)",
       "authors": [
         "Renderpeople"
       ],
@@ -307,10 +274,7 @@
       "license_url": "https://creativecommons.org/licenses/by/4.0/",
       "license_checked_at": "https://api.sketchfab.com/v3/models/8c9bfd4fb8a444b3a42a4fc31935a2fb",
       "verified": "2026-11-08",
-      "changes": {
-        "fr": "Texture de couleur réduite de 8192 à 2048 px de côté.",
-        "en": "Color texture downscaled from 8192 to 2048 px per side."
-      },
+      "changes": "Texture de couleur réduite de 8192 à 2048 px de côté.",
       "files": [
         {
           "path": "fabienne_percy_posed_001/license.txt",
@@ -341,10 +305,7 @@
     {
       "id": "alaskan_malamute",
       "title": "Alaskan malamute dog",
-      "role": {
-        "fr": "Chien qui court (SIT-06), modèle stylisé ; seul le chien « Jim » est affiché",
-        "en": "Running dog (SIT-06), stylized model; only the dog \"Jim\" is shown"
-      },
+      "role": "Chien qui court (SIT-06), modèle stylisé ; seul le chien « Jim » est affiché",
       "authors": [
         "striderrotk"
       ],

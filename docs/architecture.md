@@ -89,7 +89,7 @@ Propres à certaines marques ou à certains modèles :
 
 - TutoPhoto est en français seul depuis la version 0.3.60 (décision de Julien du 15 novembre 2026). Avant, le projet était bilingue, français et anglais.
 - Les textes de l'interface du simulateur restent sous une clé, dans une seule table (`app/src/texts.ts`).
-- Les champs `en` du référentiel et de la scène sont encore dans les fichiers ; leur retrait est prévu en version 0.3.61 (`docs/propositions.md`, section 5, « Retrait de l'anglais »).
+- Depuis la version 0.3.61, les titres du référentiel (`data/`) et, dans le manifeste d'une scène, son titre, le rôle et les modifications de chaque élément sont des chaînes en français ; avant, c'étaient des objets à deux champs, `fr` et `en` (`docs/propositions.md`, section 5, « Retrait de l'anglais »).
 - Les contenus juridiques s'écrivent pays par pays, ils ne se traduisent pas.
 
 ## Droits
