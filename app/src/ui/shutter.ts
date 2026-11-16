@@ -424,7 +424,6 @@ export class Shutter {
   private showFrame(index: number): void {
     if (index < 0 || index >= this.shots.length) return;
     this.shotIndex = index;
-    this.dropLoupe();
     const shot = this.shots[index];
     this.el.reviewSave.href = shot.photo.url;
     const many = this.shots.length > 1;
@@ -439,6 +438,8 @@ export class Shutter {
   private showWhole(): void {
     const shot = this.shots[this.shotIndex];
     if (!shot) return;
+    // La fenêtre de la loupe est oubliée : le toucher suivant porte sur la photo entière, pas sur l'ancienne fenêtre.
+    this.dropLoupe();
     const { photo, settings, focusMode, areaMode, focusLocked, target, frame } = shot;
     this.setImage(photo.url, photo.width, photo.height);
     this.el.reviewWhole.hidden = true;

@@ -450,9 +450,11 @@ dialog a {
   animation: clignote 1s steps(2, start) infinite;
 }
 
+/* Par l'opacité, et non par « visibility: hidden » : un élément caché ne prend ni les clics ni le focus, et le bouton
+   de l'indicateur d'exposition, qui ouvre la fenêtre « Exposition », en perdait un toucher sur deux. */
 @keyframes clignote {
   to {
-    visibility: hidden;
+    opacity: 0;
   }
 }
 
@@ -513,6 +515,9 @@ dialog fieldset label {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+  /* Le doigt qui tient le déclencheur pendant une rafale peut glisser : sans cette ligne, le navigateur prend le
+     geste pour un défilement après 20 px et envoie « pointercancel », qui arrête la rafale doigt encore posé. */
+  touch-action: none;
 }
 
 .shutter-button:disabled,
