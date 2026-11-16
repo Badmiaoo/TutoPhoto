@@ -822,7 +822,14 @@ async function runProfile(browser, name, base) {
       // taille de l'image complète du Nikon Z 6 (24,5 millions de pixels, capteur de 35,9 × 23,9 mm : sensorPixels,
       // app/src/camera/bodies.ts) et de celle de la fenêtre, qui est à 100 % ; calcul de magnify
       // (app/src/ui/shutter.ts). La photo entière est relue à l'adresse du lien « Enregistrer ». Le contrôle demande
-      // un écart avec la zone touchée inférieur à 10 niveaux, et inférieur à l'écart avec la zone du centre. Mesuré le
+      // un écart avec la zone touchée inférieur à 10 niveaux, et inférieur à l'écart avec la zone du centre. La zone
+      // touchée est placée d'après le point que la photo a reçu (décalage du clic dans l'image, divisé par sa taille
+      // affichée : ce que lit magnify), et non d'après le point visé : le clic arrive à un pixel CSS entier, et sur le
+      // profil iphone, avec la police de la CI (viseur de 238 px), la photo n'est affichée qu'en 178 × 118 px. Un
+      // pixel CSS y vaut 34 pixels de l'image complète, soit 8,5 pixels de la photo entière, plus qu'une case (7,5 ×
+      // 6 pixels). Placé d'après le point visé, le contrôle échouait dans la CI sur ce profil, correction en place
+      // (16 novembre 2026 : 12,6 niveaux ; refait sur la machine de Claude avec cette police : 12,9 d'après le point
+      // visé, 2,1 d'après le point reçu, 84,8 % et 80,5 % ; sans la correction, 34,5 d'après le point visé). Mesuré le
       // 16 novembre 2026 pour six points touchés, hors de la routine, mêmes réglages : avec la correction, de 0,4 à
       // 1,1 niveau (ordinateur) et de 1,4 à 3,3 (Pixel 7 émulé) ; sans elle, de 54 à 77 (ordinateur) et de 52 à 110
       // (Pixel 7 émulé). Dans la routine, profil ordinateur, sur le site construit sans la correction : 28,9 niveaux,
@@ -830,6 +837,15 @@ async function runProfile(browser, name, base) {
       await page.click("#review-whole");
       await page.waitForFunction(() => document.getElementById("review-whole").hidden && document.getElementById("review-image").complete, null, { timeout: 300000 });
       const secondTouch = { u: 0.85, v: 0.8 };
+      await page.evaluate(() => {
+        const image = document.getElementById("review-image");
+        window.routineSecondTouch = null;
+        image.addEventListener(
+          "click",
+          (e) => (window.routineSecondTouch = { u: e.offsetX / image.clientWidth, v: e.offsetY / image.clientHeight, shown: `${image.clientWidth}×${image.clientHeight}` }),
+          { capture: true, once: true },
+        );
+      });
       const wholeBox = await page.locator("#review-image").boundingBox();
       await page.mouse.click(wholeBox.x + wholeBox.width * secondTouch.u, wholeBox.y + wholeBox.height * secondTouch.v);
       await page.waitForFunction(
@@ -837,7 +853,10 @@ async function runProfile(browser, name, base) {
         null,
         { timeout: 300000 },
       );
-      const secondLoupe = await page.evaluate(async ({ u, v }) => {
+      const secondLoupe = await page.evaluate(async () => {
+        const received = window.routineSecondTouch;
+        if (!received) return { touched: NaN, centre: NaN, loupe: "-", photo: "-", shown: "-", u: NaN, v: NaN, caption: "le clic n'est pas arrivé à la photo" };
+        const { u, v } = received;
         const COLUMNS = 12;
         const ROWS = 4;
         const load = (src) =>
@@ -892,13 +911,16 @@ async function runProfile(browser, name, base) {
           centre: gap(shown, zone(0.5, 0.5)),
           loupe: `${width}×${height}`,
           photo: `${photo.naturalWidth}×${photo.naturalHeight}`,
+          shown: received.shown,
+          u,
+          v,
           caption: document.getElementById("review-caption").textContent,
         };
-      }, secondTouch);
+      });
       check(
         "revue : après « Photo entière », la seconde loupe montre le point touché",
         /100/.test(secondLoupe.caption) && secondLoupe.touched < 10 && secondLoupe.touched < secondLoupe.centre,
-        `toucher à 85 % et 80 % : écart de ${secondLoupe.touched.toFixed(1)} niveau(x) avec la zone touchée, de ${secondLoupe.centre.toFixed(1)} avec celle du centre ; fenêtre ${secondLoupe.loupe}, photo ${secondLoupe.photo}`,
+        `toucher à 85 % et 80 %, reçu à ${(100 * secondLoupe.u).toFixed(1)} % et ${(100 * secondLoupe.v).toFixed(1)} % : écart de ${secondLoupe.touched.toFixed(1)} niveau(x) avec la zone touchée, de ${secondLoupe.centre.toFixed(1)} avec celle du centre ; fenêtre ${secondLoupe.loupe}, photo ${secondLoupe.photo}, affichée en ${secondLoupe.shown}`,
       );
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-loupe-2.png`), timeout: 120000 });
       await page.click("#review-back");
