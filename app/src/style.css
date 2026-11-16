@@ -447,12 +447,15 @@ dialog a {
    Nikon Z 6 ; sans animation si l'utilisateur la refuse. */
 .flashing {
   color: var(--erreur);
-  animation: clignote 1s steps(2, start) infinite;
+  animation: clignote 1s step-end infinite;
 }
 
 /* Par l'opacité, et non par « visibility: hidden » : un élément caché ne prend ni les clics ni le focus, et le bouton
-   de l'indicateur d'exposition, qui ouvre la fenêtre « Exposition », en perdait un toucher sur deux. */
+   de l'indicateur d'exposition, qui ouvre la fenêtre « Exposition », en perdait un toucher sur deux. Avec « step-end »,
+   l'opacité vaut 1 pendant la première moitié de la période et 0 pendant la seconde, comme l'élément était visible
+   puis caché ; « steps(2, start) » vers une opacité de 0 donnerait 0,5 puis 0. */
 @keyframes clignote {
+  50%,
   to {
     opacity: 0;
   }
@@ -833,7 +836,7 @@ dialog fieldset label {
   width: 0;
   height: 0;
   pointer-events: none;
-  animation: clignote 2s steps(2, start) infinite;
+  animation: clignote 2s step-end infinite;
 }
 
 .review-info-details {
