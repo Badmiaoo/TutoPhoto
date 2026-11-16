@@ -1,14 +1,14 @@
 # fichier: data/referentiel/map.yaml
 domain:
   id: MAP
-  title: {fr: "Mise au point et autofocus", en: "focus and autofocus"}
+  title: "Mise au point et autofocus"
   intro: "21 notions : la scène 3D connaît la distance de chaque objet et la place des visages et des yeux, ce qui permet de placer le plan net et de simuler chaque mode AF et chaque collimateur, options comprises. Un premier plan flou qui déborde sur le sujet (grillage, branche) laisse voir une partie de ce qu'il cache : la qualité de ce rendu dépend de la méthode de rendu de la profondeur de champ."
   sources: [sheng-2023]
   todo:
     - "Vérifier, au choix du moteur de rendu, que le flou d'un premier plan qui déborde sur le sujet est rendu correctement."
 notions:
   - id: MAP-01
-    title: {fr: "Plan de mise au point", en: "plane of focus"}
+    title: "Plan de mise au point"
     level: N1
     spec:
       explanation: "La netteté maximale est un plan, à une distance donnée"
@@ -17,7 +17,7 @@ notions:
     situations: [SIT-01, SIT-22]
     since: v0.1
   - id: MAP-02
-    title: {fr: "Mise au point manuelle et aides", en: "manual focus, magnification, peaking"}
+    title: "Mise au point manuelle et aides"
     level: N1
     spec:
       explanation: "Quand passer en manuel ; loupe, surlignage de netteté, échelle des distances"
@@ -26,7 +26,7 @@ notions:
     situations: [SIT-20, SIT-21, SIT-22]
     since: v0.1
   - id: MAP-03
-    title: {fr: "Comment l'AF voit", en: "contrast, phase, hybrid AF"}
+    title: "Comment l'AF voit"
     level: N2
     spec:
       explanation: "Détection de contraste et de phase ; pourquoi l'AF patine sur une surface unie ou dans le noir"
@@ -37,7 +37,7 @@ notions:
       - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
     since: v0.1
   - id: MAP-04
-    title: {fr: "AF ponctuel ou continu", en: "single AF, continuous AF"}
+    title: "AF ponctuel ou continu"
     level: N1
     spec:
       explanation: "Verrouiller une distance ou la suivre ; le mode automatique et ses hésitations"
@@ -47,7 +47,7 @@ notions:
     sources: [canon-r5-af-operation, canon-80d-manualslib, nikon-zr-focus, nikon-z6-focus, sony-a9-focus-mode, sony-a7riv-automatic-af, fujifilm-gfx100-af]
     since: v0.1
   - id: MAP-05
-    title: {fr: "Modes de zone AF", en: "AF area modes"}
+    title: "Modes de zone AF"
     level: N1
     spec:
       explanation: "Point unique, zone, large, suivi : quelle partie du cadre sert à faire le point"
@@ -57,7 +57,7 @@ notions:
     sources: [canon-r5ii-af-area, nikon-zr-focus, nikon-z6-focus, nikon-z6-focus-fr, sony-a7iv-focus-area, fujifilm-gfx100-af]
     since: v0.1
   - id: MAP-06
-    title: {fr: "Collimateurs", en: "AF points"}
+    title: "Collimateurs"
     level: N1
     spec:
       explanation: "Choisir soi-même le collimateur, le déplacer vite, connaître sa couverture"
@@ -67,7 +67,7 @@ notions:
     sources: [nikon-z6-launch-2018, nikon-z6-eisa-2019, nikon-z6-product, nikon-z6-focus, canon-eos-rp-af, sony-ilce-7m3-af]
     since: v0.1
   - id: MAP-07
-    title: {fr: "Quand l'appareil choisit", en: "auto-area pitfalls"}
+    title: "Quand l'appareil choisit"
     level: N1
     spec:
       explanation: "Sur quels critères l'appareil choisit, et pourquoi il se trompe de sujet"
@@ -76,7 +76,7 @@ notions:
     situations: [SIT-08, SIT-26, SIT-38]
     since: v0.1
   - id: MAP-08
-    title: {fr: "Mémorisation AF, mise au point puis recadrage", en: "focus lock, focus and recompose"}
+    title: "Mémorisation AF, mise au point puis recadrage"
     level: N1
     spec:
       explanation: "Verrouiller la distance à mi-course ou par une touche, puis recadrer ; la limite de la technique à grande ouverture ; le lien avec la mémorisation d'exposition"
@@ -87,7 +87,7 @@ notions:
       - "Fusion de MAP-13 (mémorisation AF) en v0.2 ; niveau N1 pour le geste, la limite fait partie de l'explication."
     since: v0.1
   - id: MAP-09
-    title: {fr: "Détection des yeux et des sujets", en: "eye, face, subject detection"}
+    title: "Détection des yeux et des sujets"
     level: N1
     spec:
       explanation: "Ce qu'apporte la détection, ses réglages, ses échecs"
@@ -97,7 +97,7 @@ notions:
     sources: [nikon-z6-focus, nikon-z6-a4, nikon-z6-a4-fr, nikon-p1100-af-area]
     since: v0.1
   - id: MAP-10
-    title: {fr: "Suivi du sujet", en: "subject tracking"}
+    title: "Suivi du sujet"
     level: N2
     spec:
       explanation: "Suivi dans le cadre, sensibilité du suivi, obstacles"
@@ -106,7 +106,7 @@ notions:
     situations: [SIT-07, SIT-09, SIT-38]
     since: v0.1
   - id: MAP-11
-    title: {fr: "Découplage AF", en: "back-button focus"}
+    title: "Découplage AF"
     level: N2
     spec:
       explanation: "Séparer la mise au point du déclenchement"
@@ -115,7 +115,7 @@ notions:
     situations: [SIT-06, SIT-15]
     since: v0.1
   - id: MAP-12
-    title: {fr: "Priorité au déclenchement ou à la netteté", en: "release vs focus priority"}
+    title: "Priorité au déclenchement ou à la netteté"
     level: N2
     spec:
       explanation: "Déclencher même flou, ou attendre la netteté"
@@ -124,7 +124,7 @@ notions:
     situations: [SIT-08, SIT-25, SIT-37]
     since: v0.1
   - id: MAP-14
-    title: {fr: "Distance minimale et limiteur", en: "minimum focus distance, focus limiter"}
+    title: "Distance minimale et limiteur"
     level: N2
     spec:
       explanation: "Pourquoi l'AF refuse trop près ; le limiteur accélère l'AF sur les sujets lointains"
@@ -134,7 +134,7 @@ notions:
     sources: [sony-rx10iv-limiter]
     since: v0.1
   - id: MAP-15
-    title: {fr: "Mise au point dans le noir et à l'infini", en: "low light, infinity focus"}
+    title: "Mise au point dans le noir et à l'infini"
     level: N2
     spec:
       explanation: "Faisceau d'assistance, loupe ; vérifier l'infini à l'écran"
@@ -144,7 +144,7 @@ notions:
     sources: [sony-a7iii-infinity]
     since: v0.1
   - id: MAP-16
-    title: {fr: "Mise au point par zone", en: "zone focusing"}
+    title: "Mise au point par zone"
     level: N2
     spec:
       explanation: "Prérégler distance et ouverture pour une plage nette sans AF"
@@ -153,7 +153,7 @@ notions:
     situations: [SIT-15]
     since: v0.1
   - id: MAP-17
-    title: {fr: "Réglage fin de l'AF", en: "AF fine-tune"}
+    title: "Réglage fin de l'AF"
     level: N3
     spec:
       explanation: "Surtout sur reflex, et sur certains hybrides : corriger un objectif qui fait le point devant ou derrière"
@@ -163,7 +163,7 @@ notions:
     sources: [nikon-zr-af-finetune]
     since: v0.1
   - id: MAP-18
-    title: {fr: "Bracketing de mise au point", en: "focus bracketing"}
+    title: "Bracketing de mise au point"
     level: N3
     spec:
       explanation: "Série de mises au point destinée à l'empilement"
@@ -172,7 +172,7 @@ notions:
     situations: [SIT-11, SIT-22]
     since: v0.1
   - id: MAP-19
-    title: {fr: "Déplacer son collimateur : joystick, écran tactile, retour au centre", en: "moving the focus point"}
+    title: "Déplacer son collimateur : joystick, écran tactile, retour au centre"
     level: N1
     spec:
       explanation: "Les commandes qui déplacent le collimateur sans quitter le viseur : multicontrôleur, écran tactile, retour au centre"
@@ -182,7 +182,7 @@ notions:
     sources: [canon-r5-af-method]
     since: v0.2
   - id: MAP-20
-    title: {fr: "Collimateur selon l'orientation", en: "orientation-linked focus point"}
+    title: "Collimateur selon l'orientation"
     level: N2
     spec:
       explanation: "Mémoriser un collimateur pour la position horizontale et un autre pour la verticale"
@@ -192,7 +192,7 @@ notions:
     sources: [canon-r5-af-method]
     since: v0.2
   - id: MAP-21
-    title: {fr: "Retouche manuelle en AF", en: "manual focus override, AF+MF, DMF"}
+    title: "Retouche manuelle en AF"
     level: N2
     spec:
       explanation: "Corriger l'AF à la bague après l'accroche, sans changer de mode"
@@ -202,7 +202,7 @@ notions:
     sources: [nikon-zr-mf-ring]
     since: v0.2
   - id: MAP-22
-    title: {fr: "Options des collimateurs : nombre de points, bouclage, position mémorisée", en: "focus point options"}
+    title: "Options des collimateurs : nombre de points, bouclage, position mémorisée"
     level: N3
     spec:
       explanation: "Réduire le nombre de collimateurs sélectionnables, faire boucler le déplacement d'un bord à l'autre, rappeler une position mémorisée"

@@ -5,26 +5,21 @@
 import { t } from "./texts";
 import { siteVersion } from "./version";
 
-interface Bilingual {
-  fr: string;
-  en: string;
-}
-
 interface SceneAsset {
   id: string;
   title: string;
-  role: Bilingual;
+  role: string;
   authors: string[];
   source: string;
   license: "CC0-1.0" | "CC-BY-4.0";
   license_url: string;
-  changes?: Bilingual;
+  changes?: string;
   /** Fichiers de l'élément, chemin relatif au dossier de la scène et taille en octets. */
   files?: { path: string; bytes: number }[];
 }
 
 export interface SceneManifest {
-  title: Bilingual;
+  title: string;
   assets: SceneAsset[];
 }
 
@@ -55,7 +50,7 @@ export function renderCredits(list: HTMLElement, manifest: SceneManifest): void 
     const item = document.createElement("li");
     const role = document.createElement("span");
     role.className = "role";
-    role.textContent = asset.role.fr;
+    role.textContent = asset.role;
     item.append(
       role,
       document.createElement("br"),
@@ -64,7 +59,7 @@ export function renderCredits(list: HTMLElement, manifest: SceneManifest): void 
       link(asset.license_url, LICENSE_NAMES[asset.license]),
     );
     if (asset.changes) {
-      item.append(document.createElement("br"), `${t("changes")} ${asset.changes.fr}`);
+      item.append(document.createElement("br"), `${t("changes")} ${asset.changes}`);
     }
     list.append(item);
   }

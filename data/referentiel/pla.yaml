@@ -1,12 +1,12 @@
 # fichier: data/referentiel/pla.yaml
 domain:
   id: PLA
-  title: {fr: "Planification : où et quand", en: "planning: where and when"}
+  title: "Planification : où et quand"
   intro: "Neuf notions : prévoir la lumière, le ciel, le lieu et les règles avant de partir. Les horaires du soleil et de la lune peuvent venir de SunCalc, petite bibliothèque JavaScript sous licence BSD qui calcule aussi l'heure dorée ; l'heure bleue s'y ajoute en fixant ses propres angles."
   sources: [suncalc]
 notions:
   - id: PLA-01
-    title: {fr: "Heures de lumière", en: "sunrise, sunset, golden and blue hour"}
+    title: "Heures de lumière"
     level: N1
     spec:
       explanation: "Calculer les horaires et la durée de ces moments selon le lieu, la date et la saison"
@@ -16,7 +16,7 @@ notions:
     sources: [suncalc]
     since: v0.1
   - id: PLA-02
-    title: {fr: "Position du soleil", en: "sun azimuth, elevation"}
+    title: "Position du soleil"
     level: N2
     spec:
       explanation: "D'où viendra la lumière à une heure donnée, en été comme en hiver"
@@ -26,7 +26,7 @@ notions:
     sources: [suncalc]
     since: v0.1
   - id: PLA-03
-    title: {fr: "La Lune", en: "moon phases, rise, set"}
+    title: "La Lune"
     level: N2
     spec:
       explanation: "Phase, lever, coucher : gêne ou atout"
@@ -36,7 +36,7 @@ notions:
     sources: [suncalc]
     since: v0.1
   - id: PLA-04
-    title: {fr: "Météo pour la photo", en: "weather forecast"}
+    title: "Météo pour la photo"
     level: N2
     spec:
       explanation: "Nuages, vent, brouillard, visibilité"
@@ -45,7 +45,7 @@ notions:
     situations: [SIT-10, SIT-14, SIT-33, SIT-41]
     since: v0.1
   - id: PLA-05
-    title: {fr: "Ciel nocturne", en: "light pollution"}
+    title: "Ciel nocturne"
     level: N2
     spec:
       explanation: "Obscurité du ciel, nouvelle lune, distance aux villes"
@@ -56,7 +56,7 @@ notions:
       - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
     since: v0.1
   - id: PLA-06
-    title: {fr: "Repérage", en: "scouting"}
+    title: "Repérage"
     level: N1
     activity: true
     spec:
@@ -66,7 +66,7 @@ notions:
     situations: [SIT-10, SIT-24, SIT-36]
     since: v0.1
   - id: PLA-07
-    title: {fr: "Droit et respect", en: "rights, etiquette"}
+    title: "Droit et respect"
     level: N1
     activity: true
     spec:
@@ -79,7 +79,7 @@ notions:
       - "Écrire le contenu juridique pays par pays, à partir des textes officiels ; aucun chiffre ni article inventé."
     since: v0.1
   - id: PLA-08
-    title: {fr: "Préparer son sac", en: "packing for a shoot"}
+    title: "Préparer son sac"
     level: N1
     spec:
       explanation: "Matériel selon la situation, protection contre la pluie et le froid"
@@ -88,7 +88,7 @@ notions:
     situations: [SIT-12, SIT-20, SIT-36, SIT-40]
     since: v0.1
   - id: PLA-09
-    title: {fr: "Photo par drone : règles et sécurité", en: "drone photography: rules and safety"}
+    title: "Photo par drone : règles et sécurité"
     level: N1
     activity: true
     spec:

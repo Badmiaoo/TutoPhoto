@@ -1,11 +1,11 @@
 # fichier: data/referentiel/cou.yaml
 domain:
   id: COU
-  title: {fr: "Couleur", en: "color"}
+  title: "Couleur"
   intro: "Neuf notions : la couleur des sources, sa correction et son usage, sous l'eau comprise."
 notions:
   - id: COU-01
-    title: {fr: "Température de couleur", en: "color temperature, tint"}
+    title: "Température de couleur"
     level: N1
     spec:
       explanation: "La lumière a une couleur : kelvins et teinte"
@@ -16,7 +16,7 @@ notions:
       - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
     since: v0.1
   - id: COU-02
-    title: {fr: "Balance des blancs", en: "white balance"}
+    title: "Balance des blancs"
     level: N1
     spec:
       explanation: "Auto, préréglages, kelvins, mesure sur une carte grise ; selon les marques, une balance auto qui garde l'ambiance chaude ou qui neutralise le blanc"
@@ -26,7 +26,7 @@ notions:
     sources: [canon-r5-wb]
     since: v0.1
   - id: COU-03
-    title: {fr: "Lumière mixte", en: "mixed lighting"}
+    title: "Lumière mixte"
     level: N2
     spec:
       explanation: "Choisir quelle source neutraliser"
@@ -35,7 +35,7 @@ notions:
     situations: [SIT-04, SIT-19, SIT-32, SIT-34, SIT-37]
     since: v0.1
   - id: COU-04
-    title: {fr: "Balance créative", en: "creative white balance"}
+    title: "Balance créative"
     level: N1
     spec:
       explanation: "Réchauffer, refroidir, servir l'ambiance"
@@ -44,7 +44,7 @@ notions:
     situations: [SIT-14, SIT-17]
     since: v0.1
   - id: COU-05
-    title: {fr: "Styles d'image", en: "picture styles, profiles"}
+    title: "Styles d'image"
     level: N1
     spec:
       explanation: "Ils changent le JPEG et l'aperçu ; en RAW, le style se choisit au développement, dans le logiciel"
@@ -56,7 +56,7 @@ notions:
       - "Remplacer Canon Print Studio Pro, source indirecte, par une source directe (audit A)."
     since: v0.1
   - id: COU-06
-    title: {fr: "Espaces couleur et écrans", en: "color spaces, displays"}
+    title: "Espaces couleur et écrans"
     level: N3
     activity: true
     spec:
@@ -68,7 +68,7 @@ notions:
       - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
     since: v0.1
   - id: COU-07
-    title: {fr: "Couleur et composition", en: "color harmony"}
+    title: "Couleur et composition"
     level: N2
     spec:
       explanation: "Contrastes et harmonies, couleur dominante"
@@ -77,7 +77,7 @@ notions:
     situations: [SIT-15]
     since: v0.1
   - id: COU-08
-    title: {fr: "Penser en noir et blanc", en: "seeing in black and white"}
+    title: "Penser en noir et blanc"
     level: N2
     spec:
       explanation: "Luminances, contrastes, filtres colorés en noir et blanc"
@@ -86,7 +86,7 @@ notions:
     situations: [SIT-14, SIT-15]
     since: v0.1
   - id: COU-09
-    title: {fr: "Couleur sous l'eau", en: "color underwater"}
+    title: "Couleur sous l'eau"
     level: N2
     spec:
       explanation: "L'eau absorbe d'abord le rouge : les couleurs s'éteignent avec la profondeur et la distance au sujet ; la balance des blancs se corrige selon la profondeur"

@@ -1,12 +1,12 @@
 # fichier: data/referentiel/opt.yaml
 domain:
   id: OPT
-  title: {fr: "Optique et objectifs", en: "optics and lenses"}
+  title: "Optique et objectifs"
   intro: "Dix-sept notions ; la perspective dépend de la position de l'appareil, pas de la focale ; le point sans parallaxe demande de déplacer l'axe de rotation de l'appareil."
   sources: [petapixel-perspective, hugin-nopar]
 notions:
   - id: OPT-01
-    title: {fr: "Focale et angle de champ", en: "focal length, field of view"}
+    title: "Focale et angle de champ"
     level: N1
     spec:
       explanation: "Depuis un même point, la focale change le cadrage et la profondeur de champ, pas la perspective"
@@ -16,7 +16,7 @@ notions:
     sources: [petapixel-perspective, pl-lens-compression]
     since: v0.1
   - id: OPT-02
-    title: {fr: "Taille de capteur", en: "sensor size, crop factor"}
+    title: "Taille de capteur"
     level: N1
     spec:
       explanation: "Focale équivalente, champ, bruit et profondeur selon le format"
@@ -25,7 +25,7 @@ notions:
     situations: [SIT-08]
     since: v0.1
   - id: OPT-03
-    title: {fr: "Équivalences entre formats", en: "format equivalence"}
+    title: "Équivalences entre formats"
     level: N3
     spec:
       explanation: "Même image sur deux formats : focale, ouverture et ISO équivalents"
@@ -36,7 +36,7 @@ notions:
       - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
     since: v0.1
   - id: OPT-04
-    title: {fr: "Familles d'objectifs", en: "lens types"}
+    title: "Familles d'objectifs"
     level: N1
     spec:
       explanation: "Grand-angle, standard, téléobjectif, focale fixe, zoom, macro, fisheye"
@@ -45,7 +45,7 @@ notions:
     situations: [SIT-08, SIT-24, SIT-36, SIT-38]
     since: v0.1
   - id: OPT-05
-    title: {fr: "Luminosité d'un objectif", en: "maximum aperture"}
+    title: "Luminosité d'un objectif"
     level: N1
     spec:
       explanation: "Ouverture maximale ; zoom à ouverture constante ou variable"
@@ -54,7 +54,7 @@ notions:
     situations: [SIT-19]
     since: v0.1
   - id: OPT-06
-    title: {fr: "Perspective", en: "perspective"}
+    title: "Perspective"
     level: N2
     spec:
       explanation: "La perspective dépend de la position, pas de la focale"
@@ -64,7 +64,7 @@ notions:
     sources: [petapixel-perspective, pl-lens-compression]
     since: v0.1
   - id: OPT-07
-    title: {fr: "Distorsions", en: "distortion"}
+    title: "Distorsions"
     level: N2
     spec:
       explanation: "Déformations dues à l'objectif ou au point de vue"
@@ -73,7 +73,7 @@ notions:
     situations: [SIT-16, SIT-32]
     since: v0.1
   - id: OPT-08
-    title: {fr: "Vignetage", en: "vignetting"}
+    title: "Vignetage"
     level: N2
     spec:
       explanation: "Coins assombris selon l'ouverture ; le corriger ou s'en servir"
@@ -82,7 +82,7 @@ notions:
     situations: [SIT-10]
     since: v0.1
   - id: OPT-09
-    title: {fr: "Aberrations, reflets, pare-soleil", en: "aberrations, flare, lens hood"}
+    title: "Aberrations, reflets, pare-soleil"
     level: N2
     spec:
       explanation: "Franges colorées, voile face au soleil, rôle du pare-soleil"
@@ -91,7 +91,7 @@ notions:
     situations: [SIT-03]
     since: v0.1
   - id: OPT-10
-    title: {fr: "Piqué", en: "sharpness, best aperture"}
+    title: "Piqué"
     level: N2
     spec:
       explanation: "Centre et bords, ouverture optimale d'un objectif"
@@ -100,7 +100,7 @@ notions:
     situations: [SIT-11]
     since: v0.1
   - id: OPT-11
-    title: {fr: "Macro", en: "magnification ratio"}
+    title: "Macro"
     level: N2
     spec:
       explanation: "Rapport de grandissement, distance de travail, profondeur infime"
@@ -109,7 +109,7 @@ notions:
     situations: [SIT-22]
     since: v0.1
   - id: OPT-12
-    title: {fr: "Filtres", en: "ND, polarizer, graduated ND"}
+    title: "Filtres"
     level: N2
     spec:
       explanation: "À quoi sert chaque filtre ; le polarisant assombrit le ciel selon l'angle au soleil (au plus à 90°) et coupe les reflets selon l'angle de vue sur la surface (au plus vers 53 à 56°, sans effet de face)"
@@ -122,7 +122,7 @@ notions:
       - "Ajouter une source pour la polarisation du ciel, maximale à 90° du soleil."
     since: v0.1
   - id: OPT-13
-    title: {fr: "Bascule et décentrement", en: "tilt-shift"}
+    title: "Bascule et décentrement"
     level: N3
     spec:
       explanation: "Redresser les verticales, incliner le plan de netteté"
@@ -131,7 +131,7 @@ notions:
     situations: [SIT-16, SIT-32]
     since: v0.1
   - id: OPT-14
-    title: {fr: "Multiplicateurs, bagues allonge et bonnettes", en: "teleconverters, extension tubes, close-up lenses"}
+    title: "Multiplicateurs, bagues allonge et bonnettes"
     level: N3
     spec:
       explanation: "Gagner de la focale ou du grandissement, et ce qu'on y perd ; la bonnette se visse à l'avant comme un filtre et grossit d'autant plus que la focale est longue"
@@ -141,7 +141,7 @@ notions:
     sources: [fujifilm-teleconverters, cic-closeup]
     since: v0.1
   - id: OPT-15
-    title: {fr: "Choisir son objectif", en: "choosing a lens"}
+    title: "Choisir son objectif"
     level: N1
     spec:
       explanation: "Arbitrer focale, ouverture, poids, distance minimale ; monture et adaptateurs"
@@ -150,7 +150,7 @@ notions:
     situations: all
     since: v0.1
   - id: OPT-16
-    title: {fr: "Étoiles de soleil", en: "sunstars"}
+    title: "Étoiles de soleil"
     level: N2
     spec:
       explanation: "Une source ponctuelle prend des branches aux petites ouvertures : autant que de lamelles si leur nombre est pair, le double s'il est impair"
@@ -162,7 +162,7 @@ notions:
       - "7 lamelles, nombre impair : 2 × 7 = 14 branches."
     since: v0.2
   - id: OPT-17
-    title: {fr: "Point sans parallaxe", en: "no-parallax point"}
+    title: "Point sans parallaxe"
     level: N3
     spec:
       explanation: "Tourner autour du centre de la pupille d'entrée évite la parallaxe ; tourner ailleurs décale premier plan et fond, ce qui gêne l'assemblage"

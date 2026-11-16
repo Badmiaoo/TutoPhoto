@@ -5,7 +5,7 @@ rules:
   flash: "required : la situation dépend du flash ; optional : elle l'utilise en option. Absent : pas de flash."
 situations:
   - id: SIT-01
-    title: {fr: "Portrait à l'ombre ou par ciel couvert", en: "portrait in open shade, overcast"}
+    title: "Portrait à l'ombre ou par ciel couvert"
     level: N1
     level_max: N1
     where_when: "Extérieur, journée"
@@ -13,7 +13,7 @@ situations:
     key_notions: [MAP-06, MAP-09, NET-01, NET-06, LUM-02]
     since: v0.1
   - id: SIT-02
-    title: {fr: "Portrait en plein soleil", en: "portrait in harsh sun"}
+    title: "Portrait en plein soleil"
     level: N2
     level_max: N2
     where_when: "Extérieur, milieu de journée"
@@ -22,7 +22,7 @@ situations:
     flash: required
     since: v0.1
   - id: SIT-03
-    title: {fr: "Portrait en contre-jour à l'heure dorée", en: "backlit portrait at golden hour"}
+    title: "Portrait en contre-jour à l'heure dorée"
     level: N2
     level_max: N2
     where_when: "Extérieur, soir"
@@ -31,7 +31,7 @@ situations:
     flash: optional
     since: v0.1
   - id: SIT-04
-    title: {fr: "Portrait près d'une fenêtre", en: "window-light portrait"}
+    title: "Portrait près d'une fenêtre"
     level: N1
     level_max: N2
     where_when: "Intérieur, jour"
@@ -39,7 +39,7 @@ situations:
     key_notions: [LUM-07, MAP-06, COU-03]
     since: v0.1
   - id: SIT-05
-    title: {fr: "Photo de groupe", en: "group photo"}
+    title: "Photo de groupe"
     level: N1
     level_max: N1
     where_when: "Intérieur ou extérieur"
@@ -47,7 +47,7 @@ situations:
     key_notions: [NET-01, MAP-05, MAP-09]
     since: v0.1
   - id: SIT-06
-    title: {fr: "Enfant ou chien qui court", en: "running child or dog"}
+    title: "Enfant ou chien qui court"
     level: N1
     level_max: N2
     where_when: "Parc, fin de journée"
@@ -55,7 +55,7 @@ situations:
     key_notions: [MAP-04, MAP-05, MVT-01, MES-10, BOI-12]
     since: v0.1
   - id: SIT-07
-    title: {fr: "Sport en salle", en: "indoor sports"}
+    title: "Sport en salle"
     level: N2
     level_max: N2
     where_when: "Gymnase éclairé aux LED"
@@ -63,7 +63,7 @@ situations:
     key_notions: [EXP-06, BOI-14, LUM-08, MAP-10, MVT-10]
     since: v0.1
   - id: SIT-08
-    title: {fr: "Oiseaux et animaux sauvages", en: "birds, wildlife"}
+    title: "Oiseaux et animaux sauvages"
     level: N1
     level_max: N3
     where_when: "Nature, longue focale"
@@ -71,7 +71,7 @@ situations:
     key_notions: [MAP-07, MAP-14, MVT-02, OPT-14, PLA-07]
     since: v0.1
   - id: SIT-09
-    title: {fr: "Filé d'un cycliste ou d'une voiture", en: "panning a cyclist or car"}
+    title: "Filé d'un cycliste ou d'une voiture"
     level: N2
     level_max: N2
     where_when: "Rue ou route, jour"
@@ -79,7 +79,7 @@ situations:
     key_notions: [MVT-06, BOI-15, MAP-10, CMP-10]
     since: v0.1
   - id: SIT-10
-    title: {fr: "Paysage au coucher du soleil", en: "landscape at sunset"}
+    title: "Paysage au coucher du soleil"
     level: N1
     level_max: N2
     where_when: "Extérieur, soir"
@@ -87,7 +87,7 @@ situations:
     key_notions: [MES-08, OPT-12, LUM-04, PLA-01, CMP-04]
     since: v0.1
   - id: SIT-11
-    title: {fr: "Paysage net de bout en bout", en: "front-to-back sharp landscape"}
+    title: "Paysage net de bout en bout"
     level: N2
     level_max: N3
     where_when: "Extérieur, premier plan proche"
@@ -95,7 +95,7 @@ situations:
     key_notions: [NET-01, NET-03, NET-04, NET-08, MAP-18]
     since: v0.1
   - id: SIT-12
-    title: {fr: "Cascade en pose longue de jour", en: "daytime long exposure waterfall"}
+    title: "Cascade en pose longue de jour"
     level: N2
     level_max: N2
     where_when: "Rivière, jour"
@@ -103,7 +103,7 @@ situations:
     key_notions: [MVT-05, MVT-07, OPT-12]
     since: v0.1
   - id: SIT-13
-    title: {fr: "Neige, plage et scènes très claires", en: "snow, beach, bright scenes"}
+    title: "Neige, plage et scènes très claires"
     level: N1
     level_max: N2
     where_when: "Extérieur, plein jour"
@@ -111,7 +111,7 @@ situations:
     key_notions: [MES-03, MES-04, MES-07, EXP-11]
     since: v0.1
   - id: SIT-14
-    title: {fr: "Brouillard et temps couvert", en: "fog, overcast"}
+    title: "Brouillard et temps couvert"
     level: N1
     level_max: N3
     where_when: "Extérieur"
@@ -119,7 +119,7 @@ situations:
     key_notions: [LUM-05, COU-04, EXP-12]
     since: v0.1
   - id: SIT-15
-    title: {fr: "Photo de rue", en: "street photography"}
+    title: "Photo de rue"
     level: N2
     level_max: N2
     where_when: "Ville, jour"
@@ -127,7 +127,7 @@ situations:
     key_notions: [MAP-16, NET-03, MAP-11, CMP-05, PLA-07]
     since: v0.1
   - id: SIT-16
-    title: {fr: "Architecture et verticales", en: "architecture, verticals"}
+    title: "Architecture et verticales"
     level: N2
     level_max: N3
     where_when: "Ville"
@@ -135,7 +135,7 @@ situations:
     key_notions: [OPT-07, OPT-13, CMP-02, PLA-02]
     since: v0.1
   - id: SIT-17
-    title: {fr: "Ville à l'heure bleue", en: "city at blue hour"}
+    title: "Ville à l'heure bleue"
     level: N1
     level_max: N2
     where_when: "Ville, crépuscule"
@@ -144,7 +144,7 @@ situations:
     flash: optional
     since: v0.1
   - id: SIT-18
-    title: {fr: "Intérieur sombre sans flash", en: "dim interior without flash"}
+    title: "Intérieur sombre sans flash"
     level: N2
     level_max: N2
     where_when: "Musée, église"
@@ -152,7 +152,7 @@ situations:
     key_notions: [MVT-02, MVT-04, BOI-14, MAP-03]
     since: v0.1
   - id: SIT-19
-    title: {fr: "Concert et spectacle", en: "concert, stage"}
+    title: "Concert et spectacle"
     level: N2
     level_max: N2
     where_when: "Salle, lumières de scène"
@@ -160,7 +160,7 @@ situations:
     key_notions: [MES-02, MES-03, LUM-08, COU-03]
     since: v0.1
   - id: SIT-20
-    title: {fr: "Ciel étoilé et Voie lactée", en: "starry sky, Milky Way"}
+    title: "Ciel étoilé et Voie lactée"
     level: N2
     level_max: N3
     where_when: "Campagne, nuit sans lune"
@@ -168,7 +168,7 @@ situations:
     key_notions: [MAP-15, MVT-09, EXP-08, PLA-05]
     since: v0.1
   - id: SIT-21
-    title: {fr: "Feux d'artifice", en: "fireworks"}
+    title: "Feux d'artifice"
     level: N1
     level_max: N2
     where_when: "Nuit"
@@ -176,7 +176,7 @@ situations:
     key_notions: [BOI-10, MAP-02, MES-09]
     since: v0.1
   - id: SIT-22
-    title: {fr: "Macro : fleur ou insecte", en: "macro: flower, insect"}
+    title: "Macro : fleur ou insecte"
     level: N2
     level_max: N3
     where_when: "Jardin"
@@ -184,7 +184,7 @@ situations:
     key_notions: [OPT-11, NET-08, MAP-02, MAP-14]
     since: v0.1
   - id: SIT-23
-    title: {fr: "Plat ou objet sur une table", en: "food or object on a table"}
+    title: "Plat ou objet sur une table"
     level: N1
     level_max: N2
     where_when: "Intérieur, près d'une fenêtre"
@@ -192,7 +192,7 @@ situations:
     key_notions: [LUM-07, COU-02, CMP-05, CMP-09]
     since: v0.1
   - id: SIT-24
-    title: {fr: "Monument très fréquenté", en: "crowded landmark"}
+    title: "Monument très fréquenté"
     level: N2
     level_max: N2
     where_when: "Ville, journée"
@@ -200,7 +200,7 @@ situations:
     key_notions: [MVT-05, MVT-07, OPT-01, PLA-06]
     since: v0.1
   - id: SIT-25
-    title: {fr: "Soirée en intérieur au flash", en: "indoor party with flash"}
+    title: "Soirée en intérieur au flash"
     level: N2
     level_max: N2
     where_when: "Intérieur, soir"
@@ -209,7 +209,7 @@ situations:
     flash: required
     since: v0.1
   - id: SIT-26
-    title: {fr: "À travers une vitre ou un grillage", en: "through glass or a fence"}
+    title: "À travers une vitre ou un grillage"
     level: N1
     level_max: N2
     where_when: "Zoo, aquarium, vitrine"
@@ -217,7 +217,7 @@ situations:
     key_notions: [MAP-07, MAP-08, OPT-12, NET-01]
     since: v0.1
   - id: SIT-27
-    title: {fr: "Bougies et feu de camp", en: "candlelight, campfire"}
+    title: "Bougies et feu de camp"
     level: N2
     level_max: N2
     where_when: "Nuit"
@@ -225,7 +225,7 @@ situations:
     key_notions: [COU-01, EXP-08, NET-05]
     since: v0.1
   - id: SIT-28
-    title: {fr: "Autoportrait au retardateur", en: "self-portrait with a timer"}
+    title: "Autoportrait au retardateur"
     level: N1
     level_max: N1
     where_when: "Partout"
@@ -233,7 +233,7 @@ situations:
     key_notions: [BOI-12, MAP-08, BOI-01]
     since: v0.1
   - id: SIT-29
-    title: {fr: "Depuis un train ou un avion", en: "from a train or plane window"}
+    title: "Depuis un train ou un avion"
     level: N1
     level_max: N2
     where_when: "Transport"
@@ -241,7 +241,7 @@ situations:
     key_notions: [MVT-01, MVT-02, OPT-12]
     since: v0.1
   - id: SIT-30
-    title: {fr: "Panorama", en: "panorama"}
+    title: "Panorama"
     level: N2
     level_max: N3
     where_when: "Paysage ou ville"
@@ -249,7 +249,7 @@ situations:
     key_notions: [BOI-09, MES-05, RET-10]
     since: v0.1
   - id: SIT-31
-    title: {fr: "La Lune", en: "the Moon"}
+    title: "La Lune"
     level: N2
     level_max: N2
     where_when: "Nuit"
@@ -257,7 +257,7 @@ situations:
     key_notions: [MES-03, EXP-11, MAP-15, PLA-03]
     since: v0.1
   - id: SIT-32
-    title: {fr: "Pièce d'une maison, fenêtre comprise", en: "room interior with a bright window"}
+    title: "Pièce d'une maison, fenêtre comprise"
     level: N2
     level_max: N3
     where_when: "Intérieur, jour"
@@ -266,7 +266,7 @@ situations:
     sources: [levoy-cs178-interiors]
     since: v0.2
   - id: SIT-33
-    title: {fr: "Orage et éclairs", en: "lightning storm"}
+    title: "Orage et éclairs"
     level: N2
     level_max: N2
     where_when: "Extérieur, nuit d'orage, à distance et à l'abri"
@@ -274,7 +274,7 @@ situations:
     key_notions: [BOI-10, BOI-26, MAP-15, PLA-04]
     since: v0.2
   - id: SIT-34
-    title: {fr: "Portrait de nuit en ville", en: "night portrait"}
+    title: "Portrait de nuit en ville"
     level: N2
     level_max: N2
     where_when: "Ville, nuit"
@@ -283,7 +283,7 @@ situations:
     flash: required
     since: v0.2
   - id: SIT-35
-    title: {fr: "Ville la nuit à main levée", en: "handheld night scene"}
+    title: "Ville la nuit à main levée"
     level: N2
     level_max: N2
     where_when: "Ville, nuit, sans trépied"
@@ -291,7 +291,7 @@ situations:
     key_notions: [MVT-02, MVT-03, MVT-04, BOI-15, MES-10, EXP-08]
     since: v0.2
   - id: SIT-36
-    title: {fr: "Journée de voyage", en: "travel day"}
+    title: "Journée de voyage"
     level: N1
     level_max: N1
     where_when: "Ville ou nature, du matin au soir"
@@ -299,7 +299,7 @@ situations:
     key_notions: [OPT-04, OPT-15, BOI-17, BOI-22, BOI-23, BOI-25, PLA-06, PLA-08, RET-11]
     since: v0.2
   - id: SIT-37
-    title: {fr: "Mariage ou cérémonie, en invité", en: "wedding guest"}
+    title: "Mariage ou cérémonie, en invité"
     level: N2
     level_max: N2
     where_when: "Lieu de cérémonie, intérieur et extérieur"
@@ -307,7 +307,7 @@ situations:
     key_notions: [BOI-14, MAP-09, MAP-12, MES-10, MVT-10, BOI-12, COU-03, PLA-07]
     since: v0.2
   - id: SIT-38
-    title: {fr: "Sport en extérieur, au bord du terrain", en: "outdoor field sports"}
+    title: "Sport en extérieur, au bord du terrain"
     level: N1
     level_max: N2
     where_when: "Stade ou terrain, jour"
@@ -316,7 +316,7 @@ situations:
     sources: [levoy-assignments]
     since: v0.2
   - id: SIT-39
-    title: {fr: "Enfant ou animal à la maison", en: "kids or pets at home"}
+    title: "Enfant ou animal à la maison"
     level: N1
     level_max: N2
     where_when: "Intérieur, près d'une fenêtre"
@@ -324,7 +324,7 @@ situations:
     key_notions: [LUM-07, MAP-09, MAP-04, MES-10, BOI-14]
     since: v0.2
   - id: SIT-40
-    title: {fr: "Pluie et mauvais temps", en: "rain"}
+    title: "Pluie et mauvais temps"
     level: N1
     level_max: N2
     where_when: "Extérieur, pluie"
@@ -332,7 +332,7 @@ situations:
     key_notions: [LUM-05, PLA-08, MVT-01, MVT-05, BOI-24]
     since: v0.2
   - id: SIT-41
-    title: {fr: "Paysage vu d'un drone", en: "aerial landscape from a drone"}
+    title: "Paysage vu d'un drone"
     level: N2
     level_max: N2
     where_when: "Extérieur, zone de vol autorisée, jour"
@@ -340,7 +340,7 @@ situations:
     key_notions: [PLA-09, PLA-04, MES-08]
     since: v0.2
   - id: SIT-42
-    title: {fr: "Sous l'eau, près de la surface", en: "underwater near the surface"}
+    title: "Sous l'eau, près de la surface"
     level: N2
     level_max: N3
     where_when: "Mer ou piscine, en apnée, de jour"
@@ -349,7 +349,7 @@ situations:
     flash: optional
     since: v0.2
   - id: SIT-V2-01
-    title: {fr: "Portrait studio avec un flash déporté", en: "studio portrait, off-camera flash"}
+    title: "Portrait studio avec un flash déporté"
     level: N3
     level_max: N3
     where_when: "Studio"
@@ -357,7 +357,7 @@ situations:
     key_notions: [LUM-15, LUM-02]
     since: v0.1
   - id: SIT-V2-02
-    title: {fr: "Portrait : choisir sa distance", en: "portrait: choosing your distance"}
+    title: "Portrait : choisir sa distance"
     level: N1
     level_max: N2
     where_when: "Extérieur ou studio"
@@ -365,7 +365,7 @@ situations:
     key_notions: [OPT-06, NET-06, CMP-07]
     since: v0.1
   - id: SIT-V2-03
-    title: {fr: "Paysage : créer un premier plan en se déplaçant", en: "landscape: building a foreground"}
+    title: "Paysage : créer un premier plan en se déplaçant"
     level: N2
     level_max: N2
     where_when: "Extérieur"
@@ -373,7 +373,7 @@ situations:
     key_notions: [CMP-06]
     since: v0.1
   - id: SIT-V2-04
-    title: {fr: "Nature morte à deux lumières", en: "two-light still life"}
+    title: "Nature morte à deux lumières"
     level: N3
     level_max: N3
     where_when: "Studio"
@@ -381,7 +381,7 @@ situations:
     key_notions: [LUM-15, LUM-03]
     since: v0.1
   - id: SIT-V2-05
-    title: {fr: "Flash indirect en intérieur", en: "bounce flash indoors"}
+    title: "Flash indirect en intérieur"
     level: N2
     level_max: N2
     where_when: "Intérieur"
@@ -389,7 +389,7 @@ situations:
     key_notions: [LUM-14, LUM-09]
     since: v0.1
   - id: SIT-V2-06
-    title: {fr: "Plongée et contre-plongée", en: "high and low angles"}
+    title: "Plongée et contre-plongée"
     level: N1
     level_max: N1
     where_when: "Partout"
@@ -397,7 +397,7 @@ situations:
     key_notions: [CMP-07]
     since: v0.1
   - id: SIT-V2-07
-    title: {fr: "Réflecteur en extérieur", en: "reflector outdoors"}
+    title: "Réflecteur en extérieur"
     level: N2
     level_max: N2
     where_when: "Extérieur"

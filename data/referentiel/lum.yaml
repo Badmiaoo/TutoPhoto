@@ -1,13 +1,13 @@
 # fichier: data/referentiel/lum.yaml
 domain:
   id: LUM
-  title: {fr: "Lumière et flash", en: "light and flash"}
+  title: "Lumière et flash"
   intro: "Dix-huit notions : lumière naturelle, sources qu'on place soi-même, réflecteurs et flash (direct, rebondi, déporté), simulés dans la scène 3D."
   todo:
     - "Vérifier, dans la maquette 3D, le rendu du flash direct, rebondi et déporté."
 notions:
   - id: LUM-01
-    title: {fr: "Lire la lumière", en: "seeing light"}
+    title: "Lire la lumière"
     level: N1
     spec:
       explanation: "D'où vient la lumière, sa qualité, ses ombres, avant tout réglage"
@@ -16,7 +16,7 @@ notions:
     situations: all
     since: v0.1
   - id: LUM-02
-    title: {fr: "Lumière dure ou douce", en: "hard, soft light"}
+    title: "Lumière dure ou douce"
     level: N1
     activity: true
     spec:
@@ -29,7 +29,7 @@ notions:
     sources: [tiffen-lowel-soft-light, pvc-adams-soft-light]
     since: v0.1
   - id: LUM-03
-    title: {fr: "Direction de la lumière", en: "front light, side light, backlight"}
+    title: "Direction de la lumière"
     level: N1
     spec:
       explanation: "Effet de chaque direction sur les volumes, les textures, l'ambiance"
@@ -38,7 +38,7 @@ notions:
     situations: [SIT-03, SIT-10, SIT-V2-04]
     since: v0.1
   - id: LUM-04
-    title: {fr: "Heure dorée, heure bleue", en: "golden hour, blue hour"}
+    title: "Heure dorée, heure bleue"
     level: N1
     spec:
       explanation: "Ce que ces moments changent : soleil bas, lumière chaude et rasante, puis ciel bleu dense après le coucher"
@@ -50,7 +50,7 @@ notions:
       - "Sourcer la qualité de la lumière à ces heures à la rédaction ; le calcul des horaires relève de PLA-01."
     since: v0.1
   - id: LUM-05
-    title: {fr: "Météo et lumière", en: "weather and light"}
+    title: "Météo et lumière"
     level: N1
     spec:
       explanation: "Couvert, brouillard, pluie : contraintes et occasions"
@@ -59,7 +59,7 @@ notions:
     situations: [SIT-14, SIT-40]
     since: v0.1
   - id: LUM-06
-    title: {fr: "Contre-jour et silhouettes", en: "backlight, silhouettes"}
+    title: "Contre-jour et silhouettes"
     level: N1
     spec:
       explanation: "Silhouette, sujet exposé et ciel brûlé, ou débouchage"
@@ -68,7 +68,7 @@ notions:
     situations: [SIT-03]
     since: v0.1
   - id: LUM-07
-    title: {fr: "Lumière de fenêtre", en: "window light"}
+    title: "Lumière de fenêtre"
     level: N1
     spec:
       explanation: "Distance à la fenêtre, orientation du sujet, voilage"
@@ -77,7 +77,7 @@ notions:
     situations: [SIT-04, SIT-23, SIT-32, SIT-39]
     since: v0.1
   - id: LUM-08
-    title: {fr: "Lumières artificielles", en: "artificial light, flicker"}
+    title: "Lumières artificielles"
     level: N2
     spec:
       explanation: "Couleurs, scintillement, mélange avec la lumière du jour"
@@ -88,7 +88,7 @@ notions:
       - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
     since: v0.1
   - id: LUM-09
-    title: {fr: "Flash : portée et chute", en: "flash range, inverse square law"}
+    title: "Flash : portée et chute"
     level: N1
     spec:
       explanation: "Portée, chute de la lumière avec la distance, fond qui devient noir"
@@ -97,7 +97,7 @@ notions:
     situations: [SIT-25, SIT-V2-05]
     since: v0.1
   - id: LUM-10
-    title: {fr: "Flash TTL ou manuel", en: "TTL, manual, flash compensation"}
+    title: "Flash TTL ou manuel"
     level: N2
     spec:
       explanation: "Laisser le flash doser ou doser soi-même ; corriger ; mémoriser la puissance du flash sur le sujet avant de recadrer"
@@ -107,7 +107,7 @@ notions:
     sources: [nikon-zr-fv-lock]
     since: v0.1
   - id: LUM-11
-    title: {fr: "Synchronisation", en: "sync speed, high-speed sync"}
+    title: "Synchronisation"
     level: N2
     spec:
       explanation: "Pourquoi une vitesse maximale avec flash ; rôle de la synchro haute vitesse"
@@ -118,7 +118,7 @@ notions:
       - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
     since: v0.1
   - id: LUM-12
-    title: {fr: "Rideaux et synchro lente", en: "rear curtain, slow sync"}
+    title: "Rideaux et synchro lente"
     level: N2
     spec:
       explanation: "Mélanger flash et ambiance ; traînées derrière ou devant le sujet"
@@ -129,7 +129,7 @@ notions:
       - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
     since: v0.1
   - id: LUM-13
-    title: {fr: "Flash de débouchage", en: "fill flash"}
+    title: "Flash de débouchage"
     level: N2
     spec:
       explanation: "Adoucir les ombres d'un soleil dur ou d'un contre-jour"
@@ -138,7 +138,7 @@ notions:
     situations: [SIT-02, SIT-03]
     since: v0.1
   - id: LUM-14
-    title: {fr: "Flash indirect", en: "bounce flash"}
+    title: "Flash indirect"
     level: N2
     spec:
       explanation: "Faire rebondir le flash pour adoucir la lumière"
@@ -147,7 +147,7 @@ notions:
     situations: [SIT-25, SIT-V2-05]
     since: v0.1
   - id: LUM-15
-    title: {fr: "Flash déporté et studio", en: "off-camera flash, studio lighting"}
+    title: "Flash déporté et studio"
     level: N3
     spec:
       explanation: "Placer une ou plusieurs sources, schémas d'éclairage classiques, modeleurs"
@@ -156,7 +156,7 @@ notions:
     situations: [SIT-V2-01, SIT-V2-04]
     since: v0.1
   - id: LUM-16
-    title: {fr: "Réflecteurs et diffuseurs", en: "reflectors, diffusers"}
+    title: "Réflecteurs et diffuseurs"
     level: N2
     spec:
       explanation: "Rediriger ou adoucir la lumière existante"
@@ -165,7 +165,7 @@ notions:
     situations: [SIT-03, SIT-V2-07]
     since: v0.1
   - id: LUM-17
-    title: {fr: "Yeux rouges", en: "red-eye reduction"}
+    title: "Yeux rouges"
     level: N1
     spec:
       explanation: "Défaut du flash direct ; la réduction des yeux rouges allume une lampe avant l'éclair"
@@ -175,7 +175,7 @@ notions:
     sources: [nikon-zf-flash-modes]
     since: v0.2
   - id: LUM-18
-    title: {fr: "Éclairage sous l'eau", en: "underwater lighting"}
+    title: "Éclairage sous l'eau"
     level: N3
     spec:
       explanation: "Le flash rend leurs couleurs aux sujets proches ; les particules en suspension éclairées face à l'objectif font des taches, d'où l'intérêt d'écarter la source de l'axe"

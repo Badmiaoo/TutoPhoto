@@ -1,11 +1,11 @@
 # fichier: data/referentiel/lec.yaml
 domain:
   id: LEC
-  title: {fr: "Lire une image et progresser", en: "reading images and improving"}
+  title: "Lire une image et progresser"
   intro: "Quatre notions : apprendre à regarder des images, les siennes comprises."
 notions:
   - id: LEC-01
-    title: {fr: "Analyser une photo", en: "analyzing a photo"}
+    title: "Analyser une photo"
     level: N1
     spec:
       explanation: "Décrire la lumière, la composition, les réglages probables, l'intention"
@@ -14,7 +14,7 @@ notions:
     situations: all
     since: v0.1
   - id: LEC-02
-    title: {fr: "Critiquer ses photos", en: "self-critique"}
+    title: "Critiquer ses photos"
     level: N1
     spec:
       explanation: "Une grille : intention, lumière, composition, technique"
@@ -23,7 +23,7 @@ notions:
     situations: all
     since: v0.1
   - id: LEC-03
-    title: {fr: "Culture photographique", en: "photo history, great photographers"}
+    title: "Culture photographique"
     level: N2
     activity: true
     spec:
@@ -34,7 +34,7 @@ notions:
     practice_outside: "Visite d'une exposition"
     since: v0.1
   - id: LEC-04
-    title: {fr: "Progresser par projets", en: "projects, series"}
+    title: "Progresser par projets"
     level: N2
     activity: true
     spec:

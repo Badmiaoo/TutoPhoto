@@ -2,7 +2,7 @@
 # Règle : un jalon contient toutes les notions clés de ses situations (contrôlé par scripts/validate.py).
 jalons:
   - id: v1-min
-    title: {fr: "V1 minimale : le parc", en: "minimal V1: the park"}
+    title: "V1 minimale : le parc"
     decided: "2026-11-07"
     goal: "Une scène 3D de parc, testée avec quelques débutants avant d'étendre aux autres situations."
     situations: [SIT-01, SIT-05, SIT-06]

@@ -74,7 +74,7 @@ def main():
         mine = [n for n in notions if n["_domain"] == d["id"]]
         counts = collections.Counter(n["level"] for n in mine)
         total.update(counts)
-        out.append(f"| {d['id']} · {d['title']['fr']} | {len(mine)} | "
+        out.append(f"| {d['id']} · {d['title']} | {len(mine)} | "
                    + " | ".join(str(counts[lv]) for lv in referentiel.LEVELS) + " |")
     out.append(f"| Total | {len(notions)} | " + " | ".join(str(total[lv]) for lv in referentiel.LEVELS) + " |")
 
@@ -114,7 +114,7 @@ def main():
     for j in ref.jalons:
         done = len([i for i in j["notions"] if i in covered])
         drafted = len([s for s in j["situations"] if s in written])
-        out.append(f"| {j['id']} · {j['title']['fr']} | {done} sur {len(j['notions'])} | {drafted} sur {len(j['situations'])} |")
+        out.append(f"| {j['id']} · {j['title']} | {done} sur {len(j['notions'])} | {drafted} sur {len(j['situations'])} |")
     out.append("")
     out.append("Contenus lus dans `content/` ; règles dans `docs/contenus.md` ; jalons dans `data/jalons.yaml`.")
     print("\n".join(out))
