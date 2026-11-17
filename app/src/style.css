@@ -461,9 +461,9 @@ dialog a {
   }
 }
 
+/* À garder après la règle « .flashing » : à poids égal, c'est la règle écrite en dernier qui l'emporte. */
 @media (prefers-reduced-motion: reduce) {
-  .flashing,
-  .review-highlights {
+  .flashing {
     animation: none;
   }
 }
@@ -519,7 +519,8 @@ dialog fieldset label {
   font-weight: 600;
   cursor: pointer;
   /* Le doigt qui tient le déclencheur pendant une rafale peut glisser : sans cette ligne, le navigateur prend le
-     geste pour un défilement après 20 px et envoie « pointercancel », qui arrête la rafale doigt encore posé. */
+     geste pour un défilement après une quinzaine de pixels (16 px mesurés dans Chromium, téléphone émulé) et envoie
+     « pointercancel », qui arrête la rafale doigt encore posé. */
   touch-action: none;
 }
 
@@ -837,6 +838,15 @@ dialog fieldset label {
   height: 0;
   pointer-events: none;
   animation: clignote 2s step-end infinite;
+}
+
+/* À garder après la règle « .review-highlights » : à poids égal, c'est la règle écrite en dernier qui l'emporte.
+   Écrite avec celle de « .flashing », plus haut dans ce fichier, elle ne coupait rien, et les zones clignotaient
+   alors que l'écran de revue annonçait le contraire (versions 0.3.57 à 0.3.61). */
+@media (prefers-reduced-motion: reduce) {
+  .review-highlights {
+    animation: none;
+  }
 }
 
 .review-info-details {
