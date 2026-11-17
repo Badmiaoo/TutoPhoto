@@ -44,14 +44,17 @@
 // - indicateur d'équilibre : zone nette et bruit excellent aux réglages par défaut ; au même point du sol,
 //   immobile, le rapport signal/bruit à ISO 6400 tombe sous 40 % de celui à ISO 100 (environ 17 % attendus :
 //   6 IL de sensibilité en plus, 0,87 IL d'exposition en plus, bruit photonique) ; traînée du chien évaluée ;
-// - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne ;
+// - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne ; après « Photo
+//   entière », une seconde loupe sur la même photo montre le point touché (COD-14, version 0.3.62) ;
 // - avec --photo, histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07, version 0.3.57) : par défaut,
 //   ni histogramme ni clignotement ; « Infos » une fois : quatre histogrammes (luminance, rouge, vert, bleu), la
 //   somme des colonnes de chacun égale au nombre de pixels de la photo ; photo surexposée de 3,2 IL : elle s'ouvre en
 //   haut de l'écran de revue, sans défilement gardé de la photo d'avant (INT-17, version 0.3.59), part écrêtée
 //   supérieure à 0 dans le texte, puis « Infos » encore une fois : zones écrêtées posées sur la photo, sans prendre
-//   les touchers ; photo sous-exposée de 3,2 IL : aucune zone, plus de la moitié des pixels de luminance dans la
-//   moitié gauche ; retour à « photo seule » et aux réglages de départ ;
+//   les touchers ; avec « réduire les animations », émulé, le calque des zones n'a aucune animation et le texte dit
+//   « sans clignoter » ; réglage rendu, il clignote de nouveau (version 0.3.62) ; photo sous-exposée de 3,2 IL :
+//   aucune zone, plus de la moitié des pixels de luminance dans la moitié gauche ; retour à « photo seule » et aux
+//   réglages de départ ;
 // - avec --photo, rafale (BOI-12) : en Continu L à 5 vues par seconde, déclencheur tenu jusqu'à deux vues au
 //   moins, espacées de 0,2 s sur l'horloge de la scène, que l'écran de revue fait défiler ;
 // - mise au point (MAP-04, MAP-05, MAP-09), en fin de test parce que la vue change : AF-C et point sélectif par
@@ -809,6 +812,144 @@ async function runProfile(browser, name, base) {
       const caption = await page.evaluate(() => document.getElementById("review-caption").textContent);
       check("loupe de l'écran de revue", /100/.test(caption), caption);
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-loupe.png`), timeout: 120000 });
+
+      // Deux loupes séparées par « Photo entière », sur la même photo (constat COD-14 de l'audit, version 0.3.62).
+      // La première loupe, ci-dessus, est au centre. Après « Photo entière », la photo est touchée à 50 % de sa
+      // largeur et à 20 % de sa hauteur : la seconde loupe doit montrer cet endroit. Avant la correction, le toucher
+      // était lu comme une position dans la fenêtre de la première loupe, et la seconde loupe montrait un voisin du
+      // centre : pour ce point, le centre remonté de trois dixièmes de la hauteur de la fenêtre. Mesure, sur une
+      // seule photo (les sujets bougent d'une photo à l'autre ; la loupe rejoue l'instant de la photo) : la fenêtre
+      // de la loupe et une zone de la photo entière sont réduites à 12 × 4 cases, et l'écart est la moyenne, sur les
+      // cases, de la différence de luminance en valeur absolue (niveaux de 0 à 255). L'écart est pris avec la zone
+      // touchée, puis avec la zone du centre. La place d'une zone dans la photo entière vient de la taille de l'image
+      // complète du Nikon Z 6 (24,5 millions de pixels, capteur de 35,9 × 23,9 mm : sensorPixels,
+      // app/src/camera/bodies.ts) et de celle de la fenêtre, qui est à 100 % ; calcul de magnify
+      // (app/src/ui/shutter.ts). Cette taille est écrite ici en dur. Avec un autre boîtier par défaut parmi ceux du
+      // code, la zone serait fausse de 3 % en étendue et le contrôle réussirait encore (relecture de la version
+      // 0.3.62, hors de la routine : taille du Canon EOS RP supposée, 2,5 niveaux sur ordinateur à ce point) ; c'est
+      // un changement du centrage de la fenêtre qui le fait échouer. La photo entière est relue à l'adresse du lien
+      // « Enregistrer ». Le contrôle demande un écart avec la zone touchée inférieur à 10 niveaux, et inférieur à
+      // l'écart avec la zone du centre.
+      //
+      // Le point touché est dans le haut de la photo, sur les arbres et les troncs. Le premier état du contrôle
+      // touchait à 85 % et 80 %, sur le sol de feuilles mortes, sans motif à l'échelle des cases. La relecture de la
+      // version 0.3.62 y a mesuré deux faiblesses, hors de la routine : sur les profils ordinateur et webgl1 (fenêtre
+      // de 1256 × 466), une loupe ouverte ailleurs sur le sol, à plusieurs fenêtres du point touché, restait sous 10
+      // niveaux (de 7,7 à 8,9) ; et sans la correction, l'écart avec la zone touchée restait inférieur à l'écart avec
+      // celle du centre sur trois profils sur quatre, où seul le seuil de 10 détectait le défaut. À 50 % et 20 %,
+      // même relecture, hors de la routine : avec la correction, 0,4 niveau (ordinateur, Pixel 7 émulé) et 0,7
+      // (iPhone 14 émulé, police de la CI) ; sans elle, 77 niveaux avec la zone touchée contre 33 avec celle du
+      // centre (ordinateur) et 86 contre 22 (Pixel 7 émulé) ; une image unie, au niveau moyen de la loupe, est à 14
+      // niveaux au moins. Dans la routine, le 17 novembre 2026, avec la correction : 0,4 niveau avec la zone touchée
+      // contre 51,8 avec celle du centre (ordinateur), 0,7 contre 112,9 (iphone, police de la CI).
+      //
+      // La zone touchée est placée d'après le point que la photo a reçu (décalage du clic dans l'image, divisé par sa
+      // taille affichée : ce que lit magnify), et non d'après le point visé : le clic arrive à un pixel CSS entier, et
+      // sur le profil iphone, avec la police de la CI (viseur de 238 px), la photo n'est affichée qu'en 178 × 118 px.
+      // Un pixel CSS y vaut 34 pixels de l'image complète, soit 8,5 pixels de la photo entière, plus qu'une case
+      // (7,5 × 6 pixels). Placé d'après le point visé, le premier état du contrôle échouait dans la CI sur ce profil,
+      // correction en place (16 novembre 2026, toucher à 85 % et 80 % : 12,6 niveaux ; refait sur la machine de
+      // Claude avec cette police : 12,9 d'après le point visé, 2,1 d'après le point reçu). Si le clic n'arrive pas à
+      // la photo (aucun point reçu en 30 s), aucune loupe n'est demandée : le contrôle échoue en le disant, sans
+      // attendre 300 s une loupe qui ne viendra pas.
+      await page.click("#review-whole");
+      await page.waitForFunction(() => document.getElementById("review-whole").hidden && document.getElementById("review-image").complete, null, { timeout: 300000 });
+      const secondTouch = { u: 0.5, v: 0.2 };
+      await page.evaluate(() => {
+        const image = document.getElementById("review-image");
+        window.routineSecondTouch = null;
+        image.addEventListener(
+          "click",
+          (e) => (window.routineSecondTouch = { u: e.offsetX / image.clientWidth, v: e.offsetY / image.clientHeight, shown: `${image.clientWidth}×${image.clientHeight}` }),
+          { capture: true, once: true },
+        );
+      });
+      const wholeBox = await page.locator("#review-image").boundingBox();
+      await page.mouse.click(wholeBox.x + wholeBox.width * secondTouch.u, wholeBox.y + wholeBox.height * secondTouch.v);
+      // Le clic est reçu par la photo avant que magnify commence : sans point reçu, « Photo entière » restera masqué.
+      const secondArrived = await page.waitForFunction(() => window.routineSecondTouch !== null, null, { timeout: 30000 }).then(
+        () => true,
+        () => false,
+      );
+      if (secondArrived) {
+        await page.waitForFunction(
+          () => document.getElementById("progress").hidden && !document.getElementById("review-whole").hidden && document.getElementById("review-image").complete,
+          null,
+          { timeout: 300000 },
+        );
+      }
+      const secondLoupe = !secondArrived ? null : await page.evaluate(async () => {
+        const received = window.routineSecondTouch;
+        const { u, v } = received;
+        const COLUMNS = 12;
+        const ROWS = 4;
+        const load = (src) =>
+          new Promise((resolve, reject) => {
+            const image = new Image();
+            image.onload = () => resolve(image);
+            image.onerror = () => reject(new Error("image illisible"));
+            image.src = src;
+          });
+        // Luminance moyenne (Rec. 709) de chaque case d'une zone de l'image, donnée en pixels de l'image.
+        const cells = (image, x0, y0, width, height) => {
+          const c = document.createElement("canvas");
+          c.width = image.naturalWidth;
+          c.height = image.naturalHeight;
+          const g = c.getContext("2d");
+          g.drawImage(image, 0, 0);
+          const out = [];
+          for (let row = 0; row < ROWS; row++) {
+            for (let column = 0; column < COLUMNS; column++) {
+              const xa = Math.min(c.width - 1, Math.round(x0 + (column * width) / COLUMNS));
+              const xb = Math.min(c.width, Math.max(xa + 1, Math.round(x0 + ((column + 1) * width) / COLUMNS)));
+              const ya = Math.min(c.height - 1, Math.round(y0 + (row * height) / ROWS));
+              const yb = Math.min(c.height, Math.max(ya + 1, Math.round(y0 + ((row + 1) * height) / ROWS)));
+              const d = g.getImageData(xa, ya, xb - xa, yb - ya).data;
+              let sum = 0;
+              for (let i = 0; i < d.length; i += 4) sum += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+              out.push(sum / (d.length / 4));
+            }
+          }
+          return out;
+        };
+        const gap = (a, b) => a.reduce((sum, value, i) => sum + Math.abs(value - b[i]), 0) / a.length;
+        const loupe = await load(document.getElementById("review-image").src);
+        const photo = await load(document.getElementById("review-save").href);
+        const long = Math.sqrt((24.5e6 * 35.9) / 23.9);
+        const portrait = photo.naturalHeight > photo.naturalWidth;
+        const fullWidth = Math.round(portrait ? 24.5e6 / long : long);
+        const fullHeight = Math.round(portrait ? long : 24.5e6 / long);
+        const width = loupe.naturalWidth;
+        const height = loupe.naturalHeight;
+        // Fenêtre centrée sur le point, ramenée dans l'image complète, puis rapportée à la photo entière.
+        const zone = (x, y) => {
+          const left = Math.min(fullWidth - width, Math.max(0, Math.round(x * fullWidth - width / 2)));
+          const top = Math.min(fullHeight - height, Math.max(0, Math.round(y * fullHeight - height / 2)));
+          const sx = photo.naturalWidth / fullWidth;
+          const sy = photo.naturalHeight / fullHeight;
+          return cells(photo, left * sx, top * sy, width * sx, height * sy);
+        };
+        const shown = cells(loupe, 0, 0, width, height);
+        return {
+          touched: gap(shown, zone(u, v)),
+          centre: gap(shown, zone(0.5, 0.5)),
+          loupe: `${width}×${height}`,
+          photo: `${photo.naturalWidth}×${photo.naturalHeight}`,
+          shown: received.shown,
+          u,
+          v,
+          caption: document.getElementById("review-caption").textContent,
+        };
+      });
+      check(
+        "revue : après « Photo entière », la seconde loupe montre le point touché",
+        secondLoupe !== null && /100/.test(secondLoupe.caption) && secondLoupe.touched < 10 && secondLoupe.touched < secondLoupe.centre,
+        `toucher à ${(100 * secondTouch.u).toFixed(0)} % et ${(100 * secondTouch.v).toFixed(0)} %` +
+          (secondLoupe === null
+            ? " : le clic n'est pas arrivé à la photo (aucun point reçu en 30 s), aucune loupe n'a été demandée"
+            : `, reçu à ${(100 * secondLoupe.u).toFixed(1)} % et ${(100 * secondLoupe.v).toFixed(1)} % : écart de ${secondLoupe.touched.toFixed(1)} niveau(x) avec la zone touchée, de ${secondLoupe.centre.toFixed(1)} avec celle du centre ; fenêtre ${secondLoupe.loupe}, photo ${secondLoupe.photo}, affichée en ${secondLoupe.shown}`),
+      );
+      if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-loupe-2.png`), timeout: 120000 });
       await page.click("#review-back");
 
       // Photo surexposée, puis sous-exposée (MES-06, MES-07). Réglages de départ : M, f/8, 1/4000 s, ISO 6400, soit
@@ -853,6 +994,42 @@ async function runProfile(browser, name, base) {
         `${overZones.zones.opaque} pixels en noir, soit ${zoneShare.toFixed(2)} % ; ${overZones.text} ; écart avec la photo ${overZones.zones.gap.toFixed(2)} px ; toucher au centre de la photo : ${overZones.touched}`,
       );
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-hautes-lumieres.png`), timeout: 120000 });
+      // « Réduire les animations » (réglage du système, émulé par Playwright) : l'écran de revue écrit alors que les
+      // zones sont en noir « sans clignoter », et le calque ne doit avoir aucune animation. Des versions 0.3.57 à
+      // 0.3.61, la règle qui coupe l'animation était écrite avant celle du calque, qui l'emportait : les zones
+      // clignotaient (relecture de la version 0.3.62). Le texte n'est écrit qu'au changement d'affichage : trois
+      // touchers sur « Infos » ramènent à « hautes lumières » sous le réglage émulé. C'est l'état du calque qui est
+      // lu, et non des captures d'écran : en rendu logiciel, deux captures à une seconde d'écart ne distinguent pas
+      // le défaut de façon sûre. Le réglage est rendu ensuite, et le calque doit retrouver son animation ; le texte
+      // reste celui du réglage émulé jusqu'à la photo suivante, qui le réécrit.
+      const blinkState = () =>
+        page.evaluate(() => {
+          const overlay = document.getElementById("review-highlights");
+          const style = getComputedStyle(overlay);
+          const clipping = document.getElementById("review-clipping");
+          return {
+            asked: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+            shown: !overlay.hidden && overlay.getClientRects().length > 0,
+            animation: style.animationName,
+            running: overlay.getAnimations().length,
+            opacity: style.opacity,
+            button: document.getElementById("review-info").textContent,
+            text: !clipping.hidden && clipping.getClientRects().length > 0 ? clipping.textContent : "",
+          };
+        });
+      const blinking = await blinkState();
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await clicks("#review-info", 3);
+      const still = await blinkState();
+      await page.emulateMedia({ reducedMotion: null });
+      const blinkingAgain = await blinkState();
+      check(
+        "« réduire les animations » : zones écrêtées en noir sans clignoter, comme l'écrit l'écran de revue",
+        !blinking.asked && blinking.animation === "clignote" && blinking.running === 1 && /Ces zones clignotent en noir sur la photo\.$/.test(blinking.text) &&
+          still.asked && still.shown && still.button === "Infos : hautes lumières" && still.animation === "none" && still.running === 0 && still.opacity === "1" && /sans clignoter/.test(still.text) &&
+          !blinkingAgain.asked && blinkingAgain.animation === "clignote" && blinkingAgain.running === 1,
+        `sans le réglage : animation « ${blinking.animation} », ${blinking.running} en cours ; avec : « ${still.animation} », ${still.running} en cours, opacité ${still.opacity}, bouton « ${still.button} », « ${still.text.split(". ").pop()} » ; réglage rendu : « ${blinkingAgain.animation} », ${blinkingAgain.running} en cours`,
+      );
       await page.click("#review-back");
       await clicks('[data-dial="shutter"][data-step="-1"]', 8);
       await clicks('[data-dial="iso"][data-step="-1"]', 11);
