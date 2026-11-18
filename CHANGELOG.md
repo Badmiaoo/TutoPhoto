@@ -12,6 +12,33 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.64] - 2026-11-19
+
+Sujet 4 du plan de corrections de l'audit (`docs/audit/README.md`) : la routine de test, les contrôles qui disent vert à tort. Constats, confirmés par leur contre-vérification : INT-05 et INT-06, et les deux phrases d'INT-13 (`docs/audit/interface.md`) ; s'y ajoute la ligne que garde la réfutation de CHX-08 (`docs/audit/choix-et-outils.md`) : le message « Playwright est introuvable » nomme la version à installer. Les corrections sont celles que retiennent les contre-vérifications ; un écart, dit plus bas : la ligne de diagnostic est relue deux fois en fin de parcours, avant et après le rechargement du défi SIT-06. Le simulateur ne change pas : cette version touche la routine (`scripts/test_app.cjs`), une phrase de `CLAUDE.md` et des documents. Choix de Claude : `docs/propositions.md`, section 5, « Routine de test ». Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente.
+
+Ce qui n'est pas fait :
+
+- Les gestes au toucher : la routine ne joue toujours aucun toucher. Seules les deux phrases qui disaient le contraire sont corrigées ; les touchers sont à faire avec la refonte de la routine (ARC-05), comme le retient la contre-vérification d'INT-13. Les essais au doigt restent faits hors de la routine.
+- D'autres pages disent que des tests émulent le toucher ; elles ne sont pas corrigées (choix 8). `docs/audit/synthese/lot-donnees.md` (l. 83) et `docs/audit/synthese/lot-projet.md` (l. 76) recopient la règle de `CLAUDE.md` d'avant : ce sont des documents datés de l'audit, et le plan qui les résume dit déjà « aucun toucher ». `CHANGELOG.md` (section 0.3.62) et `docs/audit/code.md` (l. 435) parlent d'essais faits hors de la routine, qui jouaient des touchers : ces deux phrases sont justes.
+- La seconde ligne que garde la réfutation de CHX-08 (`docs/pile-technique.md` : Node.js et Playwright suivent l'environnement de Claude) : elle va au Sujet 44, d'après le plan.
+- Rien n'est essayé sur un vrai téléphone, ni avec un processeur graphique, ni dans Safari : ces tests n'émulent ni le processeur graphique ni Safari, et la routine ne joue aucun toucher. Les profils android et webgl1 de la routine sont laissés à la CI.
+- Aucun test n'est ajouté à `docs/tests-a-faire-faire.md` : le simulateur ne change pas.
+
+Essais, dans Chromium sans écran, en rendu logiciel (Playwright 1.63.0, mêmes options de lancement que la routine), sur le site construit ; copies et scripts écrits pour cette version, hors du dépôt, un seul navigateur à la fois.
+
+### Corrigé
+
+- Routine de test (`scripts/test_app.cjs`), INT-05 : le contrôle « mise au point : AF-S et point sélectif par défaut (Z 6) » relisait un réglage que la routine venait de faire elle-même dans la fenêtre « Mise au point » : il serait resté vert avec un autre réglage de départ dans `app/src/ui/cameraPanel.ts`. Il lit maintenant l'indicateur de la mise au point (`#af-badge`) juste après le chargement, avant tout réglage de la mise au point (choix 1). Le contrôle de la fin est gardé sous le nom « mise au point : retour à AF-S et point sélectif » : il prouve que la fenêtre remet ce mode. L'en-tête de la routine annonçait « AF-C et point sélectif par défaut », le réglage par défaut du simulateur avant la version 0.3.36 : il dit AF-S, comme le code et la fiche MAP-04.
+- Routine de test, INT-06 : une erreur JavaScript pendant le scénario ne faisait pas échouer la routine. Les erreurs de la page et de la console n'étaient qu'écrites à la fin du profil, trois au plus, sans compter dans le bilan ni dans le code de sortie, et la ligne de diagnostic n'était lue qu'au chargement. Deux contrôles s'ajoutent en fin de profil : « aucune erreur de la page ni de la console », compté comme les autres, aussi quand la scène ne se charge pas ou que la routine s'arrête sur une exception (choix 2), sans erreur admise (choix 3), son détail nommant chaque erreur distincte, avec son nombre ; et « aucun problème affiché à la fin du parcours », même critère que « aucun problème affiché » au chargement. Écart avec le plan, qui demande une seconde lecture « après le dernier contrôle du simulateur » : la routine recharge le simulateur pour le défi SIT-06, ce qui efface la ligne de diagnostic ; elle est donc lue juste avant ce rechargement, pour tout le parcours, puis à la fin, pour la page rechargée (choix 5). La ligne « erreurs de la console (N) : … » du bilan est retirée ; un message de la console noté garde l'adresse de sa source, ce qui nomme un fichier qui ne se charge pas (choix 4).
+- Routine de test et `CLAUDE.md`, INT-13 : les deux phrases disaient que les tests émulent « le toucher ». Les profils mobiles déclarent un écran tactile, mais aucun geste de la routine n'est un toucher : ses clics, glissés et appuis tenus passent par la souris (aucun appel à `tap`, à `touchscreen` ni au protocole de Chromium). Les deux phrases le disent (choix 6 et 7).
+- Routine de test, CHX-08 : le message « Playwright est introuvable » conseillait `npm install -g playwright`, qui installe la dernière version, pas celle de la CI, et que Node.js ne trouve pas seul. Il nomme la version de la CI, lue dans `.github/workflows/routine.yml` (1.63.0, celle de la machine de Claude), et dit de passer son dossier par `NODE_PATH`, comme la CI (choix 9). Ce message et celui du site construit introuvable tutoient (choix 10).
+
+### Modifié
+
+- Routine de test : l'en-tête, qui liste les contrôles, dit les trois contrôles ajoutés et le contrôle renommé. Avec `--photo`, un profil compte 71 contrôles au lieu de 68 (le contrôle des liens des pages, une fois pour tous les profils, à part).
+- `CLAUDE.md`, section « Dépôt » : « Ces tests émulent l'écran et le navigateur, pas le processeur graphique ni Safari ; les profils mobiles déclarent un écran tactile, mais aucun geste de la routine n'est un toucher : le dire dans la pull request, avec les résultats. » Changement accepté par Julien le 15 novembre 2026 (D6) ; la rédaction est de Claude, que Julien confirme ou corrige (choix 6).
+- Documents : `docs/propositions.md` (section 5, « Routine de test », choix 1 à 10).
+
 ## [0.3.63] - 2026-11-18
 
 Sujet 3 du plan de corrections de l'audit (`docs/audit/README.md`) : pendant le calcul d'une photo, la caméra, le toucher du viseur et l'indicateur d'équilibre. Constats, tous confirmés par leur contre-vérification : COD-01 et COD-07 (`docs/audit/code.md`), ARC-14 (`docs/audit/architecture-application.md`). Les corrections sont celles que retiennent leurs contre-vérifications, complétées après la relecture de la version (« Relecture ») ; s'y ajoutent deux contrôles de routine, que le plan ne demandait pas, le second après la relecture. Choix de Claude : `docs/propositions.md`, section 5, « Pendant le calcul d'une photo ». Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente.
@@ -1119,6 +1146,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.64]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.63...v0.3.64
 [0.3.63]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.62...v0.3.63
 [0.3.62]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.61...v0.3.62
 [0.3.61]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.60...v0.3.61
