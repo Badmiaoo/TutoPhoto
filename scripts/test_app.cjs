@@ -62,7 +62,10 @@
 //   sujet le plus proche ; en détection des animaux, l'œil du chien est détecté quand il passe (au plus 30 s) ;
 //   en AF-S, toucher le bas du cadre verrouille la distance ; au même endroit, la zone large (L)
 //   retient un sujet plus proche (le sol en bas du cadre) ; la distance ne bouge plus quand on relève
-//   l'appareil (et, avec --photo, la photo la garde) ; repassé en AF-C, la distance suit la zone.
+//   l'appareil (et, avec --photo, la photo la garde) ; repassé en AF-C, la distance suit la zone ;
+// - avec --photo, pendant le calcul de cette photo, pointeur enfoncé et déplacé sur le viseur, bouton tenu jusqu'après
+//   l'ouverture de l'écran de revue : l'orientation de l'appareil, lue sur la vue de dessus, n'a pas changé à la
+//   reprise (COD-01, version 0.3.63).
 
 "use strict";
 const fs = require("fs");
@@ -1228,12 +1231,61 @@ async function runProfile(browser, name, base) {
     check("AF-S : distance gardée en relevant l'appareil", tiltedText === lockedText, tiltedText);
     if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-af-s.png`), timeout: 120000 });
     if (withPhoto) {
+      // Glissé sur le viseur pendant le calcul de cette photo (COD-01, version 0.3.63). Pendant le calcul, la caméra
+      // n'a plus de commandes ; à la reprise, elles sont rattachées sans rien de ce que le geste a pu accumuler, et un
+      // bouton resté enfoncé ne la tourne plus tant qu'il n'est pas relâché puis enfoncé de nouveau. Le pointeur est
+      // enfoncé au centre du viseur une fois le calcul commencé, déplacé vers la gauche (2 px toutes les 100 ms, 100 px
+      // au plus), puis, l'écran de revue ouvert, cinq fois de 8 px encore, bouton tenu, avant d'être relâché.
+      // L'orientation de l'appareil est lue sur la vue de dessus (triangle de l'appareil, ui/topView.ts), dépliée le
+      // temps du contrôle sur les petits écrans. Avant la correction, la caméra, qui avait capturé le pointeur à
+      // l'appui, tournait avec ces derniers déplacements, même sous l'écran de revue : le contrôle échoue sur ce site-là.
+      // Il ne voit pas la surimpression dans la photo elle-même (rendus de la photo sans mise à jour de la caméra) :
+      // il faudrait lire la caméra à chaque rendu, ce que le site construit n'expose pas.
+      const yaw = () =>
+        page.evaluate(() => {
+          const points = document.querySelector("#top-view-map .top-camera polygon")?.getAttribute("points");
+          if (!points) return NaN;
+          const [nose, left, right] = points.split(" ").map((point) => point.split(",").map(Number));
+          return Math.atan2(nose[0] - (left[0] + right[0]) / 2, -(nose[1] - (left[1] + right[1]) / 2));
+        });
+      if (topCollapsed) await page.click("#top-view-toggle");
+      const yawBefore = await yaw();
+      await page.evaluate(() => {
+        window.routinePress = null;
+        document.getElementById("scene").addEventListener("pointerdown", () => (window.routinePress = !document.getElementById("progress").hidden), { once: true });
+      });
       await page.click("#shutter-button");
-      await page.waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden, null, { timeout: 300000 });
+      await page.waitForFunction(() => !document.getElementById("progress").hidden, null, { polling: 20, timeout: 60000 });
+      await page.mouse.move(cx, cy);
+      await page.mouse.down();
+      const reviewOpen = () => page.evaluate(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden);
+      let dragged = 0;
+      for (let i = 0; i < 3000 && !(await reviewOpen()); i++) {
+        if (dragged < 100) {
+          dragged += 2;
+          await page.mouse.move(cx - dragged, cy);
+        }
+        await page.waitForTimeout(100);
+      }
+      const duringCompute = dragged;
+      for (let i = 0; i < 5; i++) {
+        dragged += 8;
+        await page.mouse.move(cx - dragged, cy);
+      }
+      await page.mouse.up();
       const caption = await page.evaluate(() => document.getElementById("review-caption").textContent);
       const m = /AF-S · Zone L · mise au point verrouillée à (\d+[,.]\d) m/.exec(caption);
       check("AF-S : la photo garde la distance verrouillée", Boolean(m) && Number(m[1].replace(",", ".")) === lockedAt, caption);
       await page.click("#review-back");
+      await page.waitForTimeout(1500);
+      const yawAfter = await yaw();
+      if (topCollapsed) await page.click("#top-view-toggle");
+      const pressed = await page.evaluate(() => window.routinePress);
+      check(
+        "photo : glissé sur le viseur pendant le calcul, viseur inchangé à la reprise (COD-01)",
+        pressed === true && Number.isFinite(yawBefore) && Math.abs(yawAfter - yawBefore) < 1e-4,
+        `pointeur enfoncé sur le viseur ${pressed === true ? "pendant le calcul" : pressed === false ? "après le calcul" : "jamais (appui non reçu)"}, déplacé de ${duringCompute} px pendant le calcul et de ${dragged - duringCompute} px l'écran de revue ouvert ; orientation de l'appareil (vue de dessus) : ${yawBefore.toFixed(5)} rad avant, ${yawAfter.toFixed(5)} rad après, écart de ${(yawAfter - yawBefore).toFixed(5)} rad`,
+      );
     }
     await setAf("continuous", "wideL");
     const followed = await page
