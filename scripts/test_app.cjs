@@ -1249,7 +1249,9 @@ async function runProfile(browser, name, base) {
       // L'orientation de l'appareil est lue sur la vue de dessus, dépliée le temps du contrôle sur les petits écrans.
       // Avant la correction, la caméra, qui avait capturé le pointeur à l'appui, tournait avec ces derniers
       // déplacements, même sous l'écran de revue : le contrôle échoue sur ce site-là. Il réussit aussi quand les
-      // commandes ne sont jamais rattachées après le calcul : c'est le contrôle d'après la rafale, plus bas, qui le voit.
+      // commandes ne sont jamais rattachées après le calcul : le contrôle d'après la rafale, plus bas, le voit et le
+      // nomme ; sur une copie sans le rattachement, « AF-C : la distance suit la zone » échoue aussi, sans nommer la
+      // cause (l'appareil relevé plus haut ne tourne plus, ce relevé venant après les premières photos de la routine).
       // Il ne voit pas la surimpression dans la photo elle-même (rendus de la photo sans mise à jour de la caméra) :
       // il faudrait lire la caméra à chaque rendu, ce que le site construit n'expose pas.
       if (topCollapsed) await page.click("#top-view-toggle");
