@@ -223,8 +223,9 @@ export class BalanceIndicator {
   /**
    * Valeur linéaire moyenne du canal vert affiché autour du point visé (de 0 à 1), lue juste après une image
    * du viseur (encodée en puissance 1/2,2, voir camera/noise.ts). « computing » si l'image attendue est rendue
-   * pendant le calcul d'une photo : elle n'est pas lue, sa cible est une texture de la photo. Null si aucune
-   * image n'est rendue en une seconde ou si la lecture échoue.
+   * pendant le calcul d'une photo : elle n'est pas lue, ce n'est pas une image du viseur (carte de profondeur
+   * rendue sur le canevas, ou rendu de la pose dans une texture de la photo). Null si aucune image n'est rendue
+   * en une seconde ou si la lecture échoue.
    */
   private greenAt(point: { x: number; y: number }): Promise<number | null | "computing"> {
     return new Promise((resolve) => {
