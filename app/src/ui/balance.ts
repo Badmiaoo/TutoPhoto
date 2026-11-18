@@ -121,10 +121,11 @@ export class BalanceIndicator {
       const body = s.body;
       const blurLimit = blurLimitMm(body.sensorWidthMm, body.sensorHeightMm);
 
-      // Ouverture : zone nette (camera/sharpZone.ts).
+      // Ouverture : zone nette (camera/sharpZone.ts). Les lignes sont écrites après la lecture des pixels, avec le
+      // triangle : une photo commencée pendant l'attente laisse tout l'affichage tel qu'il était (version 0.3.63).
       const { near, far } = sharpZone(f, N, S1, blurLimit);
       const farText = Number.isFinite(far) ? `${this.decimal(far, 1)} m` : "∞";
-      this.el.dof.textContent = `${s.labels.aperture} · ${tr("balanceDof")} ${this.decimal(near, 1)} m – ${farText}`;
+      const dofText = `${s.labels.aperture} · ${tr("balanceDof")} ${this.decimal(near, 1)} m – ${farText}`;
 
       // Point visé : œil ou visage suivi, sinon point de mise au point ; position dans la caméra et la scène.
       const target = this.autofocus.target();
@@ -148,6 +149,7 @@ export class BalanceIndicator {
         }
       }
       let motion: Status = "neutral";
+      let motionText: string;
       const shutterText = s.labels.shutter;
       if (mover) {
         const v = Vector3.TransformNormal(mover.velocity, view);
@@ -159,19 +161,22 @@ export class BalanceIndicator {
         const pixels = (trail * PHOTO_LONG_SIDE) / body.sensorWidthMm;
         const pixelText = `${this.decimal(pixels, pixels < 10 ? 1 : 0)} ${tr("balancePixels")}`;
         motion = ratio <= 1 ? "ok" : "bad";
-        this.el.motion.textContent =
+        motionText =
           ratio <= 1
             ? `${shutterText} · ${who} : ${tr("balanceSharp")} (${pixelText})`
             : `${shutterText} · ${who} : ${tr("balanceTrail")} ${this.decimal(ratio, 1)} ${tr("balanceTimesLimit")} (${pixelText})`;
       } else {
-        this.el.motion.textContent = `${shutterText} · ${tr("balanceStill")}`;
+        motionText = `${shutterText} · ${tr("balanceStill")}`;
       }
 
       // ISO : rapport signal sur bruit au point visé.
       const isoText = s.labels.iso;
       const green = await this.greenAt(point);
-      // Une photo a commencé pendant l'attente : la dernière lecture et l'affichage du bruit restent tels quels.
+      // Une photo a commencé pendant l'attente : la dernière lecture et tout l'affichage (lignes et triangle) restent
+      // tels quels, jusqu'au premier rafraîchissement après le calcul.
       if (green === "computing" || !this.panel.isEnabled()) return;
+      this.el.dof.textContent = dofText;
+      this.el.motion.textContent = motionText;
       let noise: Status = "neutral";
       this.noiseReading = null;
       if (green === null) {

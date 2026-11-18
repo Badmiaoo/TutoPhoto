@@ -126,9 +126,10 @@ export class Shutter {
     private readonly info: ReviewInfo,
   ) {
     // Durée du toucher d'après l'horodatage des événements : une image longue entre l'appui et le relâchement
-    // ne transforme pas un toucher en glissé.
+    // ne transforme pas un toucher en glissé. Un appui fait pendant le calcul d'une photo n'est pas retenu, même
+    // relâché après la fin du calcul (version 0.3.63) ; un relâchement pendant le calcul est écarté par choosePoint.
     let down: { x: number; y: number; at: number } | null = null;
-    el.canvas.addEventListener("pointerdown", (e) => (down = { x: e.clientX, y: e.clientY, at: e.timeStamp }));
+    el.canvas.addEventListener("pointerdown", (e) => (down = this.panel.isEnabled() ? { x: e.clientX, y: e.clientY, at: e.timeStamp } : null));
     el.canvas.addEventListener("pointerup", (e) => {
       if (!down) return;
       const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y);
