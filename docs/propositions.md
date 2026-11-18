@@ -227,7 +227,7 @@ Choix de Claude du 17 et du 18 novembre 2026, revus le 18 novembre après la rel
 
 ### Routine de test : les contrôles qui disent vert à tort (Sujet 4 du plan : INT-05, INT-06, INT-13, CHX-08 ; version 0.3.64)
 
-Choix de Claude du 18 et du 19 novembre 2026 ; Julien confirme ou annule. Les corrections sont celles que retiennent les contre-vérifications d'INT-05, d'INT-06 et d'INT-13, et la ligne que garde la réfutation de CHX-08 ; les choix ci-dessous tranchent ce qu'elles laissent ouvert. Le simulateur ne change pas. Essais et chiffres : `CHANGELOG.md`, section 0.3.64.
+Choix de Claude du 18 novembre 2026 ; Julien confirme ou annule. Les corrections sont celles que retiennent les contre-vérifications d'INT-05, d'INT-06 et d'INT-13, et la ligne que garde la réfutation de CHX-08 ; les choix ci-dessous tranchent ce qu'elles laissent ouvert. Le simulateur ne change pas. Essais et chiffres : `CHANGELOG.md`, section 0.3.64.
 
 | N° | Choix fait | Pourquoi | Autre voie |
 | --- | --- | --- | --- |
