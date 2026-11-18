@@ -314,7 +314,9 @@ export async function takePhoto(
     // les objets au premier rendu et la carte reste vide.
     const depthRenderer = scene.enableDepthRenderer(camera, false, true, undefined, true);
     await scene.whenReadyAsync();
-    scene.render();
+    // Rendu sans mise à jour de la caméra (false) : les gestes reçus pendant le calcul ne la font pas tourner
+    // d'un rendu à l'autre ; l'orientation reste celle posée plus haut.
+    scene.render(false);
     const depthMap = depthRenderer.getDepthMap();
     depthMap.wrapU = Constants.TEXTURE_CLAMP_ADDRESSMODE;
     depthMap.wrapV = Constants.TEXTURE_CLAMP_ADDRESSMODE;
@@ -385,7 +387,8 @@ export async function takePhoto(
       camera.freezeProjectionMatrix(windowed(m));
       time.setEyeOffset(right.scale(dx).add(up.scale(dy)));
       time.setFrozenTime(t0 + request.shutterSeconds * ((((i * stride) % planned) + 0.5) / planned));
-      scene.render();
+      // Sans mise à jour de la caméra, comme pour la carte de profondeur.
+      scene.render(false);
 
       const source = accumulation[i % 2];
       const target = accumulation[(i + 1) % 2];

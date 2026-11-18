@@ -126,9 +126,10 @@ export class Shutter {
     private readonly info: ReviewInfo,
   ) {
     // Durée du toucher d'après l'horodatage des événements : une image longue entre l'appui et le relâchement
-    // ne transforme pas un toucher en glissé.
+    // ne transforme pas un toucher en glissé. Un appui fait pendant le calcul d'une photo n'est pas retenu, même
+    // relâché après la fin du calcul (version 0.3.63) ; un relâchement pendant le calcul est écarté par choosePoint.
     let down: { x: number; y: number; at: number } | null = null;
-    el.canvas.addEventListener("pointerdown", (e) => (down = { x: e.clientX, y: e.clientY, at: e.timeStamp }));
+    el.canvas.addEventListener("pointerdown", (e) => (down = this.panel.isEnabled() ? { x: e.clientX, y: e.clientY, at: e.timeStamp } : null));
     el.canvas.addEventListener("pointerup", (e) => {
       if (!down) return;
       const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y);
@@ -182,6 +183,8 @@ export class Shutter {
     const x = (clientX - rect.left) / rect.width;
     const y = (clientY - rect.top) / rect.height;
     if (x < 0 || x > 1 || y < 0 || y > 1) return;
+    // Pendant le calcul d'une photo, l'autofocus est suspendu : le toucher déplacerait le repère sans faire le point.
+    if (!this.panel.isEnabled()) return;
     // Hors de la zone couverte par l'autofocus, le point est ramené au bord de cette zone (cameraPanel.ts).
     this.panel.setFocusPoint(this.panel.displayedToFrame({ x, y }));
   }
@@ -218,7 +221,12 @@ export class Shutter {
     style.height = zone ? `${(zone.bottom - zone.top) * 100}%` : "";
   }
 
-  /** Calcul sans affichage du viseur : boucle de rendu arrêtée, bruit du viseur retiré, réglages grisés. */
+  /**
+   * Calcul sans affichage du viseur : boucle de rendu arrêtée, bruit du viseur retiré, réglages grisés, commandes
+   * de la caméra détachées. À la reprise, les commandes sont rattachées et ce que les gestes ont accumulé est
+   * effacé : un geste fait pendant le calcul ne tourne pas le viseur ; un doigt resté posé ne le tourne plus tant
+   * qu'il n'est pas relevé puis reposé.
+   */
   private async compute(request: PhotoRequest, frame: { index: number; count: number } | null = null): Promise<PhotoResult> {
     this.busy = true;
     this.panel.setEnabled(false);
@@ -231,11 +239,14 @@ export class Shutter {
     this.noise.suspend();
     this.dof.suspend();
     this.autofocus.suspend();
+    this.camera.detachControl();
     try {
       return await takePhoto(this.engine, this.scene, this.camera, this.time, this.ground, request, (fraction) => {
         this.el.progressBar.style.width = `${Math.round(fraction * 100)}%`;
       });
     } finally {
+      this.camera.attachControl(this.el.canvas, true);
+      this.camera.cameraRotation.set(0, 0);
       this.el.progress.hidden = true;
       this.autofocus.resume();
       this.dof.resume();

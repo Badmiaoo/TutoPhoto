@@ -108,7 +108,8 @@ export class BalanceIndicator {
   }
 
   private async refresh(): Promise<void> {
-    if (!this.enabled || this.busy) return;
+    // Pas de rafraîchissement pendant le calcul d'une photo : les images rendues sont alors celles de la photo.
+    if (!this.enabled || this.busy || !this.panel.isEnabled()) return;
     this.busy = true;
     try {
       const tr = t;
@@ -120,10 +121,11 @@ export class BalanceIndicator {
       const body = s.body;
       const blurLimit = blurLimitMm(body.sensorWidthMm, body.sensorHeightMm);
 
-      // Ouverture : zone nette (camera/sharpZone.ts).
+      // Ouverture : zone nette (camera/sharpZone.ts). Les lignes sont écrites après la lecture des pixels, avec le
+      // triangle : une photo commencée pendant l'attente laisse tout l'affichage tel qu'il était (version 0.3.63).
       const { near, far } = sharpZone(f, N, S1, blurLimit);
       const farText = Number.isFinite(far) ? `${this.decimal(far, 1)} m` : "∞";
-      this.el.dof.textContent = `${s.labels.aperture} · ${tr("balanceDof")} ${this.decimal(near, 1)} m – ${farText}`;
+      const dofText = `${s.labels.aperture} · ${tr("balanceDof")} ${this.decimal(near, 1)} m – ${farText}`;
 
       // Point visé : œil ou visage suivi, sinon point de mise au point ; position dans la caméra et la scène.
       const target = this.autofocus.target();
@@ -147,6 +149,7 @@ export class BalanceIndicator {
         }
       }
       let motion: Status = "neutral";
+      let motionText: string;
       const shutterText = s.labels.shutter;
       if (mover) {
         const v = Vector3.TransformNormal(mover.velocity, view);
@@ -158,17 +161,22 @@ export class BalanceIndicator {
         const pixels = (trail * PHOTO_LONG_SIDE) / body.sensorWidthMm;
         const pixelText = `${this.decimal(pixels, pixels < 10 ? 1 : 0)} ${tr("balancePixels")}`;
         motion = ratio <= 1 ? "ok" : "bad";
-        this.el.motion.textContent =
+        motionText =
           ratio <= 1
             ? `${shutterText} · ${who} : ${tr("balanceSharp")} (${pixelText})`
             : `${shutterText} · ${who} : ${tr("balanceTrail")} ${this.decimal(ratio, 1)} ${tr("balanceTimesLimit")} (${pixelText})`;
       } else {
-        this.el.motion.textContent = `${shutterText} · ${tr("balanceStill")}`;
+        motionText = `${shutterText} · ${tr("balanceStill")}`;
       }
 
       // ISO : rapport signal sur bruit au point visé.
       const isoText = s.labels.iso;
       const green = await this.greenAt(point);
+      // Une photo a commencé pendant l'attente : la dernière lecture et tout l'affichage (lignes et triangle) restent
+      // tels quels, jusqu'au premier rafraîchissement après le calcul.
+      if (green === "computing" || !this.panel.isEnabled()) return;
+      this.el.dof.textContent = dofText;
+      this.el.motion.textContent = motionText;
       let noise: Status = "neutral";
       this.noiseReading = null;
       if (green === null) {
@@ -214,10 +222,12 @@ export class BalanceIndicator {
 
   /**
    * Valeur linéaire moyenne du canal vert affiché autour du point visé (de 0 à 1), lue juste après une image
-   * (l'image du viseur est encodée en puissance 1/2,2, voir camera/noise.ts). Null si aucune image n'est rendue
-   * à temps (calcul d'une photo) ou si la lecture échoue.
+   * du viseur (encodée en puissance 1/2,2, voir camera/noise.ts). « computing » si l'image attendue est rendue
+   * pendant le calcul d'une photo : elle n'est pas lue, ce n'est pas une image du viseur (carte de profondeur
+   * rendue sur le canevas, ou rendu de la pose dans une texture de la photo). Null si aucune image n'est rendue
+   * en une seconde ou si la lecture échoue.
    */
-  private greenAt(point: { x: number; y: number }): Promise<number | null> {
+  private greenAt(point: { x: number; y: number }): Promise<number | null | "computing"> {
     return new Promise((resolve) => {
       const timer = setTimeout(() => {
         this.scene.onAfterRenderObservable.remove(observer);
@@ -225,6 +235,10 @@ export class BalanceIndicator {
       }, 1000);
       const observer = this.scene.onAfterRenderObservable.addOnce(() => {
         clearTimeout(timer);
+        if (!this.panel.isEnabled()) {
+          resolve("computing");
+          return;
+        }
         const width = this.engine.getRenderWidth();
         const height = this.engine.getRenderHeight();
         const half = Math.floor(SAMPLE_SIDE / 2);
