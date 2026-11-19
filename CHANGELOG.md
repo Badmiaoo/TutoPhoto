@@ -12,6 +12,15 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.70] - 2026-11-20
+
+Sujet 10 du plan de corrections de l'audit (`docs/audit/README.md`) : les échecs du chargement et du rendu dits à l'écran (fichier d'éclairage perdu, WebGL absent, contexte perdu). Constats COD-06, COD-11, COD-12 ; COD-13 pour un commentaire de `app/src/scene.ts`. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. En cours.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.69 relue (tag, release, publication), lignée des sessions (profondeur 1 sur 8), Sujet 10 en cours.
+- `docs/propositions.md`, section 5 : « Lignée des sessions », les trois choix de la session de départ de la chaîne.
+
 ## [0.3.69] - 2026-11-19
 
 Sujet 9 du plan de corrections de l'audit (`docs/audit/README.md`) : la vue de dessus et l'indicateur d'équilibre jugent les mêmes points que le bulletin. Constats FMA-12 et PHY-17. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. Choix de Claude : `docs/propositions.md`, section 5, « Vue de dessus et indicateur d'équilibre ».
@@ -1310,6 +1319,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.70]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.69...v0.3.70
 [0.3.69]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.68...v0.3.69
 [0.3.68]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.67...v0.3.68
 [0.3.67]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.66...v0.3.67

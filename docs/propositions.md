@@ -342,3 +342,13 @@ Choix de Claude du 19 novembre 2026 ; Julien confirme ou annule. Le plan demande
 | 10 | Relecture : un toucher sur la vue de dessus (ou « Retour au départ ») redessine la vue après l'image suivante, et non tout de suite. | La caméra ne prend la nouvelle position qu'avant l'image suivante (`app/src/scene.ts`) : dessiner tout de suite jugeait les sujets avec l'ancienne vue, jusqu'au rafraîchissement suivant (au plus 0,25 s). | Calculer la vue depuis la position demandée. |
 | 11 | Relecture : l'étiquette de la vue de dessus pour les lecteurs d'écran (`topViewLabel`) dit que le vert juge les yeux, la règle du cercle de Fabienne et Percy, et que le vert ne dit que la netteté, pas le cadre. Rien n'est ajouté à l'écran. | Elle disait « cerclés de vert dans la zone nette », ce que le code ne fait plus. Une légende visible (B4 : le cercle commun ; B3 : un sujet vert hors du cadre) change l'interface sur petit écran : laissée à l'ergonomie. | Une légende visible sous la carte. |
 | 12 | Relecture : NET-01 reprend les valeurs que le simulateur affiche dans son exercice, 5,0 m à 9,3 m au 50 mm et 6,3 m à 6,8 m au 135 mm, à f/4 et mise au point sur l'œil de Sophia, et dit pourquoi elles diffèrent de l'exemple calculé à 6,6 m. | Relevé de la relecture, à l'écran et dans le bulletin, sur trois profils : l'œil est à 6,55 m environ, un peu devant la position au sol de Sophia (6,6 m). | Garder les valeurs calculées à 6,6 m. |
+
+### Lignée des sessions (session de départ de la chaîne, 19 novembre 2026)
+
+Choix faits par la session de départ de la chaîne (profondeur 0), ouverte par Julien le 19 novembre 2026 vers 20 h 05 UTC, sans Julien ; notés par la session du Sujet 10. Julien confirme ou annule.
+
+| N° | Choix fait | Pourquoi | Autre voie |
+| --- | --- | --- | --- |
+| 1 | Attendre la fusion de la version 0.3.69 pour créer la session du Sujet 10, et non la créer pendant que le Sujet 9 était en cours dans une autre session. | La consigne de Julien (« Le meilleur moment, c'est entre deux sujets, après une fusion. ») ; pas deux sessions sur un même sujet. | La créer tout de suite, avec la consigne d'attendre la fusion. |
+| 2 | Demander à la session des Sujets 8 et 9 de s'arrêter après cette fusion. | Une session par sujet, avec sa relance horaire (réponse de Julien du 19 novembre 2026, `docs/historique.md`). | La laisser enchaîner les sujets sans relance, ce qu'elle faisait. |
+| 3 | La session de départ reste ouverte pour recréer la chaîne quand elle arrive à la limite de profondeur : la session de profondeur 7 lui demande, par un message, de créer la suivante (`docs/etat-des-travaux.md`, « Mandat en cours »). | Julien n'a pas à rouvrir une session tous les sept sujets. | Julien ouvre une session neuve à chaque fois. |
