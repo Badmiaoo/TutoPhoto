@@ -1234,6 +1234,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.67]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.66...v0.3.67
 [0.3.66]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.65...v0.3.66
 [0.3.65]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.64...v0.3.65
 [0.3.64]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.63...v0.3.64
