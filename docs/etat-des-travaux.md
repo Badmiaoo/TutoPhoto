@@ -148,6 +148,7 @@ Sans réponse, chaque choix reste en place ; il s'annule par `git revert -m 1` d
 | Routine de test (Sujet 4), choix 1 à 13, dont la phrase de `CLAUDE.md` sur ce que les tests émulent (6) | 19 novembre 2026, version 0.3.64 | Section 5 |
 | Pages de reprise (Sujet 5), choix 1 à 10, dont la table « Quelle page pour quelle information » de `CLAUDE.md` (D6) | 19 novembre 2026, version 0.3.65 | Section 5 |
 | La mise au point qui suit le chien (Sujet 6), choix 1 à 6, dont le contrôle de la routine qui tolère une perte (4) | 19 novembre 2026, version 0.3.66 | Section 5 |
+| Fiches d'exposition (Sujet 7, Sujet 20 fondu), choix 1 à 11, dont les ouvertures écrites avec le point dans l'interface seulement (1) et les fiches écrites autour des réglages que le simulateur garde (8) | 19 novembre 2026, version 0.3.67 | Section 5 |
 | L'ordre et le découpage du plan de corrections | 15 novembre 2026 | `docs/audit/README.md`, « Plan de corrections » ; sans réponse, l'ordre du plan vaut |
 | Lecture des journaux de la CI par l'outil GitHub (`get_job_logs`) ; deux agents les ont lus une fois par `gh api`, alors que les consignes des sessions réservent `gh` à la recherche. Julien veut-il autre chose ? | 17 novembre 2026 | « Leçons pratiques » ; sans réponse, l'outil GitHub |
 
@@ -165,6 +166,7 @@ Sur le site publié, après avoir lu la version à l'écran (test T1). Sans rép
 | T6 | 0.3.62 | L'indicateur d'exposition touché pendant qu'il clignote (FEX-19, INT-21). |
 | T7 | 0.3.63 | Toucher du viseur pendant le calcul, photo et rafale un doigt posé sur le viseur (COD-07, COD-01). |
 | T8 | 0.3.66 | La mise au point suit le chien à découvert, en AF-C, zone automatique et détection des animaux (FMA-23). |
+| T9 | 0.3.67 | Le rapport signal sur bruit de l'exercice de EXP-06, lu sur un téléphone (FEX-05). |
 
 ## Ce que Julien seul peut faire
 
@@ -241,3 +243,6 @@ Relevés pendant le travail, hors des constats de l'audit ; aucun sujet du plan 
 | Routine, contrôle « AF-C : la distance suit la zone » : l'inclinaison de l'appareil après les deux glissements n'est pas maîtrisée (inertie de Babylon.js), et la zone vise tantôt un sujet (de 5,8 à 6,5 m), tantôt le fond (500,0 m). Le contrôle réussit à bon droit dans les deux cas, mais ne dit pas ce que la zone visait. | 16 novembre 2026 | Non corrigé ; avec la refonte de la routine (ARC-05). |
 | Routine, contrôle « zones écrêtées » : il ne verrait un calque qui prend les touchers que pendant la phase visible de son clignotement (`elementFromPoint` ignore un élément masqué). Non examiné : si d'autres contrôles mesurent une zone où un personnage peut passer (`frameNoise`). | 15 novembre 2026, version 0.3.59 | Non corrigé ; avec la refonte de la routine (ARC-05). |
 | Routine, navigateur tué juste avant `context.close()` : la routine sort sur une exception, code 1, sans écrire les contrôles du profil. La CI serait rouge, pas verte à tort. | 19 novembre 2026, version 0.3.64 | Non corrigé ; avec la refonte de la routine (ARC-05). |
+| Le simulateur garde d'une visite à l'autre le mode, la correction, l'ISO auto, le boîtier, la mise au point et le mode de déclenchement ; aucun bouton ne remet ces réglages à leur état de départ (« Retour au départ » ne replace que l'appareil). Un exercice joué après un autre part d'un autre état. | 19 novembre 2026, relecture de la version 0.3.67 | Non corrigé ; les fiches du Sujet 7 l'écrivent et donnent les réglages en entier. |
+| Molette « Vitesse » : « − » raccourcit la pose (1/100 → 1/125 s) et « + » l'allonge ; un débutant qui vise 1/200 s appuie d'instinct sur « + ». | 19 novembre 2026, relecture de la version 0.3.67 | Non corrigé ; EXP-04 et EXP-05 le disent. |
+| La note `previewNote` du simulateur dit « lire la cellule », mot que l'écran n'emploie nulle part ailleurs (l'indicateur d'exposition). | 19 novembre 2026, relecture de la version 0.3.67 | Non corrigé. |
