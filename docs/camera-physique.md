@@ -10,7 +10,7 @@ Décisions prises par Julien le 8 novembre 2026 ; le modèle qui suit est propos
   - au déclenchement, la photo est calculée exactement, par accumulation de rendus.
 - Capteur : plein format ou APS-C, au choix du débutant.
 - Bruit numérique : modèle physique (bruit photonique et bruit de lecture), à partir de mesures publiées.
-- Boîtiers de référence : trois paires, au choix de la marque. La réponse de Julien, « 1,2,3 », est comprise comme « les trois » :
+- Boîtiers de référence : trois paires, au choix de la marque, d'après la réponse de Julien du 8 novembre 2026, « 1,2,3 », comprise comme « les trois », ce que la suite a confirmé (le 11 novembre, Julien a relevé lui-même les fiches de l'EOS RP, de l'A7 III et de l'A6000). Le 15 novembre 2026, Julien les a ramenés à trois, un par marque, « les plus communs », que Claude choisit et source (D4, `docs/historique.md`) ; d'ici là, les six de la table restent dans le simulateur :
 
   | Marque | Plein format | APS-C |
   | --- | --- | --- |
@@ -73,7 +73,7 @@ Exemple : à ISO 100 et f/8, l'exposition correcte demande N²/t = 2^12,5 ≈ 5 
 ## Flou de mouvement et de bougé
 
 - Photo : la même accumulation, chaque rendu correspondant à un instant différent du temps de pose. Les positions et les animations des sujets y sont calculées, si bien que le flou est exact à toute vitesse. Le flou de bougé fera varier l'orientation de l'appareil pendant la pose ; le modèle du tremblement de la main reste à trouver et à sourcer.
-- Viseur : pas de flou de mouvement, comme dans le viseur d'un vrai appareil. C'est la lecture de Claude de la décision « viseur avec les effets de Babylon » ; à confirmer par Julien.
+- Viseur : pas de flou de mouvement, comme dans le viseur d'un vrai appareil. C'est la lecture que Claude a faite de la décision « viseur avec les effets de Babylon » ; elle attend la réponse de Julien (D32, `docs/etat-des-travaux.md`, « Décisions en attente »).
 
 ## Bruit numérique
 
@@ -610,7 +610,7 @@ Dans TutoPhoto :
 - **Calcul** (`app/src/camera/histogram.ts`). Dans `takePhoto`, sur les pixels 8 bits de la photo finale (après l'exposition, le bruit, l'écrêtage et la courbe), avant sa compression en JPEG, qui modifierait les valeurs. Quatre fois 256 colonnes ; un masque d'un bit par pixel pour les zones. La loupe recalcule une fenêtre de la photo par le même code : ses mesures sont celles de cette fenêtre, à la définition du capteur.
 - **Affichage** (`app/src/ui/reviewInfo.ts`). L'image reste le premier élément de l'écran de revue, sans conteneur. Les zones sont un calque (`canvas`) posé sur elle par ses coordonnées, qui suit ses changements de taille et ne reçoit aucun événement de pointeur : toucher la photo ouvre toujours la loupe.
 
-Choix de TutoPhoto, non sourcés, à confirmer par Julien :
+Choix de TutoPhoto, non sourcés, soumis à Julien (`docs/propositions.md`, section 4 ; `docs/etat-des-travaux.md`, « Décisions en attente ») :
 - luminance : Y = 0,2126 R + 0,7152 V + 0,0722 B, arrondi à l'entier, sur les valeurs encodées de la photo. Les coefficients sont ceux de la norme sRGB, tels que les donne [Wikipedia, « sRGB », révision 1378992844](https://en.wikipedia.org/w/index.php?title=SRGB&oldid=1378992844) (source secondaire : ligne Y de la matrice du sRGB linéaire vers XYZ, « these 4-digit coefficients should be considered exact »). La norme les applique à des valeurs linéaires ; les appliquer aux valeurs encodées est un choix de TutoPhoto. Exemple : un pixel (255, 0, 0) a une luminance de 0,2126 × 255 = 54 ;
 - échelle verticale : chaque histogramme est rapporté à sa colonne la plus haute, colonnes 0 et 255 exclues du calcul de ce maximum, pour qu'un pic d'écrêtage n'écrase pas le reste ; ces deux colonnes sont tracées à leur vraie hauteur, plafonnée au bord ;
 - seuil : une zone est signalée quand au moins une couche vaut 255, en s'appuyant sur la phrase de Nikon pour le seuil 255 ;
@@ -685,7 +685,7 @@ Une pull request par étape :
 4. Loupe dans le viseur et sur l'écran de revue : faite en version 0.3.17 (voir ci-dessus).
 5. Profondeur de champ approchée dans le viseur : faite en version 0.3.22, puis en flou de taille physique en version 0.3.23 (voir ci-dessus).
 6. Mise au point : AF ponctuel ou continu (MAP-04), fait en version 0.3.26 ; modes de zone (MAP-05), faits en version 0.3.27 ; détection des yeux et zone automatique (MAP-09), faites en version 0.3.29. Indicateur d'équilibre : version 0.3.31. Traînée en pixels (MVT-01) : version 0.3.32. Modes de déclenchement (BOI-12) : version 0.3.33. Collimateurs (MAP-06) : version 0.3.34. Modes d'exposition A et S, correction d'exposition et ISO auto (BOI-07, BOI-08, MES-04, MES-10, décision de Julien du 10 novembre 2026) : version 0.3.36, avec les réglages par défaut du Z 6. Vue de dessus (NET-01) et appareil déplaçable (NET-06) : version 0.3.37. Défis des trois situations et bulletin : version 0.3.38. Ensuite : fiches des notions et des situations. LUM-02 : simulateur en V2.
-7. Après les tests de la V1 minimale : balance des blancs, grilles de composition, histogramme (voir ci-dessus). Dans la nuit du 11 au 12 novembre 2026, Julien demande à Claude de continuer seul ; Claude le comprend comme la levée de l'attente des tests (`docs/etat-des-travaux.md`) : grilles de cadrage (CMP-02) faites en version 0.3.56 ; histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07) faits en version 0.3.57 ; restent l'histogramme du viseur, les zébrures et la balance des blancs. En V2 : correction de la photo après la prise.
+7. Après les tests de la V1 minimale : balance des blancs, grilles de composition, histogramme (voir ci-dessus). Dans la nuit du 11 au 12 novembre 2026, Julien demande à Claude de continuer seul ; Claude le comprend comme la levée de l'attente des tests (`docs/historique.md`, nuit du 11 au 12 novembre 2026) : grilles de cadrage (CMP-02) faites en version 0.3.56 ; histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07) faits en version 0.3.57 ; restent l'histogramme du viseur, les zébrures et la balance des blancs. En V2 : correction de la photo après la prise.
 
 ## Ce que je ne sais pas
 

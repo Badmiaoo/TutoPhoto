@@ -68,7 +68,7 @@ Rédigées par Claude le 11 novembre 2026, pendant que Julien était absent. Il 
 - la couverture de l'autofocus des reflex Nikon D5600 et Canon EOS 2000D (11 novembre 2026) ;
 - la correction de la photo après la prise, RET-01 et RET-02 (`docs/camera-physique.md`).
 
-**Placé après les tests de la V1 minimale** (Julien a laissé le moment à Claude le 9 novembre 2026) : balance des blancs (COU-02), grilles de composition (CMP-02), histogramme (MES-06). Dans la nuit du 11 au 12 novembre 2026, Julien demande à Claude de continuer seul ; Claude le comprend comme la levée de l'attente des tests (`docs/etat-des-travaux.md`) : les grilles sont faites en version 0.3.56, et les histogrammes et les hautes lumières de l'écran de revue en version 0.3.57, avec les choix de la section 4.
+**Placé après les tests de la V1 minimale** (Julien a laissé le moment à Claude le 9 novembre 2026) : balance des blancs (COU-02), grilles de composition (CMP-02), histogramme (MES-06). Dans la nuit du 11 au 12 novembre 2026, Julien demande à Claude de continuer seul ; Claude le comprend comme la levée de l'attente des tests (`docs/historique.md`, nuit du 11 au 12 novembre 2026) : les grilles sont faites en version 0.3.56, et les histogrammes et les hautes lumières de l'écran de revue en version 0.3.57, avec les choix de la section 4.
 
 **Ordre retenu, une fois les tests faits :**
 1. Corriger ce que les tests révèlent, et finir la relecture des 19 fiches.
@@ -87,7 +87,7 @@ Rédigées par Claude le 11 novembre 2026, pendant que Julien était absent. Il 
 
 ## 4. Choix faits par Claude dans la nuit du 11 au 12 novembre 2026, à confirmer
 
-`CLAUDE.md` demande de proposer avant de produire. Julien dormait et avait demandé à Claude de continuer seul (`docs/etat-des-travaux.md`) : pour chaque fonction, la spécification gardée dans `docs/specifications/` a tenu lieu de proposition. Chaque choix ci-dessous a été fait sans Julien. Il peut le confirmer, ou l'annuler : chaque fonction a sa version, que l'on retire par `git revert -m 1` de son commit de fusion.
+`CLAUDE.md` demande de proposer avant de produire. Julien dormait et avait demandé à Claude de continuer seul (`docs/historique.md`, nuit du 11 au 12 novembre 2026) : pour chaque fonction, la spécification gardée dans `docs/specifications/` a tenu lieu de proposition. Chaque choix ci-dessous a été fait sans Julien. Il peut le confirmer, ou l'annuler : chaque fonction a sa version, que l'on retire par `git revert -m 1` de son commit de fusion.
 
 ### Grilles de cadrage (CMP-02, version 0.3.56)
 
