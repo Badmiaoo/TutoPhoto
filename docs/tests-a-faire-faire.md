@@ -28,4 +28,4 @@ Depuis la version 0.3.59, le site dit quelle version il est : en bas de la page 
 
 ## Avec des débutants
 
-Protocole retenu par Julien le 11 novembre 2026 : `docs/propositions.md`, section 2 (cinq testeurs). La grille de relevé reste à écrire (`docs/etat-des-travaux.md`, « À côté de la file ») ; Claude l'ajoute ici quand elle est écrite.
+Protocole retenu par Julien le 11 novembre 2026 : `docs/propositions.md`, section 2 (cinq testeurs). La grille de relevé reste à écrire (`docs/etat-des-travaux.md`, « File de travail ») ; Claude l'ajoute ici quand elle est écrite.
