@@ -8,8 +8,10 @@ Calcul pour le chien du parc (3,5 m/s, de profil, à 9 m, au 50 mm) : la traîn�
 
 ## Simulateur
 
-L'indicateur d'équilibre et le bulletin donnent la traînée du sujet visé, du promeneur et du chien, en pixels de la photo (1500 px de grand côté), avec la limite (1,2 px en plein format). La photo calculée montre le flou de mouvement réel, vue par vue en rafale. Le bougé de la main n'est ni sourcé ni simulé.
+L'indicateur d'équilibre donne la traînée du sujet visé ; le bulletin, celle de chaque sujet en mouvement présent dans le cadre au déclenchement. Les deux l'écrivent en pixels de la photo (1500 px de grand côté), avec la limite (1,2 px). La photo calculée montre le flou de mouvement réel, vue par vue en rafale. Le bougé de la main n'est ni sourcé ni simulé.
 
 ## Exercice
 
-La fiche du référentiel propose de figer un saut puis un cycliste de profil ; le parc a un chien qui court de profil et un promeneur. Avec le boîtier de départ (Nikon Z 6) et le 50 mm, trouve la vitesse la plus lente qui fige le promeneur (1/200 s), puis celle qui fige le chien (1/800 s), et vérifie-les avec le bulletin ; réussis le défi SIT-06. Avec un boîtier APS-C, le flou acceptable est plus petit : 1/320 s et 1/1250 s. Une focale plus longue grossit le sujet et sa traînée : au 85 mm, 1/320 s et 1/1250 s en plein format.
+La fiche du référentiel propose de figer un saut puis un cycliste de profil ; le parc a un chien qui court de profil et un promeneur. Avec le boîtier de départ (Nikon Z 6) et la focale à 50 mm, trouve la vitesse la plus lente qui fige le promeneur (1/200 s), puis celle qui fige le chien (1/800 s). Pour vérifier, déclenche quand le sujet traverse le cadre : le bulletin de la photo donne la traînée de chaque sujet en mouvement présent dans le cadre, le chien seulement s'il y est. Réussis ensuite le défi SIT-06.
+
+Avec un boîtier APS-C, le capteur est plus petit : la même traînée y couvre plus de pixels de la photo (la limite reste 1,2 px). Il faut 1/320 s pour le promeneur et 1/1250 s pour le chien. Une focale plus longue grossit le sujet et sa traînée : au 85 mm en plein format, il faut aussi 1/320 s pour le promeneur et 1/1250 s pour le chien.

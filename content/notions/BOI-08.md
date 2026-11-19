@@ -10,4 +10,4 @@ Dans la fenêtre « Exposition », mode S. La molette « Ouverture (auto) » est
 
 ## Exercice
 
-La fiche du référentiel demande de figer un enfant qui court en fin de journée ; dans le parc, c'est le chien. Avec le boîtier de départ (Nikon Z 6) et le 50 mm, en mode S à 1/1000 s, AF-C et zone automatique avec la détection des animaux, réussis le défi SIT-06 (avec un boîtier APS-C, il faut 1/1250 s : voir MES-10). Puis passe à 1/4000 s, sans ISO auto et à ISO 100 : l'ouverture clignote à f/1.4, la photo est sous-exposée ; active l'ISO auto et recommence.
+La fiche du référentiel demande de figer un enfant qui court en fin de journée ; dans le parc, c'est le chien. Avec le boîtier de départ (Nikon Z 6) et la focale à 50 mm, en mode S à 1/1000 s, AF-C et zone automatique avec la détection des animaux, réussis le défi SIT-06. Puis passe à 1/4000 s, sans ISO auto et à ISO 100 : l'ouverture clignote à f/1.4, la photo est sous-exposée (l'indicateur passe à −0,5 IL) ; active l'ISO auto et recommence. Avec un boîtier APS-C, il faut 1/1250 s pour figer le chien : voir MES-10.
