@@ -338,7 +338,7 @@ Ce sont mes mesures, pas des données de Poly Haven. Scripts : dossier `scenes-s
 
 ## 7. Proposition pour TutoPhoto
 
-Proposition de Claude (agent de recherche), à trancher par Julien. Elle ne lève pas la règle « pas d'extension au-delà de la V1 minimale avant de l'avoir testée avec des débutants ».
+Proposition de Claude (agent de recherche), à trancher par Julien (décision D33, `docs/etat-des-travaux.md`, « Décisions en attente »). Elle ne lève pas la règle « pas d'extension au-delà de la V1 minimale avant de l'avoir testée avec des débutants ». Cette règle a été remplacée le 15 novembre 2026 : les tests avec des débutants ne bloquent pas le travail (`CLAUDE.md`, décision D14).
 
 ### 7.1 Ordre des scènes, selon les situations N1 qu'elles débloquent
 

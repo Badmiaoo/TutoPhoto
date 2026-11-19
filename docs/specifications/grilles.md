@@ -73,7 +73,7 @@ Page d9 du manuel du Z 6 (anglais), page « Grid Line » du guide de l'A7 III, p
 - `docs/etat-des-travaux.md` : ligne 4 de la file passée à « Fait, 0.3.56 », version en ligne.
 - `docs/dossiers/viseur-aides.md` : si la relecture à la source d'un fait de la section 1 le contredit, le corriger.
 
-## 9. Choix faits sans Julien, à confirmer
+## 9. Choix faits sans Julien, tranchés par Julien le 12 novembre 2026 (`docs/propositions.md`, section 4)
 
 1. La grille est une aide de TutoPhoto, la même pour tous les boîtiers, et non la copie du menu de chacun. Autre voie : un réglage par boîtier, avec ses noms ; le Z 6, boîtier par défaut, n'aurait alors aucun tracé sourcé.
 2. Deux tracés seulement, ceux que les sources décrivent ou montrent : tiers et seize cases. Autre voie : ajouter un centre ou des diagonales, sans source.

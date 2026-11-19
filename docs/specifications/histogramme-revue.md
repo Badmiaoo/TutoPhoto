@@ -73,7 +73,7 @@ Pages « Photo Information » du Z 6 (anglais et français), « Switching the sc
 
 `docs/camera-physique.md` (nouvelle section, et la sous-section « Histogramme (MES-06) » qui y renvoie), `docs/questions-ouvertes.md`, `docs/historique.md`, `docs/propositions.md` (section 4), `docs/etat-des-travaux.md` (ligne 5 de la file : revue faite, viseur à faire), `CHANGELOG.md`.
 
-## 11. Choix faits sans Julien, à confirmer
+## 11. Choix faits sans Julien, soumis à Julien (`docs/etat-des-travaux.md`, « Décisions en attente »)
 
 1. D'abord l'écran de revue ; l'histogramme en direct dans le viseur vient dans une autre version, après une mesure de son coût sur téléphone.
 2. Un bouton « Infos » qui fait défiler trois affichages, plutôt que deux cases à cocher.

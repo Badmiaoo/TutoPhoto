@@ -33,7 +33,7 @@ Mandat de Julien (15 novembre 2026) : finir la V1 en reprenant tout ce que l'aud
 - Toute pull request qui touche `app/` est testée sur ordinateur et sur mobile : `node scripts/test_app.cjs --photo` (ordinateur, Android, iPhone, WebGL 1), plus les tests propres au sujet ; faire le maximum de tests soi-même (Julien, 9 novembre 2026). Depuis la version 0.3.54, la CI lance cette routine sur la pull request, un job par profil (`routine.yml`) : attendre ses quatre jobs verts et reporter leurs résultats. Ces tests émulent la taille et la densité de l'écran et l'identification du navigateur, pas le processeur graphique ni le moteur de Safari ; les profils mobiles déclarent un écran tactile, mais aucun geste de la routine n'est un toucher : le dire dans la pull request, avec les résultats.
 - Claude fusionne lui-même ses pull requests quand la CI est verte sur le dernier commit (commit de fusion, pas de squash), puis vérifie que le tag de version a été posé.
 - Chaque pull request fusionnée est une version : elle ajoute sa section à `CHANGELOG.md` (contrôlée par `python3 scripts/changelog.py check --base origin/main`), et le workflow `tag.yml` pose le tag annoté `vX.Y.Z` sur son commit de fusion et publie la release GitHub. Numérotation dans `CHANGELOG.md`.
-- Chaque pull request met à jour `docs/etat-des-travaux.md`, qui doit suffire à reprendre depuis une session neuve, sans rien d'autre que le dépôt : où on en est, la file de travail, ce qui attend Julien (Julien, 12 et 13 novembre 2026).
+- Chaque pull request réécrit `docs/etat-des-travaux.md`, qui doit suffire à reprendre depuis une session neuve, sans rien d'autre que le dépôt : où on en est, la file de travail, ce qui attend Julien (Julien, 12 et 13 novembre 2026). Réécrit, pas complété : un seul état, sans récit (Sujet 5 du plan de corrections).
 - Un seul sujet à la fois. Son premier commit est poussé aussitôt, dans une pull request en brouillon, et chaque étape ensuite : aucun sujet commencé ne reste sur la machine de Claude (Julien, 13 novembre 2026).
 - Après chaque fusion, le travail repart d'une session neuve, à partir de `docs/etat-des-travaux.md` : une longue conversation relit tout son contenu à chaque action et épuise la limite d'usage (Julien, 13 novembre 2026). Si Julien est là, Claude lui dit de lancer `/clear` ; sinon Claude crée lui-même la session suivante sur le dépôt, avec la consigne de reprendre à partir de ce fichier, et la session finie s'arrête (Julien, 15 novembre 2026).
 - Audit du travail antérieur (`docs/audit/`) : ne corriger que les constats contre-vérifiés par un second agent.
@@ -41,3 +41,17 @@ Mandat de Julien (15 novembre 2026) : finir la V1 en reprenant tout ce que l'aud
 - Les tests avec des débutants ne bloquent pas le travail (Julien, 15 novembre 2026) : Claude continue avec ses propres tests et tient à jour `docs/tests-a-faire-faire.md`, la liste des tests que Julien fera faire ; leurs résultats servent à ajuster.
 - Vérifier la licence de toute dépendance, de tout modèle et de toute scène avant de l'ajouter.
 - Licences (`docs/licences.md`) : code sous MIT, contenus et données sous CC BY-SA 4.0 ; modèles et textures 3D de tiers sous CC0 ou CC BY uniquement, avec auteur, adresse d'origine et licence dans les métadonnées de la scène.
+
+## Quelle page pour quelle information
+Une information, un endroit ; les autres pages y renvoient (accepté par Julien le 15 novembre 2026, décision D6).
+
+| Information | Page |
+| --- | --- |
+| Ce qui a changé, version par version, avec ses essais et sa relecture : le seul récit | `CHANGELOG.md` |
+| L'état, la file de travail, les décisions en attente de Julien, les essais qu'il fera sur son téléphone | `docs/etat-des-travaux.md` |
+| Les décisions de Julien, datées et citées ; rien d'autre | `docs/historique.md` |
+| Les choix faits par Claude sans Julien, avec leur raison et l'autre voie | `docs/propositions.md` |
+| Ce qui reste ouvert ou non sourcé dans la simulation et les contenus ; un point fermé en sort | `docs/questions-ouvertes.md` |
+| Les tests que Julien fera faire, et leurs résultats | `docs/tests-a-faire-faire.md` |
+
+Une page n'écrit pas « à confirmer » : ce qui attend Julien a sa ligne dans « Décisions en attente » de `docs/etat-des-travaux.md`, et la page y renvoie.
