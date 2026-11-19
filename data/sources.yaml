@@ -577,6 +577,11 @@ sources:
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, a4 : Détect. visage-yeux AF zone auto ; termes « Détection visage/yeux activée », « Détection des visages activée », « Détection des animaux », « Désactivée » (lu le 9 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_a04.html"
     used_in: [docs/camera-physique.md, content/notions/MAP-09.md]
+  - id: nikon-z6-sub-selector
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, The Sub-Selector, Focus Lock : « Position the subject in the selected focus point and press the shutter-release button halfway to set focus and exposure », puis « Recompose the photograph and shoot » ; « Do not change the distance between the camera and the subject while focus lock is in effect. If the subject moves, focus again at the new distance » ; mémorisation par le centre du sélecteur secondaire en AF-C, « choose an AF-area mode other than auto-area AF » (lu le 19 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_05.html"
+    used_in: [content/notions/MAP-06.md, content/notions/NET-06.md]
   - id: nikon-p1100-af-area
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne COOLPIX P1100, AF area mode : sans visage détecté, « the camera automatically selects one or more of the nine focus areas containing the subject closest to the camera » (compact, pas un hybride ; lu le 9 novembre 2026)"
