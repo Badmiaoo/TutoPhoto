@@ -8,7 +8,7 @@ Les quatre leviers se lisent dans la formule de la zone nette (q = c × N × (S 
 
 ## Simulateur
 
-La profondeur de champ se voit dans le viseur (aperçu réglable), sur la photo calculée, et dans la vue de dessus, qui dessine la zone nette entre deux plans perpendiculaires à l'axe et cercle de vert les sujets qui y sont. L'indicateur d'équilibre et le bulletin donnent les limites en mètres.
+La profondeur de champ se voit dans le viseur (aperçu réglable), sur la photo calculée, et dans la vue de dessus, qui dessine la zone nette entre deux plans perpendiculaires à l'axe et cercle de vert les sujets qui y sont. Comme le bulletin de la photo, elle juge les yeux des personnages et du chien, pas leur position au sol, jusqu'à 20 cm plus loin de l'appareil ; le cercle commun à Fabienne et Percy est vert si les deux y sont. L'indicateur d'équilibre et le bulletin donnent les limites en mètres.
 
 ## Exercice
 

@@ -3,8 +3,8 @@
 //
 // Critères, tous tirés de mesures déjà sourcées :
 // - zone nette : limites de camera/sharpZone.ts, flou acceptable d / 1500 [wikipedia-circle-of-confusion] ;
-// - sujet figé : traînée pendant la pose, sur le capteur, au plus égale au même flou acceptable, comme
-//   l'indicateur d'équilibre (ui/balance.ts) : un point (X, Y, Z) de la caméra de vitesse (vX, vY, vZ) se déplace
+// - sujet figé : traînée pendant la pose, sur le capteur, au plus égale au même flou acceptable, par la même
+//   fonction que l'indicateur d'équilibre (measureThing, appelée aussi par ui/balance.ts) : un point (X, Y, Z) de la caméra de vitesse (vX, vY, vZ) se déplace
 //   sur le capteur de f (vX Z − X vZ) / Z² × t (et de même en y) ;
 // - dans le cadre : le point se projette dans le capteur (x = f X / Z, |x| ≤ largeur / 2, de même en y).
 // Choix de TutoPhoto : « derrière le sujet » veut dire à plus de 1 m derrière lui ; le fond photo à 360° compte
@@ -75,39 +75,47 @@ const BEHIND_M = 1;
 /** Fond photo à 360° : à 500 m (scene.ts, DOME_RADIUS). */
 const BACKDROP_M = 500;
 
-export function measureShot(g: ShotGeometry): Bulletin {
+/**
+ * Mesure d'un sujet vu par l'appareil : profondeur et traînée de son point le plus proche, dans le cadre si l'un
+ * de ses points l'est. Seule formule de la traînée du sujet et de sa netteté, pour le bulletin, l'indicateur
+ * d'équilibre (ui/balance.ts) et la vue de dessus (ui/topView.ts).
+ */
+export function measureThing(thing: SceneThing, g: Omit<ShotGeometry, "things">): ThingMeasure {
   const blurMm = blurLimitMm(g.sensorWidthMm, g.sensorHeightMm);
   const zone = sharpZone(g.focalMm, g.aperture, g.focusDistance, blurMm);
   const halfW = (g.portrait ? g.sensorHeightMm : g.sensorWidthMm) / 2;
   const halfH = (g.portrait ? g.sensorWidthMm : g.sensorHeightMm) / 2;
   const longSide = Math.max(g.sensorWidthMm, g.sensorHeightMm);
-  const measures = g.things.map((thing): ThingMeasure => {
-    // Profondeur et traînée du point le plus proche ; dans le cadre si l'un des points l'est.
-    let best: { depth: number; trailMm: number } | null = null;
-    let inFrame = false;
-    for (const world of thing.points) {
-      const p = Vector3.TransformCoordinates(world, g.view);
-      if (!(p.z > 0)) continue;
-      // Vitesse dans le repère de la caméra : différence des transformés du point et du point déplacé d'1 s.
-      const q = Vector3.TransformCoordinates(world.add(thing.velocity), g.view).subtract(p);
-      const x = (g.focalMm * p.x) / p.z;
-      const y = (g.focalMm * p.y) / p.z;
-      if (Math.abs(x) <= halfW && Math.abs(y) <= halfH) inFrame = true;
-      const vx = (g.focalMm * (q.x * p.z - p.x * q.z)) / (p.z * p.z);
-      const vy = (g.focalMm * (q.y * p.z - p.y * q.z)) / (p.z * p.z);
-      if (!best || p.z < best.depth) best = { depth: p.z, trailMm: Math.hypot(vx, vy) * g.shutterSeconds };
-    }
-    if (!best) return { id: thing.id, inFrame: false, depth: Infinity, sharp: false, trailMm: 0, trailPx: 0, frozen: true };
-    return {
-      id: thing.id,
-      inFrame,
-      depth: best.depth,
-      sharp: best.depth >= zone.near && best.depth <= zone.far,
-      trailMm: best.trailMm,
-      trailPx: (best.trailMm * 1500) / longSide,
-      frozen: best.trailMm <= blurMm,
-    };
-  });
+  let best: { depth: number; trailMm: number } | null = null;
+  let inFrame = false;
+  for (const world of thing.points) {
+    const p = Vector3.TransformCoordinates(world, g.view);
+    if (!(p.z > 0)) continue;
+    // Vitesse dans le repère de la caméra : différence des transformés du point et du point déplacé d'1 s.
+    const q = Vector3.TransformCoordinates(world.add(thing.velocity), g.view).subtract(p);
+    const x = (g.focalMm * p.x) / p.z;
+    const y = (g.focalMm * p.y) / p.z;
+    if (Math.abs(x) <= halfW && Math.abs(y) <= halfH) inFrame = true;
+    const vx = (g.focalMm * (q.x * p.z - p.x * q.z)) / (p.z * p.z);
+    const vy = (g.focalMm * (q.y * p.z - p.y * q.z)) / (p.z * p.z);
+    if (!best || p.z < best.depth) best = { depth: p.z, trailMm: Math.hypot(vx, vy) * g.shutterSeconds };
+  }
+  if (!best) return { id: thing.id, inFrame: false, depth: Infinity, sharp: false, trailMm: 0, trailPx: 0, frozen: true };
+  return {
+    id: thing.id,
+    inFrame,
+    depth: best.depth,
+    sharp: best.depth >= zone.near && best.depth <= zone.far,
+    trailMm: best.trailMm,
+    trailPx: (best.trailMm * 1500) / longSide,
+    frozen: best.trailMm <= blurMm,
+  };
+}
+
+export function measureShot(g: ShotGeometry): Bulletin {
+  const blurMm = blurLimitMm(g.sensorWidthMm, g.sensorHeightMm);
+  const zone = sharpZone(g.focalMm, g.aperture, g.focusDistance, blurMm);
+  const measures = g.things.map((thing) => measureThing(thing, g));
   return { near: zone.near, far: zone.far, blurMm, measures, criteria: [] };
 }
 

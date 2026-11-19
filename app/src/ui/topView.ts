@@ -3,8 +3,13 @@
 // - Zone nette : entre deux plans perpendiculaires à l'axe de visée, aux limites proche et lointaine de
 //   camera/sharpZone.ts. Vue de dessus : l'inclinaison de l'appareil vers le haut ou le bas est négligée.
 // - Champ : angle horizontal du cadre, 2 × atan(côté / (2 × focale)), avec le côté horizontal du capteur.
-// - Personnages et objets aux positions de la scène ; le promeneur et le chien à l'instant présent. Sont marqués
-//   nets ceux dont la distance à l'appareil, le long de l'axe, est dans la zone nette.
+// - Personnages et objets dessinés à leur position au sol ; le promeneur et le chien à l'instant présent. Sont
+//   marqués nets ceux que le bulletin de la photo jugerait nets (camera/bulletin.ts, measureThing ; constat FMA-12,
+//   version 0.3.69) : profondeur le long de l'axe de visée de l'appareil (z de la caméra, inclinaison comprise) du
+//   point jugé le plus proche, dans la zone nette. Points jugés : les yeux des personnages et du chien, un point à
+//   0,5 m du sol pour le banc et la poubelle. Le cercle commun à Fabienne et Percy est vert si les deux sont nets.
+//   Les yeux sont jusqu'à 20 cm plus près de l'appareil que la position au sol : un cercle peut rester gris
+//   alors que son centre est dans la bande de la zone nette.
 // - Déplacement (NET-06) : toucher la carte place l'appareil, dans une zone choisie pour TutoPhoto, de 12 m sur
 //   11 m : devant les personnages (jusqu'à 5 m de l'appareil de départ vers eux, 1,5 m avant le groupe) et sur le
 //   sol où les ombres sont calculées. L'orientation de l'appareil ne change pas.
@@ -14,8 +19,11 @@
 import type { UniversalCamera } from "@babylonjs/core/Cameras/universalCamera";
 import type { Autofocus } from "../camera/autofocus";
 import type { SceneTimeControl } from "../camera/photo";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { measureThing } from "../camera/bulletin";
+import type { FaceSubject } from "../camera/faces";
 import { blurLimitMm, sharpZone } from "../camera/sharpZone";
-import { LANDMARKS, type EyeControl } from "../scene";
+import { EYE_HEIGHT, LANDMARKS, type EyeControl } from "../scene";
 import { t } from "../texts";
 import type { CameraPanel } from "./cameraPanel";
 
@@ -27,6 +35,8 @@ const MAP = { minX: -8, maxX: 8, minZ: -7, maxZ: 15 } as const;
 const RAY = 30;
 const REFRESH_MS = 250;
 const NS = "http://www.w3.org/2000/svg";
+/** Repère commun à plusieurs personnages : ceux qu'il faut juger (vert si tous sont nets). */
+const JUDGED: Record<string, string[]> = { "fabienne-percy": ["fabienne", "percy"] };
 
 interface TopViewElements {
   root: HTMLElement;
@@ -46,6 +56,7 @@ export class TopView {
     private readonly eye: EyeControl,
     private readonly autofocus: Autofocus,
     private readonly panel: CameraPanel,
+    private readonly subjects: readonly FaceSubject[],
     private readonly el: TopViewElements,
   ) {
     // Replié sur petit écran, comme l'indicateur d'équilibre.
@@ -135,15 +146,36 @@ export class TopView {
     this.layers.focus.replaceChildren(focus);
     polygon(this.layers.camera, [at(0.6, 0), at(-0.3, -0.35), at(-0.3, 0.35)]);
 
-    // Personnages, objets, promeneur et chien : nets si leur profondeur est dans la zone nette.
-    const depth = (x: number, z: number) => (x - cx) * forward.x + (z - cz) * forward.z;
-    const things: { id: string; kind: string; x: number; z: number }[] = [
-      ...LANDMARKS,
-      ...this.time.movers().map((m) => ({ id: m.id, kind: m.id === "jim" ? "animal" : "person", x: m.position.x, z: m.position.z })),
+    // Personnages, objets, promeneur et chien : dessinés à leur position au sol, jugés sur les points que juge le
+    // bulletin (camera/bulletin.ts, measureThing) : les yeux des personnages et du chien, un point à 0,5 m du sol
+    // pour le banc et la poubelle ; un cercle commun à deux personnages est vert si les deux sont nets.
+    const geometry = {
+      view: this.camera.getViewMatrix(),
+      focalMm: s.focalMm,
+      aperture: s.aperture,
+      shutterSeconds: s.shutterSeconds,
+      focusDistance: distance,
+      sensorWidthMm: s.body.sensorWidthMm,
+      sensorHeightMm: s.body.sensorHeightMm,
+      portrait: s.frame.portrait,
+    };
+    const sharpAt = (id: string, ground: { x: number; z: number }, height: number) => {
+      const eyes = this.subjects.find((subject) => subject.id === id)?.eyes();
+      // Yeux pas encore chargés : la position au sol, à la hauteur donnée.
+      const points = eyes && eyes.length > 0 ? eyes : [new Vector3(ground.x, height, ground.z)];
+      return measureThing({ id, points, velocity: Vector3.Zero() }, geometry).sharp;
+    };
+    const judged = (id: string, kind: string, ground: { x: number; z: number }) =>
+      kind === "object" ? sharpAt(id, ground, 0.5) : (JUDGED[id] ?? [id]).every((who) => sharpAt(who, ground, EYE_HEIGHT));
+    const things: { id: string; kind: string; x: number; z: number; sharp: boolean }[] = [
+      ...LANDMARKS.map((l) => ({ ...l, sharp: judged(l.id, l.kind, l) })),
+      ...this.time.movers().map((m) => {
+        const kind = m.id === "jim" ? "animal" : "person";
+        return { id: m.id, kind, x: m.position.x, z: m.position.z, sharp: judged(m.id, kind, { x: m.position.x, z: m.position.z }) };
+      }),
     ];
     const shapes = things.map((thing) => {
-      const d = depth(thing.x, thing.z);
-      const sharp = d >= zone.near && d <= zone.far;
+      const sharp = thing.sharp;
       const shape = document.createElementNS(NS, thing.id === "bench" ? "rect" : "circle");
       if (thing.id === "bench") {
         shape.setAttribute("x", String(thing.x - 0.8));

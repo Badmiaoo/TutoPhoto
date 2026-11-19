@@ -10,8 +10,11 @@
 // - Vitesse : traînée du sujet visé pendant la pose, sur le capteur, comparée au même flou acceptable.
 //   Projection d'un point (X, Y, Z) de la caméra : x = f X / Z ; un sujet de vitesse (vX, vY, vZ) se déplace
 //   de f (vX Z − X vZ) / Z² × t (et de même en y). Sujets en mouvement de la scène : le promeneur et le chien.
+//   Calcul fait par la fonction du bulletin (camera/bulletin.ts, measureThing), aux yeux du sujet (constat
+//   PHY-17, version 0.3.69). Sujet visé : celui que suit la détection, sinon le sujet en mouvement à moins de
+//   1 m (à l'horizontale) du point vu sous le repère, reconstruit à la profondeur lue dans la carte du viseur.
 //   Traînée aussi donnée en pixels de la photo (MVT-01, « traînée mesurée en pixels ») : traînée sur le capteur
-//   × 1500 / largeur du capteur, la photo faisant 1500 px sur le grand côté du capteur.
+//   × 1500 / grand côté du capteur, la photo faisant 1500 px sur le grand côté du capteur.
 // - ISO : rapport signal sur bruit d'un pixel de la photo (1500 px de grand côté) au point visé, avec le
 //   modèle de bruit du viseur (camera/noise.ts). Seuils de la norme des sensibilités numériques : 40:1,
 //   « excellent image quality », et 10:1, « acceptable image quality », définis pour 70 pixels par cm vus à
@@ -32,6 +35,8 @@ import { blurLimitMm, sharpZone } from "../camera/sharpZone";
 import type { NoiseReading } from "./challenges";
 import { noiseParameters } from "../camera/noise";
 import { PHOTO_LONG_SIDE, type SceneTimeControl } from "../camera/photo";
+import { measureThing } from "../camera/bulletin";
+import type { FaceSubject } from "../camera/faces";
 import type { CameraPanel } from "./cameraPanel";
 import { t } from "../texts";
 
@@ -68,6 +73,7 @@ export class BalanceIndicator {
     private readonly time: SceneTimeControl,
     private readonly autofocus: Autofocus,
     private readonly panel: CameraPanel,
+    private readonly subjects: readonly FaceSubject[],
     private readonly el: BalanceElements,
   ) {
     setInterval(() => void this.refresh(), REFRESH_MS);
@@ -127,15 +133,19 @@ export class BalanceIndicator {
       const farText = Number.isFinite(far) ? `${this.decimal(far, 1)} m` : "∞";
       const dofText = `${s.labels.aperture} · ${tr("balanceDof")} ${this.decimal(near, 1)} m – ${farText}`;
 
-      // Point visé : œil ou visage suivi, sinon point de mise au point ; position dans la caméra et la scène.
+      // Point visé : œil ou visage suivi, sinon point de mise au point. Sa position dans la scène est reconstruite à
+      // la profondeur de ce qui est vu sous le point, lue dans la carte du viseur (constat PHY-17) ; à la distance de
+      // mise au point si la lecture échoue.
       const target = this.autofocus.target();
       const point = target?.point ?? this.panel.focusOnCanvas();
+      const seen = (await this.autofocus.depthUnder(point)) ?? S1;
+      if (!this.panel.isEnabled()) return;
       const m = this.camera.getProjectionMatrix().asArray();
-      const aimed = new Vector3((((point.x * 2 - 1) - m[8]) / m[0]) * S1, (((1 - point.y * 2) - m[9]) / m[5]) * S1, S1);
+      const aimed = new Vector3((((point.x * 2 - 1) - m[8]) / m[0]) * seen, (((1 - point.y * 2) - m[9]) / m[5]) * seen, seen);
       const view = this.camera.getViewMatrix();
       const aimedWorld = Vector3.TransformCoordinates(aimed, view.clone().invert());
 
-      // Vitesse : traînée du sujet visé.
+      // Vitesse : traînée du sujet visé, à sa position (ses yeux, comme le bulletin), par la fonction du bulletin.
       const movers = this.time.movers();
       let mover = target?.id ? movers.find((mv) => mv.id === target.id) : undefined;
       if (!mover) {
@@ -152,19 +162,29 @@ export class BalanceIndicator {
       let motionText: string;
       const shutterText = s.labels.shutter;
       if (mover) {
-        const v = Vector3.TransformNormal(mover.velocity, view);
-        const dx = ((f * (v.x * aimed.z - aimed.x * v.z)) / (aimed.z * aimed.z)) * tSec;
-        const dy = ((f * (v.y * aimed.z - aimed.y * v.z)) / (aimed.z * aimed.z)) * tSec;
-        const trail = Math.hypot(dx, dy);
-        const ratio = trail / blurLimit;
+        const id = mover.id;
+        const eyes = this.subjects.find((subject) => subject.id === id)?.eyes();
+        const measure = measureThing(
+          { id: mover.id, points: eyes && eyes.length > 0 ? eyes : [mover.position], velocity: mover.velocity },
+          {
+            view,
+            focalMm: f,
+            aperture: N,
+            shutterSeconds: tSec,
+            focusDistance: S1,
+            sensorWidthMm: body.sensorWidthMm,
+            sensorHeightMm: body.sensorHeightMm,
+            portrait: s.frame.portrait,
+          },
+        );
+        const ratio = measure.trailMm / blurLimit;
         const who = tr(mover.id === "jim" ? "balanceDog" : "balanceWalker");
-        const pixels = (trail * PHOTO_LONG_SIDE) / body.sensorWidthMm;
+        const pixels = measure.trailPx;
         const pixelText = `${this.decimal(pixels, pixels < 10 ? 1 : 0)} ${tr("balancePixels")}`;
-        motion = ratio <= 1 ? "ok" : "bad";
-        motionText =
-          ratio <= 1
-            ? `${shutterText} · ${who} : ${tr("balanceSharp")} (${pixelText})`
-            : `${shutterText} · ${who} : ${tr("balanceTrail")} ${this.decimal(ratio, 1)} ${tr("balanceTimesLimit")} (${pixelText})`;
+        motion = measure.frozen ? "ok" : "bad";
+        motionText = measure.frozen
+          ? `${shutterText} · ${who} : ${tr("balanceSharp")} (${pixelText})`
+          : `${shutterText} · ${who} : ${tr("balanceTrail")} ${this.decimal(ratio, 1)} ${tr("balanceTimesLimit")} (${pixelText})`;
       } else {
         motionText = `${shutterText} · ${tr("balanceStill")}`;
       }
