@@ -12,6 +12,12 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.68] - 2026-11-19
+
+Sujet 8 du plan de corrections de l'audit (`docs/audit/README.md`) : fiches de mise au point, des exercices et des recettes jouables à la lettre. Constats FMA-16, FMA-01, FMA-11, FMA-22, FMA-03, FMA-02, FMA-08 et FMA-17. En cours.
+
+Fin de la version 0.3.67, relevée par sa session : tâche « Sujet 7 : relance automatique toutes les heures » supprimée, liste des tâches programmées vide vers 10 h 04 UTC, surveillance de la pull request 74 arrêtée. Mesure de l'outil qui décrit la session, vers 10 h 03 UTC : 192 144 jetons de sortie, 7 262 d'entrée, 45 995 328 lus du cache, 2 991 820 écrits au cache, 28,61 dollars affichés ; six agents (mise en œuvre 186 698 jetons, deux relecteurs 198 045 et 173 678, correction 175 664, contrôle final 157 769, d'après leurs notifications de fin ; la session ne sait pas si le compte ci-dessus les inclut) ; tranche de 5 heures au statut « allowed ». La session de la version 0.3.68 est à la profondeur 8 sur 8 : la pose de sa relance horaire a été refusée par l'outil.
+
 ## [0.3.67] - 2026-11-19
 
 Sujet 7 du plan de corrections de l'audit (`docs/audit/README.md`) : des exercices d'exposition jouables à la lettre. Constats FEX-02, FEX-01, FEX-05, FEX-06, FEX-13, FMA-13 et FEX-17 ; s'y fond le Sujet 20 (FEX-16, D5 tranchée : « f/5.6 »). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. Choix de Claude : `docs/propositions.md`, section 5, « Fiches d'exposition ».
@@ -1248,6 +1254,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.68]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.67...v0.3.68
 [0.3.67]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.66...v0.3.67
 [0.3.66]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.65...v0.3.66
 [0.3.65]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.64...v0.3.65
