@@ -12,6 +12,38 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.66] - 2026-11-19
+
+Sujet 6 du plan de corrections de l'audit (`docs/audit/README.md`) : la mise au point qui suit le chien de SIT-06. Constats FMA-23 et FMA-19 (`docs/audit/fiches-mise-au-point.md`), confirmés par leur contre-vérification, dont la correction est reprise. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente.
+
+### Corrigé
+
+- Carte de profondeur du viseur en retard d'une pose (FMA-23, cause 2) : les squelettes sont préparés avant son rendu (`app/src/camera/autofocus.ts`).
+- Œil du chien perdu quand son pixel tombe à côté de la tête (FMA-23, cause 1) : la détection lit 3 × 3 pixels autour de l'œil et retient la surface la plus proche de lui ; la distance de mise au point est celle de cette surface (`app/src/camera/faces.ts`).
+
+### Modifié
+
+- Fiche SIT-06 (FMA-19) : la recette dit que la mise au point suit le chien tant que sa tête est visible et dans la zone couverte par l'autofocus ; la section « Défi » dit que le défi ne juge pas si le chien est caché.
+- `docs/camera-physique.md` : la détection sur 3 × 3 pixels, les deux causes de FMA-23 et leur correction, les points des yeux du chien gardés, le saut de la mise au point quand la tête du chien est cachée ou hors de la zone couverte (l. 385, 388 et 403 de l'ancienne page, relues comme le demandait le plan).
+- `docs/propositions.md` : choix 1 à 6 de ce sujet.
+
+### Ajouté
+
+- Routine de test, contrôle « détection des animaux : le chien à découvert n'est pas lâché (FMA-23) » : l'appareil tourné vers la partie de la course du chien qu'aucun personnage ne cache, l'indicateur de mise au point noté pendant 60 s ; une perte est une courte série « sujet le plus proche » entre deux séries « œil » ou « visage » ; une perte tolérée (choix 4).
+
+Mesures (script hors du dépôt, serveur de développement pour l'accès `__tutophoto`, Chromium sans écran en rendu logiciel, fenêtre de 1280 × 800, 50 mm, AF-C, zone automatique, détection des animaux, appareil tourné de 0,6 rad vers la droite, où le groupe ne cache pas le chien ; « à découvert » : œil à plus de 2,2 m à droite de l'axe et entre 22 % et 78 % de la largeur du canevas, donc dans la zone couverte) :
+
+| Mesure | `main` (0.3.65) | Cette version |
+| --- | --- | --- |
+| Horloge libre, 180 s (environ 3,3 images par seconde ; l'horloge avance de 0,1 s par image) : images où le chien est détecté, sur celles où son œil est à découvert | 46 sur 86 ; 13 pertes en 57 s d'horloge | 96 sur 96 ; aucune perte en 60 s |
+| Horloge figée, 150 instants espacés de 0,04 s : instants où le chien est détecté | 15 sur 28 | 28 sur 28 |
+
+Une première série, avec un critère « à découvert » trop large (de 12 % à 88 % de la largeur du canevas), comptait des instants où l'œil était dans le bord du cadre que l'autofocus ne couvre pas : regardés à part (horloge figée à 1,90 s et 3,38 s), l'œil y est à 15 % de la largeur du canevas, le cadre commence à 14,5 % ; ces pertes-là sont celles de MAP-06, voulues. Sur `main`, les pertes à horloge figée (13 sur 28) sont plus nombreuses que celles mesurées par la contre-vérification de l'audit (3 sur 110, appareil face à la scène) : Je ne sais pas d'où vient l'écart (cadrage, taille du canevas, ou part du retard d'une image qui subsisterait à horloge figée). Rien n'est mesuré sur un téléphone, avec un processeur graphique, ni le coût du second calcul des os.
+
+Relecture : un relecteur (code, routine, fiche et documents), dix constats, contre-vérifiés par la session dans le code avant correction. Corrigés : le retour de l'appareil à son lacet de départ, par glissés de longueur fixe, pouvait osciller autour d'une fenêtre de 0,06 rad sans y entrer (glissés désormais proportionnels à l'écart) ; l'attente de l'arrêt de la caméra relisait la vue de dessus plus vite qu'elle ne se redessine (250 ms ; relecture toutes les 600 ms) ; un faux vert possible du contrôle, un chien vu un instant à l'entrée de chaque passage puis perdu ne comptant aucune perte (garde ajoutée : la plus longue série « vu » doit faire au moins 0,15 fois la plus longue série « perdu ») ; le commentaire du lacet (le bord du cadre coupe la course du chien vers x ≈ 1,9 m à 0,55 rad) ; les os préparés aussi pendant le calcul d'une photo, où la carte du viseur n'est pas rendue (plus rien pendant ce calcul) ; le revers de la lecture 3 × 3, écrit dans `faces.ts` et `docs/camera-physique.md` (un œil dont le pixel est caché mais dont un voisin montre la tête est vu) ; la fiche, qui disait « tant que sa tête est visible » et « le sujet le plus proche du cadre » là où le code juge un œil et la zone couverte, et qui présentait le saut de la mise au point comme celui du boîtier : elle cite désormais le manuel du Z 6 (le visage de l'animal quand ses yeux ne sont pas détectés, réglage a4), source ajoutée à `used_in` de `nikon-z6-a4` ; l'origine des 7,4 m du choix 5, calculée. CI du commit a3df28e : le profil Android échoue au retour de l'appareil à son lacet de départ (resté à 0,552 rad), la détection ayant réussi (trois passages, aucune perte) ; cause vérifiée sur un Pixel 7 émulé : un glissé commencé à 60 px à droite du centre tombe sur la carte de la vue de dessus, dépliée pour lire le lacet. Les glissés partent désormais du centre du cadre, avec un gain de 400 px par radian (120 px y tournent l'appareil de 0,30 rad, contre 0,10 à 0,14 rad sur un écran de 1280 × 800). Laissés : des entrées et sorties de la zone couverte qui clignoteraient au galop compteraient comme pertes (faux rouge possible ; la CI le dira) ; les mesures faites par un script hors du dépôt.
+
+Essais de la CI (routine `--photo`, un job par profil, `routine.yml`) sur le commit e4ff793 : ordinateur, Android, iPhone et WebGL 1 réussis, « 0 échec(s) » chacun ; contrôles requis (`validate`, `confidentialite`, `app`, `description`) verts. Ces essais émulent la taille et la densité de l'écran et l'identification du navigateur, pas le processeur graphique ni le moteur de Safari ; les profils mobiles déclarent un écran tactile, mais aucun geste de la routine n'est un toucher. `python3 scripts/validate.py`, `npm run build`, `python3 scripts/changelog.py check --base origin/main` et `python3 scripts/check_public.py --commits all` : réussis.
+
 ## [0.3.65] - 2026-11-19
 
 Sujet 5 du plan de corrections de l'audit (`docs/audit/README.md`) : les pages de reprise. Constats, confirmés par leur contre-vérification : CHX-10 et CHX-01 (`docs/audit/choix-et-outils.md`), DOC-06 et la ligne de DOC-12 sur `docs/questions-ouvertes.md` (`docs/audit/documentation.md`) ; s'y ajoutent les lignes que les contre-vérifications renvoient à cette réécriture : la phrase sur les commits « non signés » (DOC-03, réfuté comme constat), l'accord de Renderpeople tourné en question (D35), les deux derniers points de DOC-12, et la phrase sur SunCalc (SRC-02). Seuls des documents changent ; le simulateur ne change pas. Choix de Claude : `docs/propositions.md`, section 5, « Pages de reprise ». Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente.
@@ -1196,6 +1228,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.66]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.65...v0.3.66
 [0.3.65]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.64...v0.3.65
 [0.3.64]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.63...v0.3.64
 [0.3.63]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.62...v0.3.63

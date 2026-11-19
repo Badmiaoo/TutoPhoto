@@ -125,6 +125,22 @@ export class Autofocus {
     map.wrapV = Constants.TEXTURE_CLAMP_ADDRESSMODE;
     this.applyRefreshRate();
     scene.customRenderTargets.push(map);
+    // Squelettes à la pose de l'image avant la carte de profondeur du viseur (constat FMA-23 de l'audit, version
+    // 0.3.66). Babylon.js 9.35.0 rend les cibles de scene.customRenderTargets, dont cette carte, avant de choisir
+    // les maillages de l'image, où il recalcule les os (Scene.render, puis _evaluateActiveMeshes) : sans cela,
+    // la carte montrait Sophia, le promeneur et le chien à leur place du moment, mais dans la pose de l'image
+    // précédente, et la détection cherchait l'œil du chien sur une tête décalée d'une image. La carte de la
+    // photo (camera/photo.ts, scene.enableDepthRenderer) est rendue après ce choix : elle n'avait pas ce retard.
+    // L'observable est appelé deux fois par image (avant ces cibles, puis avant celles de la caméra) : seul le
+    // premier appel compte, et rien pendant le calcul d'une photo, où la carte du viseur n'est pas rendue. Coût :
+    // Babylon.js recalcule les os une seconde fois dans l'image (le report des nœuds animés sur les os les marque
+    // modifiés) ; il n'est pas mesuré.
+    let preparedFrame = -1;
+    scene.onBeforeRenderTargetsRenderObservable.add(() => {
+      if (this.suspended || scene.getFrameId() === preparedFrame) return;
+      preparedFrame = scene.getFrameId();
+      for (const skeleton of scene.skeletons) skeleton.prepare(true);
+    });
     const engine = scene.getEngine();
     engine.onResizeObservable.add(() => {
       const width = engine.getRenderWidth();
@@ -298,7 +314,7 @@ export class Autofocus {
       this.touchedWithoutFace = false;
     }
     const faces = await detectFaces(this.subjects, this.camera.getViewMatrix(), this.camera.getProjectionMatrix(), this.camera.minZ, view, (p) =>
-      this.depthAt(p),
+      this.depthsAround(p),
     );
     const reselect = this.reselect;
     this.reselect = false;
@@ -307,8 +323,7 @@ export class Autofocus {
     this.selectedId = face?.id ?? null;
     if (face) {
       this.touchedWithoutFace = false;
-      const distance = await this.depthAt(face.point);
-      if (distance === null) return null;
+      const distance = face.distance;
       // Repère autour de l'œil (0,8 écart des yeux) ou du visage (2,5 écarts) : tailles choisies pour l'affichage.
       return {
         distance,
@@ -328,6 +343,35 @@ export class Autofocus {
   private async depthAt(point: CanvasPoint): Promise<number | null> {
     const found = await this.nearestIn({ left: point.x, right: point.x, top: point.y, bottom: point.y });
     return found?.distance ?? null;
+  }
+
+  /**
+   * Valeurs brutes de la carte (z dans le repère de la caméra, en mètres) sur les 3 × 3 pixels centrés sur le
+   * point du canevas, rognés au bord de la carte, pour la détection des yeux (camera/faces.ts). Null si la
+   * lecture échoue.
+   */
+  private async depthsAround(point: CanvasPoint): Promise<number[] | null> {
+    const map = this.depthMap();
+    const { width: W, height: H } = map.getSize();
+    if (!W || !H) return null;
+    const cx = Math.min(W - 1, Math.max(0, Math.round(point.x * (W - 1))));
+    const cy = Math.min(H - 1, Math.max(0, Math.round((1 - point.y) * (H - 1))));
+    const x0 = Math.max(0, cx - 1);
+    const y0 = Math.max(0, cy - 1);
+    const w = Math.min(W - 1, cx + 1) - x0 + 1;
+    const h = Math.min(H - 1, cy + 1) - y0 + 1;
+    if (this.pixels.length !== w * h * 4) this.pixels = new Float32Array(w * h * 4);
+    try {
+      await map.readPixels(0, 0, this.pixels, true, false, x0, y0, w, h);
+    } catch {
+      return null;
+    }
+    const values: number[] = [];
+    for (let i = 0; i < w * h; i++) {
+      const z = this.pixels[i * 4];
+      if (z > this.camera.minZ) values.push(z);
+    }
+    return values;
   }
 
   /**

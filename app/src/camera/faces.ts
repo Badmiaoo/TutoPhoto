@@ -12,9 +12,13 @@
 //
 // Simulation (le manuel ne donne ni seuils ni règle de choix ; valeurs choisies pour TutoPhoto) :
 // - un œil est vu s'il est dans la zone couverte par l'autofocus (MAP-06, ui/cameraPanel.ts) et si la carte
-//   de profondeur, à son pixel, montre une surface à moins de 4 cm de l'œil : ni obstacle devant (nez, autre
-//   personne), ni fond derrière quand le pixel tombe à côté de l'œil (le centre de l'œil d'un squelette est
-//   environ 1 cm derrière la surface) ;
+//   de profondeur, sur les 3 × 3 pixels centrés sur le sien, montre une surface à moins de 4 cm de l'œil : ni
+//   obstacle devant (nez, autre personne), ni fond derrière seulement (le centre de l'œil d'un squelette est
+//   environ 1 cm derrière la surface). On retient, des neuf pixels, la surface la plus proche de l'œil : vu de
+//   profil, l'œil du chien est sur le contour de sa tête, large d'un ou deux pixels, et son propre pixel tombe
+//   parfois sur le fond (constat FMA-23 de l'audit, version 0.3.66). Revers : un œil dont le pixel est caché
+//   par un obstacle, mais dont un pixel voisin montre la tête, est vu (un pixel fait environ 7 mm à 9 m sur un
+//   canevas de 1000 px au 50 mm, davantage sur un écran plus petit) ;
 // - taille du visage : écart entre les yeux, rapporté au grand côté du cadre, sans la loupe ; visage
 //   détecté de 0,4 % à 25 %, yeux détectés à partir de 0,8 % ;
 // - œil retenu : le plus proche de l'appareil parmi les yeux vus.
@@ -47,6 +51,12 @@ export interface DetectedFace {
   target: "eye" | "face";
   /** Point de mise au point : l'œil retenu, ou le milieu des yeux vus. */
   point: CanvasPoint;
+  /**
+   * Distance de mise au point (z dans le repère de la caméra, en mètres) : la surface retenue près de l'œil, ou
+   * la moyenne de celles des yeux vus pour le visage. Lue au pixel du point seul, elle tomberait sur le fond
+   * quand ce pixel est à côté de la tête.
+   */
+  distance: number;
   /** Écart entre les yeux dans le canevas, en fraction de sa largeur (taille du repère). */
   spacing: number;
 }
@@ -69,8 +79,9 @@ const FACE_MAX = 0.25;
 const EYES_MIN = 0.008;
 
 /**
- * Visages détectés. depthAt lit la carte de profondeur du viseur (z dans le repère de la caméra, en mètres)
- * au point du canevas donné ; null si la lecture échoue.
+ * Visages détectés. depthsAround lit la carte de profondeur du viseur (z dans le repère de la caméra, en
+ * mètres) sur les 3 × 3 pixels centrés sur le point du canevas donné (moins au bord de la carte) ; null si la
+ * lecture échoue.
  */
 export async function detectFaces(
   subjects: readonly FaceSubject[],
@@ -78,7 +89,7 @@ export async function detectFaces(
   projection: Matrix,
   minZ: number,
   settings: DetectionView,
-  depthAt: (point: CanvasPoint) => Promise<number | null>,
+  depthsAround: (point: CanvasPoint) => Promise<number[] | null>,
 ): Promise<DetectedFace[]> {
   if (settings.detection === "off") return [];
   const kind: SubjectKind = settings.detection === "animal" ? "animal" : "human";
@@ -88,7 +99,7 @@ export async function detectFaces(
   const found: DetectedFace[] = [];
   for (const subject of subjects) {
     if (subject.kind !== kind) continue;
-    const seen: { point: CanvasPoint; z: number }[] = [];
+    const seen: { point: CanvasPoint; z: number; surface: number }[] = [];
     let zSum = 0;
     let zCount = 0;
     for (const world of subject.eyes()) {
@@ -100,9 +111,14 @@ export async function detectFaces(
       const point = { x: (clip.x + 1) / 2, y: (1 - clip.y) / 2 };
       const f = settings.frame;
       if (point.x < f.left || point.x > f.right || point.y < f.top || point.y > f.bottom) continue;
-      const surface = await depthAt(point);
+      const surfaces = await depthsAround(point);
+      if (!surfaces) continue;
+      let surface: number | null = null;
+      for (const z of surfaces) {
+        if (Number.isFinite(z) && (surface === null || Math.abs(z - eye.z) < Math.abs(surface - eye.z))) surface = z;
+      }
       if (surface === null || Math.abs(surface - eye.z) > OCCLUSION_TOLERANCE_M) continue;
-      seen.push({ point, z: eye.z });
+      seen.push({ point, z: eye.z, surface });
     }
     if (seen.length === 0 || zCount === 0) continue;
     // Taille : écart réel des yeux projeté, sans la loupe, rapporté au grand côté du cadre.
@@ -114,7 +130,8 @@ export async function detectFaces(
     const point = eyes
       ? nearest.point
       : { x: seen.reduce((s, e) => s + e.point.x, 0) / seen.length, y: seen.reduce((s, e) => s + e.point.y, 0) / seen.length };
-    found.push({ id: subject.id, target: eyes ? "eye" : "face", point, spacing: spacingPx / settings.canvasWidth });
+    const distance = eyes ? nearest.surface : seen.reduce((s, e) => s + e.surface, 0) / seen.length;
+    found.push({ id: subject.id, target: eyes ? "eye" : "face", point, distance, spacing: spacingPx / settings.canvasWidth });
   }
   return found;
 }

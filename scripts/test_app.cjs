@@ -80,7 +80,9 @@
 //   chargement, avant tout réglage de la mise au point (constat INT-05 de l'audit, version 0.3.64) ; en fin de
 //   test, parce que la vue change : retour à AF-S et point sélectif par la fenêtre « Mise au point » ; en zone
 //   automatique, un œil est détecté dans le groupe ; détection coupée, l'appareil prend le
-//   sujet le plus proche ; en détection des animaux, l'œil du chien est détecté quand il passe (au plus 30 s) ;
+//   sujet le plus proche ; en détection des animaux, l'œil du chien est détecté quand il passe (au plus 30 s), puis,
+//   l'appareil tourné vers la partie de sa course qu'aucun personnage ne cache, il n'est pas lâché à découvert
+//   (FMA-23, version 0.3.66 ; une perte tolérée en 60 s) ;
 //   en AF-S, toucher le bas du cadre verrouille la distance ; au même endroit, la zone large (L)
 //   retient un sujet plus proche (le sol en bas du cadre) ; la distance ne bouge plus quand on relève
 //   l'appareil (et, avec --photo, la photo la garde) ; repassé en AF-C, la distance suit la zone ;
@@ -1274,6 +1276,99 @@ async function runProfile(browser, name, base) {
       /1\/4000 s · chien : net/.test(dogMotion ?? "") && Boolean(dogPixels) && Number(dogPixels[1].replace(",", ".")) < 1,
       dogMotion ?? "chien non visé",
     );
+    // Suivi du chien à découvert (FMA-23, version 0.3.66). L'appareil tourne vers la droite jusqu'à ce que le cadre
+    // ne montre que la partie de la course du chien qu'aucun personnage ne cache (lacet de 0,55 à 0,7 rad, lu sur la
+    // vue de dessus : au 50 mm, le bord gauche du cadre coupe la course du chien vers x ≈ 1,9 m à 0,55 rad et
+    // x ≈ 2,7 m à 0,7 rad, et le groupe, à 6,5 m, ne le cache qu'en deçà de x ≈ 1,45 m). L'indicateur est noté à chaque changement, avec l'heure, pendant 60 s. Le chien y passe
+    // en séries de lectures « œil » ou « visage », séparées par de longues séries « sujet le plus proche » quand il
+    // est hors du cadre (environ 4,4 s d'horloge de la scène, contre 1,3 s dans le cadre). Une perte du chien à
+    // découvert est une série « sujet le plus proche » entre deux séries « œil » ou « visage », plus courte que la
+    // plus longue série « œil » ou « visage » : à cadence constante, une sortie du cadre dure plus de trois fois plus
+    // longtemps. Mesuré hors de la routine (serveur de développement, rendu logiciel, environ 3,3 images par seconde,
+    // même lacet de 0,6 rad) : avant la correction, 13 pertes en 57 s d'horloge de la scène, et le chien détecté sur
+    // 46 des 86 images où son œil était à découvert et dans la zone couverte ; après, aucune perte en 60 s, 96 sur 96
+    // (CHANGELOG.md, section 0.3.66). Le contrôle tolère une perte.
+    // L'appareil est ramené ensuite à son lacet de départ.
+    {
+      const topClosed = !(await page.locator("#top-view-map").isVisible());
+      if (topClosed) await page.click("#top-view-toggle");
+      const readYaw = () =>
+        page.evaluate(() => {
+          const points = document.querySelector("#top-view-map .top-camera polygon")?.getAttribute("points");
+          if (!points) return NaN;
+          const [nose, left, right] = points.split(" ").map((point) => point.split(",").map(Number));
+          return Math.atan2(nose[0] - (left[0] + right[0]) / 2, -(nose[1] - (left[1] + right[1]) / 2));
+        });
+      const box = await page.locator("#frame").boundingBox();
+      // Glissés vers la droite (lacet croissant) ou vers la gauche, de longueur proportionnelle à l'écart qui reste
+      // jusqu'au milieu de la fenêtre : 400 px par radian, au moins 8 px (au-delà du seuil d'un toucher, 6 px), au plus
+      // 120 px. Un glissé de 120 px tourne l'appareil de 0,10 à 0,14 rad sur un écran de 1280 × 800 (contrôle d'après
+      // la rafale) et de 0,30 rad sur un Pixel 7 émulé (mesuré hors de la routine) : à 400 px par radian, chaque glissé
+      // reprend de 40 % à 100 % de l'écart, sans le dépasser.
+      const turnTo = async (low, high) => {
+        let current = await readYaw();
+        for (let i = 0; i < 30 && Number.isFinite(current) && !(current >= low && current <= high); i++) {
+          const error = (low + high) / 2 - current;
+          const length = Math.min(120, Math.max(8, Math.round(Math.abs(error) * 400)));
+          const step = Math.sign(error);
+          // Départ au centre du cadre, comme le glissé du contrôle d'après la rafale : sur le profil Android, un départ à
+          // 60 px à droite du centre tombe sur la carte de la vue de dessus, dépliée pour lire le lacet, et le glissé ne
+          // tourne pas l'appareil (CI du commit a3df28e ; vérifié hors de la routine sur un Pixel 7 émulé).
+          const cx = box.x + box.width / 2;
+          const cy = box.y + box.height / 2;
+          await page.mouse.move(cx, cy);
+          await page.mouse.down();
+          for (let k = 1; k <= 6; k++) await page.mouse.move(cx + (step * length * k) / 6, cy);
+          await page.mouse.up();
+          // La caméra tourne image par image (inertie, éteinte en une seconde environ) et la vue de dessus se
+          // redessine toutes les 250 ms : relire toutes les 600 ms jusqu'à deux lectures égales.
+          let previous = NaN;
+          for (let k = 0; k < 20 && !(Math.abs(current - previous) < 1e-4); k++) {
+            await page.waitForTimeout(600);
+            previous = current;
+            current = await readYaw();
+          }
+        }
+        return current;
+      };
+      const yawStart = await readYaw();
+      const yawDog = await turnTo(0.55, 0.7);
+      await page.evaluate(() => {
+        window.routineBadges = [];
+        const badge = document.getElementById("af-badge");
+        const note = () => window.routineBadges.push({ at: performance.now(), text: badge.textContent });
+        note();
+        window.routineBadgeObserver = new MutationObserver(note);
+        window.routineBadgeObserver.observe(badge, { childList: true, characterData: true, subtree: true });
+      });
+      await page.waitForTimeout(60000);
+      const badges = await page.evaluate(() => {
+        window.routineBadgeObserver.disconnect();
+        return window.routineBadges;
+      });
+      // Séries : [vu, durée en ms], la dernière, en cours, exclue.
+      const runs = [];
+      for (let i = 0; i + 1 < badges.length; i++) {
+        const seen = /· (œil|visage) ·/.test(badges[i].text);
+        const duration = badges[i + 1].at - badges[i].at;
+        if (runs.length && runs[runs.length - 1][0] === seen) runs[runs.length - 1][1] += duration;
+        else runs.push([seen, duration]);
+      }
+      const longestSeen = Math.max(0, ...runs.filter((r) => r[0]).map((r) => r[1]));
+      const passes = runs.filter((r) => r[0]).length;
+      const losses = runs.filter((r, i) => !r[0] && i > 0 && i + 1 < runs.length && r[1] < longestSeen).length;
+      // Garde contre un faux vert : un chien vu un instant à l'entrée de chaque passage, puis perdu jusqu'à la sortie,
+      // ne compte aucune perte. Dans le cadre pendant environ 1,7 s d'horloge sur un aller-retour de 5,7 s, il doit être
+      // vu, dans la plus longue série, au moins 0,15 fois la plus longue série « perdu » (environ 0,4 attendu).
+      const longestLost = Math.max(0, ...runs.filter((r) => !r[0]).map((r) => r[1]));
+      const yawBack = await turnTo(yawStart - 0.03, yawStart + 0.03);
+      if (topClosed) await page.click("#top-view-toggle");
+      check(
+        "détection des animaux : le chien à découvert n'est pas lâché (FMA-23)",
+        yawDog >= 0.55 && yawDog <= 0.7 && passes >= 2 && losses <= 1 && longestSeen >= 0.15 * longestLost && Math.abs(yawBack - yawStart) <= 0.03,
+        `lacet ${yawDog.toFixed(3)} rad ; ${passes} série(s) « œil » ou « visage », la plus longue de ${(longestSeen / 1000).toFixed(1)} s (plus longue série « perdu » : ${(longestLost / 1000).toFixed(1)} s) ; ${losses} perte(s) à découvert ; séries : ${runs.map((r) => `${r[0] ? "vu" : "perdu"} ${(r[1] / 1000).toFixed(1)} s`).join(", ")} ; lacet ramené à ${yawBack.toFixed(3)} rad (départ ${yawStart.toFixed(3)})`,
+      );
+    }
     await setAf("continuous", "auto", "faceEye");
     await setAf("single", "point");
     const frameBox = await page.locator("#frame").boundingBox();
