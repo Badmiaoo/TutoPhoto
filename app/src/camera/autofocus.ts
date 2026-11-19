@@ -339,6 +339,26 @@ export class Autofocus {
     return nearest ? { distance: nearest.distance, target: { kind: "nearest", point: nearest.at, size: 0 } } : null;
   }
 
+  /**
+   * Profondeur (z de la caméra, en mètres) de ce qui est vu au point du canevas, lue dans une image de la carte du
+   * viseur rendue après la demande, après les mesures en cours ; pour l'indicateur d'équilibre (ui/balance.ts,
+   * constat PHY-17). Null pendant le calcul d'une photo ou si la lecture échoue.
+   */
+  depthUnder(point: CanvasPoint): Promise<number | null> {
+    const reading = this.queue.then(async () => {
+      if (this.suspended) return null;
+      this.depthMap().resetRefreshCounter();
+      const rendered = await this.nextRender();
+      if (!rendered || this.suspended) return null;
+      return this.depthAt(point);
+    });
+    this.queue = reading.then(
+      () => undefined,
+      (error: unknown) => console.error(error),
+    );
+    return reading.catch(() => null);
+  }
+
   /** Distance au point donné du canevas ; sur le fond à 360°, distance du plan du sol le long du rayon. */
   private async depthAt(point: CanvasPoint): Promise<number | null> {
     const found = await this.nearestIn({ left: point.x, right: point.x, top: point.y, bottom: point.y });

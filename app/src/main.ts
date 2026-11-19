@@ -292,6 +292,7 @@ if (!Engine.isSupported()) {
     time,
     autofocus,
     panel,
+    subjects,
     {
       root: element("balance"),
       toggle: element<HTMLButtonElement>("balance-toggle"),
@@ -313,6 +314,7 @@ if (!Engine.isSupported()) {
     eye,
     autofocus,
     panel,
+    subjects,
     {
       root: element("top-view"),
       toggle: element<HTMLButtonElement>("top-view-toggle"),

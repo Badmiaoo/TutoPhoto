@@ -8,8 +8,8 @@ Les quatre leviers se lisent dans la formule de la zone nette (q = c × N × (S 
 
 ## Simulateur
 
-La profondeur de champ se voit dans le viseur (aperçu réglable), sur la photo calculée, et dans la vue de dessus, qui dessine la zone nette entre deux plans perpendiculaires à l'axe et cercle de vert les sujets qui y sont. L'indicateur d'équilibre et le bulletin donnent les limites en mètres.
+La profondeur de champ se voit dans le viseur (aperçu réglable), sur la photo calculée, et dans la vue de dessus, qui dessine la zone nette entre deux plans perpendiculaires à l'axe et cercle de vert les sujets qui y sont. Comme le bulletin de la photo, elle juge les yeux des personnages et du chien, pas leur position au sol : les yeux sont jusqu'à 20 cm plus près de l'appareil, si bien qu'un cercle peut rester gris alors que son centre est dans la bande verte ; le cercle commun à Fabienne et Percy est vert si les deux y sont. L'indicateur d'équilibre et le bulletin donnent les limites en mètres.
 
 ## Exercice
 
-Flouter le fond sans changer d'ouverture. À f/4 et au 50 mm, fais le point sur l'œil de Sophia : la zone nette va de 5,1 m à 9,5 m, et le chien qui passe derrière elle peut y être. Sans toucher à l'ouverture, passe au 135 mm : la zone nette se réduit à 6,3–6,9 m. Réussis ainsi le défi SIT-01.
+Flouter le fond sans changer d'ouverture. À f/4 et au 50 mm, fais le point sur l'œil de Sophia : la zone nette va de 5,0 m à 9,3 m, et le chien qui passe derrière elle peut y être. Sans toucher à l'ouverture, passe au 135 mm : la zone nette se réduit à 6,3–6,8 m (chiffres du simulateur : la mise au point, sur l'œil, est vers 6,55 m, affichée 6,6 m ; l'exemple du 135 mm plus haut est calculé à 6,6 m tout rond). Réussis ainsi le défi SIT-01.
