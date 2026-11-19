@@ -12,6 +12,12 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.69] - 2026-11-19
+
+Sujet 9 du plan de corrections de l'audit (`docs/audit/README.md`) : la vue de dessus et l'indicateur d'équilibre jugent les mêmes points que le bulletin. Constats FMA-12 et PHY-17. En cours.
+
+Fin de la version 0.3.68, relevée par sa session, qui porte aussi le Sujet 9 : pull request 75 fusionnée vers 17 h 45 UTC, commit de fusion f9691fb ; tag annoté `v0.3.68` relu par `git ls-remote` à 17 h 45 min 59 s UTC (objet cbc879c, sur f9691fb) ; publication sur GitHub Pages réussie (exécution 65, relue dans la liste des exécutions ; le site publié n'a pas été regardé) ; surveillance de la pull request 75 arrêtée. CI du dernier commit, c1fcacc : validate, confidentialite, app et description verts ; routine verte sur ses quatre profils (ordinateur 31 min, Android 18 min, iPhone 17 min, WebGL 1 27 min). Mesure de l'outil qui décrit la session, vers 17 h 47 UTC : 297 409 jetons de sortie, 7 665 d'entrée, 68 920 917 lus du cache, 8 532 285 écrits au cache, 64,25 dollars affichés ; la session ne sait pas si ce compte inclut ses cinq agents ; limite de sept jours au statut « allowed_warning ». Création de la session suivante essayée une fois, refusée : « this session is at lineage depth 8 (limit 8), so it cannot start sessions, or create, fire or re-arm routines and reminders ». Le Sujet 9 continue donc dans la même session, sans relance automatique.
+
 ## [0.3.68] - 2026-11-19
 
 Sujet 8 du plan de corrections de l'audit (`docs/audit/README.md`) : fiches de mise au point, des exercices et des recettes jouables à la lettre. Constats FMA-16, FMA-01, FMA-11, FMA-22, FMA-03, FMA-02, FMA-08 et FMA-17. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. Choix de Claude : `docs/propositions.md`, section 5, « Fiches de mise au point ».
@@ -1279,6 +1285,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.69]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.68...v0.3.69
 [0.3.68]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.67...v0.3.68
 [0.3.67]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.66...v0.3.67
 [0.3.66]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.65...v0.3.66
