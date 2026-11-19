@@ -12,6 +12,19 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.66] - 2026-11-19
+
+Sujet 6 du plan de corrections de l'audit (`docs/audit/README.md`) : la mise au point qui suit le chien de SIT-06. Constats FMA-23 et FMA-19 (`docs/audit/fiches-mise-au-point.md`), confirmés par leur contre-vérification, dont la correction est reprise. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. En cours d'écriture.
+
+### Corrigé
+
+- Carte de profondeur du viseur en retard d'une pose (FMA-23, cause 2) : les squelettes sont préparés avant son rendu (`app/src/camera/autofocus.ts`).
+- Œil du chien perdu quand son pixel tombe à côté de la tête (FMA-23, cause 1) : la détection lit 3 × 3 pixels autour de l'œil et retient la surface la plus proche de lui ; la distance de mise au point est celle de cette surface (`app/src/camera/faces.ts`).
+
+### Modifié
+
+- Fiche SIT-06 (FMA-19) : la recette dit que la mise au point suit le chien tant que sa tête est visible et dans la zone couverte par l'autofocus ; la section « Défi » dit que le défi ne juge pas si le chien est caché.
+
 ## [0.3.65] - 2026-11-19
 
 Sujet 5 du plan de corrections de l'audit (`docs/audit/README.md`) : les pages de reprise. Constats, confirmés par leur contre-vérification : CHX-10 et CHX-01 (`docs/audit/choix-et-outils.md`), DOC-06 et la ligne de DOC-12 sur `docs/questions-ouvertes.md` (`docs/audit/documentation.md`) ; s'y ajoutent les lignes que les contre-vérifications renvoient à cette réécriture : la phrase sur les commits « non signés » (DOC-03, réfuté comme constat), l'accord de Renderpeople tourné en question (D35), les deux derniers points de DOC-12, et la phrase sur SunCalc (SRC-02). Seuls des documents changent ; le simulateur ne change pas. Choix de Claude : `docs/propositions.md`, section 5, « Pages de reprise ». Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente.
@@ -1196,6 +1209,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.66]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.65...v0.3.66
 [0.3.65]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.64...v0.3.65
 [0.3.64]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.63...v0.3.64
 [0.3.63]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.62...v0.3.63

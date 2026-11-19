@@ -8,11 +8,11 @@ Où va le reste (`CLAUDE.md`, « Quelle page pour quelle information ») : le r�
 
 État au 19 novembre 2026.
 
-- **En ligne : version 0.3.64**, fusionnée le 19 novembre 2026 (pull request 71, commit de fusion 96672b6, tag annoté `v0.3.64`, release publiée ; publication sur GitHub Pages réussie, le site publié n'a pas été regardé). Elle ne change que la routine de test, une phrase de `CLAUDE.md` et des documents.
+- **En ligne : version 0.3.65**, fusionnée le 19 novembre 2026 vers 3 h 41 UTC (pull request 72, commit de fusion 7d86b33, tag annoté `v0.3.65`, release publiée à 3 h 41 min 42 s UTC ; publication sur GitHub Pages réussie, relue dans la liste des exécutions des workflows ; le site publié n'a pas été regardé). Elle ne change que des documents : les pages de reprise.
 - **Le simulateur publié** est celui de la version 0.3.57 (histogrammes et hautes lumières sur l'écran de revue), avec : la version du site à l'écran, l'écran de revue et la fenêtre « Crédits » ouverts en haut (0.3.59) ; le français seul (0.3.60 et 0.3.61) ; quatre corrections de comportement (0.3.62 : l'indicateur d'exposition qui clignote garde les clics, un doigt qui glisse sur le déclencheur n'arrête plus la rafale, la loupe s'ouvre au point touché après « Photo entière », les zones écrêtées ne clignotent plus avec « réduire les animations ») ; trois corrections pendant le calcul d'une photo (0.3.63 : la caméra n'a plus de commandes, le viseur ne prend plus les touchers, l'indicateur d'équilibre garde sa dernière lecture). Essayé dans Chromium en rendu logiciel, sur des écrans émulés ; rien sur un vrai téléphone, avec un processeur graphique ni dans Safari.
-- **Sujet 5 du plan de corrections, version 0.3.65 : écrit et relu**, branche `sujet-5-pages-de-reprise`, pull request 72 : cette page réécrite, `docs/questions-ouvertes.md` réduite à ce qui est ouvert, la table de `CLAUDE.md` (D6), les citations de Julien et la table du 15 novembre dans `docs/historique.md`, les renvois des autres pages ; relecture par deux agents, 26 constats, 25 corrigés (`CHANGELOG.md`, section 0.3.65). Seuls des documents changent : la routine ne tourne pas sur cette pull request. La session la fusionne quand ses contrôles sont verts sur le dernier commit, supprime la tâche « Sujet 5 : relance automatique toutes les heures » et crée la session suivante. Si la pull request 72 est encore ouverte à la reprise, la finir ainsi (« Comment reprendre », point 2) ; sinon, vérifier le tag `v0.3.65` et la publication, puis prendre le Sujet 6.
+- **Sujet 6 du plan de corrections, version 0.3.66 : en cours**, branche `sujet-6-suivi-du-chien`. Fait : les squelettes préparés avant la carte de profondeur du viseur, la lecture de 3 × 3 pixels autour de l'œil, la fiche SIT-06. Reste : les mesures avant et après (rendu logiciel), le contrôle de la routine, `docs/camera-physique.md`, la relecture, la CI et ses quatre jobs de routine, puis la fusion. La tâche programmée « Sujet 6 : relance automatique toutes les heures » relance la session ; la session la supprime après la fusion et crée la session suivante.
 - **Audit du travail antérieur : fini** (version 0.3.58). Douze rapports sous `docs/audit/`, 186 constats, 160 confirmés et 26 réfutés. Synthèse et plan de corrections en 48 sujets : `docs/audit/README.md`. Julien a tranché le 15 novembre 2026 les décisions D1 à D14 (`docs/historique.md`, 15 novembre 2026) ; D15 à D37 attendent (« Décisions en attente », plus bas).
-- **Lignée des sessions** : la session de la version 0.3.65 a été créée par celle de la version 0.3.64 ; profondeur 5, limite 8 (champ `lineage` de l'outil qui décrit la session). Claude comprend qu'une chaîne de sessions créées l'une par l'autre ne dépasse pas la profondeur 8, sans l'avoir vérifié.
+- **Lignée des sessions** : la session du Sujet 6 a été créée par celle de la version 0.3.65 ; profondeur 6, limite 8 (champ `lineage` de l'outil qui décrit la session). Claude comprend qu'une chaîne de sessions créées l'une par l'autre ne dépasse pas la profondeur 8, sans l'avoir vérifié : il resterait deux créations (profondeurs 7 et 8). La session qui ne peut plus en créer le dit à Julien par une question (« Mandat en cours »).
 
 ## File de travail
 
@@ -29,8 +29,8 @@ Trois révisions restent à faire sur le plan, d'après les décisions du 15 nov
 | 2 | Quatre corrections d'une ligne, dont trois déjà essayées | Fait | 0.3.62 | |
 | 3 | Pendant le calcul d'une photo : caméra, toucher du viseur, indicateur d'équilibre | Fait | 0.3.63 | |
 | 4 | Routine de test : les contrôles qui disent vert à tort | Fait | 0.3.64 | |
-| 5 | Pages de reprise : un seul état, une table « Décisions en attente » | Fait, à la fusion de la pull request 72 | 0.3.65 | |
-| 6 | SIT-06 : la mise au point qui suit le chien | À faire | | |
+| 5 | Pages de reprise : un seul état, une table « Décisions en attente » | Fait | 0.3.65 | |
+| 6 | SIT-06 : la mise au point qui suit le chien | En cours | 0.3.66 | |
 | 7 | Fiches d'exposition : des exercices jouables à la lettre | À faire | | |
 | 8 | Fiches de mise au point : exercices et recettes | À faire | | |
 | 9 | Vue de dessus et indicateur d'équilibre : juger les mêmes points que le bulletin | À faire | | |
@@ -74,7 +74,7 @@ Trois révisions restent à faire sur le plan, d'après les décisions du 15 nov
 | 47 | `scripts/check_scenes.py` : croiser le manifeste et les fichiers | À faire | | Rien ; à faire avant une nouvelle scène. |
 | 48 | `docs/pile-technique.md` coupé en deux | À faire | | Les Sujets 44, 46 et 28. |
 
-Sujet suivant : le Sujet 6.
+Sujet en cours : le Sujet 6 ; ensuite, le Sujet 7.
 
 ### Après le plan : le reste de la V1, puis la V2 et la V3
 
