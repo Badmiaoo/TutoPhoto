@@ -1301,15 +1301,20 @@ async function runProfile(browser, name, base) {
         });
       const box = await page.locator("#frame").boundingBox();
       // Glissés vers la droite (lacet croissant) ou vers la gauche, de longueur proportionnelle à l'écart qui reste
-      // jusqu'au milieu de la fenêtre (un glissé de 120 px tourne l'appareil de 0,10 à 0,14 rad, contrôle d'après la
-      // rafale), au moins 10 px (au-delà du seuil d'un toucher, 6 px), au plus 120 px.
+      // jusqu'au milieu de la fenêtre : 400 px par radian, au moins 8 px (au-delà du seuil d'un toucher, 6 px), au plus
+      // 120 px. Un glissé de 120 px tourne l'appareil de 0,10 à 0,14 rad sur un écran de 1280 × 800 (contrôle d'après
+      // la rafale) et de 0,30 rad sur un Pixel 7 émulé (mesuré hors de la routine) : à 400 px par radian, chaque glissé
+      // reprend de 40 % à 100 % de l'écart, sans le dépasser.
       const turnTo = async (low, high) => {
         let current = await readYaw();
         for (let i = 0; i < 30 && Number.isFinite(current) && !(current >= low && current <= high); i++) {
           const error = (low + high) / 2 - current;
-          const length = Math.min(120, Math.max(10, Math.round(Math.abs(error) * 1000)));
+          const length = Math.min(120, Math.max(8, Math.round(Math.abs(error) * 400)));
           const step = Math.sign(error);
-          const cx = box.x + box.width / 2 - (step * length) / 2;
+          // Départ au centre du cadre, comme le glissé du contrôle d'après la rafale : sur le profil Android, un départ à
+          // 60 px à droite du centre tombe sur la carte de la vue de dessus, dépliée pour lire le lacet, et le glissé ne
+          // tourne pas l'appareil (CI du commit a3df28e ; vérifié hors de la routine sur un Pixel 7 émulé).
+          const cx = box.x + box.width / 2;
           const cy = box.y + box.height / 2;
           await page.mouse.move(cx, cy);
           await page.mouse.down();
