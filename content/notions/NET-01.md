@@ -12,4 +12,4 @@ La profondeur de champ se voit dans le viseur (aperçu réglable), sur la photo 
 
 ## Exercice
 
-Flouter le fond sans changer d'ouverture. À f/4 et au 50 mm, fais le point sur l'œil de Sophia : la zone nette va de 5,0 m à 9,3 m (chiffres affichés par le simulateur : l'œil est un peu devant la position au sol de Sophia, d'où l'écart avec l'exemple du 135 mm ci-dessus, calculé à 6,6 m), et le chien qui passe derrière elle peut y être. Sans toucher à l'ouverture, passe au 135 mm : la zone nette se réduit à 6,3–6,8 m. Réussis ainsi le défi SIT-01.
+Flouter le fond sans changer d'ouverture. À f/4 et au 50 mm, fais le point sur l'œil de Sophia : la zone nette va de 5,0 m à 9,3 m, et le chien qui passe derrière elle peut y être. Sans toucher à l'ouverture, passe au 135 mm : la zone nette se réduit à 6,3–6,8 m (chiffres du simulateur : la mise au point, sur l'œil, est vers 6,55 m, affichée 6,6 m ; l'exemple du 135 mm plus haut est calculé à 6,6 m tout rond). Réussis ainsi le défi SIT-01.
