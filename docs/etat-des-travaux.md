@@ -8,11 +8,11 @@ Où va le reste (`CLAUDE.md`, « Quelle page pour quelle information ») : le r�
 
 État au 19 novembre 2026.
 
-- **En ligne : version 0.3.65**, fusionnée le 19 novembre 2026 vers 3 h 41 UTC (pull request 72, commit de fusion 7d86b33, tag annoté `v0.3.65`, release publiée à 3 h 41 min 42 s UTC ; publication sur GitHub Pages réussie, relue dans la liste des exécutions des workflows ; le site publié n'a pas été regardé). Elle ne change que des documents : les pages de reprise.
-- **Le simulateur publié** est celui de la version 0.3.57 (histogrammes et hautes lumières sur l'écran de revue), avec : la version du site à l'écran, l'écran de revue et la fenêtre « Crédits » ouverts en haut (0.3.59) ; le français seul (0.3.60 et 0.3.61) ; quatre corrections de comportement (0.3.62 : l'indicateur d'exposition qui clignote garde les clics, un doigt qui glisse sur le déclencheur n'arrête plus la rafale, la loupe s'ouvre au point touché après « Photo entière », les zones écrêtées ne clignotent plus avec « réduire les animations ») ; trois corrections pendant le calcul d'une photo (0.3.63 : la caméra n'a plus de commandes, le viseur ne prend plus les touchers, l'indicateur d'équilibre garde sa dernière lecture). Essayé dans Chromium en rendu logiciel, sur des écrans émulés ; rien sur un vrai téléphone, avec un processeur graphique ni dans Safari.
-- **Sujet 6 du plan de corrections, version 0.3.66 : écrit, relu et essayé**, branche `sujet-6-suivi-du-chien`, pull request 73 : squelettes préparés avant la carte de profondeur du viseur, œil lu sur 3 × 3 pixels, fiche SIT-06, contrôle de la routine (`CHANGELOG.md`, section 0.3.66). Routine verte sur ses quatre profils au commit e4ff793. La session la fusionne quand ses contrôles sont verts sur le dernier commit, supprime la tâche « Sujet 6 : relance automatique toutes les heures » et crée la session suivante. Si la pull request 73 est encore ouverte à la reprise, la finir ainsi (« Comment reprendre », point 2) ; sinon, vérifier le tag `v0.3.66` et la publication, puis prendre le Sujet 7.
+- **En ligne : version 0.3.66**, fusionnée le 19 novembre 2026 vers 6 h 07 UTC (pull request 73, commit de fusion 099db59, tag annoté `v0.3.66` relu par `git ls-remote` à 6 h 08 UTC, release publiée à 6 h 08 min 16 s UTC ; publication sur GitHub Pages réussie, exécution 63, relue dans la liste des exécutions ; le site publié n'a pas été regardé). CI du dernier commit, 2e763f2 : validate, confidentialite, app, description verts ; routine verte sur ses quatre profils (ordinateur 15 min, Android 19 min, iPhone 11 min, WebGL 1 27 min).
+- **Le simulateur publié** est celui de la version 0.3.57 (histogrammes et hautes lumières sur l'écran de revue), avec : la version du site à l'écran, l'écran de revue et la fenêtre « Crédits » ouverts en haut (0.3.59) ; le français seul (0.3.60 et 0.3.61) ; quatre corrections de comportement (0.3.62) ; trois corrections pendant le calcul d'une photo (0.3.63) ; la mise au point qui suit le chien de SIT-06 (0.3.66 : squelettes préparés avant la carte de profondeur du viseur, œil lu sur 3 × 3 pixels). Essayé dans Chromium en rendu logiciel, sur des écrans émulés ; rien sur un vrai téléphone, avec un processeur graphique ni dans Safari.
+- **Sujet 7 du plan de corrections, version 0.3.67 : écrit, relu et essayé**, branche `sujet-7-fiches-exposition`, pull request 74 : neuf fiches d'exposition aux exercices jouables à la lettre, ouvertures « f/5.6 » dans l'interface (Sujet 20 fondu) (`CHANGELOG.md`, section 0.3.67). La session la fusionne quand ses contrôles et les quatre jobs de la routine sont verts sur le dernier commit, supprime la tâche « Sujet 7 : relance automatique toutes les heures » et crée la session suivante. Si la pull request 74 est encore ouverte à la reprise, la finir ainsi (« Comment reprendre », point 2) ; sinon, vérifier le tag `v0.3.67` et la publication, puis prendre le Sujet 8.
 - **Audit du travail antérieur : fini** (version 0.3.58). Douze rapports sous `docs/audit/`, 186 constats, 160 confirmés et 26 réfutés. Synthèse et plan de corrections en 48 sujets : `docs/audit/README.md`. Julien a tranché le 15 novembre 2026 les décisions D1 à D14 (`docs/historique.md`, 15 novembre 2026) ; D15 à D37 attendent (« Décisions en attente », plus bas).
-- **Lignée des sessions** : la session du Sujet 6 a été créée par celle de la version 0.3.65 ; profondeur 6, limite 8 (champ `lineage` de l'outil qui décrit la session). Claude comprend qu'une chaîne de sessions créées l'une par l'autre ne dépasse pas la profondeur 8, sans l'avoir vérifié : il resterait deux créations (profondeurs 7 et 8). La session qui ne peut plus en créer le dit à Julien par une question (« Mandat en cours »).
+- **Lignée des sessions** : la session du Sujet 7 a été créée par celle de la version 0.3.66 ; profondeur 7, limite 8 (champ `lineage` de l'outil qui décrit la session, relu le 19 novembre 2026 à 6 h 09 UTC). La session qu'elle créera sera à la profondeur 8 et ne pourra peut-être plus en créer (« Mandat en cours »).
 
 ## File de travail
 
@@ -30,8 +30,8 @@ Trois révisions restent à faire sur le plan, d'après les décisions du 15 nov
 | 3 | Pendant le calcul d'une photo : caméra, toucher du viseur, indicateur d'équilibre | Fait | 0.3.63 | |
 | 4 | Routine de test : les contrôles qui disent vert à tort | Fait | 0.3.64 | |
 | 5 | Pages de reprise : un seul état, une table « Décisions en attente » | Fait | 0.3.65 | |
-| 6 | SIT-06 : la mise au point qui suit le chien | Fait, à la fusion de la pull request 73 | 0.3.66 | |
-| 7 | Fiches d'exposition : des exercices jouables à la lettre | À faire | | |
+| 6 | SIT-06 : la mise au point qui suit le chien | Fait | 0.3.66 | |
+| 7 | Fiches d'exposition : des exercices jouables à la lettre | Fait, à la fusion de la pull request 74 | 0.3.67 | |
 | 8 | Fiches de mise au point : exercices et recettes | À faire | | |
 | 9 | Vue de dessus et indicateur d'équilibre : juger les mêmes points que le bulletin | À faire | | |
 | 10 | Échecs dits à l'écran : fichier d'éclairage perdu, WebGL absent, contexte perdu | À faire | | |
@@ -44,7 +44,7 @@ Trois révisions restent à faire sur le plan, d'après les décisions du 15 nov
 | 17 | Notes de l'interface et documentation du modèle | À faire | | |
 | 18 | Loupe du viseur à densité 2 : le bruit | À faire | | Une mesure préalable ; le Sujet 17. |
 | 19 | Termes de Canon et de Sony | À faire | | D3 et D4 tranchées ; le choix des trois boîtiers, à sourcer par Claude (D4). |
-| 20 | Écriture des ouvertures en français | À faire | | D5 tranchée (« f/5.6 ») avant les Sujets 7 et 8 : d'après le plan, ce sujet se fond en eux. |
+| 20 | Écriture des ouvertures en français | Fondu dans les Sujets 7 (interface) et 8 | 0.3.67 | D5 tranchée (« f/5.6 »). |
 | 21 | Construction des pages : identifiants `SIT-V2-NN`, fiche vide | À faire | | |
 | 22 | Contrôles du référentiel | À faire | | |
 | 23 | Contrôles des fiches et des identifiants | À faire | | Le Sujet 22. |
@@ -74,7 +74,7 @@ Trois révisions restent à faire sur le plan, d'après les décisions du 15 nov
 | 47 | `scripts/check_scenes.py` : croiser le manifeste et les fichiers | À faire | | Rien ; à faire avant une nouvelle scène. |
 | 48 | `docs/pile-technique.md` coupé en deux | À faire | | Les Sujets 44, 46 et 28. |
 
-Sujet suivant : le Sujet 7.
+Sujet suivant : le Sujet 8 (fiches de mise au point ; D5 s'y applique aux fiches, déjà écrites avec le point).
 
 ### Après le plan : le reste de la V1, puis la V2 et la V3
 
@@ -148,6 +148,7 @@ Sans réponse, chaque choix reste en place ; il s'annule par `git revert -m 1` d
 | Routine de test (Sujet 4), choix 1 à 13, dont la phrase de `CLAUDE.md` sur ce que les tests émulent (6) | 19 novembre 2026, version 0.3.64 | Section 5 |
 | Pages de reprise (Sujet 5), choix 1 à 10, dont la table « Quelle page pour quelle information » de `CLAUDE.md` (D6) | 19 novembre 2026, version 0.3.65 | Section 5 |
 | La mise au point qui suit le chien (Sujet 6), choix 1 à 6, dont le contrôle de la routine qui tolère une perte (4) | 19 novembre 2026, version 0.3.66 | Section 5 |
+| Fiches d'exposition (Sujet 7, Sujet 20 fondu), choix 1 à 11, dont les ouvertures écrites avec le point dans l'interface seulement (1) et les fiches écrites autour des réglages que le simulateur garde (8) | 19 novembre 2026, version 0.3.67 | Section 5 |
 | L'ordre et le découpage du plan de corrections | 15 novembre 2026 | `docs/audit/README.md`, « Plan de corrections » ; sans réponse, l'ordre du plan vaut |
 | Lecture des journaux de la CI par l'outil GitHub (`get_job_logs`) ; deux agents les ont lus une fois par `gh api`, alors que les consignes des sessions réservent `gh` à la recherche. Julien veut-il autre chose ? | 17 novembre 2026 | « Leçons pratiques » ; sans réponse, l'outil GitHub |
 
@@ -165,6 +166,7 @@ Sur le site publié, après avoir lu la version à l'écran (test T1). Sans rép
 | T6 | 0.3.62 | L'indicateur d'exposition touché pendant qu'il clignote (FEX-19, INT-21). |
 | T7 | 0.3.63 | Toucher du viseur pendant le calcul, photo et rafale un doigt posé sur le viseur (COD-07, COD-01). |
 | T8 | 0.3.66 | La mise au point suit le chien à découvert, en AF-C, zone automatique et détection des animaux (FMA-23). |
+| T9 | 0.3.67 | Le rapport signal sur bruit de l'exercice de EXP-06, lu sur un téléphone (FEX-05). |
 
 ## Ce que Julien seul peut faire
 
@@ -190,6 +192,7 @@ Ce que Claude en fait :
 - la V3 est une passe sur l'ergonomie et l'interface seulement : légère, lisible, compréhensible, compatible avec le TDAH, et belle. D'ici là, les corrections d'interface du plan (mise en page sur téléphone, accessibilité) réparent ce qui gêne ou trompe, sans chercher l'embellissement. Ce que « compatible avec le TDAH » demande n'est sourcé nulle part dans le dépôt : la V3 commence par un dossier de sources. La session qui la commence regarde d'abord ce que ses outils offrent pour le design ;
 - les tests avec des débutants ne bloquent rien ; Claude tient `docs/tests-a-faire-faire.md` à jour à chaque version ;
 - Claude décide sans attendre Julien, qui confirme ou annule après coup : chaque choix est noté dans `docs/propositions.md`, et la ligne qui le soumet à Julien est dans « Décisions en attente » ;
+- lignée : la session du Sujet 7 est à la profondeur 7 sur 8 ; celle qu'elle créera sera à 8 et ne pourra peut-être plus en créer. Quand la création échouera, la session le dira à Julien par une question à choix ;
 - une pull request par sujet ; après chaque fusion, Claude crée la session suivante sur le dépôt, avec la consigne de reprendre à partir de cette page, et la session finie supprime sa relance et s'arrête ; si la création échoue, Claude reste dans la même session et le note ici ; si elle échoue près de la limite de profondeur, il le dit à Julien par une question : lui seul peut ouvrir une session hors de la chaîne ;
 - chaque session pose sa relance automatique, une par heure, pour repartir quand la limite d'usage se rouvre ;
 - les règles de fond restent : réalisme, rien sans source, routine verte sur les quatre profils avant de fusionner.
@@ -240,3 +243,7 @@ Relevés pendant le travail, hors des constats de l'audit ; aucun sujet du plan 
 | Routine, contrôle « AF-C : la distance suit la zone » : l'inclinaison de l'appareil après les deux glissements n'est pas maîtrisée (inertie de Babylon.js), et la zone vise tantôt un sujet (de 5,8 à 6,5 m), tantôt le fond (500,0 m). Le contrôle réussit à bon droit dans les deux cas, mais ne dit pas ce que la zone visait. | 16 novembre 2026 | Non corrigé ; avec la refonte de la routine (ARC-05). |
 | Routine, contrôle « zones écrêtées » : il ne verrait un calque qui prend les touchers que pendant la phase visible de son clignotement (`elementFromPoint` ignore un élément masqué). Non examiné : si d'autres contrôles mesurent une zone où un personnage peut passer (`frameNoise`). | 15 novembre 2026, version 0.3.59 | Non corrigé ; avec la refonte de la routine (ARC-05). |
 | Routine, navigateur tué juste avant `context.close()` : la routine sort sur une exception, code 1, sans écrire les contrôles du profil. La CI serait rouge, pas verte à tort. | 19 novembre 2026, version 0.3.64 | Non corrigé ; avec la refonte de la routine (ARC-05). |
+| Le simulateur garde d'une visite à l'autre le mode, la correction, l'ISO auto, le boîtier, la mise au point et le mode de déclenchement ; aucun bouton ne remet ces réglages à leur état de départ (« Retour au départ » ne replace que l'appareil). Un exercice joué après un autre part d'un autre état. | 19 novembre 2026, relecture de la version 0.3.67 | Non corrigé ; les fiches du Sujet 7 l'écrivent et donnent les réglages en entier. |
+| Molette « Vitesse » : « − » raccourcit la pose (1/100 → 1/125 s) et « + » l'allonge ; un débutant qui vise 1/200 s appuie d'instinct sur « + ». | 19 novembre 2026, relecture de la version 0.3.67 | Non corrigé ; EXP-04 et EXP-05 le disent. |
+| La note `previewNote` du simulateur dit « lire la cellule », mot que l'écran n'emploie nulle part ailleurs (l'indicateur d'exposition). | 19 novembre 2026, relecture de la version 0.3.67 | Non corrigé. |
+| Routine, contrôle « détection des animaux : le chien à découvert n'est pas lâché (FMA-23) » (version 0.3.66) : il peut échouer au hasard ; profil iPhone, commit 62c75aa, deux pertes à découvert de 0,3 et 0,4 s pour une tolérée, alors que le même code de l'application avait passé la routine deux fois sur les quatre profils. La correction de la version 0.3.66 laisse de rares pertes ; pendant le rejeu de BOI-12, l'autofocus a aussi lâché le chien, cadrage non relu. | 19 novembre 2026, CI de la version 0.3.67 | Non corrigé ; le contrôle n'est pas relâché. Une cause à chercher (pertes résiduelles de la détection, ou seuil du contrôle), avec D19. |

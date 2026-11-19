@@ -8,8 +8,12 @@ Pendant la pose, ce qui bouge laisse une traînée sur le capteur, d'autant plus
 
 ## Simulateur
 
-La molette « Vitesse » va de 30 s à 1/4000 s par tiers de cran. La cellule montre l'effet sur l'exposition ; l'indicateur d'équilibre et le bulletin de la photo donnent la traînée du sujet visé, en pixels. En mode S, c'est toi qui choisis la vitesse ; en mode A, l'appareil la règle. En rafale, une vue ne dure jamais moins que sa pose.
+Si tu n'as rien changé, l'ISO auto est activé, comme sur le Z 6 : l'appareil rattrape tes réglages en changeant la sensibilité. Le simulateur garde la plupart de tes choix d'une visite à l'autre ; seules les molettes reviennent à f/8, 1/100 s, ISO 100 et 50 mm.
+
+L'indicateur d'exposition, c'est la réglette graduée de −3 à +3 et le bouton à sa droite, qui écrit le mode et l'écart (par exemple « M · −0,2 IL »). Touche ce bouton : la fenêtre « Exposition » s'ouvre. Pour voir l'effet de chaque réglage seul, décoche « Activé » sous « Contrôle de la sensibilité auto. » (voir MES-10).
+
+La molette « Vitesse » va de 30 s à 1/4000 s par tiers de cran. L'indicateur d'exposition montre l'effet sur l'exposition ; l'indicateur d'équilibre donne la traînée du sujet visé, et le bulletin de la photo celle des sujets en mouvement présents dans le cadre, en pixels. En mode S, c'est toi qui choisis la vitesse ; en mode A, l'appareil la règle. En rafale, une vue ne dure jamais moins que sa pose.
 
 ## Exercice
 
-En mode M, sans ISO auto, règle f/4 et 1/400 s, puis passe à f/8 : la cellule descend de deux crans (−2 IL). Retrouve l'exposition de départ par la seule vitesse. Réponse : 1/100 s, quatre fois plus longue, car f/4 → f/8 fait deux crans, soit quatre fois moins de lumière.
+En mode M, sans ISO auto, à ISO 100 et avec la correction d'exposition à « ±0,0 IL », règle f/4 et 1/400 s, puis passe à f/8 : l'indicateur descend de deux IL, de −0,2 à −2,2 IL. Retrouve l'exposition de départ par la seule vitesse. Sur la molette « Vitesse », « + » allonge la pose et « − » la raccourcit. Réponse : 1/100 s, l'indicateur revient à −0,2 IL ; la pose est quatre fois plus longue, car f/4 → f/8 fait deux crans, soit quatre fois moins de lumière.
