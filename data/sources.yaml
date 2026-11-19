@@ -579,8 +579,13 @@ sources:
     used_in: [docs/camera-physique.md, content/notions/MAP-09.md]
   - id: nikon-z6-sub-selector
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, The Sub-Selector, Focus Lock : « Position the subject in the selected focus point and press the shutter-release button halfway to set focus and exposure », puis « Recompose the photograph and shoot » ; « Do not change the distance between the camera and the subject while focus lock is in effect. If the subject moves, focus again at the new distance » ; mémorisation par le centre du sélecteur secondaire en AF-C, « choose an AF-area mode other than auto-area AF » (lu le 19 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6, The Sub-Selector, Focus Lock : « Position the subject in the selected focus point and press the shutter-release button halfway to set focus and exposure », puis, déclencheur tenu à mi-course, « press the center of the sub-selector to lock both focus and exposure », puis « Recompose the photograph and shoot » ; encadré AF-S, « focus will lock while the shutter-release button is pressed halfway » ; l'exposition ne se mémorise à mi-course qu'avec le réglage c1 sur « On (half press) » ; « Do not change the distance between the camera and the subject while focus lock is in effect. If the subject moves, focus again at the new distance » ; mémorisation par le centre du sélecteur secondaire en AF-C, « choose an AF-area mode other than auto-area AF » (lu le 19 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_05.html"
+    used_in: [content/notions/MAP-06.md, content/notions/NET-06.md]
+  - id: nikon-z6-sub-selector-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Sélecteur secondaire : « Recomposez et prenez la photo » ; encadré AF-S, « la mise au point est mémorisée tant que vous appuyez sur le déclencheur à mi-course » ; « Ne modifiez pas la distance entre l'appareil photo et le sujet pendant la mémorisation de la mise au point. Si le sujet se déplace, effectuez à nouveau la mise au point en fonction de la nouvelle distance » (lu le 19 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_05.html"
     used_in: [content/notions/MAP-06.md, content/notions/NET-06.md]
   - id: nikon-p1100-af-area
     group: "Constructeurs : manuels et pages techniques"
