@@ -99,7 +99,7 @@ const messages = {
   challengeShort: "Défi",
   challengeNone: "Aucun défi : entraînement libre",
   challengeNote:
-    "Le bulletin, sous chaque photo, dit ce qui est réussi et les notions à revoir. Critères : zone nette et flou acceptable (diagonale du capteur / 1500), comme l'indicateur d'équilibre ; un élément est « derrière » le sujet à plus de 1 m derrière lui.",
+    "Le bulletin, sous chaque photo, dit ce qui est réussi et les notions à revoir. Critères : zone nette et flou acceptable (diagonale du capteur / 1500), comme l'indicateur d'équilibre ; un élément est « derrière » le sujet à plus de 1 m derrière lui. Le défi ne juge ni l'exposition ni le bruit : lis aussi la ligne « Exposition » du bulletin.",
   challenge01Title: "Portrait à l'ombre ou par ciel couvert",
   challenge01Goal: "le regard de Sophia net, le fond derrière elle flou",
   challenge05Title: "Photo de groupe",

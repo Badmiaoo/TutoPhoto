@@ -577,6 +577,16 @@ sources:
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, a4 : Détect. visage-yeux AF zone auto ; termes « Détection visage/yeux activée », « Détection des visages activée », « Détection des animaux », « Désactivée » (lu le 9 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_a04.html"
     used_in: [docs/camera-physique.md, content/notions/MAP-09.md]
+  - id: nikon-z6-sub-selector
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, The Sub-Selector, Focus Lock : « Position the subject in the selected focus point and press the shutter-release button halfway to set focus and exposure », puis, déclencheur tenu à mi-course, « press the center of the sub-selector to lock both focus and exposure », puis « Recompose the photograph and shoot » ; encadré AF-S, « focus will lock while the shutter-release button is pressed halfway » ; l'exposition ne se mémorise à mi-course qu'avec le réglage c1 sur « On (half press) » ; « Do not change the distance between the camera and the subject while focus lock is in effect. If the subject moves, focus again at the new distance » ; mémorisation par le centre du sélecteur secondaire en AF-C, « choose an AF-area mode other than auto-area AF » (lu le 19 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_05.html"
+    used_in: [content/notions/MAP-06.md, content/notions/NET-06.md]
+  - id: nikon-z6-sub-selector-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Sélecteur secondaire : « Recomposez et prenez la photo » ; encadré AF-S, « la mise au point est mémorisée tant que vous appuyez sur le déclencheur à mi-course » ; « Ne modifiez pas la distance entre l'appareil photo et le sujet pendant la mémorisation de la mise au point. Si le sujet se déplace, effectuez à nouveau la mise au point en fonction de la nouvelle distance » (lu le 19 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_05.html"
+    used_in: [content/notions/MAP-06.md, content/notions/NET-06.md]
   - id: nikon-p1100-af-area
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne COOLPIX P1100, AF area mode : sans visage détecté, « the camera automatically selects one or more of the nine focus areas containing the subject closest to the camera » (compact, pas un hybride ; lu le 9 novembre 2026)"
@@ -639,9 +649,9 @@ sources:
     used_in: [docs/camera-physique.md]
   - id: nikon-z6-defaults
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, Defaults : ISO 100 en P, S, A, M, contrôle de la sensibilité auto activé, sensibilité maximale 51200 (Z 6), vitesse minimale Auto ; Focus mode Single AF, AF-area mode Single-point AF ; a4 Face and eye detection on ; c2 retardateur 10 s ; d1 Continu L 3 vps (lu le 10 novembre 2026) ; d9 Framing grid display Off ; g6 Highlight display, Display pattern Off, Highlight display threshold 248 ; aucune ligne pour Playback display options (relu le 12 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6, Defaults : ISO 100 en P, S, A, M, contrôle de la sensibilité auto activé, sensibilité maximale 51200 (Z 6), vitesse minimale Auto ; Focus mode Single AF, AF-area mode Single-point AF ; a4 Face and eye detection on ; c2 retardateur 10 s ; d1 Continu L 3 vps (lu le 10 novembre 2026) ; d9 Framing grid display Off ; g6 Highlight display, Display pattern Off, Highlight display threshold 248 ; aucune ligne pour Playback display options (relu le 12 novembre 2026) ; c1 Shutter-release button AE-L Off (relu le 19 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html"
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/notions/BOI-12.md, content/notions/MAP-04.md, content/notions/MES-10.md, content/notions/CMP-02.md, docs/dossiers/balance-des-blancs.md, docs/dossiers/viseur-aides.md]
+    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/notions/BOI-12.md, content/notions/MAP-04.md, content/notions/MAP-06.md, content/notions/MES-10.md, content/notions/CMP-02.md, docs/dossiers/balance-des-blancs.md, docs/dossiers/viseur-aides.md]
   - id: nikon-d850-auto-iso
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne D850, Auto ISO Sensitivity Control : « the minimum value for auto ISO sensitivity is automatically set to ISO 64 » ; en P et A, « sensitivity will only be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed » ; vitesse minimale fixée à 1/30 s avec un objectif sans données (lu le 10 novembre 2026). Autre boîtier que le Z 6 : retenu là où le manuel du Z 6 ne dit rien."

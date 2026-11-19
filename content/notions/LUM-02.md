@@ -20,4 +20,4 @@ Avec une ampoule chaude, ne place jamais de tissu ni de papier contre elle.
 
 ## Exercice
 
-Choisir le lieu ou l'heure d'un portrait doux. Pour le portrait de Sophia, compare le plein soleil et le ciel couvert de la scène de parc : lequel donne une lumière douce, et pourquoi ? Réponse : le ciel couvert, car tout le ciel nuageux devient une source bien plus grande que le sujet ; le soleil direct, très loin, paraît petit et donne des ombres dures.
+Choisir le lieu ou l'heure d'un portrait doux. Pour le portrait de Sophia, compare un plein soleil, que TutoPhoto ne montre pas, et le ciel couvert de la scène de parc : lequel donne une lumière douce, et pourquoi ? Réponse : le ciel couvert, car tout le ciel nuageux devient une source bien plus grande que le sujet ; le soleil direct, très loin, paraît petit et donne des ombres dures.
