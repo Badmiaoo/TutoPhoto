@@ -64,6 +64,25 @@ export const LANDMARKS: readonly Landmark[] = [
 ];
 const place = (id: string): Landmark => LANDMARKS.find((l) => l.id === id)!;
 
+/**
+ * Hauteur des yeux du chien, en mètres, quand ils ne sont pas lus dans le modèle : mesurée dans le navigateur le
+ * 19 novembre 2026, de 0,62 m à 0,72 m pendant le galop ; milieu retenu.
+ */
+const DOG_EYE_HEIGHT = 0.67;
+
+/**
+ * Points que jugent la vue de dessus et l'indicateur d'équilibre pour un personnage ou le chien, comme le bulletin :
+ * ses yeux, et tant qu'ils ne sont pas chargés (ou introuvables dans le modèle), un point à sa position au sol, à
+ * la hauteur de l'œil de l'appareil pour un personnage (EYE_HEIGHT, les yeux des personnages étant mesurés de
+ * 1,51 m à 1,71 m le 19 novembre 2026) et à DOG_EYE_HEIGHT pour le chien. Le bulletin, lui, ne juge que les sujets dont les yeux sont
+ * chargés.
+ */
+export function judgedPoints(subjects: readonly FaceSubject[], id: string, ground: { x: number; z: number }): Vector3[] {
+  const eyes = subjects.find((subject) => subject.id === id)?.eyes();
+  if (eyes && eyes.length > 0) return eyes;
+  return [new Vector3(ground.x, id === "jim" ? DOG_EYE_HEIGHT : EYE_HEIGHT, ground.z)];
+}
+
 /** Position de l'appareil au sol (NET-06), en mètres ; l'œil reste à EYE_HEIGHT. */
 export interface EyeControl {
   get(): { x: number; z: number };

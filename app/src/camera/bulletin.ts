@@ -77,8 +77,9 @@ const BACKDROP_M = 500;
 
 /**
  * Mesure d'un sujet vu par l'appareil : profondeur et traînée de son point le plus proche, dans le cadre si l'un
- * de ses points l'est. Seule formule de la traînée du sujet et de sa netteté, pour le bulletin, l'indicateur
- * d'équilibre (ui/balance.ts) et la vue de dessus (ui/topView.ts).
+ * de ses points l'est. Seule formule qui juge la traînée et la netteté d'un sujet, pour le bulletin, l'indicateur
+ * d'équilibre (ui/balance.ts) et la vue de dessus (ui/topView.ts). La photo (camera/photo.ts) estime aussi une
+ * traînée, à la position au sol des sujets, mais seulement pour choisir le nombre de rendus de la pose.
  */
 export function measureThing(thing: SceneThing, g: Omit<ShotGeometry, "things">): ThingMeasure {
   const blurMm = blurLimitMm(g.sensorWidthMm, g.sensorHeightMm);

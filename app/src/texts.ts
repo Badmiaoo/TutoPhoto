@@ -138,7 +138,7 @@ const messages = {
   bulletinReview: "À revoir :",
   topViewTitle: "Vue de dessus",
   topViewLabel:
-    "Vue de dessus : l'appareil, le champ de l'objectif, le plan de mise au point et la zone nette ; personnages et objets, cerclés de vert dans la zone nette.",
+    "Vue de dessus : l'appareil, le champ de l'objectif, le plan de mise au point et la zone nette ; personnages et objets, cerclés de vert quand la photo les jugerait nets, sur leurs yeux pour les personnages et le chien ; le cercle commun à Fabienne et Percy, quand les deux le sont. Le vert ne dit que la netteté, pas si le sujet est dans le cadre.",
   topViewZone: "Zone nette :",
   topViewMove: "Touchez la carte pour déplacer l'appareil.",
   topViewReset: "Retour au départ",

@@ -11,8 +11,9 @@
 //   Projection d'un point (X, Y, Z) de la caméra : x = f X / Z ; un sujet de vitesse (vX, vY, vZ) se déplace
 //   de f (vX Z − X vZ) / Z² × t (et de même en y). Sujets en mouvement de la scène : le promeneur et le chien.
 //   Calcul fait par la fonction du bulletin (camera/bulletin.ts, measureThing), aux yeux du sujet (constat
-//   PHY-17, version 0.3.69). Sujet visé : celui que suit la détection, sinon le sujet en mouvement à moins de
-//   1 m (à l'horizontale) du point vu sous le repère, reconstruit à la profondeur lue dans la carte du viseur.
+//   PHY-17, version 0.3.69). Sujet visé : celui que suit la détection, sinon le sujet en mouvement dont la
+//   position au sol (centre du modèle) est à moins de 1 m, à l'horizontale, du point vu sous le repère,
+//   reconstruit à la profondeur lue dans la carte du viseur.
 //   Traînée aussi donnée en pixels de la photo (MVT-01, « traînée mesurée en pixels ») : traînée sur le capteur
 //   × 1500 / grand côté du capteur, la photo faisant 1500 px sur le grand côté du capteur.
 // - ISO : rapport signal sur bruit d'un pixel de la photo (1500 px de grand côté) au point visé, avec le
@@ -37,6 +38,7 @@ import { noiseParameters } from "../camera/noise";
 import { PHOTO_LONG_SIDE, type SceneTimeControl } from "../camera/photo";
 import { measureThing } from "../camera/bulletin";
 import type { FaceSubject } from "../camera/faces";
+import { judgedPoints } from "../scene";
 import type { CameraPanel } from "./cameraPanel";
 import { t } from "../texts";
 
@@ -65,6 +67,8 @@ interface BalanceElements {
 export class BalanceIndicator {
   private enabled = true;
   private busy = false;
+  /** Dernier état de la vitesse, pour le triangle entre les deux temps du rafraîchissement. */
+  private lastMotion: Status = "neutral";
 
   constructor(
     private readonly engine: Engine,
@@ -127,30 +131,60 @@ export class BalanceIndicator {
       const body = s.body;
       const blurLimit = blurLimitMm(body.sensorWidthMm, body.sensorHeightMm);
 
-      // Ouverture : zone nette (camera/sharpZone.ts). Les lignes sont écrites après la lecture des pixels, avec le
-      // triangle : une photo commencée pendant l'attente laisse tout l'affichage tel qu'il était (version 0.3.63).
+      // Ouverture : zone nette (camera/sharpZone.ts).
       const { near, far } = sharpZone(f, N, S1, blurLimit);
       const farText = Number.isFinite(far) ? `${this.decimal(far, 1)} m` : "∞";
       const dofText = `${s.labels.aperture} · ${tr("balanceDof")} ${this.decimal(near, 1)} m – ${farText}`;
 
-      // Point visé : œil ou visage suivi, sinon point de mise au point. Sa position dans la scène est reconstruite à
-      // la profondeur de ce qui est vu sous le point, lue dans la carte du viseur (constat PHY-17) ; à la distance de
-      // mise au point si la lecture échoue.
+      // Point visé : œil ou visage suivi, sinon point de mise au point.
       const target = this.autofocus.target();
       const point = target?.point ?? this.panel.focusOnCanvas();
-      const seen = (await this.autofocus.depthUnder(point)) ?? S1;
-      if (!this.panel.isEnabled()) return;
-      const m = this.camera.getProjectionMatrix().asArray();
-      const aimed = new Vector3((((point.x * 2 - 1) - m[8]) / m[0]) * seen, (((1 - point.y * 2) - m[9]) / m[5]) * seen, seen);
-      const view = this.camera.getViewMatrix();
-      const aimedWorld = Vector3.TransformCoordinates(aimed, view.clone().invert());
+
+      // En deux temps (relecture du Sujet 9, version 0.3.69) : la zone nette et l'ISO, qui ne dépendent que de
+      // l'image du viseur, sont écrits dès sa lecture ; la ligne de la vitesse, qui peut attendre une image de la
+      // carte de profondeur, ensuite. Chaque écriture se fait après sa lecture : une photo commencée pendant
+      // l'attente laisse l'affichage tel qu'il était (version 0.3.63), jusqu'au premier rafraîchissement après
+      // le calcul. Entre les deux temps, le triangle garde le dernier état connu de la vitesse.
+      const isoText = s.labels.iso;
+      const green = await this.greenAt(point);
+      if (green === "computing" || !this.panel.isEnabled()) return;
+      this.el.dof.textContent = dofText;
+      let noise: Status = "neutral";
+      this.noiseReading = null;
+      if (green === null) {
+        this.el.noise.textContent = `${isoText} · ${tr("balanceNoiseUnknown")}`;
+      } else {
+        const v = Math.min(1, green * this.panel.displayGain());
+        if (v >= 0.99) {
+          this.el.noise.textContent = `${isoText} · ${tr("balanceClipped")}`;
+        } else {
+          const pixels = PHOTO_LONG_SIDE * Math.round((PHOTO_LONG_SIDE * body.sensorHeightMm) / body.sensorWidthMm);
+          const p = noiseParameters(body, s.iso, pixels);
+          const electrons = Math.max(v, 1e-6) * p.saturation;
+          const sigma = Math.sqrt(electrons + p.readNoise2) / (p.saturation * Math.sqrt(p.photosites[1]));
+          const snr = v / sigma;
+          noise = snr >= 40 ? "ok" : snr >= 10 ? "warn" : "bad";
+          this.noiseReading = { snr, level: noise };
+          const level = tr(noise === "ok" ? "balanceExcellent" : noise === "warn" ? "balanceAcceptable" : "balanceInsufficient");
+          this.el.noise.textContent = `${isoText} · ${tr("balanceNoise")} ${level} (${tr("balanceSnr")} ${Math.round(snr)}:1)`;
+        }
+      }
+      this.draw(this.lastMotion, noise);
 
       // Vitesse : traînée du sujet visé, à sa position (ses yeux, comme le bulletin), par la fonction du bulletin.
+      // Sujet visé : celui que suit la détection s'il bouge ; sinon le sujet en mouvement proche du point vu sous le
+      // repère, reconstruit à la profondeur lue dans la carte du viseur (constat PHY-17), à la distance de mise au
+      // point si la lecture échoue. La carte n'est lue que dans ce second cas.
       const movers = this.time.movers();
       let mover = target?.id ? movers.find((mv) => mv.id === target.id) : undefined;
       if (!mover) {
+        const seen = (await this.autofocus.depthUnder(point)) ?? S1;
+        if (!this.panel.isEnabled()) return;
+        const m = this.camera.getProjectionMatrix().asArray();
+        const aimed = new Vector3((((point.x * 2 - 1) - m[8]) / m[0]) * seen, (((1 - point.y * 2) - m[9]) / m[5]) * seen, seen);
+        const aimedWorld = Vector3.TransformCoordinates(aimed, this.camera.getViewMatrix().clone().invert());
         let best = MOVER_RADIUS_M;
-        for (const mv of movers) {
+        for (const mv of this.time.movers()) {
           const d = Math.hypot(mv.position.x - aimedWorld.x, mv.position.z - aimedWorld.z);
           if (d < best) {
             best = d;
@@ -158,14 +192,13 @@ export class BalanceIndicator {
           }
         }
       }
+      const view = this.camera.getViewMatrix();
       let motion: Status = "neutral";
       let motionText: string;
       const shutterText = s.labels.shutter;
       if (mover) {
-        const id = mover.id;
-        const eyes = this.subjects.find((subject) => subject.id === id)?.eyes();
         const measure = measureThing(
-          { id: mover.id, points: eyes && eyes.length > 0 ? eyes : [mover.position], velocity: mover.velocity },
+          { id: mover.id, points: judgedPoints(this.subjects, mover.id, mover.position), velocity: mover.velocity },
           {
             view,
             focalMm: f,
@@ -188,36 +221,8 @@ export class BalanceIndicator {
       } else {
         motionText = `${shutterText} · ${tr("balanceStill")}`;
       }
-
-      // ISO : rapport signal sur bruit au point visé.
-      const isoText = s.labels.iso;
-      const green = await this.greenAt(point);
-      // Une photo a commencé pendant l'attente : la dernière lecture et tout l'affichage (lignes et triangle) restent
-      // tels quels, jusqu'au premier rafraîchissement après le calcul.
-      if (green === "computing" || !this.panel.isEnabled()) return;
-      this.el.dof.textContent = dofText;
       this.el.motion.textContent = motionText;
-      let noise: Status = "neutral";
-      this.noiseReading = null;
-      if (green === null) {
-        this.el.noise.textContent = `${isoText} · ${tr("balanceNoiseUnknown")}`;
-      } else {
-        const v = Math.min(1, green * this.panel.displayGain());
-        if (v >= 0.99) {
-          this.el.noise.textContent = `${isoText} · ${tr("balanceClipped")}`;
-        } else {
-          const pixels = PHOTO_LONG_SIDE * Math.round((PHOTO_LONG_SIDE * body.sensorHeightMm) / body.sensorWidthMm);
-          const p = noiseParameters(body, s.iso, pixels);
-          const electrons = Math.max(v, 1e-6) * p.saturation;
-          const sigma = Math.sqrt(electrons + p.readNoise2) / (p.saturation * Math.sqrt(p.photosites[1]));
-          const snr = v / sigma;
-          noise = snr >= 40 ? "ok" : snr >= 10 ? "warn" : "bad";
-          this.noiseReading = { snr, level: noise };
-          const level = tr(noise === "ok" ? "balanceExcellent" : noise === "warn" ? "balanceAcceptable" : "balanceInsufficient");
-          this.el.noise.textContent = `${isoText} · ${tr("balanceNoise")} ${level} (${tr("balanceSnr")} ${Math.round(snr)}:1)`;
-        }
-      }
-
+      this.lastMotion = motion;
       this.draw(motion, noise);
     } finally {
       this.busy = false;
