@@ -16,7 +16,9 @@
 //   obstacle devant (nez, autre personne), ni fond derrière seulement (le centre de l'œil d'un squelette est
 //   environ 1 cm derrière la surface). On retient, des neuf pixels, la surface la plus proche de l'œil : vu de
 //   profil, l'œil du chien est sur le contour de sa tête, large d'un ou deux pixels, et son propre pixel tombe
-//   parfois sur le fond (constat FMA-23 de l'audit, version 0.3.66) ;
+//   parfois sur le fond (constat FMA-23 de l'audit, version 0.3.66). Revers : un œil dont le pixel est caché
+//   par un obstacle, mais dont un pixel voisin montre la tête, est vu (un pixel fait environ 7 mm à 9 m sur un
+//   canevas de 1000 px au 50 mm, davantage sur un écran plus petit) ;
 // - taille du visage : écart entre les yeux, rapporté au grand côté du cadre, sans la loupe ; visage
 //   détecté de 0,4 % à 25 %, yeux détectés à partir de 0,8 % ;
 // - œil retenu : le plus proche de l'appareil parmi les yeux vus.

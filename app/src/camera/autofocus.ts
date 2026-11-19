@@ -132,11 +132,12 @@ export class Autofocus {
     // précédente, et la détection cherchait l'œil du chien sur une tête décalée d'une image. La carte de la
     // photo (camera/photo.ts, scene.enableDepthRenderer) est rendue après ce choix : elle n'avait pas ce retard.
     // L'observable est appelé deux fois par image (avant ces cibles, puis avant celles de la caméra) : seul le
-    // premier appel compte. Coût : Babylon.js recalcule les os une seconde fois dans l'image (le report des
-    // nœuds animés sur les os les marque modifiés) ; il n'est pas mesuré.
+    // premier appel compte, et rien pendant le calcul d'une photo, où la carte du viseur n'est pas rendue. Coût :
+    // Babylon.js recalcule les os une seconde fois dans l'image (le report des nœuds animés sur les os les marque
+    // modifiés) ; il n'est pas mesuré.
     let preparedFrame = -1;
     scene.onBeforeRenderTargetsRenderObservable.add(() => {
-      if (scene.getFrameId() === preparedFrame) return;
+      if (this.suspended || scene.getFrameId() === preparedFrame) return;
       preparedFrame = scene.getFrameId();
       for (const skeleton of scene.skeletons) skeleton.prepare(true);
     });

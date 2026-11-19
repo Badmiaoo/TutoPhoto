@@ -1278,8 +1278,8 @@ async function runProfile(browser, name, base) {
     );
     // Suivi du chien à découvert (FMA-23, version 0.3.66). L'appareil tourne vers la droite jusqu'à ce que le cadre
     // ne montre que la partie de la course du chien qu'aucun personnage ne cache (lacet de 0,55 à 0,7 rad, lu sur la
-    // vue de dessus : au 50 mm, le chien n'y entre qu'au-delà de x ≈ 2,5 m, et le groupe, à 6,5 m, ne le cache qu'en
-    // deçà de x ≈ 1,5 m). L'indicateur est noté à chaque changement, avec l'heure, pendant 60 s. Le chien y passe
+    // vue de dessus : au 50 mm, le bord gauche du cadre coupe la course du chien vers x ≈ 1,9 m à 0,55 rad et
+    // x ≈ 2,7 m à 0,7 rad, et le groupe, à 6,5 m, ne le cache qu'en deçà de x ≈ 1,45 m). L'indicateur est noté à chaque changement, avec l'heure, pendant 60 s. Le chien y passe
     // en séries de lectures « œil » ou « visage », séparées par de longues séries « sujet le plus proche » quand il
     // est hors du cadre (environ 4,4 s d'horloge de la scène, contre 1,3 s dans le cadre). Une perte du chien à
     // découvert est une série « sujet le plus proche » entre deux séries « œil » ou « visage », plus courte que la
@@ -1300,20 +1300,26 @@ async function runProfile(browser, name, base) {
           return Math.atan2(nose[0] - (left[0] + right[0]) / 2, -(nose[1] - (left[1] + right[1]) / 2));
         });
       const box = await page.locator("#frame").boundingBox();
+      // Glissés vers la droite (lacet croissant) ou vers la gauche, de longueur proportionnelle à l'écart qui reste
+      // jusqu'au milieu de la fenêtre (un glissé de 120 px tourne l'appareil de 0,10 à 0,14 rad, contrôle d'après la
+      // rafale), au moins 10 px (au-delà du seuil d'un toucher, 6 px), au plus 120 px.
       const turnTo = async (low, high) => {
         let current = await readYaw();
         for (let i = 0; i < 30 && Number.isFinite(current) && !(current >= low && current <= high); i++) {
-          const step = current < low ? 1 : -1;
-          const cx = box.x + box.width / 2 - step * 60;
+          const error = (low + high) / 2 - current;
+          const length = Math.min(120, Math.max(10, Math.round(Math.abs(error) * 1000)));
+          const step = Math.sign(error);
+          const cx = box.x + box.width / 2 - (step * length) / 2;
           const cy = box.y + box.height / 2;
           await page.mouse.move(cx, cy);
           await page.mouse.down();
-          for (let k = 1; k <= 6; k++) await page.mouse.move(cx + step * 20 * k, cy);
+          for (let k = 1; k <= 6; k++) await page.mouse.move(cx + (step * length * k) / 6, cy);
           await page.mouse.up();
-          // La caméra tourne image par image (inertie) : relire jusqu'à ce que l'orientation ne bouge plus.
+          // La caméra tourne image par image (inertie, éteinte en une seconde environ) et la vue de dessus se
+          // redessine toutes les 250 ms : relire toutes les 600 ms jusqu'à deux lectures égales.
           let previous = NaN;
-          for (let k = 0; k < 40 && !(Math.abs(current - previous) < 1e-4); k++) {
-            await page.waitForTimeout(250);
+          for (let k = 0; k < 20 && !(Math.abs(current - previous) < 1e-4); k++) {
+            await page.waitForTimeout(600);
             previous = current;
             current = await readYaw();
           }
@@ -1346,12 +1352,16 @@ async function runProfile(browser, name, base) {
       const longestSeen = Math.max(0, ...runs.filter((r) => r[0]).map((r) => r[1]));
       const passes = runs.filter((r) => r[0]).length;
       const losses = runs.filter((r, i) => !r[0] && i > 0 && i + 1 < runs.length && r[1] < longestSeen).length;
+      // Garde contre un faux vert : un chien vu un instant à l'entrée de chaque passage, puis perdu jusqu'à la sortie,
+      // ne compte aucune perte. Dans le cadre pendant environ 1,7 s d'horloge sur un aller-retour de 5,7 s, il doit être
+      // vu, dans la plus longue série, au moins 0,15 fois la plus longue série « perdu » (environ 0,4 attendu).
+      const longestLost = Math.max(0, ...runs.filter((r) => !r[0]).map((r) => r[1]));
       const yawBack = await turnTo(yawStart - 0.03, yawStart + 0.03);
       if (topClosed) await page.click("#top-view-toggle");
       check(
         "détection des animaux : le chien à découvert n'est pas lâché (FMA-23)",
-        yawDog >= 0.55 && yawDog <= 0.7 && passes >= 2 && losses <= 1 && Math.abs(yawBack - yawStart) <= 0.03,
-        `lacet ${yawDog.toFixed(3)} rad ; ${passes} série(s) « œil » ou « visage », la plus longue de ${(longestSeen / 1000).toFixed(1)} s ; ${losses} perte(s) à découvert ; séries : ${runs.map((r) => `${r[0] ? "vu" : "perdu"} ${(r[1] / 1000).toFixed(1)} s`).join(", ")} ; lacet ramené à ${yawBack.toFixed(3)} rad (départ ${yawStart.toFixed(3)})`,
+        yawDog >= 0.55 && yawDog <= 0.7 && passes >= 2 && losses <= 1 && longestSeen >= 0.15 * longestLost && Math.abs(yawBack - yawStart) <= 0.03,
+        `lacet ${yawDog.toFixed(3)} rad ; ${passes} série(s) « œil » ou « visage », la plus longue de ${(longestSeen / 1000).toFixed(1)} s (plus longue série « perdu » : ${(longestLost / 1000).toFixed(1)} s) ; ${losses} perte(s) à découvert ; séries : ${runs.map((r) => `${r[0] ? "vu" : "perdu"} ${(r[1] / 1000).toFixed(1)} s`).join(", ")} ; lacet ramené à ${yawBack.toFixed(3)} rad (départ ${yawStart.toFixed(3)})`,
       );
     }
     await setAf("continuous", "auto", "faceEye");

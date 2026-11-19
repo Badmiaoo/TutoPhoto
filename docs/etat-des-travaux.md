@@ -109,7 +109,7 @@ Posées le 15 novembre 2026 (version 0.3.58), sauf mention. Le détail (options,
 | D17 (4) | Même question : l'alerte de vitesse trop lente. | Idem. |
 | D17 (5) | Même question : le mode silencieux. | Idem. |
 | D18 | En AF-S, montrer le visage détecté avant le toucher, comme le décrit le manuel (FMA-22) ? | Le comportement reste, et le Sujet 8 l'écrit dans la fiche. |
-| D19 | Défi SIT-06 : juger aussi si le chien est visible (FMA-19) ? | La fiche le dit (Sujet 6) ; à revoir après le Sujet 6. |
+| D19 | Défi SIT-06 : juger aussi si le chien est visible (FMA-19) ? | La fiche dit que le défi ne le juge pas (version 0.3.66). La contre-vérification de FMA-19 déconseillait ce contrôle tant que la détection lâchait le chien à découvert ; c'est corrigé par la version 0.3.66 (en rendu logiciel). |
 | D20 | Les défis doivent-ils juger l'exposition (FMA-17) ? | La phrase seule, au Sujet 8. |
 | D21 | Bulletin : mesurer le bruit sur la photo plutôt que dans le viseur (ARC-10) ? | Les deux approximations restent, écrites. |
 | D22 | Laisser choisir le sens du cadre, horizontal ou vertical (INT-12) ? | Rien de plus que le Sujet 42. |
@@ -147,6 +147,7 @@ Sans réponse, chaque choix reste en place ; il s'annule par `git revert -m 1` d
 | Joindre ou non au Sujet 42 la bande « Calcul de la photo… » qui couvre l'indicateur de mise au point sur téléphone (« Défauts connus, hors du plan ») | 18 novembre 2026, version 0.3.63 | `CHANGELOG.md`, section 0.3.63 ; sans réponse, le défaut reste noté hors du plan |
 | Routine de test (Sujet 4), choix 1 à 13, dont la phrase de `CLAUDE.md` sur ce que les tests émulent (6) | 19 novembre 2026, version 0.3.64 | Section 5 |
 | Pages de reprise (Sujet 5), choix 1 à 10, dont la table « Quelle page pour quelle information » de `CLAUDE.md` (D6) | 19 novembre 2026, version 0.3.65 | Section 5 |
+| La mise au point qui suit le chien (Sujet 6), choix 1 à 6, dont le contrôle de la routine qui tolère une perte (4) | 19 novembre 2026, version 0.3.66 | Section 5 |
 | L'ordre et le découpage du plan de corrections | 15 novembre 2026 | `docs/audit/README.md`, « Plan de corrections » ; sans réponse, l'ordre du plan vaut |
 | Lecture des journaux de la CI par l'outil GitHub (`get_job_logs`) ; deux agents les ont lus une fois par `gh api`, alors que les consignes des sessions réservent `gh` à la recherche. Julien veut-il autre chose ? | 17 novembre 2026 | « Leçons pratiques » ; sans réponse, l'outil GitHub |
 
@@ -163,6 +164,7 @@ Sur le site publié, après avoir lu la version à l'écran (test T1). Sans rép
 | T5 | 0.3.62 | Rafale tenue, doigt qui glisse sur le déclencheur (COD-09) ; place du déclencheur pendant la rafale. |
 | T6 | 0.3.62 | L'indicateur d'exposition touché pendant qu'il clignote (FEX-19, INT-21). |
 | T7 | 0.3.63 | Toucher du viseur pendant le calcul, photo et rafale un doigt posé sur le viseur (COD-07, COD-01). |
+| T8 | 0.3.66 | La mise au point suit le chien à découvert, en AF-C, zone automatique et détection des animaux (FMA-23). |
 
 ## Ce que Julien seul peut faire
 
