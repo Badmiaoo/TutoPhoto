@@ -1285,9 +1285,9 @@ async function runProfile(browser, name, base) {
     // découvert est une série « sujet le plus proche » entre deux séries « œil » ou « visage », plus courte que la
     // plus longue série « œil » ou « visage » : à cadence constante, une sortie du cadre dure plus de trois fois plus
     // longtemps. Mesuré hors de la routine (serveur de développement, rendu logiciel, environ 3,3 images par seconde,
-    // même lacet de 0,6 rad) : avant la correction, 21 pertes en 58,7 s d'horloge de la scène, et le chien détecté
-    // sur 81 des 142 images où son œil était à découvert ; après, voir CHANGELOG.md, section 0.3.66. Le contrôle
-    // tolère une perte.
+    // même lacet de 0,6 rad) : avant la correction, 13 pertes en 57 s d'horloge de la scène, et le chien détecté sur
+    // 46 des 86 images où son œil était à découvert et dans la zone couverte ; après, aucune perte en 60 s, 96 sur 96
+    // (CHANGELOG.md, section 0.3.66). Le contrôle tolère une perte.
     // L'appareil est ramené ensuite à son lacet de départ.
     {
       const topClosed = !(await page.locator("#top-view-map").isVisible());

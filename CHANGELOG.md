@@ -14,7 +14,7 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 ## [0.3.66] - 2026-11-19
 
-Sujet 6 du plan de corrections de l'audit (`docs/audit/README.md`) : la mise au point qui suit le chien de SIT-06. Constats FMA-23 et FMA-19 (`docs/audit/fiches-mise-au-point.md`), confirmés par leur contre-vérification, dont la correction est reprise. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. En cours d'écriture.
+Sujet 6 du plan de corrections de l'audit (`docs/audit/README.md`) : la mise au point qui suit le chien de SIT-06. Constats FMA-23 et FMA-19 (`docs/audit/fiches-mise-au-point.md`), confirmés par leur contre-vérification, dont la correction est reprise. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente.
 
 ### Corrigé
 
@@ -24,6 +24,21 @@ Sujet 6 du plan de corrections de l'audit (`docs/audit/README.md`) : la mise au 
 ### Modifié
 
 - Fiche SIT-06 (FMA-19) : la recette dit que la mise au point suit le chien tant que sa tête est visible et dans la zone couverte par l'autofocus ; la section « Défi » dit que le défi ne juge pas si le chien est caché.
+- `docs/camera-physique.md` : la détection sur 3 × 3 pixels, les deux causes de FMA-23 et leur correction, les points des yeux du chien gardés, le saut de la mise au point quand la tête du chien est cachée ou hors de la zone couverte (l. 385, 388 et 403 de l'ancienne page, relues comme le demandait le plan).
+- `docs/propositions.md` : choix 1 à 6 de ce sujet.
+
+### Ajouté
+
+- Routine de test, contrôle « détection des animaux : le chien à découvert n'est pas lâché (FMA-23) » : l'appareil tourné vers la partie de la course du chien qu'aucun personnage ne cache, l'indicateur de mise au point noté pendant 60 s ; une perte est une courte série « sujet le plus proche » entre deux séries « œil » ou « visage » ; une perte tolérée (choix 4).
+
+Mesures (script hors du dépôt, serveur de développement pour l'accès `__tutophoto`, Chromium sans écran en rendu logiciel, fenêtre de 1280 × 800, 50 mm, AF-C, zone automatique, détection des animaux, appareil tourné de 0,6 rad vers la droite, où le groupe ne cache pas le chien ; « à découvert » : œil à plus de 2,2 m à droite de l'axe et entre 22 % et 78 % de la largeur du canevas, donc dans la zone couverte) :
+
+| Mesure | `main` (0.3.65) | Cette version |
+| --- | --- | --- |
+| Horloge libre, 180 s (environ 3,3 images par seconde ; l'horloge avance de 0,1 s par image) : images où le chien est détecté, sur celles où son œil est à découvert | 46 sur 86 ; 13 pertes en 57 s d'horloge | 96 sur 96 ; aucune perte en 60 s |
+| Horloge figée, 150 instants espacés de 0,04 s : instants où le chien est détecté | 15 sur 28 | 28 sur 28 |
+
+Une première série, avec un critère « à découvert » trop large (de 12 % à 88 % de la largeur du canevas), comptait des instants où l'œil était dans le bord du cadre que l'autofocus ne couvre pas : regardés à part (horloge figée à 1,90 s et 3,38 s), l'œil y est à 15 % de la largeur du canevas, le cadre commence à 14,5 % ; ces pertes-là sont celles de MAP-06, voulues. Sur `main`, les pertes à horloge figée (13 sur 28) sont plus nombreuses que celles mesurées par la contre-vérification de l'audit (3 sur 110, appareil face à la scène) : Je ne sais pas d'où vient l'écart (cadrage, taille du canevas, ou part du retard d'une image qui subsisterait à horloge figée). Rien n'est mesuré sur un téléphone, avec un processeur graphique, ni le coût du second calcul des os.
 
 ## [0.3.65] - 2026-11-19
 
