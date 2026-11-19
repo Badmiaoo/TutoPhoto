@@ -6,9 +6,14 @@
 // Prérequis : Playwright (licence Apache-2.0) et son Chromium, installés hors du dépôt ; le site construit
 // (cd app && npm run build).
 //
-// Limites : Chromium seul, avec un rendu logiciel (SwiftShader). Les profils mobiles émulent la taille
-// d'écran, le toucher et l'identification du navigateur (Babylon.js change de comportement sur iPhone et
-// iPad), mais pas le processeur graphique ni le moteur Safari : un vrai téléphone reste nécessaire.
+// Limites : Chromium seul, avec un rendu logiciel (SwiftShader). Les profils mobiles émulent la taille et la
+// densité de l'écran et l'identification du navigateur (Babylon.js change de comportement sur iPhone et iPad), et
+// déclarent un écran tactile ; mais aucun geste de la routine n'est un toucher : clics, glissés et appuis tenus
+// passent par la souris (constat INT-13 de l'audit). Ils n'émulent ni le processeur graphique ni le moteur
+// Safari : un vrai téléphone reste nécessaire. Dans la liste des contrôles ci-dessous et dans leurs noms,
+// « toucher » nomme le geste de l'application (toucher le viseur, la carte, la photo) : la routine le fait à la
+// souris ; qu'un élément ne reçoive pas les touchers, elle le vérifie par l'élément qui se trouve sous le point
+// visé, lu avec document.elementFromPoint (relecture de la version 0.3.64).
 //
 // Contrôles des pages statiques (version 0.3.46), une fois : chaque lien interne de chaque page HTML du site
 // construit mène à un fichier qui existe, et chaque ancre à un élément de la page visée.
@@ -38,14 +43,26 @@
 // - grilles de cadrage (CMP-02, version 0.3.56) : aucune ligne par défaut ; « Tiers », choisi dans la fenêtre
 //   « Aperçu », trace quatre lignes à 1/3 et 2/3 du cadre, « Seize cases » six lignes à 1/4, 1/2 et 3/4, à 1 pixel
 //   près ; « Vingt-quatre cases » a six cases sur le grand côté du cadre et quatre sur le petit ; « Tiers et
-//   diagonales » ajoute deux diagonales qui couvrent tout le cadre ; le choix est écrit dans tutophoto.apercu ; les lignes ne reçoivent pas les touchers ; la grille est
-//   masquée quand la loupe est à 100 % et revient quand elle est coupée ;
+//   diagonales » ajoute deux diagonales qui couvrent tout le cadre ; le choix est écrit dans tutophoto.apercu ;
+//   les lignes ne reçoivent pas les touchers ; la grille est masquée quand la loupe est à 100 % et revient quand
+//   elle est coupée ; « Aucune », choisie de nouveau, retire les lignes, et ce choix est écrit lui aussi ;
 // - le viseur garde au moins 35 % de la hauteur de la fenêtre (iPhone : 41 % avant l'indicateur d'équilibre) ;
 // - indicateur d'équilibre : zone nette et bruit excellent aux réglages par défaut ; au même point du sol,
 //   immobile, le rapport signal/bruit à ISO 6400 tombe sous 40 % de celui à ISO 100 (environ 17 % attendus :
 //   6 IL de sensibilité en plus, 0,87 IL d'exposition en plus, bruit photonique) ; traînée du chien évaluée ;
-// - avec --photo : la photo se calcule, n'est pas noire, et la loupe de l'écran de revue fonctionne ; après « Photo
-//   entière », une seconde loupe sur la même photo montre le point touché (COD-14, version 0.3.62) ;
+// - exposition (BOI-07, BOI-08, MES-04, MES-10) : M et ISO auto (ISO 100) par défaut, comme le Z 6 ; en A à
+//   ISO 6400, la vitesse qu'il faudrait dépasse 1/4000 s : elle reste à 1/4000 s et clignote, sa molette, en
+//   automatique, grisée ; à ISO 100, la vitesse suit l'ouverture (1/100 s à f/8, 1/400 s à f/4) ; en S à 1/4000 s et
+//   ISO 100, l'ouverture qu'il faudrait dépasse f/1.4 : elle reste à f/1.4 et clignote ; avec l'ISO auto, ISO 125, et
+//   elle ne clignote plus ; en M, à f/8 et 1/100 s, avec l'ISO auto et une correction de +1 IL, ISO 200, et
+//   l'indicateur montre −0,2 IL ;
+// - vue de dessus (NET-01, NET-06), en AF-C, zone automatique et détection des yeux : la carte montre des sujets
+//   dans la zone nette ; l'appareil reculé de 4 m en touchant la carte mesure de 3,5 à 4,5 m de plus, et « Retour
+//   au départ » le ramène, à 0,3 m près ;
+// - avec --photo : la photo se calcule et n'est pas noire, sa légende commence par le mode et les réglages
+//   (« M · f/8 · 1/4000 s · ISO 6400 · 50 mm »), le bulletin qui la suit donne l'exposition et la zone nette, et la
+//   loupe de l'écran de revue fonctionne ; après « Photo entière », une seconde loupe sur la même photo montre le
+//   point touché (COD-14, version 0.3.62) ;
 // - avec --photo, histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07, version 0.3.57) : par défaut,
 //   ni histogramme ni clignotement ; « Infos » une fois : quatre histogrammes (luminance, rouge, vert, bleu), la
 //   somme des colonnes de chacun égale au nombre de pixels de la photo ; photo surexposée de 3,2 IL : elle s'ouvre en
@@ -55,10 +72,14 @@
 //   « sans clignoter » ; réglage rendu, il clignote de nouveau (version 0.3.62) ; photo sous-exposée de 3,2 IL :
 //   aucune zone, plus de la moitié des pixels de luminance dans la moitié gauche ; retour à « photo seule » et aux
 //   réglages de départ ;
+// - avec --photo, défis, en AF-C, zone automatique et détection des yeux : à f/8, le défi SIT-05 (photo de groupe)
+//   est réussi ; à f/22, le défi SIT-01 est à reprendre, le fond restant net, et le bulletin renvoie à NET-01 ;
 // - avec --photo, rafale (BOI-12) : en Continu L à 5 vues par seconde, déclencheur tenu jusqu'à deux vues au
 //   moins, espacées de 0,2 s sur l'horloge de la scène, que l'écran de revue fait défiler ;
-// - mise au point (MAP-04, MAP-05, MAP-09), en fin de test parce que la vue change : AF-C et point sélectif par
-//   défaut ; en zone automatique, un œil est détecté dans le groupe ; détection coupée, l'appareil prend le
+// - mise au point (MAP-04, MAP-05, MAP-09) : AF-S et point sélectif par défaut, comme le Z 6, lus juste après le
+//   chargement, avant tout réglage de la mise au point (constat INT-05 de l'audit, version 0.3.64) ; en fin de
+//   test, parce que la vue change : retour à AF-S et point sélectif par la fenêtre « Mise au point » ; en zone
+//   automatique, un œil est détecté dans le groupe ; détection coupée, l'appareil prend le
 //   sujet le plus proche ; en détection des animaux, l'œil du chien est détecté quand il passe (au plus 30 s) ;
 //   en AF-S, toucher le bas du cadre verrouille la distance ; au même endroit, la zone large (L)
 //   retient un sujet plus proche (le sol en bas du cadre) ; la distance ne bouge plus quand on relève
@@ -66,7 +87,15 @@
 // - avec --photo, pendant le calcul de cette photo, pointeur enfoncé et déplacé sur le viseur, bouton tenu jusqu'après
 //   l'ouverture de l'écran de revue : l'orientation de l'appareil, lue sur la vue de dessus, n'a pas changé à la
 //   reprise (COD-01, version 0.3.63) ; après la rafale, un glissé de 120 px sur le viseur tourne de nouveau
-//   l'appareil, de plus de 0,01 rad : ses commandes sont rattachées après le calcul (relecture de la version 0.3.63).
+//   l'appareil, de plus de 0,01 rad : ses commandes sont rattachées après le calcul (relecture de la version 0.3.63) ;
+// - collimateurs (MAP-06), en AF-C et point sélectif : un toucher en haut à droite du cadre (à 99 % de sa largeur et
+//   1 % de sa hauteur) ramène le point dans la zone couverte par l'autofocus, au plus près du point touché, et cette
+//   zone mesure 90 % × 90 % du cadre avec le Nikon Z 6, 88 % × 100 % avec le Canon EOS RP, 96,4 % × 96,4 % avec le
+//   Sony A7 III (93 % de la surface), grand et petit côtés échangés en cadre vertical ;
+// - en fin de profil (constat INT-06 de l'audit, version 0.3.64) : aucun problème affiché à la fin du parcours, la
+//   ligne de diagnostic étant relue avant le rechargement du simulateur pour le défi SIT-06, qui l'efface, et après
+//   lui ; et aucune erreur de la page ni de la console sur toutes les pages ouvertes par le profil (aucune n'est
+//   admise), contrôle compté aussi quand le simulateur ne se charge pas ou que la routine s'arrête sur une exception.
 
 "use strict";
 const fs = require("fs");
@@ -77,7 +106,27 @@ let playwright;
 try {
   playwright = require("playwright");
 } catch {
-  console.error("Playwright est introuvable : installez-le (npm install -g playwright) avec son Chromium.");
+  // Version à installer : celle de la CI, lue dans son workflow, qui est aussi celle de la machine de Claude (constat
+  // CHX-08 de l'audit, version 0.3.64). Node.js ne cherche pas seul les modules installés par « npm install -g » :
+  // la CI donne le dossier de Playwright par NODE_PATH. La ligne est lue sous ses trois écritures YAML (guillemets
+  // doubles, simples, ou aucun) ; si elle ne l'est pas (workflow absent, routine copiée hors du dépôt, autre
+  // écriture), le message le dit, sans commande : « npm install -g playwright@X.Y.Z » échoue, npm lisant « X.Y.Z »
+  // comme une étiquette (relecture de la version 0.3.64).
+  const workflow = path.join(__dirname, "..", ".github", "workflows", "routine.yml");
+  const line = /^\s*PLAYWRIGHT_VERSION:[ \t]*(["']?)(\d+\.\d+\.\d+)\1[ \t]*(#.*)?\r?$/m;
+  const version = fs.existsSync(workflow) ? line.exec(fs.readFileSync(workflow, "utf8"))?.[2] : undefined;
+  console.error(
+    version
+      ? `Playwright est introuvable. Installe la version ${version}, celle de la CI (PLAYWRIGHT_VERSION dans ` +
+          ".github/workflows/routine.yml), avec son Chromium, puis donne son dossier à Node.js par NODE_PATH :\n" +
+          `  npm install -g playwright@${version} && playwright install chromium\n` +
+          '  NODE_PATH="$(npm root -g)" node scripts/test_app.cjs\n' +
+          "La CI ajoute --with-deps à « playwright install », qui installe aussi les bibliothèques du système " +
+          "dont le navigateur a besoin."
+      : "Playwright est introuvable, et sa version n'a pas pu être lue dans .github/workflows/routine.yml " +
+          "(PLAYWRIGHT_VERSION : fichier absent, ou ligne écrite autrement). Installe la version écrite dans ce " +
+          "fichier du dépôt, celle de la CI, avec son Chromium, puis donne son dossier à Node.js par NODE_PATH.",
+  );
   process.exit(2);
 }
 const { chromium, devices } = playwright;
@@ -100,6 +149,12 @@ const PROFILES = {
   // Ordinateur sans WebGL 2, comme certains appareils anciens.
   webgl1: { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1, noWebgl2: true },
 };
+
+// Erreurs admises par le contrôle « aucune erreur de la page ni de la console » (INT-06 de l'audit, version 0.3.64) :
+// des expressions régulières, essayées sur le texte relevé (« page : … » ou « console : … »). La liste part de zéro.
+// Une erreur n'y entre qu'avec sa cause établie, sans rapport avec un défaut, sa raison écrite ici et le choix noté
+// dans docs/propositions.md.
+const ADMITTED_ERRORS = [];
 
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".jpg": "image/jpeg", ".png": "image/png", ".gltf": "model/gltf+json", ".bin": "application/octet-stream", ".hdr": "application/octet-stream", ".txt": "text/plain", ".md": "text/markdown" };
 
@@ -328,9 +383,23 @@ async function runProfile(browser, name, base) {
   const page = await context.newPage();
   // En rendu logiciel, une image avec profondeur de champ peut prendre plusieurs secondes.
   page.setDefaultTimeout(300000);
+  // Erreurs des pages (exceptions non rattrapées, promesses rejetées sans traitement), avec l'adresse de la page, et
+  // messages d'erreur de la console (dont les fichiers qui ne se chargent pas, avec leur adresse), pour le contrôle
+  // « aucune erreur de la page ni de la console » de la fin du profil (INT-06 de l'audit, version 0.3.64). Les
+  // écouteurs sont posés sur le contexte, avant l'accueil : ils entendent toutes ses pages. Le profil ouvre les
+  // siennes dans cet onglet (accueil, fiches, activité LUM-02, simulateur ; les fiches ouvertes par-dessus le
+  // simulateur sont chargées dans sa page) ; une fenêtre ouverte à part, par un lien « target="_blank" » ou par
+  // window.open, serait entendue aussi, ce qu'un écouteur de la page ne fait pas (relecture de la version 0.3.64).
   const errors = [];
-  page.on("pageerror", (e) => errors.push(e.message));
-  page.on("console", (m) => m.type() === "error" && errors.push(m.text().slice(0, 200)));
+  context.on("weberror", (e) => {
+    const where = e.page()?.url().replace(base, "") ?? "";
+    errors.push(`page : ${e.error().message.slice(0, 200)}${where ? ` (${where})` : ""}`);
+  });
+  context.on("console", (m) => {
+    if (m.type() !== "error") return;
+    const url = m.location().url;
+    errors.push(`console : ${m.text().slice(0, 200)}${url ? ` (${url.replace(base, "")})` : ""}`);
+  });
   const checks = [];
   const check = (label, ok, detail = "") => checks.push({ label, ok, detail });
   const started = Date.now();
@@ -357,12 +426,24 @@ async function runProfile(browser, name, base) {
     check("chargement", loaded, `${Math.round((Date.now() - started) / 1000)} s`);
     const home = await page.evaluate(() => ({ text: document.getElementById("home")?.textContent ?? "", href: document.getElementById("home")?.getAttribute("href") ?? "" }));
     check("simulateur : lien vers l'accueil", home.text === "Accueil" && home.href === "../", `« ${home.text} » → ${home.href}`);
-    const diagnostic = await page.evaluate(() => {
-      const d = document.getElementById("diagnostic");
-      return d && !d.hidden ? d.textContent : "";
-    });
+    // Ligne de diagnostic (app/src/main.ts) : erreurs JavaScript, bruit ou profondeur de champ du viseur
+    // indisponibles, scène affichée avant d'être prête ; vide et masquée sans problème. Lue ici, puis en fin de
+    // parcours (« aucun problème affiché à la fin du parcours », plus bas).
+    const diagnosticText = () =>
+      page.evaluate(() => {
+        const d = document.getElementById("diagnostic");
+        return d && !d.hidden ? d.textContent : "";
+      });
+    const diagnostic = await diagnosticText();
     check("aucun problème affiché", !diagnostic, diagnostic);
-    if (!loaded) return { name, checks, errors };
+    // Sans scène, la suite n'a pas d'objet ; le bloc finally ajoute encore à checks le contrôle des erreurs.
+    if (!loaded) return { name, checks };
+    // Mise au point par défaut (MAP-04, MAP-05) : AF-S et point sélectif, comme le Z 6 (app/src/ui/cameraPanel.ts,
+    // [nikon-z6-defaults]). Lue avant que la routine ne règle quoi que ce soit en mise au point (INT-05 de l'audit,
+    // version 0.3.64) : en fin de test, « mise au point : retour à AF-S et point sélectif » relit un réglage que la
+    // routine vient de faire dans la fenêtre « Mise au point ».
+    const afDefault = await page.evaluate(() => document.getElementById("af-badge").textContent);
+    check("mise au point : AF-S et point sélectif par défaut (Z 6)", /^AF-S · Point · /.test(afDefault), afDefault);
 
     // Le rendu est à la densité de l'écran, plafonnée à 2 (version 0.3.53 : pixels calculés = pixels CSS ×
     // min(densité, 2)), et le cadre a les proportions du capteur (Nikon Z 6 : 35,9 / 23,9).
@@ -1160,8 +1241,10 @@ async function runProfile(browser, name, base) {
         )
         .then((handle) => handle.jsonValue())
         .catch(() => null);
+    // AF-S et point sélectif sont le dernier réglage que la routine a fait dans la fenêtre « Mise au point » : ce
+    // contrôle prouve que la fenêtre remet ce mode, pas le réglage de départ, contrôlé après le chargement (INT-05).
     const startText = await afText();
-    check("mise au point : AF-S et point sélectif par défaut (Z 6)", /^AF-S · Point · /.test(startText), startText);
+    check("mise au point : retour à AF-S et point sélectif", /^AF-S · Point · /.test(startText), startText);
 
     // Zone automatique, vue de départ : le groupe est à environ 6,5 m.
     await setAf("continuous", "auto", "faceEye");
@@ -1436,6 +1519,9 @@ async function runProfile(browser, name, base) {
     // au chargement de finir et au message de se vider (échec isolé du 11 novembre 2026 sur la machine de Claude,
     // puis dans la CI le 12, les deux fois sur le profil webgl1, texte lu vide). Si l'attente échoue, sa raison est
     // gardée.
+    // La ligne de diagnostic est relue juste avant ce rechargement, qui l'efface : elle garde ce que la page a signalé
+    // pendant tout le parcours du simulateur (INT-06 de l'audit, version 0.3.64) ; puis une fois encore à la fin.
+    const problemBeforeReload = await diagnosticText();
     await page.goto(`${base}/simulateur?defi=SIT-06`);
     const progress = await page
       .waitForFunction(() => {
@@ -1465,6 +1551,13 @@ async function runProfile(browser, name, base) {
       counted.count > 0 && counted.missing.length === 0,
       `${counted.count} fichiers comptés ; jamais chargés : ${counted.missing.join(", ") || "aucun"}`,
     );
+    // Seconde lecture de la ligne de diagnostic, même critère que « aucun problème affiché » au chargement.
+    const problemAtEnd = await diagnosticText();
+    check(
+      "aucun problème affiché à la fin du parcours",
+      !problemBeforeReload && !problemAtEnd,
+      `avant le rechargement : ${problemBeforeReload ? `« ${problemBeforeReload} »` : "ligne vide"} ; à la fin, page rechargée pour le défi SIT-06 : ${problemAtEnd ? `« ${problemAtEnd} »` : "ligne vide"}`,
+    );
   } catch (error) {
     // Dans la CI, il n'y a ni écran ni capture : le message garde le journal d'appel de Playwright (ce qu'il
     // attendait de l'élément) et l'état de la page, lu en 10 secondes au plus au cas où elle ne répondrait plus.
@@ -1482,14 +1575,32 @@ async function runProfile(browser, name, base) {
       : "la page ne répond plus";
     check("déroulement du test", false, `${String(error).split("\n").slice(0, 25).join(" ⏎ ")} ; ${where}`);
   } finally {
+    // Erreurs des pages et de la console (INT-06 de l'audit, version 0.3.64) : un contrôle compté comme les autres,
+    // fait ici pour l'être aussi quand le simulateur ne se charge pas (retour anticipé, plus haut) ou que la routine
+    // s'arrête sur une exception (« déroulement du test »). Chaque erreur distincte est nommée, avec son nombre
+    // d'occurrences ; au-delà de 40, le nombre de celles qui restent.
+    const describe = (list) => {
+      const counts = new Map();
+      for (const e of list) counts.set(e, (counts.get(e) ?? 0) + 1);
+      const named = [...counts].slice(0, 40).map(([e, n]) => (n > 1 ? `${e} (${n} fois)` : e));
+      return named.join(" | ") + (counts.size > 40 ? ` | et ${counts.size - 40} autre(s) erreur(s) distincte(s)` : "");
+    };
+    const admitted = errors.filter((e) => ADMITTED_ERRORS.some((pattern) => pattern.test(e)));
+    const unexpected = errors.filter((e) => !admitted.includes(e));
+    check(
+      "aucune erreur de la page ni de la console",
+      unexpected.length === 0,
+      (unexpected.length ? `${unexpected.length} erreur(s) : ${describe(unexpected)}` : "aucune") +
+        (admitted.length ? ` ; admises : ${describe(admitted)}` : ""),
+    );
     await context.close();
   }
-  return { name, checks, errors };
+  return { name, checks };
 }
 
 (async () => {
   if (!fs.existsSync(path.join(dist, "simulateur", "index.html")) || !fs.existsSync(path.join(dist, "index.html"))) {
-    console.error(`Site construit introuvable dans ${dist} : lancez d'abord cd app && npm run build.`);
+    console.error(`Site construit introuvable dans ${dist} : lance d'abord cd app && npm run build.`);
     process.exit(2);
   }
   const server = await serve(dist);
@@ -1508,8 +1619,6 @@ async function runProfile(browser, name, base) {
       if (!c.ok) failed++;
       console.log(`${c.ok ? "ok    " : "ÉCHEC "} ${c.label}${c.detail ? ` : ${c.detail}` : ""}`);
     }
-    const errors = [...new Set(result.errors)];
-    if (errors.length) console.log(`erreurs de la console (${errors.length}) : ${errors.slice(0, 3).join(" | ")}`);
   }
   await browser.close();
   server.close();

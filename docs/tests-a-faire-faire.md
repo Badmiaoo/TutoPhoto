@@ -2,7 +2,7 @@
 
 Liste tenue par Claude, à la demande de Julien (15 novembre 2026) : « Continue avec tes propres testes, tu me feras un fichiers avec la liste des testes a faire faire que je ferais faire et que je te donnerais pour ajuster. Mais c'est pas bloquant. »
 
-Ce que les tests de Claude ne peuvent pas établir : ils tournent dans Chromium en rendu logiciel, sur des écrans émulés, avec les gestes d'une souris. Rien n'y est essayé sur un vrai téléphone, avec un processeur graphique, ni dans Safari. Chaque version ajoute ici ce qui reste à voir de cette façon ; rien de cette liste ne bloque le travail.
+Ce que les tests de Claude ne peuvent pas établir : ils tournent dans Chromium en rendu logiciel, sur des écrans émulés, avec les gestes d'une souris dans la routine ; certains essais jouent des touchers émulés par le protocole de Chromium. Rien n'y est essayé sur un vrai téléphone, avec un processeur graphique, ni dans Safari. Chaque version ajoute ici ce qui reste à voir de cette façon ; rien de cette liste ne bloque le travail.
 
 ## Comment rendre un résultat
 
