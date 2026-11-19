@@ -8,8 +8,10 @@ Pendant la pose, ce qui bouge laisse une traînée sur le capteur, d'autant plus
 
 ## Simulateur
 
+Au départ, l'ISO auto est activé, comme sur le Z 6 : l'appareil rattrape tes réglages en changeant la sensibilité. Désactive-le dans la fenêtre « Exposition », ouverte en touchant l'indicateur d'exposition (case « Activé » du contrôle de la sensibilité auto, voir MES-10), pour voir l'effet de chaque réglage seul.
+
 La molette « Vitesse » va de 30 s à 1/4000 s par tiers de cran. La cellule montre l'effet sur l'exposition ; l'indicateur d'équilibre et le bulletin de la photo donnent la traînée du sujet visé, en pixels. En mode S, c'est toi qui choisis la vitesse ; en mode A, l'appareil la règle. En rafale, une vue ne dure jamais moins que sa pose.
 
 ## Exercice
 
-En mode M, sans ISO auto, règle f/4 et 1/400 s, puis passe à f/8 : la cellule descend de deux crans (−2 IL). Retrouve l'exposition de départ par la seule vitesse. Réponse : 1/100 s, quatre fois plus longue, car f/4 → f/8 fait deux crans, soit quatre fois moins de lumière.
+En mode M, sans ISO auto, à ISO 100, règle f/4 et 1/400 s, puis passe à f/8 : la cellule descend de deux IL, de −0,2 à −2,2 IL. Retrouve l'exposition de départ par la seule vitesse. Réponse : 1/100 s, la cellule revient à −0,2 IL ; la pose est quatre fois plus longue, car f/4 → f/8 fait deux crans, soit quatre fois moins de lumière.

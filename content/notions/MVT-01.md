@@ -12,4 +12,4 @@ L'indicateur d'équilibre et le bulletin donnent la traînée du sujet visé, du
 
 ## Exercice
 
-La fiche du référentiel propose de figer un saut puis un cycliste de profil ; le parc a un chien qui court de profil et un promeneur. Trouve la vitesse la plus lente qui fige le promeneur (1/200 s), puis celle qui fige le chien (1/800 s), et vérifie-les avec le bulletin ; réussis le défi SIT-06.
+La fiche du référentiel propose de figer un saut puis un cycliste de profil ; le parc a un chien qui court de profil et un promeneur. Avec le boîtier de départ (Nikon Z 6) et le 50 mm, trouve la vitesse la plus lente qui fige le promeneur (1/200 s), puis celle qui fige le chien (1/800 s), et vérifie-les avec le bulletin ; réussis le défi SIT-06. Avec un boîtier APS-C, le flou acceptable est plus petit : 1/320 s et 1/1250 s. Une focale plus longue grossit le sujet et sa traînée : au 85 mm, 1/320 s et 1/1250 s en plein format.

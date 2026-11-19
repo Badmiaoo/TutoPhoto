@@ -10,4 +10,4 @@ Dans la fenêtre « Exposition », ouverte en touchant l'indicateur d'exposition
 
 ## Exercice
 
-La fiche du référentiel propose de rendre la neige blanche ; la scène de parc n'en a pas, l'exercice est adapté. En mode A à f/8, déclenche sans correction, puis avec +1 IL : le bulletin passe d'environ −0,2 IL à +0,8 IL (l'appareil allonge la pose de 1/100 s à 1/50 s). Refais-le en M sans ISO auto : la photo ne change pas, seul l'indicateur bouge.
+La fiche du référentiel propose de rendre la neige blanche ; la scène de parc n'en a pas, l'exercice est adapté. En mode A à f/8 et ISO 100, sans ISO auto, déclenche sans correction, puis avec +1 IL : le bulletin passe d'environ −0,2 IL à +0,8 IL (l'appareil allonge la pose de 1/100 s à 1/50 s). Refais-le en M sans ISO auto : la photo ne change pas, seul l'indicateur bouge. Remets la correction à ±0.

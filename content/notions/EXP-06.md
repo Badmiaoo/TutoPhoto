@@ -16,8 +16,14 @@ Pour juger le bruit, la norme des sensibilités numériques retient un rapport s
 
 ## Simulateur
 
-La molette « ISO » va de 100 à 6400 par tiers de cran (le Z 6 va au-delà ; TutoPhoto s'arrête là où s'arrêtent ses mesures de bruit). Le bruit photonique et le bruit de lecture sont calculés à partir de mesures de capteurs réels et se voit dans le viseur et sur la photo, à la loupe à 100 %. L'indicateur d'équilibre et le bulletin donnent le rapport signal sur bruit au point visé, avec les seuils 40:1 et 10:1. Avec l'ISO auto (MES-10), l'appareil choisit la sensibilité.
+Au départ, l'ISO auto est activé, comme sur le Z 6 : l'appareil rattrape tes réglages en changeant la sensibilité. Désactive-le dans la fenêtre « Exposition », ouverte en touchant l'indicateur d'exposition (case « Activé » du contrôle de la sensibilité auto, voir MES-10), pour voir l'effet de chaque réglage seul.
+
+La molette « ISO » (« ISO auto » tant qu'il est activé) va de 100 à 6400 par tiers de cran (le Z 6 va au-delà ; TutoPhoto s'arrête là où s'arrêtent ses mesures de bruit). Le bruit photonique et le bruit de lecture sont calculés à partir de mesures de capteurs réels et se voit dans le viseur et sur la photo, à la loupe à 100 %. L'indicateur d'équilibre et le bulletin donnent le rapport signal sur bruit au point visé, avec les seuils 40:1 et 10:1. Avec l'ISO auto (MES-10), l'appareil choisit la sensibilité.
 
 ## Exercice
 
-En mode M, sans ISO auto, impose f/4 et 1/1000 s. Trouve l'ISO le plus bas qui expose correctement. Calcul : à ISO 100, ces réglages valent 14 IL₁₀₀ (log₂(4²) + log₂(1000) ≈ 4 + 10), pour une scène à 12,5 IL₁₀₀ ; il manque 1,5 IL, soit ISO 100 × 2^1,5 ≈ 283, entre deux crans ; ISO 250 donne −1/6 IL, ISO 320 donne +1/6 IL. Compare le bruit au point visé à ISO 320 et à ISO 6400.
+En mode M, sans ISO auto, impose f/4 et 1/1000 s. Trouve l'ISO le plus bas qui expose correctement. Calcul : à ISO 100, ces réglages valent 14 IL₁₀₀ (log₂(4²) + log₂(1000) ≈ 4 + 10), pour une scène à 12,5 IL₁₀₀ ; il manque 1,5 IL, soit ISO 100 × 2^1,5 ≈ 283, entre deux crans ; ISO 250 donne −1/6 IL, ISO 320 donne +1/6 IL. Réponse : ISO 250, à −1/6 IL (la cellule affiche −0,2 IL).
+
+Compare ensuite le bruit. Touche un point immobile et sombre du sol, en bas du cadre : le rapport signal sur bruit dépend de la luminosité du point visé, et un personnage qui bouge le fait varier d'une lecture à l'autre. Règle ISO 320, puis :
+- passe à ISO 6400 sans rien changer d'autre : la photo est surexposée de 4,5 IL, mais le rapport signal sur bruit au point visé ne bouge presque pas, car la lumière captée est la même ;
+- garde ISO 6400 et reviens à une exposition correcte, à f/9 et 1/4000 s : le capteur reçoit environ vingt fois moins de lumière qu'à ISO 320, et le rapport signal sur bruit est divisé par environ 4,5 (√20). Comme le dit l'explication, le bruit vient surtout du manque de lumière.

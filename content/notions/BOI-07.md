@@ -10,4 +10,4 @@ Dans la fenêtre « Exposition », mode A. La molette « Vitesse (auto) » est g
 
 ## Exercice
 
-La fiche du référentiel demande un portrait fond flou sans bougé. En mode A, ouvre à f/2 ou plus et réussis le défi SIT-01 (regard de Sophia net, fond flou) ; regarde la vitesse choisie par l'appareil. Le bougé de la main n'est pas simulé : TutoPhoto ne peut pas juger le « sans bougé ».
+La fiche du référentiel demande un portrait fond flou sans bougé. En mode A, ouvre à f/2 ou davantage (f/1.8, f/1.6, f/1.4 : un nombre plus petit) et réussis le défi SIT-01 (regard de Sophia net, fond flou) ; regarde la vitesse choisie par l'appareil. Le bougé de la main n'est pas simulé : TutoPhoto ne peut pas juger le « sans bougé ».
