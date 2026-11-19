@@ -678,7 +678,7 @@ async function runProfile(browser, name, base) {
     const sIso = await dialState("iso");
     check(
       "mode S : ouverture à f/1.4 qui clignote, puis ISO auto",
-      sDark.value === "f/1,4" && sDark.flashing && !sAuto.flashing && sIso.name === "ISO auto" && sIso.value === "125",
+      sDark.value === "f/1.4" && sDark.flashing && !sAuto.flashing && sIso.name === "ISO auto" && sIso.value === "125",
       `${sDark.value}${sDark.flashing ? " clignote" : ""} ; ISO auto : ${sAuto.value}, ${sIso.name} ${sIso.value}`,
     );
     // M, 1/100 s, ISO auto, correction +1 IL : ISO 15 + 35 − 46,5 = 3,5 → ISO 200 ; l'indicateur montre l'écart à

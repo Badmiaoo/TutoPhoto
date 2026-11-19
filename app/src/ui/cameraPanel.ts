@@ -692,7 +692,8 @@ export class CameraPanel {
     const settings = resolved.settings;
     switch (dial) {
       case "aperture":
-        return `f/${decimal(apertureLabel(settings.aperture))}`;
+        // Ouverture écrite avec le point, comme dans les fiches (« f/5.6 », décision D5 de Julien, 15 novembre 2026).
+        return `f/${apertureLabel(settings.aperture)}`;
       case "shutter": {
         const label = shutterLabel(settings.shutter);
         return label.includes("/") ? `${label} s` : `${decimal(label)} s`;
