@@ -9,8 +9,8 @@ Le mode de zone AF dit quelle partie du cadre sert à faire le point. Sur le Nik
 
 ## Simulateur
 
-Fenêtre « Mise au point » : point sélectif, zone large (S), zone large (L), zone automatique. Le repère du viseur montre la zone mesurée. Le manuel ne donne pas la taille des zones larges : TutoPhoto a choisi des carrés de 10 % (S) et de 20 % (L) du grand côté du cadre. La zone dynamique et le pinpoint du Z 6 ne sont pas simulés.
+Fenêtre « Mise au point » : point sélectif, zone large (S), zone large (L), zone automatique. Le repère du viseur montre la zone mesurée. Le manuel ne donne pas la taille des zones larges : TutoPhoto a choisi des carrés de 10 % (S) et de 20 % (L) du grand côté du cadre. Dans une zone large, TutoPhoto retient le point le plus proche de la zone, même le sol : le manuel parle du sujet le plus proche, sans dire ce qui compte comme un sujet, ni quelle part de la zone il doit occuper. La zone dynamique et le pinpoint du Z 6 ne sont pas simulés.
 
 ## Exercice
 
-Touche le bas du viseur, près des pieds du groupe, en point sélectif puis en zone large (L) : la zone large fait le point plus près, sur le sol (environ 5,8 m contre 6,1 m), parce qu'elle prend le sujet le plus proche. Choisis ensuite le mode adapté à chacun des trois défis et explique ton choix.
+Avec le boîtier de départ (Nikon Z 6), la focale à 50 mm et le cadre horizontal (sur un téléphone, tiens-le à l'horizontale), en AF-S, touche le bas du viseur, aux pieds du groupe, en AF point sélectif puis en AF zone large (L) : la zone large fait le point plus près, sur le sol (environ 5,8 m contre 6,1 à 6,4 m selon l'endroit touché), parce qu'elle prend le sujet le plus proche. Choisis ensuite le mode adapté à chacun des trois défis et explique ton choix.
