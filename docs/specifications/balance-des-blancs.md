@@ -76,7 +76,7 @@ Page « White Balance » du Z 6 en anglais et en français, page « Defaults » 
 
 ## 10. Documentation
 
-`docs/camera-physique.md` (nouvelle section, et la sous-section « Balance des blancs (COU-01, COU-02) » qui y renvoie), `docs/questions-ouvertes.md`, `docs/historique.md`, `docs/propositions.md` (section 4), `docs/etat-des-travaux.md` (ligne 6 de la file), `docs/dossiers/balance-des-blancs.md` (note de relecture ; corriger ce que la relecture contredit), `CHANGELOG.md`.
+`docs/camera-physique.md` (nouvelle section, et la sous-section « Balance des blancs (COU-01, COU-02) » qui y renvoie), `docs/questions-ouvertes.md`, `docs/historique.md`, `docs/propositions.md` (section 4), `docs/etat-des-travaux.md` (file de travail, à l'époque ligne 6 ; « Balance des blancs » dans la file d'aujourd'hui), `docs/dossiers/balance-des-blancs.md` (note de relecture ; corriger ce que la relecture contredit), `CHANGELOG.md`.
 
 ## 11. Choix faits sans Julien (spécification reportée : non soumis à Julien tant qu'elle n'est pas reprise)
 

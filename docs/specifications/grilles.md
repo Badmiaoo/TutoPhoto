@@ -69,7 +69,7 @@ Page d9 du manuel du Z 6 (anglais), page « Grid Line » du guide de l'A7 III, p
 - `docs/camera-physique.md` : section « Grilles de cadrage (version 0.3.56) » ; la sous-section « Grilles de composition (CMP-02) » des fonctions demandées le 9 novembre renvoie à cette section ; point 7 du plan de mise en œuvre.
 - `docs/questions-ouvertes.md` : tracé du quadrillage du Z 6 (à relever sur un boîtier), grilles de Canon.
 - `docs/historique.md` : une ligne.
-- `docs/propositions.md` : section « Choix faits par Claude dans la nuit du 11 au 12 novembre 2026, à confirmer ».
+- `docs/propositions.md` : section 4.
 - `docs/etat-des-travaux.md` : ligne 4 de la file passée à « Fait, 0.3.56 », version en ligne.
 - `docs/dossiers/viseur-aides.md` : si la relecture à la source d'un fait de la section 1 le contredit, le corriger.
 

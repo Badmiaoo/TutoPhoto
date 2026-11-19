@@ -48,7 +48,7 @@ Une information, un endroit ; les autres pages y renvoient (accepté par Julien 
 | Information | Page |
 | --- | --- |
 | Ce qui a changé, version par version, avec ses essais et sa relecture : le seul récit | `CHANGELOG.md` |
-| L'état, la file de travail, les décisions en attente de Julien, les essais qu'il fera sur son téléphone | `docs/etat-des-travaux.md` |
+| L'état, la file de travail, les décisions en attente de Julien, et les essais qu'il fera sur son téléphone, par leur numéro dans `docs/tests-a-faire-faire.md` | `docs/etat-des-travaux.md` |
 | Les décisions de Julien, datées et citées ; rien d'autre | `docs/historique.md` |
 | Les choix faits par Claude sans Julien, avec leur raison et l'autre voie | `docs/propositions.md` |
 | Ce qui reste ouvert ou non sourcé dans la simulation et les contenus ; un point fermé en sort | `docs/questions-ouvertes.md` |
