@@ -12,6 +12,12 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.67] - 2026-11-19
+
+Sujet 7 du plan de corrections de l'audit (`docs/audit/README.md`) : des exercices d'exposition jouables à la lettre. Constats FEX-02, FEX-01, FEX-05, FEX-06, FEX-13, FMA-13 et FEX-17 ; s'y fond le Sujet 20 (FEX-16, D5 tranchée : « f/5.6 »). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. En cours.
+
+Fin de la version 0.3.66, relevée par sa session : tâche « Sujet 6 : relance automatique toutes les heures » supprimée, liste des tâches programmées vide à 6 h 08 UTC, surveillance de la pull request 73 arrêtée. Mesure de l'outil qui décrit la session, vers 6 h 08 UTC : 118 762 jetons de sortie, 1 363 d'entrée, 36 571 672 lus du cache, 480 779 écrits au cache, 13,03 dollars affichés ; un agent relecteur, 176 757 jetons d'après sa notification de fin (la session ne sait pas si le compte ci-dessus l'inclut) ; tranche de 5 heures au statut « allowed ». Correction de la section 0.3.66, qui n'est pas réécrite (page datée) : sa ligne « Modifié » dit « tant que sa tête est visible » ; la fiche SIT-06 publiée dit, après relecture, « tant qu'un de ses yeux est visible ».
+
 ## [0.3.66] - 2026-11-19
 
 Sujet 6 du plan de corrections de l'audit (`docs/audit/README.md`) : la mise au point qui suit le chien de SIT-06. Constats FMA-23 et FMA-19 (`docs/audit/fiches-mise-au-point.md`), confirmés par leur contre-vérification, dont la correction est reprise. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente.
