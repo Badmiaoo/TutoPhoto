@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.71] - 2026-11-20
+
+Sujet 11 du plan de corrections de l'audit (`docs/audit/README.md`) : écran de revue, loupe et retardateur, ce qui reste actif pendant un calcul (COD-08, COD-02, COD-05, COD-04 ; COD-13 pour trois défauts du déclencheur), et l'écran de revue d'une photo refusée ou en échec laissé par le Sujet 10. D1 tranchée par Julien le 15 novembre 2026 : le second appui n'annule pas le retardateur. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. En cours.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.70 relue (tag, release, publication), lignée des sessions (profondeur 2 sur 8), Sujet 11 en cours.
+
 ## [0.3.70] - 2026-11-20
 
 Sujet 10 du plan de corrections de l'audit (`docs/audit/README.md`) : les échecs du chargement et du rendu dits à l'écran (fichier d'éclairage perdu, WebGL absent, contexte perdu). Constats COD-06, COD-11, COD-12 ; COD-13 pour un commentaire de `app/src/scene.ts`. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. Choix de Claude : `docs/propositions.md`, section 5, « Échecs dits à l'écran ».
@@ -1353,6 +1361,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.71]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.70...v0.3.71
 [0.3.70]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.69...v0.3.70
 [0.3.69]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.68...v0.3.69
 [0.3.68]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.67...v0.3.68
