@@ -70,15 +70,30 @@ export class ChallengePicker {
     } catch {
       // Stockage indisponible : pas de défi.
     }
-    // Défi choisi depuis la fiche d'une situation (« Jouer le défi » : simulateur/?defi=SIT-05) ; il est retenu
-    // comme un défi choisi dans la fenêtre.
-    const fromUrl = new URLSearchParams(window.location.search).get("defi");
-    if (CHALLENGES.includes(fromUrl as ChallengeId)) {
+    // Défi choisi depuis la fiche d'une situation (« Jouer le défi » : simulateur/?defi=SIT-05) : il est retenu
+    // comme un défi choisi dans la fenêtre, puis le paramètre est retiré de l'adresse (constat COD-03 de l'audit,
+    // version 0.3.72). Il vaut pour l'arrivée ; ensuite, c'est le choix mémorisé qui vaut, et un rechargement
+    // de la page ne remet plus le défi de l'adresse par-dessus un choix fait dans la fenêtre.
+    const url = new URL(window.location.href);
+    const fromUrl = url.searchParams.get("defi");
+    let remembered = !CHALLENGES.includes(fromUrl as ChallengeId);
+    if (!remembered) {
       this.active = fromUrl as ChallengeId;
       try {
         window.localStorage.setItem(STORAGE_KEY, this.active);
+        remembered = true;
       } catch {
-        // Sans stockage, le choix vaut pour la page en cours.
+        // Sans stockage, le choix vaut pour la page en cours, et le paramètre reste dans l'adresse : un
+        // rechargement redonne le défi de l'arrivée.
+      }
+    }
+    if (remembered && url.searchParams.has("defi")) {
+      // Un défi inconnu est retiré aussi : il n'a rien choisi. Les autres paramètres et l'ancre restent.
+      url.searchParams.delete("defi");
+      try {
+        window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+      } catch {
+        // Adresse non modifiable : le défi de l'adresse revient au rechargement, comme avant.
       }
     }
     el.button.addEventListener("click", () => el.dialog.showModal());
@@ -123,7 +138,6 @@ export class ChallengePicker {
   }
 }
 
-/** Bulletin d'une vue : exposition, zone nette, bruit, sujets en mouvement, puis le défi et les notions à revoir. */
 /** Bouton qui ouvre une fiche par-dessus le simulateur (ui/ficheDialog.ts). */
 function ficheButton(id: string, label: string): HTMLButtonElement {
   const button = document.createElement("button");
@@ -134,6 +148,7 @@ function ficheButton(id: string, label: string): HTMLButtonElement {
   return button;
 }
 
+/** Bulletin d'une vue : exposition, zone nette, bruit, sujets en mouvement, puis le défi et les notions à revoir. */
 export function renderBulletin(
   list: HTMLElement,
   bulletin: Bulletin,

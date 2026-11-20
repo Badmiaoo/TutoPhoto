@@ -32,7 +32,9 @@
 //   l'audit, version 0.3.70), le bouton « Défis » de l'en-tête aussi, et la page n'a aucune erreur ;
 // - la fiche SIT-05 a un bouton « Jouer le défi » (simulateur/?defi=SIT-05), et le simulateur ouvert à l'adresse
 //   simulateur?defi=SIT-06, sans la barre finale, ajoute la barre, montre la progression du chargement et a le
-//   défi SIT-06 choisi ; tout fichier compté par la progression est chargé par la scène (version 0.3.55) ;
+//   défi SIT-06 choisi ; tout fichier compté par la progression est chargé par la scène (version 0.3.55) ; le
+//   paramètre ?defi= est retiré de l'adresse une fois mémorisé, et après « Aucun défi » puis un rechargement, le
+//   bouton dit « Défis » (constat COD-03, version 0.3.72) ;
 // - l'activité LUM-02 (activites/LUM-02/) : la fiche y mène ; l'exemple « Grande fenêtre » (120 cm à 200 cm) donne une
 //   pénombre de 120 × 50 / 200 = 30 cm ; la bonne réponse à la première question est saluée ; pas de défilement horizontal ;
 // - avec --photo : les notions « À revoir » du bulletin et le bouton « Fiche » de la fenêtre « Défis » ouvrent la
@@ -1808,11 +1810,17 @@ async function runProfile(browser, name, base) {
       .then((handle) => handle.jsonValue())
       .catch((error) => `attente échouée : ${String(error).split("\n")[0]}`);
     await page.waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 }).catch(() => undefined);
-    const chosen = await page.evaluate(() => ({ text: document.getElementById("challenge-button").textContent, path: location.pathname }));
+    const chosen = await page.evaluate(() => ({ text: document.getElementById("challenge-button").textContent, path: location.pathname, search: location.search }));
     check(
       "adresse sans barre finale, défi choisi par l'adresse, progression du chargement",
       /SIT-06$/.test(chosen.text) && chosen.path === "/simulateur/" && /Mio reçus|préparation/.test(progress) && !/^attente échouée/.test(progress),
       `${chosen.path} ; ${chosen.text} ; pendant le chargement : « ${progress} »`,
+    );
+    // Le paramètre ?defi= est retiré de l'adresse une fois lu et mémorisé (constat COD-03 de l'audit, version 0.3.72).
+    check(
+      "défi de l'adresse : mémorisé, puis retiré de l'adresse",
+      chosen.search === "" && (await page.evaluate(() => localStorage.getItem("tutophoto.defi"))) === "SIT-06",
+      `adresse après le chargement : ${chosen.path}${chosen.search || " (sans paramètre)"} ; tutophoto.defi : ${await page.evaluate(() => localStorage.getItem("tutophoto.defi"))}`,
     );
     // Progression du chargement (version 0.3.55) : tout fichier compté par la progression (ceux du manifeste, sauf
     // les textes de licence) doit avoir été chargé par la scène, sinon elle n'atteint jamais « préparation ».
@@ -1834,6 +1842,25 @@ async function runProfile(browser, name, base) {
       "aucun problème affiché à la fin du parcours",
       !problemBeforeReload && !problemAtEnd,
       `avant le rechargement : ${problemBeforeReload ? `« ${problemBeforeReload} »` : "ligne vide"} ; à la fin, page rechargée pour le défi SIT-06 : ${problemAtEnd ? `« ${problemAtEnd} »` : "ligne vide"}`,
+    );
+    // Chemin de la contre-vérification de COD-03 : arrivée par ?defi=SIT-06, « Aucun défi » choisi dans la fenêtre,
+    // puis rechargement. Avant la version 0.3.72, le défi de l'adresse revenait et écrasait le choix mémorisé.
+    // Placé après les contrôles qui lisent la page chargée : le rechargement n'attend que le texte du bouton
+    // « Défis », écrit au démarrage, pas la fin du chargement de la scène.
+    await page.click("#challenge-button");
+    await page.check('#challenge-dialog input[name="challenge"][value="none"]');
+    await page.click("#challenge-close");
+    await page.reload();
+    await page.waitForFunction(() => (document.getElementById("challenge-button")?.textContent ?? "") !== "", null, { timeout: 60000 }).catch(() => undefined);
+    const afterReload = await page.evaluate(() => ({
+      text: document.getElementById("challenge-button").textContent,
+      saved: localStorage.getItem("tutophoto.defi"),
+      address: location.pathname + location.search,
+    }));
+    check(
+      "défi de l'adresse, puis « Aucun défi » et rechargement : le choix fait dans la page reste (COD-03)",
+      afterReload.text === "Défis" && afterReload.saved === "none" && afterReload.address === "/simulateur/",
+      `bouton « ${afterReload.text} » ; tutophoto.defi : ${afterReload.saved} ; adresse rechargée : ${afterReload.address}`,
     );
   } catch (error) {
     // Dans la CI, il n'y a ni écran ni capture : le message garde le journal d'appel de Playwright (ce qu'il
