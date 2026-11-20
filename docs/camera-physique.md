@@ -55,11 +55,17 @@ Modèle repris de la documentation de Filament, le moteur de rendu de Google ([R
 - 13 pour une scène par ciel couvert lumineux, sans ombres ;
 - 12 pour une scène par couvert épais.
 
-Valeur retenue : EV₁₀₀ = 12,5, à mi-chemin des deux lignes, faute de savoir laquelle décrit la photo. La scène est donc mise à l'échelle pour que sa luminance moyenne vaille 2^(12,5 − 3) = 2^9,5 ≈ 724 cd/m² (512 cd/m² pour EV 12, 1024 cd/m² pour EV 13).
+Valeur retenue : EV₁₀₀ = 12,5, à mi-chemin des deux lignes, faute de savoir laquelle décrit la photo, soit une luminance moyenne de 2^(12,5 − 3) = 2^9,5 ≈ 724 cd/m² (512 cd/m² pour EV 12, 1024 cd/m² pour EV 13). C'est une valeur déclarée, pas une mise à l'échelle : le code n'a ni luminance en cd/m², ni facteur d'étalonnage (réécrit en version 0.3.77 d'après le constat PHY-06 de l'audit ; calculs dans `docs/audit/modele-physique.md`). Ce que fait le code :
+- **Exposition.** L'image de Babylon.js, en lumière linéaire, est multipliée par 2^écart, l'écart étant la différence entre 12,5 et l'indice de lumination des réglages : `imageProcessingConfiguration.exposure` dans le viseur (`app/src/ui/cameraPanel.ts`), `exposure` dans la photo (`app/src/camera/photo.ts`). À écart nul, le viseur montre la photo JPEG de Poly Haven telle quelle, et son blanc tient lieu de saturation du capteur.
+- **Fond.** D'après la formule de la valeur du pixel, une scène moyenne correctement exposée vaut 724 / (1,2 × 5 793) ≈ 0,104 de la saturation. La luminance de la photo de fond (0,2126 R + 0,7152 V + 0,0722 B), en lumière linéaire ((octet du JPEG / 255)^2,2, comme Babylon.js) et en moyenne pondérée par l'angle solide, vaut 0,235 sur toute la sphère, 0,346 sur sa moitié haute, 0,123 sur sa moitié basse, 0,098 de −20° à +20° autour de l'horizon et 0,084 de −16° à +8°, bande proche du cadre de départ au 50 mm (calculs de la contre-vérification de l'audit, 13 novembre 2026 ; l'audit trouvait 0,230, 0,339, 0,121, 0,095 et 0,081). La valeur du modèle n'est donc tenue que près de l'horizon ; au cadre de départ, le fond seul (bande de −16° à +8° sur tout le tour, sans les objets 3D) est à −0,3 IL de cette valeur (log₂(0,084 / 0,104)).
+- **Objets 3D.** Les personnages et les objets sont éclairés par le fichier HDR de la même prise de vue, avec l'intensité par défaut de Babylon.js 9.35.0 (`scene.environmentIntensity` vaut 1, et `app/src/scene.ts` ne le règle pas). Sur les tons moyens, ce fichier est environ deux fois plus lumineux que la photo de fond en lumière linéaire : rapport médian de 2,11 pour l'audit, de 1,96 pour sa contre-vérification et de 1,91 à 1,95 pour la relecture de la version 0.3.77, selon le choix des pixels ; seul l'ordre de grandeur, environ 1 IL, tient. Les objets 3D sont donc probablement environ deux fois trop clairs par rapport au fond : c'est établi par les fichiers et par le calcul, pas mesuré dans un rendu.
+- **Ce qui reste.** L'éclairage est laissé tel quel : le baisser changerait l'image de départ et les mesures de bruit de cette page. La question attend Julien (D15, `docs/etat-des-travaux.md`, « Décisions en attente ») et reviendra avec la mesure de la lumière.
 
 Exemple : à ISO 100 et f/8, l'exposition correcte demande N²/t = 2^12,5 ≈ 5 793, soit t = 64 / 5 793 ≈ 1/90 s.
 
 ## Profondeur de champ
+
+Modèle proposé le 8 novembre 2026. Ce qui est fait : « Photo calculée (version 0.3.14) » et « Profondeur de champ du viseur (versions 0.3.22 et 0.3.23) », plus bas.
 
 - Calcul du cercle de confusion (formule ci-dessus), puis passage en pixels : c_px = c / largeur du capteur × largeur de l'image en pixels.
   - Exemple : portrait au 85 mm à f/1.8, mise au point à 2 m, fond à l'infini. A = 85 / 1,8 ≈ 47,2 mm, puis c = 47,2 × 85 / (2 000 − 85) ≈ 2,1 mm.
@@ -67,15 +73,19 @@ Exemple : à ISO 100 et f/8, l'exposition correcte demande N²/t = 2^12,5 ≈ 5 
 - Photo : accumulation de rendus ([Haeberli et Akeley, SIGGRAPH 1990](https://www.microsoft.com/en-us/research/publication/the-accumulation-buffer-hardware-support-for-high-quality-rendering/), qui la présentent comme « a general solution to the problems of motion blur and depth-of-field »).
   - Chaque rendu place l'œil en un point différent du disque d'ouverture, de diamètre A, et décentre le cadrage pour garder fixe le plan de netteté.
   - La moyenne des rendus donne le flou exact : premier plan qui déborde sur le sujet, fond photo placé à l'infini, forme de l'ouverture.
-  - Nombre de rendus : 64 à 256, à ajuster selon le temps de calcul mesuré sur téléphone.
-- Viseur : effet de Babylon, avec `lensSize` choisi pour qu'un cercle de confusion de 1 corresponde au flou maximal réel de l'effet, mesuré en pixels. Il s'agit d'une approximation, plafonnée au flou maximal.
+  - Nombre de rendus : de 16 à 256, selon le flou (version 0.3.14 ; ce modèle prévoyait de 64 à 256).
+- Viseur : d'abord l'effet de Babylon, avec `lensSize` choisi pour qu'un cercle de confusion de 1 corresponde au flou maximal réel de l'effet, mesuré en pixels (version 0.3.22) ; remplacé en version 0.3.23 par un flou en disque de taille physique (« Profondeur de champ du viseur »).
 
 ## Flou de mouvement et de bougé
 
-- Photo : la même accumulation, chaque rendu correspondant à un instant différent du temps de pose. Les positions et les animations des sujets y sont calculées, si bien que le flou est exact à toute vitesse. Le flou de bougé fera varier l'orientation de l'appareil pendant la pose ; le modèle du tremblement de la main reste à trouver et à sourcer.
-- Viseur : pas de flou de mouvement, comme dans le viseur d'un vrai appareil. C'est la lecture que Claude a faite de la décision « viseur avec les effets de Babylon » ; elle attend la réponse de Julien (D32, `docs/etat-des-travaux.md`, « Décisions en attente »).
+Modèle proposé le 8 novembre 2026. Ce qui est fait : « Photo calculée (version 0.3.14) » ; le bougé n'est pas simulé.
+
+- Photo : la même accumulation, chaque rendu correspondant à un instant différent du temps de pose. Les positions et les animations des sujets y sont calculées, si bien que le flou est exact à toute vitesse. L'appareil, lui, reste immobile pendant la pose : ni bougé, ni filé. Le flou de bougé fera varier l'orientation de l'appareil pendant la pose ; le modèle du tremblement de la main reste à trouver et à sourcer.
+- Viseur : pas de flou de mouvement ; c'est un choix de TutoPhoto. Je ne sais pas ce que la visée d'un hybride montre du flou de mouvement : les pages lues ne le disent pas (le réglage « Live View Display » de l'A7 III, qui porte sur les effets de « the exposure compensation, white balance, [Creative Style], or [Picture Effect] », et le réglage d8 du Z 6, qui parle de « color and brightness », « Aperçu dans le viseur » plus bas, ne disent rien du flou de mouvement ; constat PHY-03 de l'audit). C'est la lecture que Claude a faite de la décision « viseur avec les effets de Babylon » ; elle attend la réponse de Julien (D32, `docs/etat-des-travaux.md`, « Décisions en attente »).
 
 ## Bruit numérique
+
+Modèle proposé le 8 novembre 2026. Ce qui est fait : « Bruit numérique (version 0.3.15) », plus bas.
 
 Données : mesures de [William J. Claff, PhotonsToPhotos](https://www.photonstophotos.net/Charts/RN_e.htm), bruit de lecture rapporté à l'entrée en électrons, pour chaque réglage ISO (page révisée le 17 août 2026). Capacité des photosites tirée de sa page [DxOMark Derived Sensor Characteristics](https://www.photonstophotos.net/Charts/Sensor_Characteristics.htm) (révisée le 15 décembre 2025). Claff prévient que ces valeurs dérivées « tend to be wild especially for smaller sensors » et que des mesures directes sont préférables.
 
@@ -95,14 +105,14 @@ Modèle proposé, pour un photosite :
 - e_sat(S) = capacité × 100 / S : relever l'ISO réduit d'autant le nombre d'électrons qui sature la sortie. C'est cohérent avec le gain unitaire publié par Claff, à quelques pourcents près, le niveau de noir n'étant pas connu. Pour le Z 6 : 522,6 / 100 × 16 383 ≈ 85 600 électrons, pour une capacité de 83 698 ;
 - écart type du bruit : σ = √(n + σ_r(S)²), avec σ_r le bruit de lecture interpolé entre les ISO mesurés.
 
-L'image affichée compte moins de pixels que le capteur : chaque pixel affiché regroupe k photosites, et son bruit relatif est divisé par √k. Les définitions des capteurs restent à relever.
+L'image affichée compte moins de pixels que le capteur : chaque pixel affiché regroupe k photosites, et son bruit relatif est divisé par √k. Les définitions des capteurs sont relevées depuis la version 0.3.15 (« Bruit numérique (version 0.3.15) »).
 
 ## Boîtier virtuel (version 0.3.13)
 
-- Réglages : ouverture de f/1.4 à f/22, vitesse de 30 s à 1/4000 s, ISO de 100 à 6400, par tiers ; focale de 18 à 200 mm ; marque et format. Ces plages sont communes aux six boîtiers ; leurs plages réelles, souvent plus larges, viendront avec l'étape du bruit.
+- Réglages : ouverture de f/1.4 à f/22, vitesse de 30 s à 1/4000 s, ISO de 100 à 6400, par tiers ; focale de 18 à 200 mm ; marque et format. Ces plages sont communes aux six boîtiers ; leurs plages réelles, souvent plus larges, ne sont pas reprises à ce jour (l'étape du bruit, version 0.3.15, ne les a pas changées).
 - Cellule : écart à l'exposition correcte, en IL, de −3 à +3. Pour l'instant, la scène vaut EV₁₀₀ = 12,5 où que l'on vise : pas encore de mode de mesure.
 - Aperçu dans le viseur : la lumière de la scène est multipliée par 2^écart avant l'affichage, sans courbe de tons ; ce qui dépasse le blanc est écrêté. Vérifié le 8 novembre 2026 sur le site construit : un diaphragme de plus double la lumière (rapport médian 2,00 sur le fond comme sur le sol). Le rapport se mesure avec la courbe de Babylon, une puissance de 2,2 (`LinearEncodePowerApprox`) ; avec la courbe sRGB exacte, on lirait 1,86, ce qui ne vient que de la différence entre les deux courbes.
-- Viseur : cadre aux proportions du capteur (vertical si l'écran l'est), champ de vue de 2 × atan(grand côté du capteur / (2 × focale)) le long de son grand côté.
+- Viseur : cadre aux proportions du capteur, vertical si la zone du viseur, ce que l'en-tête et le panneau laissent à l'écran, est plus haute que large, horizontal sinon (`app/src/camera/viewfinder.ts`). Ce n'est donc pas l'orientation de l'écran : l'audit et sa contre-vérification (14 novembre 2026) ont mesuré un cadre horizontal sur un iPhone 14 émulé et un cadre vertical sur un Pixel 7 émulé, tous deux tenus droits, et un texte du panneau qui change de longueur peut faire basculer le cadre (constat INT-12 ; la bascule relève du Sujet 42). Champ de vue de 2 × atan(grand côté du capteur / (2 × focale)) le long de son grand côté.
 
 ## Taille du viseur (correction de la version 0.3.21)
 
@@ -128,8 +138,9 @@ Fonctionnement :
 - **Accumulation.** Chaque rendu place l'œil sur le disque d'ouverture, élargi de S / (S − f), et décentre la projection pour garder fixe le plan de netteté : x_ndc = x × m0 / z + m8, avec m8 = dx × m0 / S. Il place aussi la scène à un instant du temps de pose. Pour cela, positions et animations sont désormais calculées à partir d'une horloge de scène. Les instants sont permutés pour ne pas suivre l'ordre des points du disque.
 - **Lumière.** Les rendus sont faits en lumière linéaire, dans une texture en demi-flottants, avec `applyByPostProcess`. Sans ce réglage, les matériaux de Babylon passent en gamma et écrêtent à 1, même traitement d'image désactivé (`pbrBlockImageProcessing`). Avec lui, Babylon plafonne la lumière à 30. La somme est faite en flottants. Viennent ensuite l'exposition 2^écart, l'écrêtage au blanc et la courbe de Babylon (puissance 1/2,2). La photo mesure 1500 px de grand côté.
 - **Nombre de rendus.** Il est choisi pour que les copies d'un grand flou soient espacées de 4 px au plus : 0,9 × flou / √M sur le disque, et traînée / M le long d'un mouvement, de 16 à 256. Le calcul s'arrête au bout de 5 s ; la photo indique alors les rendus reçus sur les rendus prévus.
+- **Photo interrompue par ce plafond** (constat PHY-21 de l'audit ; correction du code : Sujet 39). Les points du disque d'ouverture sont parcourus du centre vers le bord : les rendus reçus couvrent le disque d'une ouverture plus petite, de rayon √(reçus / prévus) fois celui de l'ouverture, à exposition inchangée. Le flou de mise au point de la photo est réduit d'autant : 64 rendus sur 256 donnent le flou d'une ouverture fermée de deux diaphragmes, et la légende (« 64/256 rendus ») ne le dit pas. Les instants, permutés, restent répartis sur toute la pose. Mesuré par la contre-vérification de l'audit le 13 novembre 2026, dans Chromium en rendu logiciel : au 135 mm à f/1.4, « 97/256 rendus, calculée en 47,2 s », flou du fond de 58 px pour 93,9 px attendus (93,9 × √(97 / 256) ≈ 57,8 px). Le plafond n'y a pas borné la durée du calcul : 47,2 s, pour 5 s annoncées ; la cause n'est pas établie. Sur le téléphone de Julien, le cas ne s'est pas produit lors de ses mesures du 9 novembre 2026 (256 rendus en 2,0 s au 135 mm à f/1.4, « Limites », plus bas) ; sur ceux des testeurs, je ne sais pas.
 - **Lissage.** Un flou résiduel est appliqué une fois sur la moyenne, avec un rayon de 0,45 × flou / √M, selon la profondeur de la vue centrale. Ce rayon ne dépendant que de cette profondeur, le résultat est le même que si l'on lissait chaque rendu.
-- **Sol de la photo.** Le bas de la photo à 360° est projeté sur un sol plat, à 1,6 m sous l'œil (`enableGroundProjection` de Babylon). Il garde ainsi sa distance quand l'œil se déplace sur l'ouverture, au lieu d'être flou comme un horizon. La carte de profondeur ne contient pas ce sol : sa distance est calculée par l'intersection du rayon de vue avec le plan du sol, pour la mise au point comme pour le lissage.
+- **Sol de la photo.** Il n'est pas projeté sur un plan, contrairement à ce que cette page a dit jusqu'à la version 0.3.76. `app/src/scene.ts` demande la projection du sol de Babylon.js (`enableGroundProjection`, à 1,6 m sous l'œil), mais elle est sans effet : Babylon.js 9.35.0 ne la compile qu'avec une texture de réflexion cubique (`backgroundMaterial.pure.js` : `PROJECTED_GROUND` seulement si `REFLECTIONMAP_3D` ; `materialHelper.functions.js`, `PrepareDefinesForIBL` : `REFLECTIONMAP_3D` vaut `isCube` de la texture de réflexion), et `PhotoDome` pose la photo en texture diffuse (`textureDome.js` : `useDirectMapping`, vrai par défaut). Avec `useDirectMapping` faux, la photo deviendrait une texture de réflexion, mais plane (mode équirectangulaire, `isCube` faux) : la projection ne serait pas compilée non plus. Le bas de la photo reste donc sur la sphère, à 500 m, comme les arbres : quand l'œil se déplace sur l'ouverture, il bouge comme un horizon, et la photo calculée le floute comme un fond lointain jusqu'aux pieds des personnages (f/1.4, point sur l'œil de Sophia : sol flou à ses pieds, chaussures nettes ; net à f/16 ; relecture et contrôle final de la version 0.3.76). Les distances, elles, prennent le plan du sol : la carte de profondeur de la photo ne contient pas ce sol, et sa distance est calculée par l'intersection du rayon de vue avec le plan du sol, à 1,6 m sous l'œil, pour la mise au point comme pour le lissage. Le viseur, lui, laisse ce sol net au pied des personnages, parce que sa carte de profondeur contient le sol invisible des ombres, de 40 × 40 m (« Profondeur de champ du viseur »). Défaut du rendu noté dans « Défauts connus, hors du plan » de `docs/etat-des-travaux.md` ; aucun sujet ne le corrige.
 - **Revue.** La photo s'affiche avec ses réglages, le boîtier, la distance de mise au point, les rendus et la durée du calcul. On peut l'enregistrer en JPEG.
 
 Vérifications du 8 novembre 2026, faites dans Chromium sans écran (rendu logiciel), sur une construction locale non publiée. Elle produit des photos de 600 px et porte le plafond à 10 min, car le rendu logiciel est trop lent :
@@ -140,13 +151,14 @@ Vérifications du 8 novembre 2026, faites dans Chromium sans écran (rendu logic
 - **À 1/20 s.** Le chien qui court laisse une traînée ; les personnages immobiles restent nets.
 
 Limites :
-- **Fond à l'infini.** Le décor de la photo au-dessus du sol (arbres, haie) est vu comme s'il était à 500 m. Son flou est donc un peu surestimé (voir `docs/questions-ouvertes.md`). Le sol photographié est supposé plat.
+- **Fond à l'infini.** Le décor de la photo est vu comme s'il était à 500 m, sol compris (« Sol de la photo »). Le flou des arbres et de la haie est donc un peu surestimé (voir `docs/questions-ouvertes.md`) ; celui du sol près des personnages l'est de tout le flou d'un fond lointain, alors qu'il devrait y être net.
 - **Temps de calcul.** En rendu logiciel, un rendu de 600 px prend de l'ordre de la seconde, ce qui ne dit rien d'un vrai processeur graphique. Mesures de Julien du 9 novembre 2026, sur son téléphone (Google Pixel 8 Pro, Chrome, précisé le même jour) :
   - réglages par défaut : 16 rendus en 0,8 s ;
   - 135 mm à f/1.4, au point sur Sophia : 256 rendus en 2,0 s, sous le plafond de 5 s.
 
   Entre les deux, (2,0 − 0,8) / (256 − 16) ≈ 5 ms par rendu, la préparation (environ 0,8 s) dominant pour peu de rendus. C'est un calcul de Claude, qui suppose une préparation identique dans les deux cas.
 - **Pas encore de flou de bougé.**
+- **Diffraction non simulée** (constat PHY-11 de l'audit). Le seul flou optique est celui de la mise au point, sur la photo comme dans le viseur : fermer le diaphragme n'enlève aucun piqué par diffraction, même à la loupe à 100 %. Or, d'après Wikipedia ([« Airy disk », révision 1369075623](https://en.wikipedia.org/w/index.php?title=Airy_disk&oldid=1369075623), source secondaire, lue le 20 novembre 2026), « the best possible image resolution of a camera is limited by the numerical aperture (and thus f-number) of its lens due to diffraction ». Ordre de grandeur, calculé par Claude d'après le même article : le premier anneau sombre de la tache d'un point a un rayon de 1,22 λ / (2 ON), ON étant l'ouverture numérique (notée A dans l'article, à ne pas confondre avec le diamètre de l'ouverture, A = f / N, de cette page), environ 1 / (2N) pour un nombre d'ouverture N grand : un rayon de 1,22 × λ × N, soit un diamètre de 2,44 × λ × N. À f/22 (N exact 22,63) : 23 µm pour λ = 420 nm, « the shortest wavelength visible light » d'après l'article, et 31 µm pour 560 nm, « the mean of visible wavelengths » ; davantage dans le rouge, « diffracted more than the blue ». Un photosite du Z 6 mesure 35,9 mm / 6066 ≈ 5,9 µm (« Loupe », plus bas) : la tache a la largeur de 4 à 5 photosites ; sur la photo de 1500 px, dont un pixel couvre 35,9 mm / 1500 ≈ 23,9 µm du capteur, celle de 1 à 1,3 pixel. Le flou acceptable du simulateur, d / 1500, vaut 29 µm pour le Z 6. Simulation : avec la notion NET-04, hors V1 minimale, sources à réunir.
 - **Appareils sans WebGL 2** (correction de la version 0.3.20) : la photo sortait noire. Les textures du calcul (1500 × 999 pixels) étaient créées en répétition, avec un filtrage qui attend des mipmaps. En WebGL 1, une telle texture, dont les côtés ne sont pas des puissances de 2, est incomplète et se lit en noir. Les textures sont désormais bornées aux bords et filtrées sans mipmaps ; cela évite aussi que le lissage, près d'un bord, prenne des pixels du bord opposé. Défaut trouvé par la routine de test du 9 novembre 2026, et cause isolée par des copies de contrôle.
 
 ## Bruit numérique (version 0.3.15)
@@ -233,7 +245,7 @@ Les hybrides grossissent l'image pour vérifier la mise au point, avant la prise
 
 Loupe du viseur (bouton « Loupe ») :
 - **Crans** : sans loupe, 50 %, 100 %, puis retour. Le cran de 50 % est sauté s'il grossit moins de 1,25 fois.
-- **Grossissement à 100 %** : définition du capteur / grand côté du cadre, en pixels du canevas. Par exemple, 6066 / 1109 ≈ 5,5 pour le Z 6 sur un écran de 1200 × 900.
+- **Grossissement à 100 %** : définition du capteur / grand côté du cadre, en pixels CSS (avant la version 0.3.52, pixels du canevas et pixels CSS se confondaient). Par exemple, 6066 / 1109 ≈ 5,5 pour le Z 6 sur un écran de 1200 × 900.
 - **Position** : la zone grossie est centrée sur le point de mise au point et reste dans le cadre. Toucher le viseur déplace le point, et la loupe le suit.
 - **Rotation** : l'appareil tourne plus lentement, d'un facteur égal au grossissement.
 - **Bruit** : il suit le grossissement, avec k = pixels effectifs / (pixels du cadre × grossissement²), soit environ 1 à 100 %.
@@ -273,8 +285,9 @@ Version 0.3.22, effet de Babylon.js (`DepthOfFieldEffect`), remplacé :
 - écart à mi-course : environ 9 % de flou en moins (70 mm à f/2, sur 1200 × 900).
 
 Version 0.3.23, flou en disque de taille physique (`app/src/camera/viewfinderDof.ts`) :
-- **Diamètre du flou** : la formule de la photo, c = (f / N) × f / (S − f) × |D − S| / D, multipliée par les pixels du canevas par mm de capteur, loupe comprise. Le rayon est plafonné à 32 px, soit un diamètre de 64 px.
-- **Algorithme** : « scatter-as-gather » en une passe, de Dennis Gustafsson ([« Bokeh depth of field in a single pass », 4 mai 2018, copie archivée](https://web.archive.org/web/20201215123940/https://blog.tuxedolabs.com/2018/05/04/bokeh-depth-of-field-in-single-pass.html)). Le billet n'a pas été ouvert ; l'algorithme a été lu dans sa reproduction commentée par l'[exemple 45-bokeh de bgfx](https://github.com/bkaradzic/bgfx/tree/master/examples/45-bokeh) (elven cache, 2021). Le code de TutoPhoto est écrit d'après cette description, sans copie. Principe :
+- **Diamètre du flou** : la formule de la photo, c = (f / N) × f / (S − f) × |D − S| / D, multipliée par les pixels du canevas par mm de capteur, loupe comprise. Le rayon est plafonné à 32 pixels du canevas, soit un diamètre de 64 (`MAX_BLUR_RADIUS_PX`, `app/src/camera/viewfinderDof.ts`).
+- **Plafond, en pixels calculés et sur le capteur** (constat PHY-08 de l'audit). Les pixels du canevas sont des pixels calculés : depuis la version 0.3.52, le viseur est calculé à la densité de l'écran, plafonnée à 2 depuis la version 0.3.53 (`MAX_DEVICE_RATIO`, `app/src/main.ts`). Le plafond de 64 pixels calculés vaut donc 64 px CSS à densité 1 et 32 px CSS à densité 2. Sur le capteur, il vaut 64 × largeur du capteur / grand côté du cadre en pixels calculés : pour le Z 6, sur le cadre de 1060 px CSS des mesures plus bas (ordinateur), 2,17 mm à densité 1 et 1,08 mm à densité 2 ; sur un cadre de 453 px CSS (téléphone tenu droit), 5,07 mm et 2,54 mm. À densité 2, mise au point à 6,6 m et fond à 500 m, le flou du fond est montré plus petit qu'il n'est : sur ordinateur, au 135 mm à f/1.4 (1,97 mm avec N exact = √2 ; 1,99 mm avec le libellé 1,4, plus bas), à 55 % de sa taille, au 105 mm à 92 % ; sur téléphone, au 200 mm à f/1.4, à 58 % (calculs de la contre-vérification de l'audit). Pour cette mise au point, à f/1.4, le plafond joue au-delà d'environ 142 mm sur ce cadre d'ordinateur à densité 1, et de 100 mm à densité 2 ; sur ce cadre de téléphone, au-delà d'environ 215 mm à densité 1, donc jamais, et de 153 mm à densité 2 (calcul de Claude : focale f telle que (f / N) × f / (6600 − f) × (1 − 6,6 / 500) égale le plafond en mm, avec N = √2). Parmi les focales du simulateur (`FOCAL_LENGTHS`, `app/src/camera/exposure.ts`), cela fait le 200 mm seul sur ordinateur à densité 1, les 105, 135 et 200 mm à densité 2 ; sur téléphone, le 200 mm à densité 2. Avec la loupe, le plafond est divisé encore par le grossissement (`pixelsPerMm`, `app/src/ui/cameraPanel.ts`) : à 100 %, il vaut 64 photosites à densité 1 (0,38 mm pour le Z 6) et 32 à densité 2 (0,19 mm), quel que soit le cadre ; à ce cran, le flou du fond du 85 mm à f/1.4, mise au point à 6,6 m (0,77 mm), est montré à 49 % de sa taille à densité 1 et à 24 % à densité 2 (calcul du relecteur de la version 0.3.77, refait par Claude). La photo, elle, n'a pas de plafond. Le plafond reste tel quel : le relever quadruplerait le nombre d'échantillons au plafond, ce qui n'est pas à faire sans mesure sur téléphone (D25, `docs/etat-des-travaux.md`, « Décisions en attente »).
+- **Algorithme** : « scatter-as-gather » en une passe, de Dennis Gustafsson ([« Bokeh depth of field in a single pass », 4 mai 2018, copie archivée](https://web.archive.org/web/20201215123940/https://blog.tuxedolabs.com/2018/05/04/bokeh-depth-of-field-in-single-pass.html)). Le billet n'a pas été ouvert ; l'algorithme a été lu dans sa reproduction commentée par l'[exemple 45-bokeh de bgfx](https://github.com/bkaradzic/bgfx/tree/master/examples/45-bokeh) (elven cache, 2021). La boucle de TutoPhoto est reprise de l'algorithme de Gustafsson, tel que le reproduit l'exemple 45-bokeh de bgfx : les instructions du cœur de la boucle (flou d'un échantillon plus loin que le centre limité au double de celui du centre, `smoothstep(radius - 0.5, radius + 0.5, …)`, `color += mix(color / total, sampleColor, m)`, `total += 1.0`, rayon augmenté du pas divisé par le rayon) et la recomposition (`saturate(sampleSize - 1.0)` de `fs_bokeh_dof_combine.sc`, écrit `clamp(size - 1.0, 0.0, 1.0)`) sont celles de l'exemple, aux noms près (contre-vérification du constat, 13 novembre 2026 ; relu dans `viewfinderDof.ts` le 20 novembre 2026) ; le poids du centre, l'arrêt de la spirale et la compensation de la mi-résolution sont propres à TutoPhoto. Cette page disait jusqu'à la version 0.3.76 « écrit d'après cette description, sans copie », ce qui est inexact (constat PHY-19 de l'audit). La notice de la licence de bgfx (BSD à 2 clauses) dans les crédits relève du Sujet 46 (D13). Principe :
   - autour de chaque pixel, des échantillons sont pris sur une spirale (pas de l'angle d'or), de plus en plus espacés ;
   - un échantillon compte s'il couvre le pixel central, c'est-à-dire si son propre rayon de flou dépasse sa distance au centre ;
   - un échantillon plus loin que le pixel central voit son flou limité au double de celui du centre : le fond flou ne déborde pas sur un sujet net, alors qu'un premier plan flou déborde sur un fond net, comme sur une vraie photo.
@@ -285,7 +298,7 @@ Version 0.3.23, flou en disque de taille physique (`app/src/camera/viewfinderDof
 - **Arrêt de la spirale** : la spirale s'arrête au plus grand flou présent dans l'image, celui d'un point à l'infini ou celui du sol en bas du cadre, au lieu du plafond. Aux réglages par défaut (50 mm, f/8), ce flou fait moins de 2 px, et le calcul est presque gratuit. Limite : un objet plus proche que le sol en bas du cadre verrait son flou limité à cette valeur ; il n'y en a pas dans la scène de parc.
 - **Poids du pixel central** : sur la spirale, chaque échantillon représente une couronne de surface 2π × pas, le centre un disque de surface π × pas². Son poids, rapporté à celui d'un échantillon, vaut donc pas / 2, soit 0,375. Avec un poids 1, comme dans l'algorithme d'origine, un flou de 10,9 px attendus mesurait 9,5 à 10 px : les petits flous, qui ont peu d'échantillons, étaient trop nets.
 
-Mesures du 9 novembre 2026, avec la méthode de la version 0.3.22 (disque ajusté par moindres carrés sur des zones de fond sans sujet net ni en mouvement) :
+Mesures du 9 novembre 2026, à densité 1 (avant la version 0.3.52, le viseur était calculé en pixels CSS), avec la méthode de la version 0.3.22 (disque ajusté par moindres carrés sur des zones de fond sans sujet net ni en mouvement) :
 
 | Réglage | Écran | Flou réel attendu | Mesuré |
 | --- | --- | --- | --- |
@@ -297,6 +310,8 @@ Calcul du flou attendu au 135 mm à f/1.4, mise au point vers 6,6 m, fond à 500
 - c = (135 / 1,4) × 135 / (6600 − 135) × (500 000 − 6600) / 500 000 ≈ 1,99 mm sur le capteur ;
 - × 1060 / 35,9 ≈ 29,5 pixels par mm sur un écran de 1200 × 900, d'où 58,7 px ;
 - × 453 / 35,9 ≈ 12,6 pixels par mm sur un téléphone de 390 × 844 tenu à la verticale, d'où 25,1 px.
+
+À densité 2, ces pixels par mm doublent (59 et 25,2) : le flou attendu au 135 mm à f/1.4 sur l'écran de 1200 × 900 (117,4 pixels calculés de diamètre) dépasse le plafond de 64, et cet exemple ne vaut qu'à densité 1 ; celui du téléphone, 50,2 pixels calculés à densité 2, reste sous le plafond et garde sa taille de 25,1 px CSS. Les mesures, elles, datent de la densité 1 (« Plafond », plus haut).
 
 Conclusion (version 0.3.23) : le flou a la taille physique à 1 à 3 % près sur ordinateur, et la forme d'un disque.
 
@@ -310,7 +325,7 @@ Version 0.3.25 :
 - **Grands flous** : la compensation y est négligeable (environ 0,2 % au plafond), et le pas de la spirale y est inchangé. Ils n'ont pas été remesurés : les personnages bougeaient dans les zones de fond utilisables. Sur téléphone, les zones de fond libres sont plus étroites que le flou mesuré (moins de 25 px de large) : l'ajustement n'y est pas fiable, et la mesure reste indicative.
 
 Limites :
-- **Plafond** : 64 px de diamètre (rayon de 32 px).
+- **Plafond** : 64 pixels calculés de diamètre (rayon de 32), soit 32 px CSS à densité 2 (« Plafond, en pixels calculés et sur le capteur », plus haut).
 - **Mi-résolution** : la transition entre net et flou se fait sur environ deux pixels.
 - **Grain** (corrigé en version 0.3.25) : les flous moyens montraient un grain à l'échelle du pixel, surtout sur les petits écrans. Il y avait peu d'échantillons (environ 20 pour un flou de 22 px sur un écran de 390 px), et la spirale démarrait sous un angle propre à chaque pixel. Désormais, le pas de la spirale est réduit pour garder au moins 64 échantillons, sans dépasser 170, et tous les pixels partagent la même spirale.
 - **Fond à 360°** : il est traité comme un fond à 500 m, y compris le sol au-delà de 20 m.
@@ -438,13 +453,13 @@ Ce que dit le manuel du Z 6 ([« The Release Mode/Self-Timer Button »](https://
 
 Dans TutoPhoto (`app/src/ui/cameraPanel.ts`, `app/src/ui/shutter.ts`) :
 - **Bouton « Mode de déclenchement »** : vue par vue (par défaut, comme avant), Continu L (1 à 5 vues par seconde, 3 par défaut), Continu H, Continu H (étendu), retardateur (2, 5, 10 ou 20 s, 10 par défaut). Ces deux valeurs par défaut, d'abord choisies, sont celles du Z 6 (page « Defaults »).
-- **Rafale** : tant que le déclencheur reste appuyé, une vue par intervalle de 1 / cadence. L'intervalle n'est jamais plus court que la durée de pose : on ne peut pas prendre plus de vues que de poses. Chaque vue est calculée à son instant, sur l'horloge de la scène, avec l'orientation de l'appareil relevée à cet instant : suivre le chien pendant la rafale donne un filé. Au doigt, le déclencheur ne laisse aucun geste au navigateur (`touch-action: none`, version 0.3.62) : un doigt qui glisse sur le bouton n'arrête pas la rafale, qui finit au lever du doigt (constat COD-09 de l'audit ; essayé dans Chromium sur un Pixel 7 émulé, pas sur un vrai téléphone ni dans Safari).
+- **Rafale** : tant que le déclencheur reste appuyé, une vue par intervalle de 1 / cadence. L'intervalle n'est jamais plus court que la durée de pose : on ne peut pas prendre plus de vues que de poses. Chaque vue est calculée à son instant, sur l'horloge de la scène, avec l'orientation de l'appareil relevée à cet instant : suivre le chien pendant la rafale recadre chaque vue, mais l'appareil reste immobile pendant chaque pose (orientation posée une fois avant les rendus, `app/src/camera/photo.ts`) : pas de filé. Cette page disait jusqu'à la version 0.3.76 que suivre le chien « donne un filé » (constat PHY-01 de l'audit). Au doigt, le déclencheur ne laisse aucun geste au navigateur (`touch-action: none`, version 0.3.62) : un doigt qui glisse sur le bouton n'arrête pas la rafale, qui finit au lever du doigt (constat COD-09 de l'audit ; essayé dans Chromium sur un Pixel 7 émulé, pas sur un vrai téléphone ni dans Safari).
 - **Mise au point en rafale** : en AF-C, elle est refaite à chaque vue, à l'instant de la vue, avec le mode de zone et le suivi de la zone automatique. En AF-S, elle reste celle de la première vue, verrouillée « while the shutter-release button is pressed halfway ».
 - **Série à trier** : l'écran de revue fait défiler les vues (« Vue 2/5 · +0,20 s »), chacune avec sa loupe et son enregistrement.
 - **Limite de TutoPhoto** : 20 vues au plus par rafale, pour le temps de calcul (0,8 s par photo sur le téléphone de Julien aux réglages par défaut, mesure du 9 novembre 2026).
 - **Retardateur** : une vue à la fin du compte à rebours.
 
-Non simulé : la mémoire tampon et le ralentissement quand elle est pleine ; l'exposition qui « may vary erratically » en Continu H (étendu) ; le mode silencieux ; plusieurs vues au retardateur.
+Non simulé : le filé et tout mouvement de l'appareil pendant la pose (le filé est la notion MVT-06, hors V1 minimale) ; la mémoire tampon et le ralentissement quand elle est pleine ; l'exposition qui « may vary erratically » en Continu H (étendu) ; le mode silencieux ; plusieurs vues au retardateur.
 
 ## Collimateurs (version 0.3.34)
 
@@ -502,7 +517,7 @@ Dans TutoPhoto (`app/src/camera/exposureModes.ts`, `app/src/ui/cameraPanel.ts`) 
 - **Choix de TutoPhoto, non sourcés** : l'appareil choisit par tiers d'IL, sur les échelles du boîtier virtuel ; à égalité entre deux crans, ce qui arrive avec une scène à 12,5 IL, il prend celui qui assombrit la photo.
 - **Légende de la photo** : mode, réglages retenus, ISO auto et correction (« A · f/4 · 1/200 s · ISO 100 (auto) · corr. +1,0 IL · 50 mm » : avec +1 IL, s = 49,5 − 3 − 9 = 37,5, d'où 1/200 s).
 
-Non simulés : le mode P (BOI-06, hors de la décision), l'option « Automatique » de la vitesse minimale, la sensibilité maximale au flash, les poses longues (« Bulb », « Time ») et les ISO au-delà de 6400.
+Non simulés : une mesure de la lumière qui dépende du cadrage (la scène vaut 12,5 IL où que l'on vise : viser le ciel ou le sol donne la même vitesse en A, la même ouverture en S ; pas de mode de mesure ; constat PHY-12 de l'audit, et la note de la fenêtre « Exposition » le dit depuis la version 0.3.77) ; le mode P (BOI-06, hors de la décision), l'option « Automatique » de la vitesse minimale, la sensibilité maximale au flash, les poses longues (« Bulb », « Time ») et les ISO au-delà de 6400.
 
 ## Vue de dessus et appareil déplaçable (version 0.3.37)
 
@@ -519,12 +534,12 @@ Dans TutoPhoto (`app/src/ui/topView.ts`, `app/src/camera/sharpZone.ts`) :
 
 Non simulé ou approché :
 - les personnages ne se déplacent pas : seul l'appareil bouge ;
-- le fond photo à 360° est pris d'un seul point : ce qu'il montre (arbres, bâtiments) ne change pas de perspective quand l'appareil se déplace, et son sol est projeté sur un plan ;
+- le fond photo à 360° est pris d'un seul point et placé à 500 m : ce qu'il montre (arbres, bâtiments, sol) ne change pas de perspective quand l'appareil se déplace ; son sol n'est pas projeté sur un plan, et la photo calculée le floute comme un fond lointain jusqu'aux pieds des personnages (« Sol de la photo ») ;
 - la vue de dessus est une aide de TutoPhoto, pas un affichage d'appareil.
 
 ## Défis et bulletin (version 0.3.38)
 
-Proposés le 10 novembre 2026 avec le bilan de la V1 minimale, validés par Julien le 11 novembre (« Suivons tes propositions ») : un défi par situation, vérifié sur la photo, et un bulletin après chaque photo.
+Proposés le 10 novembre 2026 avec le bilan de la V1 minimale, validés par Julien le 11 novembre (« Suivons tes propositions ») : un défi par situation et un bulletin après chaque photo. Les critères d'un défi ne sont pas mesurés sur les pixels de la photo : ils sont calculés sur la géométrie de la scène à l'instant de chaque vue, celle avec laquelle la photo est calculée (« Mesures », plus bas). La ligne « bruit » du bulletin vient du viseur (« Bulletin », plus bas ; constat ARC-10 de l'audit).
 
 Dans TutoPhoto (`app/src/camera/bulletin.ts`, `app/src/ui/challenges.ts`) :
 - **Fenêtre « Défis »**, ouverte par le bouton de l'en-tête : aucun défi (entraînement libre), ou l'un des trois défis. Le choix est mémorisé.
@@ -563,12 +578,12 @@ Ce que disent les pages lues le 12 novembre 2026 :
 Position des lignes de l'illustration du D5600, mesurée le 12 novembre 2026 sur l'image de Nikon (772 × 432 px) : l'écran y occupe 584 × 372 px entre ses bords sombres. Les colonnes les plus claires sont à 25,1 %, 49,9 % et 75,1 % de sa largeur, les lignes les plus claires à 25,1 %, 50,1 % et 74,6 % de sa hauteur (position = (indice du pixel − bord + 0,5) ÷ taille). TutoPhoto retient les quarts exacts.
 
 Dans TutoPhoto :
-- **Réglage.** Fenêtre « Aperçu », groupe « Grille de cadrage », cinq boutons radio : « Aucune » (par défaut, comme sur le Z 6 et l'A6000), « Tiers (3 × 3) », « Seize cases (4 × 4) », « Vingt-quatre cases (6 × 4) », « Tiers et diagonales ». Le choix ne dépend pas de l'interrupteur général « Aperçu des réglages », qui ne le grise pas, et il ne compte pas dans le rappel « Aperçu coupé ». Il est mémorisé avec les interrupteurs (clé `tutophoto.apercu`, champ `grid` : `none`, `thirds`, `sixteen` ; une valeur inconnue vaut `none`).
+- **Réglage.** Fenêtre « Aperçu », groupe « Grille de cadrage », cinq boutons radio : « Aucune » (par défaut, comme sur le Z 6 et l'A6000), « Tiers (3 × 3) », « Seize cases (4 × 4) », « Vingt-quatre cases (6 × 4) », « Tiers et diagonales ». Le choix ne dépend pas de l'interrupteur général « Aperçu des réglages », qui ne le grise pas, et il ne compte pas dans le rappel « Aperçu coupé ». Il est mémorisé avec les interrupteurs (clé `tutophoto.apercu`, champ `grid` : `none`, `thirds`, `sixteen`, `twentyFour`, `thirdsDiagonals` ; une valeur inconnue vaut `none`).
 - **Tiers.** Deux lignes verticales et deux lignes horizontales, à 1/3 et 2/3 du cadre : tracé déduit du texte de Sony (« grid lines that divide the image into thirds ») ; la page n'a pas d'illustration et ne donne pas le nombre de lignes.
 - **Seize cases.** Trois lignes dans chaque sens, à 1/4, 1/2 et 3/4 du cadre : ce que montre l'illustration de Nikon pour le D5600.
 - **Vingt-quatre cases.** Cinq lignes sur le grand côté du cadre, à 1/6, 2/6, 3/6, 4/6 et 5/6, et trois sur le petit, aux quarts : la grille « 6x4 » de Canon. Le sens (six cases sur le grand côté) est déduit du nom ; sur un capteur 3:2, les cases sont alors carrées. Sur un cadre vertical, les six cases sont en hauteur.
 - **Tiers et diagonales.** La grille des tiers et deux diagonales d'un coin du cadre à l'autre : la grille « 3x3+diag » de Canon, dont le tracé des diagonales est déduit de l'icône du menu (capture du manuel de l'EOS R6).
-- **Tracé.** Des lignes placées en pourcentages dans le cadre du viseur (`div#frame`), qu'elles suivent quand il change de forme (boîtier, écran vertical). Chaque ligne est un trait clair d'un pixel bordé d'un trait sombre, pour rester lisible sur un fond clair comme sur un fond sombre. Elle ne reçoit aucun événement de pointeur : toucher le viseur déplace toujours le point de mise au point.
+- **Tracé.** Des lignes placées en pourcentages dans le cadre du viseur (`div#frame`), qu'elles suivent quand il change de forme (boîtier ; cadre vertical quand la zone du viseur est plus haute que large). Chaque ligne est un trait clair d'un pixel bordé d'un trait sombre, pour rester lisible sur un fond clair comme sur un fond sombre. Elle ne reçoit aucun événement de pointeur : toucher le viseur déplace toujours le point de mise au point.
 - **Loupe.** La grille est masquée quand la loupe agrandit l'image, et revient quand la loupe est coupée : le cadre garde sa place alors que l'image est grossie, et les lignes ne diviseraient plus l'image entière.
 - **Photo et écran de revue.** Pas de grille. Les réglages par défaut, l'image du viseur, la photo et les trois défis ne changent pas.
 
@@ -585,7 +600,7 @@ Non simulé : le quadrillage du Z 6 (tracé non décrit) et son attribution à u
 Vérifications du 12 novembre 2026 dans le site construit, en français et en anglais, avec Chromium en rendu logiciel, qui n'émule ni le processeur graphique ni Safari :
 - ordinateur (1280 × 800, cadre de 910 × 606 px) et téléphone émulé (Pixel 7, cadre vertical de 294 × 441 px) : « Tiers » trace quatre lignes et « Seize cases » six, sur tout le cadre. Le milieu de chaque trait clair est à 0,5 px de la position exacte : le trait d'un pixel est posé juste avant elle, pour que la paire claire et sombre soit centrée dessus ;
 - toucher un croisement de la grille y place le point de mise au point ;
-- interrupteur général coupé : les trois boutons de la grille restent actifs, et le rappel « Aperçu coupé » ne cite pas la grille ;
+- interrupteur général coupé : les trois boutons de la grille restent actifs (la version vérifiée n'avait pas encore les deux grilles de Canon, ajoutées le même jour), et le rappel « Aperçu coupé » ne cite pas la grille ;
 - loupe à 50 % puis à 100 % : aucune ligne ; loupe coupée : les lignes reviennent ;
 - autre boîtier (Canon EOS 2000D, cadre de 907 × 606 px sur ordinateur) : les lignes restent aux quarts ;
 - le choix est gardé après un rechargement ; une valeur inconnue en mémoire, ou une mémoire d'avant la version 0.3.56, donne « Aucune » sans perdre les interrupteurs ;
@@ -631,7 +646,7 @@ Non simulé :
 
 Limites de la scène de parc, constatées avec ces affichages :
 - le fond est une photo en 8 bits dont les hautes lumières sont déjà écrêtées (`docs/questions-ouvertes.md`, « Fond photo à 360° ») : là où le fichier est au maximum, sous-exposer ne fait revenir aucun détail. Les histogrammes et l'alerte décrivent la photo calculée, pas ce qu'un capteur aurait gardé d'un vrai ciel ;
-- à l'exposition que le simulateur juge correcte, des vêtements clairs sont déjà à la valeur maximale. Mesuré le 12 novembre 2026 au cadrage de départ (50 mm, mode A à f/8) : sans correction (−0,2 IL au bulletin), 0,8 % de l'image, sur le haut de Sophia, la chemise de Dennis et d'autres vêtements clairs ; à −1 IL de correction (−1,2 IL), moins de 0,1 % ; à −2 IL (−2,2 IL), aucun pixel ; à +2 IL (+1,8 IL), 6,1 %. La scène est déclarée à 12,5 IL sans mesure de sa lumière (« Exposition », plus haut) : cet étalonnage est à revoir avec la mesure de la lumière.
+- à l'exposition que le simulateur juge correcte, des vêtements clairs sont déjà à la valeur maximale. Mesuré le 12 novembre 2026 au cadrage de départ (50 mm, mode A à f/8) : sans correction (−0,2 IL au bulletin), 0,8 % de l'image, sur le haut de Sophia, la chemise de Dennis et d'autres vêtements clairs ; à −1 IL de correction (−1,2 IL), moins de 0,1 % ; à −2 IL (−2,2 IL), aucun pixel ; à +2 IL (+1,8 IL), 6,1 %. La scène est déclarée à 12,5 IL sans mesure de sa lumière (« Exposition », plus haut) : cet étalonnage est à revoir avec la mesure de la lumière. Une cause possible, non vérifiée : l'éclairage des objets 3D, environ deux fois plus fort que le fond (même section).
 
 Vérifications du 12 novembre 2026 dans le site construit, en français et en anglais, avec Chromium en rendu logiciel, qui n'émule ni le processeur graphique ni Safari :
 - ordinateur (1280 × 800, écran de revue de 1280 × 606 px) et téléphone émulé (Pixel 7, 412 × 441 px), réglages de la routine (M, f/8, 1/4000 s, ISO 6400, soit +0,5 IL) : par défaut, ni histogramme ni clignotement ; le bouton « Infos » est sous la photo, visible sans défilement ;
@@ -659,7 +674,7 @@ Ces fonctions existent dans le référentiel, mais pas dans le jalon de la V1 mi
 
 - Sur le Sony A7 III, « Grid Line » propose « Rule of 3rds Grid », « Square Grid » et « Diag. + Square Grid ».
 - Principe : un calque au-dessus du cadre du viseur, choisi dans le boîtier. Il ne change pas la photo.
-- Fait en version 0.3.56 : voir « Grilles de cadrage (version 0.3.56) », plus haut. Deux grilles (tiers, seize cases), choisies dans la fenêtre « Aperçu » et non dans le boîtier.
+- Fait en version 0.3.56 : voir « Grilles de cadrage (version 0.3.56) », plus haut. Quatre grilles (tiers, seize cases, vingt-quatre cases, tiers et diagonales), choisies dans la fenêtre « Aperçu » et non dans le boîtier.
 
 ### Histogramme (MES-06)
 
@@ -696,7 +711,9 @@ Une pull request par étape :
 ## Ce que je ne sais pas
 
 - La luminance absolue de la photo autumn_hockey, ni laquelle des deux lignes de la table (couvert lumineux ou épais) la décrit.
-- Le temps de calcul d'une photo par accumulation sur téléphone.
+- Si les objets 3D sont vraiment environ deux fois trop clairs par rapport au fond (« Exposition ») : établi par les fichiers et par le calcul, pas mesuré dans un rendu.
+- Le temps de calcul d'une photo sur les téléphones des testeurs, et si le plafond de 5 s y interrompt des photos (« Photo calculée » : mesuré sur le téléphone de Julien le 9 novembre 2026).
+- Ce que la visée d'un hybride montre du flou de mouvement (« Flou de mouvement et de bougé »).
 - Le modèle du tremblement de la main pour le flou de bougé.
 - La fiabilité des capacités dérivées des mesures de DxOMark, que leur auteur juge lui-même peu sûres pour les petits capteurs.
 - Le tracé du quadrillage du Z 6 (réglage d9), celui des grilles « Square Grid » et « Diag. + Square Grid » de Sony, les grilles des Canon EOS RP et EOS 2000D ; ce que devient la grille d'un boîtier quand on agrandit l'image, et si un boîtier peut l'enregistrer sur la photo : les pages lues ne le disent pas.

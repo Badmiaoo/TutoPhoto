@@ -818,13 +818,14 @@ export class CameraPanel {
 
   /**
    * Grille de cadrage : lignes placées en pourcentages du cadre, qu'elles suivent quand il change de forme (boîtier,
-   * écran vertical). Masquée quand la loupe agrandit l'image : le cadre garde sa place alors que l'image est
+   * zone du viseur plus haute que large). Masquée quand la loupe agrandit l'image : le cadre garde sa place alors que l'image est
    * grossie, et les lignes ne diviseraient plus l'image entière (choix de TutoPhoto, non sourcé).
    */
   private updateGrid(): void {
     const kind = this.preview.grid;
     const grid = this.el.grid;
-    // Cadre vertical (téléphone tenu droit) : le grand côté du capteur est vertical, les six cases de « 6 × 4 » aussi.
+    // Cadre vertical (zone du viseur plus haute que large) : le grand côté du capteur est vertical, les six cases de
+    // « 6 × 4 » aussi.
     const tall = this.frame !== null && this.frame.height > this.frame.width;
     const key = `${kind}:${tall ? "vertical" : "horizontal"}`;
     if (this.drawnGrid !== key) {
