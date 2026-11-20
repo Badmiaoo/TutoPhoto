@@ -67,10 +67,11 @@
 // - avec --photo : la photo se calcule et n'est pas noire, sa légende commence par le mode et les réglages
 //   (« M · f/8 · 1/4000 s · ISO 6400 · 50 mm »), le bulletin qui la suit donne l'exposition et la zone nette, et la
 //   loupe de l'écran de revue fonctionne ; après « Photo entière », une seconde loupe sur la même photo montre le
-//   point touché (COD-14, version 0.3.62) ; une loupe suivie de « Revenir au viseur » pendant son calcul est jetée,
-//   l'écran de revue reste fermé (COD-08) ; une photo en échec (canvas.toBlob mis en échec par la routine) après une
-//   bonne photo est dite sans l'image, la série, « Touchez la photo… » ni « Enregistrer la photo » d'avant (B10 de la
-//   relecture de la version 0.3.70 ; version 0.3.71 pour les deux) ;
+//   point touché (COD-14, version 0.3.62) ; une loupe suivie de « Revenir au viseur » pendant son calcul, écran de
+//   revue défilé en bas et bouton cliqué en son centre, est jetée, l'écran de revue reste fermé (COD-08 ; B1 de la
+//   relecture du Sujet 11) ; une photo en échec (canvas.toBlob mis en échec par la routine) après une bonne photo est
+//   dite sans l'image, « Touchez la photo… » ni « Enregistrer la photo » d'avant (B10 de la relecture de la version
+//   0.3.70 ; version 0.3.71 pour les deux) ;
 // - avec --photo, histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07, version 0.3.57) : par défaut,
 //   ni histogramme ni clignotement ; « Infos » une fois : quatre histogrammes (luminance, rouge, vert, bleu), la
 //   somme des colonnes de chacun égale au nombre de pixels de la photo ; photo surexposée de 3,2 IL : elle s'ouvre en
@@ -1114,18 +1115,36 @@ async function runProfile(browser, name, base) {
 
       // Loupe, puis « Revenir au viseur » pendant son calcul (constat COD-08 de l'audit, version 0.3.71) : la loupe doit
       // être jetée, l'écran de revue rester fermé. Avant la correction, il se rouvrait à la fin du calcul avec la
-      // fenêtre de la loupe (essai du 20 novembre 2026, construction de origin/main, hors de la routine). Le bouton est
-      // cliqué dans la page, à la tâche suivante du toucher de la photo, quand le calcul a commencé ; le contrôle relève
-      // que la bande de calcul était alors affichée, et lit l'écran de revue une seconde après la fin du calcul.
+      // fenêtre de la loupe (essai du 20 novembre 2026, construction de origin/main, hors de la routine). À la tâche
+      // suivante du toucher de la photo, calcul commencé, la routine fait défiler l'écran de revue en bas ; puis elle
+      // clique « Revenir au viseur » à la souris, en son centre : écran défilé en bas, la bande « Calcul de la
+      // loupe… » recouvrait le bouton et prenait le clic (constat B1 de la relecture du Sujet 11, version 0.3.71). Le
+      // contrôle relève l'élément sous le centre du bouton, que le clic est arrivé au bouton pendant le calcul, et lit
+      // l'écran de revue une seconde après la fin du calcul ; il donne le temps entre le clic et la fin du calcul.
       await page.waitForFunction(() => document.getElementById("progress").hidden && !document.getElementById("review").hidden);
       await page.evaluate(() => {
         window.routineBack = null;
+        window.routineBackClick = null;
+        window.routineProgressEnd = null;
+        const progress = document.getElementById("progress");
+        new MutationObserver((_, observer) => {
+          if (progress.hidden && window.routineBackClick) {
+            window.routineProgressEnd = performance.now();
+            observer.disconnect();
+          }
+        }).observe(progress, { attributes: true, attributeFilter: ["hidden"] });
+        document.getElementById("review-back").addEventListener(
+          "click",
+          () => (window.routineBackClick = { at: performance.now(), computing: !progress.hidden, label: document.getElementById("progress-label").textContent }),
+          { once: true },
+        );
         document.getElementById("review-image").addEventListener(
           "click",
           () =>
             setTimeout(() => {
-              window.routineBack = { computing: !document.getElementById("progress").hidden };
-              document.getElementById("review-back").click();
+              const review = document.getElementById("review");
+              review.scrollTop = review.scrollHeight;
+              window.routineBack = { computing: !progress.hidden };
             }, 0),
           { once: true },
         );
@@ -1136,24 +1155,40 @@ async function runProfile(browser, name, base) {
         () => true,
         () => false,
       );
+      let backUnder = null;
+      if (backArrived) {
+        const button = await page.evaluate(() => {
+          const b = document.getElementById("review-back").getBoundingClientRect();
+          const x = b.left + b.width / 2;
+          const y = b.top + b.height / 2;
+          const under = document.elementFromPoint(x, y);
+          return { x, y, under: under ? under.id || under.className || under.tagName : null };
+        });
+        backUnder = button.under;
+        await page.mouse.click(button.x, button.y);
+      }
       await page.waitForFunction(() => document.getElementById("progress").hidden);
       await page.waitForTimeout(1000);
       const back = await page.evaluate(() => ({
         ...(window.routineBack ?? {}),
+        click: window.routineBackClick,
+        ended: window.routineProgressEnd && window.routineBackClick ? (window.routineProgressEnd - window.routineBackClick.at) / 1000 : null,
         review: !document.getElementById("review").hidden,
         caption: document.getElementById("review-caption").textContent,
       }));
       check(
-        "revue : loupe jetée après « Revenir au viseur » pendant son calcul (COD-08)",
-        backArrived && back.computing === true && !back.review,
+        "revue : loupe jetée après « Revenir au viseur » pendant son calcul, écran défilé en bas (COD-08, B1)",
+        backArrived && back.computing === true && back.click?.computing === true && !back.review,
         !backArrived
           ? "le clic n'est pas arrivé à la photo en 30 s"
-          : `calcul ${back.computing ? "commencé" : "pas commencé"} au clic sur « Revenir au viseur » ; écran de revue ${back.review ? `rouvert (« ${back.caption.slice(0, 60)} »)` : "resté fermé"}`,
+          : `sous le centre de « Revenir au viseur » : ${backUnder} ; clic ${back.click ? `arrivé au bouton, calcul ${back.click.computing ? `en cours (« ${back.click.label} »)` : "fini"}` : "pas arrivé au bouton"} ; écran de revue ${back.review ? `rouvert (« ${back.caption.slice(0, 60)} »)` : "resté fermé"}` +
+            (back.ended !== null ? ` ; calcul fini ${back.ended.toFixed(1)} s après le clic` : ""),
       );
 
       // Photo en échec après une bonne photo (constat B10 de la relecture de la version 0.3.70, version 0.3.71) : le
-      // message seul, sans l'image, la série, « Touchez la photo… » ni « Enregistrer la photo » de la photo d'avant, qui
-      // restaient affichés. L'échec est provoqué par la routine : canvas.toBlob, dernière étape du calcul
+      // message seul, sans l'image, « Touchez la photo… » ni « Enregistrer la photo » de la photo d'avant, qui restaient
+      // affichés. La photo d'avant est une vue seule : les boutons de la série, relevés aussi, ne peuvent pas être
+      // affichés ici, et ce contrôle ne les vérifie pas (constat A1 de la relecture du Sujet 11). L'échec est provoqué par la routine : canvas.toBlob, dernière étape du calcul
       // (app/src/camera/photo.ts), lève une erreur au texte reconnaissable, admise dans ADMITTED_ERRORS ; toBlob est
       // rendu ensuite.
       if (await page.isVisible("#review")) await page.click("#review-back");

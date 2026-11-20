@@ -725,8 +725,11 @@ dialog fieldset label {
   color: var(--fond);
 }
 
-/* Calcul de la photo, au-dessus de l'écran de revue pendant le calcul de la loupe. */
+/* Calcul de la photo, au-dessus de l'écran de revue pendant le calcul de la loupe. Elle laisse passer les touchers
+   (relecture du Sujet 11, constat B1) : écran de revue défilé en bas, elle recouvrait « Revenir au viseur », « Vue
+   suivante » et « Photo entière », et le toucher n'arrivait pas au bouton. Elle n'a ni bouton ni geste à elle. */
 .progress {
+  pointer-events: none;
   position: absolute;
   z-index: 2;
   left: 50%;
@@ -819,6 +822,11 @@ dialog fieldset label {
   text-align: center;
   font-size: 0.85rem;
   color: var(--discret);
+}
+
+/* Légende : une rafale interrompue le dit sur la première ligne (relecture du Sujet 11, constat B3). */
+#review-caption {
+  white-space: pre-line;
 }
 
 /* Affichages de l'écran de revue (MES-06, MES-07 ; version 0.3.57 ; ui/reviewInfo.ts). */

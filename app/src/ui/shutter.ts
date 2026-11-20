@@ -107,6 +107,17 @@ class PhotoRefused extends Error {
   }
 }
 
+/**
+ * Loupe arrêtée en cours de calcul parce que sa vue a changé (relecture du Sujet 11, version 0.3.71) : levée par le
+ * suivi de la progression, elle interrompt takePhoto, dont le bloc finally rend la scène et libère les textures.
+ */
+class LoupeDropped extends Error {
+  constructor() {
+    super("loupe jetée");
+    this.name = "LoupeDropped";
+  }
+}
+
 export class Shutter {
   private busy = false;
   /** Contexte WebGL perdu, et nombre de pertes depuis l'ouverture (relecture du Sujet 10). */
@@ -124,7 +135,11 @@ export class Shutter {
   private shots: Shot[] = [];
   private shotIndex = 0;
   /** Déclencheur tenu en rafale : début, orientations relevées à chaque image, observateur. */
-  private press: { start: number; samples: Moment[]; observer: Observer<Scene> | null; mode: ReleaseMode } | null = null;
+  /**
+   * Déclencheur tenu en rafale : début, intervalle lu à l'appui (gardé pour le relâchement : relevés et vues suivent
+   * le même intervalle, relecture du Sujet 11), orientations relevées à chaque image, observateur.
+   */
+  private press: { start: number; interval: number; samples: Moment[]; observer: Observer<Scene> | null; mode: ReleaseMode } | null = null;
   private countdown: number | null = null;
   private loupe: LoupeView | null = null;
   private lastCaption: (() => string) | null = null;
@@ -136,8 +151,9 @@ export class Shutter {
    */
   private view = 0;
   /**
-   * Rafale tronquée par une vue en échec (version 0.3.71, constat COD-05) : la phrase ajoutée à la légende de chaque
-   * vue calculée, ou null. Avant, le message d'erreur était aussitôt remplacé par la première vue réussie.
+   * Rafale tronquée par une vue en échec (version 0.3.71, constat COD-05) : la phrase mise en tête de la légende de
+   * chaque vue calculée, sur sa ligne, ou null. Avant, le message d'erreur était aussitôt remplacé par la première vue
+   * réussie.
    */
   private truncation: (() => string) | null = null;
 
@@ -216,7 +232,7 @@ export class Shutter {
     this.el.reviewSave.textContent = tr("save");
     this.el.reviewPrev.textContent = tr("reviewPrev");
     this.el.reviewNext.textContent = tr("reviewNext");
-    if (this.shots.length > 1) this.el.reviewCount.textContent = `${tr("reviewFrame")} ${this.shotIndex + 1}/${this.shots.length}`;
+    if (this.shots.length > 1) this.el.reviewCount.textContent = this.countText();
     if (this.lastCaption) this.el.reviewCaption.textContent = this.lastCaption();
     if (!this.el.reviewBulletin.hidden) this.showBulletin();
     this.info.applyTexts();
@@ -272,14 +288,12 @@ export class Shutter {
    * effacé : un geste fait pendant le calcul ne tourne pas le viseur ; un doigt resté posé ne le tourne plus tant
    * qu'il n'est pas relevé puis reposé.
    */
-  private async compute(request: PhotoRequest, frame: { index: number; count: number } | null = null): Promise<PhotoResult> {
+  private async compute(request: PhotoRequest, label: string, abandoned: () => boolean = () => false): Promise<PhotoResult> {
     if (this.lost()) throw new PhotoRefused("photoContextLost", "contexte WebGL perdu");
     const losses = this.losses;
     this.busy = true;
     this.panel.setEnabled(false);
-    this.el.progressLabel.textContent = frame
-      ? `${t("computingFrame")} ${frame.index + 1}/${frame.count}…`
-      : t("computing");
+    this.el.progressLabel.textContent = label;
     this.el.progress.hidden = false;
     this.el.progressBar.style.width = "0%";
     this.engine.stopRenderLoop();
@@ -290,7 +304,9 @@ export class Shutter {
     try {
       let photo: PhotoResult | null = null;
       try {
+        // Un calcul abandonné (loupe dont la vue a changé) s'arrête au point de progression suivant.
         photo = await takePhoto(this.engine, this.scene, this.camera, this.time, this.ground, request, (fraction) => {
+          if (abandoned()) throw new LoupeDropped();
           this.el.progressBar.style.width = `${Math.round(fraction * 100)}%`;
         });
       } catch (error) {
@@ -328,8 +344,8 @@ export class Shutter {
     const start = this.time.now();
     const samples: Moment[] = [{ t0: start, rotation: this.camera.rotation.clone() }];
     let observer: Observer<Scene> | null = null;
+    const interval = mode.kind === "single" ? 0 : this.interval(mode);
     if (mode.kind !== "single") {
-      const interval = this.interval(mode);
       // Instant de la dernière vue possible : au-delà, une orientation relevée ne servirait à aucune vue (pressEnd
       // prend, pour chaque vue, la plus récente relevée avant son instant). Le texte du bouton n'est réécrit que quand
       // le nombre de vues change (version 0.3.71, constat COD-13).
@@ -344,7 +360,7 @@ export class Shutter {
         this.el.button.textContent = `${t("burstCount")} ${count} ${t(count === 1 ? "burstFrame" : "burstFrames")}`;
       });
     }
-    this.press = { start, samples, observer, mode };
+    this.press = { start, interval, samples, observer, mode };
     if (mode.kind === "single") void this.pressEnd();
   }
 
@@ -360,7 +376,7 @@ export class Shutter {
       return;
     }
     const end = this.time.now();
-    const interval = this.interval(press.mode);
+    const interval = press.interval;
     const count = Math.min(MAX_BURST, 1 + Math.floor((end - press.start) / interval + 1e-9));
     const moments: Moment[] = [];
     for (let i = 0; i < count; i++) {
@@ -383,6 +399,9 @@ export class Shutter {
     let left = delay;
     const show = () => (this.el.button.textContent = `${t("timerCountdown")} ${left} s`);
     show();
+    // Pas de loupe pendant le compte (magnify) : la consigne « Touchez la photo… » est masquée jusqu'à la fin du compte
+    // (relecture du Sujet 11, constat B6).
+    this.el.reviewHint.hidden = true;
     const tick = () => {
       left--;
       if (left > 0) {
@@ -392,6 +411,7 @@ export class Shutter {
       }
       this.countdown = null;
       this.el.button.textContent = t("shutterButton");
+      this.el.reviewHint.hidden = this.el.reviewImage.hidden;
       void this.shootSeries([{ t0: this.time.now(), rotation: this.camera.rotation.clone() }], null);
     };
     this.countdown = window.setTimeout(tick, 1000);
@@ -445,7 +465,7 @@ export class Shutter {
           moment,
         };
         const series = moments.length > 1 ? { index: i, count: moments.length } : null;
-        const photo = await this.compute(request, series);
+        const photo = await this.compute(request, series ? `${t("computingFrame")} ${i + 1}/${moments.length}…` : t("computing"));
         if (focusMode === "single" && !focusLocked) this.autofocus.lockAt(photo.focusDistance);
         const target = areaMode === "auto" ? (this.autofocus.target()?.kind ?? null) : null;
         const frame = series ? { ...series, offset: moment.t0 - moments[0].t0 } : null;
@@ -470,29 +490,31 @@ export class Shutter {
       if (resumeAt !== null) this.time.release(resumeAt);
       this.shooting = false;
     }
+    // Rafale tronquée (version 0.3.71, constat COD-05) : la vue en échec est la première non calculée ; la phrase dit
+    // laquelle, et combien de vues sont montrées (relecture du Sujet 11, constats B3 et A4).
+    const done = shots.length;
+    const requested = moments.length;
+    const truncated = () => {
+      const shown = done === 0 ? t("burstShownNone") : (done === 1 ? t("burstShownOne") : t("burstShown")).replace("{done}", String(done));
+      return `${t("burstTruncated").replace("{failed}", String(done + 1))} ; ${shown.replace("{count}", String(requested))}`;
+    };
     if (shots.length === 0) {
-      if (failure !== null) this.showError(failure);
+      if (failure !== null) this.showError(failure, requested > 1 ? truncated : undefined);
       return;
     }
     for (const old of this.shots) URL.revokeObjectURL(old.photo.url);
     this.shots = shots;
-    // Rafale tronquée : les vues calculées sont montrées, et chacune dit combien l'ont été et pourquoi la suivante a
-    // échoué (version 0.3.71, constat COD-05).
-    const done = shots.length;
-    const requested = moments.length;
-    this.truncation =
-      failure === null
-        ? null
-        : () => t("burstTruncated").replace("{done}", String(done)).replace("{count}", String(requested)) + " " + this.errorText(failure);
+    this.truncation = failure === null ? null : () => this.errorText(failure, truncated());
     this.showFrame(0);
   }
 
   /**
-   * Erreur du calcul dans la console, sauf un refus ou une scène pas prête après la borne de 20 s : ce ne sont pas
-   * des fautes du programme, l'écran de revue les dit en clair (version 0.3.71 pour la scène pas prête).
+   * Erreur du calcul dans la console, sauf un refus, une scène pas prête après la borne de 20 s ou une loupe jetée : ce
+   * ne sont pas des fautes du programme ; l'écran de revue dit les deux premiers en clair (version 0.3.71 pour la scène
+   * pas prête et la loupe jetée).
    */
   private report(error: unknown): void {
-    if (!(error instanceof PhotoRefused) && !(error instanceof SceneNotReadyError)) console.error(error);
+    if (!(error instanceof PhotoRefused) && !(error instanceof SceneNotReadyError) && !(error instanceof LoupeDropped)) console.error(error);
   }
 
   /**
@@ -523,6 +545,15 @@ export class Shutter {
     });
   }
 
+  /**
+   * Compteur de la série : rang parmi les vues demandées, comme la légende (relecture du Sujet 11, constat B3) ; avant,
+   * une rafale tronquée disait « Vue 1/2 » au compteur et « Vue 1/5 » dans la légende.
+   */
+  private countText(): string {
+    const frame = this.shots[this.shotIndex]?.frame;
+    return frame ? `${t("reviewFrame")} ${frame.index + 1}/${frame.count}` : `${t("reviewFrame")} ${this.shotIndex + 1}/${this.shots.length}`;
+  }
+
   /** Vue de la série à afficher, avec les boutons de la série. */
   private showFrame(index: number): void {
     if (index < 0 || index >= this.shots.length) return;
@@ -531,7 +562,7 @@ export class Shutter {
     this.el.reviewSave.href = shot.photo.url;
     const many = this.shots.length > 1;
     this.el.reviewSeries.hidden = !many;
-    this.el.reviewCount.textContent = many ? `${t("reviewFrame")} ${index + 1}/${this.shots.length}` : "";
+    this.el.reviewCount.textContent = many ? this.countText() : "";
     this.el.reviewPrev.disabled = index === 0;
     this.el.reviewNext.disabled = index === this.shots.length - 1;
     this.showWhole();
@@ -541,6 +572,7 @@ export class Shutter {
   private showWhole(): void {
     const shot = this.shots[this.shotIndex];
     if (!shot) return;
+    const focused = document.activeElement;
     // La fenêtre de la loupe est oubliée : le toucher suivant porte sur la photo entière, pas sur l'ancienne fenêtre.
     this.dropLoupe();
     this.view++;
@@ -559,11 +591,12 @@ export class Shutter {
       const focus = `${tr(focusLocked ? "focusLockedAt" : "focusedAt")} ${this.decimal(photo.focusDistance, 1)} m`;
       const series = frame ? `${tr("reviewFrame")} ${frame.index + 1}/${frame.count} · +${this.decimal(frame.offset, 2)} s · ` : "";
       const caption = `${series}${settings.summary} · ${settings.body.model} · ${mode} · ${focus} · ${this.computedText(photo)}`;
-      return truncation ? `${caption} · ${truncation()}` : caption;
+      return truncation ? `${truncation()}\n${caption}` : caption;
     };
     this.showCaption();
     this.showBulletin();
     this.info.show(photo.tones);
+    this.keepFocus(focused);
   }
 
   /** Toucher la photo, ou la fenêtre de la loupe : fenêtre à 100 % centrée sur le point touché. */
@@ -590,11 +623,13 @@ export class Shutter {
     const left = clamp(at.x * fullWidth - width / 2, fullWidth - width);
     const top = clamp(at.y * fullHeight - height / 2, fullHeight - height);
     try {
-      const photo = await this.compute({
-        ...shot.request,
-        view: { longSide: Math.round(pixels.long), crop: { left, top, width, height } },
-        replay: shot.photo.replay,
-      });
+      // Loupe dont la vue a changé : son calcul s'arrête au point de progression suivant, et le viseur revient
+      // (relecture du Sujet 11, constat B2 ; avant, il restait sous la bande de calcul jusqu'à la fin de la loupe).
+      const photo = await this.compute(
+        { ...shot.request, view: { longSide: Math.round(pixels.long), crop: { left, top, width, height } }, replay: shot.photo.replay },
+        t("computingLoupe"),
+        () => this.view !== view,
+      );
       // La vue a changé pendant le calcul (écran de revue fermé, autre vue, photo entière) : la loupe est jetée.
       if (this.view !== view) {
         URL.revokeObjectURL(photo.url);
@@ -615,7 +650,8 @@ export class Shutter {
       // Vue changée pendant le calcul : l'erreur ne rouvre pas l'écran de revue. Sinon, la photo est masquée comme
       // pour toute erreur, et « Photo entière » la remontre.
       if (this.view !== view) return;
-      this.showError(error);
+      // Loupe en échec : la photo, gardée, n'est pas perdue ; le message le dit (relecture du Sujet 11, constat B4).
+      this.showError(error, () => t("loupeError"));
       this.el.reviewWhole.hidden = false;
     }
   }
@@ -653,9 +689,11 @@ export class Shutter {
   }
 
   /**
-   * Message d'erreur à la place de la photo (errorText). La vue affichée change : une loupe en calcul sera jetée.
+   * Message d'erreur à la place de la photo (errorText), après la phrase lead si elle est donnée. La vue affichée
+   * change : une loupe en calcul sera jetée.
    */
-  private showError(error: unknown): void {
+  private showError(error: unknown, lead?: () => string): void {
+    const focused = document.activeElement;
     this.view++;
     this.dropLoupe();
     this.el.reviewBulletin.hidden = true;
@@ -664,11 +702,22 @@ export class Shutter {
     // 0.3.70) : ni l'image, ni la série, ni « Touchez la photo… », ni « Enregistrer la photo », qui l'aurait sauvée.
     this.showPhotoParts(false);
     this.el.reviewWhole.hidden = true;
-    const text = this.errorText(error);
-    this.lastCaption = () => text;
-    this.el.reviewCaption.textContent = text;
+    this.lastCaption = () => this.errorText(error, lead?.());
+    this.el.reviewCaption.textContent = this.lastCaption();
     this.el.reviewImage.alt = "";
     this.openReview();
+    this.keepFocus(focused);
+  }
+
+  /**
+   * Focus clavier gardé dans l'écran de revue (relecture du Sujet 11, constat B8) : quand l'élément qui l'avait vient
+   * d'être masqué (« Enregistrer la photo » sous un message d'erreur, « Photo entière » après son appui), il passe à
+   * « Revenir au viseur », sans faire défiler l'écran de revue. Avant, il tombait sur la page.
+   */
+  private keepFocus(focused: Element | null): void {
+    if (!(focused instanceof HTMLElement) || !this.el.review.contains(focused) || this.el.review.hidden) return;
+    if (focused.getClientRects().length > 0) return;
+    this.el.reviewBack.focus({ preventScroll: true });
   }
 
   /** Image, lien « Enregistrer la photo », phrase de la loupe et boutons de la série : affichés ou masqués. */
@@ -680,10 +729,10 @@ export class Shutter {
   }
 
   /**
-   * Texte d'une erreur : une phrase en clair quand la cause est connue (relecture du Sujet 10), puis le détail
-   * technique pour le diagnostic sur téléphone.
+   * Texte d'une erreur : la phrase de tête (« La photo n'a pas pu être calculée. » par défaut), une phrase en clair
+   * quand la cause est connue (relecture du Sujet 10), puis le détail technique pour le diagnostic sur téléphone.
    */
-  private errorText(error: unknown): string {
+  private errorText(error: unknown, lead: string = t("photoError")): string {
     const detail = error instanceof Error ? error.message : String(error);
     const hint: MessageKey | null =
       error instanceof PhotoRefused
@@ -693,7 +742,7 @@ export class Shutter {
             ? "photoNotReadyFile"
             : "photoNotReady"
           : null;
-    return hint ? `${t("photoError")} ${t(hint)} (${detail})` : `${t("photoError")} (${detail})`;
+    return hint ? `${lead} ${t(hint)} (${detail})` : `${lead} (${detail})`;
   }
 
   /** « 64 rendus, calculée en 1,2 s » ; « 120/256 » si le calcul a été arrêté par la limite de temps. */
