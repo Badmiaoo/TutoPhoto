@@ -90,14 +90,27 @@ h1 {
   background: #fbfbf9;
 }
 
+/* Rayons à 3,68:1 sur le fond du schéma (critère « Non-text Contrast » du WCAG, 3:1 ; constat INT-02). */
 .act-ray {
-  stroke: #d4a017;
+  stroke: #a67c00;
   stroke-width: 0.8;
   stroke-dasharray: 4 3;
 }
 
 .act-source {
   fill: #f2c200;
+}
+
+/* Cadre de la source, de la couleur de l'objet (11,01:1 sur le fond), tracé par lum02.ts à 1,5 px autour d'elle. */
+.act-source-frame {
+  fill: #3a3a37;
+}
+
+/* Noms dans le dessin (taille posée par lum02.ts) ; liseré du fond pour rester lisibles sur un rayon. */
+.act-label {
+  fill: #3a3a37;
+  stroke: #fbfbf9;
+  paint-order: stroke;
 }
 
 .act-object {

@@ -12,6 +12,33 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.74] - 2026-11-20
+
+Sujet 14 du plan de corrections de l'audit (`docs/audit/README.md`) : activité de LUM-02, pénombre hors du mur, légende, lisibilité du schéma (FMA-10, INT-02). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), l'activité n'a qu'une langue (relu dans `app/src/activities/lum02.ts` et `app/activites/LUM-02/index.html`) : les essais « dans les deux langues » du plan se font en français seul.
+
+### Ajouté
+
+- Activité de LUM-02 : « source », « objet » et « mur » écrits dans le schéma, à 13 px à l'écran quelle que soit sa largeur, sans se chevaucher (INT-02) ; au texte « Calcul », ce que le schéma ne simule pas : l'éclairement plus fort de près (deux fois plus loin, quatre fois moins de lumière, pour une source petite devant sa distance), la lumière renvoyée par la pièce dans l'ombre (FMA-10, troisième point).
+- `data/sources.yaml` : `wikipedia-inverse-square-law` ; au label de `tiffen-lowel-soft-light`, la citation sur la lumière renvoyée par un mur ou un plafond.
+- Routine (`scripts/test_app.cjs`) : « activité LUM-02 : pénombre hors du mur, légende, noms du dessin ».
+- `docs/tests-a-faire-faire.md` : test T16, le schéma de l'activité sur un téléphone.
+- `docs/propositions.md`, section 5 : « Activité de LUM-02 : pénombre, légende, lisibilité du schéma », huit choix.
+- `app/src/frenchSpaces.ts` : la fonction des espaces de la ponctuation, sortie de `app/src/texts.ts` pour servir à l'activité sans charger la table du simulateur.
+
+### Modifié
+
+- Activité de LUM-02 : source de 10 cm de large au lieu de 6 dans le dessin, dans un cadre sombre de 1,5 px à l'écran tracé autour d'elle, hauteur inchangée (7,1 × 2,1 px de jaune à 390 px de large pour la lampe de 3 cm, contre 4,3 × 2,1) ; rayons en `#a67c00`, 3,68:1 sur le fond au lieu de 2,29:1 (INT-02).
+- Activité de LUM-02 : espaces insécables de la ponctuation française dans tous ses textes (`frenchSpaces`).
+- `docs/etat-des-travaux.md` : fin de la version 0.3.73 relue, lignée des sessions (profondeur 5 sur 8), Sujet 14 ; la ligne des espaces ordinaires de « Défauts connus » ne garde que l'accueil, les fiches et les messages techniques.
+
+### Corrigé
+
+- Activité de LUM-02 : quand le bord extérieur de la pénombre dépasse le mur dessiné (±100 cm), la ligne de la pénombre le dit, « (au-delà du mur dessiné) » ; sans ombre pleine, elle donne la hauteur de toute l'ombre au lieu de « … cm de chaque côté de l'ombre », et la légende dit « pas d'ombre pleine, seulement une pénombre en dégradé » au lieu de « ombre pleine au centre » (FMA-10).
+
+Essais de la mise en œuvre (Chromium en rendu logiciel, site construit servi en local, fenêtres de 1280, 390 et 320 px de large, neuf positions des curseurs dont celles de FMA-10 : 150 cm à 20 cm, 150 cm à 50 et à 55 cm, « Réflecteur », « Grande fenêtre », les extrêmes) : à 150 cm et 20 cm, « Pénombre sur le mur : toute l'ombre, sur 480,0 cm de haut (au-delà du mur dessiné) » (30 × 70 / 20 + 150 × 50 / 20 = 480) ; à 55 cm, sans la mention (193,6 cm, bord à 96,8 cm) ; « Réflecteur », 98,8 cm sans ombre pleine (30 × 130 / 80 + 80 × 50 / 80) ; « Grande fenêtre », 30,0 cm de chaque côté, légende inchangée. Les trois noms dans le schéma, sans chevauchement et dans son cadre, aux trois largeurs et aux neuf positions ; aucun débordement horizontal ; aucune espace ordinaire avant « : » dans le texte de la page ; aucune erreur de la page. Contrastes recalculés par la formule du WCAG : rayons 3,68:1, contour de la source et noms 11,01:1 sur `#fbfbf9`. Le contrôle ajouté à la routine, copié dans un script à part (la routine entière n'a pas été lancée sur la machine de Claude) : vert à 1280 et à 390 px. La CI lance la routine sur ses quatre profils (résultats dans la pull request).
+
+Relecture : un seul agent, sous les deux angles (code et vérité ; débutant devant l'écran, à 1280, 390 et 320 px), dans Chromium en rendu logiciel : rien de bloquant, cinq constats, tous repris. R1, à 3 cm la source paraissait sombre sur téléphone, le trait de 1,5 px centré sur le bord couvrant le jaune d'un rectangle de 2,1 px (pixels relevés : `#675c2c` au centre à 320 px) : cadre tracé à l'extérieur de la source ; après reprise, `#f2c200` au centre à 390 px. R2, la règle du carré de la distance sans sa limite : « pour une source petite devant sa distance », et la limite citée dans `data/sources.yaml` (« less than one-fifth of the distance », erreur de moins de 1 %). R3, la lumière renvoyée par la pièce sans citation : celle de Tiffen ajoutée au label. R4, le nom « source » à 55 px sous une petite source : posé sous la source et sous le bas de l'objet (11 à 21 px sous la lampe de 3 cm). R5, le numéro de la pull request dans la page d'état. Vérifié juste par le relecteur : les deux formules, recalculées par le rayon qui rase l'objet, sur les 11 550 positions ; les comptes 427 et 2 035 ; aucune ombre pleine entre 0 et 0,05 cm (jamais « 0,0 cm ») ; aucun chevauchement des noms sur les 11 550 positions à 320, 390, 412 et 1280 px, avec Inter et avec DejaVu Sans, la police de la CI ; le contrôle de la routine ; la citation de Wikipedia et sa date ; les contrastes. Après reprise, essai de Claude sur 546 positions aux trois largeurs : aucun nom qui chevauche un autre, la source ou l'objet, ni qui sort du cadre. Contrôle final, au commit 129335f, par un agent qui n'a rien écrit de la version : fusionnable ; points du sujet tous faits ou leur écart dit (choix 1) ; reprises R1 à R5 justes ; chiffres, contrastes et citations refaits (source de 7,12 × 2,14 px, `#f2c200` au centre à 390 px ; noms à 13,0 px) ; balayage de 572 positions aux trois largeurs sans chevauchement ; `validate.py`, `changelog.py check`, `check_public.py --commits all` et la construction passent. Deux remarques sans correction : F1, les résultats de la routine sont à reporter dans la pull request avant la fusion ; F2, les « 11 à 21 px » de R4 se comptent depuis le bas du jaune (20,6, 12,1 et 11,2 px à 1280, 390 et 320 px) et dépendent de la police. Agents de la version : relecteur 159 100 jetons, contrôle final 113 749 jetons. Une seule relecture au lieu de deux, comme aux Sujets 12 et 13 (limite hebdomadaire au statut « allowed_warning »).
+
 ## [0.3.73] - 2026-11-20
 
 Sujet 13 du plan de corrections de l'audit (`docs/audit/README.md`) : textes du simulateur et des pages (INT-07, INT-01, INT-19 points 1 à 5, COD-13), avec deux défauts confiés au sujet (« Défauts connus, hors du plan » de `docs/etat-des-travaux.md`) : les espaces avant la ponctuation de `app/src/texts.ts` et la photo en échec de cause inconnue. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z.
@@ -1457,6 +1484,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.74]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.73...v0.3.74
 [0.3.73]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.72...v0.3.73
 [0.3.72]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.71...v0.3.72
 [0.3.71]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.70...v0.3.71

@@ -457,7 +457,7 @@ sources:
     label: "Wikipedia, Non-breaking space, section « Spacing punctuation in French » : « In French typography, non-breaking spaces are used before \"high punctuation\" (:, ;, ?, and !) » et « on the interior side of guillemets » ; espace fine insécable (U+202F) « before ;, ?, and ! (but not :, before which a regular non-breaking space is used) » ; cite le Lexique des règles typographiques en usage à l'Imprimerie nationale, 3e éd., 1990, p. 25 et 148-149 (page modifiée le 16 octobre 2026 ; lue le 20 novembre 2026)"
     url: "https://en.wikipedia.org/wiki/Non-breaking_space"
     note: "Source secondaire : le Lexique de l'Imprimerie nationale n'est pas en ligne ; la page française de Wikipedia n'est pas joignable depuis l'environnement de Claude."
-    used_in: [app/src/texts.ts]
+    used_in: [app/src/frenchSpaces.ts]
   - id: wikipedia-exposure-value
     group: "Physique, rendu et technique"
     label: "Wikipedia, Exposure value, table 2 « Exposure values (ISO 100) for various lighting conditions », tirée des guides ANSI PH2.7-1973 et PH2.7-1986 (révision 1352562239, source secondaire, lue le 8 novembre 2026)"
@@ -668,6 +668,11 @@ sources:
     label: "Wikipedia, Umbra, penumbra and antumbra : la pénombre est la zone où la source n'est cachée qu'en partie ; avec une source ponctuelle, seule l'ombre pleine existe (révision 1379008615, source secondaire, lue le 11 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Umbra,_penumbra_and_antumbra&oldid=1379008615"
     used_in: [docs/propositions.md, content/notions/LUM-02.md, app/src/activities/lum02.ts]
+  - id: wikipedia-inverse-square-law
+    group: "Physique, rendu et technique"
+    label: "Wikipedia, Inverse-square law : « doubling the distance reduces illumination to one quarter » ; « when the size of the light source is less than one-fifth of the distance to the subject, the calculation error is less than 1% » (révision 1384166303 du 6 novembre 2026, source secondaire, lue le 20 novembre 2026)"
+    url: "https://en.wikipedia.org/w/index.php?title=Inverse-square_law&oldid=1384166303"
+    used_in: [app/src/activities/lum02.ts]
   - id: wikipedia-angular-diameter
     group: "Physique, rendu et technique"
     label: "Wikipedia, Angular diameter : diamètre apparent du Soleil vu de la Terre, de 31′27″ à 32′32″ (révision 1368815265, source secondaire, lue le 11 novembre 2026)"
@@ -675,7 +680,7 @@ sources:
     used_in: [docs/propositions.md]
   - id: tiffen-lowel-soft-light
     group: "Cours et pédagogie"
-    label: "Tiffen (Lowel), Foundations of Lighting: Understanding Soft Light : « A soft light source would be one that appears larger in relative size than the subject being lit » ; le soleil, très loin, « appears smaller » et donne une lumière plus dure ; par ciel couvert, « the entire white cloudy sky is now the light source » ; reculer la source la rend plus petite et plus dure ; un réflecteur devient la source (lu le 11 novembre 2026)"
+    label: "Tiffen (Lowel), Foundations of Lighting: Understanding Soft Light : « A soft light source would be one that appears larger in relative size than the subject being lit » ; le soleil, très loin, « appears smaller » et donne une lumière plus dure ; par ciel couvert, « the entire white cloudy sky is now the light source » ; reculer la source la rend plus petite et plus dure ; un réflecteur devient la source (lu le 11 novembre 2026) ; « bouncing the output of a light […] off a white ceiling or wall to bring up the ambient light level in a room is well known » (relu le 20 novembre 2026)"
     url: "https://tiffen.reamaze.com/kb/lowel-guides/foundations-of-lighting-understanding-soft-light"
     used_in: [content/notions/LUM-02.md, docs/propositions.md, app/src/activities/lum02.ts]
   - id: pvc-adams-soft-light
