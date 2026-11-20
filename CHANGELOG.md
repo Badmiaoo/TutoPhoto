@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.79] - 2026-11-20
+
+Sujet 19 du plan de corrections de l'audit (`docs/audit/README.md`) : termes de Canon et de Sony (FEX-15, FMA-14, INT-10), revu d'après les décisions D3 et D4 de Julien du 15 novembre 2026 (`docs/historique.md`) : un champ `terms` par notion dans le référentiel, une phrase par fiche, la phrase « Les noms des modes et des menus restent ceux du Nikon Z 6 » dans la fenêtre « Boîtier de référence », et trois boîtiers de référence, un par marque, « les plus communs », choisis et sourcés par Claude. En cours : cette section est réécrite avant la fusion.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.78 relue, lignée des sessions (profondeur 3 sur 8), Sujet 19 en cours.
+
 ## [0.3.78] - 2026-11-20
 
 Sujet 18 du plan de corrections de l'audit (`docs/audit/README.md`) : loupe du viseur à densité 2, le bruit (PHY-07). Le constat, un calcul, a été mesuré sur la construction de `origin/main` : à densité 2, la loupe du viseur montrait par pixel CSS 0,52 fois le bruit de la densité 1 à 100 %, et de 0,52 à 0,74 fois à 50 %. La correction a été écrite et poussée pendant cette mesure, avant ses relevés à densité 2, puis gardée une fois le constat confirmé (contrôle final, constat F3). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le sujet n'a pas de part anglaise (ni le plan ni PHY-07 n'en nomment) ; relu dans le code depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61) : plus de `content/en/`, plus de `app/src/i18n.ts`, une seule table de textes (`app/src/texts.ts`). La part du plafond du flou du viseur (PHY-08) attend la décision D25 de Julien. Choix de Claude : `docs/propositions.md`, section 5, « Loupe du viseur à densité 2 : le bruit ».
@@ -1614,6 +1622,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.79]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.78...v0.3.79
 [0.3.78]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.77...v0.3.78
 [0.3.77]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.76...v0.3.77
 [0.3.76]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.75...v0.3.76
