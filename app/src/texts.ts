@@ -1,5 +1,7 @@
 // Textes de l'interface du simulateur : une seule table, en français, chaque texte sous une clé stable.
 
+import { frenchSpaces } from "./frenchSpaces";
+
 const messages = {
   subtitle: "Simulateur photo : la scène de parc, en construction",
   home: "Accueil",
@@ -254,20 +256,7 @@ const messages = {
 
 export type MessageKey = keyof typeof messages;
 
-/**
- * Espaces de la ponctuation française, posées ici pour tous les textes plutôt qu'écrites dans chacun : espace
- * insécable (U+00A0) avant « : » et à l'intérieur des guillemets, espace fine insécable (U+202F) avant « ; », « ? »
- * et « ! » (https://en.wikipedia.org/wiki/Non-breaking_space, section « Spacing punctuation in French », d'après le Lexique
- * des règles typographiques de l'Imprimerie nationale ; `data/sources.yaml`, wikipedia-non-breaking-space). Une ligne ne peut
- * plus commencer par la ponctuation (Sujet 13). Les textes composés dans `ui/` écrivent ces espaces eux-mêmes.
- */
-export function frenchSpaces(text: string): string {
-  return text
-    .replace(/ :/g, "\u00a0:")
-    .replace(/ ([;?!])/g, "\u202f$1")
-    .replace(/« /g, "«\u00a0")
-    .replace(/ »/g, "\u00a0»");
-}
+export { frenchSpaces };
 
 const spaced = Object.fromEntries(Object.entries(messages).map(([key, text]) => [key, frenchSpaces(text)])) as Record<MessageKey, string>;
 

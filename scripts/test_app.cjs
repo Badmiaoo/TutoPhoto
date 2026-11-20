@@ -38,6 +38,9 @@
 //   bouton dit « Défis » (constat COD-03, version 0.3.72) ;
 // - l'activité LUM-02 (activites/LUM-02/) : la fiche y mène ; l'exemple « Grande fenêtre » (120 cm à 200 cm) donne une
 //   pénombre de 120 × 50 / 200 = 30 cm ; la bonne réponse à la première question est saluée ; pas de défilement horizontal ;
+//   source à 150 cm et à 20 cm : pénombre de 30 × 70 / 20 + 150 × 50 / 20 = 480 cm de haut, dite « au-delà du mur
+//   dessiné », sans « ombre pleine au centre » dans la légende ; « source », « objet » et « mur » écrits dans le dessin,
+//   sans se chevaucher (constats FMA-10 et INT-02, version 0.3.74) ;
 // - avec --photo : les notions « À revoir » du bulletin et le bouton « Fiche » de la fenêtre « Défis » ouvrent la
 //   fiche par-dessus le simulateur, et un lien de la fiche vers une autre fiche reste dans la fenêtre ;
 // - la scène se charge (le message de chargement disparaît) et aucun problème ne s'affiche à l'écran ;
@@ -388,6 +391,27 @@ async function checkPages(page, base, name, check) {
     "activité LUM-02 : pénombre et question",
     toActivity === "../activites/LUM-02/" && /30,0 cm/.test(penumbra) && /passed/.test(feedback) && activityOverflow <= 0,
     `fiche → ${toActivity} ; ${penumbra} ; réponse : ${feedback} ; débordement ${activityOverflow} px`,
+  );
+  // Pénombre hors du mur dessiné et légende sans ombre pleine (FMA-10) ; noms dans le dessin (INT-02).
+  const beyond = await page.evaluate(() => {
+    const size = document.getElementById("act-size");
+    const distance = document.getElementById("act-distance");
+    size.value = "150";
+    distance.value = "20";
+    size.dispatchEvent(new Event("input"));
+    const boxes = [...document.querySelectorAll(".act-label")].map((node) => ({ text: node.textContent, box: node.getBoundingClientRect() }));
+    const overlap = boxes.some((a, i) => boxes.slice(i + 1).some((b) => a.box.left < b.box.right && b.box.left < a.box.right && a.box.top < b.box.bottom && b.box.top < a.box.bottom));
+    return {
+      penumbra: document.getElementById("act-penumbra").textContent,
+      legend: document.getElementById("act-legend").textContent,
+      labels: boxes.map((b) => b.text).join(", "),
+      overlap,
+    };
+  });
+  check(
+    "activité LUM-02 : pénombre hors du mur, légende, noms du dessin",
+    /480,0 cm/.test(beyond.penumbra) && /au-delà du mur dessiné/.test(beyond.penumbra) && !/ombre pleine au centre/.test(beyond.legend) && beyond.labels === "source, objet, mur" && !beyond.overlap,
+    `${beyond.penumbra} ; ${beyond.legend} ; noms : ${beyond.labels}${beyond.overlap ? " (chevauchés)" : ""}`,
   );
   if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-activite-LUM-02.png`), fullPage: true });
 }
