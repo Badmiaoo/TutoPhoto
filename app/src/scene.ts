@@ -122,12 +122,16 @@ export class SceneFileError extends Error {
 }
 
 /**
- * Nom du fichier en échec : celui que cite le message d'erreur de Babylon.js s'il en cite un du dossier de la scène (un
- * fichier .bin ou une texture d'un modèle, par exemple), sinon le fichier demandé.
+ * Nom du fichier en échec, relatif au dossier de la scène. Quand un fichier d'un modèle manque (son .bin, une texture),
+ * le chargeur glTF de Babylon.js rejette le chargement du modèle avec un message qui le cite, relatif au dossier du
+ * modèle : « …: /buffers/0/uri: Failed to load 'painted_wooden_bench.bin': 0 » (relevé dans Chromium, 19 novembre
+ * 2026). On nomme ce fichier ; sinon, le fichier demandé.
  */
 function failedFile(error: unknown, requested: string): string {
-  const cited = /scenes\/parc\/([\w./-]+\.\w+)/.exec(error instanceof Error ? error.message : String(error));
-  return cited ? cited[1] : requested;
+  const cited = /Failed to load '([^']+)'/.exec(error instanceof Error ? error.message : String(error));
+  if (!cited) return requested;
+  const folder = requested.slice(0, requested.lastIndexOf("/") + 1);
+  return folder + cited[1];
 }
 
 /** Délai au-delà duquel la scène s'affiche même si Babylon ne la déclare pas prête, en millisecondes. */
@@ -249,11 +253,12 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
   // Après une perte du contexte WebGL, Babylon.js reconstruit la texture d'éclairage, mais les objets éclairés
   // restaient de 5 à 10 % plus sombres (constat COD-12 de l'audit, Chromium en rendu logiciel ; cause inconnue).
   // Recréer la texture à la restauration rétablit l'éclairage dans ce navigateur (contre-vérification de COD-12 ;
-  // version 0.3.70). Le fichier est en général repris du cache du navigateur.
+  // version 0.3.70). Le fichier est en général repris du cache du navigateur. L'ancienne texture est libérée avant :
+  // sinon Babylon.js reprend, pour la même adresse, la texture interne qu'il vient de reconstruire, et l'éclairage
+  // reste faux (essayé dans Chromium le 20 novembre 2026).
   engine.onContextRestoredObservable.add(() => {
-    const lost = scene.environmentTexture;
+    scene.environmentTexture?.dispose();
     scene.environmentTexture = createEnvironment();
-    lost?.dispose();
   });
 
   // Ombres de contact : un sol invisible qui ne reçoit que les ombres, sous une lumière presque zénithale

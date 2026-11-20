@@ -90,6 +90,9 @@ main {
   position: absolute;
   top: 1rem;
   left: 50%;
+  /* Au-dessus de l'indicateur d'équilibre et de la vue de dessus, qui couvraient le début du message d'échec et
+     pouvaient prendre le toucher de « Recharger » (version 0.3.70) ; la ligne de diagnostic reste au-dessus. */
+  z-index: 3;
   transform: translateX(-50%);
   margin: 0;
   padding: 0.4rem 0.8rem;
