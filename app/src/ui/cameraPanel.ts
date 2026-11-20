@@ -758,6 +758,7 @@ export class CameraPanel {
     this.el.bodyDialog.querySelector("#format-legend")!.textContent = tr("format");
     this.el.bodyDialog.querySelector("#format-ff-label")!.textContent = tr("fullFrame");
     this.el.bodyDialog.querySelector("#format-apsc-label")!.textContent = tr("apsc");
+    this.el.bodyDialog.querySelector("#body-note")!.textContent = tr("bodyNote");
     this.el.bodyDialog.querySelector("#lens-note")!.textContent = tr("lensNote");
     this.el.bodyDialog.querySelector("#body-close")!.textContent = tr("close");
     const sensors = BODIES.filter((b) => b.brand === this.brand)

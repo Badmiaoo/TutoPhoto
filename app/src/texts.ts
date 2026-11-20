@@ -30,6 +30,12 @@ const messages = {
   fullFrame: "Plein format",
   apsc: "APS-C",
   sensor: "Capteur",
+  // Décision D3 de Julien (15 novembre 2026, docs/historique.md) : « Les noms des modes et des menus restent ceux du
+  // Nikon Z 6 ». La première phrase dit ce que change le boîtier (camera/bodies.ts : taille et définition du capteur,
+  // capacité des photosites et bruit de lecture, couverture de l'autofocus quand elle est sourcée). Espace insécable
+  // (\u00a0) dans « Z 6 », pour qu'il ne se coupe pas en fin de ligne.
+  bodyNote:
+    "Le boîtier choisi ne change que le capteur (taille, définition, bruit) et la zone couverte par l'autofocus. Les noms des modes et des menus restent ceux du Nikon Z\u00a06.",
   shutterButton: "Déclencher",
   computing: "Calcul de la photo…",
   computingLoupe: "Calcul de la loupe…",

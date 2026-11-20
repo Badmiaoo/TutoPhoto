@@ -45,6 +45,19 @@ notions:
       exercise: "Rafale nette sur un chien qui court vers soi"
     situations: [SIT-01, SIT-06, SIT-08, SIT-38, SIT-39]
     sources: [canon-r5-af-operation, canon-80d-manualslib, nikon-zr-focus, nikon-z6-focus, sony-a9-focus-mode, sony-a7riv-automatic-af, fujifilm-gfx100-af]
+    terms:
+      - brand: nikon
+        body: "Nikon Z 6"
+        names: ["AF-S", "AF ponctuel", "AF-C", "AF continu"]
+        source: nikon-z6-focus-fr
+      - brand: sony
+        body: "Sony A6000"
+        names: ["Mode mise au point", "AF ponctuel", "AF continu", "AF automatique"]
+        source: sony-a6000-focus-mode-fr
+      - brand: canon
+        body: "Canon EOS R50"
+        names: ["Opération autofocus", "Autofocus One-Shot", "AF Servo", "AF Ai-Focus"]
+        source: canon-eos-r50-af-operation-fr
     since: v0.1
   - id: MAP-05
     title: "Modes de zone AF"
@@ -55,6 +68,19 @@ notions:
       exercise: "Choisir le mode adapté à quatre scènes"
     situations: [SIT-05, SIT-06, SIT-08, SIT-38]
     sources: [canon-r5ii-af-area, nikon-zr-focus, nikon-z6-focus, nikon-z6-focus-fr, sony-a7iv-focus-area, fujifilm-gfx100-af]
+    terms:
+      - brand: nikon
+        body: "Nikon Z 6"
+        names: ["Mode de zone AF", "AF point sélectif", "AF zone large (S)", "AF zone large (L)", "AF zone automatique"]
+        source: nikon-z6-focus-fr
+      - brand: sony
+        body: "Sony A6000"
+        names: ["Zone mise au point", "Large", "Zone", "Centre", "Spot flexible"]
+        source: sony-a6000-focus-area-fr
+      - brand: canon
+        body: "Canon EOS R50"
+        names: ["Zone AF", "Autofocus spot", "1 collimateur AF", "AF zone complète"]
+        source: canon-eos-r50-af-area-fr
     since: v0.1
   - id: MAP-06
     title: "Collimateurs"
@@ -65,6 +91,19 @@ notions:
       exercise: "Point sur l'œil le plus proche à f/1.8, sujet décentré"
     situations: [SIT-01, SIT-04, SIT-06]
     sources: [nikon-z6-launch-2018, nikon-z6-eisa-2019, nikon-z6-product, nikon-z6-focus, canon-eos-rp-af, sony-ilce-7m3-af]
+    terms:
+      - brand: nikon
+        body: "Nikon Z 6"
+        names: ["point AF"]
+        source: nikon-z6-focus-fr
+      - brand: sony
+        body: "Sony A6000"
+        names: ["cadre de la plage AF"]
+        source: sony-a6000-focus-area-fr
+      - brand: canon
+        body: "Canon EOS R50"
+        names: ["collimateur AF"]
+        source: canon-eos-r50-af-operation-fr
     since: v0.1
   - id: MAP-07
     title: "Quand l'appareil choisit"
@@ -95,6 +134,20 @@ notions:
       exercise: "Photo de groupe : choisir le bon visage"
     situations: [SIT-01, SIT-05, SIT-06, SIT-08, SIT-34, SIT-37, SIT-39]
     sources: [nikon-z6-focus, nikon-z6-a4, nikon-z6-a4-fr, nikon-p1100-af-area]
+    terms:
+      - brand: nikon
+        body: "Nikon Z 6"
+        names: ["Détect. visage-yeux AF zone auto", "Détection visage/yeux activée", "Détection des animaux"]
+        source: nikon-z6-a4-fr
+      - brand: sony
+        body: "Sony A6000"
+        names: ["Sourire/Dét. visage", "AF sur les yeux"]
+        source: sony-a6000-face-detection-fr
+        note: "L'œil : fonction « AF sur les yeux », attribuée à une touche (sony-a6000-eye-af-fr)."
+      - brand: canon
+        body: "Canon EOS R50"
+        names: ["Sujet à détecter", "Personnes", "Animaux", "Détection œil"]
+        source: canon-eos-r50-af-area-fr
     since: v0.1
   - id: MAP-10
     title: "Suivi du sujet"

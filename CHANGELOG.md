@@ -14,16 +14,23 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 ## [0.3.79] - 2026-11-20
 
-Sujet 19 du plan de corrections de l'audit (`docs/audit/README.md`) : termes de Canon et de Sony (FEX-15, FMA-14, INT-10), revu d'après les décisions D3 et D4 de Julien du 15 novembre 2026 (`docs/historique.md`) : un champ `terms` par notion dans le référentiel, une phrase par fiche, la phrase « Les noms des modes et des menus restent ceux du Nikon Z 6 » dans la fenêtre « Boîtier de référence », et trois boîtiers de référence, un par marque, « les plus communs », choisis et sourcés par Claude. En cours : cette section est réécrite avant la fusion.
+Sujet 19 du plan de corrections de l'audit (`docs/audit/README.md`), première partie : termes de Canon et de Sony (FEX-15, FMA-14, INT-10), revu d'après les décisions D3 et D4 de Julien du 15 novembre 2026 (`docs/historique.md`) : un champ `terms` par notion dans le référentiel ; une phrase par fiche ; dans la fenêtre « Boîtier de référence », la phrase « Les noms des modes et des menus restent ceux du Nikon Z 6 » ; trois boîtiers de référence, un par marque, « les plus communs », choisis par Claude : Nikon Z 6, gardé par exception, Sony A6000 et Canon EOS R50. Le simulateur garde ses six boîtiers jusqu'à la seconde partie du sujet, qui les met à trois. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Les parts anglaises du plan (« dans les deux langues ») sont sans objet depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61) : relu dans le code, plus de `content/en/`, plus de `app/src/i18n.ts`, un seul `README.md`, aucun champ `en` dans le référentiel. Choix de Claude : `docs/propositions.md`, section 5, « Termes de Canon et de Sony, trois boîtiers de référence ».
 
 ### Ajouté
 
-- Référentiel : champ `terms` d'une notion (`schemas/domaine.schema.json`), une entrée par boîtier lu : marque, boîtier, termes de son manuel en français, source, note éventuelle (décision D3). `scripts/validate.py` contrôle la source, un seul bloc par boîtier, un boîtier nommé d'après sa marque, et chaque terme écrit tel quel, en mot entier, dans la fiche de la notion.
+- Référentiel : champ `terms` d'une notion (`schemas/domaine.schema.json`), une entrée par boîtier lu : marque, boîtier, termes de son manuel en français, source, note éventuelle (D3 ; choix 1). `scripts/validate.py` contrôle la source, un seul bloc par boîtier, un boîtier nommé d'après sa marque, et chaque terme écrit tel quel, en mot entier, dans la fiche de la notion (choix 2).
+- Termes de BOI-07, BOI-08, BOI-12, MAP-04, MAP-05, MAP-06 et MAP-09 pour le Nikon Z 6, le Sony A6000 et le Canon EOS R50, relus le 20 novembre 2026 dans leurs manuels en français (choix 3).
+- Fiches BOI-07, BOI-08, BOI-12, MAP-04, MAP-05, MAP-06 et MAP-09 : une phrase avec les termes du Sony A6000 et du Canon EOS R50, la page lue et sa date ; BOI-12 dit que son titre est le mot de Sony ; MAP-04 nomme le mode automatique des deux marques, que TutoPhoto ne simule pas ; MAP-06 dit « point AF » chez Nikon, « collimateur AF » chez Canon, « cadre de la plage AF » chez Sony (choix 8 et 9).
+- Simulateur, fenêtre « Boîtier de référence » : « Le boîtier choisi ne change que le capteur (taille, définition, bruit) et la zone couverte par l'autofocus. Les noms des modes et des menus restent ceux du Nikon Z 6. » (INT-10 ; D3 ; choix 7).
+- `data/sources.yaml` : sept pages du Manuel d'aide en français du Sony A6000, cinq du manuel en français du Canon EOS R50, et les deux articles sur le classement de BCN pour 2025 (extraits de recherche, pages non ouvertes).
+- `docs/propositions.md`, section 5 : « Termes de Canon et de Sony, trois boîtiers de référence », dix choix, dont les trois boîtiers et leur règle (choix 4 et 5) et le découpage du sujet (choix 6).
+- `docs/questions-ouvertes.md` : le boîtier le plus commun de chaque marque, que personne ne publie. `docs/tests-a-faire-faire.md` : T19, la phrase de la fenêtre « Boîtier de référence » sur un téléphone.
 
 ### Modifié
 
-- `docs/lire-le-referentiel.md` : le champ `terms`. `docs/architecture.md`, « Boîtier virtuel » : la table de vocabulaire devient le champ `terms` (décision D3), au lieu de `data/vocabulaire.yaml`.
-- `docs/etat-des-travaux.md` : fin de la version 0.3.78 relue, lignée des sessions (profondeur 3 sur 8), Sujet 19 en cours.
+- `docs/lire-le-referentiel.md` : le champ `terms`. `docs/architecture.md`, « Boîtier virtuel » : la table de vocabulaire devient le champ `terms` (D3), au lieu de `data/vocabulaire.yaml`. `docs/camera-physique.md` : les trois boîtiers choisis.
+- `data/sources.yaml` : la phrase de Wikipedia sur les ventes de l'A6000, relue dans la révision déjà citée ; « point AF » dans la page « Mise au point » du Z 6.
+- `docs/etat-des-travaux.md` : fin de la version 0.3.78 relue, lignée des sessions (profondeur 3 sur 8), Sujet 19 et sa seconde partie, la ligne des choix 1 à 10, T19, les hôtes à ajouter pour les trois boîtiers.
 
 ## [0.3.78] - 2026-11-20
 
