@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.76] - 2026-11-20
+
+Sujet 16 du plan de corrections de l'audit (`docs/audit/README.md`) : fiches de mise au point et situations, limites à dire et compléments (FMA-04, FMA-07, FMA-18, FMA-21 ; de RST-09, la ligne de SIT-01). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), les parts anglaises du sujet sont sans objet : relu dans le code, plus de `content/en/`, plus de `app/src/i18n.ts`, une seule table de textes (`app/src/texts.ts`). La règle de couverture elle-même (RST-09) attend la décision D27 de Julien : elle n'est pas changée.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.75 relue, lignée des sessions (profondeur 7 sur 8), Sujet 16 ; à la ligne de FMA-23 de « Défauts connus, hors du plan », l'échec du profil iPhone au commit 358d303 de la version 0.3.75.
+
 ## [0.3.75] - 2026-11-20
 
 Sujet 15 du plan de corrections de l'audit (`docs/audit/README.md`) : fiches d'exposition, limites du simulateur, formulations, liens vers les sources (FEX-03, FEX-04, FEX-07, FEX-09, FEX-11, FEX-12, FEX-14 ; de FEX-08, la seule phrase du mode P). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), les parts anglaises du sujet sont sans objet : relu dans le code, plus de `content/en/`, plus de `app/src/i18n.ts`, une seule table de textes (`app/src/texts.ts`). Les cinq écarts de FEX-08 entre le référentiel et le simulateur (diaphragme animé, rideau animé, « l'appareil explique son choix », alerte de vitesse trop lente, mode silencieux) attendent D17 : rien n'est écrit dans les fiches ; leurs lignes sont dans « Décisions en attente » de `docs/etat-des-travaux.md`.
@@ -1519,6 +1527,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.76]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.75...v0.3.76
 [0.3.75]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.74...v0.3.75
 [0.3.74]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.73...v0.3.74
 [0.3.73]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.72...v0.3.73
