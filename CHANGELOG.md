@@ -12,6 +12,29 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.72] - 2026-11-20
+
+Sujet 12 du plan de corrections de l'audit (`docs/audit/README.md`) : adresse et mémoire (COD-03 ; COD-13 pour un commentaire orphelin). Le défi donné par l'adresse (`simulateur/?defi=SIT-05`, bouton « Jouer le défi » des fiches) vaut pour l'arrivée ; ensuite, c'est le choix fait dans la fenêtre « Défis » qui vaut, même après un rechargement. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. Choix de Claude : `docs/propositions.md`, section 5, « Adresse et mémoire : le défi de l'adresse ».
+
+### Ajouté
+
+- Routine (`scripts/test_app.cjs`), dans le passage du simulateur ouvert par `simulateur?defi=SIT-06` : « défi de l'adresse : mémorisé, puis retiré de l'adresse » ; à la fin du parcours, « défi de l'adresse, puis « Aucun défi » et rechargement : le choix fait dans la page reste (COD-03) ».
+- `docs/tests-a-faire-faire.md` : test T14, « Jouer le défi », « Aucun défi », puis rechargement sur un téléphone.
+- `docs/propositions.md`, section 5 : « Adresse et mémoire : le défi de l'adresse », six choix.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.71 relue (tag, release, publication), lignée des sessions (profondeur 3 sur 8), Sujet 12.
+
+### Corrigé
+
+- Défi de l'adresse (COD-03) : `?defi=` est lu et mémorisé comme avant, puis retiré de l'adresse par `history.replaceState` ; un défi inconnu est retiré aussi, sans rien choisir ; les autres paramètres et l'ancre restent (`ChallengePicker`, `app/src/ui/challenges.ts`). Avant, après « Jouer le défi » de la fiche SIT-05 puis « Aucun défi », un rechargement remettait « Défi SIT-05 » et l'écrivait dans la mémoire.
+- Le commentaire de `renderBulletin`, resté au-dessus de `ficheButton`, est remis à sa place (COD-13, point 6 ; `app/src/ui/challenges.ts`).
+
+Sans objet : la part `?lang=` du sujet. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), aucun code de `app/` ne lit ce paramètre ni la clé `tutophoto.lang` : recherche de `lang=`, `tutophoto.lang`, `URLSearchParams` et `location.search` dans `app/src`, `app/scripts` et les pages HTML de `app/`, où seule `app/src/ui/challenges.ts` lit l'adresse. Le script de l'accueil (`app/scripts/build-pages.mjs`) ne lit plus l'adresse, et l'activité de LUM-02 (`app/src/activities/lum02.ts`) ne lit ni l'adresse ni le stockage du navigateur. Rien n'est changé pour eux.
+
+Essais de la mise en œuvre (Chromium en rendu logiciel, site construit servi en local sans redirection, fenêtre de 1280 × 800 ; construction de `origin/main`, commit 3fc9d93, puis de la branche ; script d'essai de Claude, sans attendre la fin du chargement de la scène). Arrivée par `simulateur/?defi=SIT-05` : avant, bouton « Défi SIT-05 », mémoire `SIT-05`, adresse inchangée ; après, même bouton et même mémoire, adresse `/simulateur/`. « Aucun défi » puis rechargement : avant, « Défi SIT-05 » revient et la mémoire repasse à `SIT-05` ; après, le bouton dit « Défis », la mémoire `none`. Arrivée par `simulateur?lang=en&defi=SIT-01#ancre` (sans barre finale) : après, défi SIT-01 choisi, adresse `/simulateur/?lang=en#ancre`. Arrivée par `?defi=XYZ` : avant comme après, le défi mémorisé (SIT-01) reste ; après, l'adresse est `/simulateur/`. Retour arrière : après, l'entrée précédente est `/simulateur/?lang=en#ancre`, sans défi. Aucune erreur de la page. `cd app && npm run build` réussit.
+
 ## [0.3.71] - 2026-11-20
 
 Sujet 11 du plan de corrections de l'audit (`docs/audit/README.md`) : écran de revue, loupe et retardateur, ce qui reste actif pendant un calcul (COD-08, COD-02, COD-05, COD-04 ; COD-13 pour trois défauts du déclencheur), et l'écran de revue d'une photo refusée ou en échec laissé par le Sujet 10. D1 tranchée par Julien le 15 novembre 2026 : le second appui n'annule pas le retardateur. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. Choix de Claude : `docs/propositions.md`, section 5, « Écran de revue, loupe et retardateur ».
