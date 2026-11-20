@@ -50,8 +50,9 @@
 // - au 135 mm à f/1.4, la profondeur de champ du viseur floute le fond ; coupée, le fond redevient net ; les deux
 //   mesures se font appareil déplacé de 6 m vers la gauche par la vue de dessus, là où aucun personnage n'entre
 //   dans la zone mesurée, puis l'appareil est ramené au départ (version 0.3.59) ;
-// - la loupe passe à 50 %, puis à 100 %, et l'indique ; centrée sur le fond, à ISO 6400, elle montre du bruit, et à
-//   densité 2 ce bruit est tiré par pixel CSS : mesuré par pixel CSS, il vaut au moins 85 % de celui d'un pixel
+// - la loupe passe à 50 %, puis à 100 %, et l'indique ; centrée sur le fond, à ISO 6400, elle montre du bruit ; à
+//   50 %, le bruit du vert vaut moins de 85 % de celui du rouge (k compté par pixel CSS : environ 71 %) ; à densité
+//   2 (entière), ce bruit est tiré par pixel CSS : mesuré par pixel CSS, il vaut au moins 85 % de celui d'un pixel
 //   calculé, aux deux crans (constat PHY-07 de l'audit, version 0.3.78 ; tiré par pixel calculé, il en valait 52 %) ;
 // - grilles de cadrage (CMP-02, version 0.3.56) : aucune ligne par défaut ; « Tiers », choisi dans la fenêtre
 //   « Aperçu », trace quatre lignes à 1/3 et 2/3 du cadre, « Seize cases » six lignes à 1/4, 1/2 et 3/4, à 1 pixel
@@ -233,7 +234,9 @@ async function frameNoise(page) {
  * des densité × densité pixels calculés d'un pixel CSS, en blocs alignés sur la grille des tirages du shader, dont
  * l'origine est en bas à gauche du canevas (gl_FragCoord). Tiré par pixel CSS, le bruit est le même pour les pixels
  * calculés d'un bloc : les deux mesures se valent. Tiré par pixel calculé, à densité 2, le bruit par pixel CSS vaut la
- * moitié du bruit par pixel calculé. Trois paires de captures, variances moyennées.
+ * moitié du bruit par pixel calculé. Trois paires de captures, variances moyennées. La mesure par pixel CSS ne vaut
+ * qu'à une densité entière (integer) : à 1,5, les cellules du shader ont 1 ou 2 pixels calculés de côté, et des blocs
+ * de 2 × 2 ne les suivent pas (relecture de la version 0.3.78).
  */
 async function loupeNoise(page) {
   return page.evaluate(async () => {
@@ -294,7 +297,8 @@ async function loupeNoise(page) {
         css[c] += Math.max(0, bs2 / nb - (bs / nb) ** 2) / PAIRS;
       }
     }
-    return { density: d, px: px.map(Math.sqrt), css: css.map(Math.sqrt), zone: `${w}×${h}` };
+    const integer = Math.abs(sx - d) < 0.01 && Math.abs(sy - d) < 0.01;
+    return { density: d, integer, px: px.map(Math.sqrt), css: css.map(Math.sqrt), zone: `${w}×${h}` };
   });
 }
 
@@ -975,8 +979,9 @@ async function runProfile(browser, name, base) {
     // sur lui, et la zone mesurée ne montre que le fond, immobile. À densité 2, le bruit doit être tiré par pixel CSS :
     // mesuré par pixel CSS, il vaut alors celui d'un pixel calculé ; tiré par pixel calculé, il en valait la moitié
     // (0,52 fois, mesuré le 20 novembre 2026 : docs/camera-physique.md, « Loupe »). À densité 1, pixels CSS et pixels
-    // calculés se confondent : le contrôle vérifie seulement que la loupe montre du bruit. Le point est ramené au
-    // centre une fois la loupe coupée.
+    // calculés se confondent : ce rapport n'est pas contrôlé. À toute densité, la loupe doit montrer du bruit, et le
+    // rapport du vert au rouge à 50 % dit si k est compté par pixel CSS. Le point est ramené au centre une fois la
+    // loupe coupée.
     const loupeFrame = await page.locator("#frame").boundingBox();
     // Premier point, en haut du cadre, où le clic arrive au viseur (sur un téléphone, une aide du viseur peut couvrir
     // le haut du cadre ; document.elementFromPoint donne l'élément qui recevrait le clic).
@@ -1001,13 +1006,17 @@ async function runProfile(browser, name, base) {
     const cssShare = (m) => m.css.map((v, c) => v / Math.max(1e-6, m.px[c]));
     const loupeNoiseText = (label, m) =>
       `${label} : ${m.px.map((v) => v.toFixed(2)).join(" / ")} par pixel calculé, ${m.css.map((v) => v.toFixed(2)).join(" / ")} par pixel CSS`;
+    // k compté par pixel CSS : à 50 %, un pixel CSS compte environ 4 photosites, dont 2 verts et 1 rouge ; le bruit du
+    // vert vaut environ 1 / √2 = 71 % de celui du rouge (mesuré de 71 à 74 %, Sujet 18). Avec k compté par pixel
+    // calculé à densité 2, les deux couleurs auraient le bruit d'un photosite (rapport de 1,05 mesuré avec le code
+    // d'avant) : ce rapport garde le compte de k, que le rapport entre pixels CSS et pixels calculés ne voit pas
+    // (relecture de la version 0.3.78).
+    const greenToRed = noiseHalf.css[1] / Math.max(1e-6, noiseHalf.css[0]);
+    const densityOk = noiseFull.density === 1 || !noiseFull.integer || [...cssShare(noiseHalf), ...cssShare(noiseFull)].every((r) => r > 0.85);
     check(
-      `loupe du viseur : bruit tiré par pixel CSS (densité ${noiseFull.density})`,
-      loupeTarget !== null &&
-        /50/.test(loupeHalf) &&
-        noiseFull.px.every((v) => v > 1) &&
-        (noiseFull.density === 1 || [...cssShare(noiseHalf), ...cssShare(noiseFull)].every((r) => r > 0.85)),
-      `${loupeTarget ? `point posé à ${Math.round(100 * loupeTarget.u)} % et ${Math.round(100 * loupeTarget.v)} % du cadre` : "aucun point du haut du cadre ne reçoit le clic"} ; ${loupeNoiseText(loupeHalf, noiseHalf)} ; ${loupeNoiseText(loupe, noiseFull)} ; zone de ${noiseFull.zone} pixels calculés`,
+      `loupe du viseur : bruit tiré par pixel CSS, k compté par pixel CSS (densité ${noiseFull.density}${noiseFull.integer ? "" : ", non entière"})`,
+      loupeTarget !== null && /50/.test(loupeHalf) && noiseFull.px.every((v) => v > 1) && greenToRed < 0.85 && densityOk,
+      `${loupeTarget ? `point posé à ${Math.round(100 * loupeTarget.u)} % et ${Math.round(100 * loupeTarget.v)} % du cadre` : "aucun point du haut du cadre ne reçoit le clic"} ; ${loupeNoiseText(loupeHalf, noiseHalf)} ; ${loupeNoiseText(loupe, noiseFull)} ; vert / rouge à 50 % : ${greenToRed.toFixed(2)} ; zone de ${noiseFull.zone} pixels calculés${noiseFull.integer ? "" : " ; densité non entière : rapport entre pixels CSS et pixels calculés non contrôlé"}`,
     );
     const gridMagnified = await gridState(4);
     if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-loupe.png`), timeout: 120000 });
