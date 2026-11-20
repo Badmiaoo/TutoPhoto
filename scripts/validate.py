@@ -127,9 +127,10 @@ def check_sources(ref):
             if sid not in known:
                 error(f"{n['id']} : source inconnue : {sid}")
         for t in n.get("terms", []):
-            used.add(t["source"])
-            if t["source"] not in known:
-                error(f"{n['id']} : terms, {t['body']} : source inconnue : {t['source']}")
+            for sid in t["sources"]:
+                used.add(sid)
+                if sid not in known:
+                    error(f"{n['id']} : terms, {t['body']} : source inconnue : {sid}")
     for s in ref.situations:
         for sid in s.get("sources", []):
             used.add(sid)
@@ -147,14 +148,16 @@ def check_sources(ref):
 
 
 def check_terms(ref):
-    """Champ `terms` (décision D3 de Julien, 15 novembre 2026) : un seul bloc par boîtier, et chaque terme
-    écrit tel quel dans la fiche de la notion quand elle existe, pour que la fiche ne dise pas autre chose."""
+    """Champ `terms` (décision D3 de Julien, 15 novembre 2026) : un seul bloc par boîtier, un boîtier nommé d'après sa
+    marque, et chaque terme écrit tel quel, en mot entier, dans la fiche de la notion quand elle existe. Le contrôle ne
+    vérifie pas à quel boîtier la fiche attribue le terme, ni l'inverse ; une lettre seule (« A », « S ») s'y trouve
+    presque toujours."""
     for n in ref.notions:
         terms = n.get("terms", [])
         for dup in duplicates([t["body"] for t in terms]):
             error(f"{n['id']} : terms, boîtier en double : {dup}")
         for t in terms:
-            if not t["body"].lower().startswith(t["brand"]):
+            if not re.match(rf"{t['brand']}(?!\w)", t["body"].lower()):
                 error(f"{n['id']} : terms, le boîtier « {t['body']} » ne commence pas par sa marque ({t['brand']})")
         path = ref.root / "content" / "notions" / f"{n['id']}.md"
         if not terms or not path.is_file():

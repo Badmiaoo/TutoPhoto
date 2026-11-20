@@ -49,15 +49,15 @@ notions:
       - brand: nikon
         body: "Nikon Z 6"
         names: ["AF-S", "AF ponctuel", "AF-C", "AF continu"]
-        source: nikon-z6-focus-fr
+        sources: [nikon-z6-focus-fr]
       - brand: sony
         body: "Sony A6000"
         names: ["Mode mise au point", "AF ponctuel", "AF continu", "AF automatique"]
-        source: sony-a6000-focus-mode-fr
+        sources: [sony-a6000-focus-mode-fr]
       - brand: canon
         body: "Canon EOS R50"
-        names: ["Opération autofocus", "Autofocus One-Shot", "AF Servo", "AF Ai-Focus"]
-        source: canon-eos-r50-af-operation-fr
+        names: ["Opération AF", "Autofocus One-Shot", "AF One-Shot", "AF Servo", "AF Ai-Focus"]
+        sources: [canon-eos-r50-af-operation-fr]
     since: v0.1
   - id: MAP-05
     title: "Modes de zone AF"
@@ -72,15 +72,15 @@ notions:
       - brand: nikon
         body: "Nikon Z 6"
         names: ["Mode de zone AF", "AF point sélectif", "AF zone large (S)", "AF zone large (L)", "AF zone automatique"]
-        source: nikon-z6-focus-fr
+        sources: [nikon-z6-focus-fr]
       - brand: sony
         body: "Sony A6000"
         names: ["Zone mise au point", "Large", "Zone", "Centre", "Spot flexible"]
-        source: sony-a6000-focus-area-fr
+        sources: [sony-a6000-focus-area-fr]
       - brand: canon
         body: "Canon EOS R50"
         names: ["Zone AF", "Autofocus spot", "1 collimateur AF", "AF zone complète"]
-        source: canon-eos-r50-af-area-fr
+        sources: [canon-eos-r50-af-area-fr]
     since: v0.1
   - id: MAP-06
     title: "Collimateurs"
@@ -95,15 +95,15 @@ notions:
       - brand: nikon
         body: "Nikon Z 6"
         names: ["point AF"]
-        source: nikon-z6-focus-fr
+        sources: [nikon-z6-focus-fr]
       - brand: sony
         body: "Sony A6000"
-        names: ["cadre de la plage AF"]
-        source: sony-a6000-focus-area-fr
+        names: ["cadre du télémètre", "cadre de la plage AF"]
+        sources: [sony-a6000-focus-area-fr]
       - brand: canon
         body: "Canon EOS R50"
         names: ["collimateur AF"]
-        source: canon-eos-r50-af-operation-fr
+        sources: [canon-eos-r50-af-operation-fr]
     since: v0.1
   - id: MAP-07
     title: "Quand l'appareil choisit"
@@ -138,16 +138,15 @@ notions:
       - brand: nikon
         body: "Nikon Z 6"
         names: ["Détect. visage-yeux AF zone auto", "Détection visage/yeux activée", "Détection des animaux"]
-        source: nikon-z6-a4-fr
+        sources: [nikon-z6-a4-fr]
       - brand: sony
         body: "Sony A6000"
         names: ["Sourire/Dét. visage", "AF sur les yeux"]
-        source: sony-a6000-face-detection-fr
-        note: "L'œil : fonction « AF sur les yeux », attribuée à une touche (sony-a6000-eye-af-fr)."
+        sources: [sony-a6000-face-detection-fr, sony-a6000-eye-af-fr]
       - brand: canon
         body: "Canon EOS R50"
         names: ["Sujet à détecter", "Personnes", "Animaux", "Détection œil"]
-        source: canon-eos-r50-af-area-fr
+        sources: [canon-eos-r50-af-area-fr]
     since: v0.1
   - id: MAP-10
     title: "Suivi du sujet"

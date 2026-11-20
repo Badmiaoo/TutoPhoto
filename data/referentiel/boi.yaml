@@ -72,15 +72,15 @@ notions:
       - brand: nikon
         body: "Nikon Z 6"
         names: ["A", "Auto à priorité ouverture"]
-        source: nikon-z6-mode-dial-fr
+        sources: [nikon-z6-mode-dial-fr]
       - brand: sony
         body: "Sony A6000"
         names: ["A", "Priorité ouvert."]
-        source: sony-a6000-aperture-priority-fr
+        sources: [sony-a6000-aperture-priority-fr]
       - brand: canon
         body: "Canon EOS R50"
         names: ["Av", "Priorité à l'ouverture", "Aperture value"]
-        source: canon-eos-r50-av-fr
+        sources: [canon-eos-r50-av-fr]
     since: v0.1
   - id: BOI-08
     title: "Priorité à la vitesse"
@@ -95,15 +95,15 @@ notions:
       - brand: nikon
         body: "Nikon Z 6"
         names: ["S", "Auto à priorité vitesse"]
-        source: nikon-z6-mode-dial-fr
+        sources: [nikon-z6-mode-dial-fr]
       - brand: sony
         body: "Sony A6000"
         names: ["S", "Priorité vitesse"]
-        source: sony-a6000-shutter-priority-fr
+        sources: [sony-a6000-shutter-priority-fr]
       - brand: canon
         body: "Canon EOS R50"
         names: ["Tv", "Priorité à l'obturation", "Time value"]
-        source: canon-eos-r50-tv-fr
+        sources: [canon-eos-r50-tv-fr]
     since: v0.1
   - id: BOI-09
     title: "Mode manuel"
@@ -146,15 +146,15 @@ notions:
       - brand: nikon
         body: "Nikon Z 6"
         names: ["mode de déclenchement", "Vue par vue", "Continu L", "Continu H", "Retardateur"]
-        source: nikon-z6-release-mode-fr
+        sources: [nikon-z6-release-mode-fr]
       - brand: sony
         body: "Sony A6000"
         names: ["Entraînement", "Prise de vue unique", "Prise d. v. en continu", "Retardateur"]
-        source: sony-a6000-drive-fr
+        sources: [sony-a6000-drive-fr]
       - brand: canon
         body: "Canon EOS R50"
         names: ["mode d'acquisition", "Vue par vue", "Prise de vue en continu à vitesse élevée", "Retardateur : 10 secondes"]
-        source: canon-eos-r50-drive-fr
+        sources: [canon-eos-r50-drive-fr]
     since: v0.1
   - id: BOI-13
     title: "Mémoire tampon et cartes"
