@@ -91,8 +91,8 @@ const EXPOSURE_MODES: readonly ExposureMode[] = ["M", "A", "S"];
 /** Sensibilité maximale de l'ISO auto : de ISO 200 (Z 6) au haut de l'échelle de TutoPhoto, ISO 6400. */
 const MAX_ISO_FIRST = 3;
 /**
- * Vitesse minimale par défaut. Le Z 6 a « Auto » par défaut [nikon-z6-defaults], selon la focale, sans règle
- * publiée ; le manuel du D850 fixe 1/30 s quand « Auto » ne peut pas fonctionner (objectif sans données)
+ * Vitesse minimale par défaut. Le Z 6 a « Auto » par défaut [nikon-z6-defaults], selon la focale ; la page ne donne
+ * pas la règle ; le manuel du D850 fixe 1/30 s quand « Auto » ne peut pas fonctionner (objectif sans données)
  * [nikon-d850-auto-iso].
  *   https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html
  *   https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_02.html
@@ -265,6 +265,7 @@ export class CameraPanel {
   private areaMode: AreaMode = "point";
   private detection: Detection = "faceEye";
   private releaseKind: ReleaseKind = "single";
+  // Valeurs par défaut du Z 6 (Continu L, retardateur) [nikon-z6-defaults].
   private clRate = 3;
   private timerDelay = 10;
   /** Cran de la loupe dans LOUPE_LEVELS ; -1 : pas de loupe. */

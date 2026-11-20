@@ -203,7 +203,7 @@ Les vrais hybrides permettent de couper l'effet des réglages sur la luminosité
 - Nikon Z 6, réglage personnalisé « d8 Apply settings to live view » : « select Off to adjust brightness and hue for ease of viewing » ([manuel en ligne Nikon Z 7/Z 6](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d08.html), lu).
 
 Dans TutoPhoto (bouton « Aperçu ») :
-- **Interrupteur général** « Aperçu des réglages » : coupé, le viseur reste correctement exposé et sans bruit, quels que soient les réglages. Il faut lire la cellule et anticiper.
+- **Interrupteur général** « Aperçu des réglages » : coupé, le viseur reste correctement exposé et sans bruit, quels que soient les réglages. Il faut lire l'indicateur d'exposition et anticiper.
 - **Un interrupteur par effet** : luminosité (exposition) et bruit. Ils ne comptent que si l'interrupteur général est en marche. La profondeur de champ approchée s'y ajoutera.
 - **En marche par défaut**. Le choix est mémorisé dans le navigateur.
 - **Rappel dans le viseur** : un bandeau dit ce qui n'est pas montré, comme les icônes des boîtiers (« When [Setting Effect OFF] is selected, the icon is displayed on the Live View screen », Sony ; « A g icon is displayed when Off is selected », Nikon).
@@ -432,7 +432,7 @@ Ce que dit le manuel du Z 6 ([« The Release Mode/Self-Timer Button »](https://
 - **Vue par vue** : « The camera takes one photograph each time the shutter-release button is pressed. »
 - **Continu L** : « While the shutter-release button is held down, the camera records 1–5 frames per second » ; la cadence se règle (réglage d1).
 - **Continu H** : jusqu'à environ 5,5 vues par seconde.
-- **Continu H (étendu)** : 12 vues par seconde au Z 6 (table des cadences : 12 en JPEG).
+- **Continu H (étendu)** : jusqu'à environ 12 vues par seconde au Z 6 (table des cadences : 12 en JPEG et en NEF 12 bits, 9 en NEF 14 bits ; fiche technique : « 12 fps (14-bit NEF/RAW: 9 fps) »).
 - **Retardateur** : délai de 2, 5, 10 ou 20 s (fiche technique), et de 1 à 9 vues (réglage c2).
 - **Nombre de vues par rafale** : de 1 à 200 (réglage d2). Ces pages ne donnent pas les réglages par défaut ; la page « Defaults » du manuel, lue ensuite le 10 novembre 2026, donne 3 vues par seconde en Continu L (d1) et 10 s pour le retardateur (c2).
 
@@ -480,14 +480,14 @@ Ce que dit le manuel du Z 6, lu le 10 novembre 2026 (termes français du manuel 
   - A, « Auto à priorité ouverture » : l'inverse ;
   - M, « Manuel » : « you control both shutter speed and aperture » ; avec l'ISO auto, « ISO sensitivity will automatically be adjusted for optimal exposure at the selected shutter speed and aperture ».
 - [« Indicators and Error Messages »](https://onlinemanual.nikonimglib.com/z7_z6/en/13_troubleshooting_02.html) : hors des limites de l'appareil, « Exposure indicators and shutter speed or aperture display flash », avec « Subject too bright; photo will be overexposed » ou « Subject too dark ».
-- [« The E (Exposure Compensation) Button »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_03.html) ([en français](https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_03.html)) : de −5 à +5 IL par tiers ; elle ne se remet pas à zéro à l'extinction ; « In mode M, exposure compensation affects only the exposure indicator », mais l'ISO auto en tient compte.
-- [« The S (ISO Sensitivity) Button »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_02.html) et [« ISO sensitivity settings »](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_03_08.html) ([« Réglage de la sensibilité »](https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_03_08.html)) :
+- [« The Exposure Compensation Button »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_03.html) ([en français](https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_03.html)) : de −5 à +5 IL par tiers ; elle ne se remet pas à zéro à l'extinction ; « In mode M, exposure compensation affects only the exposure indicator », mais l'ISO auto en tient compte.
+- [« The ISO (ISO Sensitivity) Button »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_02.html) et [« ISO Sensitivity Settings »](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_03_08.html) ([« Réglage de la sensibilité »](https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_03_08.html)) :
   - l'ISO auto agit « if optimal exposure cannot be achieved at the value selected » ;
   - « Sensibilité maximale » : de ISO 200 à Hi 2 au Z 6 ; si la valeur choisie est plus haute, c'est elle qui sert ;
-  - « Vitesse d'obturation minimale », en P et A seulement : de 1/4000 s à 30 s, ou « Automatique », selon la focale, sans règle publiée ; la vitesse peut descendre sous ce minimum quand la sensibilité maximale ne suffit pas ;
+  - « Vitesse d'obturation minimale », en P et A seulement : de 1/4000 s à 30 s, ou « Automatique » : l'appareil la choisit d'après la focale, plus rapide au téléobjectif ; la page ne donne pas la règle ; la vitesse peut descendre sous ce minimum quand la sensibilité maximale ne suffit pas ;
   - l'affichage indique « ISO AUTO », et la valeur retenue quand elle diffère de celle choisie.
 - [« Defaults »](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html) : ISO auto activé, sensibilité maximale 51 200, vitesse minimale « Auto ».
-- Le manuel du Z 6 ne dit pas jusqu'où l'ISO auto descend, ni s'il baisse la sensibilité en A. Celui du [D850](https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_02.html) le dit : « the minimum value for auto ISO sensitivity is automatically set to ISO 64 », sa sensibilité la plus basse, et, en P et A, « sensitivity will only be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed ». Retenu pour TutoPhoto, faute de mieux, et présenté comme tel.
+- Le manuel du Z 6 ne dit pas jusqu'où l'ISO auto descend, ni s'il baisse la sensibilité en A. Celui du [D850](https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_02.html) le dit : « the minimum value for auto ISO sensitivity is automatically set to ISO 64 », le bas de sa plage normale (« Settings of from about 0.3 to 1 EV below ISO 64 […] are also available », [« Manual Adjustment »](https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_01.html), relu le 20 novembre 2026), et, en P et A, « sensitivity will only be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed ». Retenu pour TutoPhoto, faute de mieux, et présenté comme tel.
 
 Dans TutoPhoto (`app/src/camera/exposureModes.ts`, `app/src/ui/cameraPanel.ts`) :
 - **Fenêtre « Exposition »**, ouverte en touchant l'indicateur d'exposition (« M · −0,2 IL ») : sélecteur de mode (M, A, S), correction d'exposition, contrôle de la sensibilité auto, sensibilité maximale, vitesse d'obturation minimale. Toucher l'indicateur évite un bouton de plus, qui réduirait le viseur sur téléphone.

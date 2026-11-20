@@ -2,11 +2,11 @@
 
 ## Explication
 
-En mode A, « Auto à priorité ouverture », on choisit l'ouverture et l'appareil sélectionne la vitesse ; le manuel du Nikon Z 6 conseille ce mode pour rendre flou l'arrière-plan ou pour étendre la zone de netteté au premier plan et à l'arrière-plan ([Nikon, manuel en ligne Z 7/Z 6, « Sélecteur de mode »](https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_01.html), lu le 10 novembre 2026). Quand la vitesse nécessaire sort des limites de l'appareil, l'indicateur d'exposition et la vitesse clignotent : trop de lumière, il faut fermer le diaphragme ; pas assez, il faut l'ouvrir ([« Indicators and Error Messages »](https://onlinemanual.nikonimglib.com/z7_z6/en/13_troubleshooting_02.html)).
+En mode A, « Auto à priorité ouverture », on choisit l'ouverture et l'appareil sélectionne la vitesse ; le manuel du Nikon Z 6 conseille ce mode pour rendre flou l'arrière-plan ou pour étendre la zone de netteté au premier plan et à l'arrière-plan ([Nikon, manuel en ligne Z 7/Z 6, « Sélecteur de mode »](https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_01.html), lu le 10 novembre 2026). Quand la vitesse nécessaire sort des limites de l'appareil, l'indicateur d'exposition et la vitesse clignotent : trop de lumière, il faut fermer le diaphragme ; pas assez, il faut l'ouvrir ([« Indicators and Error Messages »](https://onlinemanual.nikonimglib.com/z7_z6/en/13_troubleshooting_02.html) ; [en français, « Indicateurs et messages d'erreur »](https://onlinemanual.nikonimglib.com/z7_z6/fr/13_troubleshooting_02.html), relu le 20 novembre 2026).
 
 ## Simulateur
 
-Dans la fenêtre « Exposition », mode A. La molette « Vitesse (auto) » est grisée et montre la vitesse choisie ; elle clignote hors des limites (30 s à 1/4000 s). Avec l'ISO auto, la sensibilité monte si la vitesse passerait sous la vitesse minimale.
+Dans la fenêtre « Exposition », mode A. La molette « Vitesse (auto) » est grisée et montre la vitesse choisie ; elle clignote hors des limites de TutoPhoto, de 30 s à 1/4000 s (le Z 6 va jusqu'à 1/8000 s, « Sélecteur de mode », lien plus haut). Dans le parc, seule la limite rapide s'atteint, d'autant plus tôt que l'ouverture est grande, la sensibilité haute ou la correction négative : la scène n'est jamais assez sombre pour la limite lente. Avec l'ISO auto, la sensibilité monte si la vitesse passerait sous la vitesse minimale.
 
 ## Exercice
 

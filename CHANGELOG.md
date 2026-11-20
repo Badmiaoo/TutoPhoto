@@ -12,6 +12,41 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.75] - 2026-11-20
+
+Sujet 15 du plan de corrections de l'audit (`docs/audit/README.md`) : fiches d'exposition, limites du simulateur, formulations, liens vers les sources (FEX-03, FEX-04, FEX-07, FEX-09, FEX-11, FEX-12, FEX-14 ; de FEX-08, la seule phrase du mode P). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), les parts anglaises du sujet sont sans objet : relu dans le code, plus de `content/en/`, plus de `app/src/i18n.ts`, une seule table de textes (`app/src/texts.ts`). Les cinq écarts de FEX-08 entre le référentiel et le simulateur (diaphragme animé, rideau animé, « l'appareil explique son choix », alerte de vitesse trop lente, mode silencieux) attendent D17 : rien n'est écrit dans les fiches ; leurs lignes sont dans « Décisions en attente » de `docs/etat-des-travaux.md`.
+
+### Ajouté
+
+- MES-10, « Simulateur » : « Le mode P n'est pas simulé : seuls les modes M, A et S le sont » (FEX-08) ; la vitesse minimale « Automatique » du Z 6, choisie d'après la focale, plus rapide au téléobjectif, sans règle dans la page ; le départ de TutoPhoto à 1/30 s, valeur que le manuel du D850 fixe avec un objectif sans microprocesseur et sans données d'objectif ; la sensibilité maximale de départ, ISO 6400 dans TutoPhoto et ISO 51 200 sur le Z 6 (FEX-14).
+- MES-04, « Simulateur » : la limite de TutoPhoto, sa mesure de la lumière donne la même valeur où que tu vises (12,5 IL) ; la correction n'y rattrape aucune erreur de mesure (FEX-09). Rien sur le « quand corriger » (neige, contre-jour), qu'aucune page lue ne source.
+- Liens vers les pages françaises du manuel du Z 6 dans les fiches EXP-05, EXP-06, MES-04, MES-10, BOI-07, BOI-08 et BOI-12, à côté des pages anglaises (FEX-11, point 4) ; BOI-12 cite « Specifications » pour les délais du retardateur et « Defaults » pour ses deux valeurs par défaut (FEX-04).
+- `data/sources.yaml` : `nikon-z6-specifications-fr`, `nikon-z6-indicators-fr`, `nikon-z6-iso-button-fr`, `nikon-z6-defaults-fr`, `nikon-d850-manual-adjustment` ; au label de `nikon-z6-specifications`, les délais du retardateur et la cadence du Continu H (étendu) ; à celui de `nikon-z6-iso-settings-fr`, la phrase sur « Automatique ».
+- `docs/propositions.md`, section 5 : « Fiches d'exposition : limites, formulations, liens », dix choix.
+- `docs/historique.md` : la consigne de Julien du 20 novembre 2026, chaque session créée au niveau d'effort le plus haut ; `docs/etat-des-travaux.md`, « Mandat en cours », la reprend.
+
+### Modifié
+
+- EXP-06 : « le Z 6 va de ISO 100 à 51 200, et plus bas ou plus haut en réglages étendus, Lo et Hi, d'après la page du manuel citée plus haut ; TutoPhoto s'arrête à 6400, limite choisie pour ses six boîtiers et pas encore étendue », au lieu de « TutoPhoto s'arrête là où s'arrêtent ses mesures de bruit », qui donnait la cause à l'envers (FEX-03).
+- BOI-12 : « jusqu'à environ 12 vues par seconde au Z 6 (9 en NEF 14 bits) » en Continu H (étendu) (FEX-04).
+- EXP-05 et BOI-07 : 30 s à 1/4000 s dites limites de TutoPhoto, le Z 6 allant jusqu'à 1/8000 s ; BOI-07 : dans le parc, seule la limite rapide s'atteint, d'autant plus tôt que l'ouverture est grande, la sensibilité haute ou la correction négative, sans seuil d'ISO (FEX-07).
+- MES-10 : la règle du D850 dite sans la prêter au Z 6 (l'ISO auto du D850 descend jusqu'à ISO 64 ; TutoPhoto en tire ISO 100, le bas de la plage normale du Z 6), et la seconde règle, « en mode A, seulement si la vitesse passerait sous la vitesse minimale », donnée comme une précision du D850 (FEX-14, FEX-12 point 4).
+- Titres exacts des pages de Nikon, ceux de leur balise `title` : « The ISO (ISO Sensitivity) Button », « The Exposure Compensation Button », « ISO Sensitivity Settings », dans les fiches, `data/sources.yaml`, `docs/camera-physique.md` et le commentaire de `app/src/camera/exposureModes.ts` ; « Commande correction d'exposition » pour la page française (FEX-11, point 3).
+- Simulateur, note de la fenêtre « Aperçu » : « il faut lire l'indicateur d'exposition et anticiper », au lieu de « lire la cellule » (FEX-11, point 1) ; même phrase dans `docs/camera-physique.md`. La ligne de « Défauts connus, hors du plan » qui le notait est retirée.
+- `docs/camera-physique.md` et `app/src/camera/exposureModes.ts` : « le bas de sa plage normale » au lieu de « sa sensibilité la plus basse » pour ISO 64 sur le D850 (contre-vérification de FEX-14 ; le D850 descend plus bas en réglages étendus, page « Manual Adjustment ») ; la vitesse minimale « Automatique » décrite comme la page la décrit, au lieu de « sans règle publiée ».
+- `docs/etat-des-travaux.md` : fin de la version 0.3.74 relue, lignée des sessions (profondeur 6 sur 8), Sujet 15.
+
+### Corrigé
+
+- EXP-06 : « se voient » au lieu de « se voit » (FEX-12, point 2).
+- Simulateur, note du mode de déclenchement : « Réglages par défaut du Z 6 : 3 vues par seconde en Continu L, 10 s pour le retardateur », au lieu de « choisis, les pages lues ne les donnant pas », que la page « Defaults » dément (relu le 20 novembre 2026).
+
+Non fait, et pourquoi : le point 1 de FEX-11 (un seul nom dans les fiches) et le point 1 de FEX-12 (la traînée du bulletin dans EXP-05) étaient déjà faits par la version 0.3.67 (relu dans les fiches) ; le point 3 de FEX-12 renvoie à PHY-07 (Sujet 18) ; le point 5 n'est pas retenu par la contre-vérification ; le point 2 de FEX-11 (« magnifier ») n'avait d'objet qu'en anglais.
+
+Essais : `validate.py` (0 erreur ; un avertissement, `github-pages-limits`, déjà présent sur `main`), `changelog.py check`, construction du site (22 fiches, liens et balisage relus dans les pages produites ; le titre français « Commande ISO (sensibilité [ISO]) », mis d'abord dans un lien, faisait échouer la construction : choix 6). Pages de Nikon (Z 6 en anglais et en français, D850) relues par Claude le 20 novembre 2026. La routine n'a pas été lancée sur la machine de Claude : la CI la lance sur ses quatre profils (résultats dans la pull request).
+
+Relecture : un seul agent, sous les deux angles (sources et vérité ; débutant devant la fiche), au commit dec0d15 : six constats, tous repris. R1, dans EXP-06, « même source » renvoyait à Wikipedia, dernière source citée, et non au manuel du Z 6 : renvoi à la page du manuel, et les réglages étendus Lo et Hi nommés. R2, « aux plus grandes ouvertures » était trop étroit : recalcul du relecteur sur les 14 725 combinaisons du mode A (5 444 clignotements, tous pour « trop de lumière » ; avec une correction négative, jusqu'à f/22 ; pose la plus longue 2,5 s) ; phrase élargie. R3, MES-10 citait encore « The Mode Dial », « The Exposure Compensation Button » et « Defaults » sans leur page française : ajoutées. R4, deux dates « relu le 20 novembre 2026 » absentes de `data/sources.yaml` : reportées. R5, le commentaire de `app/src/ui/cameraPanel.ts` gardait « sans règle publiée » : « la page ne donne pas la règle ». R6, MES-10, deux parenthèses de suite et un renvoi à EXP-06 qui ne montrait pas les réglages Lo : source du D850 placée après ISO 64, Lo nommé. Le septième point (changelog et choix manquants au commit relu) était déjà fait au commit suivant. Vérifié juste par le relecteur : les titres des dix-sept pages, les chiffres et citations (1/8000 s, ISO 100 à 51 200, 12 et 9 vps, délais et valeurs par défaut, règles du D850), les affirmations sur le code (modes M, A, S ; 1/30 s ; ISO 6400 ; 12,5 IL partout ; 3 vps et 10 s), `check_public.py --commits all` (0 problème sur 349 commits). Contrôle final, au commit 4a8fb5e, par un agent qui n'a rien écrit de la version : fusionnable une fois la page d'état réécrite pour la fusion (F1, fait). Repris aussi : F2, la citation de EXP-06 dans ce changelog, remise au texte de la fiche ; F3, BOI-08 citait la page anglaise « Indicators and Error Messages » sans la française, ajoutée comme dans BOI-07 ; F4, la note du mode de déclenchement et les valeurs par défaut de `app/src/ui/cameraPanel.ts` renvoient maintenant à `[nikon-z6-defaults]` en commentaire. Vérifié juste par le contrôle : chaque point du plan fait ou son écart dit, reprises R1 à R6, recalcul de R2 (14 725 combinaisons, 2,5 s au plus, f/22 qui clignote à ISO 6400 et −5 IL), dix-huit titres de pages et leurs citations, ce que les fiches disent du code, aucun nom de modèle ni lien de session, `validate.py`, `changelog.py check`, `check_public.py --commits all` (0 problème sur 350 commits), construction. Agents de la version : relecteur 153 407 jetons, contrôle final 149 454 jetons. Une seule relecture au lieu de deux (choix 10).
+
 ## [0.3.74] - 2026-11-20
 
 Sujet 14 du plan de corrections de l'audit (`docs/audit/README.md`) : activité de LUM-02, pénombre hors du mur, légende, lisibilité du schéma (FMA-10, INT-02). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), l'activité n'a qu'une langue (relu dans `app/src/activities/lum02.ts` et `app/activites/LUM-02/index.html`) : les essais « dans les deux langues » du plan se font en français seul.
@@ -1484,6 +1519,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.75]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.74...v0.3.75
 [0.3.74]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.73...v0.3.74
 [0.3.73]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.72...v0.3.73
 [0.3.72]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.71...v0.3.72

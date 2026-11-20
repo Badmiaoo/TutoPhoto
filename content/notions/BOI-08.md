@@ -2,7 +2,7 @@
 
 ## Explication
 
-En mode S, « Auto à priorité vitesse », on choisit la vitesse et l'appareil sélectionne l'ouverture ; le manuel du Nikon Z 6 conseille ce mode pour figer le mouvement ou le rendre flou ([Nikon, manuel en ligne Z 7/Z 6, « Sélecteur de mode »](https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_01.html), lu le 10 novembre 2026). Quand l'ouverture nécessaire sort des limites de l'objectif, l'indicateur d'exposition et l'ouverture clignotent : pas assez de lumière, il faut allonger la pose ou monter l'ISO ; trop, raccourcir la pose ([« Indicators and Error Messages »](https://onlinemanual.nikonimglib.com/z7_z6/en/13_troubleshooting_02.html)).
+En mode S, « Auto à priorité vitesse », on choisit la vitesse et l'appareil sélectionne l'ouverture ; le manuel du Nikon Z 6 conseille ce mode pour figer le mouvement ou le rendre flou ([Nikon, manuel en ligne Z 7/Z 6, « Sélecteur de mode »](https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_01.html), lu le 10 novembre 2026). Quand l'ouverture nécessaire sort des limites de l'objectif, l'indicateur d'exposition et l'ouverture clignotent : pas assez de lumière, il faut allonger la pose ou monter l'ISO ; trop, raccourcir la pose ([« Indicators and Error Messages »](https://onlinemanual.nikonimglib.com/z7_z6/en/13_troubleshooting_02.html) ; [en français, « Indicateurs et messages d'erreur »](https://onlinemanual.nikonimglib.com/z7_z6/fr/13_troubleshooting_02.html), relu le 20 novembre 2026).
 
 ## Simulateur
 

@@ -500,9 +500,14 @@ sources:
     used_in: [docs/camera-physique.md, app/src/ui/balance.ts, content/notions/EXP-06.md]
   - id: nikon-z6-specifications
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, Specifications : capteur 35.9 × 23.9 mm, 24.5 millions de pixels effectifs, vitesses 1/8000 – 30 s par pas de 1/3 ou 1/2 IL, ISO 100 – 51200 (lu le 8 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6, Specifications : capteur 35.9 × 23.9 mm, 24.5 millions de pixels effectifs, vitesses 1/8000 – 30 s par pas de 1/3 ou 1/2 IL, ISO 100 – 51200 (lu le 8 novembre 2026) ; « Self-timer 2 s, 5 s, 10 s, 20 s » ; Z 6, « High-speed continuous (extended) : 12 fps (14-bit NEF/RAW: 9 fps) » (relu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/14_technical_notes_06.html"
-    used_in: [docs/camera-physique.md]
+    used_in: [docs/camera-physique.md, content/notions/BOI-12.md]
+  - id: nikon-z6-specifications-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Caractéristiques techniques : « Retardateur 2 s, 5 s, 10 s, 20 s » ; Z 6, « Continu haute vitesse (étendu) : 12 vps (NEF/RAW 14 bits : 9 vps) » (lu le 20 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/14_technical_notes_06.html"
+    used_in: [content/notions/BOI-12.md]
   - id: sony-ilce-7m3-help-guide
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Help Guide ILCE-7M3 (PDF), Specifications : capteur 35.6 mm × 23.8 mm, environ 24 200 000 pixels effectifs, vitesses 1/8 000 s à 30 s, ISO 100 à 51 200 (lu le 8 novembre 2026) ; Live View Display, Setting Effect ON/OFF, Focus Magnifier, Focus Mode, Focus Area, Face/Eye AF Set., Metering Mode, Spot Metering Point, White Balance, Grid Line et Histogram (lus le 9 novembre 2026)"
@@ -620,49 +625,69 @@ sources:
     used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/MES-10.md]
   - id: nikon-z6-mode-dial-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Sélecteur de mode : termes « Auto à priorité vitesse », « Auto à priorité ouverture », « Manuel » (lu le 10 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Sélecteur de mode : termes « Auto à priorité vitesse », « Auto à priorité ouverture », « Manuel » (lu le 10 novembre 2026) ; « une valeur comprise entre 30 s et 1/8000 s » (relu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_01.html"
-    used_in: [docs/camera-physique.md, content/notions/BOI-07.md, content/notions/BOI-08.md]
+    used_in: [docs/camera-physique.md, content/notions/BOI-07.md, content/notions/BOI-08.md, content/notions/EXP-05.md, content/notions/MES-10.md]
   - id: nikon-z6-indicators
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Indicators and Error Messages : « Exposure indicators and shutter speed or aperture display flash », « Subject too bright; photo will be overexposed », « Subject too dark; photo will be underexposed » (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/13_troubleshooting_02.html"
     used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/BOI-07.md, content/notions/BOI-08.md]
+  - id: nikon-z6-indicators-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Indicateurs et messages d'erreur : « Les indicateurs d'exposition et l'affichage de la vitesse d'obturation ou de l'ouverture clignotent » ; en mode A, « Choisissez une ouverture plus petite (valeur plus grande) » quand le sujet est trop clair, « une ouverture plus grande » quand il est trop sombre (lu le 20 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/13_troubleshooting_02.html"
+    used_in: [content/notions/BOI-07.md, content/notions/BOI-08.md]
   - id: nikon-z6-exposure-compensation
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, The E (Exposure Compensation) Button : de −5 à +5 IL par tiers ; « Exposure compensation is not reset when the camera is turned off » ; « In mode M, exposure compensation affects only the exposure indicator », l'ISO auto en tenant compte (lu le 10 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6, The Exposure Compensation Button : de −5 à +5 IL par tiers ; « Exposure compensation is not reset when the camera is turned off » ; « In mode M, exposure compensation affects only the exposure indicator », l'ISO auto en tenant compte (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_03.html"
     used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/MES-04.md, content/notions/MES-10.md]
   - id: nikon-z6-exposure-compensation-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande E (correction d'exposition) : terme « correction d'exposition » (lu le 10 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande correction d'exposition : terme « correction d'exposition » (lu le 10 novembre 2026 ; titre relu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_03.html"
-    used_in: [docs/camera-physique.md]
+    used_in: [docs/camera-physique.md, content/notions/MES-04.md, content/notions/MES-10.md]
   - id: nikon-z6-iso-button
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, The S (ISO Sensitivity) Button : l'ISO auto agit « if optimal exposure cannot be achieved at the value selected » ; sensibilité maximale de ISO 200 (Z 6) à Hi 2 ; « ISO AUTO » affiché, et la valeur modifiée ; une valeur choisie plus haute que le maximum sert à sa place (lu le 10 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6, The ISO (ISO Sensitivity) Button : l'ISO auto agit « if optimal exposure cannot be achieved at the value selected » ; sensibilité maximale de ISO 200 (Z 6) à Hi 2 ; « ISO AUTO » affiché, et la valeur modifiée ; une valeur choisie plus haute que le maximum sert à sa place (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_02.html"
     used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/EXP-06.md]
+  - id: nikon-z6-iso-button-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande ISO (sensibilité [ISO]) : « entre 100 ISO et 51 200 ISO » pour le Z 6, réglages étendus Lo 0,3 à Lo 1 et Hi 0,3 à Hi 2 (lu le 20 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_02.html"
+    used_in: [content/notions/EXP-06.md]
   - id: nikon-z6-iso-settings
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, ISO sensitivity settings : Maximum sensitivity ; Minimum shutter speed, « below which auto ISO sensitivity control will kick in to prevent underexposure in modes P and A », de 1/4000 s à 30 s ou Auto selon la focale ; vitesse sous le minimum si la sensibilité maximale ne suffit pas (lu le 10 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6, ISO Sensitivity Settings : Maximum sensitivity ; Minimum shutter speed, « below which auto ISO sensitivity control will kick in to prevent underexposure in modes P and A », de 1/4000 s à 30 s ou Auto selon la focale ; vitesse sous le minimum si la sensibilité maximale ne suffit pas (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_03_08.html"
     used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/MES-10.md]
   - id: nikon-z6-iso-settings-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Réglage de la sensibilité : termes « Contrôle de la sensibilité auto. », « Sensibilité maximale », « Vitesse d'obturation minimale » (lu le 10 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Réglage de la sensibilité : termes « Contrôle de la sensibilité auto. », « Sensibilité maximale », « Vitesse d'obturation minimale » (lu le 10 novembre 2026) ; avec « Automatique », « l'appareil photo choisit la vitesse d'obturation minimale selon la focale de l'objectif utilisé » (relu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_03_08.html"
-    used_in: [docs/camera-physique.md]
+    used_in: [docs/camera-physique.md, content/notions/MES-10.md]
   - id: nikon-z6-defaults
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Defaults : ISO 100 en P, S, A, M, contrôle de la sensibilité auto activé, sensibilité maximale 51200 (Z 6), vitesse minimale Auto ; Focus mode Single AF, AF-area mode Single-point AF ; a4 Face and eye detection on ; c2 retardateur 10 s ; d1 Continu L 3 vps (lu le 10 novembre 2026) ; d9 Framing grid display Off ; g6 Highlight display, Display pattern Off, Highlight display threshold 248 ; aucune ligne pour Playback display options (relu le 12 novembre 2026) ; c1 Shutter-release button AE-L Off (relu le 19 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html"
     used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/notions/BOI-12.md, content/notions/MAP-04.md, content/notions/MAP-06.md, content/notions/MES-10.md, content/notions/CMP-02.md, docs/dossiers/balance-des-blancs.md, docs/dossiers/viseur-aides.md]
+  - id: nikon-z6-defaults-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Réglages par défaut : « Délai du retardateur 10 s » ; d1, CL « 3 vps » (lu le 20 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_01.html"
+    used_in: [content/notions/BOI-12.md, content/notions/MES-10.md]
   - id: nikon-d850-auto-iso
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne D850, Auto ISO Sensitivity Control : « the minimum value for auto ISO sensitivity is automatically set to ISO 64 » ; en P et A, « sensitivity will only be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed » ; vitesse minimale fixée à 1/30 s avec un objectif sans données (lu le 10 novembre 2026). Autre boîtier que le Z 6 : retenu là où le manuel du Z 6 ne dit rien."
+    label: "Nikon, manuel en ligne D850, Auto ISO Sensitivity Control : « the minimum value for auto ISO sensitivity is automatically set to ISO 64 » ; en P et A, « sensitivity will only be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed » ; vitesse minimale fixée à 1/30 s avec un objectif sans données (lu le 10 novembre 2026, relu le 20 novembre 2026). Autre boîtier que le Z 6 : retenu là où le manuel du Z 6 ne dit rien."
     url: "https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_02.html"
     used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, app/src/ui/cameraPanel.ts, content/notions/MES-10.md]
+  - id: nikon-d850-manual-adjustment
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne D850, Manual Adjustment : « Choose from settings that range from ISO 64 and ISO 25600 » ; « Settings of from about 0.3 to 1 EV below ISO 64 and 0.3 to 2 EV above ISO 25600 are also available for special situations » (lu le 20 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_01.html"
+    used_in: [docs/camera-physique.md]
   - id: wikipedia-umbra-penumbra
     group: "Physique, rendu et technique"
     label: "Wikipedia, Umbra, penumbra and antumbra : la pénombre est la zone où la source n'est cachée qu'en partie ; avec une source ponctuelle, seule l'ombre pleine existe (révision 1379008615, source secondaire, lue le 11 novembre 2026)"
