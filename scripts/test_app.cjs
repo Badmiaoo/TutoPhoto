@@ -67,7 +67,10 @@
 // - avec --photo : la photo se calcule et n'est pas noire, sa légende commence par le mode et les réglages
 //   (« M · f/8 · 1/4000 s · ISO 6400 · 50 mm »), le bulletin qui la suit donne l'exposition et la zone nette, et la
 //   loupe de l'écran de revue fonctionne ; après « Photo entière », une seconde loupe sur la même photo montre le
-//   point touché (COD-14, version 0.3.62) ;
+//   point touché (COD-14, version 0.3.62) ; une loupe suivie de « Revenir au viseur » pendant son calcul est jetée,
+//   l'écran de revue reste fermé (COD-08) ; une photo en échec (canvas.toBlob mis en échec par la routine) après une
+//   bonne photo est dite sans l'image, la série, « Touchez la photo… » ni « Enregistrer la photo » d'avant (B10 de la
+//   relecture de la version 0.3.70 ; version 0.3.71 pour les deux) ;
 // - avec --photo, histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07, version 0.3.57) : par défaut,
 //   ni histogramme ni clignotement ; « Infos » une fois : quatre histogrammes (luminance, rouge, vert, bleu), la
 //   somme des colonnes de chacun égale au nombre de pixels de la photo ; photo surexposée de 3,2 IL : elle s'ouvre en
@@ -158,10 +161,15 @@ const PROFILES = {
 };
 
 // Erreurs admises par le contrôle « aucune erreur de la page ni de la console » (INT-06 de l'audit, version 0.3.64) :
-// des expressions régulières, essayées sur le texte relevé (« page : … » ou « console : … »). La liste part de zéro.
-// Une erreur n'y entre qu'avec sa cause établie, sans rapport avec un défaut, sa raison écrite ici et le choix noté
-// dans docs/propositions.md.
-const ADMITTED_ERRORS = [];
+// des expressions régulières, essayées sur le texte relevé (« page : … » ou « console : … »). La liste est partie de
+// zéro. Une erreur n'y entre qu'avec sa cause établie, sans rapport avec un défaut, sa raison écrite ici et le choix
+// noté dans docs/propositions.md.
+//
+// - « échec injecté par la routine » : erreur levée par la routine elle-même, dans canvas.toBlob, pour le contrôle
+//   « photo en échec après une bonne photo » (version 0.3.71) ; le simulateur la journalise comme toute erreur du
+//   calcul qui n'est pas un refus (app/src/ui/shutter.ts, report). Choix noté dans docs/propositions.md, section 5,
+//   « Écran de revue, loupe et retardateur (Sujet 11) ».
+const ADMITTED_ERRORS = [/échec injecté par la routine/];
 
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".jpg": "image/jpeg", ".png": "image/png", ".gltf": "model/gltf+json", ".bin": "application/octet-stream", ".hdr": "application/octet-stream", ".txt": "text/plain", ".md": "text/markdown" };
 
@@ -1103,6 +1111,79 @@ async function runProfile(browser, name, base) {
             : `, reçu à ${(100 * secondLoupe.u).toFixed(1)} % et ${(100 * secondLoupe.v).toFixed(1)} % : écart de ${secondLoupe.touched.toFixed(1)} niveau(x) avec la zone touchée, de ${secondLoupe.centre.toFixed(1)} avec celle du centre ; fenêtre ${secondLoupe.loupe}, photo ${secondLoupe.photo}, affichée en ${secondLoupe.shown}`),
       );
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-loupe-2.png`), timeout: 120000 });
+
+      // Loupe, puis « Revenir au viseur » pendant son calcul (constat COD-08 de l'audit, version 0.3.71) : la loupe doit
+      // être jetée, l'écran de revue rester fermé. Avant la correction, il se rouvrait à la fin du calcul avec la
+      // fenêtre de la loupe (essai du 20 novembre 2026, construction de origin/main, hors de la routine). Le bouton est
+      // cliqué dans la page, à la tâche suivante du toucher de la photo, quand le calcul a commencé ; le contrôle relève
+      // que la bande de calcul était alors affichée, et lit l'écran de revue une seconde après la fin du calcul.
+      await page.waitForFunction(() => document.getElementById("progress").hidden && !document.getElementById("review").hidden);
+      await page.evaluate(() => {
+        window.routineBack = null;
+        document.getElementById("review-image").addEventListener(
+          "click",
+          () =>
+            setTimeout(() => {
+              window.routineBack = { computing: !document.getElementById("progress").hidden };
+              document.getElementById("review-back").click();
+            }, 0),
+          { once: true },
+        );
+      });
+      const backBox = await page.locator("#review-image").boundingBox();
+      await page.mouse.click(backBox.x + backBox.width / 2, backBox.y + backBox.height / 2);
+      const backArrived = await page.waitForFunction(() => window.routineBack !== null, null, { timeout: 30000 }).then(
+        () => true,
+        () => false,
+      );
+      await page.waitForFunction(() => document.getElementById("progress").hidden);
+      await page.waitForTimeout(1000);
+      const back = await page.evaluate(() => ({
+        ...(window.routineBack ?? {}),
+        review: !document.getElementById("review").hidden,
+        caption: document.getElementById("review-caption").textContent,
+      }));
+      check(
+        "revue : loupe jetée après « Revenir au viseur » pendant son calcul (COD-08)",
+        backArrived && back.computing === true && !back.review,
+        !backArrived
+          ? "le clic n'est pas arrivé à la photo en 30 s"
+          : `calcul ${back.computing ? "commencé" : "pas commencé"} au clic sur « Revenir au viseur » ; écran de revue ${back.review ? `rouvert (« ${back.caption.slice(0, 60)} »)` : "resté fermé"}`,
+      );
+
+      // Photo en échec après une bonne photo (constat B10 de la relecture de la version 0.3.70, version 0.3.71) : le
+      // message seul, sans l'image, la série, « Touchez la photo… » ni « Enregistrer la photo » de la photo d'avant, qui
+      // restaient affichés. L'échec est provoqué par la routine : canvas.toBlob, dernière étape du calcul
+      // (app/src/camera/photo.ts), lève une erreur au texte reconnaissable, admise dans ADMITTED_ERRORS ; toBlob est
+      // rendu ensuite.
+      if (await page.isVisible("#review")) await page.click("#review-back");
+      await page.evaluate(() => {
+        const original = HTMLCanvasElement.prototype.toBlob;
+        window.routineRestoreBlob = () => (HTMLCanvasElement.prototype.toBlob = original);
+        HTMLCanvasElement.prototype.toBlob = function () {
+          throw new Error("échec injecté par la routine");
+        };
+      });
+      await page.click("#shutter-button");
+      const failedShown = await page
+        .waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden && /n'a pas pu/.test(document.getElementById("review-caption").textContent), null, { timeout: 300000 })
+        .then(() => true, () => false);
+      await page.evaluate(() => window.routineRestoreBlob());
+      const failedView = await page.evaluate(() => {
+        const shown = (id) => {
+          const el = document.getElementById(id);
+          return !el.hidden && el.getClientRects().length > 0;
+        };
+        return {
+          caption: document.getElementById("review-caption").textContent,
+          left: ["review-image", "review-save", "review-hint", "review-series", "review-whole"].filter(shown),
+        };
+      });
+      check(
+        "revue : photo en échec après une bonne photo, sans l'image ni « Enregistrer » d'avant (B10)",
+        failedShown && /échec injecté par la routine/.test(failedView.caption) && failedView.left.length === 0,
+        `« ${failedView.caption.slice(0, 90)} » ; encore affichés : ${failedView.left.join(", ") || "rien"}`,
+      );
       await page.click("#review-back");
 
       // Photo surexposée, puis sous-exposée (MES-06, MES-07). Réglages de départ : M, f/8, 1/4000 s, ISO 6400, soit
