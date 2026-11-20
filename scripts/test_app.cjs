@@ -52,7 +52,7 @@
 //   dans la zone mesurée, puis l'appareil est ramené au départ (version 0.3.59) ;
 // - la loupe passe à 50 %, puis à 100 %, et l'indique ; centrée sur le fond, à ISO 6400, elle montre du bruit, et à
 //   densité 2 ce bruit est tiré par pixel CSS : mesuré par pixel CSS, il vaut au moins 85 % de celui d'un pixel
-//   calculé, aux deux crans (constat PHY-07 de l'audit, version 0.3.78 ; tiré par pixel calculé, il en valait 50 %) ;
+//   calculé, aux deux crans (constat PHY-07 de l'audit, version 0.3.78 ; tiré par pixel calculé, il en valait 52 %) ;
 // - grilles de cadrage (CMP-02, version 0.3.56) : aucune ligne par défaut ; « Tiers », choisi dans la fenêtre
 //   « Aperçu », trace quatre lignes à 1/3 et 2/3 du cadre, « Seize cases » six lignes à 1/4, 1/2 et 3/4, à 1 pixel
 //   près ; « Vingt-quatre cases » a six cases sur le grand côté du cadre et quatre sur le petit ; « Tiers et
@@ -974,8 +974,9 @@ async function runProfile(browser, name, base) {
     // auto). Le point de mise au point est d'abord posé en haut du cadre, au milieu, sur le fond : la loupe se centre
     // sur lui, et la zone mesurée ne montre que le fond, immobile. À densité 2, le bruit doit être tiré par pixel CSS :
     // mesuré par pixel CSS, il vaut alors celui d'un pixel calculé ; tiré par pixel calculé, il en valait la moitié
-    // (calcul du constat). À densité 1, pixels CSS et pixels calculés se confondent : le contrôle
-    // vérifie seulement que la loupe montre du bruit. Le point est ramené au centre une fois la loupe coupée.
+    // (0,52 fois, mesuré le 20 novembre 2026 : docs/camera-physique.md, « Loupe »). À densité 1, pixels CSS et pixels
+    // calculés se confondent : le contrôle vérifie seulement que la loupe montre du bruit. Le point est ramené au
+    // centre une fois la loupe coupée.
     const loupeFrame = await page.locator("#frame").boundingBox();
     // Premier point, en haut du cadre, où le clic arrive au viseur (sur un téléphone, une aide du viseur peut couvrir
     // le haut du cadre ; document.elementFromPoint donne l'élément qui recevrait le clic).

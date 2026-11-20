@@ -14,11 +14,27 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 ## [0.3.78] - 2026-11-20
 
-Sujet 18 du plan de corrections de l'audit (`docs/audit/README.md`) : loupe du viseur à densité 2, le bruit (PHY-07). En cours : la mesure du bruit de la loupe du viseur à densité 1 et à densité 2, première étape du sujet, puis la correction. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), les parts anglaises du sujet sont sans objet : relu dans le code, plus de `content/en/`, plus de `app/src/i18n.ts`, une seule table de textes (`app/src/texts.ts`). La part du plafond du flou du viseur (PHY-08) attend la décision D25 de Julien.
+Sujet 18 du plan de corrections de l'audit (`docs/audit/README.md`) : loupe du viseur à densité 2, le bruit (PHY-07). Mesuré d'abord, le constat étant un calcul : à densité 2, la loupe du viseur montrait par pixel CSS 0,52 fois le bruit de la densité 1 à 100 %, et de 0,52 à 0,74 fois à 50 %. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), les parts anglaises du sujet sont sans objet : relu dans le code, plus de `content/en/`, plus de `app/src/i18n.ts`, une seule table de textes (`app/src/texts.ts`). La part du plafond du flou du viseur (PHY-08) attend la décision D25 de Julien. Choix de Claude : `docs/propositions.md`, section 5, « Loupe du viseur à densité 2 : le bruit ».
+
+### Ajouté
+
+- Routine de test (`scripts/test_app.cjs`) : la loupe du viseur passe à 50 % puis à 100 %, centrée sur un point du fond, à ISO 6400 ; à densité 2 (profils Android et iPhone), le bruit mesuré par pixel CSS doit valoir au moins 85 % de celui d'un pixel calculé, aux deux crans (52 % avant la correction) ; à densité 1, la loupe doit montrer du bruit. Le point de mise au point est posé au premier point du haut du cadre où le clic arrive au viseur, puis ramené au centre.
+- `docs/camera-physique.md`, « Loupe » : la mesure du 20 novembre 2026, à densité 1 et 2, avant et après la correction, avec l'écart de 0,52 à 0,50 expliqué par la texture des tirages.
+- `docs/propositions.md`, section 5 : « Loupe du viseur à densité 2 : le bruit », dix choix.
+- `docs/tests-a-faire-faire.md` : T18, le grain de la loupe du viseur à 100 % sur un téléphone, comparé à celui de la loupe de l'écran de revue.
 
 ### Modifié
 
-- `docs/etat-des-travaux.md` : fin de la version 0.3.77 relue, lignée des sessions (profondeur 2 sur 8), Sujet 18 en cours.
+- Simulateur, bulle d'aide du bouton « Loupe » : « jusqu'à 100 % : un pixel de la page pour un photosite du capteur (sur un écran à haute densité, comme celui d'un téléphone, ce pixel en couvre plusieurs de l'écran) », au lieu de « un pixel de l'écran pour un photosite du capteur », faux à densité 2 depuis la version 0.3.52 (choix 5) ; espace insécable écrite en échappement dans « 100 % ».
+- `docs/camera-physique.md` : « Bruit numérique » et « Loupe » disent comment le bruit du viseur est tiré à densité 2, la phrase « soit environ 1 à 100 % » comptée en pixels CSS ; la vérification du 9 novembre datée « densité 1 ».
+- Commentaires de `app/src/camera/noise.ts` et de `app/src/ui/cameraPanel.ts`, dont « 100 % : un pixel CSS pour un photosite », et non « un pixel du canevas ».
+- `docs/etat-des-travaux.md` : fin de la version 0.3.77 relue, lignée des sessions (profondeur 2 sur 8), Sujet 18 ; la ligne D25 de « Décisions en attente », et celle des choix 1 à 10 ; T18 dans « Essais sur son téléphone ».
+
+### Corrigé
+
+- Simulateur, loupe du viseur à densité 2 (téléphones et écrans à haute densité ; PHY-07) : le bruit est tiré par pixel CSS, avec k compté par pixel CSS, dès qu'un pixel calculé compte moins d'un photosite de rouge ou de bleu (`viewfinderNoiseGrid`, `app/src/camera/noise.ts` ; choix 1). Mesuré : la loupe montre à densité 2 le bruit de la densité 1 (rapport de 0,99 à 1,00 aux deux crans), au grain d'un pixel CSS, au lieu d'environ la moitié, au grain d'un pixel calculé. Sans loupe, et partout à densité 1, rien ne change (écarts de 0,01 niveau au plus). La phrase de la fiche EXP-06 sur le bruit qui se voit « à la loupe à 100 % » devient juste à densité 2 (point 3 de FEX-12 ; choix 6).
+
+Non fait, et pourquoi : le plafond du flou du viseur (PHY-08), qui attend D25 et une mesure sur téléphone ; la corrélation de deux pixels voisins par la seconde lecture de la texture des tirages, hors du constat, qui vaut aussi à densité 1 (choix 7) ; l'écart de 24 à 25 % au modèle du bleu sans loupe, à densité 1 comme à densité 2, non expliqué.
 
 ## [0.3.77] - 2026-11-20
 

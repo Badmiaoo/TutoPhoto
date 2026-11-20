@@ -16,8 +16,9 @@
 // tirage indépendant par pixel calculé, k compté par pixel calculé. Quand un pixel calculé compte moins d'un
 // photosite de rouge ou de bleu (loupe), le plancher de 1 laisse à chaque pixel calculé le bruit d'un photosite, et
 // les densité² tirages d'un pixel CSS se moyennent : à densité 2, le bruit vu par pixel CSS était divisé par deux à
-// 100 % (constat PHY-07 de l'audit, Sujet 18 du plan de corrections). Le tirage se fait alors sur la grille des
-// pixels CSS, avec k compté par pixel CSS, comme dans le viseur à densité 1 (viewfinderNoiseGrid).
+// 100 % (constat PHY-07 de l'audit ; mesuré le 20 novembre 2026 : 0,52 fois le bruit de la densité 1,
+// docs/camera-physique.md, « Loupe »). Le tirage se fait alors sur la grille des pixels CSS, avec k compté par
+// pixel CSS, comme dans le viseur à densité 1 (viewfinderNoiseGrid).
 
 import type { Scene } from "@babylonjs/core/scene";
 import type { Camera } from "@babylonjs/core/Cameras/camera";

@@ -248,7 +248,7 @@ Loupe du viseur (bouton « Loupe ») :
 - **Grossissement à 100 %** : définition du capteur / grand côté du cadre, en pixels CSS (avant la version 0.3.52, pixels du canevas et pixels CSS se confondaient). Par exemple, 6066 / 1109 ≈ 5,5 pour le Z 6 sur un écran de 1200 × 900.
 - **Position** : la zone grossie est centrée sur le point de mise au point et reste dans le cadre. Toucher le viseur déplace le point, et la loupe le suit.
 - **Rotation** : l'appareil tourne plus lentement, d'un facteur égal au grossissement.
-- **Bruit** : il suit le grossissement, avec k = pixels effectifs / (pixels du cadre × grossissement²), soit environ 1 à 100 %.
+- **Bruit** : il suit le grossissement, avec k = pixels effectifs / (pixels du cadre × grossissement²), les pixels du cadre comptés en pixels CSS, soit environ 1 à 100 %. Un même tirage couvre les pixels calculés d'un pixel CSS (version 0.3.78, constat PHY-07 de l'audit) : à densité 2, un pixel calculé de la loupe compte moins d'un photosite de rouge ou de bleu (k par pixel calculé de 1 à 50 %, de 0,25 à 100 %). Avant la version 0.3.78, le tirage était fait par pixel calculé, avec k compté par pixel calculé et ramené à 1 : chaque pixel calculé avait le bruit d'un photosite, mais les quatre tirages d'un pixel CSS se moyennaient, et la loupe montrait à densité 2, par pixel CSS, à peu près la moitié du bruit attendu (les trois quarts pour le vert à 50 %), avec un grain deux fois plus fin (mesure plus bas). Le tirage reste par pixel calculé tant que chacun compte au moins un photosite de chaque couleur, ce qui est le cas sans loupe sur les écrans essayés (cadre de 910 × 606 px CSS : k = 11,1 par pixel calculé à densité 2) ; sur un très grand écran de densité 2 sans loupe (cadre de plus de 6,1 millions de pixels calculés pour le Z 6, soit 24,5 millions / 4), le tirage passe aussi par pixel CSS (`viewfinderNoiseGrid`, `app/src/camera/noise.ts` ; cas non essayé).
 - **La photo couvre toujours tout le cadre.** La loupe ne change que l'affichage.
 
 Loupe de l'écran de revue : toucher la photo recalcule une fenêtre à 100 % autour du point touché. La fenêtre a la taille de la zone d'affichage, avec 1500 pixels au plus de côté.
@@ -258,7 +258,7 @@ Loupe de l'écran de revue : toucher la photo recalcule une fenêtre à 100 % au
 
 Bruit à 100 % : moins d'un photosite de chaque couleur par pixel. Le dématriçage interpole les couleurs manquantes, d'une manière propre à chaque boîtier et non documentée dans les sources lues. Le modèle garde donc le bruit d'un photosite seul : k × part est ramené à 1 au moins.
 
-Vérification du 9 novembre 2026, dans le site construit, sur une zone de fond immobile (Nikon Z 6, ISO 6400, f/10, 1/4000 s, écran de 1200 × 900) :
+Vérification du 9 novembre 2026, à densité 1 (avant la version 0.3.52, le viseur était calculé en pixels CSS), dans le site construit, sur une zone de fond immobile (Nikon Z 6, ISO 6400, f/10, 1/4000 s, écran de 1200 × 900) :
 
 | Vue | k | Mesuré, en niveaux (rouge, vert, bleu) | Prévu |
 | --- | --- | --- | --- |
@@ -267,6 +267,18 @@ Vérification du 9 novembre 2026, dans le site construit, sur une zone de fond i
 | Loupe 100 % | 1,05 | 2,94 ; 3,05 ; 3,48 (écart type) | 3,52 ; 3,64 ; 4,24 |
 
 À 100 %, la mesure atteint 82 à 84 % du modèle, et les trois couleurs ont un bruit voisin, puisque chacune vaut un photosite seul. Sur la loupe de l'écran de revue, la fenêtre a été vérifiée (taille, position, légende), mais son bruit n'a pas été mesuré.
+
+Mesure du 20 novembre 2026, à densité 1 et 2 (Sujet 18, constat PHY-07 de l'audit, qui était un calcul) : site construit, Chromium sans écran, rendu logiciel, écran de 1280 × 800 émulé à densité 1 puis à densité 2 (cadre de 910 × 606 px CSS ; canevas de 1280 × 606 puis de 2560 × 1210 pixels calculés) ; Nikon Z 6, M, ISO 6400, f/10, 1/4000 s, 50 mm ; profondeur de champ du viseur coupée (le bruit est ajouté après elle) ; point de mise au point sur le fond, en haut à gauche du cadre, où la loupe se centre. Bruit : écart type de la différence de deux images, ÷ √2, sur une zone de fond de 364 × 170 px CSS en haut à gauche du cadre, trois paires d'images ; par pixel CSS, c'est celui de la moyenne des pixels calculés de chaque pixel CSS. Prévu : le modèle, calculé pixel CSS par pixel CSS d'après le niveau de l'image, avec k compté par pixel CSS. Par pixel CSS, en niveaux sur 255 (rouge ; vert ; bleu) :
+
+| Vue | k par pixel CSS | Densité 1 | Densité 2, avant la version 0.3.78 | Densité 2, version 0.3.78 | Prévu (densité 1) |
+| --- | --- | --- | --- | --- | --- |
+| Sans loupe | 44,4 | 1,24 ; 0,90 ; 1,69 | 1,27 ; 0,90 ; 1,60 | 1,27 ; 0,90 ; 1,61 | 1,17 ; 0,84 ; 1,35 |
+| Loupe 50 % | 4,0 | 3,56 ; 2,63 ; 4,31 | 1,85 ; 1,94 ; 2,23 | 3,56 ; 2,63 ; 4,29 | 3,54 ; 2,60 ; 4,09 |
+| Loupe 100 % | 1,0 | 3,50 ; 3,67 ; 4,31 | 1,82 ; 1,90 ; 2,24 | 3,49 ; 3,67 ; 4,33 | 3,48 ; 3,63 ; 4,09 |
+
+- **Avant la correction**, à densité 2, la loupe montrait par pixel CSS 0,52 fois le bruit de la densité 1 à 100 %, sur les trois couleurs, et 0,52 (rouge, bleu) et 0,74 (vert) à 50 % : le calcul du constat (0,50 ; 0,71 pour le vert à 50 %) est vérifié. Par pixel calculé, le bruit était bien celui d'un photosite (3,50 ; 3,68 ; 4,31 à 100 %) : c'est le grain, deux fois plus fin que le pixel CSS, qui le divisait par deux. L'écart de 0,02 vient de la texture des tirages : sa seconde lecture, tournée de 37°, tombe sur le même tirage pour 8 % des paires de pixels voisins, et la moyenne de quatre pixels voisins garde 0,52 du bruit d'un seul, au lieu de 0,50 (calcul de Claude, vérifié par une simulation de la lecture du shader). Cette corrélation vaut aussi à densité 1, entre pixels CSS voisins ; elle n'est pas corrigée.
+- **Après la correction**, à densité 2, la loupe montre le bruit de la densité 1 : rapport de 0,99 à 1,00 aux deux crans ; par pixel calculé, le même bruit que par pixel CSS. Sans loupe, et partout à densité 1, rien ne change (écarts de 0,01 au plus entre les deux mesures).
+- **Au modèle**, la mesure à densité 1 est de 1 à 6 % au-dessus aux deux crans de la loupe, de 6 à 8 % au-dessus sans loupe, et de 24 à 25 % pour le bleu sans loupe, la couleur la plus sombre de la zone (niveau moyen de 35 sur 255) : écart non expliqué. La vérification du 9 novembre trouvait 82 à 84 % du modèle à 100 %, sur un autre écran et une autre zone ; l'écart entre les deux vérifications n'est pas expliqué.
 
 Limites :
 - **Fond flou à 100 %.** La photo à 360° du fond fait 8192 pixels pour 360°, soit environ 22,8 pixels par degré. Le Z 6 à 100 % en demande 6066 / 39,5° ≈ 154 par degré au 50 mm : le fond est agrandi environ 6,8 fois et paraît flou. Il l'est déjà un peu sur la photo de 1500 px (environ 38 pixels par degré au 50 mm).
