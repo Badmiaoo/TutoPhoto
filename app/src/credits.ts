@@ -66,6 +66,16 @@ export function renderCredits(list: HTMLElement, manifest: SceneManifest): void 
 }
 
 /**
+ * Manifeste non reçu : les licences CC BY de la scène demandent l'attribution, la fenêtre dit donc pourquoi la liste
+ * manque, au lieu de rester vide (version 0.3.70, constat COD-06 de l'audit).
+ */
+export function renderCreditsUnavailable(list: HTMLElement): void {
+  const item = document.createElement("li");
+  item.textContent = t("creditsUnavailable");
+  list.replaceChildren(item);
+}
+
+/**
  * Écrit la version du site dans la fenêtre des crédits. À part de renderCredits : la version ne dépend pas du
  * manifeste de la scène, et doit se lire même quand la scène ne se charge pas.
  */

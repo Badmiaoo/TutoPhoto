@@ -93,8 +93,11 @@ export interface ParkScene {
   scene: Scene;
   /** Caméra 3D de l'appareil : son champ de vue est réglé par le boîtier virtuel (camera/viewfinder.ts). */
   camera: UniversalCamera;
-  /** Résolue quand tous les fichiers de la scène sont chargés. */
-  /** Noms des objets pas encore prêts si la scène s'affiche après le délai ; vide sinon. */
+  /**
+   * Résolue quand les sept modèles, la photo de fond et le fichier d'éclairage sont chargés, puis que Babylon déclare la
+   * scène prête ou que READY_TIMEOUT_MS est passé : elle donne alors les noms des objets pas encore prêts, vide si la
+   * scène est prête. Rejetée par une SceneFileError, qui nomme le fichier, si l'un d'eux n'arrive pas.
+   */
   ready: Promise<string[]>;
   /** Horloge, position de l'œil et sujets en mouvement, pour la photo calculée (camera/photo.ts). */
   time: SceneTimeControl;
@@ -102,6 +105,29 @@ export interface ParkScene {
   subjects: FaceSubject[];
   /** Déplacement de l'appareil sur le sol (vue de dessus). */
   eye: EyeControl;
+}
+
+/**
+ * Fichier de la scène qui n'a pas pu être chargé (version 0.3.70, constat COD-06 de l'audit) : son nom est dit dans le
+ * message d'échec du chargement.
+ */
+export class SceneFileError extends Error {
+  constructor(
+    readonly file: string,
+    cause: unknown,
+  ) {
+    super(`${file} : ${cause instanceof Error ? cause.message : String(cause ?? "échec du chargement")}`);
+    this.name = "SceneFileError";
+  }
+}
+
+/**
+ * Nom du fichier en échec : celui que cite le message d'erreur de Babylon.js s'il en cite un du dossier de la scène (un
+ * fichier .bin ou une texture d'un modèle, par exemple), sinon le fichier demandé.
+ */
+function failedFile(error: unknown, requested: string): string {
+  const cited = /scenes\/parc\/([\w./-]+\.\w+)/.exec(error instanceof Error ? error.message : String(error));
+  return cited ? cited[1] : requested;
 }
 
 /** Délai au-delà duquel la scène s'affiche même si Babylon ne la déclare pas prête, en millisecondes. */
@@ -212,16 +238,23 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
   dome.material.projectedGroundHeight = EYE_HEIGHT;
 
   // Éclairage et reflets : la même prise de vue en HDR (1024 × 512 px), qui garde les hautes lumières.
-  const environment = new HDRCubeTexture(
-    `${SCENE_URL}autumn_hockey/autumn_hockey_1k.hdr`,
-    scene,
-    256,
-    false,
-    true,
-    false,
-    true,
-  );
-  scene.environmentTexture = environment;
+  const ENVIRONMENT_FILE = "autumn_hockey/autumn_hockey_1k.hdr";
+  const createEnvironment = (onLoad: (() => void) | null = null, onError: (() => void) | null = null) =>
+    new HDRCubeTexture(`${SCENE_URL}${ENVIRONMENT_FILE}`, scene, 256, false, true, false, true, onLoad, onError);
+  // Attendu par ready depuis la version 0.3.70 (constat COD-06 de l'audit) : avant, un fichier d'éclairage perdu
+  // laissait la scène sans ses objets, sans message, et la photo attendait sans fin que la scène soit prête.
+  const environmentLoaded = new Promise<void>((resolve, reject) => {
+    scene.environmentTexture = createEnvironment(resolve, () => reject(new SceneFileError(ENVIRONMENT_FILE, null)));
+  });
+  // Après une perte du contexte WebGL, Babylon.js reconstruit la texture d'éclairage, mais les objets éclairés
+  // restaient de 5 à 10 % plus sombres (constat COD-12 de l'audit, Chromium en rendu logiciel ; cause inconnue).
+  // Recréer la texture à la restauration rétablit l'éclairage dans ce navigateur (contre-vérification de COD-12 ;
+  // version 0.3.70). Le fichier est en général repris du cache du navigateur.
+  engine.onContextRestoredObservable.add(() => {
+    const lost = scene.environmentTexture;
+    scene.environmentTexture = createEnvironment();
+    lost?.dispose();
+  });
 
   // Ombres de contact : un sol invisible qui ne reçoit que les ombres, sous une lumière presque zénithale
   // qui n'éclaire rien (intensité nulle) et ne sert qu'à projeter les ombres. Ciel couvert : ombres
@@ -249,7 +282,9 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
    * l'appareil ; π : il regarde l'appareil.
    */
   const load = async (path: string, x: number, z: number, rotationY: number, scale = 1) => {
-    const result = await ImportMeshAsync(`${SCENE_URL}${path}`, scene);
+    const result = await ImportMeshAsync(`${SCENE_URL}${path}`, scene).catch((error: unknown) => {
+      throw new SceneFileError(failedFile(error, path), error);
+    });
     const holder = new TransformNode(path, scene);
     result.meshes[0].parent = holder;
     holder.position.set(x, 0, z);
@@ -345,8 +380,9 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
     }),
     new Promise<void>((resolve, reject) => {
       dome.onLoadObservable.addOnce(() => resolve());
-      dome.onLoadErrorObservable.addOnce((message) => reject(new Error(message)));
+      dome.onLoadErrorObservable.addOnce((message) => reject(new SceneFileError("autumn_hockey/autumn_hockey.jpg", message)));
     }),
+    environmentLoaded,
   ]).then(() => readyOrLate(scene));
 
   const eyeControl: EyeControl = {

@@ -230,6 +230,11 @@ const messages = {
   loadingPreparing: "fichiers reçus, préparation · {s} s",
   loadingMissing: "en attente : {files}",
   loadError: "La scène n'a pas pu être chargée.",
+  loadErrorFile: "Fichier en cause : {file}.",
+  reload: "Recharger",
+  contextLost: "Affichage 3D interrompu par le navigateur. Il peut reprendre seul ; sinon, recharge la page.",
+  creditsUnavailable:
+    "Crédits indisponibles : la liste des éléments de la scène (scenes/parc/scene.json) n'a pas pu être chargée. Recharge la page pour réessayer.",
   noWebgl: "Ce navigateur ne permet pas d'afficher la scène 3D (WebGL indisponible).",
 } satisfies Record<string, string>;
 
