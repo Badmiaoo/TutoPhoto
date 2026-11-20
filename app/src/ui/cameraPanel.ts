@@ -6,8 +6,8 @@
 // (luminosité, bruit), en marche par défaut. Coupé, le viseur reste correctement exposé et sans bruit ;
 // la photo garde toujours tous les effets.
 // Loupe du viseur (même décision) : grossit l'image autour du point de mise au point, jusqu'à 100 % (un
-// pixel du canevas pour un photosite), comme la fonction de grossissement des hybrides. Elle ne change
-// que l'affichage : la photo couvre toujours tout le cadre.
+// pixel CSS pour un photosite depuis la version 0.3.52, zoomAt), comme la fonction de grossissement des hybrides.
+// Elle ne change que l'affichage : la photo couvre toujours tout le cadre.
 // Mise au point (décisions du 9 novembre 2026, camera/autofocus.ts) : mode AF-S ou AF-C (MAP-04) et mode de
 // zone AF (MAP-05, MAP-09), point sélectif, zone large (S) ou (L), ou zone automatique avec la détection des
 // visages et des yeux (réglage a4 du Z 6), choisis dans la fenêtre « Mise au point ». Le
@@ -787,10 +787,17 @@ export class CameraPanel {
     if (this.enabled) this.applyLoupe(frame, body);
     this.updateGrid();
     // Bruit du viseur : chaque pixel du cadre regroupe effectivePixels / (largeur × hauteur × grossissement²)
-    // photosites.
+    // photosites, compté par pixel calculé, ou par pixel CSS quand un pixel calculé compte moins d'un photosite de
+    // rouge ou de bleu (loupe, à une densité supérieure à 1 : viewfinderNoiseGrid, camera/noise.ts).
     const resolved = this.resolved();
     const gain = this.showsBrightness() ? 1 : 2 ** resolved.offset;
-    this.noise.update(body, isoValue(resolved.settings.iso), frame.width * frame.height * this.loupeZoom ** 2, gain);
+    this.noise.update(
+      body,
+      isoValue(resolved.settings.iso),
+      frame.width * frame.height * this.loupeZoom ** 2,
+      this.engine.getHardwareScalingLevel(),
+      gain,
+    );
     // Profondeur de champ : pixels du canevas par millimètre de capteur, loupe comprise.
     this.dof?.update({
       focalMm: FOCAL_LENGTHS[this.focalIndex],

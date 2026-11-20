@@ -12,6 +12,13 @@
 // Vue à 100 % ou presque (loupe) : moins d'un photosite de la couleur par pixel. Le dématriçage interpole
 // les couleurs manquantes, d'une manière propre à chaque boîtier et non documentée dans les sources lues ;
 // on garde alors le bruit d'un photosite seul : k × part est ramené à 1 au moins.
+// Viseur à une densité supérieure à 1 (version 0.3.52 : densité de l'écran, plafonnée à 2 en version 0.3.53) : un
+// tirage indépendant par pixel calculé, k compté par pixel calculé. Quand un pixel calculé compte moins d'un
+// photosite de rouge ou de bleu (loupe), le plancher de 1 laisse à chaque pixel calculé le bruit d'un photosite, et
+// les densité² tirages d'un pixel CSS se moyennent : à densité 2, le bruit vu par pixel CSS était divisé par deux à
+// 100 % (constat PHY-07 de l'audit ; mesuré le 20 novembre 2026 : 0,52 fois le bruit de la densité 1,
+// docs/camera-physique.md, « Loupe »). Le tirage se fait alors sur la grille des pixels CSS, avec k compté par
+// pixel CSS, comme dans le viseur à densité 1 (viewfinderNoiseGrid).
 
 import type { Scene } from "@babylonjs/core/scene";
 import type { Camera } from "@babylonjs/core/Cameras/camera";
@@ -53,6 +60,30 @@ export function readNoiseAt(body: Body, iso: number): number {
     }
   }
   return last[1];
+}
+
+/** Grille des tirages du bruit du viseur : pixels de l'image pour compter k, taille d'une cellule de tirage. */
+export interface NoiseGrid {
+  /** Pixels de l'image (cadre entier, loupe comprise) sur lesquels k est compté. */
+  imagePixels: number;
+  /**
+   * Facteur appliqué aux coordonnées du pixel calculé avant l'arrondi vers le bas : 1, un tirage par pixel calculé ;
+   * le niveau de mise à l'échelle (1 / densité), un tirage par pixel CSS.
+   */
+  cellScale: number;
+}
+
+/**
+ * Grille des tirages du viseur. computedPixels : pixels calculés du cadre, multipliés par le carré du grossissement de
+ * la loupe ; scalingLevel : niveau de mise à l'échelle de Babylon.js, pixels CSS par pixel calculé (1 / densité).
+ * Un tirage par pixel calculé tant que chacun compte au moins un photosite de chaque couleur (de rouge et de bleu, les
+ * moins nombreux) ; sinon, à une densité supérieure à 1, un tirage par pixel CSS, k compté par pixel CSS (constat
+ * PHY-07 de l'audit). À densité 1, rien ne change : pixels calculés et pixels CSS se confondent.
+ */
+export function viewfinderNoiseGrid(body: Body, computedPixels: number, scalingLevel: number): NoiseGrid {
+  const k = body.effectivePixels / Math.max(1, computedPixels);
+  if (scalingLevel >= 1 || k * Math.min(...BAYER_SHARE) >= 1) return { imagePixels: computedPixels, cellScale: 1 };
+  return { imagePixels: computedPixels * scalingLevel * scalingLevel, cellScale: scalingLevel };
 }
 
 export function noiseParameters(body: Body, iso: number, imagePixels: number): NoiseParameters {
@@ -133,6 +164,7 @@ precision highp float;
 varying vec2 vUV;
 uniform sampler2D textureSampler;
 uniform float noiseGain;
+uniform float noiseCellScale;
 ${NOISE_GLSL}
 void main(void) {
   // L'image du viseur est déjà encodée (puissance 1/2,2) et écrêtée : on revient en lumière linéaire,
@@ -141,7 +173,10 @@ void main(void) {
   // Aperçu de la luminosité coupé : l'image affichée vaut l'image réelle divisée par noiseGain. Le bruit
   // est celui de l'image réelle, ramené à l'échelle de l'image affichée.
   vec3 real = min(linear * noiseGain, 1.0);
-  vec3 noisy = clamp(linear + (addSensorNoise(real, gl_FragCoord.xy) - real) / noiseGain, 0.0, 1.0);
+  // Cellule du tirage (viewfinderNoiseGrid) : le pixel calculé (noiseCellScale = 1, coordonnées inchangées) ou le
+  // pixel CSS qui le contient (noiseCellScale = 1 / densité), centre de la cellule.
+  vec2 cell = floor(gl_FragCoord.xy * noiseCellScale) + 0.5;
+  vec3 noisy = clamp(linear + (addSensorNoise(real, cell) - real) / noiseGain, 0.0, 1.0);
   gl_FragColor = vec4(pow(noisy, vec3(1.0 / 2.2)), 1.0);
 }`;
 
@@ -157,6 +192,7 @@ export class ViewfinderNoise {
   private readonly postProcess: PostProcess;
   private params: NoiseParameters | null = null;
   private gain = 1;
+  private cellScale = 1;
   private enabled = true;
   private suspended = false;
   private compiled = false;
@@ -171,7 +207,7 @@ export class ViewfinderNoise {
     this.postProcess = new PostProcess(
       "viseur-bruit",
       VIEWFINDER_SHADER,
-      [...NOISE_UNIFORMS, "noiseGain"],
+      [...NOISE_UNIFORMS, "noiseGain", "noiseCellScale"],
       ["noiseSampler"],
       1,
       null,
@@ -181,6 +217,7 @@ export class ViewfinderNoise {
     this.postProcess.onApply = (effect) => {
       if (this.params) bindNoise(effect, scene, this.params);
       effect.setFloat("noiseGain", this.gain);
+      effect.setFloat("noiseCellScale", this.cellScale);
     };
     const started = performance.now();
     const check = () => {
@@ -202,11 +239,14 @@ export class ViewfinderNoise {
   }
 
   /**
-   * Paramètres du bruit. gain : rapport entre l'image réelle et l'image affichée, 1 quand le viseur montre
-   * la luminosité réelle, 2^écart quand l'aperçu de la luminosité est coupé.
+   * Paramètres du bruit. framePixels : pixels calculés du cadre, multipliés par le carré du grossissement de la loupe ;
+   * scalingLevel : niveau de mise à l'échelle du moteur (1 / densité) ; gain : rapport entre l'image réelle et l'image
+   * affichée, 1 quand le viseur montre la luminosité réelle, 2^écart quand l'aperçu de la luminosité est coupé.
    */
-  update(body: Body, iso: number, framePixels: number, gain: number): void {
-    this.params = noiseParameters(body, iso, framePixels);
+  update(body: Body, iso: number, framePixels: number, scalingLevel: number, gain: number): void {
+    const grid = viewfinderNoiseGrid(body, framePixels, scalingLevel);
+    this.params = noiseParameters(body, iso, grid.imagePixels);
+    this.cellScale = grid.cellScale;
     this.gain = gain;
   }
 
