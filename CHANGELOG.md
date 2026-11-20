@@ -14,11 +14,28 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 ## [0.3.74] - 2026-11-20
 
-Sujet 14 du plan de corrections de l'audit (`docs/audit/README.md`) : activité de LUM-02, pénombre hors du mur, légende, lisibilité du schéma (FMA-10, INT-02). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. En cours.
+Sujet 14 du plan de corrections de l'audit (`docs/audit/README.md`) : activité de LUM-02, pénombre hors du mur, légende, lisibilité du schéma (FMA-10, INT-02). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), l'activité n'a qu'une langue (relu dans `app/src/activities/lum02.ts` et `app/activites/LUM-02/index.html`) : les essais « dans les deux langues » du plan se font en français seul.
+
+### Ajouté
+
+- Activité de LUM-02 : « source », « objet » et « mur » écrits dans le schéma, à 13 px à l'écran quelle que soit sa largeur, sans se chevaucher (INT-02) ; au texte « Calcul », ce que le schéma ne simule pas : l'éclairement plus fort de près, la lumière renvoyée par la pièce dans l'ombre (FMA-10, troisième point).
+- `data/sources.yaml` : `wikipedia-inverse-square-law`.
+- Routine (`scripts/test_app.cjs`) : « activité LUM-02 : pénombre hors du mur, légende, noms du dessin ».
+- `docs/tests-a-faire-faire.md` : test T16, le schéma de l'activité sur un téléphone.
+- `docs/propositions.md`, section 5 : « Activité de LUM-02 : pénombre, légende, lisibilité du schéma », sept choix.
+- `app/src/frenchSpaces.ts` : la fonction des espaces de la ponctuation, sortie de `app/src/texts.ts` pour servir à l'activité sans charger la table du simulateur.
 
 ### Modifié
 
-- `docs/etat-des-travaux.md` : fin de la version 0.3.73 relue, lignée des sessions (profondeur 5 sur 8), Sujet 14 en cours.
+- Activité de LUM-02 : source de 10 cm de large au lieu de 6 dans le dessin, bordée d'un contour sombre de 1,5 px à l'écran, hauteur inchangée (7,1 × 2,1 px de rectangle à 390 px de large pour la lampe de 3 cm, contre 4,3 × 2,1) ; rayons en `#a67c00`, 3,68:1 sur le fond au lieu de 2,29:1 (INT-02).
+- Activité de LUM-02 : espaces insécables de la ponctuation française dans tous ses textes (`frenchSpaces`).
+- `docs/etat-des-travaux.md` : fin de la version 0.3.73 relue, lignée des sessions (profondeur 5 sur 8), Sujet 14 ; la ligne des espaces ordinaires de « Défauts connus » ne garde que l'accueil, les fiches et les messages techniques.
+
+### Corrigé
+
+- Activité de LUM-02 : quand le bord extérieur de la pénombre dépasse le mur dessiné (±100 cm), la ligne de la pénombre le dit, « (au-delà du mur dessiné) » ; sans ombre pleine, elle donne la hauteur de toute l'ombre au lieu de « … cm de chaque côté de l'ombre », et la légende dit « pas d'ombre pleine, seulement une pénombre en dégradé » au lieu de « ombre pleine au centre » (FMA-10).
+
+Essais de la mise en œuvre (Chromium en rendu logiciel, site construit servi en local, fenêtres de 1280, 390 et 320 px de large, neuf positions des curseurs dont celles de FMA-10 : 150 cm à 20 cm, 150 cm à 50 et à 55 cm, « Réflecteur », « Grande fenêtre », les extrêmes) : à 150 cm et 20 cm, « Pénombre sur le mur : toute l'ombre, sur 480,0 cm de haut (au-delà du mur dessiné) » (30 × 70 / 20 + 150 × 50 / 20 = 480) ; à 55 cm, sans la mention (193,6 cm, bord à 96,8 cm) ; « Réflecteur », 98,8 cm sans ombre pleine (30 × 130 / 80 + 80 × 50 / 80) ; « Grande fenêtre », 30,0 cm de chaque côté, légende inchangée. Les trois noms dans le schéma, sans chevauchement et dans son cadre, aux trois largeurs et aux neuf positions ; aucun débordement horizontal ; aucune espace ordinaire avant « : » dans le texte de la page ; aucune erreur de la page. Contrastes recalculés par la formule du WCAG : rayons 3,68:1, contour de la source et noms 11,01:1 sur `#fbfbf9`. Le contrôle ajouté à la routine, copié dans un script à part (la routine entière n'a pas été lancée sur la machine de Claude) : vert à 1280 et à 390 px. La CI lance la routine sur ses quatre profils (résultats dans la pull request).
 
 ## [0.3.73] - 2026-11-20
 
