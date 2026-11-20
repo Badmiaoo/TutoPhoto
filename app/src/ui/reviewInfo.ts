@@ -195,8 +195,9 @@ export class ReviewInfo {
     const share = (100 * tones.clipped) / (tones.width * tones.height);
     // Une part non nulle ne s'écrit pas « 0,0 % ».
     const value = share < 0.1 ? `${tr("lessThan")} ${decimal(0.1)}` : decimal(share);
-    // Espace insécable devant « % » en français : le nombre et son unité ne se séparent pas en fin de ligne.
-    const percent = tr("percent").replace(" ", "\u00a0");
+    // « percent » commence par une espace insécable (texts.ts, version 0.3.78) : le nombre et son unité ne se séparent
+    // pas en fin de ligne.
+    const percent = tr("percent");
     const text = `${tr("clippedShare")}\u00a0: ${value}${percent} ${tr(this.part ? "clippedOfPart" : "clippedOfImage")}`;
     if (!highlights) return text;
     const still = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
