@@ -219,7 +219,7 @@ const messages = {
   problemDepthOfField: "Profondeur de champ du viseur indisponible sur cet appareil",
   problemLate: "Scène affichée avant d'être prête, éléments en attente",
   percent: " %",
-  loupeHelp: "Grossit l'image autour du point de mise au point, jusqu'à 100 % : un pixel de l'écran pour un photosite du capteur.",
+  loupeHelp: "Grossit l'image autour du point de mise au point, jusqu'à 100\u00a0% : un pixel de la page pour un photosite du capteur (sur un écran à haute densité, comme celui d'un téléphone, ce pixel en couvre plusieurs de l'écran).",
   reviewWhole: "Photo entière",
   reviewHint: "Touche la photo pour la voir à 100 % à cet endroit.",
   reviewInfo: "Infos",
