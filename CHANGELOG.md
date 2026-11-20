@@ -22,7 +22,7 @@ Sujet 14 du plan de corrections de l'audit (`docs/audit/README.md`) : activité 
 - `data/sources.yaml` : `wikipedia-inverse-square-law` ; au label de `tiffen-lowel-soft-light`, la citation sur la lumière renvoyée par un mur ou un plafond.
 - Routine (`scripts/test_app.cjs`) : « activité LUM-02 : pénombre hors du mur, légende, noms du dessin ».
 - `docs/tests-a-faire-faire.md` : test T16, le schéma de l'activité sur un téléphone.
-- `docs/propositions.md`, section 5 : « Activité de LUM-02 : pénombre, légende, lisibilité du schéma », sept choix.
+- `docs/propositions.md`, section 5 : « Activité de LUM-02 : pénombre, légende, lisibilité du schéma », huit choix.
 - `app/src/frenchSpaces.ts` : la fonction des espaces de la ponctuation, sortie de `app/src/texts.ts` pour servir à l'activité sans charger la table du simulateur.
 
 ### Modifié
