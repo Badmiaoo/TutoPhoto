@@ -12,6 +12,36 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.75] - 2026-11-20
+
+Sujet 15 du plan de corrections de l'audit (`docs/audit/README.md`) : fiches d'exposition, limites du simulateur, formulations, liens vers les sources (FEX-03, FEX-04, FEX-07, FEX-09, FEX-11, FEX-12, FEX-14 ; de FEX-08, la seule phrase du mode P). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), les parts anglaises du sujet sont sans objet : relu dans le code, plus de `content/en/`, plus de `app/src/i18n.ts`, une seule table de textes (`app/src/texts.ts`). Les cinq écarts de FEX-08 entre le référentiel et le simulateur (diaphragme animé, rideau animé, « l'appareil explique son choix », alerte de vitesse trop lente, mode silencieux) attendent D17 : rien n'est écrit dans les fiches ; leurs lignes sont dans « Décisions en attente » de `docs/etat-des-travaux.md`.
+
+### Ajouté
+
+- MES-10, « Simulateur » : « Le mode P n'est pas simulé : seuls les modes M, A et S le sont » (FEX-08) ; la vitesse minimale « Automatique » du Z 6, choisie d'après la focale, plus rapide au téléobjectif, sans règle dans la page ; le départ de TutoPhoto à 1/30 s, valeur que le manuel du D850 fixe avec un objectif sans microprocesseur et sans données d'objectif ; la sensibilité maximale de départ, ISO 6400 dans TutoPhoto et ISO 51 200 sur le Z 6 (FEX-14).
+- MES-04, « Simulateur » : la limite de TutoPhoto, sa mesure de la lumière donne la même valeur où que tu vises (12,5 IL) ; la correction n'y rattrape aucune erreur de mesure (FEX-09). Rien sur le « quand corriger » (neige, contre-jour), qu'aucune page lue ne source.
+- Liens vers les pages françaises du manuel du Z 6 dans les fiches EXP-05, EXP-06, MES-04, MES-10, BOI-07 et BOI-12, à côté des pages anglaises (FEX-11, point 4) ; BOI-12 cite « Specifications » pour les délais du retardateur et « Defaults » pour ses deux valeurs par défaut (FEX-04).
+- `data/sources.yaml` : `nikon-z6-specifications-fr`, `nikon-z6-indicators-fr`, `nikon-z6-iso-button-fr`, `nikon-z6-defaults-fr`, `nikon-d850-manual-adjustment` ; au label de `nikon-z6-specifications`, les délais du retardateur et la cadence du Continu H (étendu) ; à celui de `nikon-z6-iso-settings-fr`, la phrase sur « Automatique ».
+- `docs/propositions.md`, section 5 : « Fiches d'exposition : limites, formulations, liens », dix choix.
+
+### Modifié
+
+- EXP-06 : « le Z 6 va de ISO 100 à 51 200, et plus haut en réglages étendus ; TutoPhoto s'arrête à 6400, limite choisie pour ses six boîtiers et pas encore étendue », au lieu de « TutoPhoto s'arrête là où s'arrêtent ses mesures de bruit », qui donnait la cause à l'envers (FEX-03).
+- BOI-12 : « jusqu'à environ 12 vues par seconde au Z 6 (9 en NEF 14 bits) » en Continu H (étendu) (FEX-04).
+- EXP-05 et BOI-07 : 30 s à 1/4000 s dites limites de TutoPhoto, le Z 6 allant jusqu'à 1/8000 s ; BOI-07 : dans le parc, seule la limite rapide s'atteint, aux plus grandes ouvertures, sans seuil d'ISO (FEX-07).
+- MES-10 : la règle du D850 dite sans la prêter au Z 6 (l'ISO auto du D850 descend jusqu'à ISO 64 ; TutoPhoto en tire ISO 100, le bas de la plage normale du Z 6), et la seconde règle, « en mode A, seulement si la vitesse passerait sous la vitesse minimale », donnée comme une précision du D850 (FEX-14, FEX-12 point 4).
+- Titres exacts des pages de Nikon, ceux de leur balise `title` : « The ISO (ISO Sensitivity) Button », « The Exposure Compensation Button », « ISO Sensitivity Settings », dans les fiches, `data/sources.yaml`, `docs/camera-physique.md` et le commentaire de `app/src/camera/exposureModes.ts` ; « Commande correction d'exposition » pour la page française (FEX-11, point 3).
+- Simulateur, note de la fenêtre « Aperçu » : « il faut lire l'indicateur d'exposition et anticiper », au lieu de « lire la cellule » (FEX-11, point 1) ; même phrase dans `docs/camera-physique.md`. La ligne de « Défauts connus, hors du plan » qui le notait est retirée.
+- `docs/camera-physique.md` et `app/src/camera/exposureModes.ts` : « le bas de sa plage normale » au lieu de « sa sensibilité la plus basse » pour ISO 64 sur le D850 (contre-vérification de FEX-14 ; le D850 descend plus bas en réglages étendus, page « Manual Adjustment ») ; la vitesse minimale « Automatique » décrite comme la page la décrit, au lieu de « sans règle publiée ».
+- `docs/etat-des-travaux.md` : fin de la version 0.3.74 relue, lignée des sessions (profondeur 6 sur 8), Sujet 15.
+
+### Corrigé
+
+- EXP-06 : « se voient » au lieu de « se voit » (FEX-12, point 2).
+- Simulateur, note du mode de déclenchement : « Réglages par défaut du Z 6 : 3 vues par seconde en Continu L, 10 s pour le retardateur », au lieu de « choisis, les pages lues ne les donnant pas », que la page « Defaults » dément (relu le 20 novembre 2026).
+
+Non fait, et pourquoi : le point 1 de FEX-11 (un seul nom dans les fiches) et le point 1 de FEX-12 (la traînée du bulletin dans EXP-05) étaient déjà faits par la version 0.3.67 (relu dans les fiches) ; le point 3 de FEX-12 renvoie à PHY-07 (Sujet 18) ; le point 5 n'est pas retenu par la contre-vérification ; le point 2 de FEX-11 (« magnifier ») n'avait d'objet qu'en anglais.
+
 ## [0.3.74] - 2026-11-20
 
 Sujet 14 du plan de corrections de l'audit (`docs/audit/README.md`) : activité de LUM-02, pénombre hors du mur, légende, lisibilité du schéma (FMA-10, INT-02). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), l'activité n'a qu'une langue (relu dans `app/src/activities/lum02.ts` et `app/activites/LUM-02/index.html`) : les essais « dans les deux langues » du plan se font en français seul.
@@ -1484,6 +1514,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.75]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.74...v0.3.75
 [0.3.74]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.73...v0.3.74
 [0.3.73]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.72...v0.3.73
 [0.3.72]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.71...v0.3.72
