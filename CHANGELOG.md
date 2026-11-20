@@ -12,6 +12,29 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.73] - 2026-11-20
+
+Sujet 13 du plan de corrections de l'audit (`docs/audit/README.md`) : textes du simulateur et des pages (INT-07, INT-01, INT-19 points 1 à 5, COD-13), avec deux défauts confiés au sujet (« Défauts connus, hors du plan » de `docs/etat-des-travaux.md`) : les espaces avant la ponctuation de `app/src/texts.ts` et la photo en échec de cause inconnue. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z.
+
+### Ajouté
+
+- Routine (`scripts/test_app.cjs`) : « simulateur : titre de la page » ; `checkLinks` échoue quand l'identifiant visé par une ancre est porté par plus d'un élément de la page (INT-01).
+- `data/sources.yaml` : `sony-a7iii-live-view-display-fr`, `nikon-z6-apply-settings-live-view-fr`, `wikipedia-non-breaking-space`.
+- `docs/tests-a-faire-faire.md` : test T15, les espaces insécables lues sur un iPhone et un téléphone Android.
+- `docs/propositions.md`, section 5 : « Textes du simulateur et des pages », neuf choix.
+
+### Modifié
+
+- Simulateur : les sept textes qui vouvoyaient tutoient (INT-07 ; `app/src/texts.ts`) ; titre de la page « Simulateur · TutoPhoto » (INT-19, point 1 ; `app/simulateur/index.html`) ; la note de la fenêtre « Aperçu » donne les noms français des réglages, « Affichage Live View » (Sony A7 III) et « Appliquer réglages à visée écran » (Nikon Z 6, réglage d8), relus à la source (INT-19, point 3).
+- `docs/etat-des-travaux.md` : fin de la version 0.3.72 relue, lignée des sessions (profondeur 4 sur 8), Sujet 13.
+
+### Corrigé
+
+- Espaces de la ponctuation dans le simulateur : U+00A0 avant « : » et à l'intérieur des guillemets, U+202F avant « ; », « ? », « ! », posées par `t()` pour toute la table de `app/src/texts.ts` (`frenchSpaces`) et écrites dans les textes composés de `app/src/ui/` et `app/src/main.ts`. Une ligne ne commence plus par « : », comme « Version du site : » sur le Pixel 7 et l'iPhone 14 émulés (défaut B11 de la relecture de la version 0.3.70). Les expressions de la routine qui lisent ces textes lisent l'espace insécable.
+- Photo en échec de cause inconnue : le message dit « La cause n'est pas connue ; réessaie, et si l'échec revient, recharge la page. » avant le détail technique (défaut B5 de la relecture de la version 0.3.71 ; `app/src/ui/shutter.ts`).
+
+Sans objet depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), relu dans le code de la branche : le bloc anglais de l'accueil et l'identifiant `situation` en double (INT-01) ; « trail » et « motion blur » (INT-19, point 2) ; l'orthographe anglaise mêlée (point 5) ; la clé `meter` (COD-13), retirée en 0.3.60. « {pct} % » (point 4) est l'écriture française et reste.
+
 ## [0.3.72] - 2026-11-20
 
 Sujet 12 du plan de corrections de l'audit (`docs/audit/README.md`) : adresse et mémoire (COD-03 ; COD-13 pour un commentaire orphelin). Le défi donné par l'adresse (`simulateur/?defi=SIT-05`, bouton « Jouer le défi » des fiches) vaut pour l'arrivée ; ensuite, c'est le choix fait dans la fenêtre « Défis » qui vaut, même après un rechargement. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. Choix de Claude : `docs/propositions.md`, section 5, « Adresse et mémoire : le défi de l'adresse ».
@@ -1429,6 +1452,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.73]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.72...v0.3.73
 [0.3.72]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.71...v0.3.72
 [0.3.71]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.70...v0.3.71
 [0.3.70]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.69...v0.3.70

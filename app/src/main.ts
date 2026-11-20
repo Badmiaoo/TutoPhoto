@@ -124,7 +124,7 @@ function report(key: ProblemKey, detail: string): void {
 }
 
 function renderProblems(): void {
-  const parts = problems.map((p) => `${t(p.key)} : ${p.detail}`);
+  const parts = problems.map((p) => `${t(p.key)}\u00a0: ${p.detail}`);
   // La version du site suit le message d'un problème (version 0.3.59), pour rattacher une capture d'écran à une
   // version. Sans problème, la ligne reste vide et masquée : la routine de test le contrôle (« aucun problème
   // affiché »).

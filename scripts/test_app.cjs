@@ -16,7 +16,7 @@
 // visé, lu avec document.elementFromPoint (relecture de la version 0.3.64).
 //
 // Contrôles des pages statiques (version 0.3.46), une fois : chaque lien interne de chaque page HTML du site
-// construit mène à un fichier qui existe, et chaque ancre à un élément de la page visée.
+// construit mène à un fichier qui existe, et chaque ancre à un seul élément de la page visée (version 0.3.73).
 //
 // Contrôles, pour chaque profil :
 // - l'accueil s'affiche en français, sans bouton de langue ni défilement horizontal ; ouvert avec « ?lang=en »,
@@ -24,7 +24,8 @@
 //   « Télécharger les ressources du simulateur » remplit sa barre et donne un bilan sans échec (version 0.3.51) ;
 // - une fiche (NET-01) s'affiche sans défilement horizontal, avec le bandeau de relecture tant qu'elle n'est pas
 //   listée dans data/relecture.yaml, et son bouton mène au simulateur ;
-// - le simulateur (simulateur/) a un lien vers l'accueil ;
+// - le simulateur (simulateur/) a un lien vers l'accueil et son propre titre, « Simulateur · TutoPhoto » (INT-19,
+//   version 0.3.73) ;
 // - sans WebGL (getContext rend null pour webgl et webgl2, dans un contexte à part) : le message du simulateur est
 //   lisible, c'est-à-dire affiché dans la fenêtre, avec son texte et la version du site, rendu par
 //   document.elementFromPoint en son centre, et aucun autre élément de main n'est affiché (le voile du cadre, qui ne
@@ -72,7 +73,7 @@
 //   point touché (COD-14, version 0.3.62) ; une loupe suivie de « Revenir au viseur » pendant son calcul, écran de
 //   revue défilé en bas et bouton cliqué en son centre, est jetée, l'écran de revue reste fermé (COD-08 ; B1 de la
 //   relecture du Sujet 11) ; une photo en échec (canvas.toBlob mis en échec par la routine) après une bonne photo est
-//   dite sans l'image, « Touchez la photo… » ni « Enregistrer la photo » d'avant (B10 de la relecture de la version
+//   dite sans l'image, « Touche la photo… » ni « Enregistrer la photo » d'avant (B10 de la relecture de la version
 //   0.3.70 ; version 0.3.71 pour les deux) ;
 // - avec --photo, histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07, version 0.3.57) : par défaut,
 //   ni histogramme ni clignotement ; « Infos » une fois : quatre histogrammes (luminance, rouge, vert, bleu), la
@@ -261,7 +262,10 @@ async function sharpness(page) {
   );
 }
 
-/** Liens internes des pages HTML du site construit : fichier visé présent, ancre présente dans la page visée. */
+/**
+ * Liens internes des pages HTML du site construit : fichier visé présent, ancre portée par un seul élément de la
+ * page visée (un identifiant en double fait viser le premier, peut-être masqué : INT-01, Sujet 13).
+ */
 function checkLinks(root) {
   const pages = [];
   const walk = (dir) => {
@@ -286,7 +290,10 @@ function checkLinks(root) {
       if (fs.existsSync(dest) && fs.statSync(dest).isDirectory()) dest = path.join(dest, "index.html");
       const where = `${path.relative(root, file)} → ${target}`;
       if (!fs.existsSync(dest)) broken.push(where);
-      else if (anchor && !fs.readFileSync(dest, "utf8").includes(`id="${anchor}"`)) broken.push(`${where} (ancre)`);
+      else if (anchor) {
+        const count = fs.readFileSync(dest, "utf8").split(`id="${anchor}"`).length - 1;
+        if (count !== 1) broken.push(`${where} (ancre ${count === 0 ? "absente" : `portée par ${count} éléments`})`);
+      }
     }
   }
   return [{
@@ -429,7 +436,7 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
     check(
       "sans WebGL : message lisible, rectangle de la scène masqué",
       /WebGL indisponible/.test(r.text) &&
-        /Version du site : \d+\.\d+\.\d+\.$/.test(r.text) &&
+        /Version du site\u00a0: \d+\.\d+\.\d+\.$/.test(r.text) &&
         r.top >= 0 &&
         r.bottom <= r.height &&
         r.hit &&
@@ -505,6 +512,9 @@ async function runProfile(browser, name, base) {
     check("chargement", loaded, `${Math.round((Date.now() - started) / 1000)} s`);
     const home = await page.evaluate(() => ({ text: document.getElementById("home")?.textContent ?? "", href: document.getElementById("home")?.getAttribute("href") ?? "" }));
     check("simulateur : lien vers l'accueil", home.text === "Accueil" && home.href === "../", `« ${home.text} » → ${home.href}`);
+    // Titre propre au simulateur, distinct de celui de l'accueil dans l'historique et les onglets (INT-19, Sujet 13).
+    const simTitle = await page.title();
+    check("simulateur : titre de la page", simTitle === "Simulateur · TutoPhoto", `« ${simTitle} »`);
     // Ligne de diagnostic (app/src/main.ts) : erreurs JavaScript, bruit ou profondeur de champ du viseur
     // indisponibles, scène affichée avant d'être prête ; vide et masquée sans problème. Lue ici, puis en fin de
     // parcours (« aucun problème affiché à la fin du parcours », plus bas).
@@ -559,7 +569,7 @@ async function runProfile(browser, name, base) {
     const dofDefault = await page.evaluate(() => document.getElementById("balance-dof").textContent);
     check(
       "indicateur d'équilibre aux réglages par défaut",
-      /zone nette : \d+,\d m – (\d+,\d m|∞)/.test(dofDefault) && /ISO 100 · bruit excellent/.test(noiseDefault),
+      /zone nette\u00a0: \d+,\d m – (\d+,\d m|∞)/.test(dofDefault) && /ISO 100 · bruit excellent/.test(noiseDefault),
       `${dofDefault} | ${noiseDefault}`,
     );
     // Exposition (BOI-07, BOI-08, MES-04, MES-10) : M et ISO auto par défaut, comme le Z 6. L'ISO auto est coupé
@@ -898,7 +908,7 @@ async function runProfile(browser, name, base) {
       check("photo calculée, pas noire", photo.mean > 5, `${photo.size ?? "-"}, niveau moyen ${photo.mean.toFixed(1)} ; ${photo.caption}`);
       check("légende : mode et réglages retenus", /^M · f\/8 · 1\/4000 s · ISO 6400 · 50 mm · /.test(photo.caption), photo.caption.slice(0, 60));
       const bulletinText = await page.evaluate(() => document.getElementById("review-bulletin").innerText);
-      check("bulletin sous la photo", /Exposition : /.test(bulletinText) && /Zone nette : /.test(bulletinText), bulletinText.split("\n").slice(0, 3).join(" | "));
+      check("bulletin sous la photo", /Exposition\u00a0: /.test(bulletinText) && /Zone nette\u00a0: /.test(bulletinText), bulletinText.split("\n").slice(0, 3).join(" | "));
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-photo.png`), timeout: 120000 });
 
       // Histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07 ; version 0.3.57). Le bouton « Infos »
@@ -945,21 +955,21 @@ async function runProfile(browser, name, base) {
             share: m ? Number(m[1].replace(",", ".")) : /^Aucun pixel à la valeur maximale/.test(text) ? 0 : NaN,
             zones,
             touched: document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)?.id ?? "",
-            exposure: /Exposition : (\S+ IL)/.exec(document.getElementById("review-bulletin").innerText)?.[1] ?? "",
+            exposure: /Exposition\u00a0: (\S+ IL)/.exec(document.getElementById("review-bulletin").innerText)?.[1] ?? "",
             saved,
           };
         });
       const infoDefault = await reviewInfo();
       check(
         "revue : ni histogramme ni clignotement par défaut",
-        infoDefault.button === "Infos : photo seule" && infoDefault.histograms.length === 0 && !infoDefault.zones.shown && infoDefault.text === "" && infoDefault.saved === null,
+        infoDefault.button === "Infos\u00a0: photo seule" && infoDefault.histograms.length === 0 && !infoDefault.zones.shown && infoDefault.text === "" && infoDefault.saved === null,
         `bouton « ${infoDefault.button} » ; ${infoDefault.histograms.length} histogramme(s) ; zones écrêtées ${infoDefault.zones.shown ? "affichées" : "masquées"} ; tutophoto.revue : ${infoDefault.saved}`,
       );
       await page.click("#review-info");
       const infoHistograms = await reviewInfo();
       check(
         "revue, « Infos » une fois : quatre histogrammes, somme des colonnes égale au nombre de pixels",
-        infoHistograms.button === "Infos : histogrammes" &&
+        infoHistograms.button === "Infos\u00a0: histogrammes" &&
           infoHistograms.histograms.map((h) => h.channel).join() === "luminance,red,green,blue" &&
           infoHistograms.histograms.every((h) => h.count === 256 && h.total === infoHistograms.pixels) &&
           infoHistograms.pixels > 0 &&
@@ -1188,7 +1198,7 @@ async function runProfile(browser, name, base) {
       );
 
       // Photo en échec après une bonne photo (constat B10 de la relecture de la version 0.3.70, version 0.3.71) : le
-      // message seul, sans l'image, « Touchez la photo… » ni « Enregistrer la photo » de la photo d'avant, qui restaient
+      // message seul, sans l'image, « Touche la photo… » ni « Enregistrer la photo » de la photo d'avant, qui restaient
       // affichés. La photo d'avant est une vue seule : les boutons de la série, relevés aussi, ne peuvent pas être
       // affichés ici, et ce contrôle ne les vérifie pas (constat A1 de la relecture du Sujet 11). L'échec est provoqué par la routine : canvas.toBlob, dernière étape du calcul
       // (app/src/camera/photo.ts), lève une erreur au texte reconnaissable, admise dans ADMITTED_ERRORS ; toBlob est
@@ -1261,7 +1271,7 @@ async function runProfile(browser, name, base) {
       const zoneShare = (100 * overZones.zones.opaque) / overZones.pixels;
       check(
         "« Infos » encore une fois : zones écrêtées posées sur la photo",
-        overZones.button === "Infos : hautes lumières" && overZones.zones.shown && overZones.zones.opaque > 0 && Math.abs(zoneShare - overZones.share) < 0.06 && overZones.zones.gap <= 1 && overZones.touched === "review-image" && overZones.histograms.length === 0,
+        overZones.button === "Infos\u00a0: hautes lumières" && overZones.zones.shown && overZones.zones.opaque > 0 && Math.abs(zoneShare - overZones.share) < 0.06 && overZones.zones.gap <= 1 && overZones.touched === "review-image" && overZones.histograms.length === 0,
         `${overZones.zones.opaque} pixels en noir, soit ${zoneShare.toFixed(2)} % ; ${overZones.text} ; écart avec la photo ${overZones.zones.gap.toFixed(2)} px ; toucher au centre de la photo : ${overZones.touched}`,
       );
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-hautes-lumieres.png`), timeout: 120000 });
@@ -1297,7 +1307,7 @@ async function runProfile(browser, name, base) {
       check(
         "« réduire les animations » : zones écrêtées en noir sans clignoter, comme l'écrit l'écran de revue",
         !blinking.asked && blinking.animation === "clignote" && blinking.running === 1 && /Ces zones clignotent en noir sur la photo\.$/.test(blinking.text) &&
-          still.asked && still.shown && still.button === "Infos : hautes lumières" && still.animation === "none" && still.running === 0 && still.opacity === "1" && /sans clignoter/.test(still.text) &&
+          still.asked && still.shown && still.button === "Infos\u00a0: hautes lumières" && still.animation === "none" && still.running === 0 && still.opacity === "1" && /sans clignoter/.test(still.text) &&
           !blinkingAgain.asked && blinkingAgain.animation === "clignote" && blinkingAgain.running === 1,
         `sans le réglage : animation « ${blinking.animation} », ${blinking.running} en cours ; avec : « ${still.animation} », ${still.running} en cours, opacité ${still.opacity}, bouton « ${still.button} », « ${still.text.split(". ").pop()} » ; réglage rendu : « ${blinkingAgain.animation} », ${blinkingAgain.running} en cours`,
       );
@@ -1313,7 +1323,7 @@ async function runProfile(browser, name, base) {
       const luminance = under.histograms.find((h) => h.channel === "luminance") ?? { left: 0, total: 0 };
       check(
         "photo sous-exposée de 3,2 IL : aucune zone écrêtée, luminance dans la moitié gauche",
-        under.exposure === "−3,2 IL" && underZones.button === "Infos : hautes lumières" && underZones.share === 0 && !underZones.zones.shown && under.share === 0 && luminance.left > under.pixels / 2 && luminance.total === under.pixels,
+        under.exposure === "−3,2 IL" && underZones.button === "Infos\u00a0: hautes lumières" && underZones.share === 0 && !underZones.zones.shown && under.share === 0 && luminance.left > under.pixels / 2 && luminance.total === under.pixels,
         `exposition ${under.exposure} ; hautes lumières : ${underZones.text} ; ${luminance.left} pixels sur ${under.pixels} dans la moitié gauche de la luminance`,
       );
       // Retour à « photo seule » et aux réglages de départ avant la suite.
@@ -1322,7 +1332,7 @@ async function runProfile(browser, name, base) {
       const infoOff = await reviewInfo();
       check(
         "revue : retour à « photo seule »",
-        infoOff.button === "Infos : photo seule" && infoOff.histograms.length === 0 && !infoOff.zones.shown && infoOff.text === "" && infoOff.saved === "photo",
+        infoOff.button === "Infos\u00a0: photo seule" && infoOff.histograms.length === 0 && !infoOff.zones.shown && infoOff.text === "" && infoOff.saved === "photo",
         `bouton « ${infoOff.button} » ; tutophoto.revue : ${infoOff.saved}`,
       );
       await page.click("#review-back");
@@ -1356,7 +1366,7 @@ async function runProfile(browser, name, base) {
         .waitForFunction(() => /^AF-C · Auto · œil · /.test(document.getElementById("af-badge").textContent), null, { timeout: 30000 })
         .catch(() => undefined);
       const group = await challengeShot("SIT-05");
-      check("défi SIT-05 : groupe net, réussi", /Défi SIT-05 · Photo de groupe : réussi/.test(group), group.split("\n").filter((l) => /Défi|Réussi|Manqué/.test(l)).join(" | "));
+      check("défi SIT-05 : groupe net, réussi", /Défi SIT-05 · Photo de groupe\u00a0: réussi/.test(group), group.split("\n").filter((l) => /Défi|Réussi|Manqué/.test(l)).join(" | "));
       await clicks('[data-dial="aperture"][data-step="1"]', 9);
       // Fiche ouverte depuis le bulletin, puis une autre fiche depuis un lien de la première (version 0.3.47).
       const ficheTitle = (prefix) =>
@@ -1382,7 +1392,7 @@ async function runProfile(browser, name, base) {
       await clicks('[data-dial="aperture"][data-step="-1"]', 9);
       check(
         "défi SIT-01 à f/22 : fond encore net, à reprendre",
-        /Défi SIT-01 · .* : à reprendre/.test(portrait) && /Manqué : fond derrière Sophia hors de la zone nette : encore net : .*le fond photo/.test(portrait) && /À revoir : NET-01/.test(portrait),
+        /Défi SIT-01 · .*\u00a0: à reprendre/.test(portrait) && /Manqué\u00a0: fond derrière Sophia hors de la zone nette\u00a0: encore net\u00a0: .*le fond photo/.test(portrait) && /À revoir\u00a0: NET-01/.test(portrait),
         portrait.split("\n").filter((l) => /Défi|Réussi|Manqué|À revoir/.test(l)).join(" | "),
       );
       await page.click("#challenge-button");
@@ -1453,11 +1463,11 @@ async function runProfile(browser, name, base) {
     check("détection des animaux : œil ou visage du chien", Boolean(dogText) && dogAt > 8 && dogAt < 12, dogText ?? (await afText()));
     // À 1/4000 s, le chien (3,5 m/s à 9 m, 50 mm) laisse 50 × 3,5 × 0,00025 / 9 ≈ 0,005 mm, sous la limite,
     // soit 0,005 × 1500 / 35,9 ≈ 0,2 px sur la photo.
-    const dogMotion = await balanceLine("balance-motion", /chien : /);
+    const dogMotion = await balanceLine("balance-motion", /chien\u00a0: /);
     const dogPixels = /\((\d+(?:,\d)?) px sur la photo\)/.exec(dogMotion ?? "");
     check(
       "indicateur : traînée du chien évaluée, en pixels",
-      /1\/4000 s · chien : net/.test(dogMotion ?? "") && Boolean(dogPixels) && Number(dogPixels[1].replace(",", ".")) < 1,
+      /1\/4000 s · chien\u00a0: net/.test(dogMotion ?? "") && Boolean(dogPixels) && Number(dogPixels[1].replace(",", ".")) < 1,
       dogMotion ?? "chien non visé",
     );
     // Suivi du chien à découvert (FMA-23, version 0.3.66). L'appareil tourne vers la droite jusqu'à ce que le cadre
@@ -1748,7 +1758,7 @@ async function runProfile(browser, name, base) {
       const shutterBox = await page.locator("#shutter-button").boundingBox();
       await page.mouse.move(shutterBox.x + shutterBox.width / 2, shutterBox.y + shutterBox.height / 2);
       await page.mouse.down();
-      await page.waitForFunction(() => /Rafale : ([2-9]|\d\d) vues/.test(document.getElementById("shutter-button").textContent), null, { timeout: 60000 });
+      await page.waitForFunction(() => /Rafale\u00a0: ([2-9]|\d\d) vues/.test(document.getElementById("shutter-button").textContent), null, { timeout: 60000 });
       await page.mouse.up();
       await page.waitForFunction(() => !document.getElementById("review").hidden && !document.getElementById("review-series").hidden, null, { timeout: 300000 });
       const first = await page.evaluate(() => ({ count: document.getElementById("review-count").textContent, caption: document.getElementById("review-caption").textContent }));

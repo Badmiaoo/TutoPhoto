@@ -228,8 +228,8 @@ export class BalanceIndicator {
         const pixelText = `${this.decimal(pixels, pixels < 10 ? 1 : 0)} ${tr("balancePixels")}`;
         motion = measure.frozen ? "ok" : "bad";
         motionText = measure.frozen
-          ? `${shutterText} · ${who} : ${tr("balanceSharp")} (${pixelText})`
-          : `${shutterText} · ${who} : ${tr("balanceTrail")} ${this.decimal(ratio, 1)} ${tr("balanceTimesLimit")} (${pixelText})`;
+          ? `${shutterText} · ${who}\u00a0: ${tr("balanceSharp")} (${pixelText})`
+          : `${shutterText} · ${who}\u00a0: ${tr("balanceTrail")} ${this.decimal(ratio, 1)} ${tr("balanceTimesLimit")} (${pixelText})`;
       } else {
         motionText = `${shutterText} · ${tr("balanceStill")}`;
       }
