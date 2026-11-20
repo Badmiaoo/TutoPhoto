@@ -20,7 +20,7 @@ Si tu n'as rien changé, l'ISO auto est activé, comme sur le Z 6 : l'appareil r
 
 L'indicateur d'exposition, c'est la réglette graduée de −3 à +3 et le bouton à sa droite, qui écrit le mode et l'écart (par exemple « M · −0,2 IL »). Touche ce bouton : la fenêtre « Exposition » s'ouvre. Pour voir l'effet de chaque réglage seul, décoche « Activé » sous « Contrôle de la sensibilité auto. » (voir MES-10).
 
-La molette « ISO » (« ISO auto » tant qu'il est activé) va de 100 à 6400 par tiers de cran (le Z 6 va de ISO 100 à 51 200, et plus haut en réglages étendus, même source ; TutoPhoto s'arrête à 6400, limite choisie pour ses six boîtiers et pas encore étendue). Le bruit photonique et le bruit de lecture sont calculés à partir de mesures de capteurs réels et se voient dans le viseur et sur la photo, à la loupe à 100 %. L'indicateur d'équilibre et le bulletin donnent le rapport signal sur bruit au point visé, avec les seuils 40:1 et 10:1. Avec l'ISO auto (MES-10), l'appareil choisit la sensibilité.
+La molette « ISO » (« ISO auto » tant qu'il est activé) va de 100 à 6400 par tiers de cran (le Z 6 va de ISO 100 à 51 200, et plus bas ou plus haut en réglages étendus, Lo et Hi, d'après la page du manuel citée plus haut ; TutoPhoto s'arrête à 6400, limite choisie pour ses six boîtiers et pas encore étendue). Le bruit photonique et le bruit de lecture sont calculés à partir de mesures de capteurs réels et se voient dans le viseur et sur la photo, à la loupe à 100 %. L'indicateur d'équilibre et le bulletin donnent le rapport signal sur bruit au point visé, avec les seuils 40:1 et 10:1. Avec l'ISO auto (MES-10), l'appareil choisit la sensibilité.
 
 ## Exercice
 
