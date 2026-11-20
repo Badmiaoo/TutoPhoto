@@ -7,6 +7,8 @@ Le mode de zone AF dit quelle partie du cadre sert à faire le point. Sur le Nik
 - **AF zone large (S) et (L)** : comme le point sélectif, sur une zone plus large, les zones (L) étant plus grandes que les zones (S) ; si la zone contient des sujets à différentes distances, l'appareil donne la priorité au plus proche ;
 - **AF zone automatique** : l'appareil détecte le sujet et choisit lui-même la zone (voir MAP-09).
 
+Le manuel en français du Z 6 appelle ce réglage « Mode de zone AF ». Le Manuel d'aide en français du Sony A6000 le range sous « Zone mise au point » : « Large », « Zone », « Centre », « Spot flexible » ([Sony, Manuel d'aide ILCE-6000, « Zone mise au point »](https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000431575.html)). Le manuel en français du Canon EOS R50 le range sous « Zone AF », avec, entre autres, « Autofocus spot », « 1 collimateur AF » et « AF zone complète » ([Canon, manuel de l'EOS R50, « Sélection de la zone autofocus »](https://cam.start.canon/fr/C011/manual/html/UG-06_AF-Drive_0060.html)), lus le 20 novembre 2026.
+
 ## Simulateur
 
 Fenêtre « Mise au point » : point sélectif, zone large (S), zone large (L), zone automatique. Le repère du viseur montre la zone mesurée. Le manuel ne donne pas la taille des zones larges : TutoPhoto a choisi des carrés de 10 % (S) et de 20 % (L) du grand côté du cadre. Dans une zone large, TutoPhoto retient le point le plus proche de la zone, même le sol : le manuel parle du sujet le plus proche, sans dire ce qui compte comme un sujet, ni quelle part de la zone il doit occuper. La zone dynamique et le pinpoint du Z 6 ne sont pas simulés.

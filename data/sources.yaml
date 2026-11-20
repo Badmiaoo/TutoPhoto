@@ -550,9 +550,9 @@ sources:
     used_in: [docs/camera-physique.md]
   - id: wikipedia-sony-a6000
     group: "Physique, rendu et technique"
-    label: "Wikipedia, Sony α6000 : capteur 23.5 × 15.6 mm, « 24.3 MP » (révision 1380408739, source secondaire, lue le 9 novembre 2026)"
+    label: "Wikipedia, Sony α6000 : capteur 23.5 × 15.6 mm, « 24.3 MP » (révision 1380408739 du 15 octobre 2026, source secondaire, lue le 9 novembre 2026) ; section « Popularity » : « By early 2016, it was reported to be the best-selling interchangeable-lens camera in the over-US$600 price range as well as the best-selling mirrorless camera of all time. » (relue le 20 novembre 2026 ; les sources que cite l'article, Wired et Imaging Resource, 2016, ne sont pas joignables depuis l'environnement de Claude)"
     url: "https://en.wikipedia.org/w/index.php?title=Sony_%CE%B16000&oldid=1380408739"
-    used_in: [docs/camera-physique.md]
+    used_in: [docs/camera-physique.md, docs/propositions.md]
   - id: canon-eos-rp-pixels
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon Royaume-Uni, EOS RP, Specifications : « 35.9 x 24 mm CMOS », « Approx. 26.2 Megapixels » (extrait de recherche du 8 novembre 2026 ; page relevée par Julien le 11 novembre 2026, le site refusant les lectures automatiques)"
@@ -580,9 +580,9 @@ sources:
     used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts, content/notions/MAP-04.md, content/notions/MAP-05.md, content/notions/MAP-06.md, content/notions/MAP-09.md]
   - id: nikon-z6-focus-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Mise au point : termes « AF ponctuel », « AF continu », « Mode de zone AF », « AF point sélectif », « AF zone large (S) » et « (L) », « AF zone automatique » (lu le 9 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Mise au point : termes « AF ponctuel », « AF continu », « Mode de zone AF », « AF point sélectif », « AF zone large (S) » et « (L) », « AF zone automatique » (lu le 9 novembre 2026) ; « point AF » pour le point de mise au point (relu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/05_basic_settings_01.html"
-    used_in: [docs/camera-physique.md, content/notions/MAP-05.md]
+    used_in: [docs/camera-physique.md, content/notions/MAP-04.md, content/notions/MAP-05.md, content/notions/MAP-06.md]
   - id: nikon-z6-a4
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé a4 Auto-Area AF Face/Eye Detection : « Face and eye detection on », « Face detection on », « Animal detection », « Off » ; « one or the other of the subject's eyes, or on the subject's face if the eyes are not detected » (lu le 9 novembre 2026)"
@@ -590,7 +590,7 @@ sources:
     used_in: [docs/camera-physique.md, app/src/camera/faces.ts, content/notions/MAP-09.md, content/situations/SIT-06.md]
   - id: nikon-z6-a4-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6 en français, a4 : Détect. visage-yeux AF zone auto ; termes « Détection visage/yeux activée », « Détection des visages activée », « Détection des animaux », « Désactivée » (lu le 9 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, a4 : Détect. visage-yeux AF zone auto ; termes « Détection visage/yeux activée », « Détection des visages activée », « Détection des animaux », « Désactivée » (lu le 9 novembre 2026, relu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_a04.html"
     used_in: [docs/camera-physique.md, content/notions/MAP-09.md]
   - id: nikon-z6-sub-selector
@@ -620,7 +620,7 @@ sources:
     used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/notions/BOI-12.md]
   - id: nikon-z6-release-mode-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande mode de déclenchement/retardateur : termes « Vue par vue », « Continu L », « Continu H », « Continu H (étendu) », « Retardateur » (lu le 10 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande mode de déclenchement/retardateur : termes « mode de déclenchement », « Vue par vue », « Continu L », « Continu H », « Continu H (étendu) », « Retardateur » (lu le 10 novembre 2026, relu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_04.html"
     used_in: [docs/camera-physique.md, content/notions/BOI-12.md]
   - id: nikon-z6-mode-dial
@@ -630,7 +630,7 @@ sources:
     used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/MES-10.md]
   - id: nikon-z6-mode-dial-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Sélecteur de mode : termes « Auto à priorité vitesse », « Auto à priorité ouverture », « Manuel » (lu le 10 novembre 2026) ; « une valeur comprise entre 30 s et 1/8000 s » (relu le 20 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Sélecteur de mode : termes « Auto à priorité vitesse », « Auto à priorité ouverture », « Manuel » (lu le 10 novembre 2026, termes relus le 20 novembre 2026) ; « une valeur comprise entre 30 s et 1/8000 s » (relu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_01.html"
     used_in: [docs/camera-physique.md, content/notions/BOI-07.md, content/notions/BOI-08.md, content/notions/EXP-05.md, content/notions/MES-10.md]
   - id: nikon-z6-indicators
@@ -868,3 +868,93 @@ sources:
     label: "Wikipedia, sRGB, section « Primaries » : matrice du sRGB linéaire vers XYZ, dont la ligne Y vaut 0,2126 ; 0,7152 ; 0,0722, « these 4-digit coefficients should be considered exact » (révision 1378992844 du 7 octobre 2026, source secondaire, lue le 12 novembre 2026). TutoPhoto applique ces coefficients aux valeurs encodées de la photo pour son histogramme de luminance : c'est son choix, pas celui de la norme."
     url: "https://en.wikipedia.org/w/index.php?title=SRGB&oldid=1378992844"
     used_in: [app/src/camera/histogram.ts, content/notions/MES-06.md, docs/camera-physique.md, docs/dossiers/balance-des-blancs.md]
+  - id: sony-a6000-aperture-priority-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Priorité ouvert. : le sélecteur de mode sur A, « Priorité ouvert. » ; « La vitesse d'obturation est réglée automatiquement pour obtenir l'exposition adaptée. » (apostrophes typographiques dans la page ; lu le 20 novembre 2026)"
+    url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000378548.html"
+    used_in: [content/notions/BOI-07.md]
+  - id: sony-a6000-shutter-priority-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Priorité vitesse : le sélecteur de mode sur S, « Priorité vitesse » ; « L'ouverture est réglée automatiquement pour obtenir l'exposition adaptée. » (apostrophes typographiques dans la page ; lu le 20 novembre 2026)"
+    url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000227006.html"
+    used_in: [content/notions/BOI-08.md]
+  - id: sony-a6000-drive-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Entraînement : « Vous pouvez définir le mode d'entraînement, par exemple la prise de vue en rafale ou avec retardateur. » ; options « Prise de vue unique » (réglage par défaut), « Prise d. v. en continu », « Retardateur », « Retardateur (Cont.) », « Bracket continu », « Bracket simple », « Bracket.bal.B », « Bracket DRO » (apostrophes typographiques dans la page ; lu le 20 novembre 2026)"
+    url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000429244.html"
+    used_in: [content/notions/BOI-12.md]
+  - id: sony-a6000-focus-mode-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Mode mise au point : « AF ponctuel », « AF automatique » (réglage par défaut), « AF continu », « Direct MFocus », « MaP manuelle » ; en AF automatique, « Le mode de mise au point passe de [AF ponctuel] à [AF continu] en fonction du mouvement du sujet. » (lu le 20 novembre 2026)"
+    url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000429235.html"
+    used_in: [content/notions/MAP-04.md]
+  - id: sony-a6000-focus-area-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Zone mise au point : « Large », « Zone », « Centre », « Spot flexible » ; Spot flexible « Vous permet de déplacer le cadre de la plage AF au point souhaité sur l'écran » ; « collimateur » n'est dans aucune des 306 pages que listent les deux sommaires du manuel (apostrophes typographiques dans la page ; lu et relevé le 20 novembre 2026)"
+    url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000431575.html"
+    used_in: [content/notions/MAP-05.md, content/notions/MAP-06.md]
+  - id: sony-a6000-face-detection-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Sourire/Dét. visage : « Détecte le visage de vos sujets, règle la mise au point, l'exposition, les réglages du flash et traite l'image automatiquement. » ; options « OFF », « Activé (Visage enr.) » (réglage par défaut), « ON », « Détec. de sourire » (apostrophes typographiques dans la page ; lu le 20 novembre 2026)"
+    url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000378576.html"
+    used_in: [content/notions/MAP-09.md]
+  - id: sony-a6000-eye-af-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, AF sur les yeux : « Effectue la mise au point sur les yeux d'une personne lorsque vous appuyez sur le bouton. » ; la fonction s'attribue à une touche par « Réglag. touche perso » ; « Appuyez sur le déclencheur tout en appuyant sur la touche. » (lu le 20 novembre 2026)"
+    url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000242410.html"
+    used_in: [content/notions/MAP-09.md]
+  - id: canon-eos-r50-av-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, manuel de l'EOS R50 en français, Av : Priorité à l'ouverture : « Av signifie « Aperture value » (valeur d'ouverture). » ; « Positionnez la molette de sélection des modes sur Av. » (lu le 20 novembre 2026)"
+    url: "https://cam.start.canon/fr/C011/manual/html/UG-03_CustomShooting_0040.html"
+    used_in: [content/notions/BOI-07.md]
+  - id: canon-eos-r50-tv-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, manuel de l'EOS R50 en français, Tv : Priorité à l'obturation : « Tv signifie « Time value » (valeur temporelle). » ; « Positionnez la molette de sélection des modes sur Tv. » (lu le 20 novembre 2026)"
+    url: "https://cam.start.canon/fr/C011/manual/html/UG-03_CustomShooting_0030.html"
+    used_in: [content/notions/BOI-08.md]
+  - id: canon-eos-r50-drive-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, manuel de l'EOS R50 en français, Sélection du mode d'acquisition : « Vous avez le choix entre des modes d'acquisition vue par vue et en continu. » ; options « Vue par vue », « Prise de vue en continu à vitesse élevée + », « Prise de vue en continu à vitesse élevée », « Prise de vue en rafale à faible vitesse », « Retardateur : 10 secondes », « Retardateur : 2 secondes », « Retardateur : prise de vue en continu » (lu le 20 novembre 2026)"
+    url: "https://cam.start.canon/fr/C011/manual/html/UG-06_AF-Drive_0120.html"
+    used_in: [content/notions/BOI-12.md]
+  - id: canon-eos-r50-af-operation-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, manuel de l'EOS R50 en français, Opération autofocus : « Autofocus One-Shot pour les sujets immobiles », « AF Servo pour les sujets en mouvement », « AF Ai-Focus pour changement automatique de mode AF » ; « Lorsque la mise au point est effectuée, le collimateur AF devient vert et le signal sonore retentit. » (lu le 20 novembre 2026)"
+    url: "https://cam.start.canon/fr/C011/manual/html/UG-06_AF-Drive_0040.html"
+    used_in: [content/notions/MAP-04.md, content/notions/MAP-06.md]
+  - id: canon-eos-r50-af-area-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, manuel de l'EOS R50 en français, Sélection de la zone autofocus : menu « Zone AF », options « Autofocus spot », « 1 collimateur AF », « Élargir zone AF » (deux formes), « AF 1 zone flexible » à « AF 3 zone flexible », « AF zone complète » ; « Sujet à détecter » : « Auto », « Personnes », « Animaux », « Véhicules », « Aucun » ; « Détection œil » : « Vous pouvez photographier avec les yeux de personnes ou d'animaux nets. » (lu le 20 novembre 2026)"
+    url: "https://cam.start.canon/fr/C011/manual/html/UG-06_AF-Drive_0060.html"
+    used_in: [content/notions/MAP-05.md, content/notions/MAP-09.md]
+  - id: bcn-2025-petapixel
+    group: "Marché : ventes et usage"
+    label: "PetaPixel, « APS-C Cameras Dominate List of 2025 Best-Sellers » (12 janvier 2026), d'après le classement annuel de BCN+R pour 2025 (Japon, ventes en caisse en unités) : 1. Canon EOS R50, 2. Sony ZV-E10 II, 3. Canon EOS R10, 4. Sony ZV-E10, 5. Sony α6400, 6. Nikon Z50 II, 7. Fujifilm X-M5, 8. Sony α7C II, 9. Olympus PEN E-P7, 10. Nikon Z30 (extrait de recherche du 20 novembre 2026, page non ouverte : hôte refusé par l'environnement de Claude)"
+    url: "https://petapixel.com/2026/01/12/aps-c-cameras-dominate-list-of-2025-best-sellers/"
+    used_in: [docs/propositions.md]
+  - id: bcn-2025-digitalcameraworld
+    group: "Marché : ventes et usage"
+    label: "Digital Camera World, « Finally #1! Released back in 2023, this beginner-friendly mirrorless is Japan’s best-selling camera in 2025 » (titre tel que l'extrait l'écrit) : l'EOS R50 premier des ventes de BCN pour 2025 (date de l'article non lue ; extrait de recherche du 20 novembre 2026, page non ouverte : hôte refusé par l'environnement de Claude)"
+    url: "https://www.digitalcameraworld.com/cameras/mirrorless-cameras/finally-1-released-back-in-2023-this-beginner-friendly-mirrorless-is-japans-best-selling-camera-in-2025"
+    used_in: [docs/propositions.md]
+  - id: sony-a6000-help-guide-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, accueil (4-534-933-21(1)) : ses deux sommaires (contentslist01 et contentslist02) listent 247 et 59 pages, 306 en tout ; « collimateur » n'est dans aucune, « cadre du télémètre » dans quatre (relevé le 20 novembre 2026)"
+    url: "https://helpguide.sony.net/mig/Z001924A11/FR/index.html"
+    used_in: [content/notions/MAP-06.md]
+  - id: bcn-2020-reflex
+    group: "Marché : ventes et usage"
+    label: "BCN+R, « 2020年に売れた一眼レフTOP10、ニコン「D5600」が根強い人気で1位、「EOS Kiss」の新型もTOP10入り » (5 janvier 2021) : ventes de reflex au Japon du 1er janvier au 6 décembre 2020, le Nikon D5600 (kit à deux zooms) premier (extrait de recherche du 20 novembre 2026, page non ouverte : hôte refusé par l'environnement de Claude)"
+    url: "https://www.bcnretail.com/research/detail/20210105_207372.html"
+    used_in: [docs/propositions.md]
+  - id: flickr-2025-22-years
+    group: "Marché : ventes et usage"
+    label: "Flickr, blog, « 22 Years of Flickr. » (10 février 2026) : parmi les appareils « gaining the most traction » en 2025, le Canon EOS R6 Mark II, le Sony A7 III, l'iPhone 16 Pro, puis le Nikon Z 6II ; une progression sur l'année, pas un volume (extrait de recherche du 20 novembre 2026, page non ouverte : hôte refusé par l'environnement de Claude ; PetaPixel écrit « Sony a7 II » au deuxième rang)"
+    url: "https://blog.flickr.net/en/2026/02/10/22-years-of-flickr/"
+    used_in: [docs/propositions.md]
+  - id: amazon-2000d-digitalcameraworld
+    group: "Marché : ventes et usage"
+    label: "Digital Camera World, « This Canon DSLR dominates Amazon US and UK best-seller lists » (titre lu dans l'adresse ; janvier 2026 d'après l'extrait) : le Canon EOS 2000D (Rebel T7) en tête des ventes de reflex d'Amazon aux États-Unis et au Royaume-Uni ; un rang chez un seul détaillant, sans chiffre (extrait de recherche du 20 novembre 2026, page non ouverte : hôte refusé par l'environnement de Claude)"
+    url: "https://www.digitalcameraworld.com/cameras/dslr-cameras/this-canon-dslr-dominates-amazon-us-and-uk-best-seller-lists-with-multiple-kit-options-and-new-bodies-available-from-usd529-or-gbp285-50"
+    used_in: [docs/propositions.md]

@@ -70,7 +70,7 @@ Propres à certaines marques ou à certains modèles :
 - Moyenne de toute l'image : [Entire Screen Avg.](https://helpguide.sony.net/ilc/1830/v1/en/contents/TP0002351792.html) chez Sony, [Average](https://fujifilm-dsc.com/en-int/manual/gfx100/taking_photo/photometry/index.html) chez Fujifilm.
 - Mesure spot qui suit le collimateur : [Focus Point Link](https://helpguide.sony.net/ilc/2110/v1/en/contents/TP1000649034.html) chez Sony, [Interlock Spot AE & Focus Area](https://fujifilm-dsc.com/en/manual/x100t/shooting/photometry/index.html) chez Fujifilm (MES-12).
 
-À terme, cette table devient un fichier de données (par exemple `data/vocabulaire.yaml`), un terme par marque et par famille d'appareils, chacun avec sa source.
+Cette table devait devenir un fichier de données (`data/vocabulaire.yaml`), un terme par marque et par famille d'appareils. Julien a retenu le 15 novembre 2026 un champ `terms` par notion (décision D3, `docs/historique.md`) : chaque notion du référentiel porte les termes des manuels en français des boîtiers lus, un bloc par boîtier, avec sa source (`docs/lire-le-referentiel.md`). Nommer le boîtier dans chaque bloc garde ce que disait la table : un terme vaut pour un modèle, pas pour toute la marque. Dans l'interface, une phrase de la fenêtre « Boîtier de référence » dit que les noms des modes et des menus restent ceux du Nikon Z 6 ; des libellés par marque seraient une extension (constat INT-10 de l'audit).
 
 ## Format de scène 2.5D
 
