@@ -12,6 +12,34 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.73] - 2026-11-20
+
+Sujet 13 du plan de corrections de l'audit (`docs/audit/README.md`) : textes du simulateur et des pages (INT-07, INT-01, INT-19 points 1 à 5, COD-13), avec deux défauts confiés au sujet (« Défauts connus, hors du plan » de `docs/etat-des-travaux.md`) : les espaces avant la ponctuation de `app/src/texts.ts` et la photo en échec de cause inconnue. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z.
+
+### Ajouté
+
+- Routine (`scripts/test_app.cjs`) : « simulateur : titre de la page » ; `checkLinks` échoue quand l'identifiant visé par une ancre est porté par plus d'un élément de la page (INT-01).
+- `data/sources.yaml` : `sony-a7iii-live-view-display-fr`, `nikon-z6-apply-settings-live-view-fr`, `wikipedia-non-breaking-space`.
+- `docs/tests-a-faire-faire.md` : test T15, les espaces insécables lues sur un iPhone et un téléphone Android.
+- `docs/propositions.md`, section 5 : « Textes du simulateur et des pages », neuf choix.
+
+### Modifié
+
+- Simulateur : les sept textes qui vouvoyaient tutoient (INT-07 ; `app/src/texts.ts`) ; titre de la page « Simulateur · TutoPhoto » (INT-19, point 1 ; `app/simulateur/index.html`) ; la note de la fenêtre « Aperçu » donne les noms français des réglages, « Affichage Live View » (Sony A7 III) et « Appliquer réglages à visée écran » (Nikon Z 6, réglage d8), relus à la source (INT-19, point 3).
+- `docs/etat-des-travaux.md` : fin de la version 0.3.72 relue, lignée des sessions (profondeur 4 sur 8), Sujet 13.
+
+### Corrigé
+
+- Espaces de la ponctuation dans le simulateur : U+00A0 avant « : » et à l'intérieur des guillemets, U+202F avant « ; », « ? », « ! », posées par `t()` pour toute la table de `app/src/texts.ts` (`frenchSpaces`) et écrites dans les textes composés de `app/src/ui/` et `app/src/main.ts`. Une ligne ne commence plus par « : », comme « Version du site : » sur le Pixel 7 et l'iPhone 14 émulés (défaut B11 de la relecture de la version 0.3.70). Les expressions de la routine qui lisent ces textes lisent l'espace insécable.
+- Photo en échec de cause inconnue : le message dit « TutoPhoto ne reconnaît pas la cause ; réessaie, et si l'échec revient, recharge la page. » avant le détail technique (défaut B5 de la relecture de la version 0.3.71 ; `app/src/ui/shutter.ts`) ; le contrôle B10 de la routine lit la phrase.
+- Fenêtre « Crédits » : le rôle et les modifications de chaque élément, lus dans le manifeste de la scène, prennent les mêmes espaces (`app/src/credits.ts`).
+
+Essais de la mise en œuvre (Chromium en rendu logiciel, site construit servi en local, 1280 × 800) : titre « Simulateur · TutoPhoto » ; consigne « AF-S : touche le viseur pour faire le point ; … » ; aucune espace ordinaire avant « : » dans le texte de la page, quatre U+00A0 au chargement ; note de l'aperçu avec les deux noms français ; aucune erreur de la page. `checkLinks` seul, sur le site construit : 26 pages, 254 liens, aucun cassé ; sur une page d'essai où deux éléments portent `id="x"` (et un `data-id="x"`) : « ancre portée par 2 éléments ». La routine entière n'a pas été lancée sur la machine de Claude ; la CI la lance sur ses quatre profils (résultats dans la pull request).
+
+Relecture : un seul agent, sous les deux angles (code et vérité ; débutant devant l'écran, à 1280 × 800 et sur l'iPhone 14 émulé), dans Chromium en rendu logiciel : rien de bloquant, six constats, tous repris. R1, les deux lignes de « Défauts connus » confiées au sujet restées « Non corrigé », et la ligne promise par le choix 7 absente : sorties et ajoutée (la ligne « Version du site : » coupée avant les deux-points sur le Pixel 7 et l'iPhone 14 sort aussi, même cause). R2, les textes du manifeste dans « Crédits » : `frenchSpaces`. R3, « La cause n'est pas connue » contredit un détail qui nomme une cause : « TutoPhoto ne reconnaît pas la cause ». R4, contrôle de la phrase ajouté. R5, `checkLinks` comptait aussi `data-id="x"` : expression `\sid="…"`. R6, apostrophes typographiques de la page de Sony dites dans `data/sources.yaml`. Vérifié juste par le relecteur : les textes de la table passés à `frenchSpaces` (il en annonçait 251 ; la table en compte 235, recompté au contrôle final) (aucune adresse, aucun « 40:1 », aucun `{…}` abîmé) ; aucun texte composé oublié hors des `new Error(…)` ; toutes les expressions de la routine qui lisent ces textes, adaptées ; les citations des trois sources, relues à leur adresse ; sur les captures, les espaces fines visibles, sans carré, et aucune ligne qui commence par la ponctuation (mesure par `getClientRects`). Je ne sais pas : le rendu de U+202F dans Safari, sur Android et avec la police de la CI (test T15). Contrôle final, au commit 7572c50, par un agent qui n'a rien écrit de la version : fusionnable ; reprises R1 à R6 justes ; `validate.py`, `changelog.py check`, `check_public.py --commits all` et la construction passent ; un écart, F1 (le compte de 251 textes ci-dessus), corrigé. Agents de la version : deux lectures de pages (environ 50 000 et 28 000 jetons), relecteur 152 605 jetons, contrôle final 116 910 jetons.
+
+Sans objet depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), relu dans le code de la branche : le bloc anglais de l'accueil et l'identifiant `situation` en double (INT-01) ; « trail » et « motion blur » (INT-19, point 2) ; l'orthographe anglaise mêlée (point 5) ; la clé `meter` (COD-13), retirée en 0.3.60. « {pct} % » (point 4) est l'écriture française et reste.
+
 ## [0.3.72] - 2026-11-20
 
 Sujet 12 du plan de corrections de l'audit (`docs/audit/README.md`) : adresse et mémoire (COD-03 ; COD-13 pour un commentaire orphelin). Le défi donné par l'adresse (`simulateur/?defi=SIT-05`, bouton « Jouer le défi » des fiches) vaut pour l'arrivée ; ensuite, c'est le choix fait dans la fenêtre « Défis » qui vaut, même après un rechargement. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. Choix de Claude : `docs/propositions.md`, section 5, « Adresse et mémoire : le défi de l'adresse ».
@@ -1429,6 +1457,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.73]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.72...v0.3.73
 [0.3.72]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.71...v0.3.72
 [0.3.71]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.70...v0.3.71
 [0.3.70]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.69...v0.3.70

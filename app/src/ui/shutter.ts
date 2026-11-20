@@ -399,7 +399,7 @@ export class Shutter {
     let left = delay;
     const show = () => (this.el.button.textContent = `${t("timerCountdown")} ${left} s`);
     show();
-    // Pas de loupe pendant le compte (magnify) : la consigne « Touchez la photo… » est masquée jusqu'à la fin du compte
+    // Pas de loupe pendant le compte (magnify) : la consigne « Touche la photo… » est masquée jusqu'à la fin du compte
     // (relecture du Sujet 11, constat B6).
     this.el.reviewHint.hidden = true;
     const tick = () => {
@@ -496,7 +496,7 @@ export class Shutter {
     const requested = moments.length;
     const truncated = () => {
       const shown = done === 0 ? t("burstShownNone") : (done === 1 ? t("burstShownOne") : t("burstShown")).replace("{done}", String(done));
-      return `${t("burstTruncated").replace("{failed}", String(done + 1))} ; ${shown.replace("{count}", String(requested))}`;
+      return `${t("burstTruncated").replace("{failed}", String(done + 1))}\u202f; ${shown.replace("{count}", String(requested))}`;
     };
     if (shots.length === 0) {
       if (failure !== null) this.showError(failure, requested > 1 ? truncated : undefined);
@@ -699,7 +699,7 @@ export class Shutter {
     this.el.reviewBulletin.hidden = true;
     this.info.show(null);
     // Rien de la photo d'avant ne reste sous le message (version 0.3.71, constat B10 de la relecture de la version
-    // 0.3.70) : ni l'image, ni la série, ni « Touchez la photo… », ni « Enregistrer la photo », qui l'aurait sauvée.
+    // 0.3.70) : ni l'image, ni la série, ni « Touche la photo… », ni « Enregistrer la photo », qui l'aurait sauvée.
     this.showPhotoParts(false);
     this.el.reviewWhole.hidden = true;
     this.lastCaption = () => this.errorText(error, lead?.());
@@ -741,7 +741,9 @@ export class Shutter {
           ? this.sceneState().failed
             ? "photoNotReadyFile"
             : "photoNotReady"
-          : null;
+          : lead === t("loupeError")
+            ? null // la phrase de la loupe dit déjà quoi faire
+            : "photoUnknown"; // cause inconnue : ce que l'on peut faire, sans deviner la cause (Sujet 13)
     return hint ? `${lead} ${t(hint)} (${detail})` : `${lead} (${detail})`;
   }
 

@@ -452,6 +452,12 @@ sources:
     label: "Romain Guy et Mathias Agopian, Physically Based Rendering in Filament, section « Physically based camera » : EV100, constante K = 12,5, facteur d'exposition 1/(1,2 × 2^EV100) (dépôt google/filament, docs/Filament.md.html, commit e8669b6, lu le 8 novembre 2026)"
     url: "https://github.com/google/filament/blob/e8669b688a9381beb4f7470df828e1932d78efa6/docs/Filament.md.html"
     used_in: [docs/camera-physique.md]
+  - id: wikipedia-non-breaking-space
+    group: "Outils"
+    label: "Wikipedia, Non-breaking space, section « Spacing punctuation in French » : « In French typography, non-breaking spaces are used before \"high punctuation\" (:, ;, ?, and !) » et « on the interior side of guillemets » ; espace fine insécable (U+202F) « before ;, ?, and ! (but not :, before which a regular non-breaking space is used) » ; cite le Lexique des règles typographiques en usage à l'Imprimerie nationale, 3e éd., 1990, p. 25 et 148-149 (page modifiée le 16 octobre 2026 ; lue le 20 novembre 2026)"
+    url: "https://en.wikipedia.org/wiki/Non-breaking_space"
+    note: "Source secondaire : le Lexique de l'Imprimerie nationale n'est pas en ligne ; la page française de Wikipedia n'est pas joignable depuis l'environnement de Claude."
+    used_in: [app/src/texts.ts]
   - id: wikipedia-exposure-value
     group: "Physique, rendu et technique"
     label: "Wikipedia, Exposure value, table 2 « Exposure values (ISO 100) for various lighting conditions », tirée des guides ANSI PH2.7-1973 et PH2.7-1986 (révision 1352562239, source secondaire, lue le 8 novembre 2026)"
@@ -742,6 +748,16 @@ sources:
     label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Quadrillage : termes « Grille règle des tiers », « Grille carrée », « Diag. + Grille carrée », « OFF » ; « Positionnez les principaux sujets à proximité de l'une des lignes du quadrillage qui divise l'image en trois pour une composition bien équilibrée » (apostrophes typographiques dans la page ; lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001663039.html"
     used_in: [content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+  - id: sony-a7iii-live-view-display-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Affichage Live View : options « Définit. d'effet activé » et « Définit. d'effet désac. » ; « Permet de régler l'affichage ou non des images modifiées avec des effets de correction de l'exposition, de la balance des blancs, [Modes créatifs] ou [Effet de photo] sur l'écran. » (apostrophes typographiques dans la page ; lu le 20 novembre 2026)"
+    url: "https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001629952.html"
+    used_in: [app/src/texts.ts]
+  - id: nikon-z6-apply-settings-live-view-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, « d8 : Appliquer réglages à visée écran » : « sélectionnez Désactivé pour régler la luminosité et la teinte afin de faciliter le visionnage » (lu le 20 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_d08.html"
+    used_in: [app/src/texts.ts]
   - id: sony-a6000-grid-line
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-6000 (A6000), Grid Line (Copyright 2014 Sony Corporation) : mêmes types et mêmes textes que l'A7 III ; « Off (default setting): Does not display the grid line. » (lu le 12 novembre 2026). La page française à la même adresse répond 404."

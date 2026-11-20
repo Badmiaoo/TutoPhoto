@@ -70,7 +70,7 @@ export class FicheDialog {
     } catch {
       const p = document.createElement("p");
       p.id = "fiche-title";
-      p.textContent = `${id} : ${t("ficheUnavailable")}`;
+      p.textContent = `${id}\u00a0: ${t("ficheUnavailable")}`;
       nodes = [p];
     }
     // La fiche a pu changer pendant le chargement (deux clics rapides) : on n'affiche que la dernière.

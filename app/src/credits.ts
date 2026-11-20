@@ -2,7 +2,7 @@
 // Les licences CC BY exigent d'attribuer l'œuvre ; on attribue aussi les éléments CC0, par courtoisie.
 // La fenêtre donne aussi la version du site, au-dessus de la liste des crédits (version 0.3.59).
 
-import { t } from "./texts";
+import { frenchSpaces, t } from "./texts";
 import { siteVersion } from "./version";
 
 interface SceneAsset {
@@ -50,7 +50,7 @@ export function renderCredits(list: HTMLElement, manifest: SceneManifest): void 
     const item = document.createElement("li");
     const role = document.createElement("span");
     role.className = "role";
-    role.textContent = asset.role;
+    role.textContent = frenchSpaces(asset.role); // textes du manifeste : mêmes espaces que l'interface (Sujet 13)
     item.append(
       role,
       document.createElement("br"),
@@ -59,7 +59,7 @@ export function renderCredits(list: HTMLElement, manifest: SceneManifest): void 
       link(asset.license_url, LICENSE_NAMES[asset.license]),
     );
     if (asset.changes) {
-      item.append(document.createElement("br"), `${t("changes")} ${asset.changes}`);
+      item.append(document.createElement("br"), `${t("changes")} ${frenchSpaces(asset.changes)}`);
     }
     list.append(item);
   }
