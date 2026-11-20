@@ -181,6 +181,40 @@ void main(void) {
   gl_FragColor = vec4(pow(color, vec3(1.0 / 2.2)), 1.0);
 }`;
 
+/** Attente la plus longue de la scène prête pendant le calcul d'une photo, en millisecondes : celle de whenCompiled. */
+const SCENE_READY_TIMEOUT_MS = 20000;
+
+/** Scène pas prête après SCENE_READY_TIMEOUT_MS : l'écran de revue le dit en clair (relecture du Sujet 10). */
+export class SceneNotReadyError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "SceneNotReadyError";
+  }
+}
+
+/**
+ * Attend que Babylon.js déclare la scène prête, au plus SCENE_READY_TIMEOUT_MS (version 0.3.70, constat COD-06 de
+ * l'audit). scene.whenReadyAsync() n'a pas de délai : quand un fichier de la scène manquait, la photo attendait sans
+ * fin, boucle de rendu arrêtée et réglages grisés, et la page restait figée. Au-delà du délai, l'erreur remonte et
+ * l'écran de revue dit que la photo n'a pas pu être calculée.
+ *
+ * Au-delà du délai, Babylon.js continue de vérifier toutes les 100 ms si la scène est prête, et chaque photo refusée
+ * ajoute une attente à scene.onReadyObservable ; il arrête et oublie toutes les attentes au bout de
+ * scene.onReadyTimeoutDuration, compté depuis la première vérification, 2 minutes par défaut (Babylon.js 9.35,
+ * Scene._checkIsReady). Ce délai n'est pas raccourci : une photo qui rejoindrait une vérification commencée depuis
+ * longtemps verrait son attente oubliée avant ses 20 s, même si la scène devenait prête (relecture du Sujet 10).
+ */
+export function whenSceneReady(scene: Scene): Promise<void> {
+  let timer = 0;
+  const late = new Promise<never>((_, reject) => {
+    timer = window.setTimeout(
+      () => reject(new SceneNotReadyError(`scène pas prête après ${SCENE_READY_TIMEOUT_MS / 1000} s`)),
+      SCENE_READY_TIMEOUT_MS,
+    );
+  });
+  return Promise.race([scene.whenReadyAsync(), late]).finally(() => window.clearTimeout(timer));
+}
+
 /**
  * Attend la compilation d'un shader. Sans cela, EffectRenderer saute les rendus tant que le shader n'est
  * pas prêt ; s'il ne compile pas, l'erreur de compilation remonte au lieu d'une photo noire.
@@ -313,7 +347,7 @@ export async function takePhoto(
     // nombre de rendus et le lissage. On attend que ses shaders soient compilés : sinon Babylon saute
     // les objets au premier rendu et la carte reste vide.
     const depthRenderer = scene.enableDepthRenderer(camera, false, true, undefined, true);
-    await scene.whenReadyAsync();
+    await whenSceneReady(scene);
     // Rendu sans mise à jour de la caméra (false) : les gestes reçus pendant le calcul ne la font pas tourner
     // d'un rendu à l'autre ; l'orientation reste celle posée plus haut.
     scene.render(false);
@@ -372,7 +406,7 @@ export async function takePhoto(
     // désactivé (applyImageProcessing, pbrBlockImageProcessing) ; avec applyByPostProcess, ils rendent la
     // lumière linéaire, plafonnée à 30. Les matériaux recompilent leurs shaders : on attend qu'ils soient prêts.
     imageProcessing.applyByPostProcess = true;
-    await scene.whenReadyAsync();
+    await whenSceneReady(scene);
     camera.outputRenderTarget = color;
     let done = 0;
     for (let i = 0; i < planned; i++) {

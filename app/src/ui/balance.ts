@@ -69,6 +69,16 @@ export class BalanceIndicator {
   private busy = false;
   /** Dernier état de la vitesse, pour le triangle entre les deux temps du rafraîchissement. */
   private lastMotion: Status = "neutral";
+  /**
+   * Contexte WebGL perdu (relecture du Sujet 10, version 0.3.70) : l'image lue est alors noire, et l'indicateur
+   * écrivait « bruit insuffisant (signal/bruit 0:1) ». Pendant la perte, le bruit n'est pas mesuré. Le contexte est
+   * aussi interrogé : l'événement de la perte arrive après elle, et une lecture faite entre les deux rend des zéros.
+   */
+  private contextLost = false;
+
+  private lost(): boolean {
+    return this.contextLost || this.engine._gl.isContextLost();
+  }
 
   constructor(
     private readonly engine: Engine,
@@ -81,6 +91,8 @@ export class BalanceIndicator {
     private readonly el: BalanceElements,
   ) {
     setInterval(() => void this.refresh(), REFRESH_MS);
+    engine.onContextLostObservable.add(() => (this.contextLost = true));
+    engine.onContextRestoredObservable.add(() => (this.contextLost = false));
     // Petit écran : le triangle seul au départ ; un toucher affiche ou masque les lignes.
     let collapsed = window.matchMedia("(max-width: 700px)").matches;
     const apply = () => {
@@ -250,7 +262,7 @@ export class BalanceIndicator {
    * du viseur (encodée en puissance 1/2,2, voir camera/noise.ts). « computing » si l'image attendue est rendue
    * pendant le calcul d'une photo : elle n'est pas lue, ce n'est pas une image du viseur (carte de profondeur
    * rendue sur le canevas, ou rendu de la pose dans une texture de la photo). Null si aucune image n'est rendue
-   * en une seconde ou si la lecture échoue.
+   * en une seconde, si la lecture échoue ou si le contexte WebGL est perdu.
    */
   private greenAt(point: { x: number; y: number }): Promise<number | null | "computing"> {
     return new Promise((resolve) => {
@@ -264,6 +276,10 @@ export class BalanceIndicator {
           resolve("computing");
           return;
         }
+        if (this.lost()) {
+          resolve(null);
+          return;
+        }
         const width = this.engine.getRenderWidth();
         const height = this.engine.getRenderHeight();
         const half = Math.floor(SAMPLE_SIDE / 2);
@@ -272,6 +288,11 @@ export class BalanceIndicator {
         this.engine
           .readPixels(x, y, SAMPLE_SIDE, SAMPLE_SIDE, true, false)
           .then((data) => {
+            // Perte survenue pendant la lecture : l'image lue n'est pas celle du viseur.
+            if (this.lost()) {
+              resolve(null);
+              return;
+            }
             const bytes = data as Uint8Array;
             let sum = 0;
             for (let i = 1; i < bytes.length; i += 4) sum += (bytes[i] / 255) ** 2.2;

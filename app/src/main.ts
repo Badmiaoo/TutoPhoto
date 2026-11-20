@@ -1,7 +1,8 @@
 import "./style.css";
 import { Engine } from "@babylonjs/core/Engines/engine";
-import { createScene } from "./scene";
-import { loadManifest, renderCredits, renderVersion } from "./credits";
+import { createScene, SceneFileError } from "./scene";
+import { whenSceneReady } from "./camera/photo";
+import { loadManifest, renderCredits, renderCreditsUnavailable, renderVersion } from "./credits";
 import { CameraPanel } from "./ui/cameraPanel";
 import { Shutter } from "./ui/shutter";
 import { DOME_RADIUS, EYE_HEIGHT } from "./scene";
@@ -36,17 +37,32 @@ const MAX_DEVICE_RATIO = 2;
 
 // Progression du chargement (version 0.3.51). La scène pèse 34 Mio, et un message seul ne permettait pas de
 // distinguer un réseau lent, un fichier bloqué ou une scène reçue mais pas prête (chargement sans fin signalé par
-// Julien le 11 novembre 2026). Un fichier compte comme reçu quand le navigateur en a fini le chargement, d'après
-// la Resource Timing API (performance.getEntriesByType("resource")) ; sa taille est celle du manifeste.
+// Julien le 11 novembre 2026). Un fichier compte comme reçu quand le navigateur l'a reçu, d'après la Resource Timing
+// API (performance.getEntriesByType("resource"), voir isReceived()) ; sa taille est celle du manifeste.
 let sceneFiles: { path: string; bytes: number }[] = [];
 const MISSING_AFTER_S = 60;
 const MIB = 2 ** 20;
+
+/**
+ * Entrée de la Resource Timing API d'un fichier reçu (version 0.3.70, constat COD-06 de l'audit). Un chargement en
+ * échec a aussi son entrée : avant, il comptait comme reçu. Dans Chromium, ses champs responseStatus, transferSize et
+ * decodedBodySize valent 0 (contre 200 et la taille du fichier pour un fichier reçu, relevé de la contre-vérification
+ * de COD-06). Un navigateur qui ne donne pas l'état de la réponse est jugé sur les tailles ; un navigateur qui ne donne
+ * aucun de ces champs garde la règle d'avant (toute entrée compte), sans quoi la progression resterait à zéro.
+ */
+function isReceived(entry: PerformanceResourceTiming): boolean {
+  const status = (entry as { responseStatus?: unknown }).responseStatus;
+  if (typeof status === "number" && status > 0) return status >= 200 && status < 300;
+  const sizes = [entry.transferSize, entry.decodedBodySize].filter((size): size is number => typeof size === "number");
+  if (typeof status !== "number" && sizes.length === 0) return true;
+  return sizes.some((size) => size > 0);
+}
 
 function loadingProgress(): string {
   const seconds = Math.round(performance.now() / 1000);
   if (sceneFiles.length === 0) return ` · ${seconds} s`;
   const loaded = new Set(
-    (performance.getEntriesByType("resource") as PerformanceResourceTiming[]).map((e) => {
+    (performance.getEntriesByType("resource") as PerformanceResourceTiming[]).filter(isReceived).map((e) => {
       try {
         return decodeURIComponent(new URL(e.name).pathname);
       } catch {
@@ -77,9 +93,18 @@ manifest
 // Mise à jour de la progression chaque seconde, tant que la scène se charge.
 const loadingTimer = window.setInterval(() => {
   if (statusKey !== "loading") window.clearInterval(loadingTimer);
-  else status.textContent = t("loading") + loadingProgress();
+  else renderStatus();
 }, 1000);
 let statusKey: "loading" | "loadError" | null = "loading";
+/** Fichier nommé par l'échec du chargement, s'il est connu (version 0.3.70). */
+let failedFile: string | null = null;
+/** Contexte WebGL perdu, en attente de sa restauration (version 0.3.70, constat COD-12 de l'audit). */
+let contextLost = false;
+/**
+ * Chargement en échec, et scène toujours pas prête 20 s après l'arrivée ou l'échec du dernier fichier : une photo est
+ * alors refusée tout de suite, au lieu d'attendre 20 s pour échouer (relecture du Sujet 10, version 0.3.70).
+ */
+let sceneStuck = false;
 let cameraPanel: CameraPanel | null = null;
 let shutter: Shutter | null = null;
 let balance: BalanceIndicator | null = null;
@@ -110,13 +135,49 @@ function renderProblems(): void {
 
 /**
  * Message d'un échec, suivi de la version du site : « La scène n'a pas pu être chargée. Version du site : X.Y.Z. »
- * (version 0.3.59, demande de Julien du 15 novembre 2026). Pour un chargement en échec et pour un navigateur sans
- * WebGL. Une capture d'écran d'un chargement en échec se rattache ainsi à une version ; le message d'un navigateur
- * sans WebGL, lui, n'est pas visible à l'écran tant que le constat COD-11 de l'audit n'est pas corrigé (Sujet 10 du
- * plan). Le message d'un chargement en cours ne la porte pas.
+ * (version 0.3.59, demande de Julien du 15 novembre 2026). Pour un chargement en échec, pour un navigateur sans WebGL
+ * (message visible à l'écran depuis la version 0.3.70) et, depuis cette version, pour un affichage interrompu par la
+ * perte du contexte WebGL. Une capture d'écran se rattache ainsi à une version. Le message d'un chargement en cours ne
+ * la porte pas.
  */
 function withVersion(message: string): string {
   return `${message} ${siteVersion()}.`;
+}
+
+/** Bouton « Recharger » des messages d'échec (version 0.3.70, constat COD-06 de l'audit). */
+const reloadButton = document.createElement("button");
+reloadButton.type = "button";
+reloadButton.addEventListener("click", () => window.location.reload());
+
+/**
+ * Message de la scène : chargement en cours, chargement en échec (avec le fichier en cause et « Recharger »), ou
+ * affichage interrompu par la perte du contexte WebGL (avec « Recharger »), qui passe avant les deux autres.
+ */
+let renderedStatus: string | null = null;
+function renderStatus(): void {
+  if (reloadButton.textContent !== t("reload")) reloadButton.textContent = t("reload");
+  let message: string;
+  let reload = true;
+  if (contextLost) {
+    message = withVersion(t("contextLost"));
+  } else if (statusKey === "loadError") {
+    message = withVersion(failedFile ? t("loadErrorFile").replace("{file}", failedFile) : t("loadError"));
+  } else {
+    message = statusKey === "loading" ? t("loading") + loadingProgress() : "";
+    reload = false;
+  }
+  // Réécrit seulement quand le texte change (relecture du Sujet 10) : pendant une perte du contexte en cours de
+  // chargement, la mise à jour de chaque seconde retirait et remettait « Recharger », qui perdait le focus.
+  const key = `${reload ? "R" : "-"}${message}`;
+  if (key !== renderedStatus) {
+    renderedStatus = key;
+    if (reload) {
+      const text = document.createElement("span");
+      text.textContent = message;
+      status.replaceChildren(text, " ", reloadButton);
+    } else status.textContent = message;
+  }
+  status.hidden = statusKey === null && !contextLost;
 }
 
 window.addEventListener("error", (event) => report("problemError", event.message || String(event.error)));
@@ -133,10 +194,9 @@ function applyTexts(): void {
   element("credits-close").textContent = t("close");
   element("no-webgl").textContent = withVersion(t("noWebgl"));
   canvas.setAttribute("aria-label", t("sceneLabel"));
-  status.textContent =
-    statusKey === "loading" ? t("loading") + loadingProgress() : statusKey === "loadError" ? withVersion(t("loadError")) : "";
-  status.hidden = statusKey === null;
-  manifest.then((m) => renderCredits(creditsList, m)).catch(() => undefined);
+  renderStatus();
+  // Manifeste non reçu : la fenêtre le dit, au lieu d'une liste vide (version 0.3.70, constat COD-06 de l'audit).
+  manifest.then((m) => renderCredits(creditsList, m)).catch(() => renderCreditsUnavailable(creditsList));
   cameraPanel?.applyTexts();
   shutter?.applyTexts();
   balance?.applyTexts();
@@ -166,6 +226,10 @@ ficheDialog = new FicheDialog(
 applyTexts();
 
 if (!Engine.isSupported()) {
+  // Sans WebGL, seul le message reste dans main (version 0.3.70, constat COD-11 de l'audit) : la classe masque le
+  // canevas, le voile du cadre, l'indicateur d'équilibre, la vue de dessus et les repères, qui le cachaient, et le
+  // bouton « Défis », que seule la branche avec WebGL remplit (style.css).
+  document.body.classList.add("no-webgl");
   canvas.hidden = true;
   element("camera-panel").hidden = true;
   statusKey = null;
@@ -181,7 +245,7 @@ if (!Engine.isSupported()) {
   // l'échelle 1 / min(plafond, densité)) ; si la densité change ensuite (zoom du navigateur), il multiplie ce niveau
   // par le rapport des densités, sans réappliquer le plafond.
   const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, limitDeviceRatio: MAX_DEVICE_RATIO }, true);
-  const { scene, camera, ready, time, subjects, eye } = createScene(engine, canvas);
+  const { scene, camera, ready, filesSettled, time, subjects, eye } = createScene(engine, canvas);
   // Serveur de développement seulement (absent du site construit) : accès pour les mesures sur la scène.
   if (import.meta.env.DEV) {
     void import("@babylonjs/core/Culling/ray");
@@ -284,6 +348,7 @@ if (!Engine.isSupported()) {
         note: element("review-info-note"),
       },
     ),
+    () => ({ failed: statusKey === "loadError", stuck: sceneStuck }),
   );
   balance = new BalanceIndicator(
     engine,
@@ -331,8 +396,26 @@ if (!Engine.isSupported()) {
     .catch((error: unknown) => {
       console.error(error);
       statusKey = "loadError";
+      // Chemin relatif au dossier de la scène (relecture du Sujet 10) : cinq modèles ont un scene.bin, et le nom seul
+      // ne disait pas lequel manquait.
+      if (error instanceof SceneFileError) failedFile = error.file;
+      void filesSettled
+        .then(() => whenSceneReady(scene))
+        .catch(() => {
+          sceneStuck = true;
+        });
     })
     .finally(applyTexts);
+  // Perte du contexte WebGL (constat COD-12 de l'audit, version 0.3.70) : Babylon.js reprend seul le rendu à la
+  // restauration, si le navigateur la fait ; entre les deux, le viseur restait figé sans rien dire.
+  engine.onContextLostObservable.add(() => {
+    contextLost = true;
+    renderStatus();
+  });
+  engine.onContextRestoredObservable.add(() => {
+    contextLost = false;
+    renderStatus();
+  });
   engine.runRenderLoop(render);
   // La taille du canevas change aussi sans que la fenêtre change : quand le panneau du boîtier passe sur
   // plusieurs lignes, par exemple après l'affichage des textes. Sans redimensionnement du moteur, le rendu
