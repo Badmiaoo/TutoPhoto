@@ -14,12 +14,31 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 ## [0.3.70] - 2026-11-20
 
-Sujet 10 du plan de corrections de l'audit (`docs/audit/README.md`) : les échecs du chargement et du rendu dits à l'écran (fichier d'éclairage perdu, WebGL absent, contexte perdu). Constats COD-06, COD-11, COD-12 ; COD-13 pour un commentaire de `app/src/scene.ts`. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. En cours.
+Sujet 10 du plan de corrections de l'audit (`docs/audit/README.md`) : les échecs du chargement et du rendu dits à l'écran (fichier d'éclairage perdu, WebGL absent, contexte perdu). Constats COD-06, COD-11, COD-12 ; COD-13 pour un commentaire de `app/src/scene.ts`. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc c'est Z qui augmente. Choix de Claude : `docs/propositions.md`, section 5, « Échecs dits à l'écran ».
+
+### Ajouté
+
+- Bouton « Recharger » dans le message d'un chargement en échec et dans celui d'un affichage interrompu (`app/src/main.ts`, `reload` dans `app/src/texts.ts`).
+- Message à la perte du contexte WebGL (COD-12) : « Affichage 3D interrompu par le navigateur. Il peut reprendre seul ; sinon, recharge la page. », suivi de la version du site ; il disparaît à la restauration (`engine.onContextLostObservable`, `onContextRestoredObservable`, `app/src/main.ts`).
+- Fenêtre « Crédits », manifeste non reçu (COD-06) : une ligne dit que les crédits sont indisponibles et pourquoi, au lieu d'une liste vide (`renderCreditsUnavailable`, `app/src/credits.ts`).
+- Routine (`scripts/test_app.cjs`, `checkNoWebgl`) : dans chaque profil, contexte à part où `getContext` rend `null` pour `webgl` et `webgl2` ; le message du simulateur est lisible (texte et version, dans la fenêtre, rendu par `elementFromPoint` en son centre, aucun autre élément de `main` affiché) et le canevas masqué.
+- `docs/tests-a-faire-faire.md` : test T12, la perte du contexte graphique sur un téléphone.
+- `docs/propositions.md`, section 5 : « Échecs dits à l'écran », dix choix.
 
 ### Modifié
 
+- Message d'un chargement en échec (COD-06) : il nomme le fichier en cause (« Fichier en cause : autumn_hockey_1k.hdr. »), celui que cite le chargeur glTF pour un .bin ou une texture d'un modèle (`SceneFileError`, `app/src/scene.ts`) ; la ligne du message passe au-dessus de l'indicateur d'équilibre et de la vue de dessus (`z-index: 3`, `app/src/style.css`).
+- Progression du chargement (COD-06) : un fichier ne compte comme reçu que si son entrée de la Resource Timing API a un état de 200 à 299 ou, sans état, une taille reçue non nulle ; un navigateur qui ne donne aucun de ces champs garde la règle d'avant (`isReceived`, `app/src/main.ts`).
 - `docs/etat-des-travaux.md` : fin de la version 0.3.69 relue (tag, release, publication), lignée des sessions (profondeur 1 sur 8), Sujet 10 en cours.
 - `docs/propositions.md`, section 5 : « Lignée des sessions », les trois choix de la session de départ de la chaîne.
+
+### Corrigé
+
+- Fichier d'éclairage non reçu (COD-06) : il entre dans `ready` (rappels `onLoad` et `onError` de `HDRCubeTexture`, `app/src/scene.ts`) ; le message « La scène n'a pas pu être chargée. » s'affiche au lieu d'une scène sans ses objets.
+- Photo qui figeait la page (COD-06) : les deux attentes de la scène prête de `takePhoto` sont bornées à 20 s (`whenSceneReady`, `app/src/camera/photo.ts`) ; au-delà, l'écran de revue dit que la photo n'a pas pu être calculée, et les réglages reviennent. Le déclencheur n'est pas grisé.
+- Navigateur sans WebGL (COD-11) : `#scene[hidden] { display: none; }`, et une classe `no-webgl` sur `body` masque le voile du cadre, l'indicateur d'équilibre, la vue de dessus, les repères et le bouton « Défis » (`app/src/style.css`, `app/src/main.ts`) ; le message est lisible.
+- Éclairage après une perte du contexte WebGL (COD-12) : la texture d'éclairage est libérée puis recréée à chaque restauration (`app/src/scene.ts`) ; les objets éclairés ne restent plus de 5 à 10 % plus sombres dans Chromium en rendu logiciel.
+- COD-13, point 6 : le commentaire de `ready` (`app/src/scene.ts`), faux et en double, dit ce que la promesse attend et donne.
 
 ## [0.3.69] - 2026-11-19
 

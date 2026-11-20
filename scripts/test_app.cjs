@@ -25,6 +25,11 @@
 // - une fiche (NET-01) s'affiche sans défilement horizontal, avec le bandeau de relecture tant qu'elle n'est pas
 //   listée dans data/relecture.yaml, et son bouton mène au simulateur ;
 // - le simulateur (simulateur/) a un lien vers l'accueil ;
+// - sans WebGL (getContext rend null pour webgl et webgl2, dans un contexte à part) : le message du simulateur est
+//   lisible, c'est-à-dire affiché dans la fenêtre, avec son texte et la version du site, rendu par
+//   document.elementFromPoint en son centre, et aucun autre élément de main n'est affiché (le voile du cadre, qui ne
+//   prend pas les touchers, le couvrait sans que elementFromPoint le voie) ; le canevas est masqué (constat COD-11 de
+//   l'audit, version 0.3.70) ;
 // - la fiche SIT-05 a un bouton « Jouer le défi » (simulateur/?defi=SIT-05), et le simulateur ouvert à l'adresse
 //   simulateur?defi=SIT-06, sans la barre finale, ajoute la barre, montre la progression du chargement et a le
 //   défi SIT-06 choisi ; tout fichier compté par la progression est chargé par la scène (version 0.3.55) ;
@@ -368,6 +373,57 @@ async function checkPages(page, base, name, check) {
   if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-activite-LUM-02.png`), fullPage: true });
 }
 
+/**
+ * Simulateur sans WebGL (constat COD-11 de l'audit, version 0.3.70), dans un contexte à part, aux dimensions du
+ * profil : le message doit être lisible, pas seulement présent.
+ */
+async function checkNoWebgl(browser, contextOptions, base, check) {
+  const context = await browser.newContext(contextOptions);
+  try {
+    await context.addInitScript(() => {
+      const original = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (type, attributes) {
+        if (type === "webgl" || type === "webgl2" || type === "experimental-webgl") return null;
+        return original.call(this, type, attributes);
+      };
+    });
+    const page = await context.newPage();
+    await page.goto(`${base}/simulateur/`);
+    await page.waitForFunction(() => !document.getElementById("no-webgl").hidden, null, { timeout: 30000 });
+    const r = await page.evaluate(() => {
+      const message = document.getElementById("no-webgl");
+      const canvas = document.getElementById("scene");
+      const box = message.getBoundingClientRect();
+      const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      const shown = [...document.querySelector("main").children]
+        .filter((e) => e !== message && getComputedStyle(e).display !== "none")
+        .map((e) => e.id || e.className);
+      return {
+        text: message.textContent,
+        top: Math.round(box.top),
+        bottom: Math.round(box.bottom),
+        height: innerHeight,
+        hit: hit !== null && message.contains(hit),
+        shown,
+        canvas: getComputedStyle(canvas).display,
+      };
+    });
+    check(
+      "sans WebGL : message lisible, rectangle de la scène masqué",
+      /WebGL indisponible/.test(r.text) &&
+        /Version du site : \d+\.\d+\.\d+\.$/.test(r.text) &&
+        r.top >= 0 &&
+        r.bottom <= r.height &&
+        r.hit &&
+        r.shown.length === 0 &&
+        r.canvas === "none",
+      `« ${r.text} » ; de ${r.top} à ${r.bottom} px sur ${r.height} ; rendu en son centre : ${r.hit ? "oui" : "non"} ; autres éléments affichés : ${r.shown.join(", ") || "aucun"} ; canevas : ${r.canvas}`,
+    );
+  } finally {
+    await context.close();
+  }
+}
+
 async function runProfile(browser, name, base) {
   const profile = PROFILES[name];
   if (!profile) throw new Error(`Profil inconnu : ${name}`);
@@ -407,6 +463,7 @@ async function runProfile(browser, name, base) {
   const started = Date.now();
   try {
     await checkPages(page, base, name, check);
+    await checkNoWebgl(browser, contextOptions, base, check);
     // Le simulateur est ouvert avec « ?lang=en », paramètre retiré en version 0.3.60 : il doit s'ouvrir en français,
     // sans bouton de langue. Toute la suite de la routine lit des textes français sur cette page.
     await page.goto(`${base}/simulateur/?lang=en`);
