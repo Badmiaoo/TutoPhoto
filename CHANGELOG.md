@@ -37,7 +37,7 @@ Sujet 10 du plan de corrections de l'audit (`docs/audit/README.md`) : les échec
 
 ### Corrigé
 
-- Fichier d'éclairage non reçu (COD-06) : il entre dans `ready` (rappels `onLoad` et `onError` de `HDRCubeTexture`, `app/src/scene.ts`) ; le message « La scène n'a pas pu être chargée. » s'affiche au lieu d'une scène sans ses objets.
+- Fichier d'éclairage non reçu (COD-06) : il entre dans `ready` (rappels `onLoad` et `onError` de `HDRCubeTexture`, `app/src/scene.ts`) ; le message d'un chargement en échec, qui nomme le fichier (voir « Modifié »), s'affiche au lieu d'une scène sans ses objets.
 - Photo qui figeait la page (COD-06) : les deux attentes de la scène prête de `takePhoto` sont bornées à 20 s (`whenSceneReady`, `app/src/camera/photo.ts`) ; au-delà, l'écran de revue dit que la photo n'a pas pu être calculée, et pourquoi, et les réglages reviennent. Le déclencheur n'est pas grisé.
 - Navigateur sans WebGL (COD-11) : `#scene[hidden] { display: none; }`, et une classe `no-webgl` sur `body` masque le voile du cadre, l'indicateur d'équilibre, la vue de dessus, les repères et le bouton « Défis » (`app/src/style.css`, `app/src/main.ts`) ; le message est lisible.
 - Éclairage après une perte du contexte WebGL (COD-12) : la texture d'éclairage est libérée puis recréée à chaque restauration, si elle était arrivée (`app/src/scene.ts`) ; les objets éclairés ne restent plus de 5 à 10 % plus sombres dans Chromium en rendu logiciel.
