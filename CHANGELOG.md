@@ -41,6 +41,8 @@ Essais de la correction (mêmes conditions, construction de la branche après C3
 
 Contrôle final, par un agent qui n'a rien écrit de la version, au commit 6e1d701 : fusionnable. Lu : le diff entier, `app/src/ui/challenges.ts` en entier, le bloc des contrôles de la routine, la section du Sujet 12 et COD-03 ; part `?lang=` vérifiée par `git grep`. Essais rejoués (Chromium en rendu logiciel, 1280 × 800) : le chemin de COD-03, l'ancre et `?lang=en`, le défi inconnu, le retour arrière et le cas sans stockage, au caractère près ; les deux contrôles de la routine, scène chargée, échouent avant et passent après. `node --check` et `npx tsc --noEmit` passent. Corrigé d'après lui : trois phrases des documents (renvoi au contrôle final, T14, « seule `challenges.ts` lit un paramètre de l'adresse »). Remarque sans effet : la réécriture par `URLSearchParams` peut changer l'encodage des autres paramètres (`?x` devient `?x=`), que rien ne lit.
 
+Routine de la CI au commit 6a90f66 (exécution 44686186444) : profil iPhone en échec sur le seul contrôle « détection des animaux : le chien à découvert n'est pas lâché (FMA-23) » (deux pertes à découvert, de 0,3 et 0,4 s, pour une tolérée), échec déjà relevé deux fois et noté dans « Défauts connus, hors du plan » de `docs/etat-des-travaux.md` ; ce diff ne touche ni l'autofocus ni la scène, et les deux contrôles ajoutés y réussissent. La routine est relancée par le commit suivant, de documents seulement ; le contrôle n'est pas relâché.
+
 Agents de la version, d'après leurs notifications de fin : relecteur 123 242 jetons, contrôle final 153 982.
 
 ## [0.3.71] - 2026-11-20
