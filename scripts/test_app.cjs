@@ -291,7 +291,8 @@ function checkLinks(root) {
       const where = `${path.relative(root, file)} → ${target}`;
       if (!fs.existsSync(dest)) broken.push(where);
       else if (anchor) {
-        const count = fs.readFileSync(dest, "utf8").split(`id="${anchor}"`).length - 1;
+        const escaped = anchor.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const count = (fs.readFileSync(dest, "utf8").match(new RegExp(`\\sid="${escaped}"`, "g")) ?? []).length;
         if (count !== 1) broken.push(`${where} (ancre ${count === 0 ? "absente" : `portée par ${count} éléments`})`);
       }
     }
@@ -1228,7 +1229,7 @@ async function runProfile(browser, name, base) {
       });
       check(
         "revue : photo en échec après une bonne photo, sans l'image ni « Enregistrer » d'avant (B10)",
-        failedShown && /échec injecté par la routine/.test(failedView.caption) && failedView.left.length === 0,
+        failedShown && /échec injecté par la routine/.test(failedView.caption) && /ne reconnaît pas la cause\u202f; réessaie/.test(failedView.caption) && failedView.left.length === 0,
         `« ${failedView.caption.slice(0, 90)} » ; encore affichés : ${failedView.left.join(", ") || "rien"}`,
       );
       await page.click("#review-back");

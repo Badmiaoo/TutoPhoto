@@ -71,7 +71,7 @@ const messages = {
   photoNotReadyFile:
     "La scène n'est pas prête, et un de ses fichiers n'a pas été reçu (message en haut du viseur) ; recharge la page.",
   photoNotReady: "La scène n'est pas encore prête ; réessaie dans un moment, ou recharge la page.",
-  photoUnknown: "La cause n'est pas connue ; réessaie, et si l'échec revient, recharge la page.",
+  photoUnknown: "TutoPhoto ne reconnaît pas la cause ; réessaie, et si l'échec revient, recharge la page.",
   previewButton: "Aperçu",
   previewTitle: "Aperçu dans le viseur",
   previewAll: "Aperçu des réglages",

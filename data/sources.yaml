@@ -750,7 +750,7 @@ sources:
     used_in: [content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-live-view-display-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Affichage Live View : options « Définit. d'effet activé » et « Définit. d'effet désac. » ; « Permet de régler l'affichage ou non des images modifiées avec des effets de correction de l'exposition, de la balance des blancs, [Modes créatifs] ou [Effet de photo] sur l'écran. » (lu le 20 novembre 2026)"
+    label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Affichage Live View : options « Définit. d'effet activé » et « Définit. d'effet désac. » ; « Permet de régler l'affichage ou non des images modifiées avec des effets de correction de l'exposition, de la balance des blancs, [Modes créatifs] ou [Effet de photo] sur l'écran. » (apostrophes typographiques dans la page ; lu le 20 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001629952.html"
     used_in: [app/src/texts.ts]
   - id: nikon-z6-apply-settings-live-view-fr
