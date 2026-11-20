@@ -99,6 +99,11 @@ export interface ParkScene {
    * scène est prête. Rejetée par une SceneFileError, qui nomme le fichier, si l'un d'eux n'arrive pas.
    */
   ready: Promise<string[]>;
+  /**
+   * Résolue quand le chargement de chacun de ces fichiers est fini, qu'il ait réussi ou non (relecture du Sujet 10,
+   * version 0.3.70) : ready est rejetée dès le premier échec, alors que d'autres fichiers arrivent encore.
+   */
+  filesSettled: Promise<void>;
   /** Horloge, position de l'œil et sujets en mouvement, pour la photo calculée (camera/photo.ts). */
   time: SceneTimeControl;
   /** Visages et yeux des personnages et du chien, pour l'AF zone automatique (camera/faces.ts). */
@@ -247,16 +252,27 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
     new HDRCubeTexture(`${SCENE_URL}${ENVIRONMENT_FILE}`, scene, 256, false, true, false, true, onLoad, onError);
   // Attendu par ready depuis la version 0.3.70 (constat COD-06 de l'audit) : avant, un fichier d'éclairage perdu
   // laissait la scène sans ses objets, sans message, et la photo attendait sans fin que la scène soit prête.
+  let environmentArrived = false;
   const environmentLoaded = new Promise<void>((resolve, reject) => {
-    scene.environmentTexture = createEnvironment(resolve, () => reject(new SceneFileError(ENVIRONMENT_FILE, null)));
+    scene.environmentTexture = createEnvironment(
+      () => {
+        environmentArrived = true;
+        resolve();
+      },
+      () => reject(new SceneFileError(ENVIRONMENT_FILE, null)),
+    );
   });
   // Après une perte du contexte WebGL, Babylon.js reconstruit la texture d'éclairage, mais les objets éclairés
   // restaient de 5 à 10 % plus sombres (constat COD-12 de l'audit, Chromium en rendu logiciel ; cause inconnue).
   // Recréer la texture à la restauration rétablit l'éclairage dans ce navigateur (contre-vérification de COD-12 ;
-  // version 0.3.70). Le fichier est en général repris du cache du navigateur. L'ancienne texture est libérée avant :
-  // sinon Babylon.js reprend, pour la même adresse, la texture interne qu'il vient de reconstruire, et l'éclairage
-  // reste faux (essayé dans Chromium le 20 novembre 2026).
+  // version 0.3.70). Le fichier est redemandé au serveur ; il vient du cache du navigateur s'il y est encore.
+  // L'ancienne texture est libérée avant : sinon Babylon.js reprend, pour la même adresse, la texture interne qu'il
+  // vient de reconstruire, et l'éclairage reste faux (essayé dans Chromium le 20 novembre 2026). Elle n'est recréée
+  // que si elle était arrivée (relecture du Sujet 10) : libérée pendant son chargement, la première texture ne
+  // retirait jamais la donnée en attente qu'elle avait inscrite dans la scène (filtrage préalable de Babylon.js 9.35,
+  // EnvCubeTexture), et la scène n'était jamais prête. Rien n'est dit si le second chargement échoue.
   engine.onContextRestoredObservable.add(() => {
+    if (!environmentArrived) return;
     scene.environmentTexture?.dispose();
     scene.environmentTexture = createEnvironment();
   });
@@ -327,7 +343,7 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
     subjects.push({ id, kind: "human", eyes: get, eyeSpacing: spacing(get()) });
   };
 
-  const ready = Promise.all([
+  const files: Promise<unknown>[] = [
     load("painted_wooden_bench/painted_wooden_bench_1k.gltf", place("bench").x, place("bench").z, 0.35 - Math.PI),
     load("metal_trash_can/metal_trash_can_1k.gltf", place("bin").x, place("bin").z, -0.3),
     // Groupe (SIT-05) et portrait (SIT-01), face à l'appareil.
@@ -388,7 +404,9 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
       dome.onLoadErrorObservable.addOnce((message) => reject(new SceneFileError("autumn_hockey/autumn_hockey.jpg", message)));
     }),
     environmentLoaded,
-  ]).then(() => readyOrLate(scene));
+  ];
+  const ready = Promise.all(files).then(() => readyOrLate(scene));
+  const filesSettled = Promise.allSettled(files).then(() => undefined);
 
   const eyeControl: EyeControl = {
     get: () => ({ x: eye.x, z: eye.z }),
@@ -397,5 +415,5 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
       eye.z = z;
     },
   };
-  return { scene, camera, ready, time, subjects, eye: eyeControl };
+  return { scene, camera, ready, filesSettled, time, subjects, eye: eyeControl };
 }

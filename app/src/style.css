@@ -88,13 +88,19 @@ main {
 
 .status {
   position: absolute;
-  top: 1rem;
-  left: 50%;
+  top: 0.5rem;
+  /* Centré, de toute la largeur moins 0,5rem de chaque côté au plus, et jamais plus de 32rem (relecture du Sujet 10,
+     version 0.3.70) : avec left: 50% et une translation, sa largeur ne dépassait pas la moitié de main, et un message
+     d'échec faisait cinq à six lignes sur un téléphone. 32rem : à 1280 px de large, il ne passe plus sur
+     l'indicateur d'équilibre (23rem au plus, à 0,5rem du bord). */
+  left: 0.5rem;
+  right: 0.5rem;
+  width: fit-content;
+  max-width: 32rem;
   /* Au-dessus de l'indicateur d'équilibre et de la vue de dessus, qui couvraient le début du message d'échec et
      pouvaient prendre le toucher de « Recharger » (version 0.3.70) ; la ligne de diagnostic reste au-dessus. */
   z-index: 3;
-  transform: translateX(-50%);
-  margin: 0;
+  margin: 0 auto;
   padding: 0.4rem 0.8rem;
   border-radius: 4px;
   background: var(--fond);
@@ -102,9 +108,19 @@ main {
   font-size: 0.9rem;
 }
 
-/* « Recharger », dans le message d'un chargement en échec ou d'un affichage interrompu (version 0.3.70). */
+/* Petit écran : un message d'échec de quatre lignes cachait le point de mise au point du centre sur un iPhone 14
+   émulé (relecture du Sujet 10). */
+@media (max-width: 520px) {
+  .status {
+    font-size: 0.85rem;
+  }
+}
+
+/* « Recharger », dans le message d'un chargement en échec ou d'un affichage interrompu (version 0.3.70) ; hauteur des
+   boutons de l'écran de revue (relecture du Sujet 10). */
 .status button {
-  padding: 0.15rem 0.6rem;
+  min-height: 2rem;
+  padding: 0.25rem 0.8rem;
   border: 1px solid currentColor;
   border-radius: 4px;
   background: transparent;

@@ -1,6 +1,7 @@
 import "./style.css";
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { createScene, SceneFileError } from "./scene";
+import { whenSceneReady } from "./camera/photo";
 import { loadManifest, renderCredits, renderCreditsUnavailable, renderVersion } from "./credits";
 import { CameraPanel } from "./ui/cameraPanel";
 import { Shutter } from "./ui/shutter";
@@ -99,6 +100,11 @@ let statusKey: "loading" | "loadError" | null = "loading";
 let failedFile: string | null = null;
 /** Contexte WebGL perdu, en attente de sa restauration (version 0.3.70, constat COD-12 de l'audit). */
 let contextLost = false;
+/**
+ * Chargement en échec, et scène toujours pas prête 20 s après l'arrivée ou l'échec du dernier fichier : une photo est
+ * alors refusée tout de suite, au lieu d'attendre 20 s pour échouer (relecture du Sujet 10, version 0.3.70).
+ */
+let sceneStuck = false;
 let cameraPanel: CameraPanel | null = null;
 let shutter: Shutter | null = null;
 let balance: BalanceIndicator | null = null;
@@ -147,15 +153,29 @@ reloadButton.addEventListener("click", () => window.location.reload());
  * Message de la scène : chargement en cours, chargement en échec (avec le fichier en cause et « Recharger »), ou
  * affichage interrompu par la perte du contexte WebGL (avec « Recharger »), qui passe avant les deux autres.
  */
+let renderedStatus: string | null = null;
 function renderStatus(): void {
-  reloadButton.textContent = t("reload");
+  if (reloadButton.textContent !== t("reload")) reloadButton.textContent = t("reload");
+  let message: string;
+  let reload = true;
   if (contextLost) {
-    status.replaceChildren(withVersion(t("contextLost")), " ", reloadButton);
+    message = withVersion(t("contextLost"));
   } else if (statusKey === "loadError") {
-    const message = failedFile ? `${t("loadError")} ${t("loadErrorFile").replace("{file}", failedFile)}` : t("loadError");
-    status.replaceChildren(withVersion(message), " ", reloadButton);
+    message = withVersion(failedFile ? t("loadErrorFile").replace("{file}", failedFile) : t("loadError"));
   } else {
-    status.textContent = statusKey === "loading" ? t("loading") + loadingProgress() : "";
+    message = statusKey === "loading" ? t("loading") + loadingProgress() : "";
+    reload = false;
+  }
+  // Réécrit seulement quand le texte change (relecture du Sujet 10) : pendant une perte du contexte en cours de
+  // chargement, la mise à jour de chaque seconde retirait et remettait « Recharger », qui perdait le focus.
+  const key = `${reload ? "R" : "-"}${message}`;
+  if (key !== renderedStatus) {
+    renderedStatus = key;
+    if (reload) {
+      const text = document.createElement("span");
+      text.textContent = message;
+      status.replaceChildren(text, " ", reloadButton);
+    } else status.textContent = message;
   }
   status.hidden = statusKey === null && !contextLost;
 }
@@ -225,7 +245,7 @@ if (!Engine.isSupported()) {
   // l'échelle 1 / min(plafond, densité)) ; si la densité change ensuite (zoom du navigateur), il multiplie ce niveau
   // par le rapport des densités, sans réappliquer le plafond.
   const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, limitDeviceRatio: MAX_DEVICE_RATIO }, true);
-  const { scene, camera, ready, time, subjects, eye } = createScene(engine, canvas);
+  const { scene, camera, ready, filesSettled, time, subjects, eye } = createScene(engine, canvas);
   // Serveur de développement seulement (absent du site construit) : accès pour les mesures sur la scène.
   if (import.meta.env.DEV) {
     void import("@babylonjs/core/Culling/ray");
@@ -328,6 +348,7 @@ if (!Engine.isSupported()) {
         note: element("review-info-note"),
       },
     ),
+    () => ({ failed: statusKey === "loadError", stuck: sceneStuck }),
   );
   balance = new BalanceIndicator(
     engine,
@@ -375,7 +396,14 @@ if (!Engine.isSupported()) {
     .catch((error: unknown) => {
       console.error(error);
       statusKey = "loadError";
-      if (error instanceof SceneFileError) failedFile = error.file.split("/").pop() ?? error.file;
+      // Chemin relatif au dossier de la scène (relecture du Sujet 10) : cinq modèles ont un scene.bin, et le nom seul
+      // ne disait pas lequel manquait.
+      if (error instanceof SceneFileError) failedFile = error.file;
+      void filesSettled
+        .then(() => whenSceneReady(scene))
+        .catch(() => {
+          sceneStuck = true;
+        });
     })
     .finally(applyTexts);
   // Perte du contexte WebGL (constat COD-12 de l'audit, version 0.3.70) : Babylon.js reprend seul le rendu à la

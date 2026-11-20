@@ -29,7 +29,7 @@
 //   lisible, c'est-à-dire affiché dans la fenêtre, avec son texte et la version du site, rendu par
 //   document.elementFromPoint en son centre, et aucun autre élément de main n'est affiché (le voile du cadre, qui ne
 //   prend pas les touchers, le couvrait sans que elementFromPoint le voie) ; le canevas est masqué (constat COD-11 de
-//   l'audit, version 0.3.70) ;
+//   l'audit, version 0.3.70), le bouton « Défis » de l'en-tête aussi, et la page n'a aucune erreur ;
 // - la fiche SIT-05 a un bouton « Jouer le défi » (simulateur/?defi=SIT-05), et le simulateur ouvert à l'adresse
 //   simulateur?defi=SIT-06, sans la barre finale, ajoute la barre, montre la progression du chargement et a le
 //   défi SIT-06 choisi ; tout fichier compté par la progression est chargé par la scène (version 0.3.55) ;
@@ -388,6 +388,12 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
       };
     });
     const page = await context.newPage();
+    // Erreurs de ce contexte, relevées à part du contexte principal (relecture du Sujet 10).
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(`page : ${error.message}`));
+    page.on("console", (message) => {
+      if (message.type() === "error") errors.push(`console : ${message.text()}`);
+    });
     await page.goto(`${base}/simulateur/`);
     await page.waitForFunction(() => !document.getElementById("no-webgl").hidden, null, { timeout: 30000 });
     const r = await page.evaluate(() => {
@@ -406,6 +412,7 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
         hit: hit !== null && message.contains(hit),
         shown,
         canvas: getComputedStyle(canvas).display,
+        challenges: getComputedStyle(document.getElementById("challenge-button")).display,
       };
     });
     check(
@@ -416,8 +423,10 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
         r.bottom <= r.height &&
         r.hit &&
         r.shown.length === 0 &&
-        r.canvas === "none",
-      `« ${r.text} » ; de ${r.top} à ${r.bottom} px sur ${r.height} ; rendu en son centre : ${r.hit ? "oui" : "non"} ; autres éléments affichés : ${r.shown.join(", ") || "aucun"} ; canevas : ${r.canvas}`,
+        r.canvas === "none" &&
+        r.challenges === "none" &&
+        errors.length === 0,
+      `« ${r.text} » ; de ${r.top} à ${r.bottom} px sur ${r.height} ; rendu en son centre : ${r.hit ? "oui" : "non"} ; autres éléments affichés : ${r.shown.join(", ") || "aucun"} ; canevas : ${r.canvas} ; bouton « Défis » : ${r.challenges} ; erreurs : ${errors.join(" | ") || "aucune"}`,
     );
   } finally {
     await context.close();

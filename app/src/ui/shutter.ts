@@ -18,7 +18,7 @@ import type { Observer } from "@babylonjs/core/Misc/observable";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import type { Scene } from "@babylonjs/core/scene";
 import type { UniversalCamera } from "@babylonjs/core/Cameras/universalCamera";
-import { takePhoto, type GroundInfo, type PhotoRequest, type PhotoResult, type SceneTimeControl } from "../camera/photo";
+import { SceneNotReadyError, takePhoto, type GroundInfo, type PhotoRequest, type PhotoResult, type SceneTimeControl } from "../camera/photo";
 import { sensorPixels } from "../camera/bodies";
 import type { CameraPanel, CurrentSettings, ReleaseMode } from "./cameraPanel";
 import type { ViewfinderNoise } from "../camera/noise";
@@ -96,8 +96,29 @@ interface LoupeView {
   fullHeight: number;
 }
 
+/** Photo refusée ou interrompue : la phrase dite avant le détail technique (relecture du Sujet 10, version 0.3.70). */
+class PhotoRefused extends Error {
+  constructor(
+    readonly hint: MessageKey,
+    detail: string,
+  ) {
+    super(detail);
+    this.name = "PhotoRefused";
+  }
+}
+
 export class Shutter {
   private busy = false;
+  /** Contexte WebGL perdu, et nombre de pertes depuis l'ouverture (relecture du Sujet 10). */
+  private contextLost = false;
+  private losses = 0;
+
+  /**
+   * Contexte perdu : le drapeau, et le contexte lui-même, perdu avant que l'événement de la perte n'arrive.
+   */
+  private lost(): boolean {
+    return this.contextLost || this.engine._gl.isContextLost();
+  }
   /** Prise de vue en cours (une vue, une rafale ou un retardateur). */
   private shooting = false;
   private shots: Shot[] = [];
@@ -124,7 +145,16 @@ export class Shutter {
     private readonly challenge: () => ChallengeId | null,
     private readonly noiseReading: () => NoiseReading | null,
     private readonly info: ReviewInfo,
+    /** État du chargement : un fichier en échec (failed), et la scène toujours pas prête après (stuck). */
+    private readonly sceneState: () => { failed: boolean; stuck: boolean },
   ) {
+    // Perte du contexte WebGL (relecture du Sujet 10, version 0.3.70) : pendant la perte, le rendu donnait une photo
+    // toute noire, avec son bulletin ; perdu pendant le calcul, le contexte peut aussi fausser la photo.
+    engine.onContextLostObservable.add(() => {
+      this.contextLost = true;
+      this.losses++;
+    });
+    engine.onContextRestoredObservable.add(() => (this.contextLost = false));
     // Durée du toucher d'après l'horodatage des événements : une image longue entre l'appui et le relâchement
     // ne transforme pas un toucher en glissé. Un appui fait pendant le calcul d'une photo n'est pas retenu, même
     // relâché après la fin du calcul (version 0.3.63) ; un relâchement pendant le calcul est écarté par choosePoint.
@@ -228,6 +258,8 @@ export class Shutter {
    * qu'il n'est pas relevé puis reposé.
    */
   private async compute(request: PhotoRequest, frame: { index: number; count: number } | null = null): Promise<PhotoResult> {
+    if (this.lost()) throw new PhotoRefused("photoContextLost", "contexte WebGL perdu");
+    const losses = this.losses;
     this.busy = true;
     this.panel.setEnabled(false);
     this.el.progressLabel.textContent = frame
@@ -241,9 +273,20 @@ export class Shutter {
     this.autofocus.suspend();
     this.camera.detachControl();
     try {
-      return await takePhoto(this.engine, this.scene, this.camera, this.time, this.ground, request, (fraction) => {
-        this.el.progressBar.style.width = `${Math.round(fraction * 100)}%`;
-      });
+      let photo: PhotoResult | null = null;
+      try {
+        photo = await takePhoto(this.engine, this.scene, this.camera, this.time, this.ground, request, (fraction) => {
+          this.el.progressBar.style.width = `${Math.round(fraction * 100)}%`;
+        });
+      } catch (error) {
+        if (this.losses === losses && !this.lost()) throw error;
+      }
+      // Contexte perdu pendant le calcul : la photo, si elle est finie, n'est pas gardée.
+      if (photo === null || this.losses !== losses || this.lost()) {
+        if (photo) URL.revokeObjectURL(photo.url);
+        throw new PhotoRefused("photoContextLost", "contexte WebGL perdu pendant le calcul");
+      }
+      return photo;
     } finally {
       this.camera.attachControl(this.el.canvas, true);
       this.camera.cameraRotation.set(0, 0);
@@ -339,6 +382,13 @@ export class Shutter {
    */
   private async shootSeries(moments: Moment[], resumeAt: number | null): Promise<void> {
     if (this.busy || this.shooting) return;
+    // Refus immédiat (relecture du Sujet 10) : contexte perdu, ou scène en échec restée pas prête 20 s après l'arrivée
+    // ou l'échec du dernier fichier ; la photo aurait été noire, ou aurait attendu 20 s pour échouer.
+    const refusal = this.refusal();
+    if (refusal) {
+      this.showError(refusal);
+      return;
+    }
     this.shooting = true;
     const settings = this.panel.current();
     const focusMode = this.autofocus.mode();
@@ -390,7 +440,8 @@ export class Shutter {
         shots.push({ settings, request, photo, focusMode, areaMode, focusLocked, target, frame, bulletin, challenge, noise });
       }
     } catch (error) {
-      console.error(error);
+      // Un refus n'est pas une faute du programme : il est dit à l'écran, pas dans la console.
+      if (!(error instanceof PhotoRefused)) console.error(error);
       this.showError(error);
     } finally {
       this.camera.rotation.copyFrom(current);
@@ -507,7 +558,8 @@ export class Shutter {
       // Avec la loupe, histogrammes et zones écrêtées portent sur la partie affichée, comme sur le Z 6.
       this.info.show(photo.tones, true);
     } catch (error) {
-      console.error(error);
+      // Un refus n'est pas une faute du programme : il est dit à l'écran, pas dans la console.
+      if (!(error instanceof PhotoRefused)) console.error(error);
       this.showError(error);
     }
   }
@@ -537,12 +589,30 @@ export class Shutter {
     this.el.review.scrollTop = 0;
   }
 
-  /** Message d'erreur, avec le détail technique pour le diagnostic sur téléphone. */
+  /** Raison de refuser une photo avant tout calcul, ou null. */
+  private refusal(): PhotoRefused | null {
+    if (this.lost()) return new PhotoRefused("photoContextLost", "contexte WebGL perdu");
+    if (this.sceneState().stuck && !this.scene.isReady()) return new PhotoRefused("photoNotReadyFile", "fichier non reçu, scène pas prête");
+    return null;
+  }
+
+  /**
+   * Message d'erreur : une phrase en clair quand la cause est connue (relecture du Sujet 10), puis le détail technique
+   * pour le diagnostic sur téléphone.
+   */
   private showError(error: unknown): void {
     const detail = error instanceof Error ? error.message : String(error);
+    const hint: MessageKey | null =
+      error instanceof PhotoRefused
+        ? error.hint
+        : error instanceof SceneNotReadyError
+          ? this.sceneState().failed
+            ? "photoNotReadyFile"
+            : "photoNotReady"
+          : null;
     this.el.reviewBulletin.hidden = true;
     this.info.show(null);
-    this.lastCaption = () => `${t("photoError")} (${detail})`;
+    this.lastCaption = () => (hint ? `${t("photoError")} ${t(hint)} (${detail})` : `${t("photoError")} (${detail})`);
     this.el.reviewCaption.textContent = this.lastCaption();
     this.openReview();
   }
