@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.74] - 2026-11-20
+
+Sujet 14 du plan de corrections de l'audit (`docs/audit/README.md`) : activité de LUM-02, pénombre hors du mur, légende, lisibilité du schéma (FMA-10, INT-02). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. En cours.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.73 relue, lignée des sessions (profondeur 5 sur 8), Sujet 14 en cours.
+
 ## [0.3.73] - 2026-11-20
 
 Sujet 13 du plan de corrections de l'audit (`docs/audit/README.md`) : textes du simulateur et des pages (INT-07, INT-01, INT-19 points 1 à 5, COD-13), avec deux défauts confiés au sujet (« Défauts connus, hors du plan » de `docs/etat-des-travaux.md`) : les espaces avant la ponctuation de `app/src/texts.ts` et la photo en échec de cause inconnue. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z.
@@ -1457,6 +1465,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.74]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.73...v0.3.74
 [0.3.73]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.72...v0.3.73
 [0.3.72]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.71...v0.3.72
 [0.3.71]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.70...v0.3.71
