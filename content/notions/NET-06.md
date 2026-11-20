@@ -8,7 +8,7 @@ Calcul au 50 mm et f/4, mise au point sur Sophia à 6,6 m (A = 12,5 mm) : la pou
 
 ## Simulateur
 
-La vue de dessus permet de déplacer l'appareil sur le sol : se rapprocher du sujet change le rapport entre sa distance et celle du fond. Les personnages, eux, ne se déplacent pas encore, alors que la fiche du référentiel prévoit aussi de déplacer le sujet. Le fond photo à 360° est à 500 m, ce qui revient à l'infini.
+La vue de dessus permet de déplacer l'appareil sur le sol : se rapprocher du sujet change le rapport entre sa distance et celle du fond. Les personnages, eux, ne se déplacent pas encore, alors que la fiche du référentiel prévoit aussi de déplacer le sujet. Le fond est une photo à 360° prise d'un seul point, placée à 500 m, ce qui revient à l'infini : quand l'appareil se déplace de quelques mètres, ce qu'elle montre (arbres, bâtiments, sol) change à peine de taille et de place, et ses arbres et ses bâtiments ont le flou d'un fond très lointain, même s'ils étaient proches dans le vrai parc. Sur la photo calculée, son sol aussi : à grande ouverture, il est flou jusqu'aux pieds des personnages, alors qu'à leur distance il serait net ; le viseur, lui, le laisse net au pied des personnages.
 
 ## Exercice
 
