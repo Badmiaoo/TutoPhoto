@@ -132,7 +132,7 @@ Non vérifié à ce jour, je ne sais pas : la licence des modèles métriques de
 - Mise au point : le débutant touche le point du viseur qui doit être net ; sa distance est lue au déclenchement. Cela préfigure le choix des collimateurs.
 - Nombre de rendus selon le flou : copies espacées de 4 px au plus, de 16 à 256 rendus, et 5 s de calcul au plus.
 - Accumulation suivie d'un lissage, appliqué une fois sur la moyenne. Le résultat est identique à un lissage de chaque rendu, puisque le rayon ne dépend que de la profondeur de la vue centrale.
-- Le sol de la photo à 360° est projeté sur un plan, pour que sa profondeur de champ soit juste.
+- Le sol de la photo à 360° est projeté sur un plan, pour que sa profondeur de champ soit juste. Note du 20 novembre 2026 : avec Babylon.js 9.35.0, cette projection est sans effet (relecture de la version 0.3.76 ; « Défauts connus, hors du plan » de `docs/etat-des-travaux.md`).
 
 ## 9 novembre 2026 : temps de calcul et bruit
 

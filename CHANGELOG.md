@@ -16,9 +16,21 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 Sujet 17 du plan de corrections de l'audit (`docs/audit/README.md`) : notes de l'interface et documentation du modèle, ce qui est annoncé à tort, périmé ou non dit (PHY-01, PHY-03, PHY-06, PHY-08, PHY-09, PHY-10, PHY-11, PHY-12, PHY-19 et PHY-21, pour leur part de documentation et de notes ; une phrase pour ARC-10 et une pour INT-12). Avec lui, la documentation qui dit le sol de la photo projeté sur un plan, que la relecture de la version 0.3.76 a trouvée fausse (choix 10 du Sujet 16). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), les parts anglaises du sujet sont sans objet : relu dans le code, plus de `content/en/`, plus de `app/src/i18n.ts`, une seule table de textes (`app/src/texts.ts`).
 
+### Ajouté
+
+- `data/sources.yaml` : `wikipedia-airy-disk`, l'article « Airy disk » de Wikipedia (révision 1369075623, source secondaire, lue le 20 novembre 2026), pour l'ordre de grandeur de la diffraction.
+
 ### Modifié
 
-- `docs/etat-des-travaux.md` : fin de la version 0.3.76 relue, lignée des sessions (profondeur 1 sur 8), Sujet 17.
+- Simulateur, note de la fenêtre « Exposition » (PHY-12) : « Limite de TutoPhoto : sa mesure de la lumière donne la même valeur où que tu vises (toute la scène vaut 12,5 IL), sans mode de mesure », mêmes mots que la fiche MES-04 ; phrase provisoire, qui partira avec la mesure de la lumière.
+- Simulateur, note de l'objectif virtuel (PHY-11) : « Diffraction non simulée : à f/22, un point s'étale en une tache de 23 à 30 µm de diamètre, soit 4 à 5 photosites du Z 6 ; TutoPhoto ne la dessine pas : ici, fermer le diaphragme ne coûte aucun piqué », le résultat du calcul que demande la contre-vérification, et non « un vrai objectif perd du piqué », qu'aucune page lue ne dit.
+- `docs/camera-physique.md` : l'étalonnage de la scène réécrit d'après le code (PHY-06 : une valeur déclarée de 12,5 IL, pas une mise à l'échelle ; à écart nul, le viseur montre le JPEG tel quel ; moyennes du fond ; éclairage des objets 3D environ deux fois plus fort que le fond, établi par le calcul, non mesuré ; laissé tel quel, D15) ; le viseur sans flou de mouvement dit comme un choix de TutoPhoto, non sourcé (PHY-03) ; le plafond du flou du viseur écrit en pixels calculés et en millimètres de capteur, avec les cas plafonnés à densité 2, et les mesures du 9 novembre datées « densité 1 » (PHY-08, D25) ; les trois sections du modèle proposé le 8 novembre marquées comme telles, et les cinq phrases périmées corrigées (PHY-10) ; la diffraction ajoutée aux limites de la photo, avec son calcul (PHY-11) ; la mesure de la lumière ajoutée aux « Non simulés » des modes d'exposition (PHY-12) ; ce que devient une photo interrompue par le plafond de 5 s (PHY-21) ; les critères des défis calculés sur la géométrie de la scène, pas sur la photo (ARC-10) ; le cadre vertical quand la zone du viseur est plus haute que large, et non quand l'écran l'est (INT-12) ; « Ce que je ne sais pas » remis à jour.
+- `docs/questions-ouvertes.md`, « Sol de la photo » ; `docs/historique.md`, une note du 20 novembre 2026 sous la ligne du 8 novembre sur la projection du sol ; le commentaire de `app/src/scene.ts`.
+- `docs/etat-des-travaux.md` : fin de la version 0.3.76 relue, lignée des sessions (profondeur 1 sur 8), Sujet 17 ; les lignes D15, D25 et D32 (1) de « Décisions en attente » ; la ligne du sol de la photo de « Défauts connus, hors du plan ».
+
+### Corrigé
+
+- `docs/camera-physique.md` : la rafale ne donne pas de filé, l'appareil reste immobile pendant chaque pose (PHY-01) ; la boucle du flou du viseur est reprise de l'exemple 45-bokeh de bgfx, et non écrite « sans copie » (PHY-19) ; le sol de la photo n'est pas projeté sur un plan : la projection demandée à Babylon.js est sans effet, et la photo calculée floute ce sol comme un fond à 500 m jusqu'aux pieds des personnages (défaut trouvé par la relecture de la version 0.3.76, vérifié dans le code de Babylon.js 9.35.0) ; les cinq grilles de cadrage, dont la documentation ne citait encore que trois valeurs mémorisées et « deux grilles ».
 
 ## [0.3.76] - 2026-11-20
 
