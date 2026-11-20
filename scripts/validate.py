@@ -126,6 +126,10 @@ def check_sources(ref):
             used.add(sid)
             if sid not in known:
                 error(f"{n['id']} : source inconnue : {sid}")
+        for t in n.get("terms", []):
+            used.add(t["source"])
+            if t["source"] not in known:
+                error(f"{n['id']} : terms, {t['body']} : source inconnue : {t['source']}")
     for s in ref.situations:
         for sid in s.get("sources", []):
             used.add(sid)
@@ -140,6 +144,27 @@ def check_sources(ref):
                 warn(f"source {sid} : used_in renvoie à {doc}, introuvable")
             elif s["url"] not in path.read_text(encoding="utf-8"):
                 warn(f"source {sid} : son URL n'apparaît pas dans {doc}")
+
+
+def check_terms(ref):
+    """Champ `terms` (décision D3 de Julien, 15 novembre 2026) : un seul bloc par boîtier, et chaque terme
+    écrit tel quel dans la fiche de la notion quand elle existe, pour que la fiche ne dise pas autre chose."""
+    for n in ref.notions:
+        terms = n.get("terms", [])
+        for dup in duplicates([t["body"] for t in terms]):
+            error(f"{n['id']} : terms, boîtier en double : {dup}")
+        for t in terms:
+            if not t["body"].lower().startswith(t["brand"]):
+                error(f"{n['id']} : terms, le boîtier « {t['body']} » ne commence pas par sa marque ({t['brand']})")
+        path = ref.root / "content" / "notions" / f"{n['id']}.md"
+        if not terms or not path.is_file():
+            continue
+        text = path.read_text(encoding="utf-8")
+        for t in terms:
+            for name in t["names"]:
+                # Le terme entier, pas un morceau de mot : « Av » ne doit pas se trouver dans « Avec ».
+                if not re.search(rf"(?<!\w){re.escape(name)}(?!\w)", text):
+                    error(f"{n['id']} : terms, {t['body']} : « {name} » n'est pas dans {ref.rel(path)}")
 
 
 def check_retired(ref):
@@ -216,6 +241,7 @@ def main():
         check_links(ref)
         check_levels(ref)
         check_sources(ref)
+        check_terms(ref)
         check_retired(ref)
         check_jalons(ref)
         check_relecture(ref)

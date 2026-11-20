@@ -16,8 +16,13 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 Sujet 19 du plan de corrections de l'audit (`docs/audit/README.md`) : termes de Canon et de Sony (FEX-15, FMA-14, INT-10), revu d'après les décisions D3 et D4 de Julien du 15 novembre 2026 (`docs/historique.md`) : un champ `terms` par notion dans le référentiel, une phrase par fiche, la phrase « Les noms des modes et des menus restent ceux du Nikon Z 6 » dans la fenêtre « Boîtier de référence », et trois boîtiers de référence, un par marque, « les plus communs », choisis et sourcés par Claude. En cours : cette section est réécrite avant la fusion.
 
+### Ajouté
+
+- Référentiel : champ `terms` d'une notion (`schemas/domaine.schema.json`), une entrée par boîtier lu : marque, boîtier, termes de son manuel en français, source, note éventuelle (décision D3). `scripts/validate.py` contrôle la source, un seul bloc par boîtier, un boîtier nommé d'après sa marque, et chaque terme écrit tel quel, en mot entier, dans la fiche de la notion.
+
 ### Modifié
 
+- `docs/lire-le-referentiel.md` : le champ `terms`. `docs/architecture.md`, « Boîtier virtuel » : la table de vocabulaire devient le champ `terms` (décision D3), au lieu de `data/vocabulaire.yaml`.
 - `docs/etat-des-travaux.md` : fin de la version 0.3.78 relue, lignée des sessions (profondeur 3 sur 8), Sujet 19 en cours.
 
 ## [0.3.78] - 2026-11-20
