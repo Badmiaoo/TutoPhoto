@@ -182,7 +182,7 @@ export class Shutter {
     // pointeur est capturé à l'appui : le relâchement arrive au bouton même si celui-ci change de taille sous le
     // doigt ou le curseur (son texte affiche le nombre de vues pendant la rafale).
     // Bouton principal seul (version 0.3.71, constat COD-13) : le clic droit et le clic du milieu ne déclenchent pas.
-    // Un doigt ou un stylet posé vaut le bouton principal (button 0).
+    // Un toucher émulé dans Chromium donne button 0 (essai du 20 novembre 2026) ; non essayé sur un téléphone.
     el.button.addEventListener("pointerdown", (e) => {
       if (e.button !== 0) return;
       el.button.setPointerCapture(e.pointerId);
