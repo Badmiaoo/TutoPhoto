@@ -24,9 +24,9 @@
 // - sans ombre pleine, la pénombre couvre toute l'ombre, sur 2 × ce bord : H × L / d₁ + D × d₂ / d₁.
 // Simplifications : coupe en 2D d'une source uniforme ; la largeur de la pénombre suit les triangles semblables,
 // mais le dégradé d'une source ronde réelle n'a pas exactement cette forme. Un point du mur que rien ne cache est
-// éclairé pareil à toute distance, alors que doubler la distance divise l'éclairement par quatre
-// [wikipedia-inverse-square-law] ; l'ombre pleine est noire, sans la lumière que renvoient les surfaces voisines,
-// comme le fait un réflecteur [tiffen-lowel-soft-light]. La page le dit (texte « Calcul »). Les préréglages sont des
+// éclairé pareil à toute distance, alors que doubler la distance divise l'éclairement par quatre, à moins de 1 %
+// près quand la source mesure moins du cinquième de sa distance au sujet [wikipedia-inverse-square-law] ; l'ombre pleine est noire, sans la lumière que renvoient les surfaces voisines,
+// murs et plafond compris [tiffen-lowel-soft-light]. La page le dit (texte « Calcul »). Les préréglages sont des
 // exemples choisis pour TutoPhoto, pas des mesures.
 //   https://en.wikipedia.org/w/index.php?title=Inverse-square_law&oldid=1384166303
 
@@ -71,7 +71,7 @@ const TEXT = {
   beyondWall: " (au-delà du mur dessiné)",
   umbra: (cm: string) => `Ombre pleine : ${cm} cm de haut`,
   noUmbra: "Pas d'ombre pleine : la source, vue du mur, déborde l'objet de toutes parts.",
-  calc: `Calcul (triangles semblables) : pénombre = taille de la source × distance objet–mur ÷ distance source–objet. Ici, l'objet mesure ${OBJECT_CM} cm et le mur est à ${WALL_GAP_CM} cm derrière. Coupe en 2D : la largeur de la pénombre est juste, la forme exacte du dégradé est simplifiée ; les exemples sont des valeurs choisies pour l'activité. Le schéma ne montre que la part de la source vue de chaque point du mur : il ne dit pas que la lampe éclaire plus fort de près (à deux fois la distance, quatre fois moins de lumière), ni que la pièce renvoie de la lumière dans l'ombre, qu'il laisse noire.`,
+  calc: `Calcul (triangles semblables) : pénombre = taille de la source × distance objet–mur ÷ distance source–objet. Ici, l'objet mesure ${OBJECT_CM} cm et le mur est à ${WALL_GAP_CM} cm derrière. Coupe en 2D : la largeur de la pénombre est juste, la forme exacte du dégradé est simplifiée ; les exemples sont des valeurs choisies pour l'activité. Le schéma ne montre que la part de la source vue de chaque point du mur : il ne dit pas que la lampe éclaire plus fort de près (pour une source petite devant sa distance, deux fois plus loin donne quatre fois moins de lumière), ni que la pièce renvoie de la lumière dans l'ombre, qu'il laisse noire.`,
   sources:
     "Sources : guide Lowel de Tiffen « Understanding Soft Light » ; Art Adams, ProVideo Coalition, 27 décembre 2011 ; Wikipedia, « Umbra, penumbra and antumbra », révision 1379008615, et « Inverse-square law », révision 1384166303 (sources secondaires). Détail dans la fiche LUM-02.",
   cm: (v: number) => `${v} cm`,
@@ -154,13 +154,17 @@ function draw(): void {
   }
   items.push(svgNode("line", { x1: L, y1: -105, x2: L, y2: 105, class: "act-wall" }));
   items.push(svgNode("rect", { x: d1 - 3, y: -OBJECT_CM / 2, width: 6, height: OBJECT_CM, class: "act-object" }));
-  // Source : hauteur à l'échelle (c'est elle que l'activité fait changer), largeur fixe de 10 cm et contour sombre
-  // d'épaisseur fixe à l'écran, pour qu'une lampe de 1 cm reste visible (constat INT-02 de l'audit).
+  // Source : hauteur à l'échelle (c'est elle que l'activité fait changer), largeur fixe de 10 cm, et un cadre sombre
+  // de 1,5 px à l'écran tracé autour d'elle, à l'extérieur, pour qu'une lampe de 1 cm reste visible et jaune
+  // (constat INT-02 de l'audit ; un trait centré sur le bord couvrait le jaune d'une source de 2 px : relecture, R1).
+  const unit = 500 / (svg.getBoundingClientRect().width || 500);
+  const frame = 1.5 * unit;
+  items.push(svgNode("rect", { x: -10 - frame, y: -d / 2 - frame, width: 10 + 2 * frame, height: d + 2 * frame, class: "act-source-frame" }));
   items.push(svgNode("rect", { x: -10, y: -d / 2, width: 10, height: d, class: "act-source" }));
   // Noms écrits dans le dessin, à 13 px à l'écran quelle que soit la largeur du schéma : « objet » en haut, au-dessus
-  // de l'objet ; « source » en bas à gauche ; « mur » en haut, à droite du mur, ou en bas à sa gauche quand la place
-  // manque à droite (largeur mesurée après le tracé : elle dépend de la police).
-  const unit = 500 / (svg.getBoundingClientRect().width || 500);
+  // de l'objet ; « source » sous la source, et sous le bas de l'objet pour ne pas le toucher, ou en bas du schéma pour
+  // une grande source ; « mur » en haut, à droite du mur, ou en bas à sa gauche quand la place manque à droite
+  // (largeur mesurée après le tracé : elle dépend de la police).
   const font = 13 * unit;
   const top = -110 + font + 2;
   const bottom = 110 - 0.3 * font - 2;
@@ -170,7 +174,7 @@ function draw(): void {
     return node;
   };
   const wallLabel = label(L + 18, top, "start", t.labelWall);
-  items.push(label(-16, bottom, "start", t.labelSource), label(d1, top, "middle", t.labelObject), wallLabel);
+  items.push(label(-16, Math.min(bottom, Math.max(d / 2, OBJECT_CM / 2) + 1.2 * font), "start", t.labelSource), label(d1, top, "middle", t.labelObject), wallLabel);
   svg.replaceChildren(...items);
   if (L + 18 + wallLabel.getComputedTextLength() > 478) {
     wallLabel.setAttribute("x", String(L - 4));

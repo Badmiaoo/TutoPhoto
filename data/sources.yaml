@@ -670,7 +670,7 @@ sources:
     used_in: [docs/propositions.md, content/notions/LUM-02.md, app/src/activities/lum02.ts]
   - id: wikipedia-inverse-square-law
     group: "Physique, rendu et technique"
-    label: "Wikipedia, Inverse-square law : « doubling the distance reduces illumination to one quarter » (révision 1384166303 du 6 novembre 2026, source secondaire, lue le 20 novembre 2026)"
+    label: "Wikipedia, Inverse-square law : « doubling the distance reduces illumination to one quarter » ; « when the size of the light source is less than one-fifth of the distance to the subject, the calculation error is less than 1% » (révision 1384166303 du 6 novembre 2026, source secondaire, lue le 20 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Inverse-square_law&oldid=1384166303"
     used_in: [app/src/activities/lum02.ts]
   - id: wikipedia-angular-diameter
@@ -680,7 +680,7 @@ sources:
     used_in: [docs/propositions.md]
   - id: tiffen-lowel-soft-light
     group: "Cours et pédagogie"
-    label: "Tiffen (Lowel), Foundations of Lighting: Understanding Soft Light : « A soft light source would be one that appears larger in relative size than the subject being lit » ; le soleil, très loin, « appears smaller » et donne une lumière plus dure ; par ciel couvert, « the entire white cloudy sky is now the light source » ; reculer la source la rend plus petite et plus dure ; un réflecteur devient la source (lu le 11 novembre 2026)"
+    label: "Tiffen (Lowel), Foundations of Lighting: Understanding Soft Light : « A soft light source would be one that appears larger in relative size than the subject being lit » ; le soleil, très loin, « appears smaller » et donne une lumière plus dure ; par ciel couvert, « the entire white cloudy sky is now the light source » ; reculer la source la rend plus petite et plus dure ; un réflecteur devient la source (lu le 11 novembre 2026) ; « bouncing the output of a light […] off a white ceiling or wall to bring up the ambient light level in a room is well known » (relu le 20 novembre 2026)"
     url: "https://tiffen.reamaze.com/kb/lowel-guides/foundations-of-lighting-understanding-soft-light"
     used_in: [content/notions/LUM-02.md, docs/propositions.md, app/src/activities/lum02.ts]
   - id: pvc-adams-soft-light
