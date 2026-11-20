@@ -173,6 +173,7 @@ const messages = {
   exposureNote:
     "D'après le manuel du Nikon Z 6. En A et en S, l'appareil choisit la vitesse ou l'ouverture ; hors de ses limites, elle clignote avec l'indicateur. En M, la correction ne déplace que l'indicateur, sauf avec l'ISO auto, qui en tient compte. L'ISO auto va de ISO 100 à la sensibilité maximale ; en A, il ne monte que si la vitesse passerait sous la vitesse minimale. Non simulés : le mode P, l'option « Automatique » de la vitesse minimale, les poses longues.",
   releaseFpsShort: "vps",
+  // Réglages par défaut du Z 6, page « Defaults » [nikon-z6-defaults] : « CL mode shooting speed 3 fps », « Self-timer delay 10 s ».
   releaseNote:
     "Termes et cadences du manuel du Nikon Z 6 (12 vues par seconde en Continu H (étendu) pour le JPEG). En rafale, maintiens le déclencheur appuyé : une vue par intervalle, jamais plus vite que la durée de pose ; en AF-C, la mise au point est refaite à chaque vue, en AF-S elle reste celle de la première. TutoPhoto calcule au plus 20 vues par rafale, pour le temps de calcul ; le Z 6 en accepte jusqu'à 200 (réglage d2). Réglages par défaut du Z 6 : 3 vues par seconde en Continu L, 10 s pour le retardateur.",
   burstCount: "Rafale :",

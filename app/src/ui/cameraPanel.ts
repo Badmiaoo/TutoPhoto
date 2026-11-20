@@ -265,6 +265,7 @@ export class CameraPanel {
   private areaMode: AreaMode = "point";
   private detection: Detection = "faceEye";
   private releaseKind: ReleaseKind = "single";
+  // Valeurs par défaut du Z 6 (Continu L, retardateur) [nikon-z6-defaults].
   private clRate = 3;
   private timerDelay = 10;
   /** Cran de la loupe dans LOUPE_LEVELS ; -1 : pas de loupe. */

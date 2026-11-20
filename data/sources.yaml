@@ -637,7 +637,7 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Indicateurs et messages d'erreur : « Les indicateurs d'exposition et l'affichage de la vitesse d'obturation ou de l'ouverture clignotent » ; en mode A, « Choisissez une ouverture plus petite (valeur plus grande) » quand le sujet est trop clair, « une ouverture plus grande » quand il est trop sombre (lu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/13_troubleshooting_02.html"
-    used_in: [content/notions/BOI-07.md]
+    used_in: [content/notions/BOI-07.md, content/notions/BOI-08.md]
   - id: nikon-z6-exposure-compensation
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The Exposure Compensation Button : de −5 à +5 IL par tiers ; « Exposure compensation is not reset when the camera is turned off » ; « In mode M, exposure compensation affects only the exposure indicator », l'ISO auto en tenant compte (lu le 10 novembre 2026)"
