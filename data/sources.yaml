@@ -432,6 +432,11 @@ sources:
     label: "Poly Haven, License : « Our assets are all licensed as CC0 » (page lue le 7 novembre 2026)"
     url: "https://polyhaven.com/license"
     used_in: [app/public/scenes/parc/scene.json]
+  - id: polyhaven-autumn-hockey
+    group: "Physique, rendu et technique"
+    label: "Poly Haven, Autumn Hockey HDRI, photo à 360° de Greg Zaal, fond et éclairage de la scène de parc : « Soft midday overcast light in an autumn park with low-contrast, natural tones, diffuse shadows » ; catégories « overcast », « midday », « low contrast » (lu le 20 novembre 2026)"
+    url: "https://polyhaven.com/a/autumn_hockey"
+    used_in: [content/situations/SIT-01.md]
   - id: sketchfab-download-api
     group: "Outils"
     label: "Sketchfab for Developers, Download API : « Downloading models requires users to be authenticated with a Sketchfab account » (page lue le 7 novembre 2026)"
