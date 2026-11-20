@@ -2,15 +2,19 @@
 
 ## Explication
 
-Avec le contrôle de la sensibilité auto, l'appareil règle lui-même la sensibilité s'il est impossible d'obtenir l'exposition optimale avec la valeur choisie ([Nikon, manuel en ligne Z 7/Z 6, « ISO sensitivity settings »](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_03_08.html), lu le 10 novembre 2026). Deux réglages l'encadrent (même source) :
+Avec le contrôle de la sensibilité auto, l'appareil règle lui-même la sensibilité s'il est impossible d'obtenir l'exposition optimale avec la valeur choisie ([Nikon, manuel en ligne Z 7/Z 6, « ISO Sensitivity Settings »](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_03_08.html), lu le 10 novembre 2026 ; [en français, « Réglage de la sensibilité »](https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_03_08.html), relu le 20 novembre 2026). Deux réglages l'encadrent (même source) :
 - la sensibilité maximale, pour éviter qu'elle ne monte trop ;
 - la vitesse d'obturation minimale, en dessous de laquelle l'ISO auto entre en jeu en modes P et A ; la vitesse peut quand même descendre plus bas si la sensibilité maximale ne suffit pas.
 
-En mode M, l'ISO auto règle la sensibilité pour l'exposition optimale à la vitesse et à l'ouverture choisies ([« The Mode Dial »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_01.html)), et tient compte de la correction d'exposition ([« The E (Exposure Compensation) Button »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_03.html)). L'ISO auto est activé par défaut sur le Z 6 ([« Defaults »](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html)).
+En mode M, l'ISO auto règle la sensibilité pour l'exposition optimale à la vitesse et à l'ouverture choisies ([« The Mode Dial »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_01.html)), et tient compte de la correction d'exposition ([« The Exposure Compensation Button »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_03.html)). L'ISO auto est activé par défaut sur le Z 6 ([« Defaults »](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html)).
 
 ## Simulateur
 
-Dans la fenêtre « Exposition » : contrôle de la sensibilité auto, sensibilité maximale (ISO 200 à 6400) et vitesse minimale. La molette s'appelle alors « ISO auto » et montre la valeur retenue. Deux règles viennent du manuel du Nikon D850, celui du Z 6 ne les donnant pas : l'ISO auto descend jusqu'à ISO 100, et en mode A il ne monte que si la vitesse passerait sous la vitesse minimale ([Nikon, manuel en ligne D850, « Auto ISO Sensitivity Control »](https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_02.html)). L'option « Automatique » de la vitesse minimale n'est pas simulée : sa règle n'est pas publiée.
+Dans la fenêtre « Exposition » : contrôle de la sensibilité auto, sensibilité maximale (ISO 200 à 6400) et vitesse minimale. La molette s'appelle alors « ISO auto » et montre la valeur retenue. Le mode P n'est pas simulé : seuls les modes M, A et S le sont.
+
+Une règle vient du manuel du Nikon D850, celui du Z 6 ne la donnant pas : l'ISO auto du D850 descend jusqu'à ISO 64 ; TutoPhoto en tire ISO 100, le bas de la plage normale du Z 6 (voir EXP-06) ([Nikon, manuel en ligne D850, « Auto ISO Sensitivity Control »](https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_02.html), relu le 20 novembre 2026). Le même manuel précise qu'en mode A la sensibilité n'est modifiée que si la vitesse passerait sous la vitesse minimale ; TutoPhoto suit cette règle.
+
+Sur le Z 6, la vitesse minimale est réglée au départ sur « Automatique » ([« Defaults »](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html)) : l'appareil la choisit d'après la focale de l'objectif, plus rapide au téléobjectif (« Réglage de la sensibilité », lien plus haut). La page ne donne pas la règle, et TutoPhoto ne simule pas cette option : il part de 1/30 s, la valeur que le manuel du D850 fixe quand « Automatique » ne peut pas fonctionner, avec un objectif sans microprocesseur et sans données d'objectif (même page du D850). De même, la sensibilité maximale part de ISO 6400, le haut de l'échelle de TutoPhoto, et non de ISO 51 200 comme sur le Z 6 (« Defaults »).
 
 ## Exercice
 

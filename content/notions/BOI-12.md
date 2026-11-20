@@ -5,8 +5,10 @@
 Le mode de déclenchement du Nikon Z 6 ([manuel en ligne, « The Release Mode/Self-Timer Button »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_04.html), lu le 10 novembre 2026 ; [termes français](https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_04.html)) :
 - **Vue par vue** : une photo à chaque pression du déclencheur ;
 - **Continu L** : de 1 à 5 vues par seconde tant que le déclencheur reste enfoncé (3 par défaut) ;
-- **Continu H** : jusqu'à environ 5,5 vues par seconde ; **Continu H (étendu)** : 12 vues par seconde au Z 6 ;
-- **Retardateur** : 2, 5, 10 ou 20 s (10 par défaut, [« Defaults »](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html)).
+- **Continu H** : jusqu'à environ 5,5 vues par seconde ; **Continu H (étendu)** : jusqu'à environ 12 vues par seconde au Z 6 (9 en NEF 14 bits, d'après la fiche technique citée plus bas) ;
+- **Retardateur** : 2, 5, 10 ou 20 s.
+
+Les délais du retardateur et la cadence en NEF 14 bits viennent de la fiche technique ([« Specifications »](https://onlinemanual.nikonimglib.com/z7_z6/en/14_technical_notes_06.html) ; [en français, « Caractéristiques techniques »](https://onlinemanual.nikonimglib.com/z7_z6/fr/14_technical_notes_06.html), relue le 20 novembre 2026) ; les valeurs par défaut, 3 vues par seconde en Continu L et 10 s pour le retardateur, de la page des réglages par défaut ([« Defaults »](https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html) ; [en français, « Réglages par défaut »](https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_01.html), relue le 20 novembre 2026).
 
 ## Simulateur
 

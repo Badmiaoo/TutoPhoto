@@ -82,7 +82,7 @@ const messages = {
   // Noms français des réglages, lus le 20 novembre 2026 : https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001629952.html
   // et https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_d08.html (data/sources.yaml).
   previewNote:
-    "Coupé, le viseur reste correctement exposé, sans bruit et net partout, quels que soient les réglages : il faut lire la cellule et anticiper. Le Sony A7 III (« Affichage Live View ») et le Nikon Z 6 (réglage d8, « Appliquer réglages à visée écran ») proposent ce choix pour la luminosité. La photo garde toujours tous les effets.",
+    "Coupé, le viseur reste correctement exposé, sans bruit et net partout, quels que soient les réglages : il faut lire l'indicateur d'exposition et anticiper. Le Sony A7 III (« Affichage Live View ») et le Nikon Z 6 (réglage d8, « Appliquer réglages à visée écran ») proposent ce choix pour la luminosité. La photo garde toujours tous les effets.",
   previewOff: "Aperçu coupé",
   previewBrightnessShort: "luminosité",
   previewNoiseShort: "bruit",
@@ -174,7 +174,7 @@ const messages = {
     "D'après le manuel du Nikon Z 6. En A et en S, l'appareil choisit la vitesse ou l'ouverture ; hors de ses limites, elle clignote avec l'indicateur. En M, la correction ne déplace que l'indicateur, sauf avec l'ISO auto, qui en tient compte. L'ISO auto va de ISO 100 à la sensibilité maximale ; en A, il ne monte que si la vitesse passerait sous la vitesse minimale. Non simulés : le mode P, l'option « Automatique » de la vitesse minimale, les poses longues.",
   releaseFpsShort: "vps",
   releaseNote:
-    "Termes et cadences du manuel du Nikon Z 6 (12 vues par seconde en Continu H (étendu) pour le JPEG). En rafale, maintiens le déclencheur appuyé : une vue par intervalle, jamais plus vite que la durée de pose ; en AF-C, la mise au point est refaite à chaque vue, en AF-S elle reste celle de la première. TutoPhoto calcule au plus 20 vues par rafale, pour le temps de calcul ; le Z 6 en accepte jusqu'à 200 (réglage d2). Réglages par défaut (3 vues par seconde, 10 s) choisis, les pages lues ne les donnant pas.",
+    "Termes et cadences du manuel du Nikon Z 6 (12 vues par seconde en Continu H (étendu) pour le JPEG). En rafale, maintiens le déclencheur appuyé : une vue par intervalle, jamais plus vite que la durée de pose ; en AF-C, la mise au point est refaite à chaque vue, en AF-S elle reste celle de la première. TutoPhoto calcule au plus 20 vues par rafale, pour le temps de calcul ; le Z 6 en accepte jusqu'à 200 (réglage d2). Réglages par défaut du Z 6 : 3 vues par seconde en Continu L, 10 s pour le retardateur.",
   burstCount: "Rafale :",
   burstFrame: "vue",
   burstFrames: "vues",

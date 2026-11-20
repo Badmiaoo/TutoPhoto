@@ -6,15 +6,15 @@
 //   exposure at the selected shutter speed and aperture » ;
 // - « Indicators and Error Messages » [nikon-z6-indicators] : hors des limites de l'appareil, « Exposure
 //   indicators and shutter speed or aperture display flash » (« Subject too bright » ou « too dark ») ;
-// - « The E (Exposure Compensation) Button » [nikon-z6-exposure-compensation] : de −5 à +5 IL par tiers ; « In mode
+// - « The Exposure Compensation Button » [nikon-z6-exposure-compensation] : de −5 à +5 IL par tiers ; « In mode
 //   M, exposure compensation affects only the exposure indicator », sauf avec l'ISO auto, qui en tient compte ;
-// - « The S (ISO Sensitivity) Button » et « ISO sensitivity settings » [nikon-z6-iso-button, nikon-z6-iso-settings] :
+// - « The ISO (ISO Sensitivity) Button » et « ISO Sensitivity Settings » [nikon-z6-iso-button, nikon-z6-iso-settings] :
 //   l'ISO auto agit « if optimal exposure cannot be achieved at the value selected » ; plafond (« Maximum
 //   sensitivity »), qui cède à la valeur choisie si elle est plus haute ; vitesse minimale « below which auto ISO
 //   sensitivity control will kick in to prevent underexposure in modes P and A ».
 // Le manuel du Z 6 ne donne pas la sensibilité la plus basse de l'ISO auto, ni s'il baisse la sensibilité en A.
 // Celui du D850 [nikon-d850-auto-iso] le dit : « the minimum value for auto ISO sensitivity is automatically set to
-// ISO 64 » (sa sensibilité la plus basse ; ISO 100 au Z 6, et dans TutoPhoto) et, en P et A, « sensitivity will only
+// ISO 64 » (le bas de sa plage normale ; ISO 100 au Z 6, et dans TutoPhoto) et, en P et A, « sensitivity will only
 // be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed ». Retenu ici.
 //   https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_01.html
 //   https://onlinemanual.nikonimglib.com/z7_z6/en/13_troubleshooting_02.html
