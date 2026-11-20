@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.77] - 2026-11-20
+
+Sujet 17 du plan de corrections de l'audit (`docs/audit/README.md`) : notes de l'interface et documentation du modèle, ce qui est annoncé à tort, périmé ou non dit (PHY-01, PHY-03, PHY-06, PHY-08, PHY-09, PHY-10, PHY-11, PHY-12, PHY-19 et PHY-21, pour leur part de documentation et de notes ; une phrase pour ARC-10 et une pour INT-12). Avec lui, la documentation qui dit le sol de la photo projeté sur un plan, que la relecture de la version 0.3.76 a trouvée fausse (choix 10 du Sujet 16). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), les parts anglaises du sujet sont sans objet : relu dans le code, plus de `content/en/`, plus de `app/src/i18n.ts`, une seule table de textes (`app/src/texts.ts`).
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.76 relue, lignée des sessions (profondeur 1 sur 8), Sujet 17.
+
 ## [0.3.76] - 2026-11-20
 
 Sujet 16 du plan de corrections de l'audit (`docs/audit/README.md`) : fiches de mise au point et situations, limites à dire et compléments (FMA-04, FMA-07, FMA-18, FMA-21 ; de RST-09, la ligne de SIT-01). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), les parts anglaises du sujet sont sans objet : relu dans le code, plus de `content/en/`, plus de `app/src/i18n.ts`, une seule table de textes (`app/src/texts.ts`). La règle de couverture elle-même (RST-09) attend la décision D27 de Julien : elle n'est pas changée.
@@ -1552,6 +1560,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.77]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.76...v0.3.77
 [0.3.76]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.75...v0.3.76
 [0.3.75]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.74...v0.3.75
 [0.3.74]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.73...v0.3.74
