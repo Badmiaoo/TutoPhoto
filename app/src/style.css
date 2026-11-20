@@ -939,6 +939,8 @@ dialog fieldset label {
 
 /* L'attribut hidden doit l'emporter sur les display ci-dessus. */
 .review[hidden],
+.review img[hidden],
+.review-actions a[hidden],
 .progress[hidden],
 .review-actions button[hidden],
 .review-caption[hidden],

@@ -128,6 +128,18 @@ export class Shutter {
   private countdown: number | null = null;
   private loupe: LoupeView | null = null;
   private lastCaption: (() => string) | null = null;
+  /**
+   * Numéro de la vue affichée par l'écran de revue (version 0.3.71, constat COD-08 de l'audit) : augmenté par
+   * showWhole (donc par showFrame), closeReview et showError. Une loupe dont la vue a changé pendant son calcul est
+   * jetée : avant, « Revenir au viseur », « Vue suivante » ou « Photo entière » touchés pendant ce calcul étaient
+   * suivis de la fenêtre de la loupe, écran de revue rouvert, sous le compteur d'une autre vue.
+   */
+  private view = 0;
+  /**
+   * Rafale tronquée par une vue en échec (version 0.3.71, constat COD-05) : la phrase ajoutée à la légende de chaque
+   * vue calculée, ou null. Avant, le message d'erreur était aussitôt remplacé par la première vue réussie.
+   */
+  private truncation: (() => string) | null = null;
 
   constructor(
     private readonly engine: Engine,
@@ -169,7 +181,10 @@ export class Shutter {
     // Déclencheur : appui et relâchement (rafale) ; au clavier, un clic sans pointeur vaut un appui bref. Le
     // pointeur est capturé à l'appui : le relâchement arrive au bouton même si celui-ci change de taille sous le
     // doigt ou le curseur (son texte affiche le nombre de vues pendant la rafale).
+    // Bouton principal seul (version 0.3.71, constat COD-13) : le clic droit et le clic du milieu ne déclenchent pas.
+    // Un doigt ou un stylet posé vaut le bouton principal (button 0).
     el.button.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
       el.button.setPointerCapture(e.pointerId);
       this.pressStart();
     });
@@ -315,10 +330,17 @@ export class Shutter {
     let observer: Observer<Scene> | null = null;
     if (mode.kind !== "single") {
       const interval = this.interval(mode);
+      // Instant de la dernière vue possible : au-delà, une orientation relevée ne servirait à aucune vue (pressEnd
+      // prend, pour chaque vue, la plus récente relevée avant son instant). Le texte du bouton n'est réécrit que quand
+      // le nombre de vues change (version 0.3.71, constat COD-13).
+      const last = start + (MAX_BURST - 1) * interval;
+      let shown = 0;
       observer = this.scene.onBeforeRenderObservable.add(() => {
         const now = this.time.now();
-        samples.push({ t0: now, rotation: this.camera.rotation.clone() });
+        if (now <= last + 1e-9) samples.push({ t0: now, rotation: this.camera.rotation.clone() });
         const count = Math.min(MAX_BURST, 1 + Math.floor((now - start) / interval + 1e-9));
+        if (count === shown) return;
+        shown = count;
         this.el.button.textContent = `${t("burstCount")} ${count} ${t(count === 1 ? "burstFrame" : "burstFrames")}`;
       });
     }
@@ -397,6 +419,7 @@ export class Shutter {
     const challenge = this.challenge();
     const noise = this.noiseReading();
     const shots: Shot[] = [];
+    let failure: unknown = null;
     try {
       await this.autofocus.settled();
       for (let i = 0; i < moments.length; i++) {
@@ -440,18 +463,36 @@ export class Shutter {
         shots.push({ settings, request, photo, focusMode, areaMode, focusLocked, target, frame, bulletin, challenge, noise });
       }
     } catch (error) {
-      // Un refus n'est pas une faute du programme : il est dit à l'écran, pas dans la console.
-      if (!(error instanceof PhotoRefused)) console.error(error);
-      this.showError(error);
+      this.report(error);
+      failure = error;
     } finally {
       this.camera.rotation.copyFrom(current);
       if (resumeAt !== null) this.time.release(resumeAt);
       this.shooting = false;
     }
-    if (shots.length === 0) return;
+    if (shots.length === 0) {
+      if (failure !== null) this.showError(failure);
+      return;
+    }
     for (const old of this.shots) URL.revokeObjectURL(old.photo.url);
     this.shots = shots;
+    // Rafale tronquée : les vues calculées sont montrées, et chacune dit combien l'ont été et pourquoi la suivante a
+    // échoué (version 0.3.71, constat COD-05).
+    const done = shots.length;
+    const requested = moments.length;
+    this.truncation =
+      failure === null
+        ? null
+        : () => t("burstTruncated").replace("{done}", String(done)).replace("{count}", String(requested)) + " " + this.errorText(failure);
     this.showFrame(0);
+  }
+
+  /**
+   * Erreur du calcul dans la console, sauf un refus ou une scène pas prête après la borne de 20 s : ce ne sont pas
+   * des fautes du programme, l'écran de revue les dit en clair (version 0.3.71 pour la scène pas prête).
+   */
+  private report(error: unknown): void {
+    if (!(error instanceof PhotoRefused) && !(error instanceof SceneNotReadyError)) console.error(error);
   }
 
   /**
@@ -502,10 +543,13 @@ export class Shutter {
     if (!shot) return;
     // La fenêtre de la loupe est oubliée : le toucher suivant porte sur la photo entière, pas sur l'ancienne fenêtre.
     this.dropLoupe();
+    this.view++;
     const { photo, settings, focusMode, areaMode, focusLocked, target, frame } = shot;
     this.setImage(photo.url, photo.width, photo.height);
+    // Ce que showError a masqué revient avec la photo.
+    this.showPhotoParts(true);
     this.el.reviewWhole.hidden = true;
-    this.el.reviewHint.hidden = false;
+    const truncation = this.truncation;
     this.lastCaption = () => {
       const tr = t;
       const areaKeys: Record<AreaMode, MessageKey> = { point: "areaPointShort", wideS: "areaWideSShort", wideL: "areaWideLShort", auto: "areaAutoShort" };
@@ -514,7 +558,8 @@ export class Shutter {
       const mode = `${focusMode === "single" ? "AF-S" : "AF-C"} · ${tr(areaKeys[areaMode])}${what}`;
       const focus = `${tr(focusLocked ? "focusLockedAt" : "focusedAt")} ${this.decimal(photo.focusDistance, 1)} m`;
       const series = frame ? `${tr("reviewFrame")} ${frame.index + 1}/${frame.count} · +${this.decimal(frame.offset, 2)} s · ` : "";
-      return `${series}${settings.summary} · ${settings.body.model} · ${mode} · ${focus} · ${this.computedText(photo)}`;
+      const caption = `${series}${settings.summary} · ${settings.body.model} · ${mode} · ${focus} · ${this.computedText(photo)}`;
+      return truncation ? `${caption} · ${truncation()}` : caption;
     };
     this.showCaption();
     this.showBulletin();
@@ -524,7 +569,10 @@ export class Shutter {
   /** Toucher la photo, ou la fenêtre de la loupe : fenêtre à 100 % centrée sur le point touché. */
   private async magnify(event: MouseEvent): Promise<void> {
     const shot = this.shots[this.shotIndex];
-    if (!shot || this.busy || this.shooting) return;
+    // Pas de loupe pendant un compte à rebours du retardateur (version 0.3.71, constat COD-02) : si le compte finissait
+    // pendant le calcul de la loupe, la vue n'était pas prise, sans message.
+    if (!shot || this.busy || this.shooting || this.countdown !== null) return;
+    const view = this.view;
     const image = this.el.reviewImage;
     const u = event.offsetX / image.clientWidth;
     const v = event.offsetY / image.clientHeight;
@@ -547,6 +595,11 @@ export class Shutter {
         view: { longSide: Math.round(pixels.long), crop: { left, top, width, height } },
         replay: shot.photo.replay,
       });
+      // La vue a changé pendant le calcul (écran de revue fermé, autre vue, photo entière) : la loupe est jetée.
+      if (this.view !== view) {
+        URL.revokeObjectURL(photo.url);
+        return;
+      }
       this.dropLoupe();
       this.loupe = { url: photo.url, left, top, width, height, fullWidth: photo.fullWidth, fullHeight: photo.fullHeight };
       this.setImage(photo.url, photo.width, photo.height);
@@ -558,9 +611,12 @@ export class Shutter {
       // Avec la loupe, histogrammes et zones écrêtées portent sur la partie affichée, comme sur le Z 6.
       this.info.show(photo.tones, true);
     } catch (error) {
-      // Un refus n'est pas une faute du programme : il est dit à l'écran, pas dans la console.
-      if (!(error instanceof PhotoRefused)) console.error(error);
+      this.report(error);
+      // Vue changée pendant le calcul : l'erreur ne rouvre pas l'écran de revue. Sinon, la photo est masquée comme
+      // pour toute erreur, et « Photo entière » la remontre.
+      if (this.view !== view) return;
       this.showError(error);
+      this.el.reviewWhole.hidden = false;
     }
   }
 
@@ -597,10 +653,37 @@ export class Shutter {
   }
 
   /**
-   * Message d'erreur : une phrase en clair quand la cause est connue (relecture du Sujet 10), puis le détail technique
-   * pour le diagnostic sur téléphone.
+   * Message d'erreur à la place de la photo (errorText). La vue affichée change : une loupe en calcul sera jetée.
    */
   private showError(error: unknown): void {
+    this.view++;
+    this.dropLoupe();
+    this.el.reviewBulletin.hidden = true;
+    this.info.show(null);
+    // Rien de la photo d'avant ne reste sous le message (version 0.3.71, constat B10 de la relecture de la version
+    // 0.3.70) : ni l'image, ni la série, ni « Touchez la photo… », ni « Enregistrer la photo », qui l'aurait sauvée.
+    this.showPhotoParts(false);
+    this.el.reviewWhole.hidden = true;
+    const text = this.errorText(error);
+    this.lastCaption = () => text;
+    this.el.reviewCaption.textContent = text;
+    this.el.reviewImage.alt = "";
+    this.openReview();
+  }
+
+  /** Image, lien « Enregistrer la photo », phrase de la loupe et boutons de la série : affichés ou masqués. */
+  private showPhotoParts(shown: boolean): void {
+    this.el.reviewImage.hidden = !shown;
+    this.el.reviewSave.hidden = !shown;
+    this.el.reviewHint.hidden = !shown;
+    this.el.reviewSeries.hidden = !shown || this.shots.length <= 1;
+  }
+
+  /**
+   * Texte d'une erreur : une phrase en clair quand la cause est connue (relecture du Sujet 10), puis le détail
+   * technique pour le diagnostic sur téléphone.
+   */
+  private errorText(error: unknown): string {
     const detail = error instanceof Error ? error.message : String(error);
     const hint: MessageKey | null =
       error instanceof PhotoRefused
@@ -610,11 +693,7 @@ export class Shutter {
             ? "photoNotReadyFile"
             : "photoNotReady"
           : null;
-    this.el.reviewBulletin.hidden = true;
-    this.info.show(null);
-    this.lastCaption = () => (hint ? `${t("photoError")} ${t(hint)} (${detail})` : `${t("photoError")} (${detail})`);
-    this.el.reviewCaption.textContent = this.lastCaption();
-    this.openReview();
+    return hint ? `${t("photoError")} ${t(hint)} (${detail})` : `${t("photoError")} (${detail})`;
   }
 
   /** « 64 rendus, calculée en 1,2 s » ; « 120/256 » si le calcul a été arrêté par la limite de temps. */
@@ -635,6 +714,7 @@ export class Shutter {
   }
 
   private closeReview(): void {
+    this.view++;
     this.el.review.hidden = true;
   }
 }

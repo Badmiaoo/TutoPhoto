@@ -171,6 +171,7 @@ const messages = {
   burstCount: "Rafale :",
   burstFrame: "vue",
   burstFrames: "vues",
+  burstTruncated: "Rafale interrompue : {done} sur {count} vues calculées.",
   timerCountdown: "Retardateur :",
   computingFrame: "Calcul de la vue",
   reviewPrev: "Vue précédente",
