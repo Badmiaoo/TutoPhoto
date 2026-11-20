@@ -16,9 +16,24 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 Sujet 16 du plan de corrections de l'audit (`docs/audit/README.md`) : fiches de mise au point et situations, limites à dire et compléments (FMA-04, FMA-07, FMA-18, FMA-21 ; de RST-09, la ligne de SIT-01). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61), les parts anglaises du sujet sont sans objet : relu dans le code, plus de `content/en/`, plus de `app/src/i18n.ts`, une seule table de textes (`app/src/texts.ts`). La règle de couverture elle-même (RST-09) attend la décision D27 de Julien : elle n'est pas changée.
 
+### Ajouté
+
+- SIT-01, recette : une ligne « Lumière » (FMA-07) : par ciel couvert, tout le ciel nuageux est la source, bien plus grande que Sophia : lumière douce, ombres peu marquées (LUM-02) ; rien à régler, la scène n'a que la lumière de la photo à 360° du parc, prise par ciel couvert ; dans TutoPhoto, les ombres au sol sont floutées et réglées à l'œil, pas calculées depuis ce ciel.
+- NET-06, « Simulateur » : le fond est une photo prise d'un seul point, placée à 500 m ; quand l'appareil se déplace de quelques mètres, les arbres et les bâtiments qu'elle montre changent à peine de taille et de place, et leur flou reste celui d'un fond très lointain (FMA-04).
+- `docs/contenus.md` : la règle de la section « Notions » des fiches de situation : les notions clés, dans l'ordre de `key_notions`, puis les autres notions que la recette cite, dans l'ordre où elle les cite ; chacune renvoie à la situation dans le référentiel ; la règle de couverture, qui lit le champ `situations`, reste la même (D27) (FMA-21).
+- Sections « Notions » : BOI-07 et MAP-04 dans SIT-01, MAP-09 dans SIT-06 (FMA-21) ; la page de BOI-07 gagne sa section « Situations » (ligne de RST-09), celle de MAP-04 y liste SIT-01, celle de MAP-09 SIT-06.
+- `data/referentiel/map.yaml` : SIT-01 au champ `situations` de MAP-04, SIT-06 à ceux de MAP-06 et de MAP-09 (choix 6) ; les comptes de `scripts/coverage.py` ne changent pas.
+- `data/sources.yaml` : `polyhaven-autumn-hockey`, la page de la photo à 360° du parc (« Soft midday overcast light in an autumn park […] diffuse shadows »), citée par SIT-01.
+- `docs/propositions.md`, section 5 : « Fiches de mise au point et situations : limites et compléments », huit choix.
+
 ### Modifié
 
-- `docs/etat-des-travaux.md` : fin de la version 0.3.75 relue, lignée des sessions (profondeur 7 sur 8), Sujet 16 ; à la ligne de FMA-23 de « Défauts connus, hors du plan », l'échec du profil iPhone au commit 358d303 de la version 0.3.75.
+- SIT-06 : section « Notions » remise dans l'ordre de la règle (MAP-06 après BOI-08 et MAP-09) ; la recette dit de garder le doigt sur « Déclencher » pour la rafale.
+- `docs/etat-des-travaux.md` : fin de la version 0.3.75 relue, lignée des sessions (profondeur 7 sur 8), Sujet 16 ; à la ligne de FMA-23 de « Défauts connus, hors du plan », l'échec du profil iPhone au commit 358d303 de la version 0.3.75 ; la ligne des libellés de SIT-01 et de SIT-06 est retirée.
+
+### Corrigé
+
+- Libellés de l'écran dans les fiches (ligne de « Défauts connus, hors du plan » relevée au contrôle final de la version 0.3.68) : « Détection visage/yeux activée » dans SIT-01, au lieu de « détection des visages et des yeux » ; « Détection des animaux » et « Continu H (5,5 vps) » dans SIT-06, au lieu de « détection des animaux » et « Continu H », qui ne distinguait pas « Continu H (étendu) (12 vps) » ; mêmes libellés dans les exercices de BOI-08 et de BOI-12, et « AF zone automatique » au lieu de « zone automatique ».
 
 ## [0.3.75] - 2026-11-20
 
