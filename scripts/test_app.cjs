@@ -1182,7 +1182,7 @@ async function runProfile(browser, name, base) {
         !backArrived
           ? "le clic n'est pas arrivé à la photo en 30 s"
           : `sous le centre de « Revenir au viseur » : ${backUnder} ; clic ${back.click ? `arrivé au bouton, calcul ${back.click.computing ? `en cours (« ${back.click.label} »)` : "fini"}` : "pas arrivé au bouton"} ; écran de revue ${back.review ? `rouvert (« ${back.caption.slice(0, 60)} »)` : "resté fermé"}` +
-            (back.ended !== null ? ` ; calcul fini ${back.ended.toFixed(1)} s après le clic` : ""),
+            (back.ended !== null ? ` ; calcul fini ${back.ended.toFixed(1).replace(".", ",")} s après le clic` : ""),
       );
 
       // Photo en échec après une bonne photo (constat B10 de la relecture de la version 0.3.70, version 0.3.71) : le
