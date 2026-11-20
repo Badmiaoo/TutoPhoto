@@ -39,9 +39,11 @@ Plan retenu avec les premiers défis (version 0.3.39), confirmé par Julien le 1
 | Le cadre de la situation | `## Où, quand, quoi, pourquoi` |
 | Les réglages et leurs raisons, avec un plan B | `## Recette` |
 | Le défi jouable dans le simulateur | `## Défi` |
-| Les notions liées | `## Notions` |
+| Les notions de la situation (règle ci-dessous) | `## Notions` |
 
 Le solveur de situations étant en V2 (décision du 10 novembre 2026), la recette des situations de la V1 minimale est écrite à la main ; chaque chiffre y est calculé avec les formules sourcées du simulateur.
+
+La section « Notions » cite d'abord les notions clés de la situation (`key_notions`, `data/situations.yaml`), dans leur ordre, puis les autres notions que la recette cite, dans l'ordre où elle les cite ; chaque code est suivi du titre de la notion. Chacune de ces notions renvoie à la situation par son champ `situations` du référentiel. Règle écrite le 20 novembre 2026 (version 0.3.76), d'après le constat FMA-21 de l'audit. C'est cette section qui fait apparaître la situation dans la fiche de la notion (« Publication sur le site », plus bas) ; la règle de couverture, elle, lit le champ `situations` du référentiel. Compter plutôt la brique « situation réelle » par cette section est la décision D27 de Julien (« Décisions en attente » de `docs/etat-des-travaux.md`).
 
 ## Règle de couverture
 

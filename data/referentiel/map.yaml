@@ -43,7 +43,7 @@ notions:
       explanation: "Verrouiller une distance ou la suivre ; le mode automatique et ses hésitations"
       simulator: "Sujet qui approche : en ponctuel la netteté décroche, en continu elle suit"
       exercise: "Rafale nette sur un chien qui court vers soi"
-    situations: [SIT-06, SIT-08, SIT-38, SIT-39]
+    situations: [SIT-01, SIT-06, SIT-08, SIT-38, SIT-39]
     sources: [canon-r5-af-operation, canon-80d-manualslib, nikon-zr-focus, nikon-z6-focus, sony-a9-focus-mode, sony-a7riv-automatic-af, fujifilm-gfx100-af]
     since: v0.1
   - id: MAP-05
@@ -63,7 +63,7 @@ notions:
       explanation: "Choisir soi-même le collimateur, le déplacer vite, connaître sa couverture"
       simulator: "Grille de collimateurs ; la netteté suit la profondeur sous le point choisi"
       exercise: "Point sur l'œil le plus proche à f/1.8, sujet décentré"
-    situations: [SIT-01, SIT-04]
+    situations: [SIT-01, SIT-04, SIT-06]
     sources: [nikon-z6-launch-2018, nikon-z6-eisa-2019, nikon-z6-product, nikon-z6-focus, canon-eos-rp-af, sony-ilce-7m3-af]
     since: v0.1
   - id: MAP-07
@@ -93,7 +93,7 @@ notions:
       explanation: "Ce qu'apporte la détection, ses réglages, ses échecs"
       simulator: "Détection simulée à partir des visages et des yeux annotés"
       exercise: "Photo de groupe : choisir le bon visage"
-    situations: [SIT-01, SIT-05, SIT-08, SIT-34, SIT-37, SIT-39]
+    situations: [SIT-01, SIT-05, SIT-06, SIT-08, SIT-34, SIT-37, SIT-39]
     sources: [nikon-z6-focus, nikon-z6-a4, nikon-z6-a4-fr, nikon-p1100-af-area]
     since: v0.1
   - id: MAP-10
