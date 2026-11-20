@@ -76,15 +76,18 @@ export class ChallengePicker {
     // de la page ne remet plus le défi de l'adresse par-dessus un choix fait dans la fenêtre.
     const url = new URL(window.location.href);
     const fromUrl = url.searchParams.get("defi");
-    if (CHALLENGES.includes(fromUrl as ChallengeId)) {
+    let remembered = !CHALLENGES.includes(fromUrl as ChallengeId);
+    if (!remembered) {
       this.active = fromUrl as ChallengeId;
       try {
         window.localStorage.setItem(STORAGE_KEY, this.active);
+        remembered = true;
       } catch {
-        // Sans stockage, le choix vaut pour la page en cours.
+        // Sans stockage, le choix vaut pour la page en cours, et le paramètre reste dans l'adresse : un
+        // rechargement redonne le défi de l'arrivée.
       }
     }
-    if (url.searchParams.has("defi")) {
+    if (remembered && url.searchParams.has("defi")) {
       // Un défi inconnu est retiré aussi : il n'a rien choisi. Les autres paramètres et l'ancre restent.
       url.searchParams.delete("defi");
       try {
