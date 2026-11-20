@@ -740,9 +740,9 @@ sources:
     used_in: [docs/camera-physique.md]
   - id: wikipedia-airy-disk
     group: "Physique, rendu et technique"
-    label: "Wikipedia, Airy disk : rayon du premier anneau sombre q1 ≈ 1,22 λ / (2A), avec A ≈ 1 / (2N) pour N ≫ 1, soit 1,22 λ N ; à f/8, pour le violet (« the wavelength λ is about 420 nanometers »), « This gives a value for x of about 4 μm » (révision 1369075623, source secondaire, lue le 20 novembre 2026)"
+    label: "Wikipedia, Airy disk : rayon du premier anneau sombre q1 ≈ 1,22 λ / (2A), A étant l'ouverture numérique, A ≈ 1 / (2N) pour N ≫ 1, soit 1,22 λ N ; « This shows that the best possible image resolution of a camera is limited by the numerical aperture (and thus f-number) of its lens due to diffraction » ; à f/8, « For violet, the shortest wavelength visible light, the wavelength λ is about 420 nanometers », « This gives a value for x of about 4 μm » ; « 560 nm; the mean of visible wavelengths » ; « the red component is diffracted more than the blue » (révision 1369075623, source secondaire, lue le 20 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Airy_disk&oldid=1369075623"
-    used_in: [docs/camera-physique.md]
+    used_in: [docs/camera-physique.md, app/src/texts.ts]
   - id: gustafsson-bokeh-single-pass
     group: "Physique, rendu et technique"
     label: "Dennis Gustafsson, « Bokeh depth of field in a single pass », blog tuxedolabs, 4 mai 2018 (copie archivée ; page non ouverte, algorithme lu dans sa reproduction par l'exemple 45-bokeh de bgfx le 9 novembre 2026)"

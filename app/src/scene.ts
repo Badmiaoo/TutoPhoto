@@ -234,10 +234,12 @@ export function createScene(engine: Engine, canvas: HTMLCanvasElement): ParkScen
 
   // Fond : la photo à 360° en 8192 × 4096 px. Babylon la réduit si l'appareil n'accepte pas cette taille.
   // Projection du sol demandée, mais sans effet (relecture de la version 0.3.76) : Babylon.js 9.35.0 ne la compile
-  // qu'avec une texture de réflexion cubique (PROJECTED_GROUND seulement si REFLECTIONMAP_3D, backgroundMaterial),
-  // et PhotoDome pose la photo en texture diffuse (useDirectMapping, vrai par défaut, textureDome). Le bas de la
-  // photo reste sur la sphère, à 500 m : la photo calculée le floute comme un fond lointain jusqu'aux pieds des
-  // personnages, alors que le viseur le laisse net (« Défauts connus, hors du plan » de docs/etat-des-travaux.md ;
+  // qu'avec une texture de réflexion cubique (PROJECTED_GROUND seulement si REFLECTIONMAP_3D, backgroundMaterial ;
+  // REFLECTIONMAP_3D vaut isCube de la texture de réflexion, PrepareDefinesForIBL), et PhotoDome pose la photo en
+  // texture diffuse (useDirectMapping, vrai par défaut, textureDome). Avec useDirectMapping faux, elle deviendrait
+  // une texture de réflexion plane (équirectangulaire, isCube faux) : pas de projection non plus. Le bas de la photo
+  // reste sur la sphère, à 500 m : la photo calculée le floute comme un fond lointain jusqu'aux pieds des personnages,
+  // alors que le viseur le laisse net (« Défauts connus, hors du plan » de docs/etat-des-travaux.md ;
   // docs/camera-physique.md, « Sol de la photo »). Les trois lignes restent en attendant une correction du rendu.
   const dome = new PhotoDome(
     "fond",

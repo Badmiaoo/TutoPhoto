@@ -171,9 +171,10 @@ const messages = {
   tooBright: "trop de lumière : photo surexposée",
   tooDark: "pas assez de lumière : photo sous-exposée",
   // Limite de TutoPhoto (constat PHY-12 de l'audit) : la scène vaut 12,5 IL où que l'on vise (SCENE_EV100,
-  // camera/exposure.ts). Phrase provisoire, à retirer avec la mesure de la lumière ; mêmes mots que la fiche MES-04.
+  // camera/exposure.ts). Phrase provisoire, à retirer avec la mesure de la lumière ; la phrase de la fiche MES-04,
+  // complétée sur le mode de mesure. Espace insécable dans « Z 6 », qui se coupait en fin de ligne (Pixel 7 émulé).
   exposureNote:
-    "D'après le manuel du Nikon Z 6. En A et en S, l'appareil choisit la vitesse ou l'ouverture ; hors de ses limites, elle clignote avec l'indicateur. En M, la correction ne déplace que l'indicateur, sauf avec l'ISO auto, qui en tient compte. L'ISO auto va de ISO 100 à la sensibilité maximale ; en A, il ne monte que si la vitesse passerait sous la vitesse minimale. Limite de TutoPhoto : sa mesure de la lumière donne la même valeur où que tu vises (toute la scène vaut 12,5 IL), sans mode de mesure. Non simulés : le mode P, l'option « Automatique » de la vitesse minimale, les poses longues.",
+    "D'après le manuel du Nikon Z 6. En A et en S, l'appareil choisit la vitesse ou l'ouverture ; hors de ses limites, elle clignote avec l'indicateur. En M, la correction ne déplace que l'indicateur, sauf avec l'ISO auto, qui en tient compte. L'ISO auto va de ISO 100 à la sensibilité maximale ; en A, il ne monte que si la vitesse passerait sous la vitesse minimale. Limite de TutoPhoto : sa mesure de la lumière donne la même valeur où que tu vises (toute la scène vaut 12,5 IL), et tu ne peux pas choisir de mode de mesure. Non simulés : le mode P, l'option « Automatique » de la vitesse minimale, les poses longues.",
   releaseFpsShort: "vps",
   // Réglages par défaut du Z 6, page « Defaults » [nikon-z6-defaults] : « CL mode shooting speed 3 fps », « Self-timer delay 10 s ».
   releaseNote:
@@ -241,11 +242,13 @@ const messages = {
   reviewInfoLimits: "Lecture et limites",
   reviewInfoNote:
     "Histogrammes : luminosité du pixel sur l'axe horizontal, plus sombre vers la gauche (0), plus claire vers la droite (255), et nombre de pixels sur l'axe vertical (manuels du Nikon Z 6 et du Sony A7 III). Ordre de leurs affichages : luminance, rouge, vert, bleu. Avec la loupe, tout porte sur la partie affichée, comme sur le Z 6. Choix de TutoPhoto, non sourcés : luminance = 0,2126 R + 0,7152 V + 0,0722 B, sur les valeurs de la photo ; hauteur rapportée à la plus haute colonne, sans compter les colonnes 0 et 255 ; zone signalée quand au moins une couche vaut 255. Le clignotement est décrit par Sony ; le manuel du Z 6 ne dit pas comment sa page « Hautes lumières » marque les zones, ni à quel seuil. Non simulés : les réglages d'image du boîtier (« Picture Control » sur le Z 6), que TutoPhoto n'applique pas à sa photo ; l'alerte des zones sous-exposées de Sony ; l'histogramme et les zébrures à la prise de vue. Nikon prévient que les histogrammes de l'appareil ne doivent servir que de référence.",
-  // Diffraction (constat PHY-11 de l'audit) [wikipedia-airy-disk] : diamètre du premier anneau sombre 2,44 × λ × N ;
-  // à f/22 (N = 22,63), 23 µm à 420 nm et 30 µm à 550 nm ; photosite du Z 6 : 35,9 mm / 6066 ≈ 5,9 µm. Calcul dans
-  // docs/camera-physique.md, « Photo calculée », limites.
+  // Diffraction (constat PHY-11 de l'audit) [wikipedia-airy-disk]
+  // (https://en.wikipedia.org/w/index.php?title=Airy_disk&oldid=1369075623) : diamètre du premier anneau sombre
+  // 2,44 × λ × N ; à f/22 (N = 22,63), 23 µm à 420 nm (le violet, longueur d'onde visible la plus courte d'après
+  // l'article) et 31 µm à 560 nm (moyenne des longueurs d'onde visibles) ; photosite du Z 6 : 35,9 mm / 6066 ≈ 5,9 µm.
+  // Calcul dans docs/camera-physique.md, « Photo calculée », limites. Espace insécable dans « Z 6 » (voir exposureNote).
   lensNote:
-    "Objectif virtuel : zoom de 18 à 200 mm ouvrant à f/1.4 sur toute la plage. Il n'existe pas ; il sert à couvrir les trois situations. Diffraction non simulée : à f/22, un point s'étale en une tache de 23 à 30 µm de diamètre, soit 4 à 5 photosites du Z 6 ; TutoPhoto ne la dessine pas : ici, fermer le diaphragme ne coûte aucun piqué.",
+    "Objectif virtuel : zoom de 18 à 200 mm ouvrant à f/1.4 sur toute la plage. Il n'existe pas ; il sert à couvrir les trois situations. Diffraction non simulée : à f/22, un point lumineux s'étale en une tache d'au moins 23 µm de diamètre (31 µm pour la longueur d'onde moyenne de la lumière visible), la largeur de 4 à 5 photosites du Nikon Z 6 ; TutoPhoto ne la dessine pas : ici, fermer le diaphragme ne fait perdre aucun piqué par diffraction.",
   sceneLabel: "Viseur : un parc en automne. Faire glisser pour tourner l'appareil.",
   loading: "Chargement de la scène…",
   loadingProgress: "{done} / {total} Mio reçus · {s} s",
