@@ -32,6 +32,7 @@
     },
     "ids_sources": {
       "type": "array",
+      "uniqueItems": true,
       "items": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"}
     },
     "notion": {
@@ -54,6 +55,7 @@
           }
         },
         "situations": {
+          "$comment": "Un renvoi en double est refusé par scripts/validate.py (check_links), pas par uniqueItems : dans cette alternative, le message du schéma ne dirait pas pourquoi la liste est refusée.",
           "oneOf": [
             {"const": "all"},
             {
@@ -88,7 +90,7 @@
           "uniqueItems": true,
           "items": {"type": "string", "pattern": "^\\S(.*\\S)?$"}
         },
-        "sources": {"$ref": "#/$defs/ids_sources", "minItems": 1, "uniqueItems": true},
+        "sources": {"$ref": "#/$defs/ids_sources", "minItems": 1},
         "note": {"type": "string", "minLength": 1}
       }
     }

@@ -351,7 +351,7 @@ sources:
     group: "Outils"
     label: "GitHub Docs, GitHub Pages limits (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
     url: "https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits"
-    used_in: [docs/historique.md, docs/questions-ouvertes.md, docs/publication.md]
+    used_in: [docs/historique.md, docs/publication.md]
   - id: threejs-r187
     group: "Outils"
     label: "three.js, dépôt mrdoob/three.js, version r187 (commit 7e89746 du 30 octobre 2026), licence MIT"

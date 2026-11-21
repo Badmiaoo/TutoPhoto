@@ -3,7 +3,8 @@
 
 Usage : python3 scripts/coverage.py [racine du dépôt]
 
-Sortie en Markdown. Règles de couverture : docs/contenus.md.
+Sortie en Markdown. Règles de couverture : docs/contenus.md. Suppose un référentiel que scripts/validate.py accepte
+(la CI le lance d'abord) : sur un renvoi vers une situation absente, par exemple, il s'arrête sur une trace Python.
 """
 import collections
 import pathlib
@@ -65,7 +66,11 @@ def content_coverage(ref):
 
 
 def main():
-    ref = referentiel.load(sys.argv[1] if len(sys.argv) > 1 else referentiel.ROOT)
+    try:
+        ref = referentiel.load(sys.argv[1] if len(sys.argv) > 1 else referentiel.ROOT)
+    except referentiel.LectureImpossible as e:
+        print(f"ERREUR : {e}", file=sys.stderr)
+        return 1
     notions = ref.notions
     out = []
 
