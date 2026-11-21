@@ -364,9 +364,9 @@ sources:
     used_in: [scripts/referentiel.py]
   - id: commonmark-spec-0-31-2
     group: "Outils"
-    label: "John MacFarlane, CommonMark Spec, version 0.31.2 (28 janvier 2024), licence CC BY-SA 4.0 : les puces de liste « - », « + » et « * » (l. 4102-4103) ; une liste peut commencer par une puce vide (l. 4689-4697) ; une ligne de séparation est faite de trois « - », « _ » ou « * » au moins (l. 874-877), « +++ » et « === » seuls (l. 890-903), « -- », « ** » et « __ » (l. 906-916) sont des paragraphes ; le soulignement d'un titre est une suite de « = » ou de « - » (l. 1330-1332) (dépôt commonmark/commonmark-spec, étiquette 0.31.2, commit 9103e34, fichier spec.txt ; lu le 21 novembre 2026)"
+    label: "John MacFarlane, CommonMark Spec, version 0.31.2 (28 janvier 2024), licence CC BY-SA 4.0 : les puces de liste « - », « + » et « * » (l. 4102-4103) ; une liste peut commencer par une puce vide (l. 4689-4697) ; une ligne de séparation est faite de trois « - », « _ » ou « * » au moins (l. 874-877), « +++ » et « === » seuls (l. 890-903), « -- », « ** » et « __ » (l. 906-916) sont des paragraphes ; le soulignement d'un titre est une suite de « = » ou de « - » (l. 1330-1332) ; un titre « ATX » : « The opening sequence of # characters must be followed by spaces or tabs, or by the end of line » et « The opening # character may be preceded by up to three spaces of indentation » (l. 1102-1105) (dépôt commonmark/commonmark-spec, étiquette 0.31.2, commit 9103e34, fichier spec.txt ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/commonmark/commonmark-spec/9103e341a973013013bb1a80e13567007c5cef6f/spec.txt"
-    used_in: [app/scripts/build-pages.mjs, docs/contenus.md]
+    used_in: [app/scripts/build-pages.mjs, docs/contenus.md, scripts/changelog.py]
   - id: ecma-262-2024-blancs
     group: "Outils"
     label: "Ecma International, ECMA-262, ECMAScript 2024 Language Specification, quinzième édition : les blancs (« White Space » : U+0009, U+000B, U+000C, U+FEFF et « any code point in general category “Space_Separator” », l. 16325-16369), les fins de ligne (« Line Terminators » : U+000A, U+000D, U+2028, U+2029, l. 16417-16450), et TrimString, dont se sert String.prototype.trim : « The definition of white space is the union of WhiteSpace and LineTerminator » (l. 35341) (source du texte dans le dépôt tc39/ecma262, étiquette es2024, commit 0b24a04, fichier spec.html ; lu le 21 novembre 2026)"
@@ -379,9 +379,9 @@ sources:
     used_in: [scripts/check_public.py, docs/publication.md]
   - id: git-2-56-1-diff-merges
     group: "Outils"
-    label: "Git 2.56.1, Documentation/diff-options.adoc, option --diff-merges (l. 65-106) : « combined » montre les différences avec chaque parent à la fois, et « lists only files which were modified from all parents » ; « dense-combined » (--cc) : « Further compress output produced by --diff-merges=combined by omitting uninteresting hunks whose contents in the parents have only two variants and the merge result picks one of them without modification » (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026)"
+    label: "Git 2.56.1, Documentation/diff-options.adoc, option --diff-merges (l. 65-106) : « combined » montre les différences avec chaque parent à la fois, et « lists only files which were modified from all parents » ; « dense-combined » (--cc) : « Further compress output produced by --diff-merges=combined by omitting uninteresting hunks whose contents in the parents have only two variants and the merge result picks one of them without modification » ; options -S, qui « Look for differences that change the number of occurrences of the specified <string> (i.e. addition/deletion) in a file » (l. 650-652), et -G, qui « Look for differences whose patch text contains added/removed lines that match <regex> » (l. 663-665) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/diff-options.adoc"
-    used_in: [scripts/check_public.py, docs/publication.md]
+    used_in: [scripts/check_public.py, docs/publication.md, scripts/changelog.py]
   - id: git-2-56-1-log-showroot
     group: "Outils"
     label: "Git 2.56.1, Documentation/config/log.adoc, log.showRoot : « If true, the initial commit will be shown as a big creation event. This is equivalent to a diff against an empty tree. […] True by default. » (l. 66-70) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026)"
@@ -407,6 +407,16 @@ sources:
     label: "Git 2.41.0, notes de version, Documentation/RelNotes/2.41.0.txt, l. 116-118 : « git --attr-source=<tree> cmd $args is a new way to have any command to read attributes not from the working tree but from the given tree object » ; l'option n'est pas dans Documentation/git.txt de la version 2.40.0 (dépôt git/git, étiquette v2.41.0, commit fe86abd ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/git/git/fe86abd7511a9a6862d5706c6fa1d9b57a63ba09/Documentation/RelNotes/2.41.0.txt"
     used_in: [scripts/check_public.py]
+  - id: git-2-56-1-diffcore-pickaxe
+    group: "Outils"
+    label: "Git 2.56.1, diffcore-pickaxe.c : pour -G, seules les lignes du diff qui commencent par « + » ou « - » sont lues, et l'expression est appliquée à la ligne sans ce signe (fonction diffgrep_consume, l. 26-41) ; elle est compilée avec REG_EXTENDED | REG_NEWLINE, en expression régulière étendue de POSIX (l. 242-246) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026 ; essayé avec git 2.43.0 par Claude)"
+    url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/diffcore-pickaxe.c"
+    used_in: [scripts/changelog.py]
+  - id: git-2-56-1-rev-parse-verify
+    group: "Outils"
+    label: "Git 2.56.1, Documentation/git-rev-parse.adoc, option --verify (l. 108-126) : avec l'opérateur ^{commit}, la commande « will make sure $VAR names an existing object that is a commit-ish (i.e. a commit, or an annotated tag that points at a commit) » ; « if you are verifying a name from an untrusted source, it is wise to use --end-of-options so that the name argument is not mistaken for another option » ; exemple git rev-parse --verify --end-of-options $REV^{commit} : « This will error out if $REV is empty or not a valid revision » (l. 498-505) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026 ; essayé avec git 2.43.0 par Claude)"
+    url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/git-rev-parse.adoc"
+    used_in: [scripts/changelog.py]
   - id: threejs-r187
     group: "Outils"
     label: "three.js, dépôt mrdoob/three.js, version r187 (commit 7e89746 du 30 octobre 2026), licence MIT"
@@ -517,6 +527,51 @@ sources:
     label: "GitHub Docs, Email addresses reference, section « Your noreply email address » (l. 43-49) : un compte créé après le 18 juillet 2017 a une adresse « noreply » faite d'un numéro, du signe plus et du pseudo ; « If you created your account prior to July 18, 2017, and enabled Keep my email address private before that date, your noreply email address is USERNAME@users.noreply.github.com » (source lue dans le dépôt github/docs, commit d7487f5, fichier content/account-and-profile/reference/email-addresses-reference.md, le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/content/account-and-profile/reference/email-addresses-reference.md"
     used_in: [scripts/check_public.py, docs/publication.md]
+  - id: github-actions-jobs-if
+    group: "Outils"
+    label: "GitHub Docs, Workflow syntax for GitHub Actions, jobs.<job_id>.if (fragment data/reusables/actions/jobs/section-using-conditions-to-control-job-execution.md) : « You can use the jobs.<job_id>.if conditional to prevent a job from running unless a condition is met » (l. 1) ; dans l'exemple, un job dont la condition est fausse « will be marked as skipped » (l. 10) ; le fragment data/reusables/actions/expression-syntax-if.md, qu'il inclut (l. 6) : « When you use expressions in an if conditional, you can, optionally, omit the ${{ }} expression syntax » (source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/data/reusables/actions/jobs/section-using-conditions-to-control-job-execution.md"
+    used_in: [docs/pile-technique.md]
+  - id: github-actions-jobs-needs
+    group: "Outils"
+    label: "GitHub Docs, Workflow syntax for GitHub Actions, jobs.<job_id>.needs (fragment data/reusables/actions/jobs/section-using-jobs-in-a-workflow-needs.md) : « If a job fails or is skipped, all jobs that need it are skipped unless the jobs use a conditional expression that causes the job to continue » (l. 1) (source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/data/reusables/actions/jobs/section-using-jobs-in-a-workflow-needs.md"
+    used_in: [docs/pile-technique.md]
+  - id: github-actions-github-ref
+    group: "Outils"
+    label: "GitHub Docs, Contexts reference, github.ref (fragment data/reusables/actions/ref-description.md, l. 1) : « The fully-formed ref of the branch or tag that triggered the workflow run » ; pour un push, « the branch or tag ref that was pushed » ; « for branches the format is refs/heads/<branch_name> » et « For tags it is refs/tags/<tag_name> » (source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/data/reusables/actions/ref-description.md"
+    used_in: [docs/pile-technique.md]
+  - id: github-actions-workflow-dispatch
+    group: "Outils"
+    label: "GitHub Docs, Events that trigger workflows, section workflow_dispatch (l. 1130-1139) : GITHUB_SHA « Last commit on the GITHUB_REF branch or tag », GITHUB_REF « Branch or tag that received dispatch » ; « Once a workflow has run at least once, you can dispatch it against any branch or tag » par l'API ou la ligne de commande de GitHub (fichier content/actions/reference/workflows-and-actions/events-that-trigger-workflows.md ; source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/content/actions/reference/workflows-and-actions/events-that-trigger-workflows.md"
+    used_in: [docs/pile-technique.md]
+  - id: github-actions-about-triggers
+    group: "Outils"
+    label: "GitHub Docs, Workflows, section Workflow triggers (fragment data/reusables/actions/about-triggers.md) : « Each workflow run will use the version of the workflow that is present in the associated commit SHA or Git ref of the event » (l. 18) (source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/data/reusables/actions/about-triggers.md"
+    used_in: [docs/pile-technique.md]
+  - id: github-actions-concurrency
+    group: "Outils"
+    label: "GitHub Docs, groupes de concurrence d'un workflow ou d'un job (fragment data/reusables/actions/actions-group-concurrency.md) : une exécution qui arrive pendant qu'une autre du même groupe tourne attend, et « Any existing pending job or workflow in the same concurrency group, if it exists, will be canceled and the new queued job or workflow will take its place » (l. 7 ; l. 3, l'autre version du texte, dit de même « By default ») ; un groupe nommé d'après la référence, « concurrency: ci-${{ github.ref }} », fait du workflow « part of a concurrency group named ci- followed by the reference of the branch or tag that triggered the workflow » (l. 86) (source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/data/reusables/actions/actions-group-concurrency.md"
+    used_in: [docs/pile-technique.md]
+  - id: github-actions-expressions
+    group: "Outils"
+    label: "GitHub Docs, Evaluate expressions in workflows and actions, opérateurs : « ignores case when comparing strings » (l. 68 et 84, où le sujet de la phrase, GitHub, est écrit par une variable) (fichier content/actions/reference/workflows-and-actions/expressions.md ; source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/content/actions/reference/workflows-and-actions/expressions.md"
+    used_in: [docs/pile-technique.md]
+  - id: github-pages-environment
+    group: "Outils"
+    label: "GitHub Docs, Configuring a publishing source for your GitHub Pages site (l. 78) : les modèles de workflow publient par l'environnement github-pages ; « If your repository does not already include an environment called github-pages, the environment will be created automatically. We recommend that you add a deployment protection rule so that only the default branch can deploy to this environment » (fichier content/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site.md ; source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/content/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site.md"
+    used_in: [docs/pile-technique.md]
+  - id: github-manage-environments
+    group: "Outils"
+    label: "GitHub Docs, Managing environments for deployment : étapes pour dire quelles branches et quels tags peuvent publier dans un environnement, écrites pour un environnement nouveau (Settings, Environments, puis le menu « Deployment branches », « Selected branches and tags », « Add deployment branch or tag rule », « Ref type » Branch, motif du nom, « Add rule » ; l. 53-81) ; « If the environment is created from running implicit page builds (for example, from a branch or folder source), the source branch will be added as a protection rule to the environment. Otherwise, the newly created environment will not have any protection rules or secrets configured » (l. 95) (fichier content/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments.md ; source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/content/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments.md"
+    used_in: [docs/pile-technique.md]
   - id: filament-pbr
     group: "Physique, rendu et technique"
     label: "Romain Guy et Mathias Agopian, Physically Based Rendering in Filament, section « Physically based camera » : EV100, constante K = 12,5, facteur d'exposition 1/(1,2 × 2^EV100) (dépôt google/filament, docs/Filament.md.html, commit e8669b6, lu le 8 novembre 2026)"

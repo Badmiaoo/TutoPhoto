@@ -3,18 +3,24 @@ name: Publication sur GitHub Pages
 on:
   push:
     branches: [main]
-  workflow_dispatch: # relance à la main
+  workflow_dispatch: # relance à la main ; ne publie que main
 
 permissions:
   contents: read
 
-# Une seule publication à la fois ; une publication en cours n'est pas interrompue.
+# Une seule publication à la fois ; une publication en cours n'est pas interrompue. Un groupe par référence : un
+# lancement à la main sur une autre branche, dont le job est sauté, ne peut plus annuler une publication de main en
+# attente dans le même groupe. Sources : docs/pile-technique.md, « Outillage de l'application ».
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   build:
+    # Sur main seulement (constat LIC-07 de l'audit, version 0.3.85) : lancé à la main sur une autre branche ou un tag,
+    # le workflow publierait cette version du site ; deploy, qui attend build, est sauté avec lui. Sources et limites :
+    # docs/pile-technique.md, « Outillage de l'application ».
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     defaults:
       run:
