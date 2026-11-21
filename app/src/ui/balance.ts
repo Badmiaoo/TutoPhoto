@@ -145,7 +145,7 @@ export class BalanceIndicator {
       const body = s.body;
       const blurLimit = blurLimitMm(body.sensorWidthMm, body.sensorHeightMm);
 
-      // Ouverture : zone nette (camera/sharpZone.ts).
+      // Ouverture : zone nette (camera/optics.ts, sharpZone).
       const { near, far } = sharpZone(f, N, S1, blurLimit);
       const farText = Number.isFinite(far) ? `${this.decimal(far, 1)} m` : "∞";
       const dofText = `${s.labels.aperture} · ${tr("balanceDof")} ${this.decimal(near, 1)} m – ${farText}`;

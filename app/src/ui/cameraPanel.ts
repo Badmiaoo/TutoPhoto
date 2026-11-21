@@ -750,7 +750,7 @@ export class CameraPanel {
     this.updateGrid();
     // Bruit du viseur : chaque pixel du cadre regroupe effectivePixels / (largeur × hauteur × grossissement²)
     // photosites, compté par pixel calculé, ou par pixel CSS quand un pixel calculé compte moins d'un photosite de
-    // rouge ou de bleu (loupe, à une densité supérieure à 1 : viewfinderNoiseGrid, camera/noise.ts).
+    // rouge ou de bleu (loupe, à une densité supérieure à 1 : viewfinderNoiseGrid, camera/noiseModel.ts).
     const resolved = this.resolved();
     const gain = this.showsBrightness() ? 1 : 2 ** resolved.offset;
     this.noise.update(

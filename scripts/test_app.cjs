@@ -40,7 +40,8 @@
 //   pénombre de 120 × 50 / 200 = 30 cm ; la bonne réponse à la première question est saluée ; pas de défilement horizontal ;
 //   source à 150 cm et à 20 cm : pénombre de 30 × 70 / 20 + 150 × 50 / 20 = 480 cm de haut, dite « au-delà du mur
 //   dessiné », sans « ombre pleine au centre » dans la légende ; « source », « objet » et « mur » écrits dans le dessin,
-//   sans se chevaucher (constats FMA-10 et INT-02, version 0.3.74) ;
+//   sans se chevaucher (constats FMA-10 et INT-02, version 0.3.74) ; le calcul de ces valeurs est aussi essayé sans
+//   navigateur, par app/tests/lum02Model.test.ts (constat INT-14, version 0.3.87) : la routine lit ce que la page écrit ;
 // - avec --photo : les notions « À revoir » du bulletin et le bouton « Fiche » de la fenêtre « Défis » ouvrent la
 //   fiche par-dessus le simulateur, et un lien de la fiche vers une autre fiche reste dans la fenêtre ;
 // - la scène se charge (le message de chargement disparaît) et aucun problème ne s'affiche à l'écran ;
@@ -59,7 +60,9 @@
 //   près ; « Vingt-quatre cases » a six cases sur le grand côté du cadre et quatre sur le petit ; « Tiers et
 //   diagonales » ajoute deux diagonales qui couvrent tout le cadre ; le choix est écrit dans tutophoto.apercu ;
 //   les lignes ne reçoivent pas les touchers ; la grille est masquée quand la loupe est à 100 % et revient quand
-//   elle est coupée ; « Aucune », choisie de nouveau, retire les lignes, et ce choix est écrit lui aussi ;
+//   elle est coupée ; « Aucune », choisie de nouveau, retire les lignes, et ce choix est écrit lui aussi ; les
+//   positions des lignes sont aussi essayées sans navigateur, par app/tests/viewfinder.test.ts (constat INT-14,
+//   version 0.3.87) : la routine mesure les lignes dessinées dans le cadre ;
 // - le viseur garde au moins 35 % de la hauteur de la fenêtre (iPhone : 41 % avant l'indicateur d'équilibre) ;
 // - indicateur d'équilibre : zone nette et bruit excellent aux réglages par défaut ; au même point du sol,
 //   immobile, le rapport signal/bruit à ISO 6400 tombe sous 40 % de celui à ISO 100 (environ 17 % attendus :
@@ -83,7 +86,9 @@
 //   0.3.70 ; version 0.3.71 pour les deux) ;
 // - avec --photo, histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07, version 0.3.57) : par défaut,
 //   ni histogramme ni clignotement ; « Infos » une fois : quatre histogrammes (luminance, rouge, vert, bleu), la
-//   somme des colonnes de chacun égale au nombre de pixels de la photo ; photo surexposée de 3,2 IL : elle s'ouvre en
+//   somme des colonnes de chacun égale au nombre de pixels de la photo (le calcul des histogrammes est aussi essayé
+//   sans navigateur, par app/tests/histogram.test.ts, version 0.3.86 : la routine lit les colonnes que l'écran de revue
+//   a reçues) ; photo surexposée de 3,2 IL : elle s'ouvre en
 //   haut de l'écran de revue, sans défilement gardé de la photo d'avant (INT-17, version 0.3.59), part écrêtée
 //   supérieure à 0 dans le texte, puis « Infos » encore une fois : zones écrêtées posées sur la photo, sans prendre
 //   les touchers ; avec « réduire les animations », émulé, le calque des zones n'a aucune animation et le texte dit
