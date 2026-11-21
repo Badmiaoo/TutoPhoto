@@ -7,9 +7,9 @@
 // sections de niveau 2 aux titres de docs/contenus.md, des paragraphes, des listes à tirets, du gras (**…**) et des
 // liens [texte](https://…). Tout le reste fait échouer la construction, comme un code de notion ou de situation
 // sans fiche : une fiche mal formée se voit avant la publication. Depuis la version 0.3.81 (constats RST-01 et RST-13
-// de l'audit, Sujet 21), un identifiant de fiche a la forme de src/ficheId.mjs, partagée avec le simulateur
-// (« SIT-V2-02 » compris), et une fiche sans section, ou dont une section n'a aucun texte, fait aussi échouer la
-// construction, au lieu d'être publiée vide.
+// de l'audit, Sujet 21, et sa relecture) : un identifiant de fiche, nom de fichier compris, a la forme de
+// src/ficheId.mjs, partagée avec le simulateur (« SIT-V2-02 » compris) ; une fiche sans section, une section sans
+// texte, une puce vide et une fiche de situation sans recette font aussi échouer la construction.
 //
 // Le site est en français seul depuis la version 0.3.60 (décision de Julien du 15 novembre 2026). Les pages se lisent
 // sans JavaScript ; le seul script de l'accueil est celui du pré-téléchargement.
@@ -25,8 +25,10 @@ const root = join(app, "..");
 const dist = join(app, "dist");
 // Ordre des domaines de scripts/referentiel.py (DOMAIN_ORDER).
 const DOMAIN_ORDER = ["EXP", "MES", "BOI", "MAP", "NET", "MVT", "OPT", "LUM", "COU", "CMP", "PLA", "RET", "LEC"];
-// Identifiants de fiches : codes cités dans un texte, ligne de data/relecture.yaml, titre d'une fiche.
+// Identifiants de fiches : codes cités dans un texte, nom d'un fichier de content/, ligne de data/relecture.yaml,
+// titre d'une fiche.
 const ID = new RegExp(`\\b${FICHE_ID}\\b`, "g");
+const FILE_ID = new RegExp(`^${FICHE_ID}$`);
 const REVIEWED_LINE = new RegExp(`^  - \\{fiche: (${FICHE_ID}), date: \\d{4}-\\d{2}-\\d{2}\\}$`);
 const TITLE_LINE = new RegExp(`^# (${FICHE_ID}) · (.+)$`);
 
@@ -155,7 +157,7 @@ function prefetchFiles() {
   return files;
 }
 
-/** Lit les fiches : { id: { kind, title, sections: [{ title, lines }] } }. */
+/** Lit les fiches : { id: { kind, title, sections: [{ title, at, lines }] } }. */
 function readFiches() {
   const fiches = {};
   for (const kind of ["notions", "situations"]) {
@@ -164,7 +166,13 @@ function readFiches() {
       if (!name.endsWith(".md")) continue;
       const id = name.slice(0, -3);
       const where = `content/${kind}/${name}`;
-      const lines = readFileSync(join(dir, name), "utf8").split("\n");
+      if (!FILE_ID.test(id)) {
+        fail(`${where} : le nom du fichier n'est pas un identifiant de fiche (EXP-04, SIT-05 ou SIT-V2-02)`);
+        continue;
+      }
+      // Fins de ligne de Windows (CRLF) acceptées, comme dans version.mjs : sinon le titre, lu avec son « \r », ne
+      // serait pas reconnu, et le message redemanderait la ligne lue (relecture de la version 0.3.81, constat C2).
+      const lines = readFileSync(join(dir, name), "utf8").split(/\r?\n/);
       const first = lines.findIndex((l) => l.trim() !== "");
       const h1 = TITLE_LINE.exec(lines[first] ?? "");
       if (!h1 || h1[1] !== id) {
@@ -189,6 +197,12 @@ function readFiches() {
       if (sections.length === 0) fail(`${where} : aucune section ; leurs titres sont dans docs/contenus.md`);
       for (const s of sections) {
         if (!s.lines.some((l) => l.line.trim() !== "")) fail(`${s.at} : section « ${s.title} » vide`);
+      }
+      // Une fiche de situation donne sa recette : l'accueil le promet (« Je suis en situation »), et scripts/coverage.py
+      // ne compte une situation comme rédigée que par elle (relecture de la version 0.3.81, constat C4).
+      const recipe = SECTIONS.situations[1];
+      if (kind === "situations" && sections.length > 0 && !sections.some((s) => s.title === recipe)) {
+        fail(`${where} : pas de section « ${recipe} » ; une fiche de situation donne sa recette (docs/contenus.md)`);
       }
       fiches[id] = { kind, title: h1[2], sections };
     }
@@ -240,6 +254,8 @@ function block(lines, ctx) {
     const { line, at } = item;
     if (line.trim() === "") flush();
     else if (line.startsWith("- ")) {
+      // Une puce sans texte donnerait un élément de liste vide (relecture de la version 0.3.81, constat C1).
+      if (line.slice(2).trim() === "") fail(`${at} : élément de liste vide`);
       if (paragraph.length) flush();
       list.push(item);
     } else if (/^(#|>|\||\d+[.)] |[*+] |\s)/.test(line)) fail(`${at} : balisage non reconnu en début de ligne`);
