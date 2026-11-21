@@ -1,6 +1,6 @@
 # Changelog
 
-Évolutions du dépôt, de la plus récente à la plus ancienne. Chaque pull request fusionnée donne une version : elle ajoute ici sa section, que la CI contrôle (`scripts/changelog.py check`). Après la fusion, le workflow `.github/workflows/tag.yml` pose le tag annoté `vX.Y.Z` sur le commit de fusion et publie la release GitHub correspondante, avec le texte de cette section.
+Évolutions du dépôt, de la plus récente à la plus ancienne. Chaque pull request fusionnée donne une version : elle ajoute ici sa section, que la CI contrôle (`scripts/changelog.py check`). Après la fusion, le workflow `.github/workflows/tag.yml` pose le tag annoté `vX.Y.Z` sur le commit de fusion et publie la release GitHub correspondante, avec le texte de cette section. La date d'un titre est celle du jour où la section est écrite, qui peut précéder celui de la fusion ; la date de la fusion est celle du commit de fusion et du tag, que le workflow pose à sa suite. Le message du tag et le nom de la release recopient la date du titre, et le workflow ne les réécrit jamais : un titre publié ne se redate pas. Les versions 0.2.0, 0.2.1 et 0.2.2 n'ont pas de tag : GitHub a refusé leurs références au jeton du workflow (section 0.2.4), et Julien a renoncé à les poser le 15 novembre 2026 (`docs/historique.md`) ; leurs liens, en bas de ce fichier, visent leurs commits de fusion.
 
 ## Numérotation `vX.Y.Z`
 
@@ -14,11 +14,25 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 ## [0.3.85] - 2026-11-21
 
-Sujet 25 du plan de corrections de l'audit (`docs/audit/README.md`) : pose des tags et contrôle du changelog (constats LIC-07 et LIC-04 de `docs/audit/licences-scripts-ci.md`, DOC-04 de `docs/audit/documentation.md`, et la part de CHX-10 de `docs/audit/choix-et-outils.md` sur les trois tags, que Julien abandonne : D8, `docs/historique.md`, 15 novembre 2026). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le sujet n'a pas de part anglaise. En cours : cette section dit ce qui est fait au commit où elle est lue.
+Sujet 25 du plan de corrections de l'audit (`docs/audit/README.md`) : pose des tags et contrôle du changelog (constats LIC-07 et LIC-04 de `docs/audit/licences-scripts-ci.md`, DOC-04 de `docs/audit/documentation.md`, et la part de CHX-10 de `docs/audit/choix-et-outils.md` sur les trois tags, que Julien abandonne : D8, `docs/historique.md`, 15 novembre 2026). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le sujet n'a pas de part anglaise. En cours : cette section dit ce qui est fait au commit où elle est lue ; essais et relecture à venir.
+
+### Corrigé
+
+- `.github/workflows/tag.yml` et `.github/workflows/pages.yml`, LIC-07 : le job `tag` et le job `build` ne tournent que si `github.ref` vaut `refs/heads/main` ; `deploy`, qui attend `build`, est sauté avec lui. Avant, un lancement à la main sur une autre branche posait pour de bon des tags et des releases sur des commits de cette branche, ou publiait cette branche. Limite, écrite dans `docs/pile-technique.md` : un lancement fait tourner le fichier du workflow tel qu'il est sur la branche ou le tag choisi, et les branches et les tags d'avant cette version n'ont pas la condition.
+- `scripts/changelog.py check`, LIC-04 : une base introuvable (nom mal écrit, branche non récupérée, base vide) est une erreur « base introuvable », code 1, au lieu de passer en silence sans rien comparer ; de même un changelog illisible ou sans version dans la base.
+- `scripts/changelog.py check`, LIC-04 : une ligne « ## » placée après le premier titre de version, et qui n'est pas un titre de version, est une erreur ; avant, elle coupait la section qui la précède, et le tag et la release de la version n'en auraient gardé que le début. Toute ligne qui commence comme un titre de version sans en avoir la forme (« ## 0.3.59 - … », « ### [0.3.59] - … »), où qu'elle soit, est une erreur « titre de version mal formé ».
 
 ### Modifié
 
+- `scripts/changelog.py tag`, D8 (CHX-10) : les versions 0.2.0, 0.2.1 et 0.2.2 sont laissées sans tag (`UNTAGGED_VERSIONS`) ; ni `tag` ni `tag --github` ne les réessaient.
+- `CHANGELOG.md`, D8 : les quatre liens du bas qui visaient ces tags absents visent les commits de fusion des pull requests 1, 2 et 3.
+- `CHANGELOG.md`, DOC-04 : l'en-tête dit de quoi la date d'un titre est la date, sans redater les trois titres datés de la veille de leur fusion ; il dit aussi que les versions 0.2.0 à 0.2.2 n'ont pas de tag.
+- `docs/pile-technique.md` : la condition des deux workflows, sa limite et ses sources.
 - `docs/etat-des-travaux.md` : fin de la version 0.3.84 relue (fusion, tag, release, publication, CI du dernier commit), lignée des sessions (profondeur 2 sur 8, effort « max ») ; Sujet 25 en cours ; dans « Leçons pratiques », le redémarrage du conteneur de la session du Sujet 24 à la minute de sa relance horaire.
+
+### Ajouté
+
+- `data/sources.yaml` : huit sources lues le 21 novembre 2026 : sept textes de la documentation de GitHub (condition d'un job, job qui en attend un autre, valeur de `github.ref`, lancement à la main, version du fichier qui tourne, environnement `github-pages` et ses règles) et la documentation de `git rev-parse` (git 2.56.1).
 
 ## [0.3.84] - 2026-11-21
 
@@ -1947,7 +1961,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 [0.3.1]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.4...v0.3.0
 [0.2.4]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.3...v0.2.4
-[0.2.3]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.2...v0.2.3
-[0.2.2]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.1...v0.2.2
-[0.2.1]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.2.0...v0.2.1
-[0.2.0]: https://github.com/Badmiaoo/TutoPhoto/tree/v0.2.0
+[0.2.3]: https://github.com/Badmiaoo/TutoPhoto/compare/911deef6da7e588b4478c4cf68e6edde033bae9e...v0.2.3
+[0.2.2]: https://github.com/Badmiaoo/TutoPhoto/compare/3bd4ae06d6c4ed7e53b8abba57311858d7180540...911deef6da7e588b4478c4cf68e6edde033bae9e
+[0.2.1]: https://github.com/Badmiaoo/TutoPhoto/compare/804a2debd5b72e08f91d5c66c5bdea9f775e8519...3bd4ae06d6c4ed7e53b8abba57311858d7180540
+[0.2.0]: https://github.com/Badmiaoo/TutoPhoto/tree/804a2debd5b72e08f91d5c66c5bdea9f775e8519

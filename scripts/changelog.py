@@ -4,10 +4,12 @@
 Usage :
   python3 scripts/changelog.py check [--base REF]
       Vérifie le format du changelog. Avec --base, vérifie aussi que la pull request
-      ajoute une version plus récente que celle de REF et ne retire aucune version publiée.
+      ajoute une version plus récente que celle de REF et ne retire aucune version publiée ;
+      une base que git ne trouve pas, ou dont il ne lit pas le changelog, est une erreur.
   python3 scripts/changelog.py tag [--apply | --github]
       Pour chaque version sans tag, trouve le commit de main (premier parent) qui a
       introduit sa section et y pose un tag annoté vX.Y.Z avec le texte de la section.
+      Les versions de UNTAGGED_VERSIONS sont laissées sans tag.
       Sans option : affiche ce qui serait fait. --apply crée les tags dans le dépôt local.
       --github crée les tags par l'API de GitHub, puis une release par version avec le
       texte de la section ; il lit GITHUB_TOKEN, GITHUB_REPOSITORY et GITHUB_API_URL.
@@ -30,6 +32,15 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 CHANGELOG = "CHANGELOG.md"
 VERSION_HEADING = re.compile(r"^## \[(\d+)\.(\d+)\.(\d+)\] - (\d{4}-\d{2}-\d{2})$")
 LINK_REF = re.compile(r"^\[(\d+\.\d+\.\d+)\]: \S+$")
+# Ligne « ## » : elle commence par « ## » sans troisième « # », avec ou sans espace ensuite (« ##[0.3.59] » compte).
+LEVEL2_HEADING = re.compile(r"^##(?!#)")
+# Ligne qui commence comme un titre de version, à n'importe quel niveau de titre : des « # », puis un numéro X.Y.Z,
+# avec ou sans crochet ni « v » (« ## 0.3.59 - … », « ### [0.3.59] - … »). Constat LIC-04 de l'audit, cas 5.
+VERSION_LIKE = re.compile(r"^#+ *\[? *v?\d+\.\d+\.\d+")
+# Versions laissées sans tag : GitHub a refusé leurs références au jeton du workflow (HTTP 403, section 0.2.4 du
+# changelog), et Julien a renoncé à les poser (décision D8, 15 novembre 2026, docs/historique.md). Ni « tag » ni
+# « tag --github » ne les réessaient ; les liens du bas du changelog visent leurs commits de fusion.
+UNTAGGED_VERSIONS = frozenset({"0.2.0", "0.2.1", "0.2.2"})
 
 
 def git(*args, check=True):
@@ -46,26 +57,37 @@ def parse(text):
     """Renvoie (versions, erreurs) ; une version = dict(version, key, date, body)."""
     versions, errors, links = [], [], set()
     current = None
+    seen_version = False
     for n, line in enumerate(text.splitlines(), 1):
         if LINK_REF.match(line):
             links.add(LINK_REF.match(line).group(1))
             current = None
             continue
-        if line.startswith("## "):
+        m = VERSION_HEADING.match(line)
+        if m:
             current = None
-            m = VERSION_HEADING.match(line)
-            if m:
-                key = tuple(int(x) for x in m.group(1, 2, 3))
-                try:
-                    date = datetime.date.fromisoformat(m.group(4))
-                except ValueError:
-                    errors.append(f"ligne {n} : date invalide {m.group(4)}")
-                    continue
-                current = {"version": ".".join(map(str, key)), "key": key, "date": m.group(4),
-                           "_date": date, "lines": []}
-                versions.append(current)
-            elif line.startswith("## ["):
-                errors.append(f"ligne {n} : titre de version mal formé, attendu « ## [X.Y.Z] - AAAA-MM-JJ » : {line}")
+            seen_version = True
+            key = tuple(int(x) for x in m.group(1, 2, 3))
+            try:
+                date = datetime.date.fromisoformat(m.group(4))
+            except ValueError:
+                errors.append(f"ligne {n} : date invalide {m.group(4)}")
+                continue
+            current = {"version": ".".join(map(str, key)), "key": key, "date": m.group(4),
+                       "_date": date, "lines": []}
+            versions.append(current)
+            continue
+        if VERSION_LIKE.match(line) or line.startswith("## ["):
+            current = None
+            errors.append(f"ligne {n} : titre de version mal formé, attendu « ## [X.Y.Z] - AAAA-MM-JJ » : {line}")
+            continue
+        if LEVEL2_HEADING.match(line):
+            current = None
+            if seen_version:
+                # Constat LIC-04, cas 6 : une telle ligne coupait la section qui la précède, et le tag et la release
+                # de la version n'en auraient gardé que le début, sans que rien ne le dise.
+                errors.append(f"ligne {n} : ligne « ## » placée après le premier titre de version, qui n'est pas un "
+                              f"titre de version ; elle couperait la section qui la précède : {line}")
             continue
         if current is not None:
             current["lines"].append(line)
@@ -90,20 +112,46 @@ def parse(text):
     return versions, errors
 
 
+def first_line(text):
+    """Première ligne non vide d'un message de git, ou « (sans message) »."""
+    return next((line.strip() for line in text.splitlines() if line.strip()), "(sans message)")
+
+
+def base_errors(base, versions):
+    """Erreurs de la comparaison avec la base. Une base introuvable ou illisible est une erreur (constat LIC-04) :
+    avant la version 0.3.85, elle passait en silence, et le contrôle ne comparait rien.
+
+    « rev-parse --verify --end-of-options <base>^{commit} » échoue si la base est vide ou ne désigne pas un commit, et
+    ne prend pas un nom qui commence par « - » pour une option : forme que donne la documentation de git (source
+    git-2-56-1-rev-parse-verify de data/sources.yaml, l. 108-126 et 498-505 de
+    https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/git-rev-parse.adoc).
+    """
+    found = git("rev-parse", "--verify", "--quiet", "--end-of-options", f"{base}^{{commit}}", check=False)
+    if found.returncode != 0:
+        return [f"base introuvable : « {base} » ne désigne aucun commit du dépôt local "
+                f"(nom mal écrit, ou branche à récupérer d'abord, par exemple « git fetch origin main »)"]
+    shown = git("show", f"{found.stdout.strip()}:{CHANGELOG}", check=False)
+    if shown.returncode != 0:
+        return [f"{CHANGELOG} illisible dans la base « {base} » : {first_line(shown.stderr)}"]
+    base_versions, _ = parse(shown.stdout)
+    if not base_versions:
+        return [f"aucune version lue dans le {CHANGELOG} de la base « {base} »"]
+    errors = []
+    if versions[0]["key"] <= base_versions[0]["key"]:
+        errors.append(f"la pull request doit ajouter une version plus récente que {base_versions[0]['version']} "
+                      f"(version en tête : {versions[0]['version']})")
+    mine = {v["version"] for v in versions}
+    for v in base_versions:
+        if v["version"] not in mine:
+            errors.append(f"version publiée retirée du changelog : {v['version']}")
+    return errors
+
+
 def cmd_check(base):
     versions, errors = parse((ROOT / CHANGELOG).read_text(encoding="utf-8"))
-    if base and not errors:
-        shown = git("show", f"{base}:{CHANGELOG}", check=False)
-        if shown.returncode == 0:
-            base_versions, _ = parse(shown.stdout)
-            if base_versions:
-                if versions[0]["key"] <= base_versions[0]["key"]:
-                    errors.append(f"la pull request doit ajouter une version plus récente que {base_versions[0]['version']} "
-                                  f"(version en tête : {versions[0]['version']})")
-                mine = {v["version"] for v in versions}
-                for v in base_versions:
-                    if v["version"] not in mine:
-                        errors.append(f"version publiée retirée du changelog : {v['version']}")
+    # « is not None » : une base vide (« --base "" », variable non définie dans un script) est aussi contrôlée.
+    if base is not None and not errors:
+        errors.extend(base_errors(base, versions))
     for e in errors:
         print(f"ERREUR : {e}")
     if not errors:
@@ -161,14 +209,17 @@ def report(text):
 def tag_on_github(versions):
     """Crée les tags et releases manquants. Échoue seulement si la version la plus récente reste sans tag.
 
-    GitHub peut refuser au jeton du workflow la référence d'une ancienne version (HTTP 403) : cette
-    version est alors signalée, avec la commande pour poser le tag à la main, et les suivantes sont traitées.
+    Les versions de UNTAGGED_VERSIONS sont sautées, sans appel à l'API. GitHub peut refuser au jeton du
+    workflow la référence d'une ancienne version (HTTP 403) : cette version est alors signalée, avec la
+    commande pour poser le tag à la main, et les suivantes sont traitées.
     """
     repo = os.environ["GITHUB_REPOSITORY"]
     tagger = {"name": "github-actions[bot]", "email": "41898282+github-actions[bot]@users.noreply.github.com",
               "date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
     blocked = []
     for v in reversed(versions):  # du plus ancien au plus récent : la dernière release créée est la plus récente
+        if v["version"] in UNTAGGED_VERSIONS:
+            continue
         tag = f"v{v['version']}"
         code, body = github_api("GET", f"/repos/{repo}/git/ref/tags/{tag}")
         if code == 404:
@@ -223,7 +274,7 @@ def cmd_tag(apply, github):
     created = []
     for v in reversed(versions):  # du plus ancien au plus récent
         tag = f"v{v['version']}"
-        if tag in existing:
+        if tag in existing or v["version"] in UNTAGGED_VERSIONS:
             continue
         sha = introducing_commit(v["version"])
         if sha is None:

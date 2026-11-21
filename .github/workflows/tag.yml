@@ -3,7 +3,7 @@ name: Tags de version
 on:
   push:
     branches: [main]
-  workflow_dispatch: # relance à la main, par exemple après un échec
+  workflow_dispatch: # relance à la main, par exemple après un échec ; le job ne tourne que sur main
 
 # Seul ce workflow écrit dans le dépôt : il crée des tags et des releases, rien d'autre.
 permissions:
@@ -15,6 +15,10 @@ concurrency:
 
 jobs:
   tag:
+    # Sur main seulement (constat LIC-07 de l'audit, version 0.3.85) : lancé à la main sur une autre branche, le job
+    # poserait des tags et des releases sur des commits de cette branche, que ce workflow ne déplace jamais ensuite.
+    # Sources et limites : docs/pile-technique.md, « Outillage de l'application ».
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     defaults:
       run:
