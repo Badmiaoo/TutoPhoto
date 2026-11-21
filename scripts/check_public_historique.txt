@@ -1,9 +1,11 @@
 # Tolérances de scripts/check_public.py : des problèmes déjà publiés, que le contrôle ne signale plus.
 # L'historique publié ne se réécrit pas (CLAUDE.md, docs/publication.md) : un problème poussé sur GitHub y reste, et
 # arrêterait la CI de toutes les pull requests suivantes. Une ligne par tolérance : l'empreinte complète du commit,
-# l'endroit (« message » : son message ; « ajout » : les lignes qu'il ajoute et les chemins de leurs fichiers), puis
-# le type de problème, écrit comme le script l'affiche. Le contrôle tolère ce seul type de problème, à ce seul
-# endroit, dans ce seul commit ; tout autre problème, et tout autre commit, reste contrôlé.
+# l'endroit (« message » : son message ; « ajout » : les lignes qu'il ajoute et les chemins des fichiers qu'il
+# introduit ; « identité » : les noms et les adresses de son auteur et de son committer), puis le type de problème,
+# écrit comme le script l'affiche (« adresse électronique » pour une adresse d'auteur ou de committer refusée). Le
+# contrôle tolère ce seul type de problème, à ce seul endroit, dans ce seul commit ; tout autre problème, et tout
+# autre commit, reste contrôlé.
 # Une tolérance ne s'inscrit ici qu'après le signalement de la fuite à Julien, avec la date du signalement en
 # commentaire au-dessus d'elle, par une pull request qui la montre à la relecture (docs/publication.md, « Si quelque
 # chose a fuité » ; retouche gardée du constat réfuté LIC-06 de l'audit, version 0.3.84).

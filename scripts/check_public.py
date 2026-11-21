@@ -9,24 +9,26 @@ Contrôles, tous bloquants :
   formats connus, mots de passe ou secrets écrits en clair, adresses électroniques (hors adresses « noreply » et
   domaines d'exemple), numéros de téléphone, liens vers des ressources privées (Claude, Google Docs et Drive, Dropbox,
   Notion) et identifiants de session Claude écrits seuls, chemins locaux qui révèlent un nom d'utilisateur ;
-- commits (avec --commits) : noms et adresses des auteurs et des committers, les adresses devant être des adresses
-  « noreply » ; messages ; lignes ajoutées par chaque commit et chemins de leurs fichiers, que l'historique publié
-  garde même quand un commit suivant les retire (constat LIC-01 de l'audit, version 0.3.84). Tous passent par les
-  mêmes contrôles que les fichiers. Seules exceptions : les problèmes déjà publiés que liste
-  scripts/check_public_historique.txt, chacun pour un commit, un endroit (son message ou ses ajouts) et un type ;
+- commits (avec --commits) : noms des auteurs et des committers, messages, lignes ajoutées par chaque commit et
+  chemins des fichiers qu'il introduit, par les mêmes contrôles que les fichiers ; adresses des auteurs et des
+  committers, qui doivent être des adresses « noreply » ou d'un domaine d'exemple. Ce qu'un commit ajoute et qu'un
+  commit suivant retire reste dans l'historique publié (constat LIC-01 de l'audit, version 0.3.84). Seules
+  exceptions : les problèmes déjà publiés que liste scripts/check_public_historique.txt, chacun pour un commit, un
+  endroit (son message, ses ajouts, ou l'identité de son auteur et de son committer) et un type de problème ;
 - titre et description d'une pull request (avec --pull-request, sans les fichiers ni les commits), lus dans le
   fichier JSON de l'événement GitHub ($GITHUB_EVENT_PATH), par le workflow .github/workflows/description.yml.
   Ils ne sont pas dans git ; l'outil GitHub de Claude met un lien de session dans la description à la création
   (docs/publication.md). Le fichier est lu plutôt que des variables d'environnement, qu'Actions écrit en clair
   dans le journal de l'étape.
 
-Ne sont pas lus (docs/publication.md, « Ce que les contrôles ne lisent pas ») : le contenu des fichiers binaires
-(un octet nul dans les 8 000 premiers octets, ce qui écarte aussi un fichier de texte en UTF-16 ; dans un commit, un
-fichier que git montre comme binaire), les étiquettes (tags) et leur auteur. Aucun motif ne reconnaît une adresse
-postale. Les secrets dans tout l'historique sont aussi cherchés par gitleaks, dans la CI.
-Les valeurs trouvées ne sont jamais affichées en entier.
+Ne sont pas lus (docs/publication.md, « Ce que les contrôles ne lisent pas ») : le contenu d'un fichier, ou d'une
+version d'un fichier, qui a un octet nul dans ses 8 000 premiers octets (fichier binaire, ou de texte en UTF-16) ; les
+étiquettes (tags) et leur auteur. Aucun motif ne reconnaît une adresse postale. Les secrets sont aussi cherchés par
+gitleaks, dans la CI. Les valeurs trouvées ne sont jamais affichées en entier. Un échec de git arrête le script avec
+le message de git (code 2).
 """
 import argparse
+import functools
 import json
 import os
 import re
@@ -38,7 +40,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 # Adresses autorisées : uniquement des adresses « noreply » et des domaines réservés aux exemples. L'adresse « noreply »
 # de GitHub d'un compte qui l'a choisie avant le 18 juillet 2017 n'a pas de numéro devant le pseudo (retouche gardée du
-# constat réfuté LIC-06, version 0.3.84 ; source github-noreply-email de data/sources.yaml, l. 45-48 de
+# constat réfuté LIC-06, version 0.3.84 ; source github-noreply-email de data/sources.yaml, l. 43-49 de
 # https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/content/account-and-profile/reference/email-addresses-reference.md).
 ALLOWED_EMAIL = re.compile(
     r"^(noreply@anthropic\.com|noreply@github\.com|([0-9]+\+)?[A-Za-z0-9-]+(\[bot\])?@users\.noreply\.github\.com"
@@ -93,6 +95,7 @@ def findings(line):
             yield EMAIL_KIND, m.start(), m.end()
 
 
+@functools.lru_cache(maxsize=None)
 def mask(text):
     """Le texte, chaque valeur trouvée réduite à son début : un chemin se nomme ainsi sans recopier la valeur."""
     spans = []
@@ -123,9 +126,17 @@ def scan_text(label, text, problems, skip=(), first=1):
                 problems.append(f"{label}:{n} : {kind} ({redact(line[start:end])})")
 
 
-def git_output(*args):
-    """Sortie d'une commande git, en octets."""
-    return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, check=True).stdout
+def git_output(*args, data=None):
+    """Sortie d'une commande git, en octets. Un échec de git arrête le script, avec la dernière ligne du message de
+    git et le code 2 (une plage introuvable, un git trop ancien pour --attr-source) ; avant la version 0.3.84, une
+    trace Python sans le message de git (relecture, C7)."""
+    result = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, input=data)
+    if result.returncode != 0:
+        said = result.stderr.decode("utf-8", errors="replace").strip().splitlines()
+        shown = " ".join(a for a in args if not a.startswith("--format=") and len(a) < 80)
+        print(f"ERREUR : git {shown} : {said[-1] if said else f'code {result.returncode}'}")
+        sys.exit(2)
+    return result.stdout
 
 
 def tracked_files():
@@ -133,15 +144,16 @@ def tracked_files():
 
 
 HISTORY_FILE = ROOT / "scripts" / "check_public_historique.txt"
-PLACES = ("message", "ajout")
+PLACES = ("message", "ajout", "identité")
 
 
 def known_history(problems):
     """Problèmes déjà publiés, tolérés : {(empreinte, endroit) : {types}} (scripts/check_public_historique.txt).
 
-    Une ligne : l'empreinte complète du commit, l'endroit (« message », ou « ajout » pour les lignes ajoutées par le
-    commit et les chemins de leurs fichiers), puis le type du problème tel que le script l'écrit. Une ligne qui n'a pas
-    cette forme est un problème : sans cela, une tolérance mal écrite ne tolérerait rien sans le dire.
+    Une ligne : l'empreinte complète du commit, l'endroit (« message » ; « ajout » pour les lignes ajoutées par le
+    commit et les chemins des fichiers qu'il introduit ; « identité » pour les noms et les adresses de son auteur et de
+    son committer), puis le type du problème tel que le script l'écrit. Une ligne qui n'a pas cette forme est un
+    problème : sans cela, une tolérance mal écrite ne tolérerait rien sans le dire.
     """
     known = {}
     if not HISTORY_FILE.is_file():
@@ -153,8 +165,8 @@ def known_history(problems):
         parts = line.split(maxsplit=2)
         if (len(parts) != 3 or not re.fullmatch(r"[0-9a-f]{40}", parts[0]) or parts[1] not in PLACES
                 or parts[2] not in KINDS):
-            problems.append(f"{label}:{n} : tolérance illisible (attendu : empreinte complète, « message » ou "
-                            "« ajout », type de problème tel que le script l'écrit)")
+            problems.append(f"{label}:{n} : tolérance illisible (attendu : empreinte complète, « message », « ajout » "
+                            "ou « identité », type de problème tel que le script l'écrit)")
             continue
         known.setdefault((parts[0], parts[1]), set()).add(parts[2])
     return known
@@ -189,9 +201,10 @@ def scan_commits(revs, known, problems):
             problems.append(f"en-tête de commit illisible ({redact(header)})")
             continue
         sha, author_name, author, committer_name, committer = fields
+        identity = known.get((sha, "identité"), ())
         for role, name, email in (("de l'auteur", author_name, author), ("du committer", committer_name, committer)):
-            scan_value(f"commit {sha[:7]} (nom {role})", name, problems)
-            if not ALLOWED_EMAIL.match(email):
+            scan_value(f"commit {sha[:7]} (nom {role})", name, problems, identity)
+            if not ALLOWED_EMAIL.match(email) and EMAIL_KIND not in identity:
                 problems.append(f"commit {sha[:7]} : adresse {role} non autorisée ({redact(email)})")
         scan_text(f"commit {sha[:7]} (message)", message, problems, known.get((sha, "message"), ()))
     return len(records)
@@ -201,8 +214,8 @@ HUNK = re.compile(r"(@@+) [^@]*?\+(\d+)(?:,\d+)? \1")
 
 
 def diff_path(text, prefix="b/"):
-    """Chemin d'un en-tête de diff (« +++ b/… », « rename to … ») : guillemets et préfixe retirés, échappements
-    gardés."""
+    """Chemin d'un en-tête de diff (« +++ b/… », « rename to … »), pour nommer le fichier dans un message :
+    guillemets et préfixe retirés, échappements gardés."""
     # git ajoute une tabulation après un chemin qui contient une espace (source git-2-56-1-diff-c-tab, l. 1561-1567 de
     # https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/diff.c).
     text = text.removesuffix("\t")
@@ -212,10 +225,8 @@ def diff_path(text, prefix="b/"):
 
 
 def git_header_path(raw):
-    """Chemin d'un en-tête « diff --git a/P b/P », quand les deux côtés portent le même chemin (ni renommage ni copie).
-
-    Seul cet en-tête nomme un fichier vide ajouté, qui n'a pas de ligne « +++ ».
-    """
+    """Chemin d'un en-tête « diff --git a/P b/P », quand les deux côtés portent le même chemin (ni renommage ni copie) :
+    seul cet en-tête nomme un fichier binaire ou vide, qui n'a pas de ligne « +++ »."""
     s = raw[len("diff --git "):]
     half = len(s) // 2
     if len(s) % 2 == 0 or s[half] != " ":
@@ -229,18 +240,19 @@ def git_header_path(raw):
 
 
 def scan_additions(revs, known, problems):
-    """Lignes ajoutées par chaque commit, et chemins de leurs fichiers (constat LIC-01).
+    """Lignes ajoutées par chaque commit (constat LIC-01).
 
     Une ligne est ajoutée par un commit quand elle est dans son arbre et dans celui d'aucun de ses parents : pour un
     commit ordinaire, les lignes « + » de son diff ; pour un commit de fusion, celles du diff combiné (--cc) marquées
     « + » dans la colonne de chaque parent, que la fusion n'a prises à aucun d'eux ; le premier commit est comparé à un
     arbre vide (log.showRoot). Chaque ligne de l'historique est ainsi lue dans le commit qui l'a apportée, sans être
-    relue dans les fusions qui la recopient. De même, un chemin est lu dans le commit qui l'introduit (fichier nouveau,
-    « new file mode », renommé ou copié), pas dans ceux qui modifient le fichier. Options fixées pour ne pas dépendre
-    de la configuration de git : chemins sans échappement, préfixes « a/ » et « b/ », ni couleur, ni outil de diff
-    externe, ni conversion de texte (textconv) ; attributs lus dans un arbre vide (--attr-source), pour qu'un fichier
-    de texte déclaré binaire par .gitattributes (« -diff », « binary ») montre quand même ses lignes (essai de la
-    version 0.3.84 : sans cette option, une ligne ajoutée à un fichier .md marqué « -diff » n'est pas lue).
+    relue dans les fusions qui la recopient. Options fixées pour que la configuration de git ne change pas ce qui est
+    lu : chemins sans échappement, préfixes « a/ » et « b/ », ni couleur, ni outil de diff externe, ni conversion de
+    texte (textconv) ; attributs des fichiers .gitattributes lus dans un arbre vide (--attr-source, git 2.41 ou plus),
+    pour qu'un fichier de texte qu'ils déclarent binaire (« -diff », « binary ») montre ses lignes. Un fichier que git
+    montre quand même comme binaire (sa version d'avant l'était, ou un attribut de .git/info/attributes ou de
+    core.attributesFile, ou le seuil core.bigFileThreshold) est lu en entier dans sa nouvelle version, tirée de l'objet
+    git par git cat-file, s'il n'a pas d'octet nul dans ses 8 000 premiers octets (relecture, C1 et C4).
     Sources (data/sources.yaml), textes de git 2.56.1, la version de la CI le 21 novembre 2026 :
     - git-2-56-1-diff-combine, colonnes et « @ » du diff combiné, l. 181-202 de
       https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/diff-generate-patch.adoc ;
@@ -249,24 +261,28 @@ def scan_additions(revs, known, problems):
     - git-2-56-1-log-showroot, le premier commit comparé à un arbre vide, l. 66-70 de
       https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/config/log.adoc ;
     - git-2-56-1-attr-source, --attr-source, l. 230-233 de
-      https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/git.adoc.
+      https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/git.adoc ;
+    - git-2-41-0-relnotes, --attr-source apparue dans git 2.41.0, l. 116-118 de
+      https://raw.githubusercontent.com/git/git/fe86abd7511a9a6862d5706c6fa1d9b57a63ba09/Documentation/RelNotes/2.41.0.txt.
     """
     empty_tree = git_output("hash-object", "-t", "tree", "/dev/null").decode().strip()
     out = git_output(f"--attr-source={empty_tree}", "-c", "core.quotePath=false", "-c", "log.showRoot=true", "log",
-                     "--format=%x00%H", "-U0", "-M", "--cc", "--no-color", "--no-ext-diff", "--no-textconv",
-                     "--src-prefix=a/", "--dst-prefix=b/", *revs)
-    count = 0
-    # Un commit commence par un octet nul et son empreinte ; un octet nul dans le texte d'un fichier n'en est pas un.
-    for chunk in re.split(r"\x00(?=[0-9a-f]{40}\n)", out.decode("utf-8", errors="replace")):
+                     "--format=%x00%H", "-U0", "-M", "--cc", "--full-index", "--no-color", "--no-ext-diff",
+                     "--no-textconv", "--src-prefix=a/", "--dst-prefix=b/", *revs)
+    count, binaries = 0, []
+    # Un commit commence, en début de ligne, par un octet nul et son empreinte. Une ligne de diff commence par « + »,
+    # « - », une espace ou un en-tête, jamais par un octet nul, même quand le texte d'un fichier en contient un au-delà
+    # de ses 8 000 premiers octets, que git montre alors comme du texte (relecture, C2).
+    for chunk in re.split(r"(?:^|\n)\x00(?=[0-9a-f]{40}\n)", out.decode("utf-8", errors="replace")):
         sha, _, patch = chunk.partition("\n")
         if not re.fullmatch(r"[0-9a-f]{40}", sha):
             continue
         skip = known.get((sha, "ajout"), ())
-        path, parents, line_no, in_hunk, paths = "?", 1, 0, False, set()
+        path, blob, parents, line_no, in_hunk = "?", None, 1, 0, False
         for raw in patch.split("\n"):
             if raw.startswith("diff "):
                 # Un fichier : « diff --git a/P b/P », ou « diff --cc P » pour un commit de fusion.
-                in_hunk = False
+                in_hunk, blob = False, None
                 if raw.startswith("diff --git "):
                     path = git_header_path(raw) or "?"
                 else:
@@ -279,13 +295,15 @@ def scan_additions(revs, known, problems):
                     parents, line_no = len(m.group(1)) - 1, int(m.group(2))
                 continue
             if not in_hunk:
-                if raw.startswith(("rename to ", "copy to ")):
+                if raw.startswith("index "):
+                    # « index a..b », « index a,b..c » pour une fusion : le dernier objet est celui du commit.
+                    blob = raw.split()[1].split("..")[-1]
+                elif raw.startswith(("rename to ", "copy to ")):
                     path = diff_path(raw.split(" ", 2)[2], "")
-                    paths.add(path)
                 elif raw.startswith("+++ ") and raw != "+++ /dev/null":
                     path = diff_path(raw[4:])
-                elif raw.startswith("new file mode ") and path != "?":
-                    paths.add(path)
+                elif raw.startswith("Binary files ") and blob and blob.strip("0"):
+                    binaries.append((sha, path, blob, skip))
                 continue
             # Une colonne par parent : « + » absente de ce parent, « - » absente du commit, « » dans les deux.
             marks, text = raw[:parents], raw[parents:]
@@ -295,8 +313,50 @@ def scan_additions(revs, known, problems):
                 count += 1
                 scan_text(f"commit {sha[:7]}, {mask(path)}", text, problems, skip, line_no)
             line_no += 1
-        for p in sorted(paths):
-            scan_value(f"commit {sha[:7]}, chemin {mask(p)}", p, problems, skip)
+    if binaries:
+        data = git_output("cat-file", "--batch", data="".join(f"{b}\n" for _, _, b, _ in binaries).encode())
+        pos = 0
+        for sha, path, blob, skip in binaries:
+            # « <objet> blob <taille> », le contenu, une fin de ligne ; « <objet> missing » s'il manque.
+            eol = data.index(b"\n", pos)
+            head = data[pos:eol].split()
+            if len(head) != 3 or head[1] != b"blob":
+                problems.append(f"commit {sha[:7]}, {mask(path)} : objet {blob[:7]} introuvable, contenu non lu")
+                pos = eol + 1
+                continue
+            content = data[eol + 1:eol + 1 + int(head[2])]
+            pos = eol + 1 + int(head[2]) + 1
+            if b"\0" not in content[:8000]:
+                text = content.decode("utf-8", errors="replace")
+                count += len(text.splitlines())
+                scan_text(f"commit {sha[:7]}, {mask(path)}", text, problems, skip)
+    return count
+
+
+def scan_new_paths(revs, known, problems):
+    """Chemins des fichiers qu'introduit chaque commit (constat LIC-03 ; relecture, C3) : ajoutés par rapport à chacun
+    de ses parents, et non relus dans les commits qui modifient le fichier.
+
+    --name-status sans détection des renommages : un fichier renommé est retiré sous l'ancien chemin et ajouté sous le
+    nouveau ; -c pour un commit de fusion, une lettre par parent (« AA » : un fichier qu'aucun parent n'a) ; -z pour des
+    chemins écrits tels quels, sans échappement ; le premier commit est comparé à un arbre vide. Source
+    git-2-56-1-diff-format (data/sources.yaml), lettres d'état l. 55-65, -z l. 80-83, fusions l. 87-96 et 121-122 de
+    https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/diff-format.adoc.
+    """
+    out = git_output("-c", "log.showRoot=true", "log", "-z", "--format=%x01%H", "-c", "--name-status", "--no-renames",
+                     *revs)
+    sha, status, count = None, None, 0
+    for token in out.decode("utf-8", errors="replace").split("\0"):
+        head = re.fullmatch(r"\n?\x01([0-9a-f]{40})\n?", token)
+        if head:
+            sha, status = head.group(1), None
+        elif status is None:
+            status = token.strip("\n") or None  # un jeton vide suit l'empreinte d'un commit de fusion
+        else:
+            if sha and set(status) == {"A"}:
+                count += 1
+                scan_value(f"commit {sha[:7]}, chemin {mask(token)}", token, problems, known.get((sha, "ajout"), ()))
+            status = None
     return count
 
 
@@ -323,7 +383,8 @@ def main():
         known = known_history(problems)
         commits = scan_commits(revs, known, problems)
         added = scan_additions(revs, known, problems)
-        summary += f", {commits} commit(s) et {added} ligne(s) ajoutée(s)"
+        paths = scan_new_paths(revs, known, problems)
+        summary += f", {commits} commit(s), {added} ligne(s) ajoutée(s) et {paths} chemin(s) introduit(s)"
     for p in problems:
         print(f"ERREUR : {p}")
     print(f"{summary} contrôlé(s) : {len(problems)} problème(s)")
