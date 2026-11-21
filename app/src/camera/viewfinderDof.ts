@@ -4,7 +4,8 @@
 //
 // - Diamètre du cercle de confusion, en pixels du canevas, avec la formule de la photo :
 //   c = (f / N) × f / (S − f) × |D − S| / D, multiplié par les pixels du canevas par mm de capteur (loupe
-//   comprise). Le rayon est plafonné à MAX_BLUR_RADIUS_PX.
+//   comprise) (camera/optics.ts, cocAtInfinityMm et cocAt ; écrite aussi en GLSL, blurRadius). Le rayon est plafonné
+//   à MAX_BLUR_RADIUS_PX.
 // - Flou par « scatter-as-gather » en une passe, d'après Dennis Gustafsson, « Bokeh depth of field in a
 //   single pass » (4 mai 2018), lu dans sa reproduction par l'exemple 45-bokeh de bgfx
 //   [gustafsson-bokeh-single-pass, bgfx-bokeh-example] : échantillons en spirale (angle d'or), chacun compté
@@ -26,7 +27,7 @@ import { ShaderStore } from "@babylonjs/core/Engines/shaderStore";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { PostProcess } from "@babylonjs/core/PostProcesses/postProcess";
 import { PassPostProcess } from "@babylonjs/core/PostProcesses/passPostProcess";
-import { groundDepth, type GroundInfo } from "./photo";
+import { cocAt, cocAtInfinityMm, groundDepth, minFocusDistanceM, type GroundInfo } from "./optics";
 import type { Autofocus } from "./autofocus";
 
 /** Rayon maximal du flou, en pixels du canevas (diamètre de 64 px). */
@@ -231,15 +232,12 @@ export class ViewfinderDepthOfField {
 
   /** Distance de mise au point, au moins un peu plus que la focale (formule des lentilles minces). */
   private focusMeters(): number {
-    const f = (this.settings?.focalMm ?? 50) / 1000;
-    return Math.max(this.autofocus.distance(), f * 1.01);
+    return Math.max(this.autofocus.distance(), minFocusDistanceM(this.settings?.focalMm ?? 50));
   }
 
   /** Diamètre du cercle de confusion d'un point à l'infini, en pixels du canevas : (f / N) × f / (S − f). */
   private cocAtInfinity(s: DofSettings): number {
-    const f = s.focalMm;
-    const S = this.focusMeters() * 1000;
-    return (f / s.aperture) * (f / (S - f)) * s.pixelsPerMm;
+    return cocAtInfinityMm(s.focalMm, s.aperture, this.focusMeters()) * s.pixelsPerMm;
   }
 
   /**
@@ -257,7 +255,7 @@ export class ViewfinderDepthOfField {
     const projection = this.camera.getProjectionMatrix();
     for (const x of [0, 0.5, 1]) {
       const d = groundDepth(projection, upInCamera, this.ground, { x, y: 1 });
-      if (Number.isFinite(d) && d > 0) largest = Math.max(largest, (infinity * Math.abs(d - S)) / d);
+      if (Number.isFinite(d) && d > 0) largest = Math.max(largest, cocAt(infinity, S, d));
     }
     // Rayon = demi-diamètre ; un pixel de marge pour la transition entre net et flou.
     return Math.min(MAX_BLUR_RADIUS_PX, Math.max(1, largest / 2 + 1));

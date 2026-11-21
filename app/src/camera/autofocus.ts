@@ -43,7 +43,7 @@ import { Constants } from "@babylonjs/core/Engines/constants";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { DepthRenderer } from "@babylonjs/core/Rendering/depthRenderer";
 import { RenderTargetTexture } from "@babylonjs/core/Materials/Textures/renderTargetTexture";
-import { groundDepth, type GroundInfo } from "./photo";
+import { depthOrGround, type GroundInfo } from "./optics";
 import { detectFaces, nearestFace, type CanvasPoint, type DetectionView, type FaceSubject } from "./faces";
 
 export type FocusMode = "single" | "continuous";
@@ -418,7 +418,6 @@ export class Autofocus {
       // Lecture impossible pendant un changement de taille : on garde la distance précédente.
       return null;
     }
-    const domeDistance = 0.8 * this.ground.domeRadius;
     const upInCamera = Vector3.TransformNormal(Vector3.Up(), this.camera.getViewMatrix());
     const projection = this.camera.getProjectionMatrix();
     const single = w === 1 && h === 1;
@@ -431,11 +430,8 @@ export class Autofocus {
     const offCenter = (p: CanvasPoint) => (p.x - cx) ** 2 + (p.y - cy) ** 2;
     for (let j = 0; j < h; j++) {
       for (let i = 0; i < w; i++) {
-        let z = this.pixels[(j * w + i) * 4];
         const point = single ? { x: rect.left, y: rect.top } : { x: (x0 + i) / Math.max(1, W - 1), y: 1 - (y0 + j) / Math.max(1, H - 1) };
-        if (!(z > this.camera.minZ) || z > domeDistance) {
-          z = Math.min(this.ground.domeRadius, groundDepth(projection, upInCamera, this.ground, point));
-        }
+        const z = depthOrGround(this.pixels[(j * w + i) * 4], this.camera.minZ, projection, upInCamera, this.ground, point);
         if (z > 0 && (z < nearest - 0.005 || (z <= nearest + 0.005 && offCenter(point) < offCenter(at)))) {
           nearest = Math.min(nearest, z);
           at = point;

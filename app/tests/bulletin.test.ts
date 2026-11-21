@@ -8,11 +8,13 @@ import { Matrix, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { findBody } from "../src/camera/bodies";
 import { CHALLENGES, judgeChallenge, measureShot, measureThing, type SceneThing, type ShotGeometry } from "../src/camera/bulletin";
 import { apertureValue } from "../src/camera/exposure";
-import { blurLimitMm, sharpZone } from "../src/camera/sharpZone";
+import { blurLimitMm, sharpZone } from "../src/camera/optics";
 import { assertClose } from "./approx";
 
 const z6 = findBody("nikon");
 const BLUR_Z6 = blurLimitMm(z6.sensorWidthMm, z6.sensorHeightMm);
+/** Rayon de la sphère du fond de la scène du parc (scene.ts, DOME_RADIUS), que l'appelant donne à judgeChallenge. */
+const BACKDROP_M = 500;
 
 /** Vue du Z 6 : 50 mm, f/8, 1/100 s, mise au point à 6,6 m, cadre horizontal, appareil à l'origine. */
 function geometry(options: Partial<Omit<ShotGeometry, "things">> = {}): Omit<ShotGeometry, "things"> {
@@ -131,7 +133,7 @@ test("SIT-01 : l'œil de Sophia net, et rien de net à plus de 1 m derrière lui
   const bench = thing("bench", [[-1, 0, 9]]); // 2,4 m derrière, dans le cadre
   const fabienne = thing("fabienne", [[0.5, 0, 7.1]]); // 0,5 m derrière : pas « derrière »
   const walker = thing("nathan", [[8, 0, 9]]); // derrière, hors du cadre (x ≈ 44 mm)
-  const judge = (aperture: number, things: SceneThing[]) => judgeChallenge("SIT-01", measureShot({ ...geometry({ aperture }), things }));
+  const judge = (aperture: number, things: SceneThing[]) => judgeChallenge("SIT-01", measureShot({ ...geometry({ aperture }), things }), BACKDROP_M);
   // f/1.4 : zone d'environ 6,0 à 7,4 m ; le banc à 9 m est flou, le fond aussi.
   const open = judge(apertureValue(0), [sophia, bench, fabienne, walker]);
   assert.deepEqual(open.map((c) => [c.key, c.ok]), [["eyeSharp", true], ["backgroundBlurred", true]]);
@@ -161,9 +163,11 @@ test("SIT-01 : l'œil de Sophia net, et rien de net à plus de 1 m derrière lui
     const focus = focusForFar(farM);
     const b = measureShot({ ...geometry({ focusDistance: focus }), things: [thing("sophia", [[0, 0, focus]])] });
     assertClose(b.far, farM, 1e-6, "limite lointaine");
-    const criteria = judgeChallenge("SIT-01", b);
+    const criteria = judgeChallenge("SIT-01", b, BACKDROP_M);
     assert.equal(criteria[0].ok, true, `${farM} m`);
     assert.equal(criteria[1].values.sharp, sharp, `${farM} m`);
+    // La distance du fond est celle que donne l'appelant (version 0.3.87) : un fond vu à 600 m reste flou à 510 m.
+    assert.equal(judgeChallenge("SIT-01", b, 600)[1].values.sharp, "", `${farM} m, fond à 600 m`);
   }
   // Sans Sophia dans les mesures, ni l'un ni l'autre critère ne passe.
   const absent = judge(apertureValue(0), [bench]);
@@ -179,27 +183,27 @@ test("SIT-05 : les yeux des quatre personnages dans le cadre et nets ; les manqu
     thing("fabienne", [[0.5, 0, 6.8]]),
     thing("percy", [[1.2, 0, 7.4]]),
   ];
-  const open = judgeChallenge("SIT-05", measureShot({ ...geometry({ focalMm: 85, aperture: apertureValue(0) }), things: group }));
+  const open = judgeChallenge("SIT-05", measureShot({ ...geometry({ focalMm: 85, aperture: apertureValue(0) }), things: group }), BACKDROP_M);
   assert.equal(open.length, 1);
   assert.equal(open[0].key, "groupSharp");
   assert.equal(open[0].ok, false);
   assert.equal(open[0].values.missed, "dennis, percy");
   // À f/8, tous nets.
-  const closed = judgeChallenge("SIT-05", measureShot({ ...geometry({ focalMm: 85 }), things: group }));
+  const closed = judgeChallenge("SIT-05", measureShot({ ...geometry({ focalMm: 85 }), things: group }), BACKDROP_M);
   assert.equal(closed[0].ok, true);
   assert.equal(closed[0].values.missed, "");
   // Percy net mais hors du cadre (x = 85 × 5 / 6,6 ≈ 64 mm) : manqué.
   const outside = group.slice(0, 3).concat(thing("percy", [[5, 0, 6.6]]));
-  const out = judgeChallenge("SIT-05", measureShot({ ...geometry({ focalMm: 85 }), things: outside }));
+  const out = judgeChallenge("SIT-05", measureShot({ ...geometry({ focalMm: 85 }), things: outside }), BACKDROP_M);
   assert.equal(out[0].values.missed, "percy");
   // Un personnage absent des mesures compte comme manqué, nommé « ? ».
-  const three = judgeChallenge("SIT-05", measureShot({ ...geometry({ focalMm: 85 }), things: group.slice(0, 3) }));
+  const three = judgeChallenge("SIT-05", measureShot({ ...geometry({ focalMm: 85 }), things: group.slice(0, 3) }), BACKDROP_M);
   assert.equal(three[0].values.missed, "?");
 });
 
 test("SIT-06 : le chien dans le cadre, net et figé", () => {
   const run = (shutterSeconds: number, x: number) =>
-    judgeChallenge("SIT-06", measureShot({ ...geometry({ shutterSeconds, focusDistance: 8 }), things: [thing("jim", [[x, 0.3, 8]], [3.5, 0, 0])] }));
+    judgeChallenge("SIT-06", measureShot({ ...geometry({ shutterSeconds, focusDistance: 8 }), things: [thing("jim", [[x, 0.3, 8]], [3.5, 0, 0])] }), BACKDROP_M);
   const ok = (criteria: ReturnType<typeof run>) => criteria.map((c) => [c.key, c.ok]);
   assert.deepEqual(ok(run(1 / 1000, 0)), [["dogInFrame", true], ["dogSharp", true], ["dogFrozen", true]]);
   assert.deepEqual(ok(run(1 / 500, 0)), [["dogInFrame", true], ["dogSharp", true], ["dogFrozen", false]]);
@@ -209,6 +213,6 @@ test("SIT-06 : le chien dans le cadre, net et figé", () => {
   const outside = run(1 / 1000, 5);
   assert.deepEqual(outside.slice(0, 2).map((c) => [c.key, c.ok]), [["dogInFrame", false], ["dogSharp", false]]);
   // Sans le chien dans les mesures : rien ne passe.
-  const none = judgeChallenge("SIT-06", measureShot({ ...geometry(), things: [] }));
+  const none = judgeChallenge("SIT-06", measureShot({ ...geometry(), things: [] }), BACKDROP_M);
   assert.deepEqual(none.map((c) => c.ok), [false, false, false]);
 });

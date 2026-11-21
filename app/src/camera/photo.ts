@@ -7,11 +7,15 @@
 //   pour retrouver c = A × f × |D − S| / (D × (S − f)), avec A = f / N.
 // - Flou de mouvement : chaque rendu correspond à un instant du temps de pose (horloge de la scène).
 // - Moyenne en lumière linéaire, en virgule flottante ; puis exposition 2^écart, bruit du capteur
-//   (camera/noise.ts), écrêtage au blanc et courbe de Babylon (puissance 1/2,2), comme dans le viseur.
+//   (camera/noiseModel.ts), écrêtage au blanc et courbe de Babylon (puissance 1/2,2), comme dans le viseur.
 // - Nombre de rendus : de quoi espacer les copies d'un grand flou de 4 px au plus (espacement estimé
 //   à 0,9 × flou / √M sur un disque, flou / M le long d'un mouvement), de 16 à 256, et 5 s au plus.
 // - Lissage : flou résiduel de rayon 0,45 × flou / √M, selon la profondeur de la vue centrale. Le
 //   rayon ne dépendant que de cette profondeur, lisser la moyenne revient à lisser chaque rendu.
+// Les formules de ce calcul (cercle de confusion, traînée estimée, nombre de rendus, disque d'ouverture, instants,
+// projections décentrée et resserrée, distance du sol, format de la photo) sont dans camera/optics.ts, sans rendu,
+// où les tests rapides les vérifient (constat ARC-07 de l'audit, version 0.3.87) ; ce fichier garde le rendu et le
+// shader de finition, qui écrit en GLSL le flou et la distance du sol.
 // - Loupe de l'écran de revue : la même photo (même instant, même orientation, même mise au point) est
 //   recalculée sur une fenêtre de l'image, à la définition du capteur. La fenêtre est obtenue en
 //   resserrant la projection : x' = (x − centre) / demi-largeur, en coordonnées normalisées.
@@ -30,23 +34,35 @@ import { EffectRenderer, EffectWrapper } from "@babylonjs/core/Materials/effectR
 import "@babylonjs/core/Shaders/postprocess.vertex";
 import "@babylonjs/core/Rendering/depthRendererSceneComponent";
 import type { Body } from "./bodies";
-import { NOISE_GLSL, NOISE_UNIFORMS, bindNoise, noiseParameters } from "./noise";
+import { bindNoise } from "./noise";
+import { NOISE_GLSL, NOISE_UNIFORMS, noiseParameters } from "./noiseModel";
 import { measureTones, type PhotoTones } from "./histogram";
+import {
+  PHOTO_LONG_SIDE,
+  backdropDepth,
+  cocAt,
+  cocAtInfinityMm,
+  depthOrGround,
+  eyeDiskRadiusM,
+  eyeOffset,
+  fieldOfView,
+  frontalTrailMm,
+  groundDepth,
+  instantStride,
+  minFocusDistanceM,
+  photoSize,
+  pixelWindow,
+  plannedSamples,
+  sampleInstant,
+  sensorMmToPixels,
+  shiftedProjection,
+  smoothingFactor,
+  windowProjection,
+  type GroundInfo,
+} from "./optics";
 
-/** Hauteur de l'œil au-dessus du sol et rayon de la sphère du fond (scene.ts), en mètres. */
-export interface GroundInfo {
-  eyeHeight: number;
-  domeRadius: number;
-}
-
-/** Grand côté de la photo, en pixels. */
-export const PHOTO_LONG_SIDE = 1500;
-const MAX_SPACING_PX = 4;
-const MIN_SAMPLES = 16;
-const MAX_SAMPLES = 256;
+/** Durée la plus longue du calcul d'une photo, en millisecondes : au-delà, la photo garde les rendus déjà faits. */
 const TIME_BUDGET_MS = 5000;
-/** Angle d'or, en radians : π × (3 − √5). Répartit régulièrement les points sur le disque. */
-const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
 export interface SceneTimeControl {
   /** Fige l'horloge de la scène et la place à l'instant donné, en secondes. */
@@ -234,17 +250,6 @@ function whenCompiled(wrapper: EffectWrapper, timeoutMs = 20000): Promise<void> 
   });
 }
 
-/**
- * Distance du plan du sol le long du rayon qui passe par le point donné du cadre (de 0 à 1, origine en
- * haut à gauche), en z dans le repère de la caméra ; Infinity si le rayon ne descend pas.
- */
-export function groundDepth(projection: Matrix, upInCamera: Vector3, ground: GroundInfo, point: { x: number; y: number }): number {
-  const m = projection.asArray();
-  const ray = new Vector3((point.x * 2 - 1 - m[8]) / m[0], (1 - point.y * 2 - m[9]) / m[5], 1);
-  const slope = Vector3.Dot(upInCamera, ray);
-  return slope < 0 ? Math.min(ground.domeRadius, -ground.eyeHeight / slope) : Infinity;
-}
-
 export async function takePhoto(
   engine: Engine,
   scene: Scene,
@@ -256,9 +261,7 @@ export async function takePhoto(
 ): Promise<PhotoResult> {
   const started = performance.now();
   const longSide = request.view?.longSide ?? PHOTO_LONG_SIDE;
-  const shortSide = Math.round((longSide * request.body.sensorHeightMm) / request.body.sensorWidthMm);
-  const fullWidth = request.portrait ? shortSide : longSide;
-  const fullHeight = request.portrait ? longSide : shortSide;
+  const { width: fullWidth, height: fullHeight } = photoSize(request.body.sensorWidthMm, request.body.sensorHeightMm, longSide, request.portrait);
   const crop = request.view?.crop ?? { left: 0, top: 0, width: fullWidth, height: fullHeight };
   const width = crop.width;
   const height = crop.height;
@@ -271,27 +274,12 @@ export async function takePhoto(
     camera.rotation.copyFrom(rotation);
     camera.getViewMatrix(true);
   }
-  const f = request.focalMm / 1000; // mètres
-  const sensorLong = request.body.sensorWidthMm / 1000;
-  const sensorShort = request.body.sensorHeightMm / 1000;
-
-  // Projection de la photo : le cadre couvre exactement le capteur ; puis resserrée sur la fenêtre calculée.
-  const fovVertical = 2 * Math.atan((request.portrait ? sensorLong : sensorShort) / (2 * f));
+  // Projection de la photo : le cadre couvre exactement le capteur (champ le long de son côté vertical) ; puis
+  // resserrée sur la fenêtre calculée.
+  const fovVertical = fieldOfView(request.portrait ? request.body.sensorWidthMm : request.body.sensorHeightMm, request.focalMm);
   const full = Matrix.PerspectiveFovLH(fovVertical, fullWidth / fullHeight, camera.minZ, camera.maxZ, engine.isNDCHalfZRange, 0, engine.useReverseDepthBuffer);
-  const x0 = (crop.left / fullWidth) * 2 - 1;
-  const x1 = ((crop.left + crop.width) / fullWidth) * 2 - 1;
-  const yTop = 1 - (crop.top / fullHeight) * 2;
-  const yBottom = 1 - ((crop.top + crop.height) / fullHeight) * 2;
-  const windowed = (values: ArrayLike<number>): Matrix => {
-    const m = Array.from(values);
-    const sx = (x1 - x0) / 2;
-    const sy = (yTop - yBottom) / 2;
-    m[0] /= sx;
-    m[8] = (m[8] - (x0 + x1) / 2) / sx;
-    m[5] /= sy;
-    m[9] = (m[9] - (yTop + yBottom) / 2) / sy;
-    return Matrix.FromArray(m);
-  };
+  const area = pixelWindow(crop, fullWidth, fullHeight);
+  const windowed = (values: ArrayLike<number>): Matrix => Matrix.FromArray(windowProjection(values, area.center, area.zoom));
   const base = windowed(full.asArray());
   const imageProcessing = scene.imageProcessingConfiguration;
   const processingWasByPostProcess = imageProcessing.applyByPostProcess;
@@ -362,45 +350,35 @@ export async function takePhoto(
     // Distance de mise au point au point choisi, au déclenchement. Les pixels lus commencent par la ligne
     // du bas. Sur le sol de la photo, absent de la carte, on prend la distance du plan du sol.
     const upInCamera = Vector3.TransformNormal(Vector3.Up(), camera.getViewMatrix());
-    const domeDistance = 0.8 * ground.domeRadius;
     const px = Math.min(mapSize.width - 1, Math.max(0, Math.round(request.focusPoint.x * (mapSize.width - 1))));
     const py = Math.min(mapSize.height - 1, Math.max(0, Math.round((1 - request.focusPoint.y) * (mapSize.height - 1))));
-    let measured = depths[(py * mapSize.width + px) * 4];
-    if (!(measured > camera.minZ) || measured > domeDistance) {
-      measured = Math.min(ground.domeRadius, groundDepth(base, upInCamera, ground, request.focusPoint));
-    }
-    const focusDistance = request.replay ? request.replay.focusDistance : Math.max(request.focusDistance ?? measured, f * 1.01);
+    const measured = depthOrGround(depths[(py * mapSize.width + px) * 4], camera.minZ, base, upInCamera, ground, request.focusPoint);
+    const focusDistance = request.replay ? request.replay.focusDistance : Math.max(request.focusDistance ?? measured, minFocusDistanceM(request.focalMm));
     let nearest = Infinity;
     for (let i = 0; i < depths.length; i += 4) if (depths[i] > camera.minZ) nearest = Math.min(nearest, depths[i]);
     // Le sol de la photo est le plus proche en bas du cadre.
     for (const x of [0, 0.5, 1]) nearest = Math.min(nearest, groundDepth(base, upInCamera, ground, { x, y: 1 }));
 
-    // Flou de mise au point en pixels : c = A × f × |D − S| / (D × (S − f)), ramené à la largeur de l'image.
-    const A = f / request.aperture;
-    const pxPerMeter = longSide / sensorLong;
-    const cocScale = ((A * f) / (focusDistance - f)) * pxPerMeter; // × |D − S| / D
-    const cocAt = (d: number) => (cocScale * Math.abs(d - focusDistance)) / d;
-    const cocMax = Math.max(cocScale, Number.isFinite(nearest) ? cocAt(nearest) : 0); // cocScale : flou à l'infini
+    // Flou de mise au point en pixels : c = A × f × |D − S| / (D × (S − f)), ramené à la largeur de l'image ;
+    // cocScale est le flou d'un point à l'infini, × |D − S| / D pour un point à la profondeur D.
+    const sensorLongMm = request.body.sensorWidthMm;
+    const cocScale = sensorMmToPixels(cocAtInfinityMm(request.focalMm, request.aperture, focusDistance), sensorLongMm, longSide);
+    const cocMax = Math.max(cocScale, Number.isFinite(nearest) ? cocAt(cocScale, focusDistance, nearest) : 0);
     // Traînée la plus longue d'un sujet en mouvement, vu de face : v × t × f / D.
     const view = camera.getViewMatrix();
     let trail = 0;
     for (const m of time.movers()) {
       const depth = Vector3.TransformCoordinates(m.position, view).z;
-      if (depth > 0.1) trail = Math.max(trail, ((m.speed * request.shutterSeconds * f) / depth) * pxPerMeter);
+      if (depth > 0.1) trail = Math.max(trail, sensorMmToPixels(frontalTrailMm(m.speed, request.shutterSeconds, request.focalMm, depth), sensorLongMm, longSide));
     }
-    const planned = Math.min(
-      MAX_SAMPLES,
-      Math.max(MIN_SAMPLES, Math.ceil(((0.9 * cocMax) / MAX_SPACING_PX) ** 2), Math.ceil(trail / MAX_SPACING_PX)),
-    );
+    const planned = plannedSamples(cocMax, trail);
 
     // Disque d'ouverture élargi de S / (S − f) (voir l'en-tête), et repère de l'objectif.
-    const lensRadius = (A / 2) * (focusDistance / (focusDistance - f));
+    const lensRadius = eyeDiskRadiusM(request.focalMm, request.aperture, focusDistance);
     const right = camera.getDirection(Axis.X);
     const up = camera.getDirection(Axis.Y);
     // Permutation des instants, décorrélée des positions sur le disque : pas premier avec planned.
-    let stride = Math.max(1, Math.round(planned * 0.618));
-    const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
-    while (gcd(stride, planned) !== 1) stride++;
+    const stride = instantStride(planned);
 
     // Rendus en lumière linéaire. Le traitement d'image des matériaux passe en gamma et écrête à 1, même
     // désactivé (applyImageProcessing, pbrBlockImageProcessing) ; avec applyByPostProcess, ils rendent la
@@ -410,17 +388,11 @@ export async function takePhoto(
     camera.outputRenderTarget = color;
     let done = 0;
     for (let i = 0; i < planned; i++) {
-      const r = lensRadius * Math.sqrt((i + 0.5) / planned);
-      const a = i * GOLDEN_ANGLE;
-      const dx = r * Math.cos(a);
-      const dy = r * Math.sin(a);
+      const { x: dx, y: dy } = eyeOffset(i, planned, lensRadius);
       // Projection décentrée : x_ndc = x × m0 / z + m8 ; m8 = dx × m0 / S garde fixe le plan z = S.
-      const m = Array.from(full.asArray());
-      m[8] += (dx * m[0]) / focusDistance;
-      m[9] += (dy * m[5]) / focusDistance;
-      camera.freezeProjectionMatrix(windowed(m));
+      camera.freezeProjectionMatrix(windowed(shiftedProjection(full.asArray(), dx, dy, focusDistance)));
       time.setEyeOffset(right.scale(dx).add(up.scale(dy)));
-      time.setFrozenTime(t0 + request.shutterSeconds * ((((i * stride) % planned) + 0.5) / planned));
+      time.setFrozenTime(t0 + request.shutterSeconds * sampleInstant(i, planned, stride));
       // Sans mise à jour de la caméra, comme pour la carte de profondeur.
       scene.render(false);
 
@@ -449,14 +421,14 @@ export async function takePhoto(
       e.setFloat("exposure", request.exposure);
       e.setFloat("cocScale", cocScale);
       e.setFloat("focusDistance", focusDistance);
-      e.setFloat("smoothingFactor", 0.45 / Math.sqrt(done));
+      e.setFloat("smoothingFactor", smoothingFactor(done));
       e.setFloat2("texelSize", 1 / width, 1 / height);
       const bm = base.asArray();
       e.setFloat2("projectionScale", bm[0], bm[5]);
       e.setFloat2("projectionOffset", bm[8], bm[9]);
       e.setFloat3("upInCamera", upInCamera.x, upInCamera.y, upInCamera.z);
       e.setFloat("eyeHeight", ground.eyeHeight);
-      e.setFloat("domeDistance", domeDistance);
+      e.setFloat("domeDistance", backdropDepth(ground));
       bindNoise(e, scene, noiseParameters(request.body, request.iso, fullWidth * fullHeight));
     });
     effectRenderer.render(finish, output);

@@ -16,9 +16,22 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 Sujet 27 du plan de corrections de l'audit (`docs/audit/README.md`) : formules communes, sorties des fichiers de rendu (constat ARC-07 de `docs/audit/architecture-application.md`, et INT-14 de `docs/audit/interface.md` pour les contrôles de calcul de la routine). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le sujet n'a pas de part anglaise. En cours : cette section dit ce qui est fait au commit où elle est lue.
 
+### Ajouté
+
+- `app/src/camera/noiseModel.ts`, ARC-07 : le modèle du bruit, sans rendu : bruit de lecture, grille des tirages du viseur et paramètres du bruit (repris de `noise.ts`), écart type et rapport signal sur bruit (`noiseSigma`, `signalToNoise`, jusqu'ici écrits dans `ui/balance.ts`), seuils de 40:1 et 10:1 (`noiseLevel`) ; la loi en GLSL (`NOISE_GLSL`) y est écrite à côté de la loi en TypeScript.
+- `app/src/camera/optics.ts`, ARC-07 : l'optique et la géométrie de la prise de vue, sans rendu : champ de vue (de `exposure.ts`), flou acceptable et zone nette (de `sharpZone.ts`), cercle de confusion (de `photo.ts` et `viewfinderDof.ts`), position, vitesse et traînée sur le capteur (de `bulletin.ts`), estimation de face de la traînée (de `photo.ts`), format de la photo et conversion en pixels (de `photo.ts`, `balance.ts`, `bulletin.ts`, `challenges.ts`), rayon d'un point du cadre (de `photo.ts` et `balance.ts`), distance du sol et profondeur avec repli sur le sol (de `photo.ts` et `autofocus.ts`), fenêtre d'une projection (de `photo.ts` et `cameraPanel.ts`), plan des rendus de la photo (de `photo.ts`).
+- `app/src/activities/lum02Model.ts`, INT-14 : le calcul de l'ombre de l'activité de LUM-02, sans page ; `app/src/camera/viewfinder.ts` reçoit la table des grilles de cadrage (de `cameraPanel.ts`).
+- `app/tests/noiseModel.test.ts`, `app/tests/lum02Model.test.ts`, et des tests dans `app/tests/optics.test.ts` et `app/tests/viewfinder.test.ts` : un test rapide pour chaque fonction sortie ; 80 tests en tout.
+
 ### Modifié
 
+- `app/src/camera/noise.ts`, `photo.ts`, `bulletin.ts`, `viewfinderDof.ts`, `autofocus.ts`, `viewfinder.ts`, `exposure.ts`, `app/src/ui/balance.ts`, `cameraPanel.ts`, `topView.ts`, `challenges.ts`, `shutter.ts`, `app/src/activities/lum02.ts` : ils appellent les modules communs. Le nombre 1500 écrit en dur dans `bulletin.ts` et `challenges.ts` devient `PHOTO_LONG_SIDE` ; le nombre 500 de `bulletin.ts` devient la distance du fond, donnée par l'appelant à `judgeChallenge` (rayon de la sphère du fond, `DOME_RADIUS` de `scene.ts`).
+- `app/tests/sharpZone.test.ts` devient `app/tests/optics.test.ts` ; le test du champ de vue passe de `exposure.test.ts` à `optics.test.ts`.
 - `docs/etat-des-travaux.md` : fin de la version 0.3.86 relue (fusion, tag posé sur le commit de fusion de la pull request 93, release, publication, CI du dernier commit), lignée des sessions (profondeur 4 sur 8, effort « max ») ; Sujet 27 en cours ; dans « Leçons pratiques », un septième redémarrage du conteneur à la minute de la relance horaire : celui de la session du Sujet 26, le 21 novembre 2026 à 21 h 34 UTC, pendant l'attente de la routine de son dernier commit, d'après cette session ; le dépôt et le bloc-notes ont survécu, aucun agent ni essai ne tournait.
+
+### Retiré
+
+- `app/src/camera/sharpZone.ts`, passé dans `optics.ts`.
 
 ## [0.3.86] - 2026-11-21
 

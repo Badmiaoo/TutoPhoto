@@ -1,13 +1,14 @@
 // Vue de dessus (NET-01, « Zone nette visualisée en vue de dessus » ; NET-06, « Sujet et appareil déplaçables »),
 // proposée dans le bilan du 10 novembre 2026 et lancée par Julien le même soir.
 // - Zone nette : entre deux plans perpendiculaires à l'axe de visée, aux limites proche et lointaine de
-//   camera/sharpZone.ts, profondeurs le long de cet axe. Appareil incliné vers le haut ou le bas de l'angle i :
+//   camera/optics.ts (sharpZone), profondeurs le long de cet axe. Appareil incliné vers le haut ou le bas de l'angle i :
 //   limites et plan de mise au point sont dessinés à la distance horizontale où un point à la hauteur de l'œil
 //   de l'appareil a cette profondeur, profondeur / cos(i) (version 0.3.69, relecture du Sujet 9), pour que la bande
 //   et le jugement des sujets (ci-dessous) concordent. Pour un point plus haut ou plus bas de h, l'écart reste
 //   h × tan(i) : environ 0,3 m à 17° d'inclinaison pour le banc et la poubelle (jugés à 0,5 m du sol) et pour le
 //   chien (yeux vers 0,67 m) ; quelques centimètres pour les yeux des personnages (1,51 m à 1,71 m).
-// - Champ : angle horizontal du cadre, 2 × atan(côté / (2 × focale)), avec le côté horizontal du capteur.
+// - Champ : angle horizontal du cadre, 2 × atan(côté / (2 × focale)), avec le côté horizontal du capteur
+//   (camera/optics.ts, halfFieldTangent).
 // - Personnages et objets dessinés à leur position au sol ; le promeneur et le chien à l'instant présent. Sont
 //   marqués nets ceux que le bulletin de la photo jugerait nets (camera/bulletin.ts, measureThing ; constat FMA-12,
 //   version 0.3.69) : profondeur le long de l'axe de visée de l'appareil (z de la caméra, inclinaison comprise) du
@@ -27,7 +28,7 @@ import type { SceneTimeControl } from "../camera/photo";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { measureThing } from "../camera/bulletin";
 import type { FaceSubject } from "../camera/faces";
-import { blurLimitMm, sharpZone } from "../camera/sharpZone";
+import { blurLimitMm, halfFieldTangent, sharpZone } from "../camera/optics";
 import { judgedPoints, LANDMARKS, type EyeControl } from "../scene";
 import { t } from "../texts";
 import type { CameraPanel } from "./cameraPanel";
@@ -135,7 +136,7 @@ export class TopView {
     const forward = { x: Math.sin(yaw), z: Math.cos(yaw) };
     const side = { x: forward.z, z: -forward.x };
     const sensorSide = s.frame.portrait ? s.body.sensorHeightMm : s.body.sensorWidthMm;
-    const halfTan = sensorSide / (2 * s.focalMm);
+    const halfTan = halfFieldTangent(sensorSide, s.focalMm);
     const distance = this.autofocus.distance();
     const zone = sharpZone(s.focalMm, s.aperture, distance, blurLimitMm(s.body.sensorWidthMm, s.body.sensorHeightMm));
     // Point à la distance horizontale d le long de l'axe, décalé de w sur le côté ; en coordonnées de la carte (y = −z).

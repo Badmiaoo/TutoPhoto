@@ -11,17 +11,8 @@
 //   https://www.provideocoalition.com/lighting_strategies_what_makes_soft_lights_cast_soft_shadows/
 //   https://en.wikipedia.org/w/index.php?title=Umbra,_penumbra_and_antumbra&oldid=1379008615
 //
-// Calcul, en vue de côté (rayons en ligne droite, triangles semblables). Source de hauteur D à x = 0, objet de
-// hauteur H à x = d₁, mur à x = d₁ + d₂, tous centrés sur le même axe. Un rayon qui part du point s de la source et
-// rase le bord o de l'objet frappe le mur en y = s + (o − s) × (d₁ + d₂) / d₁. D'où, sur le mur :
-// - largeur de la pénombre, de chaque côté : D × d₂ / d₁ ;
-// - hauteur de l'ombre pleine : H × (d₁ + d₂) / d₁ − D × d₂ / d₁, nulle si la source déborde l'objet ;
-// - éclairement d'un point du mur : part de la source qu'il voit, l'objet cachant les points s compris entre
-//   (o − y d₁ / L) × L / d₂ pour o = bas et haut de l'objet (L = d₁ + d₂) ;
-// - taille apparente de la source vue de l'objet : 2 × atan(D / (2 d₁)).
-// - bord extérieur de la pénombre, depuis l'axe : (H × L + D × d₂) / (2 d₁) ; le mur dessiné va de −100 à +100 cm, et
-//   ce bord le dépasse quand l'objet est tout près d'une grande source (constat FMA-10 de l'audit) ;
-// - sans ombre pleine, la pénombre couvre toute l'ombre, sur 2 × ce bord : H × L / d₁ + D × d₂ / d₁.
+// Calcul, en vue de côté (rayons en ligne droite, triangles semblables) : activities/lum02Model.ts, sans page, où les
+// tests rapides le vérifient (version 0.3.87).
 // Simplifications : coupe en 2D d'une source uniforme ; la largeur de la pénombre suit les triangles semblables,
 // mais le dégradé d'une source ronde réelle n'a pas exactement cette forme. Un point du mur que rien ne cache est
 // éclairé pareil à toute distance, alors que doubler la distance divise l'éclairement par quatre, à moins de 1 %
@@ -32,21 +23,10 @@
 
 import "./lum02.css";
 import { frenchSpaces } from "../frenchSpaces";
+import { OBJECT_CM, PRESETS, WALL_GAP_CM, litFraction, penumbraReading, shadow, type Preset } from "./lum02Model";
 
-/** Hauteur de l'objet et distance objet–mur, en cm (choix de TutoPhoto). */
-const OBJECT_CM = 30;
-const WALL_GAP_CM = 50;
 const WALL_SAMPLES = 160;
-/** Demi-hauteur du mur dessiné, en cm. */
-const WALL_HALF_CM = 100;
 const NS = "http://www.w3.org/2000/svg";
-
-const PRESETS = {
-  lamp: { size: 3, distance: 100 },
-  window: { size: 120, distance: 200 },
-  reflector: { size: 80, distance: 80 },
-} as const;
-type Preset = keyof typeof PRESETS;
 
 const TEXT = {
   fiche: "Fiche LUM-02",
@@ -97,27 +77,6 @@ const el = <T extends Element = HTMLElement>(id: string) => document.getElementB
 const size = el<HTMLInputElement>("act-size");
 const distance = el<HTMLInputElement>("act-distance");
 const svg = el<SVGSVGElement>("act-scene");
-
-/** Grandeurs de l'ombre pour une source de taille d (cm) à la distance d1 (cm) de l'objet. */
-export function shadow(d: number, d1: number): { angleDeg: number; penumbraCm: number; umbraCm: number; outerCm: number } {
-  const L = d1 + WALL_GAP_CM;
-  return {
-    angleDeg: (2 * Math.atan(d / (2 * d1)) * 180) / Math.PI,
-    penumbraCm: (d * WALL_GAP_CM) / d1,
-    umbraCm: Math.max(0, (OBJECT_CM * L) / d1 - (d * WALL_GAP_CM) / d1),
-    // Bord extérieur de la pénombre, depuis l'axe.
-    outerCm: (OBJECT_CM * L + d * WALL_GAP_CM) / (2 * d1),
-  };
-}
-
-/** Part de la source visible depuis le point du mur à la hauteur y (cm), de 0 (ombre pleine) à 1 (plein éclairage). */
-function litFraction(y: number, d: number, d1: number): number {
-  const L = d1 + WALL_GAP_CM;
-  const at = (o: number) => ((o - (y * d1) / L) * L) / WALL_GAP_CM;
-  const lo = Math.max(-d / 2, at(-OBJECT_CM / 2));
-  const hi = Math.min(d / 2, at(OBJECT_CM / 2));
-  return 1 - Math.max(0, hi - lo) / d;
-}
 
 const decimal = (value: number, digits: number) => {
   const text = value.toFixed(digits);
@@ -185,11 +144,12 @@ function draw(): void {
 
   const r = shadow(d, d1);
   const umbra = r.umbraCm > 0;
-  const beyond = r.outerCm > WALL_HALF_CM ? t.beyondWall : "";
+  const reading = penumbraReading(d, d1);
+  const beyond = reading.beyondWall ? t.beyondWall : "";
   el("act-size-value").textContent = t.cm(d);
   el("act-distance-value").textContent = t.cm(d1);
   el("act-angle").textContent = frenchSpaces(t.angle(decimal(r.angleDeg, 1)));
-  el("act-penumbra").textContent = frenchSpaces((umbra ? t.penumbra(decimal(r.penumbraCm, 1)) : t.penumbraAll(decimal(2 * r.outerCm, 1))) + beyond);
+  el("act-penumbra").textContent = frenchSpaces((reading.wholeShadow ? t.penumbraAll(decimal(reading.cm, 1)) : t.penumbra(decimal(reading.cm, 1))) + beyond);
   el("act-umbra").textContent = frenchSpaces(umbra ? t.umbra(decimal(r.umbraCm, 1)) : t.noUmbra);
   el("act-legend").textContent = frenchSpaces(umbra ? t.legend : t.legendNoUmbra);
 }

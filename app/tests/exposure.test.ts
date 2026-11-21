@@ -1,5 +1,6 @@
 // Tests rapides de camera/exposure.ts (Sujet 26 du plan de corrections, constat ARC-05) : échelles par tiers d'IL,
-// indice de lumination des réglages, écart à la scène, focales et champ de vue. Valeurs attendues : formules de
+// indice de lumination des réglages, écart à la scène et focales ; le champ de vue, passé à camera/optics.ts dans la
+// version 0.3.87, est essayé dans tests/optics.test.ts. Valeurs attendues : formules de
 // l'en-tête du module et de camera/exposureModes.ts, exemples de docs/camera-physique.md (« Exposition », « Boîtier
 // virtuel », « Modes d'exposition, correction et ISO auto »), ou calcul écrit à côté du test.
 import { test } from "node:test";
@@ -13,7 +14,6 @@ import {
   apertureLabel,
   apertureValue,
   exposureOffset,
-  fieldOfView,
   isoLabel,
   isoValue,
   settingsEv100,
@@ -142,19 +142,4 @@ test("focales : de 18 à 200 mm, 50 mm au départ", () => {
   assert.equal(FOCAL_LENGTHS[FOCAL_LENGTHS.length - 1], 200);
   assert.equal(FOCAL_LENGTHS[DEFAULT_FOCAL_INDEX], 50);
   for (let k = 1; k < FOCAL_LENGTHS.length; k++) assert.ok(FOCAL_LENGTHS[k] > FOCAL_LENGTHS[k - 1]);
-});
-
-test("champ de vue : 2 × atan(côté / (2 × focale))", () => {
-  // Un côté égal à deux fois la focale se voit sous un angle droit : 2 × atan(1) = 90°.
-  assertClose(fieldOfView(36, 18), Math.PI / 2, 1e-12, "36 mm à 18 mm");
-  // Le champ se resserre quand la focale s'allonge ; tan(champ / 2) × 2 × focale redonne le côté.
-  for (const side of [35.9, 23.9, 23.5, 22.3]) {
-    let previous = Math.PI;
-    for (const focal of FOCAL_LENGTHS) {
-      const fov = fieldOfView(side, focal);
-      assert.ok(fov < previous, `${side} mm à ${focal} mm`);
-      assertClose(Math.tan(fov / 2) * 2 * focal, side, 1e-9, `${side} mm à ${focal} mm`);
-      previous = fov;
-    }
-  }
 });
