@@ -9,7 +9,8 @@ import { FOCAL_LENGTHS, fieldOfView } from "../src/camera/exposure";
 import { cameraFov, frameFor } from "../src/camera/viewfinder";
 import { assertClose } from "./approx";
 
-// Tailles de canevas : ordinateur de la routine (1280 × 800) ; viseur du Pixel 7 émulé relevé dans la CI (412 × 445) et
+// Tailles de canevas : fenêtre du profil ordinateur de la routine (1280 × 800, scripts/test_app.cjs), prise ici comme
+// canevas ; viseur du Pixel 7 émulé relevé dans la CI (412 × 445) et
 // de l'iPhone SE émulé, vue de dessus dépliée (320 × 63), tous deux dans « Défauts connus » de
 // docs/etat-des-travaux.md ; et d'autres formes, dont un carré et un canevas plus haut que large.
 const CANVASES: readonly [number, number][] = [

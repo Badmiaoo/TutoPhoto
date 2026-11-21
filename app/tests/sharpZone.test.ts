@@ -50,28 +50,30 @@ test("aux limites de la zone nette, le cercle de confusion vaut le flou acceptab
   }
 });
 
-test("distance hyperfocale : mise au point à f² / (N c) + f, la zone va de la moitié de cette distance à l'infini", () => {
-  // Avec q = c × N × (S₁ − f) / f² (en-tête du module), q = 1 pour S₁ = f² / (N c) + f : limite proche S₁ / 2,
-  // limite lointaine infinie ; un peu en deçà, la limite lointaine redevient finie.
+test("distance hyperfocale H = f² / (N c) + f : au-delà, la zone va jusqu'à l'infini ; en deçà, elle s'arrête", () => {
+  // Avec q = c × N × (S₁ − f) / f² (en-tête du module), q = 1 pour S₁ = H : mise au point à H, la zone irait de H / 2 à
+  // l'infini. Le test se tient à 0,1 % de part et d'autre de H, pour ne pas dépendre de l'arrondi de q = 1 : à 1,001 H,
+  // limite lointaine infinie et limite proche à 0,1 % de H / 2 ; à 0,999 H, limite lointaine finie.
   const blur = blurLimitMm(z6.sensorWidthMm, z6.sensorHeightMm);
   for (const focal of FOCAL_LENGTHS) {
     for (const n of [2, 4, 8, 16]) {
       const hyperfocalM = ((focal * focal) / (n * blur) + focal) / 1000;
-      const at = sharpZone(focal, n, hyperfocalM, blur);
-      assert.equal(at.far, Infinity, `${focal} mm à f/${n}`);
-      assertClose(at.near, hyperfocalM / 2, 1e-9, `${focal} mm à f/${n}`);
-      assert.ok(Number.isFinite(sharpZone(focal, n, hyperfocalM * 0.99, blur).far), `${focal} mm à f/${n}, en deçà`);
+      const beyond = sharpZone(focal, n, hyperfocalM * 1.001, blur);
+      assert.equal(beyond.far, Infinity, `${focal} mm à f/${n}, au-delà`);
+      assertClose(beyond.near / (hyperfocalM / 2), 1, 1e-3, `${focal} mm à f/${n}, limite proche`);
+      assert.ok(Number.isFinite(sharpZone(focal, n, hyperfocalM * 0.999, blur).far), `${focal} mm à f/${n}, en deçà`);
     }
   }
 });
 
 test("exemples de docs/camera-physique.md : 50 mm, mise au point à 6,6 m, Z 6", () => {
   const blur = blurLimitMm(z6.sensorWidthMm, z6.sensorHeightMm);
-  // « 50 mm à f/8 : la zone nette va d'environ 4 m à 17 m » (q = 0,0288 × 8 × 6550 / 2500 = 0,603).
+  // « 50 mm à f/8 : la zone nette va d'environ 4 m à 17 m » (q = 0,02875 × 8 × 6550 / 2500 = 0,603).
   const f8 = sharpZone(50, 8, 6.6, blur);
   assert.equal(Math.round(f8.near), 4);
   assert.equal(Math.round(f8.far), 17);
-  // « À f/1.4, la limite lointaine tombe à 7,4 m » (6,6 / (1 − 0,105) ; N = √2, valeur exacte du cran f/1.4).
+  // « À f/1.4, la limite lointaine tombe à 7,4 m » (6,6 / (1 − 0,105) ; N = √2, valeur exacte du cran f/1.4), au
+  // dixième près, comme la page l'écrit.
   const f14 = sharpZone(50, apertureValue(0), 6.6, blur);
   assertClose(f14.far, 7.4, 0.05, "limite lointaine à f/1.4");
   // « La routine de test juge donc SIT-01 à f/22 : la distance hyperfocale vaut 2500 / (22 × 0,02875) ≈ 4 m, la zone

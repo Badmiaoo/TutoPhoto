@@ -1,5 +1,6 @@
 // Tests rapides (Sujet 26 du plan de corrections, constat ARC-05) : comparaison de deux nombres à virgule flottante.
-// Chaque test donne l'écart qu'il permet, avec sa raison.
+// Un écart permis de 1e-15 à 1e-6 ne couvre que l'arrondi du calcul ; un écart plus large est expliqué à côté du test
+// qui le donne.
 import assert from "node:assert/strict";
 
 export function assertClose(actual: number, expected: number, tolerance: number, what: string): void {

@@ -28,7 +28,7 @@ Pour comprendre les fichiers de données : [docs/lire-le-referentiel.md](docs/li
 
 ## Lancer l'application
 
-Node.js 22.23.5 ou plus récent :
+Node.js 22, à partir de la version 22.23.5, la seule version de Node.js essayée :
 
 ```sh
 cd app

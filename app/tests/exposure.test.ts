@@ -62,7 +62,8 @@ test("chaque libellé désigne son cran : à moins d'un sixième d'IL de la vale
   // Les écrans montrent les libellés usuels, les calculs prennent les valeurs exactes (en-tête du module). Écart en IL
   // entre les deux : 2 × log₂(N du libellé / N exact) pour une ouverture (l'IL compte N²), log₂ du rapport pour une
   // vitesse ou une sensibilité. Au-delà d'un sixième d'IL, la moitié d'un cran, le libellé serait plus près du cran
-  // voisin que du sien. Les plus grands écarts sont de 0,08 IL (f/11, f/22) et 0,09 IL (30 s, 15 s, 1/60 s).
+  // voisin que du sien. Les plus grands écarts sont de 0,08 IL (f/11, f/22) et 0,09 IL (30 s, 15 s, 1/15 s, 1/30 s,
+  // 1/60 s).
   for (let a = 0; a < SCALES.aperture; a++) {
     const gap = 2 * Math.abs(Math.log2(Number(apertureLabel(a)) / apertureValue(a)));
     assert.ok(gap < 1 / 6, `f/${apertureLabel(a)} : ${gap.toFixed(3)} IL de la valeur exacte`);
@@ -115,6 +116,7 @@ test("réglages de départ : f/8, 1/100 s, ISO 100, soit EV₁₀₀ 38/3 ≈ 12
 
 test("exemple de docs/camera-physique.md : à ISO 100 et f/8, l'exposition correcte demande t = 64 / 2^12,5 ≈ 1/90 s", () => {
   // « Exemple : à ISO 100 et f/8, l'exposition correcte demande N²/t = 2^12,5 ≈ 5 793, soit t = 64 / 5 793 ≈ 1/90 s. »
+  // 2^12,5 / 64 = 90,51 : 1/t vaut 90,5 à 0,05 près.
   assertClose(1 / (64 / 2 ** SCENE_EV100), 90.5, 0.05, "1 / t");
   // Ce temps tombe à mi-chemin, en IL, entre les crans « 1/80 » (t = 2^(−19/3)) et « 1/100 » (t = 2^(−20/3)) :
   // +1/6 IL d'un côté, −1/6 IL de l'autre. C'est l'égalité entre deux crans que tranche camera/exposureModes.ts.

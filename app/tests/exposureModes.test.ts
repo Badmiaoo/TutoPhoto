@@ -89,6 +89,17 @@ test("A : la vitesse donne l'exposition correcte pour les 475 couples d'ouvertur
   assert.equal(flashing, 153);
 });
 
+test("A, scène sombre : la vitesse bute sur 30 s et clignote, photo sous-exposée", () => {
+  // resolveExposure prend la luminosité de la scène en paramètre (12,5 IL par défaut) ; avec la scène du parc, la
+  // vitesse ne descend jamais sous 30 s (s ≥ 26). Scène à EV₁₀₀ 0 : a + s − i = 3 × 0 + 12 = 12, d'où, à f/8 et
+  // ISO 100, s = 12 − 15 = −3 : la vitesse reste à 30 s et clignote [nikon-z6-indicators] (« Subject too dark »), et
+  // la photo est sous-exposée de 0 − (15 + 0 − 0 − 12) / 3 = −1 IL.
+  const dark = resolveExposure(control("A", "8", "1/100", "100"), 0);
+  assert.equal(shutterLabel(dark.settings.shutter), "30");
+  assert.equal(dark.flashing, "shutter");
+  assertClose(dark.offset, -1, 1e-12, "écart");
+});
+
 test("A, exemples de docs/camera-physique.md : f/4 et ISO 100 donnent 1/400 s ; avec +1 IL de correction, 1/200 s", () => {
   // « en A à f/4 (a = 9) et ISO 100, s = 40,5 ; l'appareil prend 1/400 s (s = 41) » ; « avec +1 IL, s = 49,5 − 3 − 9
   // = 37,5, d'où 1/200 s ».
@@ -160,6 +171,11 @@ test("M avec ISO auto : la sensibilité donne l'exposition visée, de ISO 100 au
   assert.equal(isoLabel(corrected.settings.iso), "2000");
   assertClose(corrected.offset, 5 / 6, 1e-12, "écart avec +1 IL");
   assertClose(corrected.indicator, -1 / 6, 1e-12, "indicateur avec +1 IL");
+  // f/1.4 et 1/100 s : i = 0 + 35 − 49,5 = −14,5, sous ISO 100 ; la sensibilité reste à ISO 100, et la photo est
+  // surexposée de 12,5 − (0 + 35 − 0 − 12) / 3 = 12,5 − 23/3 ≈ +4,83 IL.
+  const floor = resolveExposure(control("M", "1.4", "1/100", "100", auto));
+  assert.equal(isoLabel(floor.settings.iso), "100");
+  assertClose(floor.offset, 12.5 - 23 / 3, 1e-12, "écart au plancher");
   // Valeur choisie plus haute que le plafond : c'est elle qui sert de plafond ([nikon-z6-iso-settings]).
   const above = resolveExposure(control("M", "8", "1/4000", "3200", { ...auto, maxIso: I("400") }));
   assert.equal(isoLabel(above.settings.iso), "3200");

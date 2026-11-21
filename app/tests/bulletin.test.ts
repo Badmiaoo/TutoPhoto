@@ -35,7 +35,7 @@ function thing(id: string, points: [number, number, number][], velocity: [number
 }
 
 test("netteté : profondeur le long de l'axe, entre les limites de la zone nette", () => {
-  // 50 mm, f/8, mise au point à 6,6 m : zone d'environ 4,1 m à 16,6 m (docs/camera-physique.md, « Défis et bulletin »).
+  // 50 mm, f/8, mise au point à 6,6 m : zone de 4,1 m à 16,6 m (docs/camera-physique.md, « Indicateur d'équilibre »).
   const g = geometry();
   const zone = sharpZone(50, 8, 6.6, BLUR_Z6);
   for (const [z, sharp] of [[3, false], [4.5, true], [6.6, true], [10, true], [20, false]] as const) {
@@ -49,6 +49,19 @@ test("netteté : profondeur le long de l'axe, entre les limites de la zone nette
   const eye = new Vector3(0, 1.6, 0);
   const aside = measureThing(thing("bench", [[3, 1.6, 4]]), geometry({ view: Matrix.LookAtLH(eye, new Vector3(0, 1.6, 10), Vector3.Up()), focalMm: 18 }));
   assertClose(aside.depth, 4, 1e-9, "profondeur le long de l'axe");
+});
+
+test("appareil tourné : profondeur, netteté et traînée se lisent dans le repère de l'appareil, pas dans celui de la scène", () => {
+  // Appareil à l'origine, visant les x positifs de la scène. Un chien à 8 m devant, qui court à 3,5 m/s le long des z
+  // de la scène, passe en travers du cadre : profondeur 8 m, et la traînée d'un sujet en travers,
+  // 50 × 3,5 / 8 × 1/500 = 0,04375 mm.
+  const view = Matrix.LookAtLH(Vector3.Zero(), new Vector3(1, 0, 0), Vector3.Up());
+  const m = measureThing(thing("jim", [[8, 0, 0]], [0, 0, 3.5]), geometry({ view, shutterSeconds: 1 / 500, focusDistance: 8 }));
+  assert.equal(m.inFrame, true);
+  assertClose(m.depth, 8, 1e-9, "profondeur");
+  assert.equal(m.sharp, true);
+  assertClose(m.trailMm, 0.04375, 1e-9, "traînée");
+  assert.equal(m.frozen, false);
 });
 
 test("dans le cadre : x = f X / Z et y = f Y / Z dans les demi-côtés du capteur ; en cadre vertical, ils s'échangent", () => {
@@ -89,9 +102,9 @@ test("traînée : f (vX Z − X vZ) / Z² × t sur le capteur ; figé si elle ne
   assert.equal(at500.frozen, false);
   // En pixels d'une photo de 1500 px de grand côté : traînée × 1500 / grand côté du capteur.
   assertClose(at500.trailPx, (0.04375 * 1500) / z6.sensorWidthMm, 1e-12, "en pixels");
-  // Limite du figé en pixels : (d / 1500) × 1500 / grand côté = d / grand côté, environ 1,2 px pour le Z 6
-  // (docs/camera-physique.md, « Bulletin »).
-  assertClose((BLUR_Z6 * 1500) / z6.sensorWidthMm, 1.2, 0.005, "limite en pixels");
+  // Limite du figé en pixels : (d / 1500) × 1500 / grand côté = d / grand côté, « soit 43,1 / 35,9 ≈ 1,2 px pour le
+  // Z 6 » (docs/camera-physique.md, « Défis et bulletin ») ; au dixième près, comme la page l'écrit.
+  assertClose((BLUR_Z6 * 1500) / z6.sensorWidthMm, 1.2, 0.05, "limite en pixels");
   // Un point sur l'axe qui avance sur l'axe ne bouge pas sur le capteur ; hors de l'axe, il glisse :
   // X = 1 m, Z = 5 m, vZ = −2 m/s : 50 × (0 × 5 − 1 × (−2)) / 25 = 4 mm/s, soit 0,04 mm à 1/100 s.
   assert.equal(measureThing(thing("nathan", [[0, 0, 5]], [0, 0, -2]), geometry()).trailMm, 0);
@@ -131,6 +144,27 @@ test("SIT-01 : l'œil de Sophia net, et rien de net à plus de 1 m derrière lui
   // f/22 : zone jusqu'à l'infini ; le fond photo, à 500 m, est net aussi.
   const deep = judge(apertureValue(24), [sophia, bench]);
   assert.equal(deep[1].values.sharp, "bench, backdrop");
+  // Sophia nette mais hors du cadre (x = 50 × 5 / 6,6 ≈ 37,9 mm, pour un demi-côté de 17,95 mm) : l'œil ne compte pas.
+  const aside = judge(8, [thing("sophia", [[5, 0, 6.6]])]);
+  assert.equal(aside[0].ok, false);
+  // Seuil de 1 m : à f/8, la poubelle à 0,9 m derrière Sophia ne compte pas, le banc à 1,1 m derrière compte.
+  const threshold = judge(8, [sophia, thing("bin", [[0.5, 0, 7.5]]), thing("bench", [[-0.5, 0, 7.7]])]);
+  assert.equal(threshold[1].values.sharp, "bench");
+  // Fond photo à 500 m : mise au point telle que la limite lointaine tombe à 490 m, puis à 510 m (inverse de
+  // S₁ / (1 − q), d'où S₁ = F (1 + c N / f) / (1 + F c N / f²), en mm) ; le fond n'est net que la seconde fois.
+  const focusForFar = (farM: number) => {
+    const far = farM * 1000;
+    const k = BLUR_Z6 * 8;
+    return (far * (1 + k / 50)) / (1 + (far * k) / 2500) / 1000;
+  };
+  for (const [farM, sharp] of [[490, ""], [510, "backdrop"]] as const) {
+    const focus = focusForFar(farM);
+    const b = measureShot({ ...geometry({ focusDistance: focus }), things: [thing("sophia", [[0, 0, focus]])] });
+    assertClose(b.far, farM, 1e-6, "limite lointaine");
+    const criteria = judgeChallenge("SIT-01", b);
+    assert.equal(criteria[0].ok, true, `${farM} m`);
+    assert.equal(criteria[1].values.sharp, sharp, `${farM} m`);
+  }
   // Sans Sophia dans les mesures, ni l'un ni l'autre critère ne passe.
   const absent = judge(apertureValue(0), [bench]);
   assert.deepEqual(absent.map((c) => c.ok), [false, false]);
@@ -154,6 +188,10 @@ test("SIT-05 : les yeux des quatre personnages dans le cadre et nets ; les manqu
   const closed = judgeChallenge("SIT-05", measureShot({ ...geometry({ focalMm: 85 }), things: group }));
   assert.equal(closed[0].ok, true);
   assert.equal(closed[0].values.missed, "");
+  // Percy net mais hors du cadre (x = 85 × 5 / 6,6 ≈ 64 mm) : manqué.
+  const outside = group.slice(0, 3).concat(thing("percy", [[5, 0, 6.6]]));
+  const out = judgeChallenge("SIT-05", measureShot({ ...geometry({ focalMm: 85 }), things: outside }));
+  assert.equal(out[0].values.missed, "percy");
   // Un personnage absent des mesures compte comme manqué, nommé « ? ».
   const three = judgeChallenge("SIT-05", measureShot({ ...geometry({ focalMm: 85 }), things: group.slice(0, 3) }));
   assert.equal(three[0].values.missed, "?");
