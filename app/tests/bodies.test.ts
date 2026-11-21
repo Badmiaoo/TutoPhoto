@@ -48,7 +48,8 @@ test("bruit de lecture : une mesure par cran de l'échelle des ISO, par ISO croi
 });
 
 test("définition du capteur : grand côté × petit côté = pixels effectifs, dans les proportions du capteur", () => {
-  // Commentaire de sensorPixels : √(pixels effectifs × grand côté / petit côté) et son complément.
+  // Commentaire de sensorPixels : √(pixels effectifs × grand côté / petit côté) et son complément. Écart permis sur le
+  // produit : un millionième de millionième des pixels effectifs, l'arrondi du calcul (environ 2,4e-5 pixel).
   for (const body of BODIES) {
     const { long, short } = sensorPixels(body);
     assertClose(long * short, body.effectivePixels, body.effectivePixels * 1e-12, body.model);

@@ -72,8 +72,8 @@ test("exemples de docs/camera-physique.md : 50 mm, mise au point à 6,6 m, Z 6",
   const f8 = sharpZone(50, 8, 6.6, blur);
   assert.equal(Math.round(f8.near), 4);
   assert.equal(Math.round(f8.far), 17);
-  // « À f/1.4, la limite lointaine tombe à 7,4 m » (6,6 / (1 − 0,105) ; N = √2, valeur exacte du cran f/1.4), au
-  // dixième près, comme la page l'écrit.
+  // « À f/1.4, la limite lointaine tombe à 7,4 m » (la page prend N = 1,4 : q ≈ 0,105, 6,6 / (1 − 0,105) ≈ 7,4 m). Avec
+  // N = √2, valeur exacte du cran f/1.4, q ≈ 0,1065 et la limite vaut 7,39 m : 7,4 m au dixième près, comme la page.
   const f14 = sharpZone(50, apertureValue(0), 6.6, blur);
   assertClose(f14.far, 7.4, 0.05, "limite lointaine à f/1.4");
   // « La routine de test juge donc SIT-01 à f/22 : la distance hyperfocale vaut 2500 / (22 × 0,02875) ≈ 4 m, la zone
