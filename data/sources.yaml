@@ -399,7 +399,7 @@ sources:
     used_in: [scripts/check_public.py]
   - id: git-2-56-1-diff-format
     group: "Outils"
-    label: "Git 2.56.1, Documentation/diff-format.adoc : lettres d'état, dont « A: addition of a file » (l. 55-65) ; « Using -z the filename is output verbatim and the line is terminated by a NUL byte » (l. 80-83) ; pour un commit de fusion avec -c ou --cc, « status is concatenated status characters for each parent » (l. 87-96), et « combined diff lists only files which were modified from all parents » (l. 121-122) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026)"
+    label: "Git 2.56.1, Documentation/diff-format.adoc : lettres d'état, dont « A: addition of a file » (l. 55-65) ; « Using -z the filename is output verbatim and the line is terminated by a NUL byte » (l. 81-84) ; pour un commit de fusion avec -c ou --cc, « status is concatenated status characters for each parent » (l. 87-96), et « combined diff lists only files which were modified from all parents » (l. 121-122) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/diff-format.adoc"
     used_in: [scripts/check_public.py]
   - id: git-2-41-0-relnotes
@@ -469,7 +469,7 @@ sources:
     used_in: [docs/publication.md]
   - id: gitleaks-8-30-1-config
     group: "Outils"
-    label: "gitleaks 8.30.1, configuration par défaut, config/gitleaks.toml : règle generic-api-key (l. 637-660), un nom comme key, secret, token ou password, puis une valeur de 10 à 150 caractères pris parmi les lettres, les chiffres, « _ », « . », « = » et « - », d'une entropie d'au moins 3,5, hors des valeurs faites seulement de lettres (l. 656) ; règle curl-auth-header (l. 359-362), un en-tête Authorization dans une commande curl, après -H ou --header (dépôt gitleaks/gitleaks, étiquette v8.30.1, commit 83d9cd6 ; lu le 21 novembre 2026)"
+    label: "gitleaks 8.30.1, configuration par défaut, config/gitleaks.toml : règle generic-api-key (l. 637-2128), un nom comme key, secret, token ou password, puis une valeur de 10 à 150 caractères pris parmi les lettres, les chiffres, « _ », « . », « = » et « - », ou d'au moins 12 pris parmi les lettres, les chiffres, « + » et « / » (l. 640), d'une entropie d'au moins 3,5 (l. 641), hors des valeurs faites seulement de lettres (l. 656) et de celles qui contiennent un des 1 446 mots de sa liste d'exclusion (l. 664-2111) ; règle curl-auth-header (l. 359-362), un en-tête Authorization dans une commande curl, après -H ou --header (dépôt gitleaks/gitleaks, étiquette v8.30.1, commit 83d9cd6 ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/gitleaks/gitleaks/83d9cd684c87d95d656c1458ef04895a7f1cbd8e/config/gitleaks.toml"
     used_in: [docs/publication.md]
   - id: github-secret-scanning

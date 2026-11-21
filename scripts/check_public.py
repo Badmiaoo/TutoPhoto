@@ -127,14 +127,17 @@ def scan_text(label, text, problems, skip=(), first=1):
 
 
 def git_output(*args, data=None):
-    """Sortie d'une commande git, en octets. Un échec de git arrête le script, avec la dernière ligne du message de
-    git et le code 2 (une plage introuvable, un git trop ancien pour --attr-source) ; avant la version 0.3.84, une
-    trace Python sans le message de git (relecture, C7)."""
+    """Sortie d'une commande git, en octets. Un échec de git arrête le script, avec la ligne du message de git qui dit
+    l'erreur (« fatal: ambiguous argument … » pour une plage introuvable, « unknown option: … » pour un git trop ancien
+    pour --attr-source) et le code 2 ; avant la version 0.3.84, une trace Python sans le message de git (relecture,
+    C7 ; contrôle final, F1 : la dernière ligne du message est souvent l'aide de git)."""
     result = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, input=data)
     if result.returncode != 0:
-        said = result.stderr.decode("utf-8", errors="replace").strip().splitlines()
+        said = [l for l in result.stderr.decode("utf-8", errors="replace").splitlines() if l.strip()]
+        why = next((l for l in said if l.startswith(("fatal:", "error:", "unknown option"))),
+                    said[0] if said else f"code {result.returncode}")
         shown = " ".join(a for a in args if not a.startswith("--format=") and len(a) < 80)
-        print(f"ERREUR : git {shown} : {said[-1] if said else f'code {result.returncode}'}")
+        print(f"ERREUR : git {shown} : {why}")
         sys.exit(2)
     return result.stdout
 
@@ -192,7 +195,8 @@ FIELD = "\x1f"  # séparateur des champs de l'en-tête d'un commit, absent des n
 
 def scan_commits(revs, known, problems):
     """Noms, adresses et message de chaque commit."""
-    out = git_output("log", "-z", f"--format=%H{FIELD}%an{FIELD}%ae{FIELD}%cn{FIELD}%ce%n%B", *revs)
+    out = git_output("log", "--no-show-signature", "-z", f"--format=%H{FIELD}%an{FIELD}%ae{FIELD}%cn{FIELD}%ce%n%B",
+                     *revs)
     records = [r for r in out.decode("utf-8", errors="replace").split("\0") if r.strip()]
     for record in records:
         header, _, message = record.partition("\n")
@@ -248,9 +252,10 @@ def scan_additions(revs, known, problems):
     arbre vide (log.showRoot). Chaque ligne de l'historique est ainsi lue dans le commit qui l'a apportée, sans être
     relue dans les fusions qui la recopient. Options fixées pour que la configuration de git ne change pas ce qui est
     lu : chemins sans échappement, préfixes « a/ » et « b/ », ni couleur, ni outil de diff externe, ni conversion de
-    texte (textconv) ; attributs des fichiers .gitattributes lus dans un arbre vide (--attr-source, git 2.41 ou plus),
-    pour qu'un fichier de texte qu'ils déclarent binaire (« -diff », « binary ») montre ses lignes. Un fichier que git
-    montre quand même comme binaire (sa version d'avant l'était, ou un attribut de .git/info/attributes ou de
+    texte (textconv), ni vérification des signatures (log.showSignature écrivait sa sortie au milieu de celle de git :
+    contrôle final, F3) ; attributs des fichiers .gitattributes lus dans un arbre vide (--attr-source, git 2.41 ou
+    plus), pour qu'un fichier de texte qu'ils déclarent binaire (« -diff », « binary ») montre ses lignes. Un fichier
+    que git montre quand même comme binaire (sa version d'avant l'était, ou un attribut de .git/info/attributes ou de
     core.attributesFile, ou le seuil core.bigFileThreshold) est lu en entier dans sa nouvelle version, tirée de l'objet
     git par git cat-file, s'il n'a pas d'octet nul dans ses 8 000 premiers octets (relecture, C1 et C4).
     Sources (data/sources.yaml), textes de git 2.56.1, la version de la CI le 21 novembre 2026 :
@@ -267,7 +272,8 @@ def scan_additions(revs, known, problems):
     """
     empty_tree = git_output("hash-object", "-t", "tree", "/dev/null").decode().strip()
     out = git_output(f"--attr-source={empty_tree}", "-c", "core.quotePath=false", "-c", "log.showRoot=true", "log",
-                     "--format=%x00%H", "-U0", "-M", "--cc", "--full-index", "--no-color", "--no-ext-diff",
+                     "--no-show-signature", "--format=%x00%H", "-U0", "-M", "--cc", "--full-index", "--no-color",
+                     "--no-ext-diff",
                      "--no-textconv", "--src-prefix=a/", "--dst-prefix=b/", *revs)
     count, binaries = 0, []
     # Un commit commence, en début de ligne, par un octet nul et son empreinte. Une ligne de diff commence par « + »,
@@ -340,11 +346,11 @@ def scan_new_paths(revs, known, problems):
     --name-status sans détection des renommages : un fichier renommé est retiré sous l'ancien chemin et ajouté sous le
     nouveau ; -c pour un commit de fusion, une lettre par parent (« AA » : un fichier qu'aucun parent n'a) ; -z pour des
     chemins écrits tels quels, sans échappement ; le premier commit est comparé à un arbre vide. Source
-    git-2-56-1-diff-format (data/sources.yaml), lettres d'état l. 55-65, -z l. 80-83, fusions l. 87-96 et 121-122 de
+    git-2-56-1-diff-format (data/sources.yaml), lettres d'état l. 55-65, -z l. 81-84, fusions l. 87-96 et 121-122 de
     https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/diff-format.adoc.
     """
-    out = git_output("-c", "log.showRoot=true", "log", "-z", "--format=%x01%H", "-c", "--name-status", "--no-renames",
-                     *revs)
+    out = git_output("-c", "log.showRoot=true", "log", "--no-show-signature", "-z", "--format=%x01%H", "-c",
+                     "--name-status", "--no-renames", *revs)
     sha, status, count = None, None, 0
     for token in out.decode("utf-8", errors="replace").split("\0"):
         head = re.fullmatch(r"\n?\x01([0-9a-f]{40})\n?", token)
