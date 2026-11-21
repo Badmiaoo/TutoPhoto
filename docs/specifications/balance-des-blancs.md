@@ -15,7 +15,7 @@ Le dossier n'a pas été relu par un second agent : chaque citation et chaque co
 ## 2. Ce que disent les sources (à relire à la source)
 
 - Nikon Z 6, « White Balance » : « White balance ensures that white objects appear white, regardless of the color of the light source. » Réglages et températures approximatives du tableau du manuel : « Direct sunlight » / « Ensoleillé » 5200 K ; « Cloudy » / « Nuageux » 6000 K (« Use in daylight under overcast skies. ») ; « Shade » / « Ombre » 8000 K ; « Incandescent » 3000 K ; « Flash » 5400 K ; « Choose color temperature » / « Choisir température de couleur » de 2500 à 10 000 K ; automatique de 3500 à 8000 K. Réglage par défaut : « Auto > Keep overall atmosphere ».
-- Les kelvins des préréglages des cinq autres boîtiers ne sont pas lus.
+- Les kelvins des préréglages des autres boîtiers de référence ne sont pas lus (cinq quand cette spécification a été écrite, deux depuis la version 0.3.80).
 - Aucune page lue ne décrit la méthode de la balance automatique.
 - Formules (Wikipedia, source secondaire, révisions du dossier) : chromaticité (x, y) d'un corps noir à la température T (approximation de Kim et collègues, de 1667 à 25 000 K) ; X = x / y, Y = 1, Z = (1 − x − y) / y ; matrice XYZ vers sRGB linéaire ; balance par gains sur chaque couche (matrice diagonale).
 - Poly Haven ne publie ni la température de la lumière du parc ni la balance de développement de la photo autumn_hockey. Son API donne un champ `whitebalance` pour d'autres photos HDR ; d'après le dossier, 5400 K est sa valeur la plus fréquente et la médiane des photos par ciel couvert. Ce comptage est à refaire avec l'API et à garder comme calcul.

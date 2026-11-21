@@ -90,9 +90,9 @@ export const BODIES: readonly Body[] = [
 
 /**
  * Définition du capteur en pixels, le long de ses deux côtés : √(pixels effectifs × grand côté / petit côté)
- * et son complément. Approximation : la forme exacte de l'image n'est pas lue dans les sources du Z 6 et de l'A6000 ;
- * celle de l'EOS R50 l'est (6000 × 4000 pixels enregistrés, [canon-eos-r50-specifications-fr]), et n'est pas reprise
- * (Sujet 36 du plan de corrections).
+ * et son complément. Approximation : la forme exacte de l'image n'est pas lue dans les sources du Z 6 ; celles de
+ * l'EOS R50 et de l'A6000 le sont (6000 × 4000 pixels enregistrés, [canon-eos-r50-specifications-fr],
+ * [sony-a6000-image-size-fr]), et ne sont pas reprises (Sujet 36 du plan de corrections).
  */
 export function sensorPixels(body: Body): { long: number; short: number } {
   const long = Math.sqrt((body.effectivePixels * body.sensorWidthMm) / body.sensorHeightMm);

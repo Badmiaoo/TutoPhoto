@@ -510,7 +510,7 @@ sources:
     used_in: [docs/camera-physique.md, content/notions/BOI-12.md]
   - id: nikon-z6-specifications-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Caractéristiques techniques : « Retardateur 2 s, 5 s, 10 s, 20 s » ; Z 6, « Continu haute vitesse (étendu) : 12 vps (NEF/RAW 14 bits : 9 vps) » (lu le 20 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Caractéristiques techniques : « Retardateur 2 s, 5 s, 10 s, 20 s » ; Z 6, « Continu haute vitesse (étendu) : 12 vps (NEF/RAW 14 bits : 9 vps) » (lu le 20 novembre 2026) ; « Capteur CMOS 35,9 × 23,9 mm (format Nikon FX) » (lu le 21 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/14_technical_notes_06.html"
     used_in: [content/notions/BOI-12.md]
   - id: sony-ilce-7m3-help-guide
@@ -890,7 +890,7 @@ sources:
     used_in: [content/notions/MAP-04.md, content/notions/MAP-06.md]
   - id: canon-eos-r50-af-area-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Canon, manuel de l'EOS R50 en français, Sélection de la zone autofocus : menu « Zone AF », options « Autofocus spot », « 1 collimateur AF », « Élargir zone AF » (deux formes), « AF 1 zone flexible » à « AF 3 zone flexible », « AF zone complète » ; « Sujet à détecter » : « Auto », « Personnes », « Animaux », « Véhicules », « Aucun » ; « Détection œil » : « Vous pouvez photographier avec les yeux de personnes ou d'animaux nets. » (lu le 20 novembre 2026) ; « 1 collimateur AF » : « (mais veuillez noter qu'avec certains objectifs, il peut ne pas se déplacer au bord de l'écran) », « Vous pouvez également faire la mise au point en tapotant une position sur l'écran pour y déplacer le collimateur AF. » (lu le 21 novembre 2026)"
+    label: "Canon, manuel de l'EOS R50 en français, Sélection de la zone autofocus : menu « Zone AF », options « Autofocus spot », « 1 collimateur AF », « Élargir zone AF » (deux formes), « AF 1 zone flexible » à « AF 3 zone flexible », « AF zone complète » ; « Sujet à détecter » : « Auto », « Personnes », « Animaux », « Véhicules », « Aucun » ; « Détection œil » : « Vous pouvez photographier avec les yeux de personnes ou d'animaux nets. » (lu le 20 novembre 2026) ; section « Réglage manuel des collimateurs AF ou des cadres Zone AF » (écrans montrés « avec le réglage AF 1 zone flexible ») : « (mais veuillez noter qu'avec certains objectifs, il peut ne pas se déplacer au bord de l'écran) », « Vous pouvez également faire la mise au point en tapotant une position sur l'écran pour y déplacer le collimateur AF. » (lu le 21 novembre 2026)"
     url: "https://cam.start.canon/fr/C011/manual/html/UG-06_AF-Drive_0060.html"
     used_in: [content/notions/MAP-05.md, content/notions/MAP-06.md, content/notions/MAP-09.md, docs/camera-physique.md]
   - id: canon-eos-r50-specifications-fr
@@ -908,6 +908,11 @@ sources:
     label: "Digital Camera World, « Finally #1! Released back in 2023, this beginner-friendly mirrorless is Japan’s best-selling camera in 2025 » (titre tel que l'extrait l'écrit) : l'EOS R50 premier des ventes de BCN pour 2025 (date de l'article non lue ; extrait de recherche du 20 novembre 2026, page non ouverte : hôte refusé par l'environnement de Claude)"
     url: "https://www.digitalcameraworld.com/cameras/mirrorless-cameras/finally-1-released-back-in-2023-this-beginner-friendly-mirrorless-is-japans-best-selling-camera-in-2025"
     used_in: [docs/propositions.md]
+  - id: sony-a6000-image-size-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Taille d'image (image fixe) : au ratio d'aspect 3:2, « L: 24M 6000 × 4000 pixels » ; la page ne donne ni la taille du capteur ni les pixels effectifs (lu le 21 novembre 2026)"
+    url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000429237.html"
+    used_in: [docs/camera-physique.md]
   - id: sony-a6000-help-guide-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, accueil (4-534-933-21(1)) : ses deux sommaires (contentslist01 et contentslist02) listent 247 et 59 pages, 306 en tout ; « collimateur » n'est dans aucune, « cadre du télémètre » dans quatre (relevé le 20 novembre 2026)"

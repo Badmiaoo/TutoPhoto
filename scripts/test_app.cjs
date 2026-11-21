@@ -112,7 +112,8 @@
 //   1 % de sa hauteur) ramène le point dans la zone couverte par l'autofocus, au plus près du point touché, et cette
 //   zone mesure 90 % × 90 % du cadre avec le Nikon Z 6 et avec le Sony A6000 (celle du Z 6, faute de pourcentage
 //   sourcé), 90 % × 100 % avec le Canon EOS R50, grand et petit côtés échangés en cadre vertical ; avec l'EOS R50,
-//   elle passe à 100 % × 100 % en zone automatique et revient à 90 % × 100 % en point sélectif (version 0.3.80) ;
+//   elle passe à 100 % × 100 % en zone automatique, où un toucher en haut à droite reste où il est touché, et revient
+//   à 90 % × 100 % en point sélectif, le point ramené dedans (version 0.3.80) ;
 // - en fin de profil (constat INT-06 de l'audit, version 0.3.64) : aucun problème affiché à la fin du parcours, la
 //   ligne de diagnostic étant relue avant le rechargement du simulateur pour le défi SIT-06, qui l'efface, et après
 //   lui ; et aucune erreur de la page ni de la console sur toutes les pages ouvertes par le profil (aucune n'est

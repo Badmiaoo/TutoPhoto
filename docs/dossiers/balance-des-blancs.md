@@ -396,7 +396,7 @@ Accès refusés cette nuit, pour mémoire : `www.sony.ca` (403, trois adresses, 
 - Sony A7 III et A6000 : la liste des réglages et leurs libellés anglais ; pas leurs kelvins.
 - Les formules : mired, série D, lieu de Planck, xy vers XYZ, XYZ vers sRGB linéaire, von Kries, Bradford (Wikipedia, révisions citées).
 
-Conséquence de la règle « on n'implémente que ce qui est sourcé » : la balance des blancs peut être complète sur le Z 6. Pour les cinq autres boîtiers, il manque les kelvins des préréglages. Deux voies : (a) n'y offrir d'abord que l'automatique, la température au choix et la mesure personnalisée, qui n'ont pas besoin de ces valeurs ; (b) attendre que Julien relève les manuels (EOS RP, EOS 2000D, D5600) et les fiches Sony. Je propose (a) pour Sony, et pour Canon d'attendre la lecture du manuel de l'EOS RP : les valeurs des R5, R6 et 850D sont identiques entre elles, mais les attribuer à l'EOS RP serait une extrapolation.
+Conséquence de la règle « on n'implémente que ce qui est sourcé » : la balance des blancs peut être complète sur le Z 6. Pour les autres boîtiers de référence (cinq quand ce dossier a été écrit, deux depuis la version 0.3.80), il manque les kelvins des préréglages. Deux voies : (a) n'y offrir d'abord que l'automatique, la température au choix et la mesure personnalisée, qui n'ont pas besoin de ces valeurs ; (b) attendre que Julien relève les manuels (EOS RP, EOS 2000D, D5600) et les fiches Sony. Je propose (a) pour Sony, et pour Canon d'attendre la lecture du manuel de l'EOS RP : les valeurs des R5, R6 et 850D sont identiques entre elles, mais les attribuer à l'EOS RP serait une extrapolation.
 
 ### 7.2 Le modèle : des gains relatifs à la balance du fichier
 
