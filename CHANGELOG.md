@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.81] - 2026-11-21
+
+Sujet 21 du plan de corrections de l'audit (`docs/audit/README.md`) : construction des pages ; les identifiants `SIT-V2-NN` acceptés, une fiche vide refusée (constats RST-01 et RST-13). Version en cours : cette section est réécrite avant la fusion.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.80 relue (fusion, tag, release, publication, CI), lignée des sessions (profondeur 5 sur 8, effort « max »), Sujet 21 en cours ; dans « Défauts connus, hors du plan », le commit 5e9e714 à la ligne du contrôle FMA-23.
+
 ## [0.3.80] - 2026-11-21
 
 Sujet 19 du plan de corrections de l'audit (`docs/audit/README.md`), seconde partie : les trois boîtiers de référence dans le simulateur, choisis à la version 0.3.79 d'après la décision D4 de Julien (Nikon Z 6, Sony A6000, Canon EOS R50 ; `docs/propositions.md`, section 5, « Termes de Canon et de Sony, trois boîtiers de référence », choix 4 à 6). L'EOS R50 est ajouté, d'après la fiche technique de son manuel en français et la page du bruit de lecture de PhotonsToPhotos ; le Nikon D5600, le Sony A7 III, le Canon EOS RP et l'EOS 2000D sont retirés, avec le choix du format. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Choix de Claude : `docs/propositions.md`, section 5, « Les trois boîtiers dans le simulateur ».
@@ -1683,6 +1691,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.81]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.80...v0.3.81
 [0.3.80]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.79...v0.3.80
 [0.3.79]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.78...v0.3.79
 [0.3.78]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.77...v0.3.78
