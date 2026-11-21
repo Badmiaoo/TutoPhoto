@@ -36,8 +36,9 @@ jobs:
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |
-          # Sur une pull request : aucun identifiant de la branche cible ne disparaît, et le champ since suit la règle
-          # de CHANGELOG.md (option --base, constats RST-03 et RST-05).
+          # Sur une pull request (option --base, constats RST-03 et RST-05) : aucun identifiant de la branche cible ne
+          # disparaît ni ne change de notion, un identifiant retiré le reste, le champ since est gardé, et une notion ou
+          # une situation ajoutée ou retirée fait monter Y (CHANGELOG.md, « Numérotation »).
           if [ -n "$BASE_REF" ]; then
             python scripts/validate.py --base "origin/${BASE_REF}"
           else

@@ -362,6 +362,11 @@ sources:
     label: "PyYAML 6.0.3, lib/yaml/constructor.py, l. 144 : « mapping[key] = value », sans test d'une clé déjà vue (dépôt yaml/pyyaml, étiquette 6.0.3, commit 49790e7 ; identique au fichier du paquet installé ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/yaml/pyyaml/49790e73684bebad1df05ef8d828fa12f685bffb/lib/yaml/constructor.py"
     used_in: [scripts/referentiel.py]
+  - id: commonmark-spec-0-31-2
+    group: "Outils"
+    label: "John MacFarlane, CommonMark Spec, version 0.31.2 (28 janvier 2024), licence CC BY-SA 4.0 : les puces de liste « - », « + » et « * » (l. 4102-4103) ; une liste peut commencer par une puce vide (l. 4689-4697) ; une ligne de séparation est faite de trois « - », « _ » ou « * » au moins (l. 874-877), « +++ » et « === » seuls (l. 890-903), « -- », « ** » et « __ » (l. 906-916) sont des paragraphes ; le soulignement d'un titre est une suite de « = » ou de « - » (l. 1330-1332) (dépôt commonmark/commonmark-spec, étiquette 0.31.2, commit 9103e34, fichier spec.txt ; lu le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/commonmark/commonmark-spec/9103e341a973013013bb1a80e13567007c5cef6f/spec.txt"
+    used_in: [app/scripts/build-pages.mjs, docs/contenus.md]
   - id: threejs-r187
     group: "Outils"
     label: "three.js, dépôt mrdoob/three.js, version r187 (commit 7e89746 du 30 octobre 2026), licence MIT"

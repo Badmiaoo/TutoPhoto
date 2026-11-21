@@ -1,5 +1,6 @@
 """Chargement des fichiers de data/, commun à validate.py et coverage.py, et lecture des fiches de content/."""
 import datetime
+import io
 import pathlib
 import re
 import string
@@ -32,14 +33,19 @@ class LectureImpossible(Exception):
     elle est connue."""
 
 
+def _ligne(debut):
+    """Numéro de la ligne qui commence après `debut` (texte ou octets), fins de ligne LF, CRLF ou CR seul."""
+    fins = rb"\r\n|\r|\n" if isinstance(debut, bytes) else r"\r\n|\r|\n"
+    return len(re.findall(fins, debut)) + 1
+
+
 def lire_octets(octets, nom):
     """Texte UTF-8 d'un contenu déjà lu. Un octet qui n'est pas de l'UTF-8 lève `LectureImpossible`, avec sa ligne."""
     try:
         return octets.decode("utf-8")
     except UnicodeDecodeError as e:
-        ligne = octets[:e.start].count(b"\n") + 1
         raise LectureImpossible(
-            f"{nom}, ligne {ligne} : octet 0x{octets[e.start]:02x}, le fichier n'est pas en UTF-8") from e
+            f"{nom}, ligne {_ligne(octets[:e.start])} : octet 0x{octets[e.start]:02x}, le fichier n'est pas en UTF-8") from e
 
 
 def lire_texte(path, nom=None):
@@ -110,29 +116,38 @@ _Chargeur.add_constructor("tag:yaml.org,2002:timestamp", _Chargeur.construct_yam
 def load_yaml(path, nom=None):
     """Lit un fichier YAML. `nom` : le chemin écrit dans le message d'une erreur de lecture (`LectureImpossible`)."""
     nom = nom or str(path)
-    return _charger(lire_texte(path, nom), nom)
+    try:
+        octets = pathlib.Path(path).read_bytes()
+    except OSError as e:
+        raise LectureImpossible(f"{nom} : {e.strerror or e}") from e
+    return load_yaml_octets(octets, nom)
 
 
 def load_yaml_octets(octets, nom):
-    """Lit un contenu YAML déjà lu : un fichier d'une autre version du dépôt, que donne `git show` (option `--base` de
-    validate.py). `nom` : ce qu'écrit le message d'une erreur de lecture."""
-    return _charger(lire_octets(octets, nom), nom)
+    """Lit un contenu YAML déjà lu en octets : un fichier de data/, ou un fichier d'une autre version du dépôt, que
+    donne `git show` (option `--base` de validate.py). `nom` : ce qu'écrit le message d'une erreur de lecture.
 
-
-def _charger(texte, nom):
-    # Le texte est décodé en entier avant d'être lu : un fichier qui a un caractère refusé et un octet qui n'est pas de
-    # l'UTF-8 est signalé par l'octet, quelle que soit leur place (version 0.3.83 ; avant, par le premier rencontré).
+    Le texte est décodé au fur et à mesure que PyYAML le lit, en fins de ligne universelles, comme par `open()` jusqu'à
+    la version 0.3.82 : la première faute rencontrée est signalée, qu'elle soit de syntaxe, un caractère refusé ou un
+    octet qui n'est pas de l'UTF-8 (relecture de la version 0.3.83, constat C7)."""
+    flux = io.TextIOWrapper(io.BytesIO(octets), encoding="utf-8")
     try:
-        return _dates_en_texte(yaml.load(texte, Loader=_Chargeur))
+        return _dates_en_texte(yaml.load(flux, Loader=_Chargeur))
     except yaml.MarkedYAMLError as e:
         ligne = f", ligne {e.problem_mark.line + 1}" if e.problem_mark else ""
         contexte = f" ({e.context}, ligne {e.context_mark.line + 1})" if e.context and e.context_mark else ""
         raise LectureImpossible(f"{nom}{ligne} : {e.problem}{contexte}") from e
     except yaml.reader.ReaderError as e:
-        # Caractère que YAML refuse (U+0007…) : PyYAML ne donne que sa position dans le texte ; la ligne est plus
-        # utile pour un caractère qui ne se voit pas.
-        ligne = texte[:e.position].count("\n") + 1
-        raise LectureImpossible(f"{nom}, ligne {ligne} : caractère #x{e.character:04x} refusé ({e.reason})") from e
+        # Caractère que YAML refuse (U+0007…) : PyYAML ne donne que sa position dans le texte qu'il a lu, fins de ligne
+        # ramenées à LF ; la ligne est plus utile pour un caractère qui ne se voit pas.
+        texte = re.sub(r"\r\n|\r", "\n", octets.decode("utf-8", errors="replace"))
+        raise LectureImpossible(
+            f"{nom}, ligne {texte[:e.position].count(chr(10)) + 1} : caractère #x{e.character:04x} refusé "
+            f"({e.reason})") from e
+    except UnicodeDecodeError as e:
+        # La position que donne Python est celle du morceau lu (64 Kio), pas celle du fichier : chercher la ligne.
+        lire_octets(octets, nom)
+        raise LectureImpossible(f"{nom} : {e}") from e
     except (yaml.YAMLError, ValueError) as e:
         raise LectureImpossible(f"{nom} : {e}") from e
 
@@ -160,16 +175,17 @@ def sans_blancs(texte):
     return texte[debut:fin]
 
 
-def fiche_normalisee(texte):
-    """Texte d'une fiche sans la marque d'ordre des octets (U+FEFF) en tête, fins de ligne CRLF ramenées à LF."""
+def normaliser(texte):
+    """Texte sans la marque d'ordre des octets (U+FEFF) en tête, fins de ligne CRLF ramenées à LF, comme la construction
+    des pages lit ses fichiers."""
     if texte.startswith(chr(0xFEFF)):
         texte = texte[1:]
     return texte.replace("\r\n", "\n")
 
 
 def texte_de_fiche(path, nom=None):
-    """Texte d'une fiche, lu par `lire_texte` puis `fiche_normalisee`."""
-    return fiche_normalisee(lire_texte(path, nom))
+    """Texte d'une fiche, lu par `lire_texte` puis `normaliser`."""
+    return normaliser(lire_texte(path, nom))
 
 
 def premiere_ligne(texte):

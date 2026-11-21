@@ -6,7 +6,10 @@ import { t, type MessageKey } from "../texts";
 
 const STORAGE_KEY = "tutophoto.defi";
 
-/** Titres des notions à revoir, repris du référentiel (data/referentiel). */
+/**
+ * Titres des notions à revoir, repris du référentiel (data/referentiel). scripts/validate.py les compare à data/ et lit
+ * la table ligne à ligne : une entrée par ligne, « "EXP-04": "Titre", », et « }; » seul pour finir (version 0.3.83).
+ */
 const NOTION_TITLES: Record<string, string> = {
   "BOI-08": "Priorité à la vitesse",
   "BOI-12": "Modes d'entraînement",
@@ -20,6 +23,8 @@ const NOTION_TITLES: Record<string, string> = {
   "NET-06": "Distance sujet-fond",
 };
 
+// Titre et but de chaque défi, clés de texts.ts. scripts/validate.py lit cette table ligne à ligne, comme NOTION_TITLES,
+// et contrôle que le titre de chaque défi est celui de sa situation dans data/situations.yaml (version 0.3.83).
 const CHALLENGE_KEYS: Record<ChallengeId, { title: MessageKey; goal: MessageKey }> = {
   "SIT-01": { title: "challenge01Title", goal: "challenge01Goal" },
   "SIT-05": { title: "challenge05Title", goal: "challenge05Goal" },

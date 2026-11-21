@@ -10,8 +10,8 @@
 // de l'audit, Sujet 21, et sa relecture) : un identifiant de fiche, nom de fichier compris, a la forme de
 // src/ficheId.mjs, partagée avec le simulateur (« SIT-V2-02 » compris) ; une fiche sans section, une section sans
 // texte, une puce vide et une fiche de situation sans recette font aussi échouer la construction ; depuis la version
-// 0.3.83, une ligne de séparation (« --- ») ou de soulignement de titre (« === »). scripts/validate.py contrôle en plus
-// que chaque fiche porte l'identifiant et le titre d'une notion ou d'une situation du référentiel.
+// 0.3.83, une ligne faite seulement de « - », « = », « _ », « * » ou « + » (« --- », « === »). scripts/validate.py
+// contrôle en plus que chaque fiche porte l'identifiant et le titre d'une notion ou d'une situation du référentiel.
 //
 // Le site est en français seul depuis la version 0.3.60 (décision de Julien du 15 novembre 2026). Les pages se lisent
 // sans JavaScript ; le seul script de l'accueil est celui du pré-téléchargement.
@@ -265,13 +265,17 @@ function block(lines, ctx) {
     const { line, at } = item;
     if (line.trim() === "") flush();
     // Une puce sans texte, « - » avec ou sans blanc après, donnerait un élément de liste vide ou un paragraphe « - »
-    // (relecture de la version 0.3.81, constat C1, et son contrôle final, F1). De même « + » et « * » seuls, deux autres
-    // puces de Markdown (version 0.3.83).
+    // (relecture de la version 0.3.81, constat C1, et son contrôle final, F1). De même « + » seul, autre puce de
+    // Markdown, publié comme un paragraphe jusqu'à la version 0.3.83, et « * » seul, refusé avant pour son « * ».
     else if (/^[-+*]$/.test(line.trim())) fail(`${at} : élément de liste vide`);
-    // Une ligne faite seulement de « - », « = », « _ », « * », « + » et de blancs est, pour Markdown, une ligne de
-    // séparation (« --- », « - - - ») ou le soulignement d'un titre (« === » sous une ligne) : jusqu'à la version 0.3.83,
-    // publiée comme du texte, « --- » seul en paragraphe ou « - - » en puce (contrôle final de la version 0.3.81, F7).
-    else if (/^[-=_*+\s]+$/.test(line)) fail(`${at} : balisage non reconnu (ligne de séparation ou soulignement de titre)`);
+    // Une ligne faite seulement de « - », « = », « _ », « * », « + » et de blancs. Markdown lit certaines d'entre elles
+    // comme une ligne de séparation (trois « - », « _ » ou « * » au moins : « --- », « - - - ») ou, sous une ligne de
+    // texte, comme le soulignement d'un titre (« === », « --- ») : spécification CommonMark 0.31.2, sections « Thematic
+    // breaks » et « Setext headings », source commonmark-spec-0-31-2 de data/sources.yaml,
+    // https://raw.githubusercontent.com/commonmark/commonmark-spec/9103e341a973013013bb1a80e13567007c5cef6f/spec.txt.
+    // Jusqu'à la version 0.3.83, « --- », « === », « ___ » ou « +++ » étaient publiés comme un paragraphe, « - - - »
+    // comme une puce « - - » (contrôle final de la version 0.3.81, F7).
+    else if (/^[-=_*+\s]+$/.test(line)) fail(`${at} : balisage non reconnu (ligne faite seulement de « - », « = », « _ », « * » ou « + »)`);
     else if (line.startsWith("- ")) {
       if (paragraph.length) flush();
       list.push(item);
