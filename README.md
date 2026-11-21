@@ -28,13 +28,14 @@ Pour comprendre les fichiers de données : [docs/lire-le-referentiel.md](docs/li
 
 ## Lancer l'application
 
-Node.js 22 ou plus récent :
+Node.js 22, à partir de la version 22.23.5, la seule version de Node.js essayée :
 
 ```sh
 cd app
 npm ci
 npm run dev      # serveur de développement
 npm run build    # vérification des types, simulateur, accueil et fiches dans app/dist/
+npm test         # tests rapides des formules (app/tests/)
 ```
 
 ## Vérifier le référentiel
