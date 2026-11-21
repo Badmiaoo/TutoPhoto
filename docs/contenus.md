@@ -12,7 +12,7 @@ content/
   situations/SIT-01.md
 ```
 
-Le nom de fichier est l'identifiant stable de la notion ou de la situation.
+Le nom de fichier est l'identifiant stable de la notion ou de la situation : trois lettres, un tiret et deux chiffres (`EXP-04`, `SIT-05`), ou `SIT-V2-` et deux chiffres pour les anciennes situations V2, gardées telles quelles (`docs/lire-le-referentiel.md`). La construction des pages et la fenêtre de fiche du simulateur lisent les deux formes avec la même expression, `app/src/ficheId.mjs`, et `data/relecture.yaml` les accepte aussi (version 0.3.81, constat RST-01 de l'audit ; avant, une fiche `SIT-V2-NN` arrêtait la construction).
 
 ## Fiche de notion
 
@@ -30,7 +30,7 @@ Une section compte si son corps contient du texte. Les commentaires HTML (`<!-- 
 
 ## Fiche de situation
 
-Une situation est rédigée quand son fichier existe et contient du texte hors commentaires HTML.
+Une situation est rédigée quand sa fiche a une section « Recette » non vide, hors commentaires HTML, comme une brique de notion. Jusqu'à la version 0.3.80, il suffisait que le fichier contienne du texte hors commentaires HTML : une fiche réduite à son titre comptait comme rédigée, et donnait la brique « situation réelle » aux notions qui renvoient à la situation (constat RST-13 de l'audit).
 
 Plan retenu avec les premiers défis (version 0.3.39), confirmé par Julien le 11 novembre 2026, une section de niveau 2 par partie :
 
@@ -65,7 +65,7 @@ Décisions de Julien du 11 novembre 2026, version 0.3.46, en français seul depu
   - des paragraphes et des listes à tirets ;
   - du gras (`**…**`) et des liens `[texte](https://…)`.
 
-  Tout autre balisage, ou un code de notion ou de situation sans fiche, fait échouer la construction ;
+  Tout autre balisage, ou un code de notion ou de situation sans fiche, fait échouer la construction. Depuis la version 0.3.81 (constat RST-13 de l'audit), une fiche sans section, ou dont une section ne contient aucun texte, la fait aussi échouer, en nommant le fichier, au lieu d'être publiée vide ;
 - les codes de notions et de situations cités dans une fiche deviennent des liens vers leurs fiches ; la fiche d'une notion liste les situations dont la section « Notions » la cite.
 - activités interactives (version 0.3.50) : une notion qui a une section « Activité » et une page d'activité (`app/activites/<ID>/`, construite par Vite) propose « Faire l'activité » au lieu d'« Ouvrir le simulateur ». Première activité : LUM-02, un schéma vu de côté (source, objet, mur) où l'on règle la taille et la distance de la source et où l'on voit l'ombre pleine et la pénombre ; calcul par triangles semblables, expliqué dans la fiche et dans `app/src/activities/lum02.ts` ;
 - depuis le simulateur (version 0.3.47) : la fiche d'une situation qui a une section « Défi » propose « Jouer le défi », qui ouvre le simulateur avec ce défi (`simulateur/?defi=SIT-05`) ; les notions « À revoir » du bulletin et le bouton « Fiche » de la fenêtre « Défis » ouvrent la fiche dans une fenêtre par-dessus le simulateur, sans perdre la scène ni les réglages. Dans cette fenêtre, les liens vers d'autres fiches y restent, et les liens vers les sources s'ouvrent dans un nouvel onglet.

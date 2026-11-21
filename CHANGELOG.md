@@ -14,11 +14,39 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 ## [0.3.81] - 2026-11-21
 
-Sujet 21 du plan de corrections de l'audit (`docs/audit/README.md`) : construction des pages ; les identifiants `SIT-V2-NN` acceptés, une fiche vide refusée (constats RST-01 et RST-13). Version en cours : cette section est réécrite avant la fusion.
+Sujet 21 du plan de corrections de l'audit (`docs/audit/README.md`) : construction des pages ; les identifiants `SIT-V2-NN` acceptés, une fiche vide refusée (constats RST-01 et RST-13 de `docs/audit/referentiel-structure.md`). Les identifiants ne changent pas. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Les parts anglaises du sujet (la section « Recipe », les fiches de `content/en/`) sont sans objet depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61). Choix de Claude : `docs/propositions.md`, section 5, « Construction des pages ».
+
+### Ajouté
+
+- `app/src/ficheId.mjs`, avec sa déclaration de types `ficheId.d.mts` : la forme d'un identifiant de fiche, trois lettres, un tiret et deux chiffres (`EXP-04`, `SIT-05`), ou `SIT-V2-` et deux chiffres, une seule expression pour la construction des pages et la fenêtre de fiche du simulateur (choix 1 et 2).
+- `docs/propositions.md`, section 5 : « Construction des pages », huit choix.
+
+### Corrigé
+
+- Construction des pages (`app/scripts/build-pages.mjs`), RST-01 : une fiche `SIT-V2-NN` se construit ; sa ligne de `data/relecture.yaml` est lue ; un code `SIT-V2-NN` cité dans une fiche devient un lien vers sa fiche, ou arrête la construction s'il n'en a pas, comme les autres codes. Avant, une fiche `SIT-V2-02` arrêtait la construction avec « la première ligne doit être « # SIT-V2-02 · Titre » », la ligne même qu'elle avait lue, et un code `SIT-V2-02` cité restait du texte, sans contrôle.
+- Construction des pages, RST-13 : une fiche sans section, ou dont une section ne contient aucun texte, arrête la construction, avec le nom du fichier et la ligne de la section (choix 4 et 6). Avant, la page était publiée vide et listée à l'accueil.
+- Fenêtre de fiche du simulateur (`app/src/ui/ficheDialog.ts`), les deux expressions que la contre-vérification de RST-01 ajoute à l'audit : un élément `data-fiche="SIT-V2-02"` ouvre la fiche, et un lien vers `SIT-V2-02.html` dans la fiche affichée l'ouvre dans la fenêtre. Avant, la fenêtre ne s'ouvrait pas, sans message, et le lien quittait le simulateur pour une page qui n'existe pas (`simulateur/SIT-V2-02.html`).
+- `schemas/relecture.schema.json`, RST-01 : `data/relecture.yaml` accepte une fiche `SIT-V2-NN` (choix 3).
+- `scripts/coverage.py`, RST-13 : une situation est rédigée quand sa fiche a une section « Recette » non vide, hors commentaires HTML, avec la fonction qui lit déjà les briques des notions (choix 5). Avant, un fichier réduit à son titre comptait comme rédigé, et donnait la brique « situation réelle » aux notions qui renvoient à la situation : 28 notions de plus pour SIT-10, et la couverture de MES-06.
 
 ### Modifié
 
-- `docs/etat-des-travaux.md` : fin de la version 0.3.80 relue (fusion, tag, release, publication, CI), lignée des sessions (profondeur 5 sur 8, effort « max »), Sujet 21 en cours ; dans « Défauts connus, hors du plan », le commit 5e9e714 à la ligne du contrôle FMA-23.
+- `docs/contenus.md` : les deux formes d'identifiant et l'expression commune ; la règle de la situation rédigée ; la fiche vide qui arrête la construction. Commentaire de `data/relecture.yaml` : les deux formes (choix 8).
+- `docs/etat-des-travaux.md` : fin de la version 0.3.80 relue (fusion, tag, release, publication, CI), lignée des sessions (profondeur 5 sur 8, effort « max »), Sujet 21 fait, Sujet 22 suivant, la ligne des choix 1 à 8 ; dans « Défauts connus, hors du plan », le commit 5e9e714 à la ligne du contrôle FMA-23.
+
+Non fait, et pourquoi : un contrôle permanent dans la routine, faute de fiche `SIT-V2-NN` dans `content/` (choix 7) ; les parts anglaises, sans objet.
+
+Essais : `validate.py` (0 erreur ; l'avertissement `github-pages-limits`, déjà sur `main`), `coverage.py` (sortie identique à celle de `main`), `changelog.py check`, `check_public.py --commits all` (0 problème), `npm run build` (dont `tsc --noEmit` ; 22 fiches). Les 22 pages de fiches et `pages.css` sont identiques, octet pour octet, à celles de `main` construites le même jour ; l'accueil ne diffère que par le numéro de version et le nom du script du simulateur. Sur une copie neuve du dépôt par essai, avec `build-pages.mjs`, `validate.py` et `coverage.py` (script de Claude, hors du dépôt), comparés à `main` :
+- une fiche `content/situations/SIT-V2-02.md` (titre de `data/situations.yaml`, trois sections) et « Voir aussi SIT-V2-02. » dans SIT-01 : 23 fiches ; la page `fiches/SIT-V2-02.html`, listée à l'accueil sous « Je suis en situation » ; le lien dans SIT-01 ; SIT-V2-02 dans les situations de NET-06 ; « Situations rédigées : 4 sur 49 » et « Situation réelle » 32 au lieu de 30 (OPT-06 et CMP-07). Sur `main` : « la première ligne doit être « # SIT-V2-02 · Titre » », code 1 ;
+- la même fiche et sa ligne `- {fiche: SIT-V2-02, date: 2026-11-21}` dans `data/relecture.yaml` : `validate.py` sans erreur, « 1 relue(s) », page sans bandeau, accueil sans la marque « en relecture ». Sur `main` : refusée par le schéma (« does not match '^([A-Z]{3}|SIT)-[0-9]{2}$' ») et par la construction (« ligne non reconnue ») ;
+- la ligne de relecture sans la fiche : « relecture : content/situations/SIT-V2-02.md introuvable » ; `SIT-V3-02`, `ABC-V2-02` et `SIT-V2-123` : refusés par le schéma et par la construction ;
+- « Voir aussi XYZ-98. » dans SIT-01 : « XYZ-98 n'a pas de fiche », code 1, comme sur `main` ;
+- SIT-10 réduite à son titre : « content/situations/SIT-10.md : aucune section ; leurs titres sont dans docs/contenus.md », code 1 ; `coverage.py` : 3 situations rédigées sur 49, 13 notions couvertes, « Situation réelle » 30. Sur `main` : 23 fiches dont SIT-10 sans section, listée à l'accueil ; 4 situations rédigées, 14 notions couvertes (MES-06), « Situation réelle » 58 ;
+- SIT-10 avec `## Recette` et `## Notions` sans texte : deux erreurs, « SIT-10.md:3 : section « Recette » vide » et « SIT-10.md:5 : section « Notions » vide » ; non comptée. Sur `main` : publiée, comptée ;
+- SIT-10 avec une recette d'une ligne seulement : construite, comptée (4 sur 49 ; « Situation réelle » 58, 14 notions couvertes : la règle de couverture de RST-09, qui attend D27, ne change pas) ; avec une section « Où, quand, quoi, pourquoi » seulement : construite, non comptée ; avec une recette faite d'un commentaire HTML : « balisage non reconnu », comme sur `main`, et non comptée, alors que `main` la comptait ;
+- EXP-01 réduite à son titre, puis avec une section « Explication » sans texte : la construction s'arrête et nomme le fichier ; une fiche `SIT-V2-02.md` titrée « SIT-V2-03 » : « la première ligne doit être « # SIT-V2-02 · Titre » ».
+
+Dans Chromium (Playwright, script de Claude), sur le site construit de la copie à la fiche SIT-V2-02, à 1280 × 800, sur un Pixel 7 et un iPhone 14 émulés : un élément `data-fiche="SIT-V2-02"` ajouté à la page ouvre la fenêtre sur la fiche (« SIT-V2-02 Portrait : choisir sa distance », lien de la page `../fiches/SIT-V2-02.html`) ; dans la fiche SIT-01 ouverte dans la fenêtre, le lien « SIT-V2-02 » ouvre la fiche dans la fenêtre, l'adresse restant `/simulateur/` ; aucune erreur de la page. Témoin, les mêmes fiches avec le simulateur de `main` : la fenêtre ne s'ouvre pas, et le lien mène à `/simulateur/SIT-V2-02.html`, page qui n'existe pas.
 
 ## [0.3.80] - 2026-11-21
 
