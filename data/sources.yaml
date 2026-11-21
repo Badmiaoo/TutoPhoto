@@ -524,7 +524,7 @@ sources:
     used_in: [scripts/check_public.py, docs/publication.md]
   - id: github-actions-jobs-if
     group: "Outils"
-    label: "GitHub Docs, Workflow syntax for GitHub Actions, jobs.<job_id>.if (fragment data/reusables/actions/jobs/section-using-conditions-to-control-job-execution.md) : « You can use the jobs.<job_id>.if conditional to prevent a job from running unless a condition is met » (l. 1) ; dans l'exemple, un job dont la condition est fausse « will be marked as skipped » (l. 10) (source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
+    label: "GitHub Docs, Workflow syntax for GitHub Actions, jobs.<job_id>.if (fragment data/reusables/actions/jobs/section-using-conditions-to-control-job-execution.md) : « You can use the jobs.<job_id>.if conditional to prevent a job from running unless a condition is met » (l. 1) ; dans l'exemple, un job dont la condition est fausse « will be marked as skipped » (l. 10) ; le fragment data/reusables/actions/expression-syntax-if.md, qu'il inclut (l. 6) : « When you use expressions in an if conditional, you can, optionally, omit the ${{ }} expression syntax » (source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/data/reusables/actions/jobs/section-using-conditions-to-control-job-execution.md"
     used_in: [docs/pile-technique.md]
   - id: github-actions-jobs-needs
