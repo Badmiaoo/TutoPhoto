@@ -31,7 +31,7 @@ import type { UniversalCamera } from "@babylonjs/core/Cameras/universalCamera";
 import { Camera } from "@babylonjs/core/Cameras/camera";
 import type { FreeCameraTouchInput } from "@babylonjs/core/Cameras/Inputs/freeCameraTouchInput";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
-import { BODIES, findBody, sensorPixels, type Body, type Brand, type Format } from "../camera/bodies";
+import { BODIES, findBody, sensorPixels, type Body, type Brand } from "../camera/bodies";
 import {
   DEFAULT_FOCAL_INDEX,
   DEFAULT_SETTINGS,
@@ -59,12 +59,12 @@ import type { BalanceIndicator } from "./balance";
  * le Z 6 : « 273 focus points*, enabling broad coverage of approximately 90% of the imaging area both
  * horizontally and vertically », avec « * With FX (36x24) format and single-point AF » (communiqué du
  * 23 août 2018) [nikon-z6-launch-2018] ; même chiffre dans le communiqué du 15 août 2019 [nikon-z6-eisa-2019]
- * et sur la page du produit [nikon-z6-product]. Appliquée à tous les modes de zone. Depuis la version 0.3.43,
- * chaque boîtier a sa couverture quand elle est sourcée (camera/bodies.ts, afCoverage : Canon EOS RP, 88 % sur
- * le grand côté et 100 % sur le petit ; depuis la 0.3.45, Sony A7 III, 93 % de la surface, partagés également
- * entre les deux côtés) ; les autres gardent celle du Z 6, ce qui n'est pas sourcé pour eux
- * (décision de Julien du 11 novembre 2026 : hybrides ajoutés une fois lus, reflex en V2). La disposition des
- * points n'est pas dans ces sources : le point se place partout dans la zone couverte, sans grille.
+ * et sur la page du produit [nikon-z6-product]. Appliquée à tous les modes de zone du Z 6. Chaque boîtier a sa
+ * couverture quand elle est sourcée (camera/bodies.ts, afCoverage, depuis la version 0.3.43) : le Canon EOS R50,
+ * 90 % sur le grand côté et 100 % sur le petit pour le collimateur choisi, 100 % sur les deux en zone automatique
+ * (afCoverageAuto, version 0.3.80) ; le Sony A6000, dont la page ne donne pas de pourcentage, garde celle du Z 6,
+ * ce qui n'est pas sourcé pour lui. La disposition des points n'est pas dans ces sources : le point se place
+ * partout dans la zone couverte, sans grille.
  *   https://www.nikon.com/news/2018/0823_mirrorless_01.htm
  *   https://www.nikon.com/news/2019/0815_award_01.htm
  *   https://imaging.nikon.com/imaging/lineup/mirrorless/z_6/
@@ -249,7 +249,6 @@ export class CameraPanel {
   private minShutter = shutterIndexOf(DEFAULT_MIN_SHUTTER);
   private focalIndex = DEFAULT_FOCAL_INDEX;
   private brand: Brand = "nikon";
-  private format: Format = "ff";
   private frame: Frame | null = null;
   private preview: Preview = { all: true, brightness: true, noise: true, depthOfField: true, balance: true, grid: "none" };
   /** Grille dont les lignes sont tracées dans le cadre ; null avant le premier tracé. */
@@ -324,6 +323,9 @@ export class CameraPanel {
         this.saveBody();
         this.autofocus?.setMode(this.focusMode);
         this.updateFocus();
+        // La zone couverte peut changer avec le mode de zone (EOS R50, afCoverageAuto) : applyView la redessine et
+        // y ramène le point.
+        if (input.name === "areaMode") this.applyView();
         for (const listener of this.viewListeners) listener();
       });
     }
@@ -336,7 +338,6 @@ export class CameraPanel {
     for (const input of el.bodyDialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) {
       input.addEventListener("change", () => {
         if (input.name === "brand") this.brand = input.value as Brand;
-        if (input.name === "format") this.format = input.value as Format;
         this.saveBody();
         this.update();
       });
@@ -517,10 +518,12 @@ export class CameraPanel {
 
   /**
    * Marges de la zone couverte par l'autofocus, en fractions du cadre (x en largeur, y en hauteur) : couverture du
-   * boîtier, ou celle du Z 6 quand elle n'est pas sourcée ; grand et petit côtés échangés en cadrage vertical.
+   * boîtier, celle de sa zone automatique quand sa fiche en donne une à part, ou celle du Z 6 quand elle n'est pas
+   * sourcée ; grand et petit côtés échangés en cadrage vertical.
    */
   private afMargins(): { x: number; y: number } {
-    const coverage = this.body().afCoverage ?? AF_COVERAGE;
+    const body = this.body();
+    const coverage = (this.areaMode === "auto" ? body.afCoverageAuto : undefined) ?? body.afCoverage ?? AF_COVERAGE;
     const portrait = this.frame?.portrait ?? false;
     const across = portrait ? coverage.vertical : coverage.horizontal;
     const down = portrait ? coverage.horizontal : coverage.vertical;
@@ -672,7 +675,7 @@ export class CameraPanel {
   }
 
   private body() {
-    return findBody(this.brand, this.format);
+    return findBody(this.brand);
   }
 
   /** « + » augmente la valeur affichée : nombre f, durée de pose, ISO, focale. */
@@ -755,18 +758,18 @@ export class CameraPanel {
     this.el.bodyButton.title = `${tr("bodyTitle")}\u00a0: ${body.model}`;
     this.el.bodyDialog.querySelector("#body-title")!.textContent = tr("bodyTitle");
     this.el.bodyDialog.querySelector("#brand-legend")!.textContent = tr("brand");
-    this.el.bodyDialog.querySelector("#format-legend")!.textContent = tr("format");
-    this.el.bodyDialog.querySelector("#format-ff-label")!.textContent = tr("fullFrame");
-    this.el.bodyDialog.querySelector("#format-apsc-label")!.textContent = tr("apsc");
     this.el.bodyDialog.querySelector("#body-note")!.textContent = tr("bodyNote");
     this.el.bodyDialog.querySelector("#lens-note")!.textContent = tr("lensNote");
     this.el.bodyDialog.querySelector("#body-close")!.textContent = tr("close");
-    const sensors = BODIES.filter((b) => b.brand === this.brand)
-      .map((b) => `${b.model}\u00a0: ${mm(b.sensorWidthMm)} × ${mm(b.sensorHeightMm)} mm`)
-      .join("\u202f; ");
-    this.el.bodyDialog.querySelector("#sensor-note")!.textContent = `${tr("sensor")}\u00a0: ${sensors}`;
+    // Les trois capteurs, pour les comparer. Espaces insécables dans les noms et entre les nombres et leur unité,
+    // pour qu'ils ne se coupent pas en fin de ligne.
+    const sensors = BODIES.map(
+      (b) =>
+        `${b.model.replace(/ /g, "\u00a0")}, ${tr(b.format === "ff" ? "fullFrame" : "apsc")} de ${mm(b.sensorWidthMm)}\u00a0×\u00a0${mm(b.sensorHeightMm)}\u00a0mm`,
+    ).join("\u202f; ");
+    this.el.bodyDialog.querySelector("#sensor-note")!.textContent = `${tr("sensor")}\u00a0: ${sensors}.`;
     for (const input of this.el.bodyDialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) {
-      input.checked = input.value === (input.name === "brand" ? this.brand : this.format);
+      input.checked = input.value === this.brand;
     }
     this.applyView();
   }
@@ -1083,7 +1086,6 @@ export class CameraPanel {
     try {
       const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null") as {
         brand?: string;
-        format?: string;
         focusMode?: string;
         areaMode?: string;
         detection?: string;
@@ -1096,10 +1098,9 @@ export class CameraPanel {
         maxIso?: number;
         minShutter?: number;
       } | null;
-      if (saved && BODIES.some((b) => b.brand === saved.brand && b.format === saved.format)) {
-        this.brand = saved.brand as Brand;
-        this.format = saved.format as Format;
-      }
+      // Un boîtier par marque depuis la version 0.3.80 : un choix mémorisé avant (marque et format) donne le boîtier
+      // de sa marque, le format est ignoré.
+      if (saved && BODIES.some((b) => b.brand === saved.brand)) this.brand = saved.brand as Brand;
       if (saved?.focusMode === "single" || saved?.focusMode === "continuous") this.focusMode = saved.focusMode;
       if (saved?.areaMode && Object.prototype.hasOwnProperty.call(AREA_KEYS, saved.areaMode)) this.areaMode = saved.areaMode as AreaMode;
       if (DETECTIONS.includes(saved?.detection as Detection)) this.detection = saved!.detection as Detection;
@@ -1122,7 +1123,6 @@ export class CameraPanel {
     try {
       const saved = {
         brand: this.brand,
-        format: this.format,
         focusMode: this.focusMode,
         areaMode: this.areaMode,
         detection: this.detection,

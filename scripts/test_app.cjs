@@ -110,8 +110,9 @@
 //   l'appareil, de plus de 0,01 rad : ses commandes sont rattachées après le calcul (relecture de la version 0.3.63) ;
 // - collimateurs (MAP-06), en AF-C et point sélectif : un toucher en haut à droite du cadre (à 99 % de sa largeur et
 //   1 % de sa hauteur) ramène le point dans la zone couverte par l'autofocus, au plus près du point touché, et cette
-//   zone mesure 90 % × 90 % du cadre avec le Nikon Z 6, 88 % × 100 % avec le Canon EOS RP, 96,4 % × 96,4 % avec le
-//   Sony A7 III (93 % de la surface), grand et petit côtés échangés en cadre vertical ;
+//   zone mesure 90 % × 90 % du cadre avec le Nikon Z 6 et avec le Sony A6000 (celle du Z 6, faute de pourcentage
+//   sourcé), 90 % × 100 % avec le Canon EOS R50, grand et petit côtés échangés en cadre vertical ; avec l'EOS R50,
+//   elle passe à 100 % × 100 % en zone automatique et revient à 90 % × 100 % en point sélectif (version 0.3.80) ;
 // - en fin de profil (constat INT-06 de l'audit, version 0.3.64) : aucun problème affiché à la fin du parcours, la
 //   ligne de diagnostic étant relue avant le rechargement du simulateur pour le défi SIT-06, qui l'efface, et après
 //   lui ; et aucune erreur de la page ni de la console sur toutes les pages ouvertes par le profil (aucune n'est
@@ -1143,10 +1144,10 @@ async function runProfile(browser, name, base) {
       // touchée, puis avec la zone du centre. La place d'une zone dans la photo entière vient de la taille de l'image
       // complète du Nikon Z 6 (24,5 millions de pixels, capteur de 35,9 × 23,9 mm : sensorPixels,
       // app/src/camera/bodies.ts) et de celle de la fenêtre, qui est à 100 % ; calcul de magnify
-      // (app/src/ui/shutter.ts). Cette taille est écrite ici en dur. Avec un autre boîtier par défaut parmi ceux du
-      // code, la zone serait fausse de 3 % en étendue et le contrôle réussirait encore (relecture de la version
-      // 0.3.62, hors de la routine : taille du Canon EOS RP supposée, 2,5 niveaux sur ordinateur à ce point) ; c'est
-      // un changement du centrage de la fenêtre qui le fait échouer. La photo entière est relue à l'adresse du lien
+      // (app/src/ui/shutter.ts). Cette taille est écrite ici en dur. Avec un autre boîtier par défaut, la zone serait
+      // fausse et le contrôle réussirait encore : la relecture de la version 0.3.62 l'a mesuré, hors de la routine,
+      // avec la taille du Canon EOS RP, boîtier retiré depuis (version 0.3.80) : 3 % en étendue, 2,5 niveaux sur
+      // ordinateur à ce point. C'est un changement du centrage de la fenêtre qui le fait échouer. La photo entière est relue à l'adresse du lien
       // « Enregistrer ». Le contrôle demande un écart avec la zone touchée inférieur à 10 niveaux, et inférieur à
       // l'écart avec la zone du centre.
       //
@@ -1857,10 +1858,10 @@ async function runProfile(browser, name, base) {
     if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-collimateurs.png`), timeout: 120000 });
     // Couverture par boîtier : un toucher en (99 % ; 1 %) du cadre est ramené au bord de la zone couverte. En cadre
     // vertical (profil Android), grand et petit côtés du capteur sont échangés.
+    // Un boîtier par marque depuis la version 0.3.80 : la fenêtre n'a plus de choix du format.
     const setBody = async (brand) => {
       await page.click("#body-button");
       await page.check(`#body-dialog input[name="brand"][value="${brand}"]`);
-      await page.check('#body-dialog input[name="format"][value="ff"]');
       await page.click("#body-close");
     };
     const checkBodyCoverage = async (brand, label, long, short) => {
@@ -1884,10 +1885,42 @@ async function runProfile(browser, name, base) {
         `cadre ${vertical ? "vertical" : "horizontal"} ; repère à ${(got.x * 100).toFixed(1)} % × ${(got.y * 100).toFixed(1)} % ; zone couverte ${(share.x * 100).toFixed(1)} % × ${(share.y * 100).toFixed(1)} %`,
       );
     };
-    // Canon EOS RP : « 88% horizontal and 100% vertical coverage » (fiche de Canon).
-    await checkBodyCoverage("canon", "collimateurs : couverture du Canon EOS RP (88 % × 100 %)", 0.88, 1);
-    // Sony A7 III : « approx. 93% of image area » (page de Sony), partagés également : √0,93 ≈ 96,4 % par côté.
-    await checkBodyCoverage("sony", "collimateurs : couverture du Sony A7 III (93 % de la surface, 96,4 % × 96,4 %)", Math.sqrt(0.93), Math.sqrt(0.93));
+    // Canon EOS R50 : « Positions sélectionnables pour le collimateur AF », « Horizontal : environ 90 %, vertical :
+    // environ 100 % » (manuel en français, « Caractéristiques techniques »).
+    await checkBodyCoverage("canon", "collimateurs : couverture du Canon EOS R50 (90 % × 100 %)", 0.9, 1);
+    // EOS R50 en zone automatique : « sélection automatique », « Horizontal : environ 100 %, vertical : environ
+    // 100 % » (même page). La zone tracée suit le mode de zone : 100 % × 100 % en zone automatique, puis de nouveau
+    // 90 % × 100 % en point sélectif, sans autre geste que le changement de mode (version 0.3.80).
+    const coverageShareNow = async () => {
+      const box = await page.locator("#frame").boundingBox();
+      const zone = await page.locator("#af-coverage").boundingBox();
+      return {
+        vertical: box.height > box.width,
+        x: zone ? zone.width / box.width : NaN,
+        y: zone ? zone.height / box.height : NaN,
+      };
+    };
+    await setAf("continuous", "auto");
+    await page.waitForTimeout(500);
+    const autoShare = await coverageShareNow();
+    check(
+      "collimateurs : couverture du Canon EOS R50 en zone automatique (100 % × 100 %)",
+      Math.abs(autoShare.x - 1) < 0.01 && Math.abs(autoShare.y - 1) < 0.01,
+      `cadre ${autoShare.vertical ? "vertical" : "horizontal"} ; zone couverte ${(autoShare.x * 100).toFixed(1)} % × ${(autoShare.y * 100).toFixed(1)} %`,
+    );
+    await setAf("continuous", "point");
+    await page.waitForTimeout(500);
+    const pointShare = await coverageShareNow();
+    const pointW = pointShare.vertical ? 1 : 0.9;
+    const pointH = pointShare.vertical ? 0.9 : 1;
+    check(
+      "collimateurs : Canon EOS R50 revenu en point sélectif (90 % × 100 %)",
+      Math.abs(pointShare.x - pointW) < 0.01 && Math.abs(pointShare.y - pointH) < 0.01,
+      `cadre ${pointShare.vertical ? "vertical" : "horizontal"} ; zone couverte ${(pointShare.x * 100).toFixed(1)} % × ${(pointShare.y * 100).toFixed(1)} %`,
+    );
+    // Sony A6000 : « 179 phase detection points (covering almost the entire image) », sans pourcentage (page de
+    // Sony) : il garde la couverture du Z 6.
+    await checkBodyCoverage("sony", "collimateurs : couverture du Sony A6000 (celle du Z 6, 90 % × 90 %)", 0.9, 0.9);
     await setBody("nikon");
     const centreBox = await page.locator("#frame").boundingBox();
     await page.mouse.click(centreBox.x + centreBox.width / 2, centreBox.y + centreBox.height / 2);

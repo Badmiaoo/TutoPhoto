@@ -26,10 +26,11 @@ const messages = {
   meterHelp: "0 : exposition correcte. Plus : photo plus claire. Moins : photo plus sombre.",
   bodyTitle: "Boîtier de référence",
   brand: "Marque",
-  format: "Format",
-  fullFrame: "Plein format",
-  apsc: "APS-C",
-  sensor: "Capteur",
+  // Dans la note des capteurs de la fenêtre « Boîtier de référence » : « Nikon Z 6, plein format de 35,9 × 23,9 mm ».
+  // Trait d'union insécable (\u2011) dans « APS-C » : « APS- » puis « C » se coupaient (iPhone SE émulé).
+  fullFrame: "plein format",
+  apsc: "APS\u2011C",
+  sensor: "Capteurs",
   // Décision D3 de Julien (15 novembre 2026, docs/historique.md) : « Les noms des modes et des menus restent ceux du
   // Nikon Z 6 ». La première phrase dit ce que change le boîtier (camera/bodies.ts : taille et définition du capteur,
   // capacité des photosites et bruit de lecture ; couverture de l'autofocus quand elle est sourcée, sinon celle du Z 6,
