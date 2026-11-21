@@ -1,6 +1,9 @@
-"""Chargement des fichiers de data/, commun à validate.py et coverage.py."""
+"""Chargement des fichiers de data/, commun à validate.py et coverage.py, et lecture des fiches de content/."""
 import datetime
 import pathlib
+import re
+import string
+import unicodedata
 from dataclasses import dataclass, field
 
 import yaml
@@ -24,8 +27,30 @@ def _dates_en_texte(value):
 
 
 class LectureImpossible(Exception):
-    """Un fichier de data/ ne se lit pas : faute de syntaxe YAML, clé écrite deux fois, date impossible, caractère
-    refusé, fichier absent ou qui n'est pas en UTF-8. Le message nomme le fichier, et la ligne quand elle est connue."""
+    """Un fichier ne se lit pas : fichier absent ou qui n'est pas en UTF-8 ; pour un fichier de data/, faute de syntaxe
+    YAML, clé écrite deux fois, date impossible ou caractère refusé. Le message nomme le fichier, et la ligne quand
+    elle est connue."""
+
+
+def lire_octets(octets, nom):
+    """Texte UTF-8 d'un contenu déjà lu. Un octet qui n'est pas de l'UTF-8 lève `LectureImpossible`, avec sa ligne."""
+    try:
+        return octets.decode("utf-8")
+    except UnicodeDecodeError as e:
+        ligne = octets[:e.start].count(b"\n") + 1
+        raise LectureImpossible(
+            f"{nom}, ligne {ligne} : octet 0x{octets[e.start]:02x}, le fichier n'est pas en UTF-8") from e
+
+
+def lire_texte(path, nom=None):
+    """Texte d'un fichier en UTF-8. Un fichier absent, illisible ou qui n'est pas en UTF-8 lève `LectureImpossible`, en
+    une ligne qui le nomme (`nom`, ou son chemin), au lieu d'une trace Python (version 0.3.83)."""
+    nom = nom or str(path)
+    try:
+        octets = pathlib.Path(path).read_bytes()
+    except OSError as e:
+        raise LectureImpossible(f"{nom} : {e.strerror or e}") from e
+    return lire_octets(octets, nom)
 
 
 _FUSION = object()  # la clé de fusion « << », distincte du texte « << » écrit entre guillemets
@@ -85,9 +110,20 @@ _Chargeur.add_constructor("tag:yaml.org,2002:timestamp", _Chargeur.construct_yam
 def load_yaml(path, nom=None):
     """Lit un fichier YAML. `nom` : le chemin écrit dans le message d'une erreur de lecture (`LectureImpossible`)."""
     nom = nom or str(path)
+    return _charger(lire_texte(path, nom), nom)
+
+
+def load_yaml_octets(octets, nom):
+    """Lit un contenu YAML déjà lu : un fichier d'une autre version du dépôt, que donne `git show` (option `--base` de
+    validate.py). `nom` : ce qu'écrit le message d'une erreur de lecture."""
+    return _charger(lire_octets(octets, nom), nom)
+
+
+def _charger(texte, nom):
+    # Le texte est décodé en entier avant d'être lu : un fichier qui a un caractère refusé et un octet qui n'est pas de
+    # l'UTF-8 est signalé par l'octet, quelle que soit leur place (version 0.3.83 ; avant, par le premier rencontré).
     try:
-        with open(path, encoding="utf-8") as f:
-            return _dates_en_texte(yaml.load(f, Loader=_Chargeur))
+        return _dates_en_texte(yaml.load(texte, Loader=_Chargeur))
     except yaml.MarkedYAMLError as e:
         ligne = f", ligne {e.problem_mark.line + 1}" if e.problem_mark else ""
         contexte = f" ({e.context}, ligne {e.context_mark.line + 1})" if e.context and e.context_mark else ""
@@ -95,23 +131,73 @@ def load_yaml(path, nom=None):
     except yaml.reader.ReaderError as e:
         # Caractère que YAML refuse (U+0007…) : PyYAML ne donne que sa position dans le texte ; la ligne est plus
         # utile pour un caractère qui ne se voit pas.
-        with open(path, encoding="utf-8", errors="replace") as f:
-            ligne = f.read()[:e.position].count("\n") + 1
+        ligne = texte[:e.position].count("\n") + 1
         raise LectureImpossible(f"{nom}, ligne {ligne} : caractère #x{e.character:04x} refusé ({e.reason})") from e
-    except UnicodeDecodeError as e:
-        # La position que donne Python est celle du morceau lu (64 Kio), pas celle du fichier : chercher la ligne.
-        octets = pathlib.Path(path).read_bytes()
-        try:
-            octets.decode("utf-8")
-        except UnicodeDecodeError as u:
-            ligne = octets[:u.start].count(b"\n") + 1
-            raise LectureImpossible(
-                f"{nom}, ligne {ligne} : octet 0x{octets[u.start]:02x}, le fichier n'est pas en UTF-8") from e
-        raise LectureImpossible(f"{nom} : {e}") from e
-    except OSError as e:
-        raise LectureImpossible(f"{nom} : {e.strerror or e}") from e
     except (yaml.YAMLError, ValueError) as e:
         raise LectureImpossible(f"{nom} : {e}") from e
+
+
+# --- Fiches de content/ ----------------------------------------------------------------------------------------------
+# Lues comme les lit la construction des pages (app/scripts/build-pages.mjs), en JavaScript : sans la marque d'ordre
+# des octets en tête, fins de ligne de Windows ramenées à celles d'Unix, blancs au sens de `trim()` de JavaScript.
+# Avant la version 0.3.83, scripts/coverage.py ne comptait pas la casse des titres de section et comptait comme du
+# texte une ligne faite d'un U+FEFF : il comptait une brique que la construction refuse (relecture de la version 0.3.81,
+# constat C3).
+
+def _blanc(c):
+    """Blanc au sens de JavaScript : espaces de toutes sortes (catégories Zs, Zl et Zp de Unicode), tabulations, fins de
+    ligne, et U+FEFF, que `str.strip()` de Python ne retire pas."""
+    return c in string.whitespace or c == chr(0xFEFF) or unicodedata.category(c) in ("Zs", "Zl", "Zp")
+
+
+def sans_blancs(texte):
+    """`texte` sans ses blancs de début et de fin, comme `trim()` de JavaScript."""
+    debut, fin = 0, len(texte)
+    while debut < fin and _blanc(texte[debut]):
+        debut += 1
+    while fin > debut and _blanc(texte[fin - 1]):
+        fin -= 1
+    return texte[debut:fin]
+
+
+def fiche_normalisee(texte):
+    """Texte d'une fiche sans la marque d'ordre des octets (U+FEFF) en tête, fins de ligne CRLF ramenées à LF."""
+    if texte.startswith(chr(0xFEFF)):
+        texte = texte[1:]
+    return texte.replace("\r\n", "\n")
+
+
+def texte_de_fiche(path, nom=None):
+    """Texte d'une fiche, lu par `lire_texte` puis `fiche_normalisee`."""
+    return fiche_normalisee(lire_texte(path, nom))
+
+
+def premiere_ligne(texte):
+    """(numéro, texte) de la première ligne qui n'est pas blanche, celle qui porte le titre de la fiche ; None si toutes
+    le sont."""
+    for numero, ligne in enumerate(texte.split("\n"), 1):
+        if sans_blancs(ligne):
+            return numero, ligne
+    return None
+
+
+def sections_de_fiche(texte):
+    """Titres des sections de niveau 2 dont le corps n'est pas blanc : une ligne qui commence par « ## » et une espace,
+    le titre tel qu'il est écrit (la casse compte), sans les commentaires HTML (docs/contenus.md). La construction des
+    pages refuse en plus le balisage qu'elle ne connaît pas (titre de niveau 3, « **** », « - » seul…) : une section
+    qui ne contient que cela compte ici, alors que la construction échoue."""
+    texte = re.sub(r"<!--.*?-->", "", texte, flags=re.S)
+    trouvees, titre, plein = set(), None, False
+    for ligne in texte.split("\n"):
+        if ligne.startswith("## "):
+            if titre is not None and plein:
+                trouvees.add(titre)
+            titre, plein = sans_blancs(ligne[3:]), False
+        elif titre is not None and sans_blancs(ligne):
+            plein = True
+    if titre is not None and plein:
+        trouvees.add(titre)
+    return trouvees
 
 
 @dataclass

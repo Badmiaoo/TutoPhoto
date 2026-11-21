@@ -9,7 +9,9 @@
 // sans fiche : une fiche mal formée se voit avant la publication. Depuis la version 0.3.81 (constats RST-01 et RST-13
 // de l'audit, Sujet 21, et sa relecture) : un identifiant de fiche, nom de fichier compris, a la forme de
 // src/ficheId.mjs, partagée avec le simulateur (« SIT-V2-02 » compris) ; une fiche sans section, une section sans
-// texte, une puce vide et une fiche de situation sans recette font aussi échouer la construction.
+// texte, une puce vide et une fiche de situation sans recette font aussi échouer la construction ; depuis la version
+// 0.3.83, une ligne de séparation (« --- ») ou de soulignement de titre (« === »). scripts/validate.py contrôle en plus
+// que chaque fiche porte l'identifiant et le titre d'une notion ou d'une situation du référentiel.
 //
 // Le site est en français seul depuis la version 0.3.60 (décision de Julien du 15 novembre 2026). Les pages se lisent
 // sans JavaScript ; le seul script de l'accueil est celui du pré-téléchargement.
@@ -263,8 +265,13 @@ function block(lines, ctx) {
     const { line, at } = item;
     if (line.trim() === "") flush();
     // Une puce sans texte, « - » avec ou sans blanc après, donnerait un élément de liste vide ou un paragraphe « - »
-    // (relecture de la version 0.3.81, constat C1, et son contrôle final, F1).
-    else if (line.trim() === "-") fail(`${at} : élément de liste vide`);
+    // (relecture de la version 0.3.81, constat C1, et son contrôle final, F1). De même « + » et « * » seuls, deux autres
+    // puces de Markdown (version 0.3.83).
+    else if (/^[-+*]$/.test(line.trim())) fail(`${at} : élément de liste vide`);
+    // Une ligne faite seulement de « - », « = », « _ », « * », « + » et de blancs est, pour Markdown, une ligne de
+    // séparation (« --- », « - - - ») ou le soulignement d'un titre (« === » sous une ligne) : jusqu'à la version 0.3.83,
+    // publiée comme du texte, « --- » seul en paragraphe ou « - - » en puce (contrôle final de la version 0.3.81, F7).
+    else if (/^[-=_*+\s]+$/.test(line)) fail(`${at} : balisage non reconnu (ligne de séparation ou soulignement de titre)`);
     else if (line.startsWith("- ")) {
       if (paragraph.length) flush();
       list.push(item);
