@@ -28,16 +28,40 @@ def warn(msg):
     warnings.append(msg)
 
 
+def where_in(data, path):
+    """Chemin d'une erreur de schéma, avec l'identifiant de chaque objet traversé qui en a un :
+    « situations/3 (SIT-04)/key_notions » plutôt que « situations/3/key_notions »."""
+    parts, node = [], data
+    for p in path:
+        node = node[p]
+        part = str(p)
+        if isinstance(p, int) and isinstance(node, dict) and isinstance(node.get("id"), str):
+            part += f" ({node['id']})"
+        parts.append(part)
+    return "/".join(parts) or "(racine)"
+
+
 def check_schemas(ref):
     schemas = ref.root / "schemas"
 
     def validate(schema_name, path, data):
         schema = json.loads((schemas / schema_name).read_text(encoding="utf-8"))
         validator = jsonschema.Draft202012Validator(schema)
-        for e in sorted(validator.iter_errors(data), key=lambda e: list(e.absolute_path)):
-            where = "/".join(str(p) for p in e.absolute_path) or "(racine)"
-            # Un échec de « not » recopie tout l'objet : le $comment du schéma dit mieux ce qui ne va pas.
-            message = e.schema.get("$comment", e.message) if e.validator == "not" else e.message
+        # Tri par chemin. Des clés de types différents au même rang (un nombre, un texte, une date) ne se comparent
+        # pas entre elles : les nombres d'abord, dans leur ordre, puis le reste comme du texte.
+        def rang(p):
+            return (0, p) if isinstance(p, (int, float)) else (1, str(p))
+
+        for e in sorted(validator.iter_errors(data), key=lambda e: [rang(p) for p in e.absolute_path]):
+            where = where_in(data, e.absolute_path)
+            if e.validator == "not":
+                # Un échec de « not » recopie tout l'objet : le $comment du schéma dit mieux ce qui ne va pas.
+                message = e.schema.get("$comment", e.message)
+            elif e.validator == "uniqueItems" and all(isinstance(i, str) for i in e.instance):
+                # « [...] has non-unique elements » recopie la liste sans dire quel élément est répété (RST-07).
+                message = "en double : " + ", ".join(duplicates(e.instance))
+            else:
+                message = e.message
             error(f"{ref.rel(path)} : {where} : {message}")
 
     for path, data in ref.domain_files:
@@ -83,6 +107,10 @@ def check_links(ref):
             continue
         if not sits and "practice_outside" not in n:
             error(f"{n['id']} : aucune situation et pas de champ practice_outside")
+        # Pas de « uniqueItems » dans le schéma pour ce champ : pris dans l'alternative « all » ou une liste, son
+        # message y serait « is not valid under any of the given schemas », sans dire pourquoi (constat RST-07).
+        for dup in duplicates(sits):
+            error(f"{n['id']} : situation en double : {dup}")
         for sid in sits:
             if sid not in situations:
                 error(f"{n['id']} : situation {sid} inexistante")
@@ -102,15 +130,22 @@ def check_links(ref):
 
 
 def check_levels(ref):
+    """Règle de niveau d'une situation (`rules`, `level`, de data/situations.yaml). Un écart sans raison écrite dans
+    `notes`, et un `level` au-dessus de `level_max`, sont des erreurs (constat RST-06 de l'audit, version 0.3.82). La
+    dérogation par `notes` est celle que la règle écrit ; la règle de la médiane attend la confirmation de Julien
+    (D32 (2), docs/etat-des-travaux.md)."""
     notions = {n["id"]: n for n in ref.notions}
     for s in ref.situations:
+        if referentiel.LEVELS.index(s["level"]) > referentiel.LEVELS.index(s["level_max"]):
+            error(f"{s['id']} : level {s['level']} au-dessus de level_max {s['level_max']}")
         levels = [notions[k]["level"] for k in s["key_notions"] if k in notions]
         if not levels:
             continue
         expected = referentiel.situation_level_rule(levels)
         actual = (s["level"], s["level_max"])
         if actual != expected and not s.get("notes"):
-            warn(f"{s['id']} : niveau {actual[0]}/{actual[1]}, la règle donne {expected[0]}/{expected[1]}, sans note")
+            error(f"{s['id']} : niveau {actual[0]}/{actual[1]}, la règle de data/situations.yaml donne "
+                  f"{expected[0]}/{expected[1]} ; corriger le niveau, ou écrire la raison de l'écart dans notes")
 
 
 def check_sources(ref):
@@ -200,9 +235,6 @@ def check_jalons(ref):
     for dup in duplicates([j["id"] for j in ref.jalons]):
         error(f"jalon en double : {dup}")
     for j in ref.jalons:
-        for kind, ids in (("notion", j["notions"]), ("situation", j["situations"])):
-            for dup in duplicates(ids):
-                error(f"jalon {j['id']} : {kind} en double : {dup}")
         for nid in j["notions"]:
             if nid in retired:
                 error(f"jalon {j['id']} : notion retirée {nid}")
@@ -236,7 +268,13 @@ def summary(ref):
 
 
 def main():
-    ref = referentiel.load(sys.argv[1] if len(sys.argv) > 1 else referentiel.ROOT)
+    try:
+        ref = referentiel.load(sys.argv[1] if len(sys.argv) > 1 else referentiel.ROOT)
+    except referentiel.LectureImpossible as e:
+        # Fichier qui ne se lit pas (faute de syntaxe, clé écrite deux fois…) : rien d'autre ne peut être contrôlé.
+        print(f"ERREUR : {e}")
+        print("1 erreur(s), 0 avertissement(s)")
+        return 1
     check_schemas(ref)
     if not errors:
         # Les contrôles de cohérence supposent des fichiers conformes aux schémas.

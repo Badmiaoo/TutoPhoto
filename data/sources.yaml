@@ -351,7 +351,17 @@ sources:
     group: "Outils"
     label: "GitHub Docs, GitHub Pages limits (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
     url: "https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits"
-    used_in: [docs/historique.md, docs/questions-ouvertes.md, docs/publication.md]
+    used_in: [docs/historique.md, docs/publication.md]
+  - id: yaml-spec-1-2-2
+    group: "Outils"
+    label: "YAML Language Development Team, YAML Ain't Markup Language (YAML) version 1.2, révision 1.2.2 (1er octobre 2021), section « Nodes », définition « Mapping » : « The content of a mapping node is an unordered set of key/value node pairs, with the restriction that each of the keys is unique » (source du texte dans le dépôt yaml/yaml-spec, commit 1b1a1be, fichier spec/1.2.2/spec.md, l. 891-892 ; lue le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/yaml/yaml-spec/1b1a1be43bd6e0cfec45caf0e40af3b5d2bb7f8a/spec/1.2.2/spec.md"
+    used_in: [scripts/referentiel.py]
+  - id: pyyaml-6-0-3-constructor
+    group: "Outils"
+    label: "PyYAML 6.0.3, lib/yaml/constructor.py, l. 144 : « mapping[key] = value », sans test d'une clé déjà vue (dépôt yaml/pyyaml, étiquette 6.0.3, commit 49790e7 ; identique au fichier du paquet installé ; lu le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/yaml/pyyaml/49790e73684bebad1df05ef8d828fa12f685bffb/lib/yaml/constructor.py"
+    used_in: [scripts/referentiel.py]
   - id: threejs-r187
     group: "Outils"
     label: "three.js, dépôt mrdoob/three.js, version r187 (commit 7e89746 du 30 octobre 2026), licence MIT"
