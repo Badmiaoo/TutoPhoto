@@ -6,7 +6,10 @@
 // Le convertisseur ne reconnaît que ce qu'emploient les fiches : un titre de niveau 1 (« # ID · Titre »), des
 // sections de niveau 2 aux titres de docs/contenus.md, des paragraphes, des listes à tirets, du gras (**…**) et des
 // liens [texte](https://…). Tout le reste fait échouer la construction, comme un code de notion ou de situation
-// sans fiche : une fiche mal formée se voit avant la publication.
+// sans fiche : une fiche mal formée se voit avant la publication. Depuis la version 0.3.81 (constats RST-01 et RST-13
+// de l'audit, Sujet 21, et sa relecture) : un identifiant de fiche, nom de fichier compris, a la forme de
+// src/ficheId.mjs, partagée avec le simulateur (« SIT-V2-02 » compris) ; une fiche sans section, une section sans
+// texte, une puce vide et une fiche de situation sans recette font aussi échouer la construction.
 //
 // Le site est en français seul depuis la version 0.3.60 (décision de Julien du 15 novembre 2026). Les pages se lisent
 // sans JavaScript ; le seul script de l'accueil est celui du pré-téléchargement.
@@ -14,6 +17,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { FICHE_ID } from "../src/ficheId.mjs";
 import { readVersion } from "./version.mjs";
 
 const app = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -21,7 +25,12 @@ const root = join(app, "..");
 const dist = join(app, "dist");
 // Ordre des domaines de scripts/referentiel.py (DOMAIN_ORDER).
 const DOMAIN_ORDER = ["EXP", "MES", "BOI", "MAP", "NET", "MVT", "OPT", "LUM", "COU", "CMP", "PLA", "RET", "LEC"];
-const ID = /\b(?:[A-Z]{3}-\d{2})\b/g;
+// Identifiants de fiches : codes cités dans un texte, nom d'un fichier de content/, ligne de data/relecture.yaml,
+// titre d'une fiche.
+const ID = new RegExp(`\\b${FICHE_ID}\\b`, "g");
+const FILE_ID = new RegExp(`^${FICHE_ID}$`);
+const REVIEWED_LINE = new RegExp(`^  - \\{fiche: (${FICHE_ID}), date: \\d{4}-\\d{2}-\\d{2}\\}$`);
+const TITLE_LINE = new RegExp(`^# (${FICHE_ID}) · (.+)$`);
 
 const problems = [];
 const fail = (msg) => problems.push(msg);
@@ -65,6 +74,17 @@ const escapeHtml = (text) =>
 // --- Données ------------------------------------------------------------------------------------------------------
 
 /**
+ * Texte d'un fichier lu par cette construction, sans la marque d'ordre des octets (U+FEFF) qu'un éditeur peut mettre
+ * en tête, et avec les fins de ligne de Windows (CRLF) ramenées à « \n », que scripts/validate.py accepte aussi
+ * (Python et PyYAML). Sans cela, la première ligne d'une fiche, une ligne de data/relecture.yaml ou le bloc
+ * « domain » d'un fichier du référentiel n'étaient pas reconnus, et le message redemandait la ligne lue (relecture
+ * de la version 0.3.81, constat C2, et son contrôle final, F3).
+ */
+function readText(path) {
+  return readFileSync(path, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
+}
+
+/**
  * Titres des domaines, lus dans le bloc « domain: » de chaque fichier du référentiel. validate.py n'en contrôle que le
  * schéma (« id », « title » : chaîne non vide), pas l'écriture. Celle qui est lue ici : « id » puis « title », deux
  * espaces de retrait, le titre entre guillemets doubles ; sinon la construction échoue, avec le nom du fichier.
@@ -74,7 +94,7 @@ function readDomains() {
   const domains = {};
   for (const name of readdirSync(dir)) {
     if (!name.endsWith(".yaml") || name === "retired.yaml") continue;
-    const text = readFileSync(join(dir, name), "utf8");
+    const text = readText(join(dir, name));
     const m = /^domain:\n  id: ([A-Z]{3})\n  title: "([^"]+)"$/m.exec(text);
     if (!m) {
       fail(`data/referentiel/${name} : bloc « domain » non reconnu (id puis title sur une ligne)`);
@@ -88,7 +108,7 @@ function readDomains() {
 /** Fiches relues : data/relecture.yaml, une ligne par fiche, sous la forme exacte de son en-tête. */
 function readReviewed() {
   const reviewed = new Set();
-  const lines = readFileSync(join(root, "data", "relecture.yaml"), "utf8").split("\n");
+  const lines = readText(join(root, "data", "relecture.yaml")).split("\n");
   let seenKey = false;
   lines.forEach((line, i) => {
     if (line.trim() === "" || line.trimStart().startsWith("#")) return;
@@ -96,7 +116,7 @@ function readReviewed() {
       seenKey = true;
       return;
     }
-    const m = /^  - \{fiche: ((?:[A-Z]{3})-\d{2}), date: \d{4}-\d{2}-\d{2}\}$/.exec(line);
+    const m = REVIEWED_LINE.exec(line);
     if (seenKey && m) reviewed.add(m[1]);
     else fail(`data/relecture.yaml:${i + 1} : ligne non reconnue`);
   });
@@ -148,7 +168,7 @@ function prefetchFiles() {
   return files;
 }
 
-/** Lit les fiches : { id: { kind, title, sections: [{ title, lines }] } }. */
+/** Lit les fiches : { id: { kind, title, sections: [{ title, at, lines }] } }. */
 function readFiches() {
   const fiches = {};
   for (const kind of ["notions", "situations"]) {
@@ -157,9 +177,13 @@ function readFiches() {
       if (!name.endsWith(".md")) continue;
       const id = name.slice(0, -3);
       const where = `content/${kind}/${name}`;
-      const lines = readFileSync(join(dir, name), "utf8").split("\n");
+      if (!FILE_ID.test(id)) {
+        fail(`${where} : le nom du fichier n'est pas un identifiant de fiche (EXP-04, SIT-05 ou SIT-V2-02)`);
+        continue;
+      }
+      const lines = readText(join(dir, name)).split("\n");
       const first = lines.findIndex((l) => l.trim() !== "");
-      const h1 = /^# ((?:[A-Z]{3})-\d{2}) · (.+)$/.exec(lines[first] ?? "");
+      const h1 = TITLE_LINE.exec(lines[first] ?? "");
       if (!h1 || h1[1] !== id) {
         fail(`${where} : la première ligne doit être « # ${id} · Titre »`);
         continue;
@@ -170,13 +194,25 @@ function readFiches() {
         if (line.startsWith("## ")) {
           const title = line.slice(3).trim();
           if (!SECTIONS[kind].includes(title)) fail(`${at} : section « ${title} » non prévue par docs/contenus.md`);
-          sections.push({ title, lines: [] });
+          sections.push({ title, at, lines: [] });
         } else if (line.trim() === "" || sections.length > 0) {
           if (sections.length > 0) sections[sections.length - 1].lines.push({ line, at });
         } else {
           fail(`${at} : texte avant la première section`);
         }
       });
+      // Une fiche réduite à son titre, ou une section sans texte, n'est pas publiée (constat RST-13 de l'audit) : la
+      // page serait vide, et l'accueil la listerait comme les autres.
+      if (sections.length === 0) fail(`${where} : aucune section ; leurs titres sont dans docs/contenus.md`);
+      for (const s of sections) {
+        if (!s.lines.some((l) => l.line.trim() !== "")) fail(`${s.at} : section « ${s.title} » vide`);
+      }
+      // Une fiche de situation donne sa recette : l'accueil le promet (« Je suis en situation »), et scripts/coverage.py
+      // ne compte une situation comme rédigée que par elle (relecture de la version 0.3.81, constat C4).
+      const recipe = SECTIONS.situations[1];
+      if (kind === "situations" && sections.length > 0 && !sections.some((s) => s.title === recipe)) {
+        fail(`${where} : pas de section « ${recipe} » ; une fiche de situation donne sa recette (docs/contenus.md)`);
+      }
       fiches[id] = { kind, title: h1[2], sections };
     }
   }
@@ -226,6 +262,9 @@ function block(lines, ctx) {
   for (const item of lines) {
     const { line, at } = item;
     if (line.trim() === "") flush();
+    // Une puce sans texte, « - » avec ou sans blanc après, donnerait un élément de liste vide ou un paragraphe « - »
+    // (relecture de la version 0.3.81, constat C1, et son contrôle final, F1).
+    else if (line.trim() === "-") fail(`${at} : élément de liste vide`);
     else if (line.startsWith("- ")) {
       if (paragraph.length) flush();
       list.push(item);

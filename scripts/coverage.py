@@ -18,6 +18,9 @@ HEADINGS = {"explanation": "Explication", "simulator": "Simulateur", "activity":
             "exercise": "Exercice", "situation": "Situation réelle"}
 BRICKS = [("explanation", "Explication"), ("simulator", "Simulateur ou activité"),
           ("exercise", "Exercice"), ("situation", "Situation réelle")]
+# Section qui fait d'une fiche de situation une situation rédigée : la recette (docs/contenus.md ; constat RST-13 de
+# l'audit, version 0.3.81 : avant, un fichier réduit à son titre comptait).
+RECIPE = "Recette"
 
 
 def text_of(path):
@@ -40,7 +43,7 @@ def sections(text):
 def content_coverage(ref):
     content = ref.root / "content"
     written = {s["id"] for s in ref.situations
-               if text_of(content / "situations" / f"{s['id']}.md").strip()}
+               if RECIPE.lower() in sections(text_of(content / "situations" / f"{s['id']}.md"))}
     bricks = {}  # notion -> ensemble des briques présentes
     for n in ref.notions:
         present = sections(text_of(content / "notions" / f"{n['id']}.md"))

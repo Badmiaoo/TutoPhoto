@@ -4,9 +4,13 @@
 // d'autres fiches restent dans la fenêtre ; les liens vers les sources s'ouvrent dans un nouvel onglet.
 // Tout élément qui porte data-fiche="ID" (bulletin, fenêtre « Défis ») ouvre la fiche ID.
 
+import { FICHE_ID } from "../ficheId.mjs";
 import { t } from "../texts";
 
-const ID = /^[A-Z]{3}-\d{2}$/;
+// Identifiant de fiche, et lien vers une autre fiche dans la page affichée : la même forme que la construction des
+// pages, « SIT-V2-02 » compris (ficheId.mjs ; constat RST-01 de l'audit, Sujet 21, version 0.3.81).
+const ID = new RegExp(`^${FICHE_ID}$`);
+const LINK = new RegExp(`^(${FICHE_ID})\\.html$`);
 
 interface FicheElements {
   dialog: HTMLDialogElement;
@@ -29,7 +33,7 @@ export class FicheDialog {
     });
     el.body.addEventListener("click", (e) => {
       const link = (e.target as Element | null)?.closest<HTMLAnchorElement>("a[href]");
-      const m = link ? /^([A-Z]{3}-\d{2})\.html$/.exec(link.getAttribute("href") ?? "") : null;
+      const m = link ? LINK.exec(link.getAttribute("href") ?? "") : null;
       if (!m) return;
       e.preventDefault();
       void this.open(m[1]);

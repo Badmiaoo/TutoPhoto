@@ -4,5 +4,6 @@
 #
 # Une ligne par fiche, sous cette forme exacte (lue aussi par app/scripts/build-pages.mjs) :
 #   - {fiche: NET-01, date: 2026-11-12}
-# fiche : identifiant de la notion ou de la situation (fichier content/notions|situations/<fiche>.md).
+# fiche : identifiant de la notion ou de la situation (fichier content/notions|situations/<fiche>.md), sous l'une
+# des deux formes de schemas/relecture.schema.json : NET-01, SIT-05, ou SIT-V2-02 pour une ancienne situation V2.
 relues: []
