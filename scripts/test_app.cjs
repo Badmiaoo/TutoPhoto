@@ -1890,7 +1890,11 @@ async function runProfile(browser, name, base) {
     await checkBodyCoverage("canon", "collimateurs : couverture du Canon EOS R50 (90 % × 100 %)", 0.9, 1);
     // EOS R50 en zone automatique : « sélection automatique », « Horizontal : environ 100 %, vertical : environ
     // 100 % » (même page). La zone tracée suit le mode de zone : 100 % × 100 % en zone automatique, puis de nouveau
-    // 90 % × 100 % en point sélectif, sans autre geste que le changement de mode (version 0.3.80).
+    // 90 % × 100 % en point sélectif, sans autre geste que le changement de mode (version 0.3.80). Le point la suit
+    // aussi : en zone automatique sans détection, un toucher en (99 % ; 1 %) reste où il est touché (« point
+    // touché ») ; revenu en point sélectif, il est ramené dans la zone, à 95 % × 1 % en cadre horizontal et 99 % × 5 %
+    // en cadre vertical (relecture de la version 0.3.80, constat C2). La détection est ensuite remise à « faceEye »,
+    // celle d'avant ce passage.
     const coverageShareNow = async () => {
       const box = await page.locator("#frame").boundingBox();
       const zone = await page.locator("#af-coverage").boundingBox();
@@ -1900,7 +1904,14 @@ async function runProfile(browser, name, base) {
         y: zone ? zone.height / box.height : NaN,
       };
     };
-    await setAf("continuous", "auto");
+    const markerShareNow = async () => {
+      const box = await page.locator("#frame").boundingBox();
+      const mark = await page.locator("#focus-marker").boundingBox();
+      return mark
+        ? { x: (mark.x + mark.width / 2 - box.x) / box.width, y: (mark.y + mark.height / 2 - box.y) / box.height }
+        : { x: NaN, y: NaN };
+    };
+    await setAf("continuous", "auto", "off");
     await page.waitForTimeout(500);
     const autoShare = await coverageShareNow();
     check(
@@ -1908,16 +1919,30 @@ async function runProfile(browser, name, base) {
       Math.abs(autoShare.x - 1) < 0.01 && Math.abs(autoShare.y - 1) < 0.01,
       `cadre ${autoShare.vertical ? "vertical" : "horizontal"} ; zone couverte ${(autoShare.x * 100).toFixed(1)} % × ${(autoShare.y * 100).toFixed(1)} %`,
     );
+    const autoBox = await page.locator("#frame").boundingBox();
+    await page.mouse.click(autoBox.x + 0.99 * autoBox.width, autoBox.y + 0.01 * autoBox.height);
+    const autoTouched = await waitBadge(/point touché/, 30000);
+    await page.waitForTimeout(500);
+    const autoMark = await markerShareNow();
+    check(
+      "collimateurs : Canon EOS R50 en zone automatique, toucher gardé à 99 % × 1 %",
+      autoTouched !== null && Math.abs(autoMark.x - 0.99) < 0.01 && Math.abs(autoMark.y - 0.01) < 0.01,
+      `${autoTouched ?? await afText()} ; repère à ${(autoMark.x * 100).toFixed(1)} % × ${(autoMark.y * 100).toFixed(1)} %`,
+    );
     await setAf("continuous", "point");
     await page.waitForTimeout(500);
     const pointShare = await coverageShareNow();
+    const pointMark = await markerShareNow();
     const pointW = pointShare.vertical ? 1 : 0.9;
     const pointH = pointShare.vertical ? 0.9 : 1;
+    const pointBack = pointShare.vertical ? { x: 0.99, y: 0.05 } : { x: 0.95, y: 0.01 };
     check(
-      "collimateurs : Canon EOS R50 revenu en point sélectif (90 % × 100 %)",
-      Math.abs(pointShare.x - pointW) < 0.01 && Math.abs(pointShare.y - pointH) < 0.01,
-      `cadre ${pointShare.vertical ? "vertical" : "horizontal"} ; zone couverte ${(pointShare.x * 100).toFixed(1)} % × ${(pointShare.y * 100).toFixed(1)} %`,
+      "collimateurs : Canon EOS R50 revenu en point sélectif (90 % × 100 %), point ramené dans la zone",
+      Math.abs(pointShare.x - pointW) < 0.01 && Math.abs(pointShare.y - pointH) < 0.01 && Math.abs(pointMark.x - pointBack.x) < 0.01 && Math.abs(pointMark.y - pointBack.y) < 0.01,
+      `cadre ${pointShare.vertical ? "vertical" : "horizontal"} ; zone couverte ${(pointShare.x * 100).toFixed(1)} % × ${(pointShare.y * 100).toFixed(1)} % ; repère à ${(pointMark.x * 100).toFixed(1)} % × ${(pointMark.y * 100).toFixed(1)} %`,
     );
+    await setAf("continuous", "auto", "faceEye");
+    await setAf("continuous", "point");
     // Sony A6000 : « 179 phase detection points (covering almost the entire image) », sans pourcentage (page de
     // Sony) : il garde la couverture du Z 6.
     await checkBodyCoverage("sony", "collimateurs : couverture du Sony A6000 (celle du Z 6, 90 % × 90 %)", 0.9, 0.9);

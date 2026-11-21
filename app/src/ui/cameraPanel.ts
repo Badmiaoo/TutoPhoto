@@ -323,10 +323,10 @@ export class CameraPanel {
         this.saveBody();
         this.autofocus?.setMode(this.focusMode);
         this.updateFocus();
-        // La zone couverte peut changer avec le mode de zone (EOS R50, afCoverageAuto) : applyView la redessine et
-        // y ramène le point.
+        // La zone couverte peut changer avec le mode de zone (EOS R50, afCoverageAuto) : applyView la redessine, y
+        // ramène le point et prévient les écouteurs.
         if (input.name === "areaMode") this.applyView();
-        for (const listener of this.viewListeners) listener();
+        else for (const listener of this.viewListeners) listener();
       });
     }
     this.restoreBody();
@@ -758,6 +758,10 @@ export class CameraPanel {
     this.el.bodyButton.title = `${tr("bodyTitle")}\u00a0: ${body.model}`;
     this.el.bodyDialog.querySelector("#body-title")!.textContent = tr("bodyTitle");
     this.el.bodyDialog.querySelector("#brand-legend")!.textContent = tr("brand");
+    // Les choix nomment le boîtier de chaque marque, d'après BODIES, sans coupure dans le nom.
+    for (const b of BODIES) {
+      this.el.bodyDialog.querySelector(`#brand-${b.brand}-label`)!.textContent = b.model.replace(/ /g, "\u00a0");
+    }
     this.el.bodyDialog.querySelector("#body-note")!.textContent = tr("bodyNote");
     this.el.bodyDialog.querySelector("#lens-note")!.textContent = tr("lensNote");
     this.el.bodyDialog.querySelector("#body-close")!.textContent = tr("close");
