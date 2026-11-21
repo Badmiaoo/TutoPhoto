@@ -2,7 +2,8 @@
 // des tirages du viseur, paramètres du bruit, écart type et rapport signal sur bruit, seuils de l'indicateur
 // d'équilibre. Valeurs attendues : formules de l'en-tête du module, exemple de docs/camera-physique.md (« Bruit
 // numérique », Z 6 à ISO 6400), ou calcul écrit à côté du test. La loi écrite en GLSL (NOISE_GLSL) ne s'exécute pas
-// ici : seul son texte est comparé à la loi en TypeScript ; la routine de test (scripts/test_app.cjs) la vérifie.
+// ici : le dernier test n'en vérifie que le texte ; à l'exécution, la routine de test (scripts/test_app.cjs) ne vérifie
+// le bruit qu'en gros (contrôle final de la version 0.3.87, F8 et F9).
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { BODIES, findBody } from "../src/camera/bodies";
@@ -155,12 +156,17 @@ test("grille des tirages du viseur : par pixel calculé, sauf à densité supér
 
 test("la loi en GLSL est écrite comme celle en TypeScript, et ses uniformes sont déclarés", () => {
   // Texte seulement : le GLSL ne s'exécute pas ici. Ce test arrête un changement de la forme de la loi, de ses
-  // constantes ou de la façon d'ajouter le tirage ; la loi en TypeScript a ses tests chiffrés ; une faute du GLSL qui
-  // garderait ce texte n'est vue que par la routine (relecture de la version 0.3.87, C5).
+  // constantes, de ses deux lectures des tirages, du type de ses uniformes ou de la façon d'ajouter le tirage ; la loi
+  // en TypeScript a ses tests chiffrés ; une faute du GLSL qui garderait ce texte n'est vue que par la routine
+  // (relecture de la version 0.3.87, C5 ; contrôle final, F5).
   assert.ok(NOISE_GLSL.includes("vec3 electrons = max(v, 0.0) * noiseSaturation;"));
   assert.ok(NOISE_GLSL.includes("vec3 sigma = sqrt(electrons + noiseRead2) / (noiseSaturation * sqrt(noisePhotosites));"));
   assert.ok(NOISE_GLSL.includes("return v + gaussianAt(pixel) * sigma;"));
-  assert.ok(NOISE_GLSL.includes(`/ ${NOISE_TILE.toFixed(1)}).rgb`));
+  // Les deux lectures, mot pour mot : la première au pixel, décalée de noiseOffsets.xy ; la seconde au pixel tourné,
+  // décalée de noiseOffsets.zw ; trois tirages indépendants chacune (.rgb), sur une texture de NOISE_TILE de côté.
+  const tile = NOISE_TILE.toFixed(1);
+  assert.ok(NOISE_GLSL.includes(`vec3 a = texture2D(noiseSampler, (pixel + noiseOffsets.xy) / ${tile}).rgb;`));
+  assert.ok(NOISE_GLSL.includes(`vec3 b = texture2D(noiseSampler, (rotated + noiseOffsets.zw) / ${tile}).rgb;`));
   // Deux tirages, le second lu sur une grille tournée de 37° (cos et sin de 37° à 1e-8 près), sommés et divisés par √2.
   assert.ok(NOISE_GLSL.includes("vec2 rotated = vec2(c * pixel.x - s * pixel.y, s * pixel.x + c * pixel.y);"));
   const c = Number(/const float c = ([\d.]+);/.exec(NOISE_GLSL)?.[1]);
@@ -172,4 +178,7 @@ test("la loi en GLSL est écrite comme celle en TypeScript, et ses uniformes son
   for (const name of NOISE_UNIFORMS) assert.match(NOISE_GLSL, new RegExp(`uniform \\w+ ${name};`), name);
   const declared = [...NOISE_GLSL.matchAll(/uniform (\w+) (\w+);/g)].filter(([, type]) => type !== "sampler2D").map(([, , name]) => name);
   assert.deepEqual(declared, NOISE_UNIFORMS);
+  // Types des uniformes : ceux des valeurs que donne camera/noise.ts (setFloat, setFloat, setFloat3, setFloat4).
+  const typed = [...NOISE_GLSL.matchAll(/uniform (\w+) (\w+);/g)].map(([, type, name]) => `${type} ${name}`);
+  assert.deepEqual(typed, ["sampler2D noiseSampler", "float noiseSaturation", "float noiseRead2", "vec3 noisePhotosites", "vec4 noiseOffsets"]);
 });

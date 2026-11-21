@@ -4,7 +4,8 @@
 // TypeScript (noiseSigma), pour l'indicateur d'équilibre (ui/balance.ts), et en GLSL (NOISE_GLSL), pour le viseur
 // (camera/noise.ts) et la photo (camera/photo.ts). Les tests rapides vérifient la première sur des valeurs
 // (app/tests/noiseModel.test.ts), et de la seconde seulement le texte de ses lignes ; à l'exécution, la routine de
-// test (scripts/test_app.cjs) ne vérifie le bruit qu'en gros (visible à ISO 6400, absent quand l'aperçu est coupé).
+// test (scripts/test_app.cjs) ne vérifie le bruit qu'en gros : visible à ISO 6400, absent quand l'aperçu est coupé ;
+// à la loupe à 50 %, bruit du vert sous 85 % de celui du rouge ; à densité 2, tiré par pixel CSS.
 //
 // Bruit numérique physique (docs/camera-physique.md ; décisions du 9 novembre 2026 : bruit coloré selon la matrice de
 // Bayer, bruit brut sans réduction, dans le viseur et sur la photo).

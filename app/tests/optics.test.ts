@@ -232,6 +232,10 @@ test("position sur le capteur : x = f X / Z, y = f Y / Z ; dans le cadre si |x| 
   assert.equal(inside(-17.95, -11.95), true);
   assert.equal(inside(17.96, 0), false);
   assert.equal(inside(0, 11.96), false);
+  // Bords gauche et bas (contrôle final de la version 0.3.87, F5) : sans la valeur absolue, un point hors du cadre de
+  // ce côté passerait pour dedans.
+  assert.equal(inside(-17.96, 0), false);
+  assert.equal(inside(0, -11.96), false);
   assert.equal(inside(11.95, 17.95, true), true);
   assert.equal(inside(17.95, 0, true), false);
 });
@@ -380,6 +384,13 @@ test("fenêtre d'une projection : x' = (x − centre) × grossissement ; la fen�
   assertClose(part.center.y, 2 / 3, 1e-15, "centre y");
   assertClose(part.zoom.x, 2, 1e-15, "grossissement x");
   assertClose(part.zoom.y, 3, 1e-12, "grossissement y");
+  // Tiers du milieu, en hauteur (contrôle final de la version 0.3.87, F5) : centre (0 ; 0), grossissement (1 ; 3) ; le
+  // haut de la fenêtre se rapporte à la hauteur de l'image, pas à sa largeur.
+  const middle = pixelWindow({ left: 0, top: 333, width: 1500, height: 333 }, 1500, 999);
+  assertClose(middle.center.x, 0, 1e-15, "centre x du tiers du milieu");
+  assertClose(middle.center.y, 0, 1e-15, "centre y du tiers du milieu");
+  assertClose(middle.zoom.x, 1, 1e-15, "grossissement x du tiers du milieu");
+  assertClose(middle.zoom.y, 3, 1e-12, "grossissement y du tiers du milieu");
   const windowed = Matrix.FromArray(windowProjection(m, part.center, part.zoom));
   // Écart permis : les matrices de Babylon.js sont en 32 bits (environ 1e-7 en relatif), grossies jusqu'à 3 fois.
   for (const p of [new Vector3(0.3, 0.2, 5), new Vector3(-1, 0.5, 10), new Vector3(2, -1, 30)]) {
@@ -473,6 +484,10 @@ test("places de l'œil : rayon × √((i + 0,5) / M) à i × angle d'or ; chaque
 test("instants : i × pas modulo M parcourt chaque instant une fois, au milieu de M tranches égales du temps de pose", () => {
   // M = 16 : 0,618 × 16 ≈ 9,9, arrondi à 10, qui n'est pas premier avec 16 ; 11 l'est.
   assert.equal(instantStride(16), 11);
+  // M = 75 : 0,618 × 75 = 46,35, arrondi à 46, premier avec 75 ; M = 38 : 0,618 × 38 = 23,484, arrondi à 23, premier
+  // avec 38 (contrôle final de la version 0.3.87, F5 : avec 0,62 au lieu de 0,618, 47 et 25).
+  assert.equal(instantStride(75), 46);
+  assert.equal(instantStride(38), 23);
   assertClose(sampleInstant(1, 16, 11), 11.5 / 16, 1e-15, "deuxième rendu sur 16");
   for (let samples = MIN_SAMPLES; samples <= MAX_SAMPLES; samples++) {
     const stride = instantStride(samples);
