@@ -472,6 +472,31 @@ sources:
     label: "TypeScript, registre npm (version 7.0.2, licence Apache-2.0, lu le 7 novembre 2026)"
     url: "https://www.npmjs.com/package/typescript"
     used_in: [docs/pile-technique.md]
+  - id: npm-types-node
+    group: "Outils"
+    label: "@types/node, registre npm (version 22.20.5, la dernière de la version majeure 22, licence MIT ; une dépendance, undici-types ~6.21.0 ; lu le 21 novembre 2026)"
+    url: "https://www.npmjs.com/package/@types/node"
+    used_in: [docs/pile-technique.md]
+  - id: npm-undici-types
+    group: "Outils"
+    label: "undici-types, registre npm (version 6.21.0, licence MIT, lu le 21 novembre 2026), seule dépendance de @types/node 22.20.5"
+    url: "https://www.npmjs.com/package/undici-types"
+    used_in: [docs/pile-technique.md]
+  - id: nodejs-22-typescript
+    group: "Outils"
+    label: "Node.js 22.23.5, doc/api/typescript.md, « Modules: TypeScript » : depuis Node.js 22.18.0, « Type stripping is enabled by default » et « Type stripping no longer emits an experimental warning » (l. 5-10) ; « By default Node.js will execute only files that contain no TypeScript features that require transformation, such as enums » (l. 61-63), parmi lesquelles les « parameter properties » (l. 128-133) ; « file extensions are mandatory in `import` statements » (l. 112-113) ; réglages de tsconfig.json conseillés, dont erasableSyntaxOnly et verbatimModuleSyntax (l. 76-89) (dépôt nodejs/node, étiquette v22.23.5, commit 6055365 ; lu le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/nodejs/node/60553651579ec33ca1aef9e1eedab2c3855f1f7e/doc/api/typescript.md"
+    used_in: [app/tests/resolve.mjs, docs/pile-technique.md]
+  - id: nodejs-22-module-hooks
+    group: "Outils"
+    label: "Node.js 22.23.5, doc/api/module.md : « module.registerHooks(options) », « added: v22.15.0 », « Stability: 1.1 - Active development » (l. 365-378) ; crochets enregistrés avant le code de l'application par l'option --import (l. 731-746) ; nextResolve, « the Node.js default resolve hook after the last user-supplied resolve hook » (l. 1191-1192) (dépôt nodejs/node, étiquette v22.23.5, commit 6055365 ; lu le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/nodejs/node/60553651579ec33ca1aef9e1eedab2c3855f1f7e/doc/api/module.md"
+    used_in: [app/tests/resolve.mjs, docs/pile-technique.md]
+  - id: nodejs-22-test-runner
+    group: "Outils"
+    label: "Node.js 22.23.5, doc/api/test.md : motifs glob donnés au lanceur de tests, « enclosed in double quotes on the command line to prevent shell expansion » (l. 433-437) ; chaque fichier de test « executed in a separate child process » (l. 449-450) ; « When stdout is a TTY, the spec reporter is used by default. Otherwise, the tap reporter is used by default. » (l. 1028-1029) (dépôt nodejs/node, étiquette v22.23.5, commit 6055365 ; lu le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/nodejs/node/60553651579ec33ca1aef9e1eedab2c3855f1f7e/doc/api/test.md"
+    used_in: [docs/pile-technique.md]
   - id: gitleaks-8-30-1
     group: "Outils"
     label: "gitleaks, dépôt gitleaks/gitleaks (Zachary Rice), version 8.30.1 (commit 83d9cd6 du 12 mars 2026), licence MIT"

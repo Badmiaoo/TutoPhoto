@@ -107,3 +107,7 @@ jobs:
         run: npm ci
       - name: Vérifier les types et construire le site
         run: npm run build
+      # Tests rapides des formules (Sujet 26 du plan de corrections, constat ARC-05) : app/tests/, types vérifiés,
+      # puis lancés par le lanceur de tests de Node.js, qui lit le TypeScript sans le compiler (docs/pile-technique.md).
+      - name: Tests rapides des formules
+        run: npm test
