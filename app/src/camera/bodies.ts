@@ -9,15 +9,19 @@
 // Capacité du Z 6 et de l'A6000 : « DxOMark Derived Sensor Characteristics » de William J. Claff
 // [photonstophotos-sensor-characteristics] ; Claff juge ces valeurs dérivées peu sûres pour les petits capteurs.
 // L'EOS R50 n'y est pas (page révisée le 15 décembre 2025, relue le 21 novembre 2026) : sa capacité est la
-// saturation à ISO 100 de la page du bruit de lecture, colonne « Saturation (e-) » du tableau que la page ouvre
-// pour chaque boîtier, égale au paramètre fwc de sa série [photonstophotos-read-noise]. Pour les deux autres, cette
+// saturation à ISO 100 de la page du bruit de lecture, colonne « Saturation (e-) » du tableau que la page ouvre d'un
+// clic sur le nom du boîtier dans la légende du graphique, égale au paramètre fwc de sa série
+// [photonstophotos-read-noise] ; la page ne dit pas comment elle obtient cette saturation. Pour les deux autres, cette
 // colonne donne 80 359 (Z 6) et 32 205 (A6000), soit 4,0 % et 2,7 % de moins que leur capacité dérivée.
 // Bruit de lecture rapporté à l'entrée, en électrons, par réglage ISO : graphique « Input-referred Read Noise
-// versus ISO Setting » du même auteur [photonstophotos-read-noise], converti de log₂ ; ISO exacts des tiers
-// (100 × 2^(i/3)), arrondis.
+// versus ISO Setting » du même auteur [photonstophotos-read-noise], converti de log₂ ; ISO lus sur le graphique,
+// 3,125 × 2^x arrondi, x étant donné au centième (251 pour le tiers 100 × 2^(4/3) ≈ 252, par exemple).
 
 export type Brand = "nikon" | "sony" | "canon";
-/** Format du capteur, tel que le nomme la fiche du constructeur (Nikon : « format FX », 36 × 24). */
+/**
+ * Format du capteur : plein format (Z 6 : « Capteur CMOS 35,9 × 23,9 mm (format Nikon FX) »,
+ * [nikon-z6-specifications-fr]) ou APS-C (Sony A6000, Canon EOS R50).
+ */
 export type Format = "ff" | "apsc";
 
 export interface Body {
@@ -66,12 +70,18 @@ export const BODIES: readonly Body[] = [
   // Couverture AF, même page : « Positions sélectionnables pour le collimateur AF », « Horizontal : environ 90 %,
   // vertical : environ 100 % » (« En cas de réglage sur [1 collimateur AF] et de sélection avec les touches
   // directionnelles ») ; « Nombre de zones autofocus disponibles pour la sélection automatique », « Horizontal :
-  // environ 100 %, vertical : environ 100 % ». La page ne chiffre pas les zones (« Élargir zone AF », « AF zone
-  // flexible ») : TutoPhoto leur applique la couverture du collimateur, ce qui n'est pas sourcé.
+  // environ 100 %, vertical : environ 100 % », avec, sous ce tableau, « Peut varier selon les réglages. ». La page ne
+  // chiffre pas les zones (« Élargir zone AF », « AF zone flexible ») : TutoPhoto leur applique la couverture du
+  // collimateur, ce qui n'est pas sourcé. Non simulé : la couverture selon l'objectif (« Compatibilité des objectifs
+  // d'après la zone de mise au point : reportez-vous au site Web de Canon » ; [canon-eos-r50-af-area-fr] : « avec
+  // certains objectifs, il peut ne pas se déplacer au bord de l'écran »). TutoPhoto place le collimateur au toucher,
+  // ce que l'EOS R50 permet aussi ([canon-eos-r50-af-area-fr]), mais la page ne chiffre la couverture que pour les
+  // touches directionnelles.
   // Capacité : 34 577 électrons (saturation à ISO 100, voir plus haut). Bruit de lecture : les mesures d'ISO 100 à
   // 636 et celle d'ISO 6400 sont marquées d'un triangle pointe en bas, « triangle down indicates noise reduction »
-  // (sous-titre du graphique) : Claff a relevé une réduction du bruit dans les fichiers RAW de l'EOS R50 à ces
-  // réglages. TutoPhoto prend ces valeurs telles quelles et ne simule pas cette réduction.
+  // (sous-titre du graphique) : Claff signale une réduction du bruit à ces réglages. Ces mesures en portent déjà la
+  // baisse, de combien la page ne le dit pas (2,11 électrons à ISO 5091, 1,43 à ISO 6400). TutoPhoto les prend
+  // telles quelles ; ce que la réduction fait au grain n'est pas simulé.
   { brand: "canon", format: "apsc", model: "Canon EOS R50", sensorWidthMm: 22.3, sensorHeightMm: 14.9,
     afCoverage: { horizontal: 0.9, vertical: 1 }, afCoverageAuto: { horizontal: 1, vertical: 1 },
     effectivePixels: 24200000, fullWellElectrons: 34577,
@@ -80,7 +90,9 @@ export const BODIES: readonly Body[] = [
 
 /**
  * Définition du capteur en pixels, le long de ses deux côtés : √(pixels effectifs × grand côté / petit côté)
- * et son complément. Approximation : la forme exacte de l'image n'est pas lue dans les sources.
+ * et son complément. Approximation : la forme exacte de l'image n'est pas lue dans les sources du Z 6 et de l'A6000 ;
+ * celle de l'EOS R50 l'est (6000 × 4000 pixels enregistrés, [canon-eos-r50-specifications-fr]), et n'est pas reprise
+ * (Sujet 36 du plan de corrections).
  */
 export function sensorPixels(body: Body): { long: number; short: number } {
   const long = Math.sqrt((body.effectivePixels * body.sensorWidthMm) / body.sensorHeightMm);

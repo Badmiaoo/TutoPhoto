@@ -49,8 +49,8 @@ export function readNoiseAt(body: Body, iso: number): number {
   const points = body.readNoise;
   if (iso <= points[0][0]) return points[0][1];
   const last = points[points.length - 1];
-  // Au-delà de la dernière mesure, on garde la dernière valeur (les trois boîtiers sont mesurés jusqu'à ISO 6400,
-  // le haut de l'échelle de TutoPhoto ; le Nikon D5600, retiré en version 0.3.80, ne l'était que jusqu'à ISO 2546).
+  // Au-delà de la dernière mesure, on garde la dernière valeur (les trois boîtiers ont des mesures jusqu'à ISO 6400,
+  // le haut de l'échelle de TutoPhoto).
   if (iso >= last[0]) return last[1];
   for (let i = 1; i < points.length; i++) {
     const [isoB, rnB] = points[i];
