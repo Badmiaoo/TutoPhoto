@@ -9,7 +9,8 @@ Usage : python3 scripts/validate.py [racine du dépôt] [--base REF]
 lue par `git show REF:fichier`, sans seconde copie du dépôt. Chaque identifiant de notion ou de situation de REF est
 encore dans le référentiel ou dans data/referentiel/retired.yaml, chaque identifiant retiré de REF reste dans
 retired.yaml ; une notion ou une situation de REF garde son champ since, et une nouvelle porte celui de la version en
-tête de CHANGELOG.md (constats RST-03 et RST-05 de l'audit, version 0.3.83).
+tête de CHANGELOG.md ; une notion ou une situation ajoutée ou retirée demande une version dont Y a augmenté, et un titre
+passé d'un identifiant à un autre est une renumérotation (constats RST-03 et RST-05 de l'audit, version 0.3.83).
 
 Sort avec le code 1 s'il y a au moins une erreur ; les avertissements ne bloquent pas.
 """
@@ -603,8 +604,9 @@ def arguments():
     parser = argparse.ArgumentParser(description="Contrôle le référentiel (data/), les fiches (content/) et les titres "
                                                  "que le simulateur recopie de data/.")
     parser.add_argument("racine", nargs="?", default=referentiel.ROOT, help="racine du dépôt (par défaut : celle du script)")
-    parser.add_argument("--base", metavar="REF", help="version du dépôt à laquelle comparer les identifiants et le "
-                                                      "champ since (branche cible d'une pull request)")
+    parser.add_argument("--base", metavar="REF", help="version du dépôt à laquelle comparer les identifiants, leurs "
+                                                      "titres, le champ since et la version en tête du changelog "
+                                                      "(branche cible d'une pull request)")
     return parser.parse_args()
 
 

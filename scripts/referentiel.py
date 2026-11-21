@@ -160,8 +160,11 @@ def load_yaml_octets(octets, nom):
 # constat C3).
 
 def _blanc(c):
-    """Blanc au sens de JavaScript : espaces de toutes sortes (catégories Zs, Zl et Zp de Unicode), tabulations, fins de
-    ligne, et U+FEFF, que `str.strip()` de Python ne retire pas."""
+    """Blanc au sens de `trim()` de JavaScript : ses blancs (U+0009, U+000B, U+000C, U+FEFF et la catégorie Zs de
+    Unicode) et ses fins de ligne (U+000A, U+000D, U+2028 de la catégorie Zl, U+2029 de la catégorie Zp). Source
+    ecma-262-2024-blancs de data/sources.yaml :
+    https://raw.githubusercontent.com/tc39/ecma262/0b24a049c11fe0604b1c929772e7cbd671b78492/spec.html. U+FEFF compris :
+    `coverage.py` comptait comme du texte une ligne faite d'un U+FEFF (relecture de la version 0.3.81, constat C3)."""
     return c in string.whitespace or c == chr(0xFEFF) or unicodedata.category(c) in ("Zs", "Zl", "Zp")
 
 
