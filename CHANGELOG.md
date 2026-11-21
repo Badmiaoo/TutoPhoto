@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.80] - 2026-11-21
+
+Sujet 19 du plan de corrections de l'audit (`docs/audit/README.md`), seconde partie : les trois boîtiers de référence dans le simulateur (Nikon Z 6, Sony A6000, Canon EOS R50 ; `docs/propositions.md`, section 5, « Termes de Canon et de Sony, trois boîtiers de référence », choix 6). Version en cours : cette section est réécrite avant la fusion.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.79 relue (fusion, tag, release, publication, CI), lignée des sessions (profondeur 4 sur 8, effort « max »), seconde partie du Sujet 19 en cours ; dans « Défauts connus, hors du plan », les commits b6b7eb7 et 7b474e6 à la ligne du contrôle FMA-23 ; dans « Leçons pratiques », les redémarrages du conteneur de la session du Sujet 19, les crochets dans une fiche, la section du changelog à écrire dès le premier commit, le crochet d'arrêt de la session.
+
 ## [0.3.79] - 2026-11-20
 
 Sujet 19 du plan de corrections de l'audit (`docs/audit/README.md`), première partie : termes de Canon et de Sony (FEX-15, FMA-14, INT-10), revu d'après les décisions D3 et D4 de Julien du 15 novembre 2026 (`docs/historique.md`) : un champ `terms` par notion dans le référentiel ; une phrase par fiche ; dans la fenêtre « Boîtier de référence », la phrase « Les noms des modes et des menus restent ceux du Nikon Z 6 » ; trois boîtiers de référence, un par marque, « les plus communs », choisis par Claude : Nikon Z 6, gardé par exception, Sony A6000 et Canon EOS R50. Le simulateur garde ses six boîtiers jusqu'à la seconde partie du sujet, qui les met à trois. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Les parts anglaises du plan (« dans les deux langues ») sont sans objet depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61) : relu dans le code, plus de `content/en/`, plus de `app/src/i18n.ts`, un seul `README.md`, aucun champ `en` dans le référentiel. Choix de Claude : `docs/propositions.md`, section 5, « Termes de Canon et de Sony, trois boîtiers de référence ».
@@ -1644,6 +1652,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.80]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.79...v0.3.80
 [0.3.79]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.78...v0.3.79
 [0.3.78]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.77...v0.3.78
 [0.3.77]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.76...v0.3.77
