@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.85] - 2026-11-21
+
+Sujet 25 du plan de corrections de l'audit (`docs/audit/README.md`) : pose des tags et contrôle du changelog (constats LIC-07 et LIC-04 de `docs/audit/licences-scripts-ci.md`, DOC-04 de `docs/audit/documentation.md`, et la part de CHX-10 de `docs/audit/choix-et-outils.md` sur les trois tags, que Julien abandonne : D8, `docs/historique.md`, 15 novembre 2026). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le sujet n'a pas de part anglaise. En cours : cette section dit ce qui est fait au commit où elle est lue.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.84 relue (fusion, tag, release, publication, CI du dernier commit), lignée des sessions (profondeur 2 sur 8, effort « max ») ; Sujet 25 en cours ; dans « Leçons pratiques », le redémarrage du conteneur de la session du Sujet 24 à la minute de sa relance horaire.
+
 ## [0.3.84] - 2026-11-21
 
 Sujet 24 du plan de corrections de l'audit (`docs/audit/README.md`) : `scripts/check_public.py` lit ce que chaque commit ajoute (constats LIC-01, LIC-02 et LIC-03 de `docs/audit/licences-scripts-ci.md`), avec les deux retouches gardées du constat réfuté LIC-06 (`docs/audit/README.md`, « Constats réfutés »). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le sujet n'a pas de part anglaise. Choix de Claude : `docs/propositions.md`, section 5, « `scripts/check_public.py` : ce que chaque commit ajoute », onze choix.
@@ -1852,6 +1860,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.85]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.84...v0.3.85
 [0.3.84]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.83...v0.3.84
 [0.3.83]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.82...v0.3.83
 [0.3.82]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.81...v0.3.82
