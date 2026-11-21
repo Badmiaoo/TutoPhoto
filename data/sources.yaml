@@ -372,6 +372,41 @@ sources:
     label: "Ecma International, ECMA-262, ECMAScript 2024 Language Specification, quinzième édition : les blancs (« White Space » : U+0009, U+000B, U+000C, U+FEFF et « any code point in general category “Space_Separator” », l. 16325-16369), les fins de ligne (« Line Terminators » : U+000A, U+000D, U+2028, U+2029, l. 16417-16450), et TrimString, dont se sert String.prototype.trim : « The definition of white space is the union of WhiteSpace and LineTerminator » (l. 35341) (source du texte dans le dépôt tc39/ecma262, étiquette es2024, commit 0b24a04, fichier spec.html ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/tc39/ecma262/0b24a049c11fe0604b1c929772e7cbd671b78492/spec.html"
     used_in: [scripts/referentiel.py]
+  - id: git-2-56-1-diff-combine
+    group: "Outils"
+    label: "Git 2.56.1, Documentation/diff-generate-patch.adoc, format du diff combiné d'un commit de fusion : « There are (number of parents + 1) @ characters in the chunk header for combined diff format » (l. 181-182) ; « A - character in the column N means that the line appears in fileN but it does not appear in the result. A + character in the column N means that the line appears in the result, and fileN does not have that line (in other words, the line was added, from the point of view of that parent) » (l. 193-197) ; « ++ to mean one line that was added does not appear in either file1 or file2 » (l. 201-202) (dépôt git/git, étiquette v2.56.1, commit 03b4152, version de git de la CI le 21 novembre 2026 ; mêmes paragraphes dans la version 2.43.0, celle de la machine de Claude ; lu le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/diff-generate-patch.adoc"
+    used_in: [scripts/check_public.py, docs/publication.md]
+  - id: git-2-56-1-diff-merges
+    group: "Outils"
+    label: "Git 2.56.1, Documentation/diff-options.adoc, option --diff-merges (l. 65-106) : « combined » montre les différences avec chaque parent à la fois, et « lists only files which were modified from all parents » ; « dense-combined » (--cc) : « Further compress output produced by --diff-merges=combined by omitting uninteresting hunks whose contents in the parents have only two variants and the merge result picks one of them without modification » (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/diff-options.adoc"
+    used_in: [scripts/check_public.py, docs/publication.md]
+  - id: git-2-56-1-log-showroot
+    group: "Outils"
+    label: "Git 2.56.1, Documentation/config/log.adoc, log.showRoot : « If true, the initial commit will be shown as a big creation event. This is equivalent to a diff against an empty tree. […] True by default. » (l. 66-70) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/config/log.adoc"
+    used_in: [scripts/check_public.py]
+  - id: git-2-56-1-diff-c-tab
+    group: "Outils"
+    label: "Git 2.56.1, diff.c, fonction emit_diff_symbol_from_struct, cas DIFF_SYMBOL_FILEPAIR_PLUS (l. 1561-1567) : la ligne « +++ » d'un diff finit par une tabulation quand le chemin contient une espace (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026 ; même sortie avec git 2.43.0, essai de Claude)"
+    url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/diff.c"
+    used_in: [scripts/check_public.py]
+  - id: git-2-56-1-attr-source
+    group: "Outils"
+    label: "Git 2.56.1, Documentation/git.adoc, option --attr-source (l. 230-233) : « Read gitattributes from <tree-ish> instead of the worktree » (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026 ; option essayée avec git 2.43.0 par Claude)"
+    url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/git.adoc"
+    used_in: [scripts/check_public.py]
+  - id: git-2-56-1-diff-format
+    group: "Outils"
+    label: "Git 2.56.1, Documentation/diff-format.adoc : lettres d'état, dont « A: addition of a file » (l. 55-65) ; « Using -z the filename is output verbatim and the line is terminated by a NUL byte » (l. 81-84) ; pour un commit de fusion avec -c ou --cc, « status is concatenated status characters for each parent » (l. 87-96), et « combined diff lists only files which were modified from all parents » (l. 121-122) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/diff-format.adoc"
+    used_in: [scripts/check_public.py]
+  - id: git-2-41-0-relnotes
+    group: "Outils"
+    label: "Git 2.41.0, notes de version, Documentation/RelNotes/2.41.0.txt, l. 116-118 : « git --attr-source=<tree> cmd $args is a new way to have any command to read attributes not from the working tree but from the given tree object » ; l'option n'est pas dans Documentation/git.txt de la version 2.40.0 (dépôt git/git, étiquette v2.41.0, commit fe86abd ; lu le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/git/git/fe86abd7511a9a6862d5706c6fa1d9b57a63ba09/Documentation/RelNotes/2.41.0.txt"
+    used_in: [scripts/check_public.py]
   - id: threejs-r187
     group: "Outils"
     label: "three.js, dépôt mrdoob/three.js, version r187 (commit 7e89746 du 30 octobre 2026), licence MIT"
@@ -432,6 +467,11 @@ sources:
     label: "gitleaks, dépôt gitleaks/gitleaks (Zachary Rice), version 8.30.1 (commit 83d9cd6 du 12 mars 2026), licence MIT"
     url: "https://github.com/gitleaks/gitleaks/tree/v8.30.1"
     used_in: [docs/publication.md]
+  - id: gitleaks-8-30-1-config
+    group: "Outils"
+    label: "gitleaks 8.30.1, configuration par défaut, config/gitleaks.toml : règle generic-api-key (l. 637-2128), un nom comme key, secret, token ou password, puis une valeur de 10 à 150 caractères pris parmi les lettres, les chiffres, « _ », « . », « = » et « - », ou d'au moins 12 pris parmi les lettres, les chiffres, « + » et « / » (l. 640), d'une entropie d'au moins 3,5 (l. 641), hors des valeurs faites seulement de lettres (l. 656) et de celles qui contiennent un des 1 446 mots de sa liste d'exclusion (l. 664-2111) ; règle curl-auth-header (l. 359-362), un en-tête Authorization dans une commande curl, après -H ou --header (dépôt gitleaks/gitleaks, étiquette v8.30.1, commit 83d9cd6 ; lu le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/gitleaks/gitleaks/83d9cd684c87d95d656c1458ef04895a7f1cbd8e/config/gitleaks.toml"
+    used_in: [docs/publication.md]
   - id: github-secret-scanning
     group: "Outils"
     label: "GitHub Docs, Secret scanning (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
@@ -472,6 +512,11 @@ sources:
     label: "GitHub Docs, Tracking changes in a comment : « Anyone with read access to a repository can view a comment's edit history » (source lue dans le dépôt github/docs, branche main, le 8 novembre 2026)"
     url: "https://docs.github.com/en/communities/moderating-comments-and-conversations/tracking-changes-in-a-comment"
     used_in: [docs/publication.md]
+  - id: github-noreply-email
+    group: "Outils"
+    label: "GitHub Docs, Email addresses reference, section « Your noreply email address » (l. 43-49) : un compte créé après le 18 juillet 2017 a une adresse « noreply » faite d'un numéro, du signe plus et du pseudo ; « If you created your account prior to July 18, 2017, and enabled Keep my email address private before that date, your noreply email address is USERNAME@users.noreply.github.com » (source lue dans le dépôt github/docs, commit d7487f5, fichier content/account-and-profile/reference/email-addresses-reference.md, le 21 novembre 2026)"
+    url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/content/account-and-profile/reference/email-addresses-reference.md"
+    used_in: [scripts/check_public.py, docs/publication.md]
   - id: filament-pbr
     group: "Physique, rendu et technique"
     label: "Romain Guy et Mathias Agopian, Physically Based Rendering in Filament, section « Physically based camera » : EV100, constante K = 12,5, facteur d'exposition 1/(1,2 × 2^EV100) (dépôt google/filament, docs/Filament.md.html, commit e8669b6, lu le 8 novembre 2026)"
