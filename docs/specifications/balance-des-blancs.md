@@ -15,7 +15,7 @@ Le dossier n'a pas été relu par un second agent : chaque citation et chaque co
 ## 2. Ce que disent les sources (à relire à la source)
 
 - Nikon Z 6, « White Balance » : « White balance ensures that white objects appear white, regardless of the color of the light source. » Réglages et températures approximatives du tableau du manuel : « Direct sunlight » / « Ensoleillé » 5200 K ; « Cloudy » / « Nuageux » 6000 K (« Use in daylight under overcast skies. ») ; « Shade » / « Ombre » 8000 K ; « Incandescent » 3000 K ; « Flash » 5400 K ; « Choose color temperature » / « Choisir température de couleur » de 2500 à 10 000 K ; automatique de 3500 à 8000 K. Réglage par défaut : « Auto > Keep overall atmosphere ».
-- Les kelvins des préréglages des cinq autres boîtiers ne sont pas lus.
+- Les kelvins des préréglages des autres boîtiers de référence ne sont pas lus (cinq quand cette spécification a été écrite, deux depuis la version 0.3.80).
 - Aucune page lue ne décrit la méthode de la balance automatique.
 - Formules (Wikipedia, source secondaire, révisions du dossier) : chromaticité (x, y) d'un corps noir à la température T (approximation de Kim et collègues, de 1667 à 25 000 K) ; X = x / y, Y = 1, Z = (1 − x − y) / y ; matrice XYZ vers sRGB linéaire ; balance par gains sur chaque couche (matrice diagonale).
 - Poly Haven ne publie ni la température de la lumière du parc ni la balance de développement de la photo autumn_hockey. Son API donne un champ `whitebalance` pour d'autres photos HDR ; d'après le dossier, 5400 K est sa valeur la plus fréquente et la médiane des photos par ciel couvert. Ce comptage est à refaire avec l'API et à garder comme calcul.
@@ -34,7 +34,7 @@ Le dossier n'a pas été relu par un second agent : chaque citation et chaque co
 - Un bouton de plus dans la rangée de boutons du panneau : « BB · Auto » / « WB · Auto », qui dit le réglage en cours (« BB · Nuageux », « BB · 6500 K »). Il ouvre une fenêtre « Balance des blancs » / « White balance », sur le modèle des fenêtres existantes.
 - Dans la fenêtre, des boutons radio, avec les noms du manuel du Z 6 et ses températures : « Automatique » (par défaut), « Ensoleillé (5200 K) », « Nuageux (6000 K) », « Ombre (8000 K) », « Incandescent (3000 K) », « Flash (5400 K) », « Choisir température de couleur », avec un curseur de 2500 à 10 000 K par pas de 10 K, 5000 K au départ (valeur par défaut du Z 6).
 - Une note sous les boutons : la source des réglages ; « Température de la lumière de cette scène : estimée, non mesurée » avec K_ref ; l'automatique garde la balance de la photo de la scène ; les mêmes réglages pour tous les boîtiers, faute d'avoir lu les valeurs des autres.
-- Les mêmes réglages et les mêmes températures pour les six boîtiers : celles du Z 6, comme pour la couverture de l'autofocus quand elle n'est pas sourcée.
+- Les mêmes réglages et les mêmes températures pour tous les boîtiers de référence (six quand cette spécification a été écrite, trois depuis la version 0.3.80) : celles du Z 6, comme pour la couverture de l'autofocus quand elle n'est pas sourcée.
 - Viseur : les gains s'appliquent à l'image quand l'aperçu général des réglages est actif (interrupteur « Aperçu des réglages ») ; coupé, le viseur garde l'image sans gains. Photo : toujours.
 - Mémoire : avec les réglages du boîtier (`tutophoto.boitier`) ; une valeur inconnue vaut l'automatique.
 - Légende de la photo : la balance n'y est ajoutée que si elle n'est pas automatique, à la fin de la partie des réglages, pour ne pas changer la légende par défaut.

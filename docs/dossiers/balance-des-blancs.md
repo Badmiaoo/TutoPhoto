@@ -375,7 +375,7 @@ Non sourcé parce qu'aucune source lue ne le dit :
 - la température de couleur réelle de la lumière dans le parc le 10 novembre 2016 : non mesurée, non publiée ;
 - la méthode d'estimation de la balance automatique, et la part de dominante chaude gardée par chaque variante (Nikon, Sony, Canon) ;
 - le lieu (Planck ou série D) qu'un boîtier associe à son réglage en kelvins, et l'espace de couleur dans lequel il applique ses gains ;
-- la sensibilité spectrale des capteurs des six boîtiers : sans elle, on ne peut pas calculer les vrais gains du capteur ni le bruit que ces gains amplifient par canal ;
+- la sensibilité spectrale des capteurs des boîtiers de référence (six quand ce dossier a été écrit, trois depuis la version 0.3.80) : sans elle, on ne peut pas calculer les vrais gains du capteur ni le bruit que ces gains amplifient par canal ;
 - le sens physique de « 0.05 diffuse density units » du réglage vert–magenta de Nikon. Le lire comme une densité optique décimale (facteur 10^−0,05 ≈ 0,891 par graduation sur le canal filtré) est mon interprétation ; je n'ai lu aucune page qui le confirme ;
 - le signe de la conversion « ambre = température réglée plus haute » en mired (section 7.4) : déduit du sens donné par le manuel, pas écrit tel quel ;
 - la teinte verte ou magenta des préréglages « Fluorescent » : le manuel Nikon ne donne qu'une température, et dit lui-même que le réglage en kelvins ne convient pas à l'éclairage fluorescent ;
@@ -396,7 +396,7 @@ Accès refusés cette nuit, pour mémoire : `www.sony.ca` (403, trois adresses, 
 - Sony A7 III et A6000 : la liste des réglages et leurs libellés anglais ; pas leurs kelvins.
 - Les formules : mired, série D, lieu de Planck, xy vers XYZ, XYZ vers sRGB linéaire, von Kries, Bradford (Wikipedia, révisions citées).
 
-Conséquence de la règle « on n'implémente que ce qui est sourcé » : la balance des blancs peut être complète sur le Z 6. Pour les cinq autres boîtiers, il manque les kelvins des préréglages. Deux voies : (a) n'y offrir d'abord que l'automatique, la température au choix et la mesure personnalisée, qui n'ont pas besoin de ces valeurs ; (b) attendre que Julien relève les manuels (EOS RP, EOS 2000D, D5600) et les fiches Sony. Je propose (a) pour Sony, et pour Canon d'attendre la lecture du manuel de l'EOS RP : les valeurs des R5, R6 et 850D sont identiques entre elles, mais les attribuer à l'EOS RP serait une extrapolation.
+Conséquence de la règle « on n'implémente que ce qui est sourcé » : la balance des blancs peut être complète sur le Z 6. Pour les autres boîtiers de référence (cinq quand ce dossier a été écrit, deux depuis la version 0.3.80), il manque les kelvins des préréglages. Deux voies : (a) n'y offrir d'abord que l'automatique, la température au choix et la mesure personnalisée, qui n'ont pas besoin de ces valeurs ; (b) attendre que Julien relève les manuels (EOS RP, EOS 2000D, D5600) et les fiches Sony. Je propose (a) pour Sony, et pour Canon d'attendre la lecture du manuel de l'EOS RP : les valeurs des R5, R6 et 850D sont identiques entre elles, mais les attribuer à l'EOS RP serait une extrapolation.
 
 ### 7.2 Le modèle : des gains relatifs à la balance du fichier
 
