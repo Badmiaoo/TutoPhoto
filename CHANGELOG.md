@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.83] - 2026-11-21
+
+Sujet 23 du plan de corrections de l'audit (`docs/audit/README.md`) : contrôles des fiches et des identifiants ; fiche sans notion, titres, identifiant disparu (constats RST-02, RST-03 et RST-05 de `docs/audit/referentiel-structure.md`, CHX-05 de `docs/audit/choix-et-outils.md`, et la part d'ARC-07 de `docs/audit/architecture-application.md` qui porte sur les dix titres de `app/src/ui/challenges.ts`). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Les parts anglaises du sujet (fiches de `content/en/`, titres anglais) sont sans objet depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61). Version en cours : cette section dit ce qui est fait.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.82 relue (fusion, tag, release, publication, CI du dernier commit), lignée des sessions (profondeur 7 sur 8, effort « max »), Sujet 23 en cours.
+
 ## [0.3.82] - 2026-11-21
 
 Sujet 22 du plan de corrections de l'audit (`docs/audit/README.md`) : contrôles du référentiel ; clés en double, doublons de listes, niveaux (constats RST-04, RST-07 et RST-06 de `docs/audit/referentiel-structure.md`, et les deux lignes de RST-12, constat réfuté que le plan renvoie à ce sujet). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le sujet n'a pas de part anglaise. Choix de Claude : `docs/propositions.md`, section 5, « Contrôles du référentiel ».
@@ -1770,6 +1778,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.83]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.82...v0.3.83
 [0.3.82]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.81...v0.3.82
 [0.3.81]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.80...v0.3.81
 [0.3.80]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.79...v0.3.80
