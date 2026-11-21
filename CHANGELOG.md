@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.86] - 2026-11-21
+
+Sujet 26 du plan de corrections de l'audit (`docs/audit/README.md`) : tests rapides des formules (constat ARC-05 de `docs/audit/architecture-application.md`). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le sujet n'a pas de part anglaise. En cours : cette section dit ce qui est fait au commit où elle est lue.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.85 relue (fusion, tag, release, publication, condition des deux workflows sur le commit de fusion et sur la branche du Sujet 25, CI du dernier commit), lignée des sessions (profondeur 3 sur 8, effort « max ») ; Sujet 26 en cours ; dans « Leçons pratiques », un sixième redémarrage du conteneur à la minute de la relance horaire : celui de la session du Sujet 25, le 21 novembre 2026 à 19 h 27 UTC, après la fin de la routine de la version 0.3.85, d'après cette session ; le dépôt et le bloc-notes ont survécu.
+
 ## [0.3.85] - 2026-11-21
 
 Sujet 25 du plan de corrections de l'audit (`docs/audit/README.md`) : pose des tags et contrôle du changelog (constats LIC-07 et LIC-04 de `docs/audit/licences-scripts-ci.md`, DOC-04 de `docs/audit/documentation.md`, et la part de CHX-10 de `docs/audit/choix-et-outils.md` sur les trois tags, que Julien abandonne : D8, `docs/historique.md`, 15 novembre 2026). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le sujet n'a pas de part anglaise. Choix de Claude : `docs/propositions.md`, section 5, « Pose des tags et contrôle du changelog », seize choix.
@@ -1890,6 +1898,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.86]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.85...v0.3.86
 [0.3.85]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.84...v0.3.85
 [0.3.84]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.83...v0.3.84
 [0.3.83]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.82...v0.3.83
