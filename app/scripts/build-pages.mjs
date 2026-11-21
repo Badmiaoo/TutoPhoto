@@ -74,6 +74,17 @@ const escapeHtml = (text) =>
 // --- Données ------------------------------------------------------------------------------------------------------
 
 /**
+ * Texte d'un fichier lu par cette construction, sans la marque d'ordre des octets (U+FEFF) qu'un éditeur peut mettre
+ * en tête, et avec les fins de ligne de Windows (CRLF) ramenées à « \n », que scripts/validate.py accepte aussi
+ * (Python et PyYAML). Sans cela, la première ligne d'une fiche, une ligne de data/relecture.yaml ou le bloc
+ * « domain » d'un fichier du référentiel n'étaient pas reconnus, et le message redemandait la ligne lue (relecture
+ * de la version 0.3.81, constat C2, et son contrôle final, F3).
+ */
+function readText(path) {
+  return readFileSync(path, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
+}
+
+/**
  * Titres des domaines, lus dans le bloc « domain: » de chaque fichier du référentiel. validate.py n'en contrôle que le
  * schéma (« id », « title » : chaîne non vide), pas l'écriture. Celle qui est lue ici : « id » puis « title », deux
  * espaces de retrait, le titre entre guillemets doubles ; sinon la construction échoue, avec le nom du fichier.
@@ -83,7 +94,7 @@ function readDomains() {
   const domains = {};
   for (const name of readdirSync(dir)) {
     if (!name.endsWith(".yaml") || name === "retired.yaml") continue;
-    const text = readFileSync(join(dir, name), "utf8");
+    const text = readText(join(dir, name));
     const m = /^domain:\n  id: ([A-Z]{3})\n  title: "([^"]+)"$/m.exec(text);
     if (!m) {
       fail(`data/referentiel/${name} : bloc « domain » non reconnu (id puis title sur une ligne)`);
@@ -97,7 +108,7 @@ function readDomains() {
 /** Fiches relues : data/relecture.yaml, une ligne par fiche, sous la forme exacte de son en-tête. */
 function readReviewed() {
   const reviewed = new Set();
-  const lines = readFileSync(join(root, "data", "relecture.yaml"), "utf8").split("\n");
+  const lines = readText(join(root, "data", "relecture.yaml")).split("\n");
   let seenKey = false;
   lines.forEach((line, i) => {
     if (line.trim() === "" || line.trimStart().startsWith("#")) return;
@@ -170,9 +181,7 @@ function readFiches() {
         fail(`${where} : le nom du fichier n'est pas un identifiant de fiche (EXP-04, SIT-05 ou SIT-V2-02)`);
         continue;
       }
-      // Fins de ligne de Windows (CRLF) acceptées, comme dans version.mjs : sinon le titre, lu avec son « \r », ne
-      // serait pas reconnu, et le message redemanderait la ligne lue (relecture de la version 0.3.81, constat C2).
-      const lines = readFileSync(join(dir, name), "utf8").split(/\r?\n/);
+      const lines = readText(join(dir, name)).split("\n");
       const first = lines.findIndex((l) => l.trim() !== "");
       const h1 = TITLE_LINE.exec(lines[first] ?? "");
       if (!h1 || h1[1] !== id) {
@@ -253,9 +262,10 @@ function block(lines, ctx) {
   for (const item of lines) {
     const { line, at } = item;
     if (line.trim() === "") flush();
+    // Une puce sans texte, « - » avec ou sans blanc après, donnerait un élément de liste vide ou un paragraphe « - »
+    // (relecture de la version 0.3.81, constat C1, et son contrôle final, F1).
+    else if (line.trim() === "-") fail(`${at} : élément de liste vide`);
     else if (line.startsWith("- ")) {
-      // Une puce sans texte donnerait un élément de liste vide (relecture de la version 0.3.81, constat C1).
-      if (line.slice(2).trim() === "") fail(`${at} : élément de liste vide`);
       if (paragraph.length) flush();
       list.push(item);
     } else if (/^(#|>|\||\d+[.)] |[*+] |\s)/.test(line)) fail(`${at} : balisage non reconnu en début de ligne`);
