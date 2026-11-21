@@ -47,8 +47,12 @@ def check_schemas(ref):
     def validate(schema_name, path, data):
         schema = json.loads((schemas / schema_name).read_text(encoding="utf-8"))
         validator = jsonschema.Draft202012Validator(schema)
-        # Tri par chemin ; un nombre et un texte au même rang ne se comparent pas : les nombres d'abord.
-        for e in sorted(validator.iter_errors(data), key=lambda e: [(isinstance(p, str), p) for p in e.absolute_path]):
+        # Tri par chemin. Des clés de types différents au même rang (un nombre, un texte, une date) ne se comparent
+        # pas entre elles : les nombres d'abord, dans leur ordre, puis le reste comme du texte.
+        def rang(p):
+            return (0, p) if isinstance(p, (int, float)) else (1, str(p))
+
+        for e in sorted(validator.iter_errors(data), key=lambda e: [rang(p) for p in e.absolute_path]):
             where = where_in(data, e.absolute_path)
             if e.validator == "not":
                 # Un échec de « not » recopie tout l'objet : le $comment du schéma dit mieux ce qui ne va pas.

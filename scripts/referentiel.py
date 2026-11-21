@@ -28,11 +28,15 @@ class LectureImpossible(Exception):
     refusé, fichier absent ou qui n'est pas en UTF-8. Le message nomme le fichier, et la ligne quand elle est connue."""
 
 
+_FUSION = object()  # la clé de fusion « << », distincte du texte « << » écrit entre guillemets
+
+
 class _Chargeur(yaml.SafeLoader):
     """Le lecteur de PyYAML, qui refuse en plus une clé écrite deux fois dans un même bloc (constat RST-04 de l'audit,
-    version 0.3.82). La spécification de YAML 1.2.2 veut les clés d'un bloc uniques ; PyYAML 6.0.3 garde la seconde
-    valeur sans rien dire (`mapping[key] = value`, `lib/yaml/constructor.py`, l. 144). Sources, adresses et date de
-    lecture : constat RST-04 de docs/audit/referentiel-structure.md."""
+    version 0.3.82). La spécification de YAML 1.2.2 veut les clés d'un bloc uniques (source yaml-spec-1-2-2 de
+    data/sources.yaml : https://raw.githubusercontent.com/yaml/yaml-spec/1b1a1be43bd6e0cfec45caf0e40af3b5d2bb7f8a/spec/1.2.2/spec.md) ;
+    PyYAML 6.0.3 garde la seconde valeur sans rien dire (source pyyaml-6-0-3-constructor :
+    https://raw.githubusercontent.com/yaml/pyyaml/49790e73684bebad1df05ef8d828fa12f685bffb/lib/yaml/constructor.py)."""
 
     def __init__(self, stream):
         super().__init__(stream)
@@ -46,7 +50,7 @@ class _Chargeur(yaml.SafeLoader):
             vues = set()
             for cle_noeud, _ in node.value:
                 if cle_noeud.tag == "tag:yaml.org,2002:merge":
-                    cle = "<<"
+                    cle = _FUSION
                 elif cle_noeud.tag == "tag:yaml.org,2002:value":
                     cle = "="  # la clé « = » de YAML 1.1, que PyYAML garde comme le texte « = »
                 else:
@@ -56,18 +60,23 @@ class _Chargeur(yaml.SafeLoader):
                 except TypeError:
                     continue  # clé non hachable : SafeLoader la refuse lui-même
                 if deja:
+                    texte = "<<" if cle is _FUSION else cle
                     raise yaml.constructor.ConstructorError(
-                        None, None, f"clé « {cle} » écrite deux fois dans le même bloc", cle_noeud.start_mark)
+                        None, None, f"clé « {texte} » écrite deux fois dans le même bloc", cle_noeud.start_mark)
                 vues.add(cle)
         super().flatten_mapping(node)
 
     def construct_yaml_timestamp(self, node):
-        # Une date impossible (2026-13-45) lève ValueError, sans la ligne : la redonner comme erreur de PyYAML.
+        # Une date impossible (2026-13-45) lève ValueError, et l'étiquette !!timestamp posée sur un texte qui n'est pas
+        # une date, AttributeError, sans la ligne : les redonner comme erreurs de PyYAML.
+        valeur = self.construct_scalar(node)
+        if not self.timestamp_regexp.match(valeur):
+            raise yaml.constructor.ConstructorError(None, None, f"« {valeur} » n'est pas une date", node.start_mark)
         try:
             return super().construct_yaml_timestamp(node)
         except ValueError as e:
             raise yaml.constructor.ConstructorError(
-                None, None, f"date impossible « {node.value} » ({e})", node.start_mark) from e
+                None, None, f"date impossible « {valeur} » ({e})", node.start_mark) from e
 
 
 _Chargeur.add_constructor("tag:yaml.org,2002:timestamp", _Chargeur.construct_yaml_timestamp)
