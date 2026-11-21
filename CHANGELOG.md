@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.82] - 2026-11-21
+
+Sujet 22 du plan de corrections de l'audit (`docs/audit/README.md`) : contrôles du référentiel ; clés en double, doublons de listes, niveaux (constats RST-04, RST-07 et RST-06 de `docs/audit/referentiel-structure.md`, et les deux lignes de RST-12, constat réfuté que le plan renvoie à ce sujet). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le sujet n'a pas de part anglaise. Version en cours : cette section dit ce qui est fait.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.81 relue (fusion, tag, release, publication, CI du dernier commit), lignée des sessions (profondeur 6 sur 8, effort « max »), Sujet 22 en cours ; dans « Leçons pratiques », le redémarrage du conteneur de la session du Sujet 21, le serveur de développement de Vite qui écrit dans `app/node_modules/.vite` du dépôt, les durées de la routine qui varient d'un passage à l'autre pour un même code, et l'échappement de U+FEFF.
+
 ## [0.3.81] - 2026-11-21
 
 Sujet 21 du plan de corrections de l'audit (`docs/audit/README.md`) : construction des pages ; les identifiants `SIT-V2-NN` acceptés, une fiche vide refusée (constats RST-01 et RST-13 de `docs/audit/referentiel-structure.md`). Les identifiants ne changent pas. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Les parts anglaises du sujet (la section « Recipe », les fiches de `content/en/`) sont sans objet depuis le retrait de l'anglais (versions 0.3.60 et 0.3.61). Choix de Claude : `docs/propositions.md`, section 5, « Construction des pages ».
@@ -1731,6 +1739,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.82]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.81...v0.3.82
 [0.3.81]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.80...v0.3.81
 [0.3.80]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.79...v0.3.80
 [0.3.79]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.78...v0.3.79
