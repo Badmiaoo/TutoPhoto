@@ -47,7 +47,8 @@ def check_schemas(ref):
     def validate(schema_name, path, data):
         schema = json.loads((schemas / schema_name).read_text(encoding="utf-8"))
         validator = jsonschema.Draft202012Validator(schema)
-        for e in sorted(validator.iter_errors(data), key=lambda e: list(e.absolute_path)):
+        # Tri par chemin ; un nombre et un texte au même rang ne se comparent pas : les nombres d'abord.
+        for e in sorted(validator.iter_errors(data), key=lambda e: [(isinstance(p, str), p) for p in e.absolute_path]):
             where = where_in(data, e.absolute_path)
             if e.validator == "not":
                 # Un échec de « not » recopie tout l'objet : le $comment du schéma dit mieux ce qui ne va pas.
@@ -126,9 +127,9 @@ def check_links(ref):
 
 def check_levels(ref):
     """Règle de niveau d'une situation (`rules`, `level`, de data/situations.yaml). Un écart sans raison écrite dans
-    `notes`, et un `level` au-dessus de `level_max`, sont des erreurs (constat RST-06 de l'audit, version 0.3.82 ; avant,
-    un avertissement, que la CI laissait au vert). La dérogation par `notes` est celle que la règle écrit ; la règle de
-    la médiane attend la confirmation de Julien (D32 (2), docs/etat-des-travaux.md)."""
+    `notes`, et un `level` au-dessus de `level_max`, sont des erreurs (constat RST-06 de l'audit, version 0.3.82). La
+    dérogation par `notes` est celle que la règle écrit ; la règle de la médiane attend la confirmation de Julien
+    (D32 (2), docs/etat-des-travaux.md)."""
     notions = {n["id"]: n for n in ref.notions}
     for s in ref.situations:
         if referentiel.LEVELS.index(s["level"]) > referentiel.LEVELS.index(s["level_max"]):

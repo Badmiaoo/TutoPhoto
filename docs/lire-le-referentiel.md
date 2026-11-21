@@ -23,6 +23,6 @@ Champs d'une source (section 10) : `id`, `group`, `label`, `url`, `note` éventu
 
 - Notions clés : celles qui sont propres à la situation. Les réglages de base (ouverture, vitesse, ISO, modes, mesure, AF, balance des blancs) servent dans toutes les recettes sans être répétés.
 - Toute notion clé renvoie à sa situation. L'inverse n'est pas exigé : une notion peut servir dans une situation sans en être une notion clé.
-- Un bloc n'écrit pas deux fois la même clé, et une liste d'identifiants (situations et sources d'une notion, sources d'un domaine, notions clés et sources d'une situation, situations et notions d'un jalon) ne répète pas un identifiant : `scripts/validate.py` refuse l'un et l'autre (version 0.3.82), en nommant le fichier et la ligne, ou la liste et l'identifiant répété.
+- Un bloc n'écrit pas deux fois la même clé, et une liste d'identifiants (situations et sources d'une notion, sources d'une entrée de `terms`, sources d'un domaine, notions clés et sources d'une situation, situations et notions d'un jalon) ne répète pas un identifiant : `scripts/validate.py` refuse l'un et l'autre (version 0.3.82), en nommant le fichier et la ligne, ou la liste et l'identifiant répété.
 
 Le squelette reprend l'ampleur du cours de photographie numérique de Marc Levoy à Stanford : science de l'image, technique des appareils, composition ([page du cours](https://graphics.stanford.edu/~levoy/teaching.html)), et exercices par genre ([liste des exercices](https://sites.google.com/site/marclevoylectures/assignments)).

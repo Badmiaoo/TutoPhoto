@@ -24,30 +24,42 @@ def _dates_en_texte(value):
 
 
 class LectureImpossible(Exception):
-    """Un fichier de data/ ne se lit pas : faute de syntaxe YAML, clé écrite deux fois, date impossible, fichier absent
-    ou qui n'est pas en UTF-8. Le message nomme le fichier, et la ligne quand PyYAML la connaît."""
+    """Un fichier de data/ ne se lit pas : faute de syntaxe YAML, clé écrite deux fois, date impossible, caractère
+    refusé, fichier absent ou qui n'est pas en UTF-8. Le message nomme le fichier, et la ligne quand elle est connue."""
 
 
 class _Chargeur(yaml.SafeLoader):
     """Le lecteur de PyYAML, qui refuse en plus une clé écrite deux fois dans un même bloc (constat RST-04 de l'audit,
-    version 0.3.82). La spécification de YAML 1.2.2 veut les clés d'un bloc uniques ; PyYAML garde la seconde valeur
-    sans rien dire (`mapping[key] = value`, `lib/yaml/constructor.py`)."""
+    version 0.3.82). La spécification de YAML 1.2.2 veut les clés d'un bloc uniques ; PyYAML 6.0.3 garde la seconde
+    valeur sans rien dire (`mapping[key] = value`, `lib/yaml/constructor.py`, l. 144). Sources, adresses et date de
+    lecture : constat RST-04 de docs/audit/referentiel-structure.md."""
 
-    def construct_mapping(self, node, deep=False):
-        vues = set()
-        for cle_noeud, _ in node.value:
-            if cle_noeud.tag == "tag:yaml.org,2002:merge":
-                continue  # « << » reprend les clés d'un autre bloc, que celui-ci peut redéfinir
-            cle = self.construct_object(cle_noeud, deep=deep)
-            try:
-                deja = cle in vues
-            except TypeError:
-                continue  # clé non hachable : SafeLoader la refuse lui-même
-            if deja:
-                raise yaml.constructor.ConstructorError(
-                    None, None, f"clé « {cle} » écrite deux fois dans le même bloc", cle_noeud.start_mark)
-            vues.add(cle)
-        return super().construct_mapping(node, deep=deep)
+    def __init__(self, stream):
+        super().__init__(stream)
+        self._blocs_vus = set()
+
+    def flatten_mapping(self, node):
+        # Une fois par bloc, avant que PyYAML n'y verse les clés reprises par une fusion (« << ») : un bloc repris
+        # par une fusion est aplati avant d'être lu lui-même, et ses propres clés ne se distinguent plus après.
+        if node not in self._blocs_vus:
+            self._blocs_vus.add(node)
+            vues = set()
+            for cle_noeud, _ in node.value:
+                if cle_noeud.tag == "tag:yaml.org,2002:merge":
+                    cle = "<<"
+                elif cle_noeud.tag == "tag:yaml.org,2002:value":
+                    cle = "="  # la clé « = » de YAML 1.1, que PyYAML garde comme le texte « = »
+                else:
+                    cle = self.construct_object(cle_noeud)
+                try:
+                    deja = cle in vues
+                except TypeError:
+                    continue  # clé non hachable : SafeLoader la refuse lui-même
+                if deja:
+                    raise yaml.constructor.ConstructorError(
+                        None, None, f"clé « {cle} » écrite deux fois dans le même bloc", cle_noeud.start_mark)
+                vues.add(cle)
+        super().flatten_mapping(node)
 
     def construct_yaml_timestamp(self, node):
         # Une date impossible (2026-13-45) lève ValueError, sans la ligne : la redonner comme erreur de PyYAML.
@@ -74,9 +86,19 @@ def load_yaml(path, nom=None):
     except yaml.reader.ReaderError as e:
         # Caractère que YAML refuse (U+0007…) : PyYAML ne donne que sa position dans le texte ; la ligne est plus
         # utile pour un caractère qui ne se voit pas.
-        with open(path, encoding="utf-8") as f:
+        with open(path, encoding="utf-8", errors="replace") as f:
             ligne = f.read()[:e.position].count("\n") + 1
         raise LectureImpossible(f"{nom}, ligne {ligne} : caractère #x{e.character:04x} refusé ({e.reason})") from e
+    except UnicodeDecodeError as e:
+        # La position que donne Python est celle du morceau lu (64 Kio), pas celle du fichier : chercher la ligne.
+        octets = pathlib.Path(path).read_bytes()
+        try:
+            octets.decode("utf-8")
+        except UnicodeDecodeError as u:
+            ligne = octets[:u.start].count(b"\n") + 1
+            raise LectureImpossible(
+                f"{nom}, ligne {ligne} : octet 0x{octets[u.start]:02x}, le fichier n'est pas en UTF-8") from e
+        raise LectureImpossible(f"{nom} : {e}") from e
     except OSError as e:
         raise LectureImpossible(f"{nom} : {e.strerror or e}") from e
     except (yaml.YAMLError, ValueError) as e:
