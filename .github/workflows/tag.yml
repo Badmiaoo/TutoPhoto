@@ -9,8 +9,10 @@ on:
 permissions:
   contents: write
 
+# Un groupe par référence : un lancement à la main sur une autre branche, dont le job est sauté, ne peut plus annuler
+# une exécution de main en attente dans le même groupe. Sources : docs/pile-technique.md, « Outillage de l'application ».
 concurrency:
-  group: tags
+  group: tags-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:

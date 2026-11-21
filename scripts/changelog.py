@@ -32,19 +32,28 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 CHANGELOG = "CHANGELOG.md"
 VERSION_HEADING = re.compile(r"^## \[(\d+)\.(\d+)\.(\d+)\] - (\d{4}-\d{2}-\d{2})$")
 LINK_REF = re.compile(r"^\[(\d+\.\d+\.\d+)\]: \S+$")
-# Ligne « ## » : elle commence par « ## » sans troisième « # », avec ou sans espace ensuite (« ##[0.3.59] » compte).
-LEVEL2_HEADING = re.compile(r"^##(?!#)")
-# Ligne qui commence comme un titre de version, à n'importe quel niveau de titre : des « # », puis un numéro X.Y.Z,
-# avec ou sans crochet ni « v » (« ## 0.3.59 - … », « ### [0.3.59] - … »). Constat LIC-04 de l'audit, cas 5.
-VERSION_LIKE = re.compile(r"^#+ *\[? *v?\d+\.\d+\.\d+")
+# Ligne « ## » : elle commence, après au plus trois espaces, par « ## » sans troisième « # », avec ou sans espace
+# ensuite (« ##[0.3.59] » compte). En Markdown, un titre est fait de « # » suivis d'une espace, d'une tabulation ou de la
+# fin de la ligne, avec au plus trois espaces de retrait (source commonmark-spec-0-31-2 de data/sources.yaml, l. 1102-1105
+# de https://raw.githubusercontent.com/commonmark/commonmark-spec/9103e341a973013013bb1a80e13567007c5cef6f/spec.txt) ;
+# le contrôle compte aussi une ligne sans espace après « ## », presque sûrement une faute de frappe.
+LEVEL2_HEADING = re.compile(r"^ {0,3}##(?!#)")
+# Ligne qui commence comme un titre de version, à n'importe quel niveau de titre : au plus trois espaces, des « # »,
+# puis un numéro X.Y.Z, avec ou sans crochet ni « v » (« ## 0.3.59 - … », « ### [0.3.59] - … »). Constat LIC-04 de
+# l'audit, cas 5.
+VERSION_LIKE = re.compile(r"^ {0,3}#+[ \t]*\[?[ \t]*[vV]?\d+\.\d+\.\d+")
+# Avant le premier titre de version, là où s'écrivent les nouvelles sections : un titre qui contient un numéro X.Y.Z
+# n'importe où (« ## Version 0.3.59 », « ## (0.3.59) ») est aussi un titre de version mal formé ; l'en-tête n'en a pas
+# (relecture du Sujet 25, C1).
+HEADING_WITH_VERSION = re.compile(r"^ {0,3}#+.*\d+\.\d+\.\d+")
 # Versions laissées sans tag : GitHub a refusé leurs références au jeton du workflow (HTTP 403, section 0.2.4 du
 # changelog), et Julien a renoncé à les poser (décision D8, 15 novembre 2026, docs/historique.md). Ni « tag » ni
 # « tag --github » ne les réessaient ; les liens du bas du changelog visent leurs commits de fusion.
 UNTAGGED_VERSIONS = frozenset({"0.2.0", "0.2.1", "0.2.2"})
 
 
-def git(*args, check=True):
-    result = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True)
+def git(*args, check=True, env=None):
+    result = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, env=env)
     if check and result.returncode != 0:
         # Afficher ce que git a dit : sans cela, un échec (push refusé, par exemple) reste muet.
         sys.stderr.write(f"ERREUR : git {' '.join(args)} a échoué (code {result.returncode})\n")
@@ -58,11 +67,21 @@ def parse(text):
     versions, errors, links = [], [], set()
     current = None
     seen_version = False
+    first_link = None  # numéro de la ligne du premier lien « [X.Y.Z]: … »
+    misplaced_link = False
     for n, line in enumerate(text.splitlines(), 1):
         if LINK_REF.match(line):
             links.add(LINK_REF.match(line).group(1))
             current = None
+            first_link = first_link or n
             continue
+        if first_link and line.strip() and not misplaced_link:
+            # Les liens vont tous en bas du fichier. Un lien au milieu d'une section la coupait sans rien dire, comme
+            # une ligne « ## », et le tag et la release de la version n'en auraient gardé que le début (relecture du
+            # Sujet 25, C2). Une seule erreur, à la première ligne de texte qui suit un lien.
+            misplaced_link = True
+            errors.append(f"ligne {first_link} : lien « [X.Y.Z]: … » suivi de texte (ligne {n}) ; les liens vont tous "
+                          f"en bas du fichier, après la dernière section, et un lien placé dans une section la couperait")
         m = VERSION_HEADING.match(line)
         if m:
             current = None
@@ -77,7 +96,7 @@ def parse(text):
                        "_date": date, "lines": []}
             versions.append(current)
             continue
-        if VERSION_LIKE.match(line) or line.startswith("## ["):
+        if VERSION_LIKE.match(line) or line.startswith("## [") or (not seen_version and HEADING_WITH_VERSION.match(line)):
             current = None
             errors.append(f"ligne {n} : titre de version mal formé, attendu « ## [X.Y.Z] - AAAA-MM-JJ » : {line}")
             continue
@@ -126,10 +145,19 @@ def base_errors(base, versions):
     git-2-56-1-rev-parse-verify de data/sources.yaml, l. 108-126 et 498-505 de
     https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/git-rev-parse.adoc).
     """
-    found = git("rev-parse", "--verify", "--quiet", "--end-of-options", f"{base}^{{commit}}", check=False)
+    # Sans --quiet, git dit pourquoi un nom n'est pas lu (« Needed a single revision », « short object ID … is
+    # ambiguous »), et avertit quand deux références portent le nom (« refname … is ambiguous »), ce que --quiet tait.
+    # Messages lus en anglais (LC_ALL=C), pour y trouver « ambiguous ».
+    c_locale = dict(os.environ, LC_ALL="C")
+    found = git("rev-parse", "--verify", "--end-of-options", f"{base}^{{commit}}", check=False, env=c_locale)
     if found.returncode != 0:
-        return [f"base introuvable : « {base} » ne désigne aucun commit du dépôt local "
-                f"(nom mal écrit, ou branche à récupérer d'abord, par exemple « git fetch origin main »)"]
+        return [f"base introuvable : « {base} » ne désigne aucun commit du dépôt local (git : {first_line(found.stderr)}) ; "
+                f"nom mal écrit, ou branche à récupérer d'abord, par exemple « git fetch origin main »"]
+    if "ambiguous" in found.stderr:
+        # Un nom que portent deux références (une branche locale et un tag, une branche locale nommée « origin/main »…) :
+        # git en prend une sans le dire ailleurs que dans cet avertissement (relecture du Sujet 25, C5).
+        return [f"base ambiguë : « {base} » (git : {first_line(found.stderr)}) ; "
+                f"donner le nom complet de la référence, par exemple « refs/remotes/origin/main »"]
     shown = git("show", f"{found.stdout.strip()}:{CHANGELOG}", check=False)
     if shown.returncode != 0:
         return [f"{CHANGELOG} illisible dans la base « {base} » : {first_line(shown.stderr)}"]

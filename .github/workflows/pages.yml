@@ -8,9 +8,11 @@ on:
 permissions:
   contents: read
 
-# Une seule publication à la fois ; une publication en cours n'est pas interrompue.
+# Une seule publication à la fois ; une publication en cours n'est pas interrompue. Un groupe par référence : un
+# lancement à la main sur une autre branche, dont le job est sauté, ne peut plus annuler une publication de main en
+# attente dans le même groupe. Sources : docs/pile-technique.md, « Outillage de l'application ».
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
