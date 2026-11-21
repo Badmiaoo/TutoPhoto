@@ -4,17 +4,18 @@
 Usage : python3 scripts/coverage.py [racine du dépôt]
 
 Sortie en Markdown. Règles de couverture : docs/contenus.md. Suppose un référentiel que scripts/validate.py accepte
-(la CI le lance d'abord) : sur un renvoi vers une situation absente, par exemple, il s'arrête sur une trace Python.
+(la CI le lance d'abord) : sur un renvoi vers une situation absente, par exemple, il s'arrête sur une trace Python. Les
+fiches sont lues comme les lit la construction des pages (scripts/referentiel.py, « Fiches de content/ »).
 """
 import collections
 import pathlib
-import re
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import referentiel  # noqa: E402
 
-# Titres de section (niveau 2) attendus dans une fiche de notion, par brique.
+# Titres de section (niveau 2) attendus dans une fiche de notion, par brique ; la casse compte, comme pour la
+# construction des pages (version 0.3.83).
 HEADINGS = {"explanation": "Explication", "simulator": "Simulateur", "activity": "Activité",
             "exercise": "Exercice", "situation": "Situation réelle"}
 BRICKS = [("explanation", "Explication"), ("simulator", "Simulateur ou activité"),
@@ -24,40 +25,30 @@ BRICKS = [("explanation", "Explication"), ("simulator", "Simulateur ou activité
 RECIPE = "Recette"
 
 
-def text_of(path):
-    """Texte utile d'un fichier : commentaires HTML retirés, vide si le fichier n'existe pas."""
+def sections(ref, path):
+    """Titres des sections de niveau 2 d'une fiche dont le corps n'est pas vide ; aucun si le fichier n'existe pas. Un
+    fichier qui ne se lit pas (qui n'est pas en UTF-8) lève `referentiel.LectureImpossible`."""
     if not path.is_file():
-        return ""
-    return re.sub(r"<!--.*?-->", "", path.read_text(encoding="utf-8"), flags=re.S)
-
-
-def sections(text):
-    """Titres de niveau 2 dont le corps n'est pas vide, en minuscules."""
-    found = set()
-    parts = re.split(r"^## +(.+?)\s*$", text, flags=re.M)
-    for i in range(1, len(parts), 2):
-        if parts[i + 1].strip():
-            found.add(parts[i].strip().lower())
-    return found
+        return set()
+    return referentiel.sections_de_fiche(referentiel.texte_de_fiche(path, ref.rel(path)))
 
 
 def content_coverage(ref):
     content = ref.root / "content"
-    written = {s["id"] for s in ref.situations
-               if RECIPE.lower() in sections(text_of(content / "situations" / f"{s['id']}.md"))}
+    written = {s["id"] for s in ref.situations if RECIPE in sections(ref, content / "situations" / f"{s['id']}.md")}
     bricks = {}  # notion -> ensemble des briques présentes
     for n in ref.notions:
-        present = sections(text_of(content / "notions" / f"{n['id']}.md"))
+        present = sections(ref, content / "notions" / f"{n['id']}.md")
         got = set()
-        if HEADINGS["explanation"].lower() in present:
+        if HEADINGS["explanation"] in present:
             got.add("explanation")
-        if HEADINGS["activity" if n.get("activity") else "simulator"].lower() in present:
+        if HEADINGS["activity" if n.get("activity") else "simulator"] in present:
             got.add("simulator")
-        if HEADINGS["exercise"].lower() in present:
+        if HEADINGS["exercise"] in present:
             got.add("exercise")
         sits = n["situations"]
         if sits == "all" or not sits:
-            if HEADINGS["situation"].lower() in present:
+            if HEADINGS["situation"] in present:
                 got.add("situation")
         elif any(s in written for s in sits):
             got.add("situation")
@@ -99,7 +90,11 @@ def main():
                + ", ".join(f"{entry[lv]} en {lv}" for lv in referentiel.LEVELS) + " ; niveaux max : "
                + ", ".join(f"{top[lv]} en {lv}" for lv in referentiel.LEVELS) + ".")
 
-    bricks, written = content_coverage(ref)
+    try:
+        bricks, written = content_coverage(ref)
+    except referentiel.LectureImpossible as e:
+        print(f"ERREUR : {e}", file=sys.stderr)
+        return 1
     covered = [n["id"] for n in notions if len(bricks[n["id"]]) == 4]
     pct = f"{100 * len(covered) / len(notions) if notions else 0:.1f}".replace(".", ",")  # virgule décimale
     out.append("\n## Couverture des contenus\n")

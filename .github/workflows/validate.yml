@@ -23,8 +23,27 @@ jobs:
           python-version: "3.13"
       - name: Installer les dépendances
         run: python -m pip install -r requirements.txt
+      - name: Récupérer la branche cible
+        # Sur une pull request : la branche cible est la base de validate.py et du contrôle du changelog, qui la lisent
+        # par git show. Avant la version 0.3.83, elle n'était récupérée qu'à l'étape du changelog (constat RST-03).
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ -n "$BASE_REF" ]; then
+            git fetch --no-tags --depth=1 origin "+refs/heads/${BASE_REF}:refs/remotes/origin/${BASE_REF}"
+          fi
       - name: Contrôler le référentiel
-        run: python scripts/validate.py
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          # Sur une pull request (option --base, constats RST-03 et RST-05) : aucun identifiant de la branche cible ne
+          # disparaît ni ne change de notion, un identifiant retiré le reste, le champ since est gardé, et une notion ou
+          # une situation ajoutée ou retirée fait monter Y (CHANGELOG.md, « Numérotation »).
+          if [ -n "$BASE_REF" ]; then
+            python scripts/validate.py --base "origin/${BASE_REF}"
+          else
+            python scripts/validate.py
+          fi
       - name: Contrôler les scènes 3D (licences, empreintes, tailles)
         run: python scripts/check_scenes.py
       - name: Comptes et couverture
@@ -35,8 +54,7 @@ jobs:
         run: |
           # Sur une pull request : elle doit ajouter une version plus récente que celle de la branche cible.
           if [ -n "$BASE_REF" ]; then
-            git fetch --no-tags --depth=1 origin "$BASE_REF"
-            python scripts/changelog.py check --base FETCH_HEAD
+            python scripts/changelog.py check --base "origin/${BASE_REF}"
           else
             python scripts/changelog.py check
           fi
