@@ -188,9 +188,21 @@ def cmd_check(base):
 
 
 def introducing_commit(version):
-    """Plus ancien commit de la branche courante (premier parent) qui a ajouté le titre de la version."""
+    """Plus ancien commit de la branche courante (premier parent) qui a ajouté la ligne du titre de la version.
+
+    -G et non -S (contrôle final du Sujet 25, F1, version 0.3.85) : -S compte les occurrences de la chaîne n'importe où
+    dans le fichier, et une section qui cite le titre d'une autre version (« ## [0.3.86] - … », en exemple) aurait fait
+    poser le tag de celle-ci sur son propre commit. -G ne retient que les lignes ajoutées ou retirées qui commencent par
+    le titre : git y applique l'expression ligne par ligne, sans le « + » ou le « - » du diff, en expression régulière
+    étendue de POSIX (sources git-2-56-1-diff-merges, l. 650-665 de
+    https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/diff-options.adoc,
+    et git-2-56-1-diffcore-pickaxe, l. 26-41 et 242-246 de
+    https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/diffcore-pickaxe.c).
+    Le numéro de version n'a que des chiffres et des points, échappés.
+    """
+    title = "^## \\[" + version.replace(".", "\\.") + "] - "
     out = git("log", "--first-parent", "--diff-merges=first-parent", "--no-patch", "--format=%H",
-              "-S", f"## [{version}] - ", "HEAD", "--", CHANGELOG).stdout.split()
+              "-G", title, "HEAD", "--", CHANGELOG).stdout.split()
     return out[-1] if out else None
 
 

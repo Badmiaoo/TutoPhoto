@@ -379,9 +379,9 @@ sources:
     used_in: [scripts/check_public.py, docs/publication.md]
   - id: git-2-56-1-diff-merges
     group: "Outils"
-    label: "Git 2.56.1, Documentation/diff-options.adoc, option --diff-merges (l. 65-106) : « combined » montre les différences avec chaque parent à la fois, et « lists only files which were modified from all parents » ; « dense-combined » (--cc) : « Further compress output produced by --diff-merges=combined by omitting uninteresting hunks whose contents in the parents have only two variants and the merge result picks one of them without modification » (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026)"
+    label: "Git 2.56.1, Documentation/diff-options.adoc, option --diff-merges (l. 65-106) : « combined » montre les différences avec chaque parent à la fois, et « lists only files which were modified from all parents » ; « dense-combined » (--cc) : « Further compress output produced by --diff-merges=combined by omitting uninteresting hunks whose contents in the parents have only two variants and the merge result picks one of them without modification » ; options -S, qui « Look for differences that change the number of occurrences of the specified <string> (i.e. addition/deletion) in a file » (l. 650-652), et -G, qui « Look for differences whose patch text contains added/removed lines that match <regex> » (l. 663-665) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/diff-options.adoc"
-    used_in: [scripts/check_public.py, docs/publication.md]
+    used_in: [scripts/check_public.py, docs/publication.md, scripts/changelog.py]
   - id: git-2-56-1-log-showroot
     group: "Outils"
     label: "Git 2.56.1, Documentation/config/log.adoc, log.showRoot : « If true, the initial commit will be shown as a big creation event. This is equivalent to a diff against an empty tree. […] True by default. » (l. 66-70) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026)"
@@ -407,6 +407,11 @@ sources:
     label: "Git 2.41.0, notes de version, Documentation/RelNotes/2.41.0.txt, l. 116-118 : « git --attr-source=<tree> cmd $args is a new way to have any command to read attributes not from the working tree but from the given tree object » ; l'option n'est pas dans Documentation/git.txt de la version 2.40.0 (dépôt git/git, étiquette v2.41.0, commit fe86abd ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/git/git/fe86abd7511a9a6862d5706c6fa1d9b57a63ba09/Documentation/RelNotes/2.41.0.txt"
     used_in: [scripts/check_public.py]
+  - id: git-2-56-1-diffcore-pickaxe
+    group: "Outils"
+    label: "Git 2.56.1, diffcore-pickaxe.c : pour -G, seules les lignes du diff qui commencent par « + » ou « - » sont lues, et l'expression est appliquée à la ligne sans ce signe (fonction diffgrep_consume, l. 26-41) ; elle est compilée avec REG_EXTENDED | REG_NEWLINE, en expression régulière étendue de POSIX (l. 242-246) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026 ; essayé avec git 2.43.0 par Claude)"
+    url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/diffcore-pickaxe.c"
+    used_in: [scripts/changelog.py]
   - id: git-2-56-1-rev-parse-verify
     group: "Outils"
     label: "Git 2.56.1, Documentation/git-rev-parse.adoc, option --verify (l. 108-126) : avec l'opérateur ^{commit}, la commande « will make sure $VAR names an existing object that is a commit-ish (i.e. a commit, or an annotated tag that points at a commit) » ; « if you are verifying a name from an untrusted source, it is wise to use --end-of-options so that the name argument is not mistaken for another option » ; exemple git rev-parse --verify --end-of-options $REV^{commit} : « This will error out if $REV is empty or not a valid revision » (l. 498-505) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026 ; essayé avec git 2.43.0 par Claude)"
