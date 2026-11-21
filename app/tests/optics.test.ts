@@ -307,11 +307,25 @@ test("rayon d'un point du cadre : le point vu à la profondeur z, en z × rayon,
       assertClose(ndc.y, 1 - point.y * 2, 1e-6, `y, ${depth} m`);
     }
   }
+  // Sous la loupe du viseur et dans la fenêtre de la loupe de revue, la projection est décentrée (m8 et m9 non nuls) :
+  // même aller-retour (relecture de la version 0.3.87, constat C1). Écart permis : la matrice de Babylon.js est en
+  // 32 bits (environ 1e-7 en relatif), et le grossissement par 3 multiplie l'écart absolu.
+  const loupe = Matrix.FromArray(windowProjection(photoProjection.asArray(), { x: 0.3, y: -0.2 }, { x: 3, y: 3 }));
+  assert.ok(loupe.asArray()[8] !== 0 && loupe.asArray()[9] !== 0);
+  for (const point of [{ x: 0.1, y: 0.2 }, { x: 0.5, y: 0.9 }, { x: 0.97, y: 0.03 }]) {
+    for (const depth of [0.5, 6.6, 120]) {
+      const ray = rayThrough(loupe.asArray(), point);
+      const ndc = Vector3.TransformCoordinates(new Vector3(ray.x * depth, ray.y * depth, depth), loupe);
+      assertClose(ndc.x, point.x * 2 - 1, 1e-5, `loupe, x, ${depth} m`);
+      assertClose(ndc.y, 1 - point.y * 2, 1e-5, `loupe, y, ${depth} m`);
+    }
+  }
 });
 
 test("distance du sol : hauteur de l'œil / pente du rayon vers le bas, au plus le rayon du fond", () => {
   const level = { x: 0, y: 1, z: 0 };
   // Appareil horizontal : en bas du cadre, pente = tan(demi-champ vertical) = 23,9 / 100 ; sol à 1,6 / 0,239 ≈ 6,69 m.
+  // Écart permis : la matrice de Babylon.js est en 32 bits, environ 1e-7 en relatif, soit moins de 1e-5 m sur 6,7 m.
   assertClose(groundDepth(photoProjection, level, parc, { x: 0.5, y: 1 }), 1.6 / 0.239, 1e-5, "bas du cadre");
   assert.equal(groundDepth(photoProjection, level, parc, { x: 0.5, y: 0.5 }), Infinity);
   assert.equal(groundDepth(photoProjection, level, parc, { x: 0.5, y: 0 }), Infinity);
@@ -322,6 +336,20 @@ test("distance du sol : hauteur de l'œil / pente du rayon vers le bas, au plus 
   const tilt = (10 * Math.PI) / 180;
   const down = { x: 0, y: Math.cos(tilt), z: -Math.sin(tilt) };
   assertClose(groundDepth(photoProjection, down, parc, { x: 0.5, y: 0.5 }), 1.6 / Math.sin(tilt), 1e-9, "incliné");
+  // Projection resserrée (loupe), décentrée : un point de son cadre est, dans le cadre entier, le point de coordonnées
+  // normalisées ndc / grossissement + centre ; le sol y est à la même distance (relecture de la version 0.3.87, C1).
+  // Écart permis : matrices de Babylon.js en 32 bits, comme plus haut.
+  const center = { x: 0.3, y: -0.2 };
+  const zoom = { x: 3, y: 3 };
+  const loupe = Matrix.FromArray(windowProjection(photoProjection.asArray(), center, zoom));
+  for (const p of [{ x: 0.5, y: 0.9 }, { x: 0.1, y: 0.95 }, { x: 0.8, y: 0.7 }]) {
+    const ndc = { x: (p.x * 2 - 1) / zoom.x + center.x, y: (1 - p.y * 2) / zoom.y + center.y };
+    const whole = { x: (ndc.x + 1) / 2, y: (1 - ndc.y) / 2 };
+    const expected = groundDepth(photoProjection, level, parc, whole);
+    assert.ok(Number.isFinite(expected), `loupe, ${p.x}, ${p.y}`);
+    assertClose(groundDepth(loupe, level, parc, p), expected, 1e-5 * expected, `loupe, ${p.x}, ${p.y}`);
+    assertClose(depthOrGround(450, 0.1, loupe, level, parc, p), expected, 1e-5 * expected, `loupe, repli, ${p.x}, ${p.y}`);
+  }
 });
 
 test("profondeur d'un point : celle de la carte, sinon (invalide, ou sur la sphère du fond) la distance du sol", () => {
@@ -353,6 +381,7 @@ test("fenêtre d'une projection : x' = (x − centre) × grossissement ; la fen�
   assertClose(part.zoom.x, 2, 1e-15, "grossissement x");
   assertClose(part.zoom.y, 3, 1e-12, "grossissement y");
   const windowed = Matrix.FromArray(windowProjection(m, part.center, part.zoom));
+  // Écart permis : les matrices de Babylon.js sont en 32 bits (environ 1e-7 en relatif), grossies jusqu'à 3 fois.
   for (const p of [new Vector3(0.3, 0.2, 5), new Vector3(-1, 0.5, 10), new Vector3(2, -1, 30)]) {
     const a = Vector3.TransformCoordinates(p, photoProjection);
     const b = Vector3.TransformCoordinates(p, windowed);
@@ -374,6 +403,8 @@ test("nombre de rendus : (0,9 × flou / 4)² sur le disque, traînée / 4 le lon
   // (0,9 × 30 / 4)² = 45,56 : 46 ; 100 / 4 = 25 ; le plus grand des deux.
   assert.equal(plannedSamples(30, 0), 46);
   assert.equal(plannedSamples(0, 100), 25);
+  // Arrondi au-dessus : 101 / 4 = 25,25 donne 26 (relecture de la version 0.3.87, C6).
+  assert.equal(plannedSamples(0, 101), 26);
   assert.equal(plannedSamples(30, 200), 50);
   assert.equal(plannedSamples(1000, 0), 256);
   assert.equal(plannedSamples(0, 5000), 256);
@@ -390,25 +421,39 @@ test("disque de l'œil élargi de S / (S − f) : au bord du disque, un point à
   // Œil déplacé du rayon du disque, projection décentrée (shiftedProjection) : sur le capteur (x_ndc × largeur / 2),
   // un point du plan de netteté ne bouge pas, et un point à la profondeur D bouge de cocAt(…) / 2 ; le flou de la
   // photo est donc celui de la lentille mince (c = A f |D − S| / (D (S − f))), malgré le modèle d'œil déplacé.
+  // Écart permis : les matrices de Babylon.js sont en 32 bits (environ 1e-7 en relatif), et le déplacement se lit comme
+  // une différence de deux projections ; 2e-5 mm, ou 2e-5 du flou quand il dépasse 1 mm.
   for (const [focal, n, focus] of [[50, 2, 1], [135, apertureValue(0), 6.6], [24, 8, 3]] as const) {
     const projection = Matrix.PerspectiveFovLH(fieldOfView(z6.sensorHeightMm, focal), z6.sensorWidthMm / z6.sensorHeightMm, 0.01, 1000);
     const radius = eyeDiskRadiusM(focal, n, focus);
-    const shifted = Matrix.FromArray(shiftedProjection(projection.asArray(), radius, 0, focus));
     const infinity = cocAtInfinityMm(focal, n, focus);
+    const tolerance = 2e-5 * Math.max(1, infinity);
+    // Œil déplacé en x : le point bouge en x de cocAt / 2 (largeur du capteur / 2 par unité de x_ndc), pas en y.
+    const shifted = Matrix.FromArray(shiftedProjection(projection.asArray(), radius, 0, focus));
     for (const [x, depth] of [[0.3, focus], [0.3, focus / 2], [-1, focus * 3], [2, 100]] as const) {
-      const central = Vector3.TransformCoordinates(new Vector3(x, 0.1, depth), projection).x;
-      const moved = Vector3.TransformCoordinates(new Vector3(x - radius, 0.1, depth), shifted).x;
-      const shiftMm = Math.abs(moved - central) * (z6.sensorWidthMm / 2);
+      const central = Vector3.TransformCoordinates(new Vector3(x, 0.1, depth), projection);
+      const moved = Vector3.TransformCoordinates(new Vector3(x - radius, 0.1, depth), shifted);
+      const shiftMm = Math.abs(moved.x - central.x) * (z6.sensorWidthMm / 2);
       const what = `${focal} mm, f/${n.toFixed(2)}, au point à ${focus} m, point à ${depth} m`;
-      assertClose(shiftMm, cocAt(infinity, focus, depth) / 2, 2e-5 * Math.max(1, infinity), what);
+      assertClose(shiftMm, cocAt(infinity, focus, depth) / 2, tolerance, `${what}, en x`);
+      assertClose(moved.y, central.y, 1e-6, `${what}, y inchangé`);
+    }
+    // Œil déplacé en y (relecture de la version 0.3.87, C3) : le point bouge en y de cocAt / 2 (hauteur du capteur / 2
+    // par unité de y_ndc, le champ vertical étant celui du petit côté), pas en x.
+    const shiftedUp = Matrix.FromArray(shiftedProjection(projection.asArray(), 0, radius, focus));
+    for (const [y, depth] of [[0.2, focus], [-0.1, focus / 2], [0.5, focus * 3], [1, 100]] as const) {
+      const central = Vector3.TransformCoordinates(new Vector3(0.2, y, depth), projection);
+      const moved = Vector3.TransformCoordinates(new Vector3(0.2, y - radius, depth), shiftedUp);
+      const shiftMm = Math.abs(moved.y - central.y) * (z6.sensorHeightMm / 2);
+      const what = `${focal} mm, f/${n.toFixed(2)}, au point à ${focus} m, point à ${depth} m`;
+      assertClose(shiftMm, cocAt(infinity, focus, depth) / 2, tolerance, `${what}, en y`);
+      assertClose(moved.x, central.x, 1e-6, `${what}, x inchangé`);
     }
   }
 });
 
 test("places de l'œil : rayon × √((i + 0,5) / M) à i × angle d'or ; chaque place vaut la même surface du disque", () => {
   for (const samples of [16, 17, 46, 256]) {
-    let sumX = 0;
-    let sumY = 0;
     let inner = 0;
     for (let i = 0; i < samples; i++) {
       const o = eyeOffset(i, samples, 2);
@@ -416,14 +461,12 @@ test("places de l'œil : rayon × √((i + 0,5) / M) à i × angle d'or ; chaque
       assertClose(r, 2 * Math.sqrt((i + 0.5) / samples), 1e-12, `${samples} rendus, place ${i}`);
       assert.ok(r < 2);
       if (r <= 1) inner++;
-      sumX += o.x;
-      sumY += o.y;
+      // Angle : i × π (3 − √5), à un nombre entier de tours près (relecture de la version 0.3.87, C2).
+      const turns = (Math.atan2(o.y, o.x) - i * Math.PI * (3 - Math.sqrt(5))) / (2 * Math.PI);
+      assertClose(turns, Math.round(turns), 1e-9, `${samples} rendus, angle de la place ${i}`);
     }
     // Un quart des places dans le demi-rayon : (i + 0,5) / M ≤ 1/4, soit ⌊M / 4 − 0,5⌋ + 1 places.
     assert.equal(inner, Math.floor(samples / 4 - 0.5) + 1, `${samples} rendus`);
-    // Les places entourent le centre : leur moyenne en est à moins de 5 % du rayon (calcul de Claude, de 16 à 256 rendus :
-    // 3,5 % au plus, pour 17).
-    assert.ok(Math.hypot(sumX, sumY) / samples < 0.05 * 2, `${samples} rendus`);
   }
 });
 

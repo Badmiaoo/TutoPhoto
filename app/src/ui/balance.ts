@@ -19,9 +19,9 @@
 //   PHOTO_LONG_SIDE et sensorMmToPixels).
 // - ISO : rapport signal sur bruit d'un pixel de la photo (1500 px de grand côté) au point visé, avec le
 //   modèle de bruit du viseur et de la photo (camera/noiseModel.ts, signalToNoise et noiseLevel). Seuils de la norme
-//   des sensibilités numériques : 40:1,
-//   « excellent image quality », et 10:1, « acceptable image quality », définis pour 70 pixels par cm vus à
-//   25 cm [wikipedia-film-speed] https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213 ;
+//   des sensibilités numériques : 40:1, « excellent image quality », et 10:1, « acceptable image quality », définis
+//   pour 70 pixels par cm vus à 25 cm [wikipedia-film-speed]
+//   https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213 ;
 //   une photo de 1500 px y fait environ 21 cm de large (1500 / 70 ≈ 21,4 cm). Approximation :
 //   canal vert seul, la norme pondérant luminance et couleur d'une façon que l'article ne détaille pas.
 // - Le point : au centre quand rien ne dépasse ; il s'écarte vers l'ISO si le bruit dépasse 40:1 (un peu)

@@ -1,5 +1,6 @@
 // Viseur : cadre aux proportions du capteur, et champ de vue de la caméra 3D réglé pour que ce cadre
-// montre exactement ce que verrait le capteur avec la focale choisie.
+// montre exactement ce que verrait le capteur avec la focale choisie ; positions des lignes des grilles de cadrage
+// (depuis la version 0.3.87, sorties de ui/cameraPanel.ts pour les tests rapides).
 
 import type { Body } from "./bodies";
 import { fieldOfView } from "./optics";
@@ -46,8 +47,8 @@ export function cameraFov(canvasWidth: number, canvasHeight: number, frame: Fram
 
 /**
  * Grilles de cadrage (CMP-02, version 0.3.56 ; sorties de ui/cameraPanel.ts dans la version 0.3.87, pour les tests
- * rapides) : positions des lignes, en fractions du grand côté et du petit côté du cadre. Les mêmes grilles pour tous les boîtiers (décision de Julien du 12 novembre 2026) : celles que les manuels
- * lus nomment ou montrent.
+ * rapides) : positions des lignes, en fractions du grand côté et du petit côté du cadre. Les mêmes grilles pour tous
+ * les boîtiers (décision de Julien du 12 novembre 2026) : celles que les manuels lus nomment ou montrent.
  * - « thirds » : deux lignes dans chaque sens, aux tiers. Sony, « Grid Line », « Rule of 3rds Grid » : « Place
  *   main subjects close to one of the grid lines that divide the image into thirds for a well-balanced
  *   composition » (guides d'aide de l'A7 III et de l'A6000) [sony-a7iii-grid-line] [sony-a6000-grid-line] ; le
@@ -73,6 +74,7 @@ export function cameraFov(canvasWidth: number, canvasHeight: number, frame: Fram
  *   https://cam.start.canon/en/C002/manual/html/UG-09_Set-up_0200.html
  *   https://cam.start.canon/en/C004/manual/html/UG-03_Shooting-1_0360.html
  *   https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d09.html
+ *   https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html
  */
 export type GridKind = "none" | "thirds" | "sixteen" | "twentyFour" | "thirdsDiagonals";
 export interface GridLayout {

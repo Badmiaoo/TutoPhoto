@@ -85,10 +85,12 @@ test("grilles de cadrage : tiers, seize cases, vingt-quatre cases, tiers et diag
     close(thirds.vertical, [1 / 3, 2 / 3], `tiers, verticales, ${sens}`);
     close(thirds.horizontal, [1 / 3, 2 / 3], `tiers, horizontales, ${sens}`);
     assert.equal(thirds.diagonals, false);
-    // « Seize cases » : six lignes à 1/4, 1/2 et 3/4.
+    // « Seize cases » : six lignes à 1/4, 1/2 et 3/4, sans diagonale.
     const sixteen = gridLines("sixteen", tall);
     close(sixteen.vertical, [1 / 4, 1 / 2, 3 / 4], `seize cases, verticales, ${sens}`);
     close(sixteen.horizontal, [1 / 4, 1 / 2, 3 / 4], `seize cases, horizontales, ${sens}`);
+    assert.equal(sixteen.diagonals, false);
+    assert.equal(gridLines("twentyFour", tall).diagonals, false);
     // « Tiers et diagonales » : les tiers, et deux diagonales.
     const diagonals = gridLines("thirdsDiagonals", tall);
     close(diagonals.vertical, [1 / 3, 2 / 3], `tiers et diagonales, ${sens}`);

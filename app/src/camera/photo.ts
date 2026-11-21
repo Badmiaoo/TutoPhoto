@@ -12,16 +12,16 @@
 //   à 0,9 × flou / √M sur un disque, flou / M le long d'un mouvement), de 16 à 256, et 5 s au plus.
 // - Lissage : flou résiduel de rayon 0,45 × flou / √M, selon la profondeur de la vue centrale. Le
 //   rayon ne dépendant que de cette profondeur, lisser la moyenne revient à lisser chaque rendu.
-// Les formules de ce calcul (cercle de confusion, traînée estimée, nombre de rendus, disque d'ouverture, instants,
-// projections décentrée et resserrée, distance du sol, format de la photo) sont dans camera/optics.ts, sans rendu,
-// où les tests rapides les vérifient (constat ARC-07 de l'audit, version 0.3.87) ; ce fichier garde le rendu et le
-// shader de finition, qui écrit en GLSL le flou et la distance du sol.
 // - Loupe de l'écran de revue : la même photo (même instant, même orientation, même mise au point) est
 //   recalculée sur une fenêtre de l'image, à la définition du capteur. La fenêtre est obtenue en
 //   resserrant la projection : x' = (x − centre) / demi-largeur, en coordonnées normalisées.
 // - Histogrammes et zones écrêtées (MES-06, MES-07 ; version 0.3.57) : mesurés sur les pixels 8 bits de la photo
 //   finale, avant sa compression en JPEG (camera/histogram.ts). La loupe passant par ce même calcul, ses mesures
 //   portent sur la fenêtre agrandie.
+// Les formules de ce calcul (cercle de confusion, traînée estimée, nombre de rendus, disque d'ouverture, instants,
+// projections décentrée et resserrée, distance du sol, format de la photo) sont dans camera/optics.ts, et la loi du
+// bruit dans camera/noiseModel.ts, sans rendu, où les tests rapides les vérifient (constat ARC-07 de l'audit, version
+// 0.3.87) ; ce fichier garde le rendu et le shader de finition, qui écrit en GLSL le flou et la distance du sol.
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
@@ -61,7 +61,11 @@ import {
   type GroundInfo,
 } from "./optics";
 
-/** Durée la plus longue du calcul d'une photo, en millisecondes : au-delà, la photo garde les rendus déjà faits. */
+/**
+ * Temps accordé aux rendus d'une photo, en millisecondes depuis le début du calcul, vérifié après chaque rendu :
+ * au-delà, la boucle s'arrête et la photo garde les rendus déjà faits. Il ne borne pas la durée du calcul entier
+ * (docs/camera-physique.md, « Photo interrompue par ce plafond »).
+ */
 const TIME_BUDGET_MS = 5000;
 
 export interface SceneTimeControl {

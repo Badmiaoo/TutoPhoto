@@ -7,7 +7,8 @@
 // camera/exposure.ts), certaines deux fois ; elles sont ici une fois, et testées sans navigateur
 // (app/tests/optics.test.ts). Les shaders gardent leur écriture en GLSL du cercle de confusion (camera/photo.ts,
 // camera/viewfinderDof.ts) et de la distance du sol (camera/photo.ts) : ils reçoivent leurs facteurs de ce module, et
-// ces écritures ne sont vérifiées que par la routine de test (scripts/test_app.cjs).
+// ces écritures ne sont vérifiées, à l'exécution, qu'en gros par la routine de test (scripts/test_app.cjs : fond plus
+// flou avec l'aperçu de la profondeur de champ que sans).
 //
 // Unités : focales, côtés du capteur, cercles de confusion et traînées en mm ; distances de la scène en mètres (une
 // unité de la scène = 1 m) ; vitesses en m/s ; durées en secondes.
@@ -88,8 +89,9 @@ export function minFocusDistanceM(focalMm: number): number {
 // ——— Position et traînée sur le capteur ———
 // Projection d'un point (X, Y, Z) du repère de la caméra : x = f X / Z, y = f Y / Z. Un point de vitesse
 // (V_X, V_Y, V_Z) se déplace sur le capteur de f (V_X Z − X V_Z) / Z² par seconde (et de même en y) ; sa traînée
-// pendant la pose est cette vitesse × la durée de pose. Jugée par le bulletin, l'indicateur d'équilibre et la vue de
-// dessus (camera/bulletin.ts, measureThing ; constat PHY-17, version 0.3.69).
+// pendant la pose est cette vitesse × la durée de pose. Jugée par le bulletin et l'indicateur d'équilibre
+// (camera/bulletin.ts, measureThing ; constat PHY-17, version 0.3.69) ; la vue de dessus n'en lit que la netteté, à
+// vitesse nulle.
 
 /** Position sur le capteur, en mm depuis son centre, d'un point du repère de la caméra : x = f X / Z, y = f Y / Z. */
 export function sensorPosition(p: CameraPoint, focalMm: number): { x: number; y: number } {
@@ -167,8 +169,10 @@ export function rayThrough(projection: ArrayLike<number>, point: FramePoint): Ca
 /**
  * Distance du plan du sol le long du rayon qui passe par le point donné du cadre, en z dans le repère de la caméra :
  * −hauteur de l'œil / pente, la pente étant le produit scalaire du rayon et de la verticale vue de la caméra ;
- * au plus le rayon de la sphère du fond, et Infinity si le rayon ne descend pas. Écrite aussi en GLSL dans le shader
- * de la photo (camera/photo.ts).
+ * au plus le rayon de la sphère du fond, et Infinity si le rayon ne descend pas. Le shader de finition de la photo
+ * (camera/photo.ts) écrit la même distance en GLSL, avec sa propre règle : pour un point vu sur la sphère du fond,
+ * le plus petit de la profondeur lue et de la distance du sol, sans plafond au rayon du fond ni cas d'une profondeur
+ * invalide (relecture de la version 0.3.87).
  */
 export function groundDepth(projection: { asArray(): ArrayLike<number> }, upInCamera: CameraPoint, ground: GroundInfo, point: FramePoint): number {
   const ray = rayThrough(projection.asArray(), point);

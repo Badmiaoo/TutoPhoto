@@ -4,13 +4,14 @@
 // du module (triangles semblables), et les deux cas de la routine.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { OBJECT_CM, PRESETS, WALL_GAP_CM, WALL_HALF_CM, litFraction, penumbraReading, shadow } from "../src/activities/lum02Model";
+import { OBJECT_CM, PRESETS, WALL_GAP_CM, WALL_HALF_CM, litFraction, penumbraReading, rayOnWall, shadow } from "../src/activities/lum02Model";
 import { assertClose } from "./approx";
 
-test("dimensions de l'activité : objet de 30 cm, mur à 50 cm derrière, mur dessiné de −100 à +100 cm", () => {
+test("dimensions de l'activité : objet de 30 cm, mur à 50 cm derrière, mur dessiné de −100 à +100 cm ; trois exemples", () => {
   assert.equal(OBJECT_CM, 30);
   assert.equal(WALL_GAP_CM, 50);
   assert.equal(WALL_HALF_CM, 100);
+  assert.deepEqual(PRESETS, { lamp: { size: 3, distance: 100 }, window: { size: 120, distance: 200 }, reflector: { size: 80, distance: 80 } });
 });
 
 test("exemple « Grande fenêtre » de la routine : 120 cm à 200 cm, pénombre de 120 × 50 / 200 = 30 cm", () => {
@@ -35,6 +36,11 @@ test("cas de la routine : source de 150 cm à 20 cm, pas d'ombre pleine, pénomb
   assertClose(reading.cm, 480, 1e-12, "pénombre");
   assert.equal(reading.wholeShadow, true);
   assert.equal(reading.beyondWall, true);
+  // Bord extérieur à 100 cm exactement, au bord du mur dessiné ((30 × 70 + 38 × 50) / 40 = 100) : pas au-delà ; à
+  // 101,25 cm (39 cm de source), au-delà (relecture de la version 0.3.87, C6). Deux réglages permis par les curseurs.
+  assert.equal(shadow(38, 20).outerCm, 100);
+  assert.equal(penumbraReading(38, 20).beyondWall, false);
+  assert.equal(penumbraReading(39, 20).beyondWall, true);
 });
 
 test("ombre pleine : nulle dès que la source, vue du mur, déborde l'objet ; pénombre de D × d₂ / d₁ sinon", () => {
@@ -53,6 +59,20 @@ test("ombre pleine : nulle dès que la source, vue du mur, déborde l'objet ; p�
   }
   // Lampe de 3 cm à 100 cm : pénombre de 1,5 cm, ombre pleine de 30 × 150 / 100 − 1,5 = 43,5 cm.
   assertClose(shadow(PRESETS.lamp.size, PRESETS.lamp.distance).umbraCm, 43.5, 1e-12, "lampe");
+});
+
+test("rayons dessinés : ceux qui rasent l'objet bordent l'ombre pleine et la pénombre calculées", () => {
+  // Rayon du haut de la source qui rase le bas de l'objet : bord extérieur de la pénombre, en bas ; rayon du bas de la
+  // source qui rase le bas de l'objet : bord de l'ombre pleine, en bas (relecture de la version 0.3.87, C8).
+  for (const [d, d1] of [[120, 200], [3, 100], [80, 80], [10, 40]] as const) {
+    const r = shadow(d, d1);
+    const what = `${d} cm à ${d1} cm`;
+    assertClose(rayOnWall(d / 2, -OBJECT_CM / 2, d1), -r.outerCm, 1e-12, `${what}, bord extérieur`);
+    assertClose(rayOnWall(-d / 2, OBJECT_CM / 2, d1), r.outerCm, 1e-12, `${what}, bord extérieur, en haut`);
+    if (r.umbraCm > 0) assertClose(rayOnWall(-d / 2, -OBJECT_CM / 2, d1), -r.umbraCm / 2, 1e-12, `${what}, ombre pleine`);
+  }
+  // Grande fenêtre : 60 + (−15 − 60) × 250 / 200 = −33,75 cm.
+  assertClose(rayOnWall(60, -15, 200), -33.75, 1e-12, "grande fenêtre");
 });
 
 test("éclairement du mur : 0 dans l'ombre pleine, 1 hors de l'ombre, entre les deux dans la pénombre", () => {

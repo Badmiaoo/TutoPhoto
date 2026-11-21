@@ -28,6 +28,15 @@ export const PRESETS = {
 } as const;
 export type Preset = keyof typeof PRESETS;
 
+/**
+ * Hauteur, en cm depuis l'axe, où frappe le mur le rayon qui part du point s de la source et rase le bord o de
+ * l'objet, pour une source à la distance d1 (cm) de l'objet : s + (o − s) × (d₁ + d₂) / d₁. Rayons dessinés par la page.
+ */
+export function rayOnWall(s: number, o: number, d1: number): number {
+  const L = d1 + WALL_GAP_CM;
+  return s + ((o - s) * L) / d1;
+}
+
 /** Grandeurs de l'ombre pour une source de taille d (cm) à la distance d1 (cm) de l'objet. */
 export function shadow(d: number, d1: number): { angleDeg: number; penumbraCm: number; umbraCm: number; outerCm: number } {
   const L = d1 + WALL_GAP_CM;

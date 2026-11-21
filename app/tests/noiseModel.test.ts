@@ -148,13 +148,27 @@ test("grille des tirages du viseur : par pixel calculé, sauf à densité supér
   assert.deepEqual(loupe, { imagePixels: z6.effectivePixels, cellScale: 0.5 });
   // Seuil : un photosite de rouge exactement (k × ¼ = 1) reste par pixel calculé.
   assert.deepEqual(viewfinderNoiseGrid(z6, z6.effectivePixels / 4, 0.5), { imagePixels: z6.effectivePixels / 4, cellScale: 1 });
+  // Entre les deux (relecture de la version 0.3.87, C4) : k = 3, soit 0,75 photosite de rouge et 1,5 de vert par pixel
+  // calculé ; le seuil porte sur le rouge, le moins nombreux : par pixel CSS.
+  assert.deepEqual(viewfinderNoiseGrid(z6, z6.effectivePixels / 3, 0.5), { imagePixels: (z6.effectivePixels / 3) * 0.25, cellScale: 0.5 });
 });
 
 test("la loi en GLSL est écrite comme celle en TypeScript, et ses uniformes sont déclarés", () => {
-  // Texte seulement : un changement de l'une sans l'autre fait échouer ce test ou ceux de noiseSigma.
+  // Texte seulement : le GLSL ne s'exécute pas ici. Ce test arrête un changement de la forme de la loi, de ses
+  // constantes ou de la façon d'ajouter le tirage ; la loi en TypeScript a ses tests chiffrés ; une faute du GLSL qui
+  // garderait ce texte n'est vue que par la routine (relecture de la version 0.3.87, C5).
   assert.ok(NOISE_GLSL.includes("vec3 electrons = max(v, 0.0) * noiseSaturation;"));
   assert.ok(NOISE_GLSL.includes("vec3 sigma = sqrt(electrons + noiseRead2) / (noiseSaturation * sqrt(noisePhotosites));"));
+  assert.ok(NOISE_GLSL.includes("return v + gaussianAt(pixel) * sigma;"));
   assert.ok(NOISE_GLSL.includes(`/ ${NOISE_TILE.toFixed(1)}).rgb`));
+  // Deux tirages, le second lu sur une grille tournée de 37° (cos et sin de 37° à 1e-8 près), sommés et divisés par √2.
+  assert.ok(NOISE_GLSL.includes("vec2 rotated = vec2(c * pixel.x - s * pixel.y, s * pixel.x + c * pixel.y);"));
+  const c = Number(/const float c = ([\d.]+);/.exec(NOISE_GLSL)?.[1]);
+  const s = Number(/const float s = ([\d.]+);/.exec(NOISE_GLSL)?.[1]);
+  assertClose(c, Math.cos((37 * Math.PI) / 180), 1e-8, "cosinus de 37°");
+  assertClose(s, Math.sin((37 * Math.PI) / 180), 1e-8, "sinus de 37°");
+  const half = Number(/return \(a \+ b\) \* ([\d.]+);/.exec(NOISE_GLSL)?.[1]);
+  assertClose(half, Math.SQRT1_2, 1e-8, "1 / √2");
   for (const name of NOISE_UNIFORMS) assert.match(NOISE_GLSL, new RegExp(`uniform \\w+ ${name};`), name);
   const declared = [...NOISE_GLSL.matchAll(/uniform (\w+) (\w+);/g)].filter(([, type]) => type !== "sampler2D").map(([, , name]) => name);
   assert.deepEqual(declared, NOISE_UNIFORMS);

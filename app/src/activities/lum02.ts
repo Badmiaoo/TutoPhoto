@@ -23,7 +23,7 @@
 
 import "./lum02.css";
 import { frenchSpaces } from "../frenchSpaces";
-import { OBJECT_CM, PRESETS, WALL_GAP_CM, litFraction, penumbraReading, shadow, type Preset } from "./lum02Model";
+import { OBJECT_CM, PRESETS, WALL_GAP_CM, WALL_HALF_CM, litFraction, penumbraReading, rayOnWall, shadow, type Preset } from "./lum02Model";
 
 const WALL_SAMPLES = 160;
 const NS = "http://www.w3.org/2000/svg";
@@ -100,14 +100,13 @@ function draw(): void {
   // Rayons qui rasent les bords de l'objet, depuis le haut et le bas de la source.
   for (const s of [-d / 2, d / 2]) {
     for (const o of [-OBJECT_CM / 2, OBJECT_CM / 2]) {
-      const yWall = s + ((o - s) * L) / d1;
-      items.push(svgNode("line", { x1: 0, y1: -s, x2: L, y2: -yWall, class: "act-ray" }));
+      items.push(svgNode("line", { x1: 0, y1: -s, x2: L, y2: -rayOnWall(s, o, d1), class: "act-ray" }));
     }
   }
-  // Éclairement du mur, point par point.
-  const step = 200 / WALL_SAMPLES;
+  // Éclairement du mur dessiné, de −WALL_HALF_CM à +WALL_HALF_CM, point par point.
+  const step = (2 * WALL_HALF_CM) / WALL_SAMPLES;
   for (let i = 0; i < WALL_SAMPLES; i++) {
-    const y = -100 + (i + 0.5) * step;
+    const y = -WALL_HALF_CM + (i + 0.5) * step;
     const lit = litFraction(y, d, d1);
     items.push(svgNode("rect", { x: L, y: -y - step / 2, width: 14, height: step + 0.2, fill: `rgb(${Math.round(40 + 215 * lit)} ${Math.round(40 + 205 * lit)} ${Math.round(40 + 160 * lit)})` }));
   }

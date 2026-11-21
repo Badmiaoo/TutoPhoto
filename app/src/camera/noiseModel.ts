@@ -2,8 +2,9 @@
 // bruit de lecture, paramètres du bruit d'une image, grille des tirages du viseur, écart type et rapport signal sur
 // bruit, seuils de l'indicateur d'équilibre. La même loi est écrite deux fois, côte à côte dans ce fichier : en
 // TypeScript (noiseSigma), pour l'indicateur d'équilibre (ui/balance.ts), et en GLSL (NOISE_GLSL), pour le viseur
-// (camera/noise.ts) et la photo (camera/photo.ts). Les tests rapides vérifient la première (app/tests/noiseModel.test.ts) ;
-// la seconde n'est vérifiée que par la routine de test (scripts/test_app.cjs).
+// (camera/noise.ts) et la photo (camera/photo.ts). Les tests rapides vérifient la première sur des valeurs
+// (app/tests/noiseModel.test.ts), et de la seconde seulement le texte de ses lignes ; à l'exécution, la routine de
+// test (scripts/test_app.cjs) ne vérifie le bruit qu'en gros (visible à ISO 6400, absent quand l'aperçu est coupé).
 //
 // Bruit numérique physique (docs/camera-physique.md ; décisions du 9 novembre 2026 : bruit coloré selon la matrice de
 // Bayer, bruit brut sans réduction, dans le viseur et sur la photo).
@@ -14,7 +15,9 @@
 // - écart type : √(n + σ_r²), σ_r le bruit de lecture mesuré à cet ISO (interpolé en log-log).
 // Un pixel de l'image regroupe k photosites ; pour chaque canal, seule une part capte sa couleur :
 // la moitié pour le vert, un quart pour le rouge et pour le bleu (matrice de Bayer, deux fois plus de
-// verts que de rouges ou de bleus [wikipedia-bayer-filter]). Écart type relatif à la saturation, par canal :
+// verts que de rouges ou de bleus [wikipedia-bayer-filter]
+// https://en.wikipedia.org/w/index.php?title=Bayer_filter&oldid=1384004962 ). Écart type relatif à la saturation, par
+// canal :
 // σ = √(n + σ_r²) / (e_sat × √(k × part)).
 // Vue à 100 % ou presque (loupe) : moins d'un photosite de la couleur par pixel. Le dématriçage interpole
 // les couleurs manquantes, d'une manière propre à chaque boîtier et non documentée dans les sources lues ;
