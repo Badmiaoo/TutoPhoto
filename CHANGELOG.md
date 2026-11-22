@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.89] - 2026-11-22
+
+Sujet 29 du plan de corrections de l'audit (`docs/audit/README.md`) : la carte de l'application dans `docs/architecture.md` (constat ARC-09 de `docs/audit/architecture-application.md`, et DOC-07 de `docs/audit/documentation.md` pour la promesse de réécriture de la même page). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. En cours.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.88 relue (fusion, tag posé sur le commit de fusion de la pull request 95, release, publication, CI du dernier commit), lignée des sessions (profondeur 6 sur 8, effort « max ») ; Sujet 29 en cours ; dans « Leçons pratiques », deux redémarrages du conteneur de la session du Sujet 28, d'après cette session et l'heure de démarrage de sa machine (`uptime -s`) : le 22 novembre 2026 à 3 h 20 min 23 s UTC, à la seconde de sa relance horaire (3 h 20 min 23 s), le neuvième relevé à la minute d'une relance ; à 3 h 35 min 36 s UTC, une seconde avant l'heure de mise en file, par l'horloge du serveur, de la notification de GitHub de la fin de la routine (3 h 35 min 37 s), le deuxième relevé à l'arrivée d'une telle notification. Chaque fois, la session attendait la routine de son dernier commit, sans rien faire tourner ; le dépôt et le bloc-notes ont survécu ; l'outil qui décrit la session donnait ensuite `worker_epoch` 2, puis 3 ; les outils GitHub se sont déconnectés à chaque redémarrage et se sont rechargés par ToolSearch. Avant, aucun redémarrage de la création de la session, à 0 h 19 min 24 s UTC, jusqu'à 2 h 48 UTC au moins (`uptime -s` relu à 2 h 48). La cause n'est pas établie.
+
 ## [0.3.88] - 2026-11-22
 
 Sujet 28 du plan de corrections de l'audit (`docs/audit/README.md`) : affichage de diagnostic et capacités de l'appareil (constats ARC-06 et ARC-13 de `docs/audit/architecture-application.md`). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le plan demande le message des capacités « dans les deux langues » : le français seul, depuis le retrait de l'anglais. Un repli pour les appareils sans rendu en flottants attend D24 : sans réponse, le message et le déclenchement refusé seulement. Choix de Claude : `docs/propositions.md`, section 5, « Affichage de diagnostic et capacités de l'appareil », dix choix.
@@ -2002,6 +2010,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.89]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.88...v0.3.89
 [0.3.88]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.87...v0.3.88
 [0.3.87]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.86...v0.3.87
 [0.3.86]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.85...v0.3.86
