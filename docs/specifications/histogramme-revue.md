@@ -67,7 +67,7 @@ En français et en anglais, au format de `docs/contenus.md`.
 
 ## 9. Sources à ajouter à `data/sources.yaml`
 
-Pages « Photo Information » du Z 6 (anglais et français), « Switching the screen display » et « List of icons on the monitor » de l'A7 III, « g6: Highlight Display » du Z 6 ; `used_in` exact.
+Pages « Photo Information » du Z 6 (anglais et français), « Switching the screen display » et « List of icons on the monitor » de l'A7 III, « g6: Highlight Display » du Z 6. Où chaque source est citée : `python3 scripts/validate.py --citations`, depuis le retrait du champ `used_in` qu'écrivait cette section (version 0.4.2).
 
 ## 10. Documentation
 
