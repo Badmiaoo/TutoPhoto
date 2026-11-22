@@ -13,7 +13,7 @@ notions:
       simulator: "Zone nette visualisée en vue de dessus et sur l'image"
       exercise: "Flouter le fond sans changer d'ouverture"
     situations: [SIT-01, SIT-05, SIT-11, SIT-26]
-    sources: [pl-lens-compression]
+    sources: [pl-lens-compression, wikipedia-circle-of-confusion]
     since: v0.1
   - id: NET-02
     title: "Netteté perçue"
@@ -65,7 +65,7 @@ notions:
       simulator: "Sujet et appareil déplaçables"
       exercise: "Placer un portrait pour flouter le fond à f/4"
     situations: [SIT-01, SIT-V2-02]
-    sources: [wikipedia-circle-of-confusion]
+    sources: [wikipedia-circle-of-confusion, nikon-z6-sub-selector, nikon-z6-sub-selector-fr]
     since: v0.1
   - id: NET-07
     title: "Pourquoi c'est flou"

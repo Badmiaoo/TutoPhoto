@@ -78,7 +78,7 @@ notions:
     title: "Traînées lumineuses et light painting"
     level: N2
     spec:
-      explanation: "Choisir la durée selon le trafic et les lumières ; dessiner avec une lampe tournée vers l'appareil (light painting). ; éclairer la scène à la lampe pendant la pose"
+      explanation: "Choisir la durée selon le trafic et les lumières ; dessiner avec une lampe tournée vers l'appareil (light painting) ; éclairer la scène à la lampe pendant la pose"
       simulator: "Séquence de nuit accumulée, sans trou entre les images ; tracé lumineux dessiné pendant la pose"
       exercise: "Traînées continues sans brûler les lampadaires"
     situations: [SIT-17]

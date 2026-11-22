@@ -20,10 +20,11 @@ notions:
     title: "Mise au point manuelle et aides"
     level: N1
     spec:
-      explanation: "Quand passer en manuel ; loupe, surlignage de netteté, échelle des distances"
-      simulator: "Loupe et surlignage calculés sur l'image simulée"
+      explanation: "Quand passer en manuel ; loupe, mise en relief de la mise au point (focus peaking), échelle des distances"
+      simulator: "Loupe et mise en relief calculées sur l'image simulée"
       exercise: "Faire le point à la loupe sur une étoile"
     situations: [SIT-20, SIT-21, SIT-22]
+    sources: [nikon-z6-d10-fr, nikon-z6-d10]
     since: v0.1
   - id: MAP-03
     title: "Comment l'AF voit"
@@ -40,11 +41,11 @@ notions:
     title: "AF ponctuel ou continu"
     level: N1
     spec:
-      explanation: "Verrouiller une distance ou la suivre ; le mode automatique et ses hésitations"
+      explanation: "Verrouiller une distance ou la suivre ; le mode automatique de certains boîtiers, qui passe de l'un à l'autre selon le mouvement du sujet"
       simulator: "Sujet qui approche : en ponctuel la netteté décroche, en continu elle suit"
       exercise: "Rafale nette sur un chien qui court vers soi"
     situations: [SIT-01, SIT-06, SIT-08, SIT-38, SIT-39]
-    sources: [canon-r5-af-operation, canon-80d-manualslib, nikon-zr-focus, nikon-z6-focus, sony-a9-focus-mode, sony-a7riv-automatic-af, fujifilm-gfx100-af]
+    sources: [canon-r5-af-operation, canon-80d-manualslib, nikon-zr-focus, nikon-z6-focus, sony-a9-focus-mode, sony-a7riv-automatic-af, fujifilm-gfx100-af, nikon-z6-defaults, nikon-z6-focus-fr, sony-a6000-focus-mode-fr, canon-eos-r50-af-operation-fr]
     terms:
       - brand: nikon
         body: "Nikon Z 6"
@@ -67,7 +68,7 @@ notions:
       simulator: "Zones superposées dans le viseur, comportement de chaque mode"
       exercise: "Choisir le mode adapté à quatre scènes"
     situations: [SIT-05, SIT-06, SIT-08, SIT-38]
-    sources: [canon-r5ii-af-area, nikon-zr-focus, nikon-z6-focus, nikon-z6-focus-fr, sony-a7iv-focus-area, fujifilm-gfx100-af]
+    sources: [canon-r5ii-af-area, nikon-zr-focus, nikon-z6-focus, nikon-z6-focus-fr, sony-a7iv-focus-area, fujifilm-gfx100-af, sony-a6000-focus-area-fr, canon-eos-r50-af-area-fr]
     terms:
       - brand: nikon
         body: "Nikon Z 6"
@@ -90,7 +91,7 @@ notions:
       simulator: "Grille de collimateurs ; la netteté suit la profondeur sous le point choisi"
       exercise: "Point sur l'œil le plus proche à f/1.8, sujet décentré"
     situations: [SIT-01, SIT-04, SIT-06]
-    sources: [nikon-z6-launch-2018, nikon-z6-eisa-2019, nikon-z6-product, nikon-z6-focus, canon-eos-r50-specifications-fr, sony-ilce-6000-af]
+    sources: [nikon-z6-launch-2018, nikon-z6-eisa-2019, nikon-z6-product, nikon-z6-focus, canon-eos-r50-specifications-fr, sony-ilce-6000-af, nikon-z6-sub-selector, nikon-z6-sub-selector-fr, nikon-z6-defaults, nikon-z6-focus-fr, canon-eos-r50-af-operation-fr, sony-a6000-focus-area-fr, sony-a6000-help-guide-fr, canon-eos-r50-af-area-fr]
     terms:
       - brand: nikon
         body: "Nikon Z 6"
@@ -133,7 +134,7 @@ notions:
       simulator: "Détection simulée à partir des visages et des yeux annotés"
       exercise: "Photo de groupe : choisir le bon visage"
     situations: [SIT-01, SIT-05, SIT-06, SIT-08, SIT-34, SIT-37, SIT-39]
-    sources: [nikon-z6-focus, nikon-z6-a4, nikon-z6-a4-fr, nikon-p1100-af-area]
+    sources: [nikon-z6-focus, nikon-z6-a4, nikon-z6-a4-fr, nikon-p1100-af-area, sony-a6000-face-detection-fr, sony-a6000-eye-af-fr, canon-eos-r50-af-area-fr]
     terms:
       - brand: nikon
         body: "Nikon Z 6"
@@ -167,13 +168,14 @@ notions:
     situations: [SIT-06, SIT-15]
     since: v0.1
   - id: MAP-12
-    title: "Priorité au déclenchement ou à la netteté"
+    title: "Priorité au déclenchement ou à la mise au point"
     level: N2
     spec:
       explanation: "Déclencher même flou, ou attendre la netteté"
       simulator: "Taux de photos nettes et moments ratés selon le réglage"
       exercise: "Choisir pour un mariage, puis pour un oiseau en vol"
     situations: [SIT-08, SIT-25, SIT-37]
+    sources: [nikon-z6-a1-fr, nikon-z6-a2-fr]
     since: v0.1
   - id: MAP-14
     title: "Distance minimale et limiteur"
@@ -201,20 +203,22 @@ notions:
     title: "Mise au point par zone"
     level: N2
     spec:
-      explanation: "Prérégler distance et ouverture pour une plage nette sans AF"
+      explanation: "Prérégler distance et ouverture pour une plage nette sans AF ; sans rapport avec les modes de zone AF (MAP-05)"
       simulator: "Plage nette affichée sur la scène de rue"
       exercise: "Régler une zone nette de 2 à 5 m"
     situations: [SIT-15]
+    todo:
+      - "Sourcer le nom de la technique à la rédaction de la fiche : ni « mise au point par zone » ni « zone focusing » ne sont dans les manuels lus par l'audit (Nikon Z 7/Z 6, Canon EOS R5, Sony ILCE-7M3), où « zone » désigne les modes de zone AF (constat REF-03, 14 novembre 2026)."
     since: v0.1
   - id: MAP-17
-    title: "Réglage fin de l'AF"
+    title: "Réglage précis de l'AF"
     level: N3
     spec:
       explanation: "Surtout sur reflex, et sur certains hybrides : corriger un objectif qui fait le point devant ou derrière"
       simulator: "Objectif décalé à diagnostiquer sur une mire"
       exercise: "Diagnostiquer et corriger un décalage"
     situations: [SIT-01]
-    sources: [nikon-zr-af-finetune]
+    sources: [nikon-zr-af-finetune, nikon-z6-af-fine-tune-fr]
     since: v0.1
   - id: MAP-18
     title: "Bracketing de mise au point"

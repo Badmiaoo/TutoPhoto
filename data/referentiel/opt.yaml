@@ -112,14 +112,15 @@ notions:
     title: "Filtres"
     level: N2
     spec:
-      explanation: "À quoi sert chaque filtre ; le polarisant assombrit le ciel selon l'angle au soleil (au plus à 90°) et coupe les reflets selon l'angle de vue sur la surface (au plus vers 53 à 56°, sans effet de face)"
+      explanation: "À quoi sert chaque filtre ; le polarisant assombrit le ciel selon l'angle au soleil (au plus à 90°) et coupe les reflets d'une vitre ou de l'eau, au plus quand on les regarde à environ 35° au-dessus de la surface (53 à 56° depuis la perpendiculaire), sans effet de face"
       simulator: "ND et dégradés calculés ; méthode de rendu du polarisant à définir"
       exercise: "Enlever le reflet d'une vitrine ; équilibrer ciel et sol"
     situations: [SIT-10, SIT-12, SIT-26, SIT-29]
     notes:
-      - "Angle de Brewster = arctan(n) : verre n ≈ 1,5 donne 56,3° ; eau n ≈ 1,33 donne 53,1° (calcul refait le 7 novembre 2026)."
+      - "Angle de Brewster = arctan(n), compté depuis la perpendiculaire à la surface : verre n ≈ 1,5 donne 56,3° ; eau n ≈ 1,33 donne 53,1° (calcul refait le 7 novembre 2026). Depuis la surface : 90 − 56,3 = 33,7° pour le verre et 90 − 53,1 = 36,9° pour l'eau, d'où « environ 35° », dans la plage « about 30 to 40° » de wikipedia-polarizing-filter (calcul refait le 22 novembre 2026)."
     todo:
-      - "Ajouter une source pour la polarisation du ciel, maximale à 90° du soleil."
+      - "Doubler par une source primaire la polarisation du ciel, maximale à 90° du soleil, et l'angle des reflets : la seule source est une révision de Wikipedia, source secondaire."
+    sources: [wikipedia-polarizing-filter]
     since: v0.1
   - id: OPT-13
     title: "Bascule et décentrement"

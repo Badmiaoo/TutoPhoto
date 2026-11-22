@@ -53,7 +53,7 @@ notions:
       simulator: "Rideau animé, durée visualisée"
       exercise: "Compenser le passage de f/4 à f/8 par la vitesse"
     situations: [SIT-17]
-    sources: [wikipedia-shutter-speed]
+    sources: [wikipedia-shutter-speed, nikon-z6-mode-dial-fr]
     since: v0.1
   - id: EXP-06
     title: "ISO"
@@ -63,7 +63,7 @@ notions:
       simulator: "Même lumière captée, ISO variable : la luminosité change, le rapport signal/bruit presque pas (selon le profil d'appareil)"
       exercise: "ISO le plus bas utilisable à vitesse et ouverture imposées"
     situations: [SIT-07, SIT-19]
-    sources: [dpreview-iso-invariance, pl-iso-invariance, canon-5ds-iso, nikon-z6-iso-button, wikipedia-film-speed]
+    sources: [dpreview-iso-invariance, pl-iso-invariance, canon-5ds-iso, nikon-z6-iso-button, wikipedia-film-speed, nikon-z6-iso-button-fr]
     since: v0.1
   - id: EXP-07
     title: "Expositions équivalentes"

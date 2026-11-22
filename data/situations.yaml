@@ -355,6 +355,7 @@ situations:
     where_when: "Studio"
     intention: "Modeler un visage"
     key_notions: [LUM-15, LUM-02]
+    flash: required
     since: v0.1
   - id: SIT-V2-02
     title: "Portrait : choisir sa distance"
@@ -379,6 +380,7 @@ situations:
     where_when: "Studio"
     intention: "Volume et texture"
     key_notions: [LUM-15, LUM-03]
+    flash: required
     since: v0.1
   - id: SIT-V2-05
     title: "Flash indirect en intérieur"
@@ -387,6 +389,7 @@ situations:
     where_when: "Intérieur"
     intention: "Lumière douce au flash"
     key_notions: [LUM-14, LUM-09]
+    flash: required
     since: v0.1
   - id: SIT-V2-06
     title: "Plongée et contre-plongée"

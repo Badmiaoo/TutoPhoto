@@ -1122,7 +1122,7 @@ sources:
     used_in: [docs/camera-physique.md]
   - id: sony-a6000-help-guide-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, accueil (4-534-933-21(1)) : ses deux sommaires (contentslist01 et contentslist02) listent 247 et 59 pages, 306 en tout ; « collimateur » n'est dans aucune, « cadre du télémètre » dans quatre (relevé le 20 novembre 2026)"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, accueil (4-534-933-21(1)) : ses deux sommaires (contentslist01 et contentslist02) listent 247 et 59 pages, 306 en tout ; « collimateur » n'est dans aucune, « cadre du télémètre » dans quatre (relevé le 20 novembre 2026) ; aucune ne porte sur des zébrures (relevé le 22 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/index.html"
     used_in: [content/notions/MAP-06.md]
   - id: bcn-2020-reflex
@@ -1140,3 +1140,47 @@ sources:
     label: "Digital Camera World, « This Canon DSLR dominates Amazon US and UK best-seller lists » (titre lu dans l'adresse ; janvier 2026 d'après l'extrait) : le Canon EOS 2000D (Rebel T7) en tête des ventes de reflex d'Amazon aux États-Unis et au Royaume-Uni ; un rang chez un seul détaillant, sans chiffre (extrait de recherche du 20 novembre 2026, page non ouverte : hôte refusé par l'environnement de Claude)"
     url: "https://www.digitalcameraworld.com/cameras/dslr-cameras/this-canon-dslr-dominates-amazon-us-and-uk-best-seller-lists-with-multiple-kit-options-and-new-bodies-available-from-usd529-or-gbp285-50"
     used_in: [docs/propositions.md]
+  - id: nikon-z6-metering-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Menu i du mode photo, section « Mesure » : « La « mesure » permet d'indiquer la manière avec laquelle l'appareil photo règle l'exposition. » ; options « Mesure matricielle », « Mesure pondérée centrale », « Mesure spot » et « Mesure pondérée hautes lumières » (apostrophes typographiques dans la page ; lu le 22 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/07_the_i_button_02.html"
+  - id: nikon-z6-d10
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6, d10: Peaking Highlights : « When focus peaking is enabled in manual focus mode, objects that are in focus are indicated by colored outlines in the display. » (lu le 22 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d10.html"
+  - id: nikon-z6-d10-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, d10 : Mise en relief : « Lorsque la mise en relief de la mise au point est activée en mode de mise au point manuelle, les contours des objets nets sont colorés. » (lu le 22 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_d10.html"
+  - id: nikon-z6-a1-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, a1 : Priorité en mode AF-C : option « Déclenchement », « Vous pouvez prendre des photos à chaque sollicitation du déclencheur (priorité au déclenchement). » ; option « Mise au point », « Vous pouvez prendre des photos uniquement lorsque l'appareil photo a effectué la mise au point (priorité à la mise au point). » (apostrophes typographiques dans la page ; lu le 22 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_a01.html"
+  - id: nikon-z6-a2-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, a2 : Priorité en mode AF-S : mêmes options et mêmes phrases qu'en a1, « Déclenchement » (« priorité au déclenchement ») et « Mise au point » (« priorité à la mise au point »), pour le mode AF-S (lu le 22 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_a02.html"
+  - id: nikon-z6-af-fine-tune-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, menu Configuration, Réglage précis de l'AF : « Vous pouvez affiner le réglage de la mise au point pour 30 types d'objectifs. » ; une valeur « comprise entre –20 et +20 » par type d'objectif (apostrophes typographiques dans la page ; lu le 22 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_06_13.html"
+  - id: nikon-z6-multiple-exposure-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, menu Prise de vue photo, Surimpression : « Enregistrez deux à dix vues NEF (RAW) sur une seule photo. » ; modes de superposition « Ajouter », « Moyenne », « Lumières » et « Assombrir » (lu le 22 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_03_28.html"
+  - id: sony-a6000-metering-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Mode de mesure : « Multi » (réglage par défaut, « mesure Multi »), « Centre » (« mesure Pondération centrale ») et « Spot » (« mesure Spot ») (lu le 22 novembre 2026)"
+    url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000227050.html"
+  - id: canon-eos-r50-metering-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, manuel de l'EOS R50 en français, Mode de mesure : « Mesure évaluative », « Mesure sélective », « Mesure spot » et « Moy. à préd. centrale » ; « En principe, la mesure évaluative est conseillée. » (lu le 22 novembre 2026)"
+    url: "https://cam.start.canon/fr/C011/manual/html/UG-05_Shooting-1_0150.html"
+  - id: canon-eos-r50-zebra-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, manuel de l'EOS R50 en français, Réglages des zébrures, dans la partie « Enregistrement vidéo » du sommaire : « Pour vous aider à ajuster l'exposition avant ou pendant l'enregistrement vidéo, vous pouvez afficher un motif rayé sur ou autour des zones d'image de la luminosité spécifiée. » (lu le 22 novembre 2026)"
+    url: "https://cam.start.canon/fr/C011/manual/html/UG-05_Shooting-2_0140.html"
+  - id: wikipedia-polarizing-filter
+    group: "Physique, rendu et technique"
+    label: "Wikipedia, Polarizing filter (photography), révision 1382680188 du 29 octobre 2026, la révision du jour (source secondaire, lue le 22 novembre 2026) : « this effect is maximum at Brewster's angle, about 56° from the vertical for common glass » ; « In practice, reflections from non-metallic surfaces are strongly polarized when they leave the surface at an angle of about 30 to 40°. » ; « a picture taken in a direction at 90 degrees from the sun can take advantage of this polarization ». Pour ces deux dernières phrases, la page cite un article de Canon Academy, non lu."
+    url: "https://en.wikipedia.org/w/index.php?title=Polarizing_filter_(photography)&oldid=1382680188"

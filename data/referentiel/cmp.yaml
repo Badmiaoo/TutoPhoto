@@ -21,6 +21,7 @@ notions:
       simulator: "Grilles superposables"
       exercise: "Comparer deux placements et justifier"
     situations: [SIT-01, SIT-16]
+    sources: [nikon-z6-d9-fr, nikon-z6-d9, nikon-z6-defaults, sony-a7iii-grid-line-fr, sony-a7iii-grid-line, sony-a6000-grid-line, wikipedia-rule-of-thirds, canon-850d-grid-display, nikon-d5600-digitutor-framing-grid, canon-r6-shooting-info-display]
     since: v0.1
   - id: CMP-03
     title: "Lignes"
