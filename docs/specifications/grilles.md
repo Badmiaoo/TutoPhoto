@@ -62,7 +62,7 @@ En français et en anglais, au format de `docs/contenus.md` : Explication, Simul
 
 ## 7. Sources à ajouter à `data/sources.yaml`
 
-Page d9 du manuel du Z 6 (anglais), page « Grid Line » du guide de l'A7 III, page « Grid Line » du guide de l'A6000, page Digitutor « Framing Grid (Live View) » du D5600, article « Rule of thirds » de Wikipedia (révision lue). Champ `used_in` : les fichiers où l'adresse apparaît.
+Page d9 du manuel du Z 6 (anglais), page « Grid Line » du guide de l'A7 III, page « Grid Line » du guide de l'A6000, page Digitutor « Framing Grid (Live View) » du D5600, article « Rule of thirds » de Wikipedia (révision lue). Où chaque source est citée : `python3 scripts/validate.py --citations`, depuis le retrait du champ `used_in` qu'écrivait cette section (version 0.4.2).
 
 ## 8. Documentation
 

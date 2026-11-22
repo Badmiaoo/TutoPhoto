@@ -46,7 +46,7 @@ python3 scripts/validate.py
 python3 scripts/coverage.py
 ```
 
-`validate.py` sort en erreur si le référentiel est incohérent ; il tourne aussi sur chaque pull request.
+`validate.py` sort en erreur si le référentiel est incohérent, ou si une adresse d'une fiche, du code ou d'une page de `docs/` manque à `data/sources.yaml` ; il tourne aussi sur chaque pull request.
 
 ## Contribuer
 

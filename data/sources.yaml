@@ -6,13 +6,14 @@
 # référentiel 0.2 (commit 818c9d8, 7 novembre 2026) n'avaient pas de date de lecture ; 39 de celles qui restent n'en
 # ont toujours pas, l'audit n'ayant pas pu les relire (hôte non joignable) : rien ne dit si leur page a été ouverte
 # ce jour-là, ou seulement vue dans un résultat de recherche. Des entrées sans `read` appuient encore la
-# documentation et le code : docs/lire-le-referentiel.md.
+# documentation et le code : docs/lire-le-referentiel.md. Où une source est citée, et la règle d'entrée d'une adresse :
+# docs/lire-le-referentiel.md ; `python3 scripts/validate.py --citations ID` l'écrit (champ `used_in` retiré, version
+# 0.4.2).
 sources:
   - id: levoy-teaching
     group: "Cours et pédagogie"
     label: "Marc Levoy, page d'enseignement, Stanford (mise à jour le 10 septembre 2016)"
     url: "https://graphics.stanford.edu/~levoy/teaching.html"
-    used_in: [docs/lire-le-referentiel.md]
   - id: levoy-assignments
     group: "Cours et pédagogie"
     label: "Marc Levoy, exercices du cours de photographie numérique (version donnée chez Google en 2016)"
@@ -70,13 +71,11 @@ sources:
     label: "DPReview, What is ISO invariance, and should I care? (Richard Butler, publié le 27 juillet 2026, mis à jour le 16 septembre 2026). Texte relevé par Julien le 11 novembre 2026, le site refusant les lectures automatiques : « ISO invariance is an assessment of how much or little improvement in noise you get by increasing gain » ; un cran de gain écrête le cran le plus clair des hautes lumières ; « Setting ISO higher than you need will result in capturing less light than you might others, and this reduction in light leaves the image looking noisier » ; un capteur est ISO invariant quand un cran d'ISO retire un cran de plage dynamique"
     url: "https://www.dpreview.com/articles/iso-invar/"
     read: 2026-11-11
-    used_in: [content/notions/EXP-06.md]
   - id: pl-iso-invariance
     group: "Physique, rendu et technique"
     label: "Photography Life, ISO Invariance Explained (Spencer Cox, mis à jour le 22 août 2022). Texte relevé par Julien le 11 novembre 2026, le site refusant les lectures automatiques : bruit photonique, « Photon noise occurs due to fluctuations in photons from in the scene in front of your camera. It has nothing to do with the camera itself! », égal à la racine carrée du nombre de photons ; bruit de lecture, qui vient de l'appareil ; ISO étendus simulés : « Those ISO values don't provide any image quality benefit, and actually harm your image quality by making it much easier to “clip” detail in the highlights »"
     url: "https://photographylife.com/iso-invariance-explained"
     read: 2026-11-11
-    used_in: [content/notions/EXP-06.md]
   - id: petapixel-perspective
     group: "Physique, rendu et technique"
     label: "PetaPixel, Perspective Distortion, Or: Why Lens Compression Doesn't Exist (23 mai 2018)"
@@ -90,7 +89,6 @@ sources:
     group: "Physique, rendu et technique"
     label: "Petschnigg et al., Digital Photography with Flash and No-Flash Image Pairs (ACM TOG, SIGGRAPH 2004)"
     url: "https://hhoppe.com/proj/flash/"
-    used_in: [docs/historique.md]
   - id: sheng-2023
     group: "Physique, rendu et technique"
     label: "Sheng et al., Dr.Bokeh: Differentiable Occlusion-aware Bokeh Rendering (arXiv, 17 août 2023 ; CVPR 2024)"
@@ -103,7 +101,6 @@ sources:
     group: "Physique, rendu et technique"
     label: "Jiang et al., DEFOM-Stereo, matériel supplémentaire CVPR 2025"
     url: "https://openaccess.thecvf.com/content/CVPR2025/supplemental/Jiang_DEFOM-Stereo_Depth_Foundation_CVPR_2025_supplemental.pdf"
-    used_in: [docs/architecture.md]
   - id: fujifilm-teleconverters
     group: "Physique, rendu et technique"
     label: "Fujifilm X, Getting the most from teleconverters (17 février 2022, mis à jour le 15 avril 2024)"
@@ -126,7 +123,6 @@ sources:
     url: "https://github.com/DepthAnything/Depth-Anything-V2"
     read: 2026-11-14
     note: "Licence Apache-2.0 vérifiée pour le modèle Small seulement ; licence des modèles métriques : je ne sais pas."
-    used_in: [docs/architecture.md]
   - id: suncalc
     group: "Outils"
     label: "SunCalc, dépôt de Volodymyr Agafonkin (licence BSD-2-Clause ; la v2.0 a changé unités et conventions, version à figer)"
@@ -193,7 +189,6 @@ sources:
     label: "Sony α9 (ILCE-9), Focus Mode : AF-S « locks the focus once focusing is complete », AF-C « continues to focus while the shutter button is pressed and held halfway down » (lu le 9 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1650/v1/en/contents/TP0001486782.html"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts, content/notions/MAP-04.md]
   - id: sony-a9-metering
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony α9 (ILCE-9, version 5 ou ultérieure), Metering Mode"
@@ -292,7 +287,6 @@ sources:
     label: "Nikon Z50II, manuel en ligne en français, « Caractéristiques techniques » : « Pixels effectifs 20,9 millions », « Capteur CMOS 23,5 × 15,7 mm (format Nikon DX) » (lu le 22 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z50II/fr/15-08.html"
     read: 2026-11-22
-    used_in: [docs/propositions.md]
   - id: nikon-zf-flicker
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon Z f, Reference Guide, Photo Flicker Reduction"
@@ -358,7 +352,6 @@ sources:
     label: "Wikipedia, Fujifilm X100 : « The Fujifilm X100 is a series of digital compact cameras with a fixed prime lens », série qui comprend le X100T ; encadré : « Large sensor fixed-lens camera », « Fixed lens » (révision 1380553046, source secondaire, lue le 22 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Fujifilm_X100&oldid=1380553046"
     read: 2026-11-22
-    used_in: [docs/architecture.md]
   - id: lingibe-2019
     group: "Droit et réglementation"
     label: "Village de la Justice, Droit à l'image : quelles sont les règles applicables (Patrick Lingibé, 25 février 2019)"
@@ -383,7 +376,6 @@ sources:
     group: "Droit et réglementation"
     label: "Creative Commons, licence CC BY-SA 4.0"
     url: "https://creativecommons.org/licenses/by-sa/4.0/deed.en"
-    used_in: [docs/architecture.md]
   - id: easa-uas-faq
     group: "Droit et réglementation"
     label: "EASA, Regulations on UAS (drone) explained, FAQ (règlements (UE) 2019/947 et 2019/945)"
@@ -393,951 +385,792 @@ sources:
     label: "SPDX License List, texte de la licence MIT (dépôt spdx/license-list-data, commit 3184648 du 29 octobre 2026)"
     url: "https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/MIT.txt"
     read: 2026-11-14
-    used_in: [docs/licences.md]
   - id: spdx-cc-by-sa-4
     group: "Licences"
     label: "SPDX License List, texte de la licence CC BY-SA 4.0 (dépôt spdx/license-list-data, commit 3184648 du 29 octobre 2026)"
     url: "https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/CC-BY-SA-4.0.txt"
     read: 2026-11-14
-    used_in: [docs/licences.md]
   - id: spdx-cc0
     group: "Licences"
     label: "SPDX License List, texte de CC0 1.0 (dépôt spdx/license-list-data, commit 3184648 du 29 octobre 2026)"
     url: "https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/CC0-1.0.txt"
     read: 2026-11-14
-    used_in: [docs/licences.md]
   - id: github-pages-limits
     group: "Outils"
     label: "GitHub Docs, GitHub Pages limits (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
     url: "https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits"
     read: 2026-11-14
-    used_in: [docs/historique.md, docs/publication.md]
   - id: yaml-spec-1-2-2
     group: "Outils"
     label: "YAML Language Development Team, YAML Ain't Markup Language (YAML) version 1.2, révision 1.2.2 (1er octobre 2021), section « Nodes », définition « Mapping » : « The content of a mapping node is an unordered set of key/value node pairs, with the restriction that each of the keys is unique » (source du texte dans le dépôt yaml/yaml-spec, commit 1b1a1be, fichier spec/1.2.2/spec.md, l. 891-892 ; lue le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/yaml/yaml-spec/1b1a1be43bd6e0cfec45caf0e40af3b5d2bb7f8a/spec/1.2.2/spec.md"
     read: 2026-11-21
-    used_in: [scripts/referentiel.py]
   - id: pyyaml-6-0-3-constructor
     group: "Outils"
     label: "PyYAML 6.0.3, lib/yaml/constructor.py, l. 144 : « mapping[key] = value », sans test d'une clé déjà vue (dépôt yaml/pyyaml, étiquette 6.0.3, commit 49790e7 ; identique au fichier du paquet installé ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/yaml/pyyaml/49790e73684bebad1df05ef8d828fa12f685bffb/lib/yaml/constructor.py"
     read: 2026-11-21
-    used_in: [scripts/referentiel.py]
   - id: commonmark-spec-0-31-2
     group: "Outils"
     label: "John MacFarlane, CommonMark Spec, version 0.31.2 (28 janvier 2024), licence CC BY-SA 4.0 : les puces de liste « - », « + » et « * » (l. 4102-4103) ; une liste peut commencer par une puce vide (l. 4689-4697) ; une ligne de séparation est faite de trois « - », « _ » ou « * » au moins (l. 874-877), « +++ » et « === » seuls (l. 890-903), « -- », « ** » et « __ » (l. 906-916) sont des paragraphes ; le soulignement d'un titre est une suite de « = » ou de « - » (l. 1330-1332) ; un titre « ATX » : « The opening sequence of # characters must be followed by spaces or tabs, or by the end of line » et « The opening # character may be preceded by up to three spaces of indentation » (l. 1102-1105) (dépôt commonmark/commonmark-spec, étiquette 0.31.2, commit 9103e34, fichier spec.txt ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/commonmark/commonmark-spec/9103e341a973013013bb1a80e13567007c5cef6f/spec.txt"
     read: 2026-11-21
-    used_in: [app/scripts/build-pages.mjs, docs/contenus.md, scripts/changelog.py]
   - id: ecma-262-2024-blancs
     group: "Outils"
     label: "Ecma International, ECMA-262, ECMAScript 2024 Language Specification, quinzième édition : les blancs (« White Space » : U+0009, U+000B, U+000C, U+FEFF et « any code point in general category “Space_Separator” », l. 16325-16369), les fins de ligne (« Line Terminators » : U+000A, U+000D, U+2028, U+2029, l. 16417-16450), et TrimString, dont se sert String.prototype.trim : « The definition of white space is the union of WhiteSpace and LineTerminator » (l. 35341) (source du texte dans le dépôt tc39/ecma262, étiquette es2024, commit 0b24a04, fichier spec.html ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/tc39/ecma262/0b24a049c11fe0604b1c929772e7cbd671b78492/spec.html"
     read: 2026-11-21
-    used_in: [scripts/referentiel.py]
   - id: git-2-56-1-diff-combine
     group: "Outils"
     label: "Git 2.56.1, Documentation/diff-generate-patch.adoc, format du diff combiné d'un commit de fusion : « There are (number of parents + 1) @ characters in the chunk header for combined diff format » (l. 181-182) ; « A - character in the column N means that the line appears in fileN but it does not appear in the result. A + character in the column N means that the line appears in the result, and fileN does not have that line (in other words, the line was added, from the point of view of that parent) » (l. 193-197) ; « ++ to mean one line that was added does not appear in either file1 or file2 » (l. 201-202) (dépôt git/git, étiquette v2.56.1, commit 03b4152, version de git de la CI le 21 novembre 2026 ; mêmes paragraphes dans la version 2.43.0, celle de la machine de Claude ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/diff-generate-patch.adoc"
     read: 2026-11-21
-    used_in: [scripts/check_public.py, docs/publication.md]
   - id: git-2-56-1-diff-merges
     group: "Outils"
     label: "Git 2.56.1, Documentation/diff-options.adoc, option --diff-merges (l. 65-106) : « combined » montre les différences avec chaque parent à la fois, et « lists only files which were modified from all parents » ; « dense-combined » (--cc) : « Further compress output produced by --diff-merges=combined by omitting uninteresting hunks whose contents in the parents have only two variants and the merge result picks one of them without modification » ; options -S, qui « Look for differences that change the number of occurrences of the specified <string> (i.e. addition/deletion) in a file » (l. 650-652), et -G, qui « Look for differences whose patch text contains added/removed lines that match <regex> » (l. 663-665) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/diff-options.adoc"
     read: 2026-11-21
-    used_in: [scripts/check_public.py, docs/publication.md, scripts/changelog.py]
   - id: git-2-56-1-log-showroot
     group: "Outils"
     label: "Git 2.56.1, Documentation/config/log.adoc, log.showRoot : « If true, the initial commit will be shown as a big creation event. This is equivalent to a diff against an empty tree. […] True by default. » (l. 66-70) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/config/log.adoc"
     read: 2026-11-21
-    used_in: [scripts/check_public.py]
   - id: git-2-56-1-diff-c-tab
     group: "Outils"
     label: "Git 2.56.1, diff.c, fonction emit_diff_symbol_from_struct, cas DIFF_SYMBOL_FILEPAIR_PLUS (l. 1561-1567) : la ligne « +++ » d'un diff finit par une tabulation quand le chemin contient une espace (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026 ; même sortie avec git 2.43.0, essai de Claude)"
     url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/diff.c"
     read: 2026-11-21
-    used_in: [scripts/check_public.py]
   - id: git-2-56-1-attr-source
     group: "Outils"
     label: "Git 2.56.1, Documentation/git.adoc, option --attr-source (l. 230-233) : « Read gitattributes from <tree-ish> instead of the worktree » (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026 ; option essayée avec git 2.43.0 par Claude)"
     url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/git.adoc"
     read: 2026-11-21
-    used_in: [scripts/check_public.py]
   - id: git-2-56-1-diff-format
     group: "Outils"
     label: "Git 2.56.1, Documentation/diff-format.adoc : lettres d'état, dont « A: addition of a file » (l. 55-65) ; « Using -z the filename is output verbatim and the line is terminated by a NUL byte » (l. 81-84) ; pour un commit de fusion avec -c ou --cc, « status is concatenated status characters for each parent » (l. 87-96), et « combined diff lists only files which were modified from all parents » (l. 121-122) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/diff-format.adoc"
     read: 2026-11-21
-    used_in: [scripts/check_public.py]
   - id: git-2-41-0-relnotes
     group: "Outils"
     label: "Git 2.41.0, notes de version, Documentation/RelNotes/2.41.0.txt, l. 116-118 : « git --attr-source=<tree> cmd $args is a new way to have any command to read attributes not from the working tree but from the given tree object » ; l'option n'est pas dans Documentation/git.txt de la version 2.40.0 (dépôt git/git, étiquette v2.41.0, commit fe86abd ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/git/git/fe86abd7511a9a6862d5706c6fa1d9b57a63ba09/Documentation/RelNotes/2.41.0.txt"
     read: 2026-11-21
-    used_in: [scripts/check_public.py]
   - id: git-2-56-1-diffcore-pickaxe
     group: "Outils"
     label: "Git 2.56.1, diffcore-pickaxe.c : pour -G, seules les lignes du diff qui commencent par « + » ou « - » sont lues, et l'expression est appliquée à la ligne sans ce signe (fonction diffgrep_consume, l. 26-41) ; elle est compilée avec REG_EXTENDED | REG_NEWLINE, en expression régulière étendue de POSIX (l. 242-246) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026 ; essayé avec git 2.43.0 par Claude)"
     url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/diffcore-pickaxe.c"
     read: 2026-11-21
-    used_in: [scripts/changelog.py]
   - id: git-2-56-1-rev-parse-verify
     group: "Outils"
     label: "Git 2.56.1, Documentation/git-rev-parse.adoc, option --verify (l. 108-126) : avec l'opérateur ^{commit}, la commande « will make sure $VAR names an existing object that is a commit-ish (i.e. a commit, or an annotated tag that points at a commit) » ; « if you are verifying a name from an untrusted source, it is wise to use --end-of-options so that the name argument is not mistaken for another option » ; exemple git rev-parse --verify --end-of-options $REV^{commit} : « This will error out if $REV is empty or not a valid revision » (l. 498-505) (dépôt git/git, étiquette v2.56.1, commit 03b4152 ; lu le 21 novembre 2026 ; essayé avec git 2.43.0 par Claude)"
     url: "https://raw.githubusercontent.com/git/git/03b41523c576f26ad34085378717a0c1b287470f/Documentation/git-rev-parse.adoc"
     read: 2026-11-21
-    used_in: [scripts/changelog.py]
   - id: threejs-r187
     group: "Outils"
     label: "three.js, dépôt mrdoob/three.js, version r187 (commit 7e89746 du 30 octobre 2026), licence MIT"
     url: "https://github.com/mrdoob/three.js/tree/r187"
     read: 2026-11-14
-    used_in: [docs/pile-technique.md]
   - id: babylonjs-9-35-0
     group: "Outils"
     label: "Babylon.js, dépôt BabylonJS/Babylon.js, version 9.35.0 (commit 00bc37c du 6 novembre 2026), licence Apache-2.0"
     url: "https://github.com/BabylonJS/Babylon.js/tree/9.35.0"
     read: 2026-11-14
-    used_in: [docs/pile-technique.md]
   - id: playcanvas-2-23-3
     group: "Outils"
     label: "PlayCanvas Engine, dépôt playcanvas/engine, version 2.23.3 (commit b7655d8 du 15 octobre 2026), licence MIT"
     url: "https://github.com/playcanvas/engine/tree/v2.23.3"
     read: 2026-11-14
-    used_in: [docs/pile-technique.md]
   - id: three-gpu-pathtracer-0-0-28
     group: "Outils"
     label: "three-gpu-pathtracer, dépôt gkjohnson/three-gpu-pathtracer (Garrett Johnson), version 0.0.28 (commit 80d1888 du 2 novembre 2026), licence MIT"
     url: "https://github.com/gkjohnson/three-gpu-pathtracer/tree/v0.0.28"
     read: 2026-11-14
-    used_in: [docs/pile-technique.md]
   - id: three-mesh-bvh-0-9-18
     group: "Outils"
     label: "three-mesh-bvh, dépôt gkjohnson/three-mesh-bvh (Garrett Johnson), version 0.9.18, licence MIT"
     url: "https://github.com/gkjohnson/three-mesh-bvh/tree/v0.9.18"
     read: 2026-11-14
-    used_in: [docs/pile-technique.md]
   - id: xatlas-web-npm
     group: "Outils"
     label: "xatlas-web, registre npm (licence MIT, dernière modification le 24 mai 2022)"
     url: "https://www.npmjs.com/package/xatlas-web"
     read: 2026-11-14
-    used_in: [docs/pile-technique.md]
   - id: mdn-bcd-8-1-8
     group: "Outils"
     label: "MDN, browser-compat-data, version 8.1.8 (commit 29768a4 du 2 novembre 2026), fichiers api/GPU.json et api/WebGL2RenderingContext.json"
     url: "https://github.com/mdn/browser-compat-data/tree/v8.1.8"
     read: 2026-11-14
-    used_in: [docs/pile-technique.md]
   - id: mdn-bcd-8-1-8-webgl-extensions
     group: "Outils"
     label: "MDN, browser-compat-data, version 8.1.8 (commit 29768a4 du 2 novembre 2026), fichiers api/EXT_color_buffer_float.json, api/EXT_disjoint_timer_query_webgl2.json et api/EXT_disjoint_timer_query.json : EXT_color_buffer_float dans Chrome depuis la version 56, Firefox depuis 51, Safari depuis 15, Chrome Android et Safari iOS comme leur version pour ordinateur (« mirror ») ; EXT_disjoint_timer_query_webgl2 dans Chrome depuis 70 (et de 56 à 61, retirée à 62), pas dans Chrome Android, Firefox ni Safari ; EXT_disjoint_timer_query dans Chrome depuis 70, « Only supported on macOS », retirée de Chrome Android à 65 et de Firefox à 59, « Removed due to the GLitch exploit » (lien retiré de la citation) (lu le 22 novembre 2026)"
     url: "https://github.com/mdn/browser-compat-data/tree/v8.1.8"
     read: 2026-11-22
-    used_in: [docs/pile-technique.md]
   - id: khronos-webgl-ext-color-buffer-float
     group: "Outils"
     label: "Khronos, spécification de l'extension WebGL EXT_color_buffer_float : « The following floating-point internal formats become color-renderable: R16F, RG16F, RGBA16F, R32F, RG32F, RGBA32F and R11F_G11F_B10F. A renderbuffer or a texture with a color-renderable internal format can be used as a rendering target by attaching it to a framebuffer object as a color attachment. » (dépôt KhronosGroup/WebGL, commit 3944321, fichier extensions/EXT_color_buffer_float/extension.xml, dernière révision datée du 19 avril 2017 ; lu le 22 novembre 2026)"
     url: "https://raw.githubusercontent.com/KhronosGroup/WebGL/39443210f7f81db4773eb104facadfb85d05dfa4/extensions/EXT_color_buffer_float/extension.xml"
     read: 2026-11-22
-    used_in: [docs/pile-technique.md]
   - id: khronos-webgl-ext-disjoint-timer-query
     group: "Outils"
     label: "Khronos, spécification de l'extension WebGL EXT_disjoint_timer_query : « This extension provides a query mechanism that can be used to determine the amount of time it takes to fully complete a set of GL commands, and without stalling the rendering pipeline. » ; EXT_disjoint_timer_query_webgl2 « provides the same functionality as EXT_disjoint_timer_query » pour WebGL 2.0 (dépôt KhronosGroup/WebGL, commit 3944321, fichiers extensions/EXT_disjoint_timer_query/extension.xml et extensions/EXT_disjoint_timer_query_webgl2/extension.xml ; lu le 22 novembre 2026)"
     url: "https://raw.githubusercontent.com/KhronosGroup/WebGL/39443210f7f81db4773eb104facadfb85d05dfa4/extensions/EXT_disjoint_timer_query/extension.xml"
     read: 2026-11-22
-    used_in: [docs/pile-technique.md]
   - id: mdn-request-animation-frame
     group: "Outils"
     label: "MDN, « Window: requestAnimationFrame() method » : « The frequency of calls to the callback function will generally match the display refresh rate. The most common refresh rate is 60hz, (60 cycles/frames per second), though 75hz, 120hz, and 144hz are also widely used. » ; « requestAnimationFrame() calls are paused in most browsers when running in background tabs » (dépôt mdn/content, commit df622a2, fichier files/en-us/web/api/window/requestanimationframe/index.md ; lu le 22 novembre 2026)"
     url: "https://raw.githubusercontent.com/mdn/content/df622a2a1c1e9626976cb3c091622d35e799b0cf/files/en-us/web/api/window/requestanimationframe/index.md"
     read: 2026-11-22
-    used_in: [docs/pile-technique.md]
   - id: spdx-apache-2
     group: "Licences"
     label: "SPDX License List, texte de la licence Apache-2.0 (dépôt spdx/license-list-data, commit 3184648 du 29 octobre 2026)"
     url: "https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/Apache-2.0.txt"
     read: 2026-11-14
-    used_in: [docs/pile-technique.md]
   - id: npm-babylonjs-core
     group: "Outils"
     label: "@babylonjs/core, registre npm (version 9.35.0, licence Apache-2.0, lu le 7 novembre 2026)"
     url: "https://www.npmjs.com/package/@babylonjs/core"
     read: 2026-11-14
-    used_in: [docs/pile-technique.md]
   - id: npm-babylonjs-loaders
     group: "Outils"
     label: "@babylonjs/loaders, registre npm (version 9.35.0, celle qu'épingle app/package.json, publiée le 6 novembre 2026, licence Apache-2.0 ; demande que soient installés à côté de lui, dans ses « peerDependencies », @babylonjs/core et babylonjs-gltf2interface ^9.0.0 ; dernière version le 22 novembre 2026 : 9.37.1, du 18 novembre ; lu le 22 novembre 2026)"
     url: "https://www.npmjs.com/package/@babylonjs/loaders"
     read: 2026-11-22
     note: "Lu dans le registre (registry.npmjs.org), la page de www.npmjs.com répondant 403 aux lectures automatiques (22 novembre 2026)."
-    used_in: [docs/pile-technique.md]
   - id: npm-babylonjs-gltf2interface
     group: "Outils"
     label: "babylonjs-gltf2interface, registre npm (version 9.35.0, celle qu'épingle app/package.json, publiée le 6 novembre 2026, licence Apache-2.0 ; « A typescript declaration of babylon's gltf2 interface. » ; dernière version le 22 novembre 2026 : 9.37.1, du 18 novembre ; lu le 22 novembre 2026)"
     url: "https://www.npmjs.com/package/babylonjs-gltf2interface"
     read: 2026-11-22
     note: "Lu dans le registre (registry.npmjs.org), la page de www.npmjs.com répondant 403 aux lectures automatiques (22 novembre 2026)."
-    used_in: [docs/pile-technique.md]
   - id: npm-vite
     group: "Outils"
     label: "Vite, registre npm (version 8.3.6, licence MIT, lu le 7 novembre 2026)"
     url: "https://www.npmjs.com/package/vite"
     read: 2026-11-14
-    used_in: [docs/pile-technique.md]
   - id: npm-typescript
     group: "Outils"
     label: "TypeScript, registre npm (version 7.0.2, licence Apache-2.0, lu le 7 novembre 2026)"
     url: "https://www.npmjs.com/package/typescript"
     read: 2026-11-14
-    used_in: [docs/pile-technique.md]
   - id: npm-types-node
     group: "Outils"
     label: "@types/node, registre npm (version 22.20.5, la dernière de la version majeure 22, licence MIT ; une dépendance, undici-types ~6.21.0 ; lu le 21 novembre 2026)"
     url: "https://www.npmjs.com/package/@types/node"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: npm-undici-types
     group: "Outils"
     label: "undici-types, registre npm (version 6.21.0, licence MIT, lu le 21 novembre 2026), seule dépendance de @types/node 22.20.5"
     url: "https://www.npmjs.com/package/undici-types"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: nodejs-22-typescript
     group: "Outils"
     label: "Node.js 22.23.5, doc/api/typescript.md, « Modules: TypeScript » : depuis Node.js 22.18.0, « Type stripping is enabled by default » et « Type stripping no longer emits an experimental warning » (l. 5-10) ; « By default Node.js will execute only files that contain no TypeScript features that require transformation, such as enums » (l. 61-63), parmi lesquelles les « parameter properties » (l. 128-133) ; « file extensions are mandatory in `import` statements » (l. 112-113) ; réglages de tsconfig.json conseillés, dont erasableSyntaxOnly et verbatimModuleSyntax (l. 76-89) ; la page dit « Stability: 1.2 - Release candidate » (l. 18) (dépôt nodejs/node, étiquette v22.23.5, commit 6055365 ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/nodejs/node/60553651579ec33ca1aef9e1eedab2c3855f1f7e/doc/api/typescript.md"
     read: 2026-11-21
-    used_in: [app/tests/resolve.mjs, docs/pile-technique.md]
   - id: nodejs-22-module-hooks
     group: "Outils"
     label: "Node.js 22.23.5, doc/api/module.md : « module.registerHooks(options) », « added: v22.15.0 », « Stability: 1.1 - Active development » (l. 365-378) ; « module.register(specifier[, parentURL][, options]) », ajouté à v20.6.0 et v18.19.0 (champ « added », l. 326-329), même stabilité (l. 342) ; les fonctions de register « are run on a separate loader thread », celles de registerHooks « directly on the thread where the module is loaded » (l. 723-727) ; crochets enregistrés avant le code de l'application par l'option --import (l. 731-746) ; nextResolve, « the Node.js default resolve hook after the last user-supplied resolve hook » (l. 1191-1192) (dépôt nodejs/node, étiquette v22.23.5, commit 6055365 ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/nodejs/node/60553651579ec33ca1aef9e1eedab2c3855f1f7e/doc/api/module.md"
     read: 2026-11-21
-    used_in: [app/tests/resolve.mjs, docs/pile-technique.md]
   - id: nodejs-22-cli
     group: "Outils"
     label: "Node.js 22.23.5, doc/api/cli.md : option --import, « Stability: 1 - Experimental » (l. 1496-1504) ; isolation des tests, « When mode is 'process', each test file is run in a separate child process » et « The default isolation mode is 'process' » (l. 1188-1191) (dépôt nodejs/node, étiquette v22.23.5, commit 6055365 ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/nodejs/node/60553651579ec33ca1aef9e1eedab2c3855f1f7e/doc/api/cli.md"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: actions-setup-node-readme
     group: "Outils"
     label: "actions/setup-node, README, au commit épinglé par les workflows (949feb2, v7.1.0) : « The action will first check the local cache for a semver match. If unable to find a specific version in the cache, the action will attempt to download a version of Node.js. » (l. 137) (lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/actions/setup-node/949feb2413d6458794dcd2491c4babbbce0c15c1/README.md"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: nodejs-23-5-0-module-hooks
     group: "Outils"
     label: "Node.js 23.5.0, doc/api/module.md : « module.registerHooks(options) », « added: v23.5.0 » (l. 204-208) (dépôt nodejs/node, étiquette v23.5.0, commit d8c3089 ; lu le 21 novembre 2026 ; la même page à l'étiquette v23.4.0 n'a pas registerHooks)"
     url: "https://raw.githubusercontent.com/nodejs/node/d8c3089cd5bf82fddd7939a1195631ea057261e2/doc/api/module.md"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: nodejs-23-6-0-typescript
     group: "Outils"
     label: "Node.js 23.6.0, doc/api/typescript.md : « version: v23.6.0 », « Type stripping is enabled by default. » (l. 5-7) (dépôt nodejs/node, étiquette v23.6.0, commit 9fa6aeb ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/nodejs/node/9fa6aeb4a6e54330f6c055a6dcfac265b150f902/doc/api/typescript.md"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: nodejs-22-test-runner
     group: "Outils"
     label: "Node.js 22.23.5, doc/api/test.md : motifs glob donnés au lanceur de tests, « enclosed in double quotes on the command line to prevent shell expansion » (l. 433-437) ; chaque fichier de test « executed in a separate child process » (l. 449-450) ; « When stdout is a TTY, the spec reporter is used by default. Otherwise, the tap reporter is used by default. » (l. 1028-1029) (dépôt nodejs/node, étiquette v22.23.5, commit 6055365 ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/nodejs/node/60553651579ec33ca1aef9e1eedab2c3855f1f7e/doc/api/test.md"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: gitleaks-8-30-1
     group: "Outils"
     label: "gitleaks, dépôt gitleaks/gitleaks (Zachary Rice), version 8.30.1 (commit 83d9cd6 du 12 mars 2026), licence MIT"
     url: "https://github.com/gitleaks/gitleaks/tree/v8.30.1"
     read: 2026-11-14
-    used_in: [docs/publication.md]
   - id: gitleaks-8-30-1-config
     group: "Outils"
     label: "gitleaks 8.30.1, configuration par défaut, config/gitleaks.toml : règle generic-api-key (l. 637-2128), un nom comme key, secret, token ou password, puis une valeur de 10 à 150 caractères pris parmi les lettres, les chiffres, « _ », « . », « = » et « - », ou d'au moins 12 pris parmi les lettres, les chiffres, « + » et « / » (l. 640), d'une entropie d'au moins 3,5 (l. 641), hors des valeurs faites seulement de lettres (l. 656) et de celles qui contiennent un des 1 446 mots de sa liste d'exclusion (l. 664-2111) ; règle curl-auth-header (l. 359-362), un en-tête Authorization dans une commande curl, après -H ou --header (dépôt gitleaks/gitleaks, étiquette v8.30.1, commit 83d9cd6 ; lu le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/gitleaks/gitleaks/83d9cd684c87d95d656c1458ef04895a7f1cbd8e/config/gitleaks.toml"
     read: 2026-11-21
-    used_in: [docs/publication.md]
   - id: github-secret-scanning
     group: "Outils"
     label: "GitHub Docs, Secret scanning (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
     url: "https://docs.github.com/en/code-security/concepts/secret-security/secret-scanning"
     read: 2026-11-14
-    used_in: [docs/publication.md]
   - id: github-push-protection-users
     group: "Outils"
     label: "GitHub Docs, Managing push protection for users (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
     url: "https://docs.github.com/en/code-security/how-tos/secure-your-secrets/prevent-future-leaks/manage-user-push-protection"
     read: 2026-11-14
-    used_in: [docs/publication.md]
   - id: spdx-cc-by-4
     group: "Licences"
     label: "SPDX License List, texte de la licence CC BY 4.0 (dépôt spdx/license-list-data, commit 3184648 du 29 octobre 2026)"
     url: "https://github.com/spdx/license-list-data/blob/31846481de7ea17d92f2f46fad76abe58b2e9bb0/text/CC-BY-4.0.txt"
     read: 2026-11-14
-    used_in: [docs/licences.md, docs/questions-ouvertes.md]
   - id: polyhaven-license
     group: "Licences"
     label: "Poly Haven, License : « Our assets are all licensed as CC0 » (page lue le 7 novembre 2026)"
     url: "https://polyhaven.com/license"
     read: 2026-11-14
-    used_in: [app/public/scenes/parc/scene.json]
   - id: polyhaven-autumn-hockey
     group: "Physique, rendu et technique"
     label: "Poly Haven, Autumn Hockey HDRI, photo à 360° de Greg Zaal, fond et éclairage de la scène de parc : « Soft midday overcast light in an autumn park with low-contrast, natural tones, diffuse shadows » ; catégories « overcast », « midday », « low contrast » (lu le 20 novembre 2026)"
     url: "https://polyhaven.com/a/autumn_hockey"
     read: 2026-11-20
-    used_in: [content/situations/SIT-01.md]
   - id: sketchfab-download-api
     group: "Outils"
     label: "Sketchfab for Developers, Download API : « Downloading models requires users to be authenticated with a Sketchfab account » (page lue le 7 novembre 2026)"
     url: "https://sketchfab.com/developers/download-api"
     read: 2026-11-14
-    used_in: [docs/historique.md]
   - id: github-large-files
     group: "Outils"
     label: "GitHub Docs, About large files on GitHub : avertissement à 50 Mio, blocage à 100 Mio, envoi par le navigateur limité à 25 Mio (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
     url: "https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github"
     read: 2026-11-14
-    used_in: [docs/licences.md]
   - id: github-comment-history
     group: "Outils"
     label: "GitHub Docs, Tracking changes in a comment : « Anyone with read access to a repository can view a comment's edit history » (source lue dans le dépôt github/docs, branche main, le 8 novembre 2026)"
     url: "https://docs.github.com/en/communities/moderating-comments-and-conversations/tracking-changes-in-a-comment"
     read: 2026-11-14
-    used_in: [docs/publication.md]
   - id: github-noreply-email
     group: "Outils"
     label: "GitHub Docs, Email addresses reference, section « Your noreply email address » (l. 43-49) : un compte créé après le 18 juillet 2017 a une adresse « noreply » faite d'un numéro, du signe plus et du pseudo ; « If you created your account prior to July 18, 2017, and enabled Keep my email address private before that date, your noreply email address is USERNAME@users.noreply.github.com » (source lue dans le dépôt github/docs, commit d7487f5, fichier content/account-and-profile/reference/email-addresses-reference.md, le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/content/account-and-profile/reference/email-addresses-reference.md"
     read: 2026-11-21
-    used_in: [scripts/check_public.py, docs/publication.md]
   - id: github-actions-jobs-if
     group: "Outils"
     label: "GitHub Docs, Workflow syntax for GitHub Actions, jobs.<job_id>.if (fragment data/reusables/actions/jobs/section-using-conditions-to-control-job-execution.md) : « You can use the jobs.<job_id>.if conditional to prevent a job from running unless a condition is met » (l. 1) ; dans l'exemple, un job dont la condition est fausse « will be marked as skipped » (l. 10) ; le fragment data/reusables/actions/expression-syntax-if.md, qu'il inclut (l. 6) : « When you use expressions in an if conditional, you can, optionally, omit the ${{ }} expression syntax » (source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/data/reusables/actions/jobs/section-using-conditions-to-control-job-execution.md"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: github-actions-jobs-needs
     group: "Outils"
     label: "GitHub Docs, Workflow syntax for GitHub Actions, jobs.<job_id>.needs (fragment data/reusables/actions/jobs/section-using-jobs-in-a-workflow-needs.md) : « If a job fails or is skipped, all jobs that need it are skipped unless the jobs use a conditional expression that causes the job to continue » (l. 1) (source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/data/reusables/actions/jobs/section-using-jobs-in-a-workflow-needs.md"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: github-actions-github-ref
     group: "Outils"
     label: "GitHub Docs, Contexts reference, github.ref (fragment data/reusables/actions/ref-description.md, l. 1) : « The fully-formed ref of the branch or tag that triggered the workflow run » ; pour un push, « the branch or tag ref that was pushed » ; « for branches the format is refs/heads/<branch_name> » et « For tags it is refs/tags/<tag_name> » (source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/data/reusables/actions/ref-description.md"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: github-actions-workflow-dispatch
     group: "Outils"
     label: "GitHub Docs, Events that trigger workflows, section workflow_dispatch (l. 1130-1139) : GITHUB_SHA « Last commit on the GITHUB_REF branch or tag », GITHUB_REF « Branch or tag that received dispatch » ; « Once a workflow has run at least once, you can dispatch it against any branch or tag » par l'API ou la ligne de commande de GitHub (fichier content/actions/reference/workflows-and-actions/events-that-trigger-workflows.md ; source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/content/actions/reference/workflows-and-actions/events-that-trigger-workflows.md"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: github-actions-about-triggers
     group: "Outils"
     label: "GitHub Docs, Workflows, section Workflow triggers (fragment data/reusables/actions/about-triggers.md) : « Each workflow run will use the version of the workflow that is present in the associated commit SHA or Git ref of the event » (l. 18) (source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/data/reusables/actions/about-triggers.md"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: github-actions-concurrency
     group: "Outils"
     label: "GitHub Docs, groupes de concurrence d'un workflow ou d'un job (fragment data/reusables/actions/actions-group-concurrency.md) : une exécution qui arrive pendant qu'une autre du même groupe tourne attend, et « Any existing pending job or workflow in the same concurrency group, if it exists, will be canceled and the new queued job or workflow will take its place » (l. 7 ; l. 3, l'autre version du texte, dit de même « By default ») ; un groupe nommé d'après la référence, « concurrency: ci-${{ github.ref }} », fait du workflow « part of a concurrency group named ci- followed by the reference of the branch or tag that triggered the workflow » (l. 86) (source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/data/reusables/actions/actions-group-concurrency.md"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: github-actions-expressions
     group: "Outils"
     label: "GitHub Docs, Evaluate expressions in workflows and actions, opérateurs : « ignores case when comparing strings » (l. 68 et 84, où le sujet de la phrase, GitHub, est écrit par une variable) (fichier content/actions/reference/workflows-and-actions/expressions.md ; source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/content/actions/reference/workflows-and-actions/expressions.md"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: github-pages-environment
     group: "Outils"
     label: "GitHub Docs, Configuring a publishing source for your GitHub Pages site (l. 78) : les modèles de workflow publient par l'environnement github-pages ; « If your repository does not already include an environment called github-pages, the environment will be created automatically. We recommend that you add a deployment protection rule so that only the default branch can deploy to this environment » (fichier content/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site.md ; source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/content/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site.md"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: github-manage-environments
     group: "Outils"
     label: "GitHub Docs, Managing environments for deployment : étapes pour dire quelles branches et quels tags peuvent publier dans un environnement, écrites pour un environnement nouveau (Settings, Environments, puis le menu « Deployment branches », « Selected branches and tags », « Add deployment branch or tag rule », « Ref type » Branch, motif du nom, « Add rule » ; l. 53-81) ; « If the environment is created from running implicit page builds (for example, from a branch or folder source), the source branch will be added as a protection rule to the environment. Otherwise, the newly created environment will not have any protection rules or secrets configured » (l. 95) (fichier content/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments.md ; source lue dans le dépôt github/docs, commit d7487f5, le 21 novembre 2026)"
     url: "https://raw.githubusercontent.com/github/docs/d7487f5debb5a5a2a6e65e6f9fa539266f5f8db6/content/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments.md"
     read: 2026-11-21
-    used_in: [docs/pile-technique.md]
   - id: filament-pbr
     group: "Physique, rendu et technique"
     label: "Romain Guy et Mathias Agopian, Physically Based Rendering in Filament, section « Physically based camera » : EV100, constante K = 12,5, facteur d'exposition 1/(1,2 × 2^EV100) (dépôt google/filament, docs/Filament.md.html, commit e8669b6, lu le 8 novembre 2026)"
     url: "https://github.com/google/filament/blob/e8669b688a9381beb4f7470df828e1932d78efa6/docs/Filament.md.html"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md]
   - id: wikipedia-non-breaking-space
     group: "Outils"
     label: "Wikipedia, Non-breaking space, section « Spacing punctuation in French » : « In French typography, non-breaking spaces are used before \"high punctuation\" (:, ;, ?, and !) » et « on the interior side of guillemets » ; espace fine insécable (U+202F) « before ;, ?, and ! (but not :, before which a regular non-breaking space is used) » ; cite le Lexique des règles typographiques en usage à l'Imprimerie nationale, 3e éd., 1990, p. 25 et 148-149 (page modifiée le 16 octobre 2026 ; lue le 20 novembre 2026)"
     url: "https://en.wikipedia.org/wiki/Non-breaking_space"
     read: 2026-11-20
     note: "Source secondaire : le Lexique de l'Imprimerie nationale n'est pas en ligne ; la page française de Wikipedia n'est pas joignable depuis l'environnement de Claude."
-    used_in: [app/src/frenchSpaces.ts]
   - id: wikipedia-exposure-value
     group: "Physique, rendu et technique"
     label: "Wikipedia, Exposure value, table 2 « Exposure values (ISO 100) for various lighting conditions », tirée des guides ANSI PH2.7-1973 et PH2.7-1986 (révision 1352562239, source secondaire, lue le 8 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Exposure_value&oldid=1352562239"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md]
   - id: wikipedia-image-sensor-format
     group: "Physique, rendu et technique"
     label: "Wikipedia, Image sensor format, tableau des formats : Canon APS-C 22,30 × 14,90 mm ; APS-C Sony, Nikon DX, Pentax, Fujifilm 23,6 à 23,7 × 15,60 mm (révision 1374408806, source secondaire, lue le 8 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Image_sensor_format&oldid=1374408806"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md]
   - id: haeberli-akeley-1990
     group: "Physique, rendu et technique"
     label: "Paul Haeberli et Kurt Akeley, The accumulation buffer: hardware support for high-quality rendering, SIGGRAPH 1990, Computer Graphics 24(4), p. 309-318, DOI 10.1145/97879.97913 (fiche de Microsoft Research ; article complet non lu)"
     url: "https://www.microsoft.com/en-us/research/publication/the-accumulation-buffer-hardware-support-for-high-quality-rendering/"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md]
   - id: photonstophotos-read-noise
     group: "Physique, rendu et technique"
     label: "William J. Claff, PhotonsToPhotos, Input-referred Read Noise versus ISO Setting (page révisée le 17 août 2026, lue le 8 novembre 2026) ; relue le 21 novembre 2026 pour l'EOS R50 : série « Canon EOS R50_14 », d'ISO 100 à 32 180 ; colonne « Saturation (e-) » du tableau que la page ouvre d'un clic sur le nom du boîtier dans la légende du graphique, 34 577 électrons à ISO 100 (80 359 pour le Z 6, 32 205 pour l'A6000) ; sous-titre du graphique : « Triangle up indicates scaling, triangle down indicates noise reduction, and diamond indicates both », triangle pointe en bas aux mesures de l'EOS R50 d'ISO 100 à 636 et à partir d'ISO 6400"
     url: "https://www.photonstophotos.net/Charts/RN_e.htm"
     read: 2026-11-21
-    used_in: [docs/camera-physique.md]
   - id: photonstophotos-sensor-characteristics
     group: "Physique, rendu et technique"
     label: "William J. Claff, PhotonsToPhotos, DxOMark Derived Sensor Characteristics : capacité des photosites, gain unitaire (page révisée le 15 décembre 2025, lue le 8 novembre 2026 ; relue le 21 novembre 2026 : l'EOS R50 n'y est pas)"
     url: "https://www.photonstophotos.net/Charts/Sensor_Characteristics.htm"
     read: 2026-11-21
-    used_in: [docs/camera-physique.md]
   - id: wikipedia-f-number
     group: "Physique, rendu et technique"
     label: "Wikipedia, F-number, « Typical one-third-stop f-number scale » (révision 1382682702, source secondaire, lue le 8 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=F-number&oldid=1382682702"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, content/notions/EXP-04.md]
   - id: wikipedia-shutter-speed
     group: "Physique, rendu et technique"
     label: "Wikipedia, Shutter speed : crans normalisés de 1/1000 à 1 s, échelle 2:1 (révision 1382495283, source secondaire, lue le 8 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Shutter_speed&oldid=1382495283"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, content/notions/EXP-05.md]
   - id: wikipedia-film-speed
     group: "Physique, rendu et technique"
     label: "Wikipedia, Film speed, tableau des valeurs ISO par tiers (révision 1383727213, source secondaire, lue le 8 novembre 2026) ; vitesse fondée sur le bruit : rapports signal sur bruit par pixel de 40:1 (« excellent image quality ») et 10:1 (« acceptable image quality »), pour 70 pixels par cm vus à 25 cm (lu le 10 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213"
     read: 2026-11-21
-    used_in: [docs/camera-physique.md, app/src/ui/balance.ts, app/src/camera/noiseModel.ts, content/notions/EXP-06.md]
   - id: nikon-z6-specifications
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Specifications : capteur 35.9 × 23.9 mm, 24.5 millions de pixels effectifs, vitesses 1/8000 – 30 s par pas de 1/3 ou 1/2 IL, ISO 100 – 51200 (lu le 8 novembre 2026) ; « Self-timer 2 s, 5 s, 10 s, 20 s » ; Z 6, « High-speed continuous (extended) : 12 fps (14-bit NEF/RAW: 9 fps) » (relu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/14_technical_notes_06.html"
     read: 2026-11-20
-    used_in: [docs/camera-physique.md, content/notions/BOI-12.md]
   - id: nikon-z6-specifications-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Caractéristiques techniques : « Retardateur 2 s, 5 s, 10 s, 20 s » ; Z 6, « Continu haute vitesse (étendu) : 12 vps (NEF/RAW 14 bits : 9 vps) » (lu le 20 novembre 2026) ; « Capteur CMOS 35,9 × 23,9 mm (format Nikon FX) » (lu le 21 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/14_technical_notes_06.html"
     read: 2026-11-21
-    used_in: [content/notions/BOI-12.md]
   - id: sony-ilce-7m3-help-guide
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Help Guide ILCE-7M3 (PDF), Specifications : capteur 35.6 mm × 23.8 mm, environ 24 200 000 pixels effectifs, vitesses 1/8 000 s à 30 s, ISO 100 à 51 200 (lu le 8 novembre 2026) ; Live View Display, Setting Effect ON/OFF, Focus Magnifier, Focus Mode, Focus Area, Face/Eye AF Set., Metering Mode, Spot Metering Point, White Balance, Grid Line et Histogram (lus le 9 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/en/print.pdf"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md]
   - id: sony-ilce-6000-sensor
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony Asie, α6000, Specifications : capteur APS-C 23,5 × 15,6 mm (extrait de recherche du 8 novembre 2026, page non ouverte)"
     url: "https://www.sony-asia.com/electronics/interchangeable-lens-cameras/ilce-6000-body-kit/specifications"
-    used_in: [docs/camera-physique.md]
   - id: wikipedia-bayer-filter
     group: "Physique, rendu et technique"
     label: "Wikipedia, Bayer filter : « twice as many green elements as red or blue » (révision 1384004962, source secondaire, lue le 9 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Bayer_filter&oldid=1384004962"
     read: 2026-11-21
-    used_in: [docs/camera-physique.md, app/src/camera/noiseModel.ts]
   - id: wikipedia-sony-a6000
     group: "Physique, rendu et technique"
     label: "Wikipedia, Sony α6000 : capteur 23.5 × 15.6 mm, « 24.3 MP » (révision 1380408739 du 15 octobre 2026, source secondaire, lue le 9 novembre 2026) ; section « Popularity » : « By early 2016, it was reported to be the best-selling interchangeable-lens camera in the over-US$600 price range as well as the best-selling mirrorless camera of all time. » (relue le 20 novembre 2026 ; les sources que cite l'article, Wired et Imaging Resource, 2016, ne sont pas joignables depuis l'environnement de Claude)"
     url: "https://en.wikipedia.org/w/index.php?title=Sony_%CE%B16000&oldid=1380408739"
     read: 2026-11-20
-    used_in: [docs/camera-physique.md, docs/propositions.md]
   - id: sony-ilce-6000-af
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony Moyen-Orient et Afrique, α6000, page du produit : « 179 phase detection points (covering almost the entire image) », sans pourcentage (page relevée par Julien le 11 novembre 2026, le site refusant les lectures automatiques)"
     url: "https://www.sony-mea.com/en/electronics/interchangeable-lens-cameras/ilce-6000-body-kit"
     read: 2026-11-11
-    used_in: [docs/camera-physique.md, content/notions/MAP-06.md]
   - id: nikon-z6-focus
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Focus : AF-S « focus will lock while the shutter-release button is pressed halfway », collimateur qui passe du rouge au vert, priorité à la mise au point par défaut ; AF-C « focuses continuously while the shutter-release button is pressed halfway », priorité au déclenchement par défaut ; AF-area mode : zone large (S) et (L), « the camera will assign priority to the closest subject », zones (L) plus grandes que les zones (S), sans dimensions ; Touch Shutter, « Touch the display to focus on the selected point » sans déclencher (lu le 9 novembre 2026). Relu le 10 novembre 2026 : « The focus point can be positioned using the sub-selector or multi-selector » ; réglage a5 (Focus points used), « Every other point » pour n'utiliser qu'un quart des points"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/05_basic_settings_01.html"
     read: 2026-11-19
-    used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts, content/notions/MAP-04.md, content/notions/MAP-05.md, content/notions/MAP-06.md, content/notions/MAP-09.md]
   - id: nikon-z6-focus-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Mise au point : termes « AF ponctuel », « AF continu », « Mode de zone AF », « AF point sélectif », « AF zone large (S) » et « (L) », « AF zone automatique » (lu le 9 novembre 2026) ; « point AF » pour le point de mise au point (relu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/05_basic_settings_01.html"
     read: 2026-11-20
-    used_in: [docs/camera-physique.md, content/notions/MAP-04.md, content/notions/MAP-05.md, content/notions/MAP-06.md]
   - id: nikon-z6-a4
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé a4 Auto-Area AF Face/Eye Detection : « Face and eye detection on », « Face detection on », « Animal detection », « Off » ; « one or the other of the subject's eyes, or on the subject's face if the eyes are not detected » (lu le 9 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_a04.html"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, app/src/camera/faces.ts, content/notions/MAP-09.md, content/situations/SIT-06.md]
   - id: nikon-z6-a4-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, a4 : Détect. visage-yeux AF zone auto ; termes « Détection visage/yeux activée », « Détection des visages activée », « Détection des animaux », « Désactivée » (lu le 9 novembre 2026, relu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_a04.html"
     read: 2026-11-20
-    used_in: [docs/camera-physique.md, content/notions/MAP-09.md]
   - id: nikon-z6-sub-selector
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The Sub-Selector, Focus Lock : « Position the subject in the selected focus point and press the shutter-release button halfway to set focus and exposure », puis, déclencheur tenu à mi-course, « press the center of the sub-selector to lock both focus and exposure », puis « Recompose the photograph and shoot » ; encadré AF-S, « focus will lock while the shutter-release button is pressed halfway » ; l'exposition ne se mémorise à mi-course qu'avec le réglage c1 sur « On (half press) » ; « Do not change the distance between the camera and the subject while focus lock is in effect. If the subject moves, focus again at the new distance » ; mémorisation par le centre du sélecteur secondaire en AF-C, « choose an AF-area mode other than auto-area AF » (lu le 19 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_05.html"
     read: 2026-11-19
-    used_in: [content/notions/MAP-06.md, content/notions/NET-06.md]
   - id: nikon-z6-sub-selector-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Sélecteur secondaire : « Recomposez et prenez la photo » ; encadré AF-S, « la mise au point est mémorisée tant que vous appuyez sur le déclencheur à mi-course » ; « Ne modifiez pas la distance entre l'appareil photo et le sujet pendant la mémorisation de la mise au point. Si le sujet se déplace, effectuez à nouveau la mise au point en fonction de la nouvelle distance » (lu le 19 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_05.html"
     read: 2026-11-19
-    used_in: [content/notions/MAP-06.md, content/notions/NET-06.md]
   - id: nikon-p1100-af-area
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne COOLPIX P1100, AF area mode : sans visage détecté, « the camera automatically selects one or more of the nine focus areas containing the subject closest to the camera » (compact, pas un hybride ; lu le 9 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/p1100/en/08-31.html"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, app/src/camera/autofocus.ts]
   - id: wikipedia-circle-of-confusion
     group: "Physique, rendu et technique"
     label: "Wikipedia, Circle of confusion : flou acceptable d/1500 (0,029 mm en plein format) ; diamètre du flou c = A × |S₂ − S₁| / S₂ × f / (S₁ − f) (révision 1335590423, source secondaire, lue le 10 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Circle_of_confusion&oldid=1335590423"
     read: 2026-11-21
-    used_in: [docs/camera-physique.md, app/src/ui/balance.ts, app/src/camera/optics.ts, content/notions/MVT-01.md, content/notions/NET-01.md, content/notions/NET-06.md]
   - id: nikon-z6-release-mode
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The Release Mode/Self-Timer Button : Single frame, Continuous L (1–5 vps), Continuous H (environ 5,5 vps), Continuous H (extended) (12 vps au Z 6), Self-timer ; table des cadences maximales (12 vps en JPEG en Continuous H (extended)) (lu le 10 novembre 2026). Réglages d2 (Max. Continuous Release, de 1 à 200 vues) et c2 (Self-Timer) lus le même jour."
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_04.html"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/notions/BOI-12.md]
   - id: nikon-z6-release-mode-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande mode de déclenchement/retardateur : termes « mode de déclenchement », « Vue par vue », « Continu L », « Continu H », « Continu H (étendu) », « Retardateur » (lu le 10 novembre 2026, relu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_04.html"
     read: 2026-11-20
-    used_in: [docs/camera-physique.md, content/notions/BOI-12.md]
   - id: nikon-z6-mode-dial
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The Mode Dial : P, S (« you choose the shutter speed while the camera automatically selects the aperture that will produce the optimal exposure »), A (l'inverse), M ; en M avec l'ISO auto, « ISO sensitivity will automatically be adjusted for optimal exposure at the selected shutter speed and aperture » ; indicateurs d'exposition par tiers d'IL (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_01.html"
     read: 2026-11-22
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/MES-10.md]
   - id: nikon-z6-mode-dial-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Sélecteur de mode : termes « Auto à priorité vitesse », « Auto à priorité ouverture », « Manuel » (lu le 10 novembre 2026, termes relus le 20 novembre 2026) ; « une valeur comprise entre 30 s et 1/8000 s » (relu le 20 novembre 2026) ; section « Poses longues (mode M) » : « Pour éviter tout effet de flou, installez l'appareil photo sur un trépied ou utilisez une télécommande radio sans fil, une télécommande filaire (disponibles en option) ou un autre dispositif de déclenchement à distance. » ; « Installez l'appareil photo sur un trépied ou posez-le sur une surface plane et stable. » (apostrophes typographiques dans la page ; relu le 22 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_01.html"
     read: 2026-11-22
-    used_in: [docs/camera-physique.md, content/notions/BOI-07.md, content/notions/BOI-08.md, content/notions/EXP-05.md, content/notions/MES-10.md]
   - id: nikon-z6-indicators
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Indicators and Error Messages : « Exposure indicators and shutter speed or aperture display flash », « Subject too bright; photo will be overexposed », « Subject too dark; photo will be underexposed » (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/13_troubleshooting_02.html"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/BOI-07.md, content/notions/BOI-08.md]
   - id: nikon-z6-indicators-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Indicateurs et messages d'erreur : « Les indicateurs d'exposition et l'affichage de la vitesse d'obturation ou de l'ouverture clignotent » ; en mode A, « Choisissez une ouverture plus petite (valeur plus grande) » quand le sujet est trop clair, « une ouverture plus grande » quand il est trop sombre (lu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/13_troubleshooting_02.html"
     read: 2026-11-20
-    used_in: [content/notions/BOI-07.md, content/notions/BOI-08.md]
   - id: nikon-z6-exposure-compensation
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The Exposure Compensation Button : de −5 à +5 IL par tiers ; « Exposure compensation is not reset when the camera is turned off » ; « In mode M, exposure compensation affects only the exposure indicator », l'ISO auto en tenant compte (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_03.html"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/MES-04.md, content/notions/MES-10.md]
   - id: nikon-z6-exposure-compensation-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande correction d'exposition : terme « correction d'exposition » (lu le 10 novembre 2026 ; titre relu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_03.html"
     read: 2026-11-20
-    used_in: [docs/camera-physique.md, content/notions/MES-04.md, content/notions/MES-10.md]
   - id: nikon-z6-iso-button
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The ISO (ISO Sensitivity) Button : l'ISO auto agit « if optimal exposure cannot be achieved at the value selected » ; sensibilité maximale de ISO 200 (Z 6) à Hi 2 ; « ISO AUTO » affiché, et la valeur modifiée ; une valeur choisie plus haute que le maximum sert à sa place (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_02.html"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/EXP-06.md]
   - id: nikon-z6-iso-button-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande ISO (sensibilité [ISO]) : « entre 100 ISO et 51 200 ISO » pour le Z 6, réglages étendus Lo 0,3 à Lo 1 et Hi 0,3 à Hi 2 (lu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_02.html"
     read: 2026-11-20
-    used_in: [content/notions/EXP-06.md]
   - id: nikon-z6-iso-settings
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, ISO Sensitivity Settings : Maximum sensitivity ; Minimum shutter speed, « below which auto ISO sensitivity control will kick in to prevent underexposure in modes P and A », de 1/4000 s à 30 s ou Auto selon la focale ; vitesse sous le minimum si la sensibilité maximale ne suffit pas (lu le 10 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_03_08.html"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, content/notions/MES-10.md]
   - id: nikon-z6-iso-settings-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Réglage de la sensibilité : termes « Contrôle de la sensibilité auto. », « Sensibilité maximale », « Vitesse d'obturation minimale » (lu le 10 novembre 2026) ; avec « Automatique », « l'appareil photo choisit la vitesse d'obturation minimale selon la focale de l'objectif utilisé » (relu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_03_08.html"
     read: 2026-11-20
-    used_in: [docs/camera-physique.md, content/notions/MES-10.md]
   - id: nikon-z6-defaults
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Defaults : ISO 100 en P, S, A, M, contrôle de la sensibilité auto activé, sensibilité maximale 51200 (Z 6), vitesse minimale Auto ; Focus mode Single AF, AF-area mode Single-point AF ; a4 Face and eye detection on ; c2 retardateur 10 s ; d1 Continu L 3 vps (lu le 10 novembre 2026) ; d9 Framing grid display Off ; g6 Highlight display, Display pattern Off, Highlight display threshold 248 ; aucune ligne pour Playback display options (relu le 12 novembre 2026) ; c1 Shutter-release button AE-L Off (relu le 19 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html"
     read: 2026-11-20
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, app/src/camera/viewfinder.ts, content/notions/BOI-12.md, content/notions/MAP-04.md, content/notions/MAP-06.md, content/notions/MES-10.md, content/notions/CMP-02.md, docs/dossiers/balance-des-blancs.md, docs/dossiers/viseur-aides.md]
   - id: nikon-z6-defaults-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Réglages par défaut : « Délai du retardateur 10 s » ; d1, CL « 3 vps » (lu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_01.html"
     read: 2026-11-20
-    used_in: [content/notions/BOI-12.md, content/notions/MES-10.md]
   - id: nikon-d850-auto-iso
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne D850, Auto ISO Sensitivity Control : « the minimum value for auto ISO sensitivity is automatically set to ISO 64 » ; en P et A, « sensitivity will only be adjusted if underexposure would result at the shutter speed selected for Minimum shutter speed » ; vitesse minimale fixée à 1/30 s avec un objectif sans données (lu le 10 novembre 2026, relu le 20 novembre 2026). Autre boîtier que le Z 6 : retenu là où le manuel du Z 6 ne dit rien."
     url: "https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_02.html"
     read: 2026-11-20
-    used_in: [docs/camera-physique.md, app/src/camera/exposureModes.ts, app/src/ui/cameraPanel.ts, content/notions/MES-10.md]
   - id: nikon-d850-manual-adjustment
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne D850, Manual Adjustment : « Choose from settings that range from ISO 64 and ISO 25600 » ; « Settings of from about 0.3 to 1 EV below ISO 64 and 0.3 to 2 EV above ISO 25600 are also available for special situations » (lu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_01.html"
     read: 2026-11-20
-    used_in: [docs/camera-physique.md]
   - id: wikipedia-umbra-penumbra
     group: "Physique, rendu et technique"
     label: "Wikipedia, Umbra, penumbra and antumbra : la pénombre est la zone où la source n'est cachée qu'en partie ; avec une source ponctuelle, seule l'ombre pleine existe (révision 1379008615, source secondaire, lue le 11 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Umbra,_penumbra_and_antumbra&oldid=1379008615"
     read: 2026-11-14
-    used_in: [docs/propositions.md, content/notions/LUM-02.md, app/src/activities/lum02.ts]
   - id: wikipedia-inverse-square-law
     group: "Physique, rendu et technique"
     label: "Wikipedia, Inverse-square law : « doubling the distance reduces illumination to one quarter » ; « when the size of the light source is less than one-fifth of the distance to the subject, the calculation error is less than 1% » (révision 1384166303 du 6 novembre 2026, source secondaire, lue le 20 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Inverse-square_law&oldid=1384166303"
     read: 2026-11-20
-    used_in: [app/src/activities/lum02.ts]
   - id: wikipedia-angular-diameter
     group: "Physique, rendu et technique"
     label: "Wikipedia, Angular diameter : diamètre apparent du Soleil vu de la Terre, de 31′27″ à 32′32″ (révision 1368815265, source secondaire, lue le 11 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Angular_diameter&oldid=1368815265"
     read: 2026-11-14
-    used_in: [docs/propositions.md]
   - id: tiffen-lowel-soft-light
     group: "Cours et pédagogie"
     label: "Tiffen (Lowel), Foundations of Lighting: Understanding Soft Light : « A soft light source would be one that appears larger in relative size than the subject being lit » ; le soleil, très loin, « appears smaller » et donne une lumière plus dure ; par ciel couvert, « the entire white cloudy sky is now the light source » ; reculer la source la rend plus petite et plus dure ; un réflecteur devient la source (lu le 11 novembre 2026) ; « bouncing the output of a light […] off a white ceiling or wall to bring up the ambient light level in a room is well known » (relu le 20 novembre 2026)"
     url: "https://tiffen.reamaze.com/kb/lowel-guides/foundations-of-lighting-understanding-soft-light"
     read: 2026-11-20
-    used_in: [content/notions/LUM-02.md, docs/propositions.md, app/src/activities/lum02.ts]
   - id: pvc-adams-soft-light
     group: "Cours et pédagogie"
     label: "Art Adams (directeur de la photographie), LIGHTING STRATEGIES: What Makes Soft Lights Cast Soft Shadows?, ProVideo Coalition, 27 décembre 2011 : une grande source est cachée peu à peu par l'objet, d'où l'ombre douce ; « Soft light is dependent on how big the source is in relation to the object it is lighting » ; une grande source lointaine paraît minuscule, comme le soleil (lu le 11 novembre 2026)"
     url: "https://www.provideocoalition.com/lighting_strategies_what_makes_soft_lights_cast_soft_shadows/"
     read: 2026-11-14
-    used_in: [content/notions/LUM-02.md, docs/propositions.md, app/src/activities/lum02.ts]
   - id: nikon-z6-launch-2018
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, communiqué du 23 août 2018, « Nikon introduces the new Nikon Z mount system, and releases two full-frame mirrorless cameras: the Nikon Z 7 and Nikon Z 6 » : « the Z 6 has 273 focus points*, enabling broad coverage of approximately 90% of the imaging area both horizontally and vertically », « * With FX (36x24) format and single-point AF » (lu le 10 novembre 2026)"
     url: "https://www.nikon.com/news/2018/0823_mirrorless_01.htm"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/notions/MAP-06.md]
   - id: nikon-z6-eisa-2019
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, communiqué du 15 août 2019 sur les prix EISA : « 273*2 focus points that provide good coverage of the imaging area — approximately 90% both horizontally and vertically », « *2 With recording of still images using the FX (36x24) image area and single-point AF » (lu le 10 novembre 2026)"
     url: "https://www.nikon.com/news/2019/0815_award_01.htm"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts]
   - id: nikon-z6-product
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, page du produit Z 6 : « 273-point hybrid AF system offering accurate focus across 90% of the frame » ; fiche technique, « Focus points (in photo mode, FX format, single-point AF) 273 (single-point AF) » (lu le 10 novembre 2026)"
     url: "https://imaging.nikon.com/imaging/lineup/mirrorless/z_6/"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/notions/MAP-06.md]
   - id: nikon-z6-apply-settings-live-view
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé d8 Apply Settings to Live View (lu le 9 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d08.html"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md]
   - id: wikipedia-airy-disk
     group: "Physique, rendu et technique"
     label: "Wikipedia, Airy disk : rayon du premier anneau sombre q1 ≈ 1,22 λ / (2A), A étant l'ouverture numérique, A ≈ 1 / (2N) pour N ≫ 1, soit 1,22 λ N ; « This shows that the best possible image resolution of a camera is limited by the numerical aperture (and thus f-number) of its lens due to diffraction » ; à f/8, « For violet, the shortest wavelength visible light, the wavelength λ is about 420 nanometers », « This gives a value for x of about 4 μm » ; « 560 nm; the mean of visible wavelengths » ; « the red component is diffracted more than the blue » (révision 1369075623, source secondaire, lue le 20 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Airy_disk&oldid=1369075623"
     read: 2026-11-20
-    used_in: [docs/camera-physique.md, app/src/texts.ts]
   - id: gustafsson-bokeh-single-pass
     group: "Physique, rendu et technique"
     label: "Dennis Gustafsson, « Bokeh depth of field in a single pass », blog tuxedolabs, 4 mai 2018 (copie archivée ; page non ouverte, algorithme lu dans sa reproduction par l'exemple 45-bokeh de bgfx le 9 novembre 2026)"
     url: "https://web.archive.org/web/20201215123940/https://blog.tuxedolabs.com/2018/05/04/bokeh-depth-of-field-in-single-pass.html"
-    used_in: [docs/camera-physique.md]
   - id: bgfx-bokeh-example
     group: "Physique, rendu et technique"
     label: "bgfx, exemple 45-bokeh (elven cache, 2021, licence BSD à 2 clauses de bgfx) : bokeh_dof.sh reproduit et commente l'algorithme de Gustafsson ; fs_bokeh_dof_combine.sc recompose le flou calculé à résolution réduite (lus le 9 novembre 2026)"
     url: "https://github.com/bkaradzic/bgfx/tree/master/examples/45-bokeh"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md]
   - id: nikon-z6-d9
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé d9 Framing Grid Display : « Choose On to display a grid for reference when framing shots. » ; la page ne décrit pas le tracé du quadrillage (lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d09.html"
     read: 2026-11-14
-    used_in: [app/src/camera/viewfinder.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: canon-850d-grid-display
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS 850D, « Grid Display When Shooting » : grilles « 3x3 », « 6x4 » et « 3x3+diag » (« Displays grid lines in a 6x4 pattern to help you level the camera vertically and horizontally. ») ; boîtier voisin, pas un boîtier du simulateur (lu le 12 novembre 2026)"
     url: "https://cam.start.canon/en/C002/manual/html/UG-09_Set-up_0200.html"
     read: 2026-11-14
-    used_in: [app/src/camera/viewfinder.ts, content/notions/CMP-02.md, docs/camera-physique.md]
   - id: canon-r6-shooting-info-display
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS R6, « Shooting Information Display » : « A grid can be displayed on the screen and viewfinder. » ; la capture du menu montre « Off », « 3x3 », « 6x4 », « 3x3+diag » avec leurs icônes ; boîtier voisin, pas un boîtier du simulateur (lu le 12 novembre 2026)"
     url: "https://cam.start.canon/en/C004/manual/html/UG-03_Shooting-1_0360.html"
     read: 2026-11-14
-    used_in: [app/src/camera/viewfinder.ts, content/notions/CMP-02.md, docs/camera-physique.md]
   - id: nikon-z6-f2
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé f2 Custom Control Assignment, « Framing grid display » : « Press the control to turn the framing grid display on or off. » (lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_f02.html"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: nikon-z6-d9-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, d9 : Affichage du quadrillage : « Choisissez Activé pour afficher un quadrillage de référence lors du cadrage des images. » (lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_d09.html"
     read: 2026-11-14
-    used_in: [content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-grid-line
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III), Grid Line : « Rule of 3rds Grid », « Place main subjects close to one of the grid lines that divide the image into thirds for a well-balanced composition » ; « Square Grid », « Diag. + Square Grid », « Off » ; ni le nombre de cases, ni le tracé des diagonales, ni le réglage par défaut ne sont donnés (lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001653165.html"
     read: 2026-11-14
-    used_in: [app/src/camera/viewfinder.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-grid-line-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Quadrillage : termes « Grille règle des tiers », « Grille carrée », « Diag. + Grille carrée », « OFF » ; « Positionnez les principaux sujets à proximité de l'une des lignes du quadrillage qui divise l'image en trois pour une composition bien équilibrée » (apostrophes typographiques dans la page ; lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001663039.html"
     read: 2026-11-14
-    used_in: [content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-live-view-display-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Affichage Live View : options « Définit. d'effet activé » et « Définit. d'effet désac. » ; « Permet de régler l'affichage ou non des images modifiées avec des effets de correction de l'exposition, de la balance des blancs, [Modes créatifs] ou [Effet de photo] sur l'écran. » (apostrophes typographiques dans la page ; lu le 20 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001629952.html"
     read: 2026-11-20
-    used_in: [app/src/texts.ts]
   - id: nikon-z6-apply-settings-live-view-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, « d8 : Appliquer réglages à visée écran » : « sélectionnez Désactivé pour régler la luminosité et la teinte afin de faciliter le visionnage » (lu le 20 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_d08.html"
     read: 2026-11-20
-    used_in: [app/src/texts.ts]
   - id: sony-a6000-grid-line
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-6000 (A6000), Grid Line (Copyright 2014 Sony Corporation) : mêmes types et mêmes textes que l'A7 III ; « Off (default setting): Does not display the grid line. » (lu le 12 novembre 2026). La page française à la même adresse répond 404."
     url: "https://helpguide.sony.net/gbmig/45349331/v1/en/contents/TP0000518347.html"
     read: 2026-11-14
-    used_in: [app/src/camera/viewfinder.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: nikon-d5600-digitutor-framing-grid
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, Digitutor D5600, Framing Grid (Live View) (© 2025 Nikon Corporation) : affichage « Framing grid » de la visée écran ; son illustration montre trois lignes verticales et trois lignes horizontales, soit seize cases, le texte ne donnant pas ce nombre (page d'aide, pas le manuel ; lue le 12 novembre 2026)"
     url: "https://imaging.nikon.com/imaging/support/digitutor/d5600/functions/framing_grid_liveview.html"
     read: 2026-11-14
-    used_in: [app/src/camera/viewfinder.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: wikipedia-rule-of-thirds
     group: "Cours et pédagogie"
     label: "Wikipedia, Rule of thirds : image divisée en neuf parties égales par deux lignes horizontales et deux lignes verticales, éléments importants sur ces lignes ou à leurs croisements ; « to discourage placement of the subject at the center » ; expression écrite pour la première fois par John Thomas Smith en 1797 ; réserves de George Field (1845) et étude d'Amirshahi et collègues (2014) (révision 1383322855 du 2 novembre 2026, source secondaire, lue le 12 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Rule_of_thirds&oldid=1383322855"
     read: 2026-11-14
-    used_in: [content/notions/CMP-02.md]
   - id: nikon-z6-photo-information
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Photo Information : à la lecture, la commande DISP fait défiler les pages d'information, dont « None (image only) », « RGB histogram » et « Highlights », affichées seulement si elles sont sélectionnées dans « Playback display options » ; « Histogram (RGB channel) », puis canaux rouge, vert et bleu ; « Highlights (areas that may be overexposed) » ; « Histograms show tone distribution, with pixel brightness (tone) plotted on the horizontal axis and the number of pixels on the vertical axis. » ; « Camera histograms are intended as a guide only and may differ from those displayed in imaging applications. » ; avec la loupe, « The histogram will be updated to show only the data for the portion of the image visible in the display. » ; la page ne définit pas « RGB channel » et ne dit ni comment les hautes lumières sont marquées ni à quel seuil (lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/08_more_about_playback_02.html"
     read: 2026-11-14
-    used_in: [app/src/camera/histogram.ts, app/src/ui/reviewInfo.ts, content/notions/MES-06.md, content/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: nikon-z6-photo-information-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Informations sur les photos : « Histogramme RVB », « Histogramme (canal RVB) », canaux rouge, vert et bleu ; « Hautes lumières (zones susceptibles d'être surexposées) » ; « la luminosité des pixels (tons) figurant sur l'axe horizontal et le nombre de pixels figurant sur l'axe vertical » ; « Les histogrammes de l'appareil photo ne doivent servir que de référence. » (apostrophes typographiques dans la page ; lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/08_more_about_playback_02.html"
     read: 2026-11-22
-    used_in: [content/notions/MES-06.md, content/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: nikon-z6-g6
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé g6 Highlight Display, groupe « g: Movie » : des hachures indiquent les hautes lumières en vidéo ; « Highlight display threshold », « If 255 is selected, the highlight display will show only areas that are potentially overexposed. » ; seule valeur de seuil écrite dans les pages lues (lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_g06.html"
     read: 2026-11-14
-    used_in: [app/src/camera/histogram.ts, content/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: nikon-z6-g6-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, g6 : Affichage des hautes lumières : « Si 255 est sélectionné, seules les zones susceptibles d'être surexposées seront indiquées. » (lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_05_g06.html"
     read: 2026-11-22
-    used_in: [content/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: nikon-z6-camera-controls
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Camera Controls, The DISP Button : en mode photo, la commande DISP fait défiler « Indicators on », « Simplified display », « Histogram », « Virtual horizon », « Information display », « Flash info » ; l'histogramme n'est pas affiché quand le réglage d8 (Apply settings to live view) est sur Off (lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/02_getting_to_know_the_camera_02.html"
     read: 2026-11-14
-    used_in: [docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-switching-display
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III), Switching the screen display (while shooting/during playback) : à la lecture, « Display Info. → Histogram → No Disp. Info. → Display Info. » ; « If the image has an overexposed or underexposed area, the corresponding section will blink on the histogram display (overexposed/underexposed warning). » ; « The settings for playback are also applied in [Auto Review]. » ; « A peak at the right or left end of the histogram indicates that the image has an overexposed or underexposed area, respectively. You cannot correct such defects using a computer after shooting. » ; le seuil du clignotement n'est pas donné (lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001653116.html"
     read: 2026-11-14
-    used_in: [app/src/ui/reviewInfo.ts, content/notions/MES-06.md, content/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-switching-display-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Changement d'affichage d'écran (pendant la prise de vue ou la lecture) : « Si l'image présente des zones surexposées ou sous-exposées, la partie correspondante clignote sur l'affichage de l'histogramme (avertissement surexposition/sous-exposition). » ; « Vous ne pourrez pas corriger de tels défauts au moyen d'un ordinateur après la prise de vue. » (apostrophes typographiques dans la page ; lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001662878.html"
     read: 2026-11-14
-    used_in: [content/notions/MES-06.md, content/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-icons
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III), List of icons on the monitor : écran de lecture « Histogram display », « Histogram (Luminance/R/G/B) » (lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001667671.html"
     read: 2026-11-14
-    used_in: [app/src/camera/histogram.ts, content/notions/MES-06.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-zebra
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III), Zebra Setting : « Sets a zebra pattern, which appears over part of an image if the brightness level of that part meets the IRE level that you have set. » ; pour la surexposition, « The zebra pattern will appear over areas with a brightness level equal to or higher than the value you set. » ; la page ne définit pas l'échelle IRE et ne liste pas les valeurs (lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001667679.html"
     read: 2026-11-22
-    used_in: [content/notions/MES-07.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-zebra-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Régl. zebra : motif zébré « sur une portion d'une image si le niveau de luminosité de cette portion atteint le niveau IRE que vous avez défini » (apostrophes typographiques dans la page ; lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/fr/contents/TP0001667947.html"
     read: 2026-11-14
-    used_in: [content/notions/MES-07.md, docs/camera-physique.md]
   - id: wikipedia-srgb
     group: "Physique, rendu et technique"
     label: "Wikipedia, sRGB, section « Primaries » : matrice du sRGB linéaire vers XYZ, dont la ligne Y vaut 0,2126 ; 0,7152 ; 0,0722, « these 4-digit coefficients should be considered exact » (révision 1378992844 du 7 octobre 2026, source secondaire, lue le 12 novembre 2026). TutoPhoto applique ces coefficients aux valeurs encodées de la photo pour son histogramme de luminance : c'est son choix, pas celui de la norme."
     url: "https://en.wikipedia.org/w/index.php?title=SRGB&oldid=1378992844"
     read: 2026-11-14
-    used_in: [app/src/camera/histogram.ts, content/notions/MES-06.md, docs/camera-physique.md, docs/dossiers/balance-des-blancs.md]
   - id: sony-a6000-aperture-priority-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Priorité ouvert. : le sélecteur de mode sur A, « Priorité ouvert. » ; « La vitesse d'obturation est réglée automatiquement pour obtenir l'exposition adaptée. » (apostrophes typographiques dans la page ; lu le 20 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000378548.html"
     read: 2026-11-20
-    used_in: [content/notions/BOI-07.md]
   - id: sony-a6000-shutter-priority-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Priorité vitesse : le sélecteur de mode sur S, « Priorité vitesse » ; « L'ouverture est réglée automatiquement pour obtenir l'exposition adaptée. » (apostrophes typographiques dans la page ; lu le 20 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000227006.html"
     read: 2026-11-20
-    used_in: [content/notions/BOI-08.md]
   - id: sony-a6000-drive-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Entraînement : « Vous pouvez définir le mode d'entraînement, par exemple la prise de vue en rafale ou avec retardateur. » ; options « Prise de vue unique » (réglage par défaut), « Prise d. v. en continu », « Retardateur », « Retardateur (Cont.) », « Bracket continu », « Bracket simple », « Bracket.bal.B », « Bracket DRO » (apostrophes typographiques dans la page ; lu le 20 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000429244.html"
     read: 2026-11-20
-    used_in: [content/notions/BOI-12.md]
   - id: sony-a6000-focus-mode-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Mode mise au point : « AF ponctuel », « AF automatique » (réglage par défaut), « AF continu », « Direct MFocus », « MaP manuelle » ; en AF automatique, « Le mode de mise au point passe de [AF ponctuel] à [AF continu] en fonction du mouvement du sujet. » (lu le 20 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000429235.html"
     read: 2026-11-20
-    used_in: [content/notions/MAP-04.md]
   - id: sony-a6000-focus-area-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Zone mise au point : « Large », « Zone », « Centre », « Spot flexible » ; Spot flexible « Vous permet de déplacer le cadre de la plage AF au point souhaité sur l'écran » ; « collimateur » n'est dans aucune des 306 pages que listent les deux sommaires du manuel (apostrophes typographiques dans la page ; lu et relevé le 20 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000431575.html"
     read: 2026-11-20
-    used_in: [content/notions/MAP-05.md, content/notions/MAP-06.md]
   - id: sony-a6000-face-detection-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Sourire/Dét. visage : « Détecte le visage de vos sujets, règle la mise au point, l'exposition, les réglages du flash et traite l'image automatiquement. » ; options « OFF », « Activé (Visage enr.) » (réglage par défaut), « ON », « Détec. de sourire » (apostrophes typographiques dans la page ; lu le 20 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000378576.html"
     read: 2026-11-20
-    used_in: [content/notions/MAP-09.md]
   - id: sony-a6000-eye-af-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, AF sur les yeux : « Effectue la mise au point sur les yeux d'une personne lorsque vous appuyez sur le bouton. » ; la fonction s'attribue à une touche par « Réglag. touche perso » ; « Appuyez sur le déclencheur tout en appuyant sur la touche. » (lu le 20 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000242410.html"
     read: 2026-11-20
-    used_in: [content/notions/MAP-09.md]
   - id: canon-eos-r50-av-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS R50 en français, Av : Priorité à l'ouverture : « Av signifie « Aperture value » (valeur d'ouverture). » ; « Positionnez la molette de sélection des modes sur Av. » (lu le 20 novembre 2026)"
     url: "https://cam.start.canon/fr/C011/manual/html/UG-03_CustomShooting_0040.html"
     read: 2026-11-20
-    used_in: [content/notions/BOI-07.md]
   - id: canon-eos-r50-tv-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS R50 en français, Tv : Priorité à l'obturation : « Tv signifie « Time value » (valeur temporelle). » ; « Positionnez la molette de sélection des modes sur Tv. » (lu le 20 novembre 2026)"
     url: "https://cam.start.canon/fr/C011/manual/html/UG-03_CustomShooting_0030.html"
     read: 2026-11-20
-    used_in: [content/notions/BOI-08.md]
   - id: canon-eos-r50-drive-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS R50 en français, Sélection du mode d'acquisition : « Vous avez le choix entre des modes d'acquisition vue par vue et en continu. » ; options « Vue par vue », « Prise de vue en continu à vitesse élevée + », « Prise de vue en continu à vitesse élevée », « Prise de vue en rafale à faible vitesse », « Retardateur : 10 secondes », « Retardateur : 2 secondes », « Retardateur : prise de vue en continu » (lu le 20 novembre 2026)"
     url: "https://cam.start.canon/fr/C011/manual/html/UG-06_AF-Drive_0120.html"
     read: 2026-11-20
-    used_in: [content/notions/BOI-12.md]
   - id: canon-eos-r50-af-operation-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS R50 en français, Opération autofocus : « Autofocus One-Shot pour les sujets immobiles », « AF Servo pour les sujets en mouvement », « AF Ai-Focus pour changement automatique de mode AF » ; « Lorsque la mise au point est effectuée, le collimateur AF devient vert et le signal sonore retentit. » (lu le 20 novembre 2026)"
     url: "https://cam.start.canon/fr/C011/manual/html/UG-06_AF-Drive_0040.html"
     read: 2026-11-20
-    used_in: [content/notions/MAP-04.md, content/notions/MAP-06.md]
   - id: canon-eos-r50-af-area-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS R50 en français, Sélection de la zone autofocus : menu « Zone AF », options « Autofocus spot », « 1 collimateur AF », « Élargir zone AF » (deux formes), « AF 1 zone flexible » à « AF 3 zone flexible », « AF zone complète » ; « Sujet à détecter » : « Auto », « Personnes », « Animaux », « Véhicules », « Aucun » ; « Détection œil » : « Vous pouvez photographier avec les yeux de personnes ou d'animaux nets. » (lu le 20 novembre 2026) ; section « Réglage manuel des collimateurs AF ou des cadres Zone AF » (écrans montrés « avec le réglage AF 1 zone flexible ») : « (mais veuillez noter qu'avec certains objectifs, il peut ne pas se déplacer au bord de l'écran) », « Vous pouvez également faire la mise au point en tapotant une position sur l'écran pour y déplacer le collimateur AF. » (lu le 21 novembre 2026)"
     url: "https://cam.start.canon/fr/C011/manual/html/UG-06_AF-Drive_0060.html"
     read: 2026-11-21
-    used_in: [content/notions/MAP-05.md, content/notions/MAP-06.md, content/notions/MAP-09.md, docs/camera-physique.md]
   - id: canon-eos-r50-specifications-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS R50 en français, Caractéristiques techniques : capteur d'image « Capteur CMOS APS-C », « Environ 22,3 × 14,9 mm » ; « Pixels effectifs », « Environ 24,2 mégapixels max. », arrondi aux 100 000 les plus proches ; autofocus, « Nombre de zones autofocus disponibles pour la sélection automatique », zone de mise au point « Horizontal : environ 100 %, vertical : environ 100 % » ; « Positions sélectionnables pour le collimateur AF », zone de mise au point « Horizontal : environ 90 %, vertical : environ 100 % », « En cas de réglage sur [1 collimateur AF] et de sélection avec les touches directionnelles » ; sous le tableau de la sélection automatique, « Peut varier selon les réglages. » ; « Compatibilité des objectifs d'après la zone de mise au point : reportez-vous au site Web de Canon » ; pixels enregistrés en RAW et en JPEG L, « 24,0 mégapixels (6000×4000) » (lu le 21 novembre 2026)"
     url: "https://cam.start.canon/fr/C011/manual/html/UG-11_Reference_0090.html"
     read: 2026-11-21
-    used_in: [docs/camera-physique.md, docs/propositions.md, content/notions/MAP-06.md]
   - id: bcn-2025-petapixel
     group: "Marché : ventes et usage"
     label: "PetaPixel, « APS-C Cameras Dominate List of 2025 Best-Sellers » (12 janvier 2026), d'après le classement annuel de BCN+R pour 2025 (Japon, ventes en caisse en unités) : 1. Canon EOS R50, 2. Sony ZV-E10 II, 3. Canon EOS R10, 4. Sony ZV-E10, 5. Sony α6400, 6. Nikon Z50 II, 7. Fujifilm X-M5, 8. Sony α7C II, 9. Olympus PEN E-P7, 10. Nikon Z30 (extrait de recherche du 20 novembre 2026, page non ouverte : hôte refusé par l'environnement de Claude)"
     url: "https://petapixel.com/2026/01/12/aps-c-cameras-dominate-list-of-2025-best-sellers/"
-    used_in: [docs/propositions.md]
   - id: bcn-2025-digitalcameraworld
     group: "Marché : ventes et usage"
     label: "Digital Camera World, « Finally #1! Released back in 2023, this beginner-friendly mirrorless is Japan’s best-selling camera in 2025 » (titre tel que l'extrait l'écrit) : l'EOS R50 premier des ventes de BCN pour 2025 (date de l'article non lue ; extrait de recherche du 20 novembre 2026, page non ouverte : hôte refusé par l'environnement de Claude)"
     url: "https://www.digitalcameraworld.com/cameras/mirrorless-cameras/finally-1-released-back-in-2023-this-beginner-friendly-mirrorless-is-japans-best-selling-camera-in-2025"
-    used_in: [docs/propositions.md]
   - id: sony-a6000-image-size-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Taille d'image (image fixe) : au ratio d'aspect 3:2, « L: 24M 6000 × 4000 pixels » ; la page ne donne ni la taille du capteur ni les pixels effectifs (lu le 21 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000429237.html"
     read: 2026-11-21
-    used_in: [docs/camera-physique.md]
   - id: sony-a6000-help-guide-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, accueil (4-534-933-21(1)) : ses deux sommaires (contentslist01 et contentslist02) listent 247 et 59 pages, 306 en tout ; « collimateur » n'est dans aucune, « cadre du télémètre » dans quatre (relevé le 20 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/index.html"
     read: 2026-11-22
-    used_in: [content/notions/MAP-06.md]
   - id: bcn-2020-reflex
     group: "Marché : ventes et usage"
     label: "BCN+R, « 2020年に売れた一眼レフTOP10、ニコン「D5600」が根強い人気で1位、「EOS Kiss」の新型もTOP10入り » (5 janvier 2021) : ventes de reflex au Japon du 1er janvier au 6 décembre 2020, le Nikon D5600 (kit à deux zooms) premier (extrait de recherche du 20 novembre 2026, page non ouverte : hôte refusé par l'environnement de Claude)"
     url: "https://www.bcnretail.com/research/detail/20210105_207372.html"
-    used_in: [docs/propositions.md]
   - id: flickr-2025-22-years
     group: "Marché : ventes et usage"
     label: "Flickr, blog, « 22 Years of Flickr. » (10 février 2026) : parmi les appareils « gaining the most traction » en 2025, le Canon EOS R6 Mark II, le Sony A7 III, l'iPhone 16 Pro, puis le Nikon Z 6II ; une progression sur l'année, pas un volume (extrait de recherche du 20 novembre 2026, page non ouverte : hôte refusé par l'environnement de Claude ; PetaPixel écrit « Sony a7 II » au deuxième rang)"
     url: "https://blog.flickr.net/en/2026/02/10/22-years-of-flickr/"
-    used_in: [docs/propositions.md]
   - id: amazon-2000d-digitalcameraworld
     group: "Marché : ventes et usage"
     label: "Digital Camera World, « This Canon DSLR dominates Amazon US and UK best-seller lists » (titre lu dans l'adresse ; janvier 2026 d'après l'extrait) : le Canon EOS 2000D (Rebel T7) en tête des ventes de reflex d'Amazon aux États-Unis et au Royaume-Uni ; un rang chez un seul détaillant, sans chiffre (extrait de recherche du 20 novembre 2026, page non ouverte : hôte refusé par l'environnement de Claude)"
     url: "https://www.digitalcameraworld.com/cameras/dslr-cameras/this-canon-dslr-dominates-amazon-us-and-uk-best-seller-lists-with-multiple-kit-options-and-new-bodies-available-from-usd529-or-gbp285-50"
-    used_in: [docs/propositions.md]
   - id: nikon-z6-metering-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Menu i du mode photo, section « Mesure » : « La « mesure » permet d'indiquer la manière avec laquelle l'appareil photo règle l'exposition. » ; options « Mesure matricielle », « Mesure pondérée centrale », « Mesure spot » et « Mesure pondérée hautes lumières » (apostrophes typographiques dans la page ; lu le 22 novembre 2026)"

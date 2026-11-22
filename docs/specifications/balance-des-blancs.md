@@ -72,7 +72,7 @@ En français, au format de `docs/contenus.md` (la spécification demandait aussi
 
 ## 9. Sources à ajouter à `data/sources.yaml`
 
-Page « White Balance » du Z 6 en anglais et en français, page « Defaults » (déjà présente), articles de Wikipedia utilisés (révisions), page de l'API de Poly Haven utilisée pour le comptage ; `used_in` exact.
+Page « White Balance » du Z 6 en anglais et en français, page « Defaults » (déjà présente), articles de Wikipedia utilisés (révisions), page de l'API de Poly Haven utilisée pour le comptage. Où chaque source est citée : `python3 scripts/validate.py --citations`, depuis le retrait du champ `used_in` qu'écrivait cette section (version 0.4.2).
 
 ## 10. Documentation
 

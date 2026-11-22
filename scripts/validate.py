@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
-"""Contrôle le référentiel : schémas JSON, puis cohérence entre notions, situations et sources ; les fiches de content/
-et les titres que le simulateur recopie de data/ ; avec --base, les identifiants et le champ since d'une version à
-l'autre.
+"""Contrôle le référentiel : schémas JSON, puis cohérence entre notions, situations et sources ; où chaque source est
+citée, et que les adresses des fiches, du code et de docs/ sont dans data/sources.yaml ; les fiches de content/ et les
+titres que le simulateur recopie de data/ ; avec --base, les identifiants et le champ since d'une version à l'autre.
 
-Usage : python3 scripts/validate.py [racine du dépôt] [--base REF]
+Usage : python3 scripts/validate.py [racine du dépôt] [--base REF] [--citations [ID ...]] (la racine avant
+--citations, qui prendrait sinon la racine pour un identifiant)
+
+--citations [ID ...] : écrit, pour chaque source nommée (toutes, sans identifiant), où elle est citée : notions,
+domaines, situations et fichiers, calculés comme pour l'avertissement « citée nulle part » (version 0.4.2 ; avant, le
+champ `used_in` de data/sources.yaml, tenu à la main, en donnait une partie).
 
 --base REF : une autre version du dépôt, la branche cible d'une pull request dans la CI (.github/workflows/validate.yml),
 lue par `git show REF:fichier`, sans seconde copie du dépôt. Chaque identifiant de notion ou de situation de REF est
@@ -17,6 +22,7 @@ Sort avec le code 1 s'il y a au moins une erreur ; les avertissements ne bloquen
 import argparse
 import collections
 import json
+import os
 import pathlib
 import re
 import subprocess
@@ -43,15 +49,16 @@ def warn(msg):
 _textes = {}
 
 
-def texte(path, nom):
+def texte(path, nom, conseil=""):
     """Texte d'un fichier du dépôt, lu une seule fois. S'il ne se lit pas (absent, ou pas en UTF-8), une erreur qui le
-    nomme, avec la ligne d'un octet invalide, et None (version 0.3.83 ; avant, pour un fichier cité par `used_in` ou
-    une fiche lue pour `terms`, une trace Python qui ne le nommait pas)."""
+    nomme, avec la ligne d'un octet invalide, suivie de `conseil`, et None (version 0.3.83 ; avant, pour un fichier
+    nommé par le champ `used_in` des sources, retiré à la version 0.4.2, ou une fiche lue pour `terms`, une trace Python
+    qui ne le nommait pas)."""
     if path not in _textes:
         try:
             _textes[path] = referentiel.lire_texte(path, nom)
         except referentiel.LectureImpossible as e:
-            error(str(e))
+            error(f"{e}{conseil}")
             _textes[path] = None
     return _textes[path]
 
@@ -176,40 +183,215 @@ def check_levels(ref):
                   f"{expected[0]}/{expected[1]} ; corriger le niveau, ou écrire la raison de l'écart dans notes")
 
 
-def check_sources(ref):
-    known = {s["id"]: s for s in ref.sources}
-    used = set()
+# --- Sources : où chacune est citée, et l'autre sens ------------------------------------------------------------------
+# Décision D2 de Julien (15 novembre 2026, docs/historique.md) : le champ `used_in` de data/sources.yaml, tenu à la
+# main, est retiré, et ce script calcule où chaque source est citée ; il contrôle aussi l'autre sens, qu'une adresse
+# écrite dans le dépôt a son entrée dans data/sources.yaml, la protection que donnait l'ancien contrôle de `used_in`
+# (Sujet 34 du plan de corrections, constats SRC-03 et SRC-05 de l'audit et leurs contre-vérifications, version 0.4.2).
+# Règle d'entrée d'une adresse : docs/lire-le-referentiel.md, « Champs d'une source ».
+
+# Les fichiers qui peuvent s'appuyer sur une source : les fiches, le code (app/, le site, sa construction et ses
+# tests ; scripts/, les contrôles du dépôt), le référentiel hors de data/sources.yaml (ses notes et ses commentaires) et
+# les pages de docs/. Hors d'eux (HORS_CITANTS) : data/sources.yaml lui-même ; les dossiers de travail, qui citent
+# leurs adresses eux-mêmes, et les rapports d'audit ; app/public/, que le site publie tel quel (les scènes, dont les
+# manifestes sont lus à part, et la page des licences) ; ce qu'écrit la construction (app/dist/) ; la liste des paquets
+# installés (app/package-lock.json), dont les adresses sont celles du registre npm. Les dossiers node_modules et
+# __pycache__ ne sont pas lus, ni un fichier ou un dossier caché (« .venv », « .DS_Store », une copie de sauvegarde
+# d'éditeur) : la CI part d'une copie neuve, un passage sur la machine d'un contributeur aussi lit son arbre de travail
+# (contrôle final de la version 0.4.2, F6). CHANGELOG.md, README.md et REPRISE.md ne sont pas non plus des fichiers qui
+# citent : un récit, une présentation et une archive.
+CODE = ("app", "scripts")
+CITANTS = ("content", *CODE, "data", "docs")
+HORS_CITANTS = ("data/sources.yaml", "docs/dossiers", "docs/audit", "app/public", "app/dist", "app/package-lock.json")
+# Tout fichier de CITANTS est lu en UTF-8 (sinon, une erreur qui le nomme), sauf ceux dont le suffixe est ici : des
+# fichiers qui ne sont pas du texte. Un autre fichier qui n'est pas du texte s'ajoute par son suffixe.
+SUFFIXES_BINAIRES = {".bin", ".gif", ".glb", ".hdr", ".ico", ".jpeg", ".jpg", ".ktx2", ".otf", ".pdf", ".png", ".pyc",
+                     ".ttf", ".webp", ".woff", ".woff2"}
+# Le manifeste d'une scène écrit l'adresse de la page d'origine de chaque élément (`source`), celle où sa licence a été
+# vérifiée (`license_checked_at`), celles de ses fichiers et de sa licence : une source dont il écrit l'adresse y est
+# citée. Ces adresses sont les métadonnées que demande docs/licences.md, que contrôle scripts/check_scenes.py, et la
+# plupart ne sont pas des sources : l'autre sens ne le lit pas.
+MANIFESTES_DE_SCENE = "app/public/scenes/*/scene.json"
+# Adresses écrites dans les fichiers de CITANTS sans être des sources : l'autre sens ne leur demande pas d'entrée.
+ADRESSES_TECHNIQUES = {
+    "https://badmiaoo.github.io/TutoPhoto/": "l'adresse du site publié",
+    "https://github.com/Badmiaoo/TutoPhoto": "l'adresse du dépôt",
+    "https://api.github.com": "l'API de GitHub, qu'appelle scripts/changelog.py",
+    "https://creativecommons.org/publicdomain/zero/1.0/": "la licence CC0, valeur attendue d'un manifeste de scène "
+                                                          "(scripts/check_scenes.py)",
+    "https://creativecommons.org/licenses/by/4.0/": "la licence CC BY 4.0, valeur attendue d'un manifeste de scène "
+                                                    "(scripts/check_scenes.py)",
+    "https://claude.com/claude-code": "le lien du pied qu'ajoute l'outil GitHub de Claude à une pull request, que "
+                                      "recopie docs/publication.md",
+    "https://…": "une adresse d'exemple, coupée (« [texte](https://…) »)",
+}
+# « https:/{2} » plutôt que les deux barres : ce fichier ne contient ainsi pas d'autre adresse que celles
+# d'ADRESSES_TECHNIQUES. Une barre oblique inverse finit l'adresse : celle du « \n » qui la suit dans une chaîne du
+# code.
+ADRESSE = re.compile(r"https:/{2}[^\s<>\"'`\]\\]+")
+CROCHETS = re.compile(r"\[([a-z0-9]+(?:-[a-z0-9]+)*)\]")
+
+
+def sans_ponctuation(adresse):
+    """L'adresse telle qu'un lecteur la lit : sans la ponctuation qui la suit dans la phrase (« . », « , », « ; »,
+    « : », « ! », « ? », « * » et « _ » d'une mise en valeur), ni la parenthèse fermante d'un lien de Markdown quand
+    elle en ferme plus qu'elle n'en ouvre (« (photography) » reste dans l'adresse d'une page de Wikipedia)."""
+    while True:
+        avant = adresse
+        adresse = adresse.rstrip(".,;:!?*_")
+        while adresse.endswith(")") and adresse.count(")") > adresse.count("("):
+            adresse = adresse[:-1]
+        if adresse == avant:
+            return adresse
+
+
+def adresses(contenu):
+    """(ligne, adresse) de chaque adresse https d'un texte, dans l'ordre ; fins de ligne LF, CRLF ou CR seul."""
+    for numero, ligne in enumerate(re.split(r"\r\n|\r|\n", contenu), 1):
+        for m in ADRESSE.finditer(ligne):
+            yield numero, sans_ponctuation(m.group(0))
+
+
+def fichiers_citants(ref):
+    """Chemins des fichiers de CITANTS, triés : hors de HORS_CITANTS, des dossiers node_modules et __pycache__, des
+    fichiers et dossiers cachés, et des fichiers dont le suffixe est dans SUFFIXES_BINAIRES. Les chemins sont pris à
+    partir de la racine du dépôt : un dépôt rangé sous un dossier « node_modules » est lu comme un autre (relecture de
+    la version 0.4.2, R5)."""
+    chemins = []
+    for dossier in CITANTS:
+        for racine, dossiers, fichiers in os.walk(ref.root / dossier):
+            rel = ref.rel(racine)
+            dossiers[:] = [d for d in dossiers if d not in ("node_modules", "__pycache__") and not d.startswith(".")
+                           and f"{rel}/{d}" not in HORS_CITANTS]
+            for nom in fichiers:
+                if (not nom.startswith(".") and f"{rel}/{nom}" not in HORS_CITANTS
+                        and pathlib.PurePath(nom).suffix.lower() not in SUFFIXES_BINAIRES):
+                    chemins.append(pathlib.Path(racine) / nom)
+    return sorted(chemins)
+
+
+def citations(ref):
+    """Où chaque source est citée : {identifiant : [lieux]}, un lieu étant une notion (« MAP-04 », « MAP-04 (terms) »),
+    un domaine (« domaine MAP »), une situation, ou le chemin d'un fichier : un fichier de CITANTS ou un manifeste de
+    scène qui écrit son adresse, ou un fichier de CODE qui la nomme par son identifiant entre crochets
+    (« [identifiant-de-la-source] »). Rend aussi les adresses des fichiers de CITANTS qui ne sont ni dans
+    data/sources.yaml ni dans ADRESSES_TECHNIQUES : [(chemin, ligne, adresse)]."""
+    connues = {s["id"] for s in ref.sources}
+    par_adresse = collections.defaultdict(list)
+    for s in ref.sources:
+        par_adresse[s["url"]].append(s["id"])
+    lieux = collections.defaultdict(list)
+
+    def citer(sid, lieu):
+        if sid in connues and lieu not in lieux[sid]:
+            lieux[sid].append(lieu)
+
+    for _, data in ref.domain_files:
+        for sid in data["domain"].get("sources", []):
+            citer(sid, f"domaine {data['domain']['id']}")
+    for n in ref.notions:
+        for sid in n.get("sources", []):
+            citer(sid, n["id"])
+        for t in n.get("terms", []):
+            for sid in t["sources"]:
+                citer(sid, f"{n['id']} (terms)")
+    for s in ref.situations:
+        for sid in s.get("sources", []):
+            citer(sid, s["id"])
+
+    absentes = []
+    fichiers = [(path, True) for path in fichiers_citants(ref)]
+    fichiers += [(path, False) for path in sorted(ref.root.glob(MANIFESTES_DE_SCENE))]
+    for path, deux_sens in fichiers:
+        rel = ref.rel(path)
+        contenu = texte(path, rel, "" if rel.startswith("content/") else
+                        " ; si ce n'est pas un fichier de texte, ajouter son suffixe à SUFFIXES_BINAIRES "
+                        "(scripts/validate.py)")
+        if contenu is None:
+            continue
+        for numero, adresse in adresses(contenu):
+            if adresse in par_adresse:
+                for sid in par_adresse[adresse]:
+                    citer(sid, rel)
+            elif deux_sens and adresse not in ADRESSES_TECHNIQUES:
+                absentes.append((rel, numero, adresse))
+        if deux_sens and any(rel.startswith(d + "/") for d in CODE):
+            for m in CROCHETS.finditer(contenu):
+                citer(m[1], rel)
+    return lieux, absentes
+
+
+def check_sources(ref, lieux, absentes):
+    """Les identifiants de sources du référentiel existent ; une source citée nulle part est un avertissement ; une
+    adresse d'un fichier de CITANTS absente de data/sources.yaml, hors ADRESSES_TECHNIQUES, est une erreur ; une source
+    dont l'adresse, écrite dans un texte, ne se lirait pas entière (apostrophe, ponctuation finale) est une erreur :
+    elle ne serait jamais reconnue (relecture de la version 0.4.2, R6)."""
+    known = {s["id"] for s in ref.sources}
+    for s in ref.sources:
+        lues = [adresse for _, adresse in adresses(s["url"])]
+        if lues != [s["url"]]:
+            error(f"data/sources.yaml : {s['id']} : l'adresse {s['url']} se lit « {' '.join(lues)} » dans un texte ; "
+                  f"l'écrire autrement, par exemple le caractère qui la coupe en pour-cent (%27 pour une apostrophe, "
+                  f"%2E pour un point final), et vérifier que la page s'ouvre à l'adresse ainsi écrite")
     for path, data in ref.domain_files:
         for sid in data["domain"].get("sources", []):
-            used.add(sid)
             if sid not in known:
                 error(f"{ref.rel(path)} : source de domaine inconnue : {sid}")
     for n in ref.notions:
         for sid in n.get("sources", []):
-            used.add(sid)
             if sid not in known:
                 error(f"{n['id']} : source inconnue : {sid}")
         for t in n.get("terms", []):
             for sid in t["sources"]:
-                used.add(sid)
                 if sid not in known:
                     error(f"{n['id']} : terms, {t['body']} : source inconnue : {sid}")
     for s in ref.situations:
         for sid in s.get("sources", []):
-            used.add(sid)
             if sid not in known:
                 error(f"{s['id']} : source inconnue : {sid}")
-    for sid, s in known.items():
-        if sid not in used and not s.get("used_in"):
-            warn(f"source {sid} citée nulle part (ni notion, ni domaine, ni situation, ni used_in)")
-        for doc in s.get("used_in", []):
-            path = ref.root / doc
-            if not path.is_file():
-                warn(f"source {sid} : used_in renvoie à {doc}, introuvable")
+    for s in ref.sources:
+        if not lieux.get(s["id"]):
+            warn(f"source {s['id']} citée nulle part : ni par une notion, un domaine ou une situation, ni par son "
+                 f"adresse dans une fiche, le code, le référentiel, une page de docs/ hors des dossiers et de l'audit "
+                 f"ou un manifeste de scène, ni par son identifiant entre crochets dans le code")
+    for rel, numero, adresse in absentes:
+        error(f"{rel}, ligne {numero} : {adresse} n'est pas dans data/sources.yaml ; une adresse sur laquelle s'appuie "
+              f"une fiche, le code, le référentiel ou une page de docs/ y a son entrée (docs/lire-le-referentiel.md), "
+              f"une adresse qui n'est pas une source va dans ADRESSES_TECHNIQUES (scripts/validate.py)")
+
+
+def check_sources_des_fiches(ref):
+    """Le champ `sources` d'une notion qui a une fiche contient au moins chaque source dont la fiche écrit l'adresse,
+    et les sources de ses entrées `terms` (règle de docs/lire-le-referentiel.md, écrite à la version 0.3.91 ; constats
+    REF-04 et FMA-15 de l'audit ; contrôle du Sujet 34, version 0.4.2). Une adresse que portent plusieurs entrées de
+    data/sources.yaml demande l'une d'elles. Les fiches de situation ne sont pas contrôlées : le champ `sources` d'une
+    situation dit le cours d'où elle vient, pas les sources de sa fiche."""
+    par_adresse = collections.defaultdict(list)
+    for s in ref.sources:
+        par_adresse[s["url"]].append(s["id"])
+    fichier_du_domaine = {data["domain"]["id"]: ref.rel(path) for path, data in ref.domain_files}
+    for n in ref.notions:
+        path = ref.root / "content" / "notions" / f"{n['id']}.md"
+        if not path.is_file():
+            continue
+        contenu = texte(path, ref.rel(path))
+        if contenu is None:
+            continue
+        champ = set(n.get("sources", []))
+        origine = fichier_du_domaine[n["_domain"]]
+        vues = set()
+        for numero, adresse in adresses(contenu):
+            ids = par_adresse.get(adresse)
+            if not ids or champ & set(ids) or adresse in vues:
                 continue
-            contenu = texte(path, doc)
-            if contenu is not None and s["url"] not in contenu:
-                warn(f"source {sid} : son URL n'apparaît pas dans {doc}")
+            vues.add(adresse)
+            error(f"{ref.rel(path)}, ligne {numero} : la fiche cite {' ou '.join(ids)} ({adresse}), absente du champ "
+                  f"sources de {n['id']} ({origine}) ; il contient au moins les sources de la fiche")
+        for t in n.get("terms", []):
+            for sid in t["sources"]:
+                if sid not in champ:
+                    error(f"{n['id']} : terms, {t['body']} : {sid} absente du champ sources de la notion ({origine}) ; "
+                          f"quand la notion a une fiche, il contient aussi les sources de ses entrées terms")
 
 
 def check_terms(ref):
@@ -593,6 +775,18 @@ def check_base(ref, base):
                   f"{changelog.CHANGELOG}, {tete['version']}, donne since {attendu}")
 
 
+def ecrire_citations(ref, lieux, ids):
+    """Option --citations : une ligne par source, « identifiant : lieu, lieu… », dans l'ordre de data/sources.yaml ou
+    dans celui des identifiants donnés ; un identifiant inconnu est une erreur."""
+    connues = [s["id"] for s in ref.sources]
+    for sid in ids:
+        if sid not in connues:
+            racine = " (la racine du dépôt s'écrit avant --citations)" if os.path.isdir(sid) else ""
+            error(f"--citations : source inconnue : {sid}{racine}")
+    for sid in [i for i in ids if i in connues] if ids else connues:
+        print(f"{sid} : {', '.join(lieux.get(sid, [])) or 'citée nulle part'}")
+
+
 def summary(ref):
     levels = collections.Counter(n["level"] for n in ref.notions)
     detail = ", ".join(f"{levels[lv]} {lv}" for lv in referentiel.LEVELS)
@@ -601,12 +795,17 @@ def summary(ref):
 
 
 def arguments():
-    parser = argparse.ArgumentParser(description="Contrôle le référentiel (data/), les fiches (content/) et les titres "
-                                                 "que le simulateur recopie de data/.")
+    parser = argparse.ArgumentParser(
+        usage="%(prog)s [racine] [--base REF] [--citations [ID ...]]",
+        description="Contrôle le référentiel (data/), les fiches (content/), les titres que le simulateur recopie de "
+                    "data/, où chaque source est citée, et que les adresses des fiches, du code et de docs/ sont dans "
+                    "data/sources.yaml. La racine, si elle est donnée, s'écrit avant --citations.")
     parser.add_argument("racine", nargs="?", default=referentiel.ROOT, help="racine du dépôt (par défaut : celle du script)")
     parser.add_argument("--base", metavar="REF", help="version du dépôt à laquelle comparer les identifiants, leurs "
                                                       "titres, le champ since et la version en tête du changelog "
                                                       "(branche cible d'une pull request)")
+    parser.add_argument("--citations", metavar="ID", nargs="*", help="écrit où chaque source nommée est citée (toutes, "
+                                                                     "sans identifiant)")
     return parser.parse_args()
 
 
@@ -625,7 +824,11 @@ def main():
         check_ids(ref)
         check_links(ref)
         check_levels(ref)
-        check_sources(ref)
+        lieux, absentes = citations(ref)
+        check_sources(ref, lieux, absentes)
+        check_sources_des_fiches(ref)
+        if args.citations is not None:
+            ecrire_citations(ref, lieux, args.citations)
         check_terms(ref)
         check_retired(ref)
         check_jalons(ref)
