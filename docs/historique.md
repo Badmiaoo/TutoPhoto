@@ -256,6 +256,6 @@ Ce que Claude en fait : chaque session de la chaîne est créée avec le même m
 
 ## 22 novembre 2026 : erreur du simulateur sur un iPhone
 
-Message de Julien dans la session du Sujet 35, après 18 h 03 UTC, juste après la fusion de la version 0.4.3, mot pour mot : « J'ai une erreur sur le site faut corriger ! », avec une capture d'écran de son iPhone (transcrite dans `docs/tests-a-faire-faire.md`, T22). Puis, dans la même session, peu avant 18 h 10 min 23 s UTC, en réponse aux questions de Claude (modèle de l'iPhone, version d'iOS, l'erreur au rechargement, une capture de l'affichage de diagnostic) : « Le soucis vient de safari sur iphone ». Ses réponses aux questions à choix de la session suivante, le même soir, sont des résultats d'essai : `docs/tests-a-faire-faire.md`, T22.
+Message de Julien dans la session du Sujet 35, après 18 h 03 UTC, juste après la fusion de la version 0.4.3, mot pour mot : « J'ai une erreur sur le site faut corriger ! », avec une capture d'écran d'un iPhone (transcrite dans `docs/tests-a-faire-faire.md`, T22). Puis, dans la même session, avant 18 h 10 UTC : « Le soucis vient de safari sur iphone ». Ses réponses aux questions à choix de la session suivante, le même soir, sont des résultats d'essai : `docs/tests-a-faire-faire.md`, T22.
 
 Ce que Claude en fait : un sujet à part entière, traité avant le Sujet 36 du plan de corrections, version 0.4.4. Ce qui est établi et ce qui ne l'est pas : `docs/pile-technique.md`, « Contexte perdu au démarrage » ; les choix : `docs/propositions.md`, « Erreur du simulateur sur iPhone ».

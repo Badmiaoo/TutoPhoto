@@ -45,7 +45,7 @@
 // - démarrage arrêté (version 0.4.4, demande de Julien du 22 novembre 2026), dans quatre contextes à part : contexte
 //   WebGL perdu dès la création, puis le même restauré, puis perdu au premier createBuffer, les fonctions de création
 //   de WebGL rendant null sur un contexte perdu, comme le code de WebKit des branches safari-7618 à safari-7624 (le
-//   scénario qui reproduit l'écran de l'iPhone de Julien) ; et une exception sans perte du contexte ; dans chaque cas,
+//   scénario qui reproduit l'écran de l'iPhone de la capture) ; et une exception sans perte du contexte ; dans chaque cas,
 //   le message du démarrage arrêté, avec la version du site et « Recharger », lisible et inchangé 2 s plus tard, aucun
 //   message des capacités de rendu en flottants, le canevas, le panneau du boîtier et le bouton « Défis » masqués, la
 //   ligne des problèmes vide ou avec l'exception rattrapée, et aucune erreur non rattrapée ;
@@ -585,18 +585,19 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
  * du profil (WebGL 1 sur le profil webgl1). Dans les trois premiers, la page perd le contexte WebGL du canevas de la
  * scène et fait rendre null aux fonctions de création de WebGL (createBuffer, createTexture…) tant qu'il est perdu,
  * comme le code de WebKit des branches safari-7618 à safari-7624 (Chromium rend un objet marqué perdu, comme la branche
- * safari-7625 et le brouillon de la spécification de WebGL) : c'est le scénario qui reproduit l'écran de l'iPhone de
- * Julien (docs/pile-technique.md, « Contexte perdu au démarrage »). Perdu dès la création : avant que getContext rende
- * le contexte ; puis restauré : même cas, puis la page restaure le contexte (restoreContext), comme WebKit le fait quand
- * l'événement de la perte a été annulé, ce que fait Babylon.js ; perdu au premier createBuffer : la création du premier
- * tampon perd le contexte et rend null, comme quand le processeur graphique ne crée pas le tampon. Quatrième contexte :
- * une exception sans perte du contexte, le constructeur de ResizeObserver levant une erreur injectée. Dans chaque cas :
- * le message du démarrage arrêté (celui du contexte perdu dans les trois premiers, le message général dans le
- * quatrième), avec la version du site et « Recharger », lisible (dans la fenêtre, rendu en son centre, comme le
- * bouton) et inchangé 2 s plus tard (restauration comprise) ; aucun message des capacités de rendu en flottants ; le
- * canevas, le panneau du boîtier et le bouton « Défis » masqués ; la ligne des problèmes vide, ou qui donne l'exception
- * rattrapée (premier createBuffer, exception injectée) ; aucune erreur non rattrapée de la page. main.ts écrit aussi
- * l'exception rattrapée dans la console : la console n'est pas contrôlée.
+ * safari-7625 et le brouillon de la spécification de WebGL) : c'est le scénario qui reproduit l'écran de l'iPhone de la
+ * capture envoyée par Julien (docs/pile-technique.md, « Contexte perdu au démarrage »). Perdu dès la création : avant
+ * que getContext rende le contexte ; puis restauré : même cas, puis la page restaure le contexte (restoreContext),
+ * comme WebKit essaie de le faire quand l'événement de la perte a été annulé, ce que fait Babylon.js, et le contrôle
+ * exige l'événement webglcontextrestored ; perdu au premier createBuffer : la création du premier tampon perd le
+ * contexte et rend null, comme quand le processeur graphique ne crée pas le tampon. Quatrième contexte : une exception
+ * sans perte du contexte, le constructeur de ResizeObserver levant une erreur injectée. Dans chaque cas : le message du
+ * démarrage arrêté (celui du contexte perdu dans les trois premiers, le message général dans le quatrième), avec la
+ * version du site et « Recharger », lisible (dans la fenêtre, rendu en son centre, comme le bouton) et inchangé 2 s
+ * plus tard (restauration comprise) ; aucun message des capacités de rendu en flottants ; le canevas, le panneau du
+ * boîtier et le bouton « Défis » masqués ; la ligne des problèmes vide, ou qui donne l'exception rattrapée (premier
+ * createBuffer, exception injectée) ; aucune erreur non rattrapée de la page. main.ts écrit aussi l'exception rattrapée
+ * dans la console : la console n'est pas contrôlée.
  */
 async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
   const cases = [
@@ -624,6 +625,9 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
             if (mode === "exception" || !gl || this.id !== "scene" || !["webgl", "webgl2", "experimental-webgl"].includes(type)) return gl;
             const lose = gl.getExtension("WEBGL_lose_context");
             window.__routineLoseContext = lose;
+            this.addEventListener("webglcontextrestored", () => {
+              window.__routineRestored = true;
+            });
             for (const name of ["createBuffer", "createTexture", "createFramebuffer", "createRenderbuffer", "createProgram", "createShader", "createVertexArray", "createQuery"]) {
               if (typeof gl[name] !== "function") continue;
               const create = gl[name].bind(gl);
@@ -680,6 +684,12 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
       }
       await page.waitForTimeout(2000);
       const r = await read();
+      // Restauration constatée par l'événement webglcontextrestored, que la page écoute à part de Babylon.js (contrôle
+      // final de la version 0.4.4 : sans cela, le cas resterait vert si la restauration n'avait plus lieu).
+      if (mode === "restore" && restored === "restauration demandée") {
+        const done = await page.evaluate(() => window.__routineRestored === true);
+        restored = done ? "contexte restauré" : "restauration demandée, pas constatée";
+      }
       const expected =
         mode === "exception"
           ? "Le simulateur n'a pas pu démarrer. Recharge la page."
@@ -706,7 +716,7 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
           r.canvas === "none" &&
           r.panel === "none" &&
           r.challenges === "none" &&
-          (mode !== "restore" || restored === "restauration demandée") &&
+          (mode !== "restore" || restored === "contexte restauré") &&
           errors.length === 0,
         `${shown ? "" : "démarrage non arrêté ; "}${restored ? `${restored} ; ` : ""}« ${r.text} »${r.text === first.text ? "" : ` (2 s avant : « ${first.text} »)`} ; de ${r.top} à ${r.bottom} px sur ${r.height} ; rendu en son centre : ${r.hit ? "oui" : "non"} ; « Recharger » rendu en son centre : ${r.reloadHit ? "oui" : "non"} ; problème : ${r.problem || "aucun"}${r.problem === first.problem ? "" : ` (2 s avant : ${first.problem || "aucun"})`} ; canevas : ${r.canvas} ; panneau : ${r.panel} ; bouton « Défis » : ${r.challenges} ; erreurs : ${errors.join(" | ") || "aucune"}`,
       );

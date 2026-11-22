@@ -250,9 +250,10 @@ if (!Engine.isSupported()) {
 
 /**
  * Démarrage du simulateur, ou message qui dit qu'il n'a pas pu démarrer (version 0.4.4, demande de Julien du
- * 22 novembre 2026). Sur l'iPhone de Julien, dans Safari, les capacités lues valaient toutes « non », et Babylon.js a
- * levé « Unable to create vertex buffer » à la création de la scène, `createBuffer()` ayant rendu null : tout indique un
- * contexte WebGL inutilisable dès l'ouverture, sans que `isContextLost()` y ait été lu. L'exception arrêtait le
+ * 22 novembre 2026). Sur l'iPhone de la capture, dans Safari, les capacités lues valaient toutes « non », et Babylon.js a
+ * levé « Unable to create vertex buffer », `createBuffer()` ayant rendu null, avant que le panneau du boîtier ait reçu ses
+ * textes (dans le scénario reproduit dans Chromium : à la création de la scène) : tout indique un contexte WebGL
+ * inutilisable dès l'ouverture, sans que `isContextLost()` y ait été lu. L'exception arrêtait le
  * démarrage sans que rien ne le dise : la ligne des problèmes l'écrivait, mais la progression du chargement comptait
  * les secondes sans fin, les boutons du boîtier restaient sans texte, rien ne disait de recharger, et le message des
  * capacités imputait la panne au rendu en flottants. Un contexte perdu dès la création du moteur, ou une exception
@@ -311,7 +312,7 @@ function startOrFail(): void {
  * vue de dessus).
  *
  * L'écouteur de restauration de Babylon.js 9.35.0 est retiré : Babylon.js demande au navigateur de restaurer un
- * contexte perdu (`evt.preventDefault()`, Engines/thinEngine.pure.js, l. 186), et WebKit le fait ; mais sur un moteur
+ * contexte perdu (`evt.preventDefault()`, Engines/thinEngine.pure.js, l. 186), et WebKit essaie de le faire ; mais sur un moteur
  * créé avec un contexte déjà perdu, sa remise en état lève une TypeError (« Cannot set properties of undefined
  * (setting 'active') », `disableAttributeByIndex`, l. 1534 : les pointeurs des attributs, l. 265-267, n'ont pas été
  * créés, MAX_VERTEX_ATTRIBS valant null sur un contexte perdu), que la ligne des problèmes écrivait sous le message
