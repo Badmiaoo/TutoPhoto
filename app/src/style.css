@@ -184,6 +184,23 @@ body.no-webgl #challenge-button {
   display: none;
 }
 
+/* Démarrage arrêté (version 0.4.4, main.ts, failStart) : restent le message, avec « Recharger », et la ligne des
+   problèmes, l'un sous l'autre en haut de main ; placés en haut du viseur comme d'habitude, la ligne des problèmes
+   couvrait le message et son bouton (essai de la routine, iPhone 14 émulé). Le canevas, le panneau du boîtier, dont
+   les boutons n'ont pas reçu leur texte, le voile du cadre, l'indicateur d'équilibre, la vue de dessus et le bouton
+   « Défis », que le démarrage n'a pas remplis, sont masqués. */
+body.start-failed main > :not(#status):not(#diagnostic),
+body.start-failed #challenge-button,
+body.start-failed #camera-panel {
+  display: none;
+}
+
+body.start-failed #status,
+body.start-failed #diagnostic {
+  position: static;
+  margin: 0.5rem auto;
+}
+
 .error {
   padding: 1rem;
   color: var(--erreur);

@@ -97,7 +97,12 @@ const loadingTimer = window.setInterval(() => {
   if (statusKey !== "loading") window.clearInterval(loadingTimer);
   else renderStatus();
 }, 1000);
-let statusKey: "loading" | "loadError" | null = "loading";
+/**
+ * Message de la scène : chargement en cours, chargement en échec, ou démarrage arrêté (version 0.4.4) par un contexte
+ * WebGL perdu dès la création du moteur ou pendant le démarrage (startContextLost) ou par une autre exception
+ * (startError) ; null quand la scène est prête.
+ */
+let statusKey: "loading" | "loadError" | "startContextLost" | "startError" | null = "loading";
 /** Fichier nommé par l'échec du chargement, s'il est connu (version 0.3.70). */
 let failedFile: string | null = null;
 /** Contexte WebGL perdu, en attente de sa restauration (version 0.3.70, constat COD-12 de l'audit). */
@@ -153,14 +158,18 @@ reloadButton.addEventListener("click", () => window.location.reload());
 
 /**
  * Message de la scène : chargement en cours, chargement en échec (avec le fichier en cause et « Recharger »), ou
- * affichage interrompu par la perte du contexte WebGL (avec « Recharger »), qui passe avant les deux autres.
+ * affichage interrompu par la perte du contexte WebGL (avec « Recharger »), qui passe avant les deux autres. Un
+ * démarrage arrêté (version 0.4.4, avec « Recharger ») passe avant tout : la scène n'a pas été créée, et le message
+ * de la perte du contexte, qui dit que l'affichage peut reprendre seul, serait faux.
  */
 let renderedStatus: string | null = null;
 function renderStatus(): void {
   if (reloadButton.textContent !== t("reload")) reloadButton.textContent = t("reload");
   let message: string;
   let reload = true;
-  if (contextLost) {
+  if (statusKey === "startContextLost" || statusKey === "startError") {
+    message = withVersion(t(statusKey));
+  } else if (contextLost) {
     message = withVersion(t("contextLost"));
   } else if (statusKey === "loadError") {
     message = withVersion(failedFile ? t("loadErrorFile").replace("{file}", failedFile) : t("loadError"));
@@ -237,7 +246,20 @@ if (!Engine.isSupported()) {
   statusKey = null;
   element("no-webgl").hidden = false;
   applyTexts();
-} else {
+} else startOrFail();
+
+/**
+ * Démarrage du simulateur, ou message qui dit qu'il n'a pas pu démarrer (version 0.4.4, demande de Julien du
+ * 22 novembre 2026). Sur l'iPhone de Julien, dans Safari, le navigateur a donné à la page un contexte WebGL déjà
+ * inutilisable : les capacités lues valaient toutes « non », et Babylon.js a levé « Unable to create vertex buffer » à
+ * la création de la scène, `createBuffer()` ayant rendu null. L'exception arrêtait le démarrage en silence : la
+ * progression du chargement comptait les secondes sans fin, les boutons du boîtier restaient sans texte, et le
+ * message des capacités imputait la panne au rendu en flottants. Un contexte perdu dès la création du moteur, ou une
+ * exception pendant le démarrage, arrêtent maintenant le démarrage avec un message et « Recharger », et le message des
+ * capacités n'est donné que pour un contexte qui n'est pas perdu. Ce qui est établi, et ce qui ne l'est pas :
+ * docs/pile-technique.md, « Contexte perdu au démarrage ».
+ */
+function startOrFail(): void {
   // Viseur calculé à la densité de l'écran (version 0.3.52, demande de Julien du 11 novembre 2026 : la scène
   // paraissait pixelisée sur son téléphone). Par défaut, Babylon.js calcule l'image à la taille en pixels CSS
   // (adaptToDeviceRatio faux : niveau de mise à l'échelle 1) et le navigateur l'agrandit à la densité de l'écran,
@@ -250,7 +272,50 @@ if (!Engine.isSupported()) {
   // le processeur graphique quand on compare deux versions par leur débit (diagnosticModel.ts) ; sans limite donnée,
   // Babylon.js 9.35.0 prend la densité de l'écran (abstractEngine.pure.js, constructeur).
   const limitDeviceRatio = fullDensityRequested(window.location.search) ? undefined : MAX_DEVICE_RATIO;
-  const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, limitDeviceRatio }, true);
+  let engine: Engine | null = null;
+  try {
+    engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, limitDeviceRatio }, true);
+    // Perte du contexte WebGL (constat COD-12 de l'audit, version 0.3.70) : Babylon.js reprend seul le rendu à la
+    // restauration, si le navigateur la fait ; entre les deux, le viseur restait figé sans rien dire. Branchée dès la
+    // création du moteur depuis la version 0.4.4 : branchée en fin de démarrage, elle ne disait rien d'une perte
+    // pendant le démarrage.
+    engine.onContextLostObservable.add(() => {
+      contextLost = true;
+      renderStatus();
+    });
+    engine.onContextRestoredObservable.add(() => {
+      contextLost = false;
+      renderStatus();
+    });
+    // Contexte déjà perdu à la création du moteur : toutes les capacités lues valent « non », et le démarrage
+    // échouerait à la création de la scène (navigateurs dont `createBuffer()` rend null sur un contexte perdu).
+    if (engine._gl.isContextLost()) {
+      failStart("startContextLost", engine);
+      return;
+    }
+    startSimulator(engine);
+  } catch (error) {
+    console.error(error);
+    report("problemError", String(error));
+    failStart(engine !== null && engine._gl.isContextLost() ? "startContextLost" : "startError", engine);
+  }
+}
+
+/**
+ * Démarrage arrêté (version 0.4.4) : le message dit que le simulateur n'a pas pu démarrer, avec la version du site et
+ * « Recharger », suivi de la ligne des problèmes ; le canevas, le panneau du boîtier, dont les boutons n'ont pas reçu
+ * leur texte, et les éléments du viseur que le démarrage n'a pas remplis sont masqués (style.css, body.start-failed) ;
+ * la boucle de rendu est arrêtée.
+ */
+function failStart(key: "startContextLost" | "startError", engine: Engine | null): void {
+  engine?.stopRenderLoop();
+  statusKey = key;
+  document.body.classList.add("start-failed");
+  applyTexts();
+}
+
+/** Démarrage du simulateur sur un moteur dont le contexte n'est pas perdu (version 0.4.4 : avant, dans main). */
+function startSimulator(engine: Engine): void {
   // Capacités de rendu en flottants (constat ARC-13 de l'audit, version 0.3.88) : la photo et l'autofocus en ont besoin,
   // et Babylon.js crée leurs textures sans vérifier qu'il peut y rendre. Sans elles, la photo sortait presque noire, avec
   // sa légende ordinaire, et l'autofocus ne voyait plus les sujets, sans aucun message. Le message le dit dès le
@@ -407,11 +472,14 @@ if (!Engine.isSupported()) {
   );
   ready
     .then((waiting) => {
+      // Un démarrage arrêté après la création de la scène garde son message (version 0.4.4).
+      if (statusKey !== "loading") return;
       statusKey = null;
       if (waiting.length > 0) report("problemLate", waiting.slice(0, 5).join(", "));
     })
     .catch((error: unknown) => {
       console.error(error);
+      if (statusKey !== "loading") return;
       statusKey = "loadError";
       // Chemin relatif au dossier de la scène (relecture du Sujet 10) : cinq modèles ont un scene.bin, et le nom seul
       // ne disait pas lequel manquait.
@@ -423,16 +491,6 @@ if (!Engine.isSupported()) {
         });
     })
     .finally(applyTexts);
-  // Perte du contexte WebGL (constat COD-12 de l'audit, version 0.3.70) : Babylon.js reprend seul le rendu à la
-  // restauration, si le navigateur la fait ; entre les deux, le viseur restait figé sans rien dire.
-  engine.onContextLostObservable.add(() => {
-    contextLost = true;
-    renderStatus();
-  });
-  engine.onContextRestoredObservable.add(() => {
-    contextLost = false;
-    renderStatus();
-  });
   engine.runRenderLoop(render);
   // La taille du canevas change aussi sans que la fenêtre change : quand le panneau du boîtier passe sur
   // plusieurs lignes, par exemple après l'affichage des textes. Sans redimensionnement du moteur, le rendu

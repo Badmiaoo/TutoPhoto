@@ -280,6 +280,12 @@ const messages = {
     "Un fichier de la scène n'a pas été reçu ({file}). Le viseur peut être incomplet, et les photos échouer. Vérifie ta connexion.",
   reload: "Recharger",
   contextLost: "Affichage 3D interrompu par le navigateur. Il peut reprendre seul ; sinon, recharge la page.",
+  // Démarrage arrêté (version 0.4.4, demande de Julien du 22 novembre 2026 ; main.ts, startOrFail) : contexte WebGL
+  // perdu dès la création du moteur ou pendant le démarrage, ou autre exception, dont le détail est dans la ligne des
+  // problèmes. La version du site et « Recharger » suivent le message.
+  startContextLost:
+    "Le simulateur n'a pas pu démarrer : le navigateur a perdu l'affichage 3D (contexte WebGL) dès l'ouverture de la page. Recharge la page.",
+  startError: "Le simulateur n'a pas pu démarrer. Recharge la page.",
   creditsUnavailable:
     "Crédits indisponibles : la liste des éléments de la scène (scenes/parc/scene.json) n'a pas pu être chargée. Recharge la page pour réessayer.",
   noWebgl: "Ce navigateur ne permet pas d'afficher la scène 3D (WebGL indisponible).",
