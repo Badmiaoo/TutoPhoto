@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.88] - 2026-11-22
+
+Sujet 28 du plan de corrections de l'audit (`docs/audit/README.md`) : affichage de diagnostic et capacités de l'appareil (constats ARC-06 et ARC-13 de `docs/audit/architecture-application.md`). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le plan demande le message des capacités « dans les deux langues » : le français seul, depuis le retrait de l'anglais.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.87 relue (fusion, tag posé sur le commit de fusion de la pull request 94, release, publication, CI du dernier commit), lignée des sessions (profondeur 5 sur 8, effort « max ») ; Sujet 28 en cours ; dans « Leçons pratiques », deux redémarrages du conteneur de la session du Sujet 27, d'après cette session et l'heure de démarrage de sa machine (`uptime -s`) : le 21 novembre 2026 à 23 h 54 min 16 s UTC, à la seconde de sa relance horaire (23 h 54 min 17 s), le huitième relevé à la minute d'une relance ; le 22 novembre à 0 h 15 min 08 s UTC, à la seconde où arrivait la notification de GitHub de la fin de la routine, le premier relevé à l'arrivée d'une telle notification. Chaque fois, la session attendait la routine de son dernier commit, sans rien faire tourner ; le dépôt et le bloc-notes ont survécu, et l'outil qui décrit la session donnait ensuite `worker_epoch` 3. Les deux relevés vont avec l'idée d'un conteneur repris pendant que la session attend et recréé quand elle est réveillée ; la cause n'est pas établie.
+
 ## [0.3.87] - 2026-11-21
 
 Sujet 27 du plan de corrections de l'audit (`docs/audit/README.md`) : formules communes, sorties des fichiers de rendu (constat ARC-07 de `docs/audit/architecture-application.md`, et INT-14 de `docs/audit/interface.md` pour les contrôles de calcul de la routine). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le sujet n'a pas de part anglaise. Choix de Claude : `docs/propositions.md`, section 5, « Formules communes », onze choix.
@@ -1964,6 +1972,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.88]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.87...v0.3.88
 [0.3.87]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.86...v0.3.87
 [0.3.86]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.85...v0.3.86
 [0.3.85]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.84...v0.3.85
