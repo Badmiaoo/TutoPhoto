@@ -2,7 +2,7 @@
 
 ## Explication
 
-La vitesse d'obturation, ou temps de pose, est la durée pendant laquelle le capteur reçoit la lumière quand on prend une photo ([Wikipedia, « Shutter speed », révision 1382495283](https://en.wikipedia.org/w/index.php?title=Shutter_speed&oldid=1382495283), lue le 11 novembre 2026). Doubler le temps de pose double la quantité de lumière ; l'échelle des vitesses est normalisée par doublements, si bien qu'un cran de vitesse compense un cran d'ouverture (même source).
+La vitesse d'obturation, ou temps de pose, est la durée pendant laquelle le capteur reçoit la lumière quand on prend une photo ([Wikipedia, « Shutter speed », révision 1382495283](https://en.wikipedia.org/w/index.php?title=Shutter_speed&oldid=1382495283), source secondaire, relue le 22 novembre 2026). Doubler le temps de pose double la quantité de lumière ; l'échelle des vitesses est normalisée par doublements, si bien qu'un cran de vitesse compense un cran d'ouverture (même source).
 
 Pendant la pose, ce qui bouge laisse une traînée sur le capteur, d'autant plus longue que la pose est longue : voir MVT-01.
 

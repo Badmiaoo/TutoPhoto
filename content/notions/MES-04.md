@@ -2,7 +2,7 @@
 
 ## Explication
 
-Dans les modes autres que l'automatique, la correction d'exposition modifie l'exposition proposée par l'appareil pour rendre la photo plus claire ou plus sombre : de −5 à +5 IL par tiers d'IL sur le Nikon Z 6 ; une valeur positive éclaircit le sujet, une valeur négative l'assombrit ([Nikon, manuel en ligne Z 7/Z 6, « The Exposure Compensation Button »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_03.html), lu le 10 novembre 2026 ; [en français, « Commande correction d'exposition »](https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_03.html), relu le 20 novembre 2026). En mode M, elle ne change que l'indicateur d'exposition, sauf avec l'ISO auto, qui en tient compte. Elle ne se remet pas à zéro quand on éteint l'appareil : il faut penser à la remettre à ±0 (même source).
+Dans les modes autres que l'automatique, la correction d'exposition modifie l'exposition proposée par l'appareil pour rendre la photo plus claire ou plus sombre : de −5 à +5 IL par tiers d'IL sur le Nikon Z 6 ; une valeur positive éclaircit le sujet, une valeur négative l'assombrit ([Nikon, manuel en ligne Z 7/Z 6, « The Exposure Compensation Button »](https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_03.html) ; [en français, « Commande correction d'exposition »](https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_03.html), relus le 22 novembre 2026). En mode M, elle ne change que l'indicateur d'exposition, sauf avec l'ISO auto, qui en tient compte. Elle ne se remet pas à zéro quand on éteint l'appareil : il faut penser à la remettre à ±0 (même source).
 
 ## Simulateur
 
