@@ -226,6 +226,17 @@ const messages = {
   problemNoise: "Bruit du viseur indisponible sur cet appareil",
   problemDepthOfField: "Profondeur de champ du viseur indisponible sur cet appareil",
   problemLate: "Scène affichée avant d'être prête, éléments en attente",
+  // Capacités de rendu en flottants (constat ARC-13 de l'audit, version 0.3.88 ; diagnosticModel.ts, floatRenderMessage) :
+  // la ligne des problèmes, en haut du viseur, avec le détail floatRenderDetail, suivi de floatRenderFocus quand
+  // textureFloatRender manque, la seule dont dépend la carte de profondeur de l'autofocus et de l'aperçu de la
+  // profondeur de champ. Sans ces capacités, la photo sort presque noire, l'autofocus rend la distance du sol ou du
+  // fond, et l'aperçu floute tout le cadre autant que sa partie la plus floue (essais : docs/pile-technique.md,
+  // « Prise en charge des navigateurs »).
+  problemFloatRender: "Photo impossible sur cet appareil",
+  floatRenderDetail:
+    "son navigateur ne sait pas rendre l'image dans des textures en flottants ({caps} : non) ; le bouton « Déclencher » est désactivé.",
+  floatRenderFocus:
+    "La mise au point ne voit pas les sujets (elle se fait sur le sol ou le fond), et l'aperçu de la profondeur de champ floute tout le cadre, autant que sa partie la plus floue.",
   percent: "\u00a0%",
   loupeHelp: "Grossit l'image autour du point de mise au point, jusqu'à 100\u00a0% : un pixel de la page pour un photosite du capteur (sur un écran à haute densité, comme celui d'un téléphone, ce pixel en couvre plusieurs de l'écran).",
   reviewWhole: "Photo entière",
@@ -272,6 +283,22 @@ const messages = {
   creditsUnavailable:
     "Crédits indisponibles : la liste des éléments de la scène (scenes/parc/scene.json) n'a pas pu être chargée. Recharge la page pour réessayer.",
   noWebgl: "Ce navigateur ne permet pas d'afficher la scène 3D (WebGL indisponible).",
+  // Affichage de diagnostic, ouvert par « ?diagnostic » dans l'adresse (constat ARC-06 de l'audit, version 0.3.88 ;
+  // diagnosticModel.ts, ui/diagnosticView.ts). Les capacités et l'extension gardent leur nom technique : c'est celui que
+  // relèvent Julien et les testeurs, et que cite docs/pile-technique.md.
+  diagTitle: "Diagnostic (moyennes sur 1 s)",
+  diagWebgl: "WebGL {version} · {renderer}",
+  diagDensity: "Densité : écran {screen}, viseur {density} · image de {width} × {height} px",
+  diagFps: "Images par seconde : {fps}",
+  diagFrame: "Durée d'une image, processeur : {frame} ms (textures de rendu : {targets} ms)",
+  diagNoFrame: "Aucune image du viseur dans la dernière seconde (calcul d'une photo ou de la loupe, ou page cachée)",
+  diagGpu: "Durée d'une image, processeur graphique : {gpu} ms",
+  diagGpuWaiting: "Durée d'une image, processeur graphique : en attente d'une mesure",
+  diagGpuMissing: "Durée d'une image, processeur graphique : non mesurée ({extension} absente)",
+  diagGpuUnsupported: "Durée d'une image, processeur graphique : non mesurée (WebGL 1 sans horodatage, que Babylon.js 9.35.0 ne mesure qu'une fois)",
+  diagCaps: "Rendu en flottants : {caps}",
+  diagYes: "oui",
+  diagNo: "non",
 } satisfies Record<string, string>;
 
 export type MessageKey = keyof typeof messages;

@@ -14,6 +14,8 @@ import { TopView } from "./ui/topView";
 import { ChallengePicker } from "./ui/challenges";
 import { FicheDialog } from "./ui/ficheDialog";
 import { ReviewInfo } from "./ui/reviewInfo";
+import { DiagnosticView } from "./ui/diagnosticView";
+import { diagnosticRequested, floatRenderMessage, fullDensityRequested, missingFloatRender } from "./diagnosticModel";
 import { t } from "./texts";
 import { siteVersion } from "./version";
 
@@ -113,8 +115,8 @@ let challenges: ChallengePicker | null = null;
 let ficheDialog: FicheDialog | null = null;
 
 // Problèmes affichés à l'écran, pour diagnostiquer sur un téléphone sans console : erreurs JavaScript,
-// shader du bruit qui ne compile pas, scène affichée avant d'être prête.
-type ProblemKey = "problemError" | "problemNoise" | "problemDepthOfField" | "problemLate";
+// shader du bruit qui ne compile pas, scène affichée avant d'être prête, rendu en flottants absent (version 0.3.88).
+type ProblemKey = "problemError" | "problemNoise" | "problemDepthOfField" | "problemLate" | "problemFloatRender";
 const problems: { key: ProblemKey; detail: string }[] = [];
 
 function report(key: ProblemKey, detail: string): void {
@@ -243,8 +245,19 @@ if (!Engine.isSupported()) {
   // mais saccadé sur le téléphone de Julien ; densité plafonnée à 2 en version 0.3.53, à sa demande (version isolée,
   // à annuler si elle ne convient pas). Babylon.js applique le plafond à la création du moteur (niveau de mise à
   // l'échelle 1 / min(plafond, densité)) ; si la densité change ensuite (zoom du navigateur), il multiplie ce niveau
-  // par le rapport des densités, sans réappliquer le plafond.
-  const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, limitDeviceRatio: MAX_DEVICE_RATIO }, true);
+  // par le rapport des densités, sans réappliquer le plafond. Seule exception : l'affichage de diagnostic ouvert par
+  // « ?diagnostic=densite-complete » (version 0.3.88) calcule le viseur à la densité complète de l'écran, pour charger
+  // le processeur graphique quand on compare deux versions par leur débit (diagnosticModel.ts) ; sans limite donnée,
+  // Babylon.js 9.35.0 prend la densité de l'écran (abstractEngine.pure.js, constructeur).
+  const limitDeviceRatio = fullDensityRequested(window.location.search) ? undefined : MAX_DEVICE_RATIO;
+  const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, limitDeviceRatio }, true);
+  // Capacités de rendu en flottants (constat ARC-13 de l'audit, version 0.3.88) : la photo et l'autofocus en ont besoin,
+  // et Babylon.js crée leurs textures sans vérifier qu'il peut y rendre. Sans elles, la photo sortait presque noire, avec
+  // sa légende ordinaire, et l'autofocus ne voyait plus les sujets, sans aucun message. Le message le dit dès le
+  // démarrage, et ui/shutter.ts grise le déclencheur et refuse tout calcul. Aucun repli n'est écrit (décision D24 en
+  // attente).
+  const missingFloat = missingFloatRender(engine.getCaps());
+  if (missingFloat.length > 0) report("problemFloatRender", floatRenderMessage(missingFloat));
   const { scene, camera, ready, filesSettled, time, subjects, eye } = createScene(engine, canvas);
   // Serveur de développement seulement (absent du site construit) : accès pour les mesures sur la scène.
   if (import.meta.env.DEV) {
@@ -285,6 +298,9 @@ if (!Engine.isSupported()) {
   const ground = { eyeHeight: EYE_HEIGHT, domeRadius: DOME_RADIUS };
   const autofocus = new Autofocus(scene, camera, ground, () => panel.focusArea(), subjects);
   panel.attachAutofocus(autofocus);
+  // Affichage de diagnostic (constat ARC-06 de l'audit, version 0.3.88) : seulement avec « ?diagnostic » dans l'adresse ;
+  // créé après l'autofocus (ui/diagnosticView.ts).
+  if (diagnosticRequested(window.location.search)) new DiagnosticView(engine, scene, canvas.parentElement ?? document.body);
   const dof = new ViewfinderDepthOfField(
     scene,
     camera,
@@ -349,6 +365,7 @@ if (!Engine.isSupported()) {
       },
     ),
     () => ({ failed: statusKey === "loadError", stuck: sceneStuck }),
+    missingFloat,
   );
   balance = new BalanceIndicator(
     engine,

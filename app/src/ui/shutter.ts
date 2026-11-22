@@ -176,7 +176,16 @@ export class Shutter {
     private readonly info: ReviewInfo,
     /** État du chargement : un fichier en échec (failed), et la scène toujours pas prête après (stuck). */
     private readonly sceneState: () => { failed: boolean; stuck: boolean },
+    /**
+     * Capacités de rendu en flottants qui manquent à l'appareil (diagnosticModel.ts, lues par main.ts au démarrage) :
+     * si la liste n'est pas vide, le déclencheur est grisé et aucune photo n'est calculée (constat ARC-13 de l'audit,
+     * version 0.3.88 ; refusedForCapabilities).
+     */
+    private readonly missingFloatRender: readonly string[] = [],
   ) {
+    // Appareil sans rendu en flottants : déclencheur grisé dès le départ ; la ligne des problèmes, en haut du viseur, dit
+    // pourquoi (main.ts). Rien ne le réactive : CameraPanel.setEnabled(true) n'est appelé qu'à la fin d'un calcul.
+    if (missingFloatRender.length > 0) el.button.disabled = true;
     // Perte du contexte WebGL (relecture du Sujet 10, version 0.3.70) : pendant la perte, le rendu donnait une photo
     // toute noire, avec son bulletin ; perdu pendant le calcul, le contexte peut aussi fausser la photo.
     engine.onContextLostObservable.add(() => {
@@ -337,6 +346,8 @@ export class Shutter {
   /** Appui sur le déclencheur : vue par vue tout de suite, rafale jusqu'au relâchement, ou retardateur. */
   private pressStart(): void {
     if (this.busy || this.shooting || this.press || this.countdown !== null) return;
+    // Appareil sans rendu en flottants : refus dès l'appui, sans compte à rebours ni rafale (version 0.3.88).
+    if (this.refusedForCapabilities()) return;
     const mode = this.panel.releaseMode();
     if (mode.kind === "timer") {
       this.startCountdown(mode.delay);
@@ -424,7 +435,7 @@ export class Shutter {
    * mesure échoue, la photo mesure elle-même la distance au point. resumeAt : instant où l'horloge repart.
    */
   private async shootSeries(moments: Moment[], resumeAt: number | null): Promise<void> {
-    if (this.busy || this.shooting) return;
+    if (this.busy || this.shooting || this.refusedForCapabilities()) return;
     // Refus immédiat (relecture du Sujet 10) : contexte perdu, ou scène en échec restée pas prête 20 s après l'arrivée
     // ou l'échec du dernier fichier ; la photo aurait été noire, ou aurait attendu 20 s pour échouer.
     const refusal = this.refusal();
@@ -680,6 +691,20 @@ export class Shutter {
   private openReview(): void {
     this.el.review.hidden = false;
     this.el.review.scrollTop = 0;
+  }
+
+  /**
+   * Refus d'un appareil sans rendu en flottants (constat ARC-13 de l'audit, version 0.3.88) : la photo aurait été
+   * presque noire, livrée avec sa légende ordinaire. Le refus est tenu ici, et pas seulement par le bouton grisé :
+   * CameraPanel.setEnabled(true) réactive tous les boutons du panneau (contre-vérification d'ARC-13). Il ne dit rien et
+   * n'ouvre pas l'écran de revue : la ligne des problèmes, en haut du viseur, le dit déjà, et, l'écran de revue ouvert
+   * sur un message, son bouton « Revenir au viseur » tombait sous cette ligne, qui prend les touchers (relecture de la
+   * version 0.3.88, constat C1). Le bouton, s'il a été réactivé, est grisé de nouveau.
+   */
+  private refusedForCapabilities(): boolean {
+    if (this.missingFloatRender.length === 0) return false;
+    this.el.button.disabled = true;
+    return true;
   }
 
   /** Raison de refuser une photo avant tout calcul, ou null. */
