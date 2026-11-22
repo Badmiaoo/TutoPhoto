@@ -48,8 +48,8 @@ sources:
     url: "https://www.cambridgeincolour.com/tutorials/macro-extension-tubes.htm"
   - id: wikipedia-zone-system
     group: "Cours et pédagogie"
-    label: "Wikipedia, Zone System"
-    url: "https://en.wikipedia.org/wiki/Zone_System"
+    label: "Wikipedia, Zone System : technique « formulated by Ansel Adams and Fred Archer » (révision 1382492262, source secondaire, lue le 22 novembre 2026)"
+    url: "https://en.wikipedia.org/w/index.php?title=Zone_System&oldid=1382492262"
     note: "Source secondaire : ajouter une source primaire à la rédaction."
   - id: bh-sunstars
     group: "Cours et pédagogie"
@@ -122,7 +122,7 @@ sources:
     group: "Outils"
     label: "SunCalc, dépôt de Volodymyr Agafonkin (licence BSD-2-Clause ; la v2.0 a changé unités et conventions, version à figer)"
     url: "https://github.com/mourner/suncalc"
-    note: "Aucune version publiée affichée sur le dépôt : figer un commit (audit indépendant)."
+    note: "Le dépôt porte des étiquettes de version (git ls-remote --tags, relu le 22 novembre 2026) : figer la version étiquetée du jour de l'usage, et lire les notes de la version 2.0, qui a changé unités et conventions, avant d'écrire les notions qui citent SunCalc (LUM-04, PLA-01 à PLA-03)."
   - id: canon-r5-af-operation
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon EOS R5, AF Operation"
@@ -142,7 +142,7 @@ sources:
   - id: canon-m50ii-metering
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon EOS M50 Mark II, Metering Mode"
-    url: "https://cam.start.canon/fa/C007/manual/html/UG-04_AF-Drive_0080.html"
+    url: "https://cam.start.canon/en/C007/manual/html/UG-04_AF-Drive_0080.html"
   - id: canon-80d-manualslib
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon EOS 80D, caractéristiques (ManualsLib)"
@@ -186,13 +186,9 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony α7 IV (ILCE-7M4), Focus Area"
     url: "https://helpguide.sony.net/ilc/2110/v1/en/contents/TP1000640179.html"
-  - id: sony-rx0ii-highlight
-    group: "Constructeurs : manuels et pages techniques"
-    label: "Sony RX0 II (DSC-RX0M2), Metering Mode (Highlight)"
-    url: "https://helpguide.sony.net/dsc/1910/v1/en/contents/TP0002055602.html"
   - id: sony-rx10iv-limiter
     group: "Constructeurs : manuels et pages techniques"
-    label: "Sony RX10 IV (DSC-RX10M4), limiteur de mise au point"
+    label: "Sony RX10 IV (DSC-RX10M4), Focus Mode, section « Focus range limiter » : l'interrupteur du limiteur de cet appareil, qui n'est pas un boîtier à objectif interchangeable (son guide d'aide le range parmi les « Digital Still Camera » de Sony, pas parmi les « Interchangeable Lens Digital Camera » ; lu le 22 novembre 2026)"
     url: "https://helpguide.sony.net/dsc/1720/v1/en/contents/TP0001593199.html"
   - id: sony-a7iii-infinity
     group: "Constructeurs : manuels et pages techniques"
@@ -232,8 +228,8 @@ sources:
     url: "https://id.canon/id/support/8204084200"
   - id: nikon-zr-mf-ring
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon ZR, Reference Guide, Manual focus ring in AF mode"
-    url: "https://onlinemanual.nikonimglib.com/zr/en/09-05.html"
+    label: "Nikon ZR, Reference Guide, a13: Manual focus ring in AF mode, avec les objectifs compatibles seulement (« This item is available with compatible lenses only. » ; lu le 22 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/zr/en/09-05-14.html"
   - id: nikon-zr-multiple-exposure
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon ZR, Reference Guide, Multiple exposure (2 à 10 vues NEF, modes Add, Average, Lighten, Darken)"
@@ -246,11 +242,14 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon Z 8, Reference Guide, Long Time-Exposures (Bulb, Time)"
     url: "https://onlinemanual.nikonimglib.com/z8/en/exposure_32.html"
-  - id: nikon-z8-guide
+  - id: nikon-z8-focus-points-used
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon Z 8, guide de référence (Focus Points Used, Focus Point Wrap-Around)"
-    url: "https://onlinemanual.nikonimglib.com/z8/en/"
-    note: "Lien vers l'accueil du guide : pointer la page exacte à la rédaction."
+    label: "Nikon Z 8, Reference Guide, a4: Focus Points Used : avec « Alternating points », « The number of available focus points is reduced to one quarter of the number available when [All points] is selected. » (lu le 22 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z8/en/csma_focus_points_used_207.html"
+  - id: nikon-z8-focus-point-wrap-around
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Nikon Z 8, Reference Guide, a10: Focus Point Wrap-Around : « focus-point selection will “wrap around” from top to bottom, bottom to top, right to left, and left to right » (lu le 22 novembre 2026)"
+    url: "https://onlinemanual.nikonimglib.com/z8/en/csma_focus_point_wrap-around_213.html"
   - id: nikon-z50ii-bracketing
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon Z50II, Reference Guide, Auto bracketing (exposition, flash, balance des blancs, ADL)"
@@ -301,8 +300,9 @@ sources:
     url: "https://helpguide.sony.net/ilc/2110/v1/en/contents/TP1000659395.html"
   - id: fujifilm-x100t-photometry
     group: "Constructeurs : manuels et pages techniques"
-    label: "Fujifilm X100T, Photometry (Interlock Spot AE & Focus Area)"
+    label: "Fujifilm X100T (compact à objectif fixe, pas un boîtier à objectif interchangeable), Photometry (Interlock Spot AE & Focus Area)"
     url: "https://fujifilm-dsc.com/en/manual/x100t/shooting/photometry/index.html"
+    note: "Nature de l'appareil d'après Wikipedia, source secondaire, article « Fujifilm X100 », révision 1380553046, lue le 22 novembre 2026 : « The Fujifilm X100 is a series of digital compact cameras with a fixed prime lens », série qui comprend le X100T. La page du manuel n'est pas joignable d'ici (fujifilm-dsc.com refusé par le proxy de l'environnement de Claude, 22 novembre 2026)."
   - id: lingibe-2019
     group: "Droit et réglementation"
     label: "Village de la Justice, Droit à l'image : quelles sont les règles applicables (Patrick Lingibé, 25 février 2019)"
@@ -481,6 +481,18 @@ sources:
     group: "Outils"
     label: "@babylonjs/core, registre npm (version 9.35.0, licence Apache-2.0, lu le 7 novembre 2026)"
     url: "https://www.npmjs.com/package/@babylonjs/core"
+    used_in: [docs/pile-technique.md]
+  - id: npm-babylonjs-loaders
+    group: "Outils"
+    label: "@babylonjs/loaders, registre npm (version 9.35.0, publiée le 6 novembre 2026, licence Apache-2.0 ; demande que soient installés à côté de lui, dans ses « peerDependencies », @babylonjs/core et babylonjs-gltf2interface ^9.0.0 ; lu le 22 novembre 2026)"
+    url: "https://www.npmjs.com/package/@babylonjs/loaders"
+    note: "Lu dans le registre (registry.npmjs.org), la page de www.npmjs.com répondant 403 aux lectures automatiques (22 novembre 2026)."
+    used_in: [docs/pile-technique.md]
+  - id: npm-babylonjs-gltf2interface
+    group: "Outils"
+    label: "babylonjs-gltf2interface, registre npm (version 9.35.0, publiée le 6 novembre 2026, licence Apache-2.0, lu le 22 novembre 2026)"
+    url: "https://www.npmjs.com/package/babylonjs-gltf2interface"
+    note: "Lu dans le registre (registry.npmjs.org), la page de www.npmjs.com répondant 403 aux lectures automatiques (22 novembre 2026)."
     used_in: [docs/pile-technique.md]
   - id: npm-vite
     group: "Outils"

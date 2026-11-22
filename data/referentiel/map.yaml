@@ -184,6 +184,8 @@ notions:
       exercise: "Régler le limiteur pour des oiseaux lointains"
     situations: [SIT-08, SIT-22]
     sources: [sony-rx10iv-limiter]
+    todo:
+      - "Sourcer le limiteur de mise au point d'un objectif de reflex ou d'hybride avant d'écrire la fiche : la seule source, sony-rx10iv-limiter, décrit l'interrupteur d'un appareil que Sony ne range pas parmi ses boîtiers à objectif interchangeable."
     since: v0.1
   - id: MAP-15
     title: "Mise au point dans le noir et à l'infini"
@@ -261,5 +263,5 @@ notions:
       simulator: "Menu des options du collimateur, effet sur la vitesse de déplacement"
       exercise: "Configurer le collimateur pour passer d'un bord à l'autre en un geste"
     situations: [SIT-08, SIT-38]
-    sources: [nikon-z8-guide, canon-r5ii-af-area]
+    sources: [nikon-z8-focus-points-used, nikon-z8-focus-point-wrap-around, canon-r5ii-af-area]
     since: v0.2
