@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.3.90] - 2026-11-22
+
+Sujet 30 du plan de corrections de l'audit (`docs/audit/README.md`) : les entrées de `data/sources.yaml` : adresses, libellés, sources venues de compacts (constats SRC-01, SRC-06, SRC-07, SRC-10, SRC-02 et SRC-05 de `docs/audit/sources.md`). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. En cours.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : fin de la version 0.3.89 relue (fusion, tag posé sur le commit de fusion de la pull request 96, release, publication, CI du dernier commit), lignée des sessions (profondeur 7 sur 8, effort « max ») ; Sujet 30 en cours ; dans « Leçons pratiques », aucun redémarrage du conteneur de la session du Sujet 29, d'après cette session et l'heure de démarrage de sa machine (`uptime -s` : 3 h 40 min 31 s UTC, la création de la session, relue à 3 h 58 min 59 s, 4 h 21 min 55 s, 4 h 42 min 58 s et 4 h 45 min 10 s UTC ; `worker_epoch` 1 à 4 h 44 UTC) : ni à l'arrivée de huit notifications de GitHub (de 3 h 45 à 4 h 44 UTC, dont deux pendant qu'un agent tournait en arrière-plan), ni à sa relance horaire, mise en file à 4 h 41 min 40 s UTC pendant que la session travaillait (push à 4 h 42 min 38 s). Sa pull request ne lançait pas la routine. Ces relevés vont avec l'idée d'un conteneur repris pendant que la session attend sans rien faire tourner, sans l'établir.
+
 ## [0.3.89] - 2026-11-22
 
 Sujet 29 du plan de corrections de l'audit (`docs/audit/README.md`) : la carte de l'application dans `docs/architecture.md` (constat ARC-09 de `docs/audit/architecture-application.md`, et DOC-07 de `docs/audit/documentation.md` pour la promesse de réécriture de la même page). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le sujet ne touche que des documents : ni `app/`, ni `content/`, ni `data/`, ni la routine ; le site construit ne change que par son numéro de version (les scripts de construction ne lisent dans `CHANGELOG.md` que le premier titre de version, et rien dans `docs/`). La réécriture de la partie « produit » de la page attend la fin des refontes, comme le dit le plan. Choix de Claude : `docs/propositions.md`, section 5, « La carte de l'application dans `docs/architecture.md` », huit choix.
@@ -2029,6 +2037,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.3.90]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.89...v0.3.90
 [0.3.89]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.88...v0.3.89
 [0.3.88]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.87...v0.3.88
 [0.3.87]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.3.86...v0.3.87
