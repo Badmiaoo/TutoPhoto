@@ -3,7 +3,8 @@
 citée, et que les adresses des fiches, du code et de docs/ sont dans data/sources.yaml ; les fiches de content/ et les
 titres que le simulateur recopie de data/ ; avec --base, les identifiants et le champ since d'une version à l'autre.
 
-Usage : python3 scripts/validate.py [racine du dépôt] [--base REF] [--citations [ID ...]]
+Usage : python3 scripts/validate.py [racine du dépôt] [--base REF] [--citations [ID ...]] (la racine avant
+--citations, qui prendrait sinon la racine pour un identifiant)
 
 --citations [ID ...] : écrit, pour chaque source nommée (toutes, sans identifiant), où elle est citée : notions,
 domaines, situations et fichiers, calculés comme pour l'avertissement « citée nulle part » (version 0.4.2 ; avant, le
@@ -21,6 +22,7 @@ Sort avec le code 1 s'il y a au moins une erreur ; les avertissements ne bloquen
 import argparse
 import collections
 import json
+import os
 import pathlib
 import re
 import subprocess
@@ -188,17 +190,23 @@ def check_levels(ref):
 # (Sujet 34 du plan de corrections, constats SRC-03 et SRC-05 de l'audit et leurs contre-vérifications, version 0.4.2).
 # Règle d'entrée d'une adresse : docs/lire-le-referentiel.md, « Champs d'une source ».
 
-# Les fichiers qui peuvent s'appuyer sur une source : les fiches, le code (le site, sa construction, ses tests, les
-# scripts du dépôt) et les pages de docs/, hors des dossiers de travail, qui citent leurs adresses eux-mêmes, et des
-# rapports d'audit. CHANGELOG.md et REPRISE.md, un récit et une archive, n'en sont pas.
-CODE = ("app/src", "app/scripts", "app/tests", "scripts")
+# Les fichiers qui peuvent s'appuyer sur une source : les fiches, le code (app/, le site, sa construction et ses
+# tests ; scripts/, les contrôles du dépôt) et les pages de docs/. Hors d'eux (HORS_CITANTS) : les dossiers de travail,
+# qui citent leurs adresses eux-mêmes, et les rapports d'audit ; app/public/, que le site publie tel quel (les scènes,
+# dont les manifestes sont lus à part, et la page des licences) ; ce qu'écrit la construction (app/dist/) ; la liste
+# des paquets installés (app/package-lock.json), dont les adresses sont celles du registre npm. Les dossiers
+# node_modules et __pycache__ ne sont pas lus. CHANGELOG.md, README.md et REPRISE.md ne sont pas non plus des fichiers
+# qui citent : un récit, une présentation et une archive.
+CODE = ("app", "scripts")
 CITANTS = ("content", *CODE, "docs")
-HORS_CITANTS = ("docs/dossiers", "docs/audit")
-SUFFIXES_TEXTE = {".cjs", ".css", ".html", ".js", ".json", ".md", ".mjs", ".mts", ".py", ".ts", ".txt", ".yaml", ".yml"}
-# Le manifeste d'une scène nomme la page où la licence de ses éléments a été vérifiée (`license_checked_at`) : il compte
-# pour savoir où une source est citée. Ses autres adresses (page d'origine, téléchargement, licence d'un élément) sont
-# les métadonnées que demande docs/licences.md, que contrôle scripts/check_scenes.py, pas des sources : l'autre sens ne
-# le lit pas.
+HORS_CITANTS = ("docs/dossiers", "docs/audit", "app/public", "app/dist", "app/package-lock.json")
+# Tout fichier de CITANTS est lu en UTF-8 (sinon, une erreur qui le nomme), sauf ceux qui ne sont pas du texte.
+SUFFIXES_BINAIRES = {".bin", ".gif", ".glb", ".hdr", ".ico", ".jpeg", ".jpg", ".ktx2", ".otf", ".pdf", ".png", ".ttf",
+                     ".webp", ".woff", ".woff2"}
+# Le manifeste d'une scène écrit l'adresse de la page d'origine de chaque élément (`source`), celle où sa licence a été
+# vérifiée (`license_checked_at`), celles de ses fichiers et de sa licence : une source dont il écrit l'adresse y est
+# citée. Ces adresses sont les métadonnées que demande docs/licences.md, que contrôle scripts/check_scenes.py, et la
+# plupart ne sont pas des sources : l'autre sens ne le lit pas.
 MANIFESTES_DE_SCENE = "app/public/scenes/*/scene.json"
 # Adresses écrites dans les fichiers de CITANTS sans être des sources : l'autre sens ne leur demande pas d'entrée.
 ADRESSES_TECHNIQUES = {
@@ -209,12 +217,13 @@ ADRESSES_TECHNIQUES = {
                                                           "(scripts/check_scenes.py)",
     "https://creativecommons.org/licenses/by/4.0/": "la licence CC BY 4.0, valeur attendue d'un manifeste de scène "
                                                     "(scripts/check_scenes.py)",
-    "https://claude.com/claude-code": "le lien du pied qu'ajoute l'outil GitHub de Claude à une pull request, cité par "
-                                      "docs/publication.md",
-    "https://…": "une adresse d'exemple, coupée (docs/contenus.md, app/scripts/build-pages.mjs)",
+    "https://claude.com/claude-code": "le lien du pied qu'ajoute l'outil GitHub de Claude à une pull request, que "
+                                      "recopie docs/publication.md",
+    "https://…": "une adresse d'exemple, coupée (« [texte](https://…) »)",
 }
-# « https:/{2} » plutôt que les deux barres : ce fichier ne contient ainsi pas d'adresse que le contrôle lirait.
-ADRESSE = re.compile(r"https:/{2}[^\s<>\"'`\]]+")
+# « https:/{2} » plutôt que les deux barres : ce fichier ne contient ainsi pas d'autre adresse que celles
+# d'ADRESSES_TECHNIQUES. Une barre oblique inverse finit l'adresse : celle du « \n » qui la suit dans une chaîne du code.
+ADRESSE = re.compile(r"https:/{2}[^\s<>\"'`\]\\]+")
 CROCHETS = re.compile(r"\[([a-z0-9]+(?:-[a-z0-9]+)*)\]")
 
 
@@ -232,28 +241,30 @@ def sans_ponctuation(adresse):
 
 
 def adresses(contenu):
-    """(ligne, adresse) de chaque adresse https d'un texte, dans l'ordre."""
-    for numero, ligne in enumerate(contenu.split("\n"), 1):
+    """(ligne, adresse) de chaque adresse https d'un texte, dans l'ordre ; fins de ligne LF, CRLF ou CR seul."""
+    for numero, ligne in enumerate(re.split(r"\r\n|\r|\n", contenu), 1):
         for m in ADRESSE.finditer(ligne):
             yield numero, sans_ponctuation(m.group(0))
 
 
 def fichiers_citants(ref):
-    """Chemins des fichiers de CITANTS, hors de HORS_CITANTS, triés ; ceux dont le suffixe est dans SUFFIXES_TEXTE. Les
-    dossiers que git ignore (node_modules, __pycache__) n'y sont pas, ni ce qu'écrit la construction (app/dist/)."""
+    """Chemins des fichiers de CITANTS, triés : hors de HORS_CITANTS, des dossiers node_modules et __pycache__, et des
+    fichiers dont le suffixe est dans SUFFIXES_BINAIRES. Les chemins sont pris à partir de la racine du dépôt : un
+    dépôt rangé sous un dossier « node_modules » est lu comme un autre (relecture de la version 0.4.2, R5)."""
     chemins = []
     for dossier in CITANTS:
-        for path in (ref.root / dossier).rglob("*"):
-            rel = ref.rel(path)
-            if (path.is_file() and path.suffix in SUFFIXES_TEXTE
-                    and not any(rel.startswith(h + "/") for h in HORS_CITANTS)
-                    and not {"node_modules", "__pycache__"} & set(path.parts)):
-                chemins.append(path)
+        for racine, dossiers, fichiers in os.walk(ref.root / dossier):
+            rel = ref.rel(racine)
+            dossiers[:] = [d for d in dossiers
+                           if d not in ("node_modules", "__pycache__") and f"{rel}/{d}" not in HORS_CITANTS]
+            for nom in fichiers:
+                if f"{rel}/{nom}" not in HORS_CITANTS and pathlib.PurePath(nom).suffix.lower() not in SUFFIXES_BINAIRES:
+                    chemins.append(pathlib.Path(racine) / nom)
     return sorted(chemins)
 
 
 def citations(ref):
-    """Où chaque source est citée : {identifiant : [lieux]}, un lieu étant une notion (« MAP-04 », « MAP-04, terms »),
+    """Où chaque source est citée : {identifiant : [lieux]}, un lieu étant une notion (« MAP-04 », « MAP-04 (terms) »),
     un domaine (« domaine MAP »), une situation, ou le chemin d'un fichier : un fichier de CITANTS ou un manifeste de
     scène qui écrit son adresse, ou un fichier de CODE qui la nomme par son identifiant entre crochets
     (« [identifiant-de-la-source] »). Rend aussi les adresses des fichiers de CITANTS qui ne sont ni dans
@@ -276,7 +287,7 @@ def citations(ref):
             citer(sid, n["id"])
         for t in n.get("terms", []):
             for sid in t["sources"]:
-                citer(sid, f"{n['id']}, terms")
+                citer(sid, f"{n['id']} (terms)")
     for s in ref.situations:
         for sid in s.get("sources", []):
             citer(sid, s["id"])
@@ -303,8 +314,15 @@ def citations(ref):
 
 def check_sources(ref, lieux, absentes):
     """Les identifiants de sources du référentiel existent ; une source citée nulle part est un avertissement ; une
-    adresse d'un fichier de CITANTS absente de data/sources.yaml, hors ADRESSES_TECHNIQUES, est une erreur."""
+    adresse d'un fichier de CITANTS absente de data/sources.yaml, hors ADRESSES_TECHNIQUES, est une erreur ; une source
+    dont l'adresse, écrite dans un texte, ne se lirait pas entière (apostrophe, ponctuation finale) est une erreur : elle
+    ne serait jamais reconnue (relecture de la version 0.4.2, R6)."""
     known = {s["id"] for s in ref.sources}
+    for s in ref.sources:
+        lues = [adresse for _, adresse in adresses(s["url"])]
+        if lues != [s["url"]]:
+            error(f"data/sources.yaml : {s['id']} : l'adresse {s['url']} se lit « {' '.join(lues)} » dans un texte ; "
+                  f"écrire en pour-cent le caractère qui la coupe (%27 pour une apostrophe, %2E pour un point final)")
     for path, data in ref.domain_files:
         for sid in data["domain"].get("sources", []):
             if sid not in known:
@@ -753,7 +771,8 @@ def ecrire_citations(ref, lieux, ids):
     connues = [s["id"] for s in ref.sources]
     for sid in ids:
         if sid not in connues:
-            error(f"--citations : source inconnue : {sid}")
+            racine = " (la racine du dépôt s'écrit avant --citations)" if pathlib.Path(sid).is_dir() else ""
+            error(f"--citations : source inconnue : {sid}{racine}")
     for sid in [i for i in ids if i in connues] if ids else connues:
         print(f"{sid} : {', '.join(lieux.get(sid, [])) or 'citée nulle part'}")
 
@@ -766,8 +785,11 @@ def summary(ref):
 
 
 def arguments():
-    parser = argparse.ArgumentParser(description="Contrôle le référentiel (data/), les fiches (content/) et les titres "
-                                                 "que le simulateur recopie de data/.")
+    parser = argparse.ArgumentParser(
+        usage="%(prog)s [racine] [--base REF] [--citations [ID ...]]",
+        description="Contrôle le référentiel (data/), les fiches (content/), les titres que le simulateur recopie de "
+                    "data/, où chaque source est citée, et que les adresses des fiches, du code et de docs/ sont dans "
+                    "data/sources.yaml. La racine, si elle est donnée, s'écrit avant --citations.")
     parser.add_argument("racine", nargs="?", default=referentiel.ROOT, help="racine du dépôt (par défaut : celle du script)")
     parser.add_argument("--base", metavar="REF", help="version du dépôt à laquelle comparer les identifiants, leurs "
                                                       "titres, le champ since et la version en tête du changelog "
