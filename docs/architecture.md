@@ -1,8 +1,83 @@
-# Architecture produit
+# Architecture
 
-_Section 2 de `REPRISE.md` (7 novembre 2026), copiée sans réécriture ; seuls les niveaux de titre changent._
+> **Deux parties.** La carte de l'application, ci-dessous, décrit le code tel qu'il est ; elle se tient à jour à chaque refonte et à chaque module ajouté, retiré ou déplacé. L'architecture du produit, ensuite, est le brouillon du 7 novembre 2026, en partie caduc. Il devait être réécrit avec le choix de la pile technique, fait le même jour (Babylon.js, `docs/pile-technique.md`) ; il ne l'a pas été, et sa réécriture attend la fin des refontes du plan de corrections de l'audit (constat ARC-09, `docs/audit/architecture-application.md` ; plan : `docs/audit/README.md`, Sujet 29).
 
-> **En partie caduque depuis le 7 novembre 2026.** Les scènes seront en 3D de synthèse, et non en 2.5D : le moteur de rendu 2.5D, les défis « dans une scène 2.5D » et la section « Format de scène 2.5D » ne valent plus. Cette page sera réécrite avec le choix de la pile technique. Les trois portes d'entrée, le solveur de situations, le bulletin, le boîtier virtuel et le bilinguisme restent valables comme brouillon. Le profil de capteur « 1 pouce » est à réexaminer, le public visé n'utilisant que des reflex et des hybrides. La partie « Droits » portait sur des photos réelles ; pour des scènes de synthèse, la question devient surtout celle des licences des modèles et des textures.
+## Carte de l'application
+
+Écrite le 22 novembre 2026, à la version 0.3.89, d'après la carte du rapport d'architecture de l'audit (`docs/audit/architecture-application.md`, « Carte de l'application », écrite pour la version 0.3.57, et sa contre-vérification) et le code (Sujet 29 du plan de corrections). Nombres de lignes : `wc -l`. Ce que chaque module simule, et ses sources : `docs/camera-physique.md` ; outillage, construction, publication et routine de test : `docs/pile-technique.md`, « Outillage de l'application ».
+
+### Pages et constructions (`app/`)
+
+- `app/simulateur/index.html` : la page du simulateur, entrée de Vite (`app/vite.config.ts`), avec les éléments que `app/src/main.ts` passe aux classes. Tout le code du simulateur tient en un seul fichier JavaScript.
+- `app/activites/LUM-02/index.html` et `app/src/activities/` : l'activité de LUM-02, un schéma en 2D, construite à part (`app/vite.activites.config.ts`) ; `lum02.ts` (217 lignes) dessine le schéma et écrit les valeurs, `lum02Model.ts` (69) calcule l'ombre, sans page.
+- `app/scripts/build-pages.mjs` (612) : l'accueil et les fiches, pages statiques produites après Vite d'après `content/` (`docs/contenus.md`). `app/scripts/version.mjs` lit le numéro de version dans `CHANGELOG.md`, pour le simulateur et pour l'accueil ; `app/scripts/copy-licences.mjs` copie les licences dans `dist/licences/`.
+- `app/public/`, copié tel quel dans le site : la scène de parc (`scenes/parc/`, ses fichiers et son manifeste `scene.json`, que contrôle `scripts/check_scenes.py`) et la page des licences (`licences/index.html`).
+- `npm run build` vérifie les types, construit le simulateur puis l'activité, copie les licences et produit les pages ; `npm test` lance les tests rapides (`app/package.json`).
+
+### Le simulateur (`app/src/`)
+
+- `main.ts` (442 lignes) assemble tout. Il crée la fenêtre de fiche, qui ne dépend pas de la scène, puis, si le navigateur a WebGL : le moteur (viseur à la densité de l'écran plafonnée à 2, sauf avec `?diagnostic=densite-complete`), la lecture des capacités de rendu en flottants et la scène ; enfin, dans cet ordre, chacun recevant ceux d'avant dont il a besoin : le bruit du viseur, le panneau du boîtier, l'autofocus, l'affichage de diagnostic (avec `?diagnostic` seulement), la profondeur de champ du viseur, les défis, le déclencheur (avec les affichages de l'écran de revue), l'indicateur d'équilibre et la vue de dessus. Il leur passe 71 éléments de la page (66 par `element(…)`, 5 par `getElementById` ; quatre le sont deux fois : `frame`, `focus-marker`, `review` et `review-image`). Il tient aussi la progression du chargement, les messages d'échec (chargement, WebGL absent, contexte graphique perdu) et la ligne des problèmes, en haut du viseur.
+- `scene.ts` (425) : la scène de parc. Fond et éclairage tirés d'une photo à 360°, sol invisible qui ne reçoit que les ombres, personnages et chien chargés en glTF ; horloge de la scène (instant, sujets en mouvement, décalage de l'œil : l'interface `SceneTimeControl`, déclarée dans `camera/photo.ts`) ; position de l'appareil au sol ; sujets et leurs yeux ; repères de la vue de dessus. `SceneFileError` nomme un fichier qui n'est pas arrivé.
+- `camera/`, sans rendu : des modules que les tests rapides chargent aussi sans navigateur.
+  - `exposure.ts` (88) : échelles par tiers de diaphragme, écart d'exposition.
+  - `exposureModes.ts` (129) : modes M, A et S, correction d'exposition, ISO auto.
+  - `bodies.ts` (107) : les trois boîtiers de référence (capteur, bruit, couverture de l'autofocus).
+  - `viewfinder.ts` (105) : cadre aux proportions du capteur, champ de vue de la caméra 3D, lignes des grilles de cadrage.
+  - `optics.ts` (326) : champ de vue, zone nette, cercle de confusion, position et traînée sur le capteur, distance du sol, fenêtre d'une projection, format de la photo, plan des rendus de la photo.
+  - `noiseModel.ts` (163) : la loi du bruit, écrite en TypeScript et en GLSL côte à côte, le rapport signal sur bruit, les seuils de l'indicateur d'équilibre.
+  - `histogram.ts` (91) : histogrammes et zones écrêtées de la photo.
+  - `bulletin.ts` (147) : le bulletin de la photo et les critères des trois défis, calculés sur la géométrie de la vue et sur les réglages, pas sur les pixels de la photo ; sa ligne du bruit est la dernière lecture de l'indicateur d'équilibre dans le viseur (constat ARC-10, décision D21 en attente).
+  - `faces.ts` (151) : détection des visages et des yeux de la zone automatique ; il se charge sans navigateur, mais n'a pas de test.
+  - `bulletin.ts` et `faces.ts` utilisent les vecteurs de Babylon.js ; les sept autres n'importent rien de Babylon.js.
+- `camera/`, avec rendu.
+  - `noise.ts` (176) : texture des tirages du bruit, liaison de ses paramètres aux shaders, post-traitement du bruit du viseur.
+  - `viewfinderDof.ts` (282) : profondeur de champ approchée du viseur.
+  - `autofocus.ts` (461) : carte de profondeur du viseur, rendue en flottants ; distance au point de mise au point (en AF-C, relue toutes les 0,2 s) ; zone automatique, détection des visages et des yeux.
+  - `photo.ts` (486) : la photo calculée au déclenchement, par accumulation de rendus, et la loupe de l'écran de revue, calculée de même.
+- `ui/` : l'interface, chaque classe avec les éléments de la page que lui passe `main.ts`.
+  - `cameraPanel.ts` (1 098) : le boîtier virtuel. Réglages et modes, cellule d'exposition, mise au point, mode de déclenchement, aperçus du viseur, vue et loupe du viseur, grilles, cinq fenêtres (boîtier de référence, aperçu, mise au point, déclenchement, exposition), mémoire des réglages.
+  - `shutter.ts` (797) : toucher du viseur, déclencheur (vue par vue, rafale, retardateur), calcul de la photo et son refus sur un appareil sans rendu en flottants, écran de revue et sa loupe, bulletin.
+  - `reviewInfo.ts` (239) : photo seule, histogrammes et hautes lumières de l'écran de revue.
+  - `balance.ts` (311) : l'indicateur d'équilibre entre ouverture, vitesse et ISO.
+  - `topView.ts` (215) : la vue de dessus, d'où l'on déplace l'appareil.
+  - `challenges.ts` (224) : choix du défi (fenêtre « Défis », paramètre `?defi=`) et bulletin affiché sous la photo.
+  - `ficheDialog.ts` (87) : la fiche ouverte par-dessus le simulateur.
+  - `diagnosticView.ts` (99) : l'affichage de diagnostic, ouvert par `?diagnostic`.
+- Hors de `camera/` et de `ui/`.
+  - `texts.ts` (312) : les 251 textes de l'interface, en français, chacun sous une clé (`t()`), avec les espaces de la ponctuation française que pose `frenchSpaces.ts` (16), dont se sert aussi l'activité de LUM-02.
+  - `version.ts` (18) : la version du site, que donne la construction.
+  - `credits.ts` (84) : la fenêtre « Crédits », d'après le manifeste de la scène (`app/public/scenes/parc/scene.json`).
+  - `diagnosticModel.ts` (223) : la part sans rendu de l'affichage de diagnostic et des capacités de rendu en flottants ; testée.
+  - `ficheId.mjs` (13), avec ses types dans `ficheId.d.mts` (5) : la forme d'un identifiant de fiche, commune au simulateur et à `app/scripts/build-pages.mjs`.
+  - `style.css` (1 035).
+- `app/tests/` : un fichier de tests rapides par module testé (`bodies`, `bulletin`, `diagnosticModel`, `exposure`, `exposureModes`, `histogram`, `lum02Model`, `noiseModel`, `optics`, `viewfinder`), 94 tests à la version 0.3.89 ; `resolve.mjs` résout les imports écrits sans extension, `approx.ts` compare deux nombres à un écart permis près.
+
+### Trajet d'un réglage
+
+Bouton de la page, champ de `CameraPanel`, `update()`, puis `resolved()` (`resolveExposure`, `camera/exposureModes.ts`). De là, d'un côté le viseur : exposition appliquée par les matériaux de Babylon.js (`scene.imageProcessingConfiguration.exposure`), paramètres du bruit et du flou, champ de vue de la caméra ; de l'autre `current()`, que lisent le déclencheur (au déclenchement), l'indicateur d'équilibre (toutes les 0,3 s) et la vue de dessus (toutes les 0,25 s). La mémoire du navigateur garde les réglages (`tutophoto.boitier`) et les aperçus (`tutophoto.apercu`), le défi choisi (`tutophoto.defi`) et l'affichage de l'écran de revue (`tutophoto.revue`).
+
+### Trajet d'une image
+
+Deux chaînes, d'après la décision de Julien du 8 novembre 2026 (`docs/pile-technique.md`, « Décision ») : des effets approchés dans le viseur, une photo calculée au déclenchement.
+
+- Viseur : les matériaux de Babylon.js appliquent l'exposition et la courbe ; viennent ensuite des post-traitements, sur une image de 8 bits par couche : la profondeur de champ (`camera/viewfinderDof.ts` : copie, flou à mi-résolution d'après la carte de profondeur de l'autofocus, composition), puis le bruit, toujours en dernier (`camera/noise.ts`), qui revient en lumière linéaire, ajoute le bruit et réencode.
+- Photo (`camera/photo.ts`) : pendant le calcul, les matériaux rendent la lumière linéaire (`applyByPostProcess`). Chaque rendu, l'œil placé en un point du disque d'ouverture et à un instant de la pose, va dans une texture en demi-flottants et s'ajoute à une somme en flottants. Un shader de finition fait la moyenne, le lissage selon la profondeur, l'exposition, le bruit, l'écrêtage et la courbe. La photo est lue en 8 bits par couche, mesurée (histogrammes, zones écrêtées), puis enregistrée en JPEG.
+- Le développement (exposition, courbe, écrêtage, bruit) est donc écrit deux fois, la loi du bruit exceptée, qui est commune (`camera/noiseModel.ts`). Les réunir est le Sujet 40 du plan de corrections (constat ARC-01).
+
+### Sens des dépendances
+
+D'après les imports de `app/src/` :
+
+- aucun fichier de `camera/` n'importe un fichier de `ui/`, ni `scene.ts` ;
+- `scene.ts` ne prend à `camera/` que deux types (`FaceSubject` de `faces.ts`, `SceneTimeControl` de `photo.ts`) ; `ui/shutter.ts`, `ui/balance.ts` et `ui/topView.ts` importent `scene.ts` ;
+- `SceneTimeControl` est déclarée dans `camera/photo.ts`, et `scene.ts`, `ui/shutter.ts`, `ui/balance.ts` et `ui/topView.ts` la lui prennent ; la distance du sol (`GroundInfo`, `groundDepth`), qui était aussi dans `photo.ts` à la version 0.3.57, est dans `camera/optics.ts` depuis la version 0.3.87 ;
+- les modules de `camera/` sans rendu n'importent que d'autres modules sans rendu.
+
+## Architecture du produit (brouillon du 7 novembre 2026)
+
+_Section 2 de `REPRISE.md` (7 novembre 2026), copiée sans réécriture, sauf les niveaux de titre, la section « Langue » (versions 0.3.60 et 0.3.61) et le paragraphe qui suit la table de vocabulaire (version 0.3.79)._
+
+> **En partie caduque depuis le 7 novembre 2026.** Les scènes sont en 3D de synthèse, et non en 2.5D : le moteur de rendu 2.5D, les défis « dans une scène 2.5D » et la section « Format de scène 2.5D » ne valent plus. Ce qu'est l'application aujourd'hui : la carte, plus haut. Les trois portes d'entrée, le solveur de situations, le bulletin et le boîtier virtuel restent valables comme brouillon, comme cible du produit : le bulletin et le boîtier du simulateur ne font pas encore tout ce qui est décrit ici. Le bilinguisme a été retiré (section « Langue »). Le profil de capteur « 1 pouce » est à réexaminer, le public visé n'utilisant que des reflex et des hybrides. La partie « Droits » portait sur des photos réelles ; pour des scènes de synthèse, la question devient surtout celle des licences des modèles et des textures.
 
 Trois portes d'entrée mènent au même moteur de rendu. Une situation décrite passe par le solveur de situations, qui produit une recette expliquée ; un défi se joue dans une scène 2.5D ; une notion se manipule dans son simulateur. Chaque photo simulée reçoit un bulletin, qui renvoie aux notions à revoir.
 
@@ -19,20 +94,20 @@ flowchart LR
     B -->|rejouer| D
 ```
 
-## Les trois portes d'entrée
+### Les trois portes d'entrée
 
 - Je suis en situation : quelques questions (lieu, moment, sujet, mouvement, intention, matériel), puis la recette de réglages expliquée.
 - Je m'entraîne : des défis classés par situation et par niveau, joués dans une scène 2.5D et notés par le bulletin.
 - J'apprends : le référentiel, notion par notion, avec ses quatre briques ; le simulateur de chaque notion tourne sur le moteur de rendu.
 
-## Solveur de situations
+### Solveur de situations
 
 - Entrées : intérieur ou extérieur, moment et météo, sujet et vitesse, distance, intention (figer, suggérer le mouvement, isoler, tout net, ambiance), matériel (capteur, objectifs, trépied, flash, filtres, télécommande, drone, caisson étanche).
 - Recette : mode, vitesse, ouverture, ISO ou ISO auto avec vitesse minimale, correction d'exposition, mode et zone AF, collimateur ou mise au point manuelle, limiteur, mesure, balance des blancs, entraînement, type d'obturateur, stabilisation, format, focale, et selon la situation filtres, flash, bracketing ou pose B. Chaque réglage vient avec son pourquoi, ses compromis et un plan B si la lumière baisse.
 - Calcul : un solveur à règles explicites, pas une IA. Il fixe d'abord les contraintes (vitesse pour figer, profondeur de champ voulue), puis répartit la lumière restante. Chaque recette est donc testable et explicable.
 - Défi : la même situation dans une scène, avec un objectif et des contraintes. On règle, on déclenche, on reçoit son bulletin.
 
-## Bulletin
+### Bulletin
 
 Le moteur de rendu mesure chaque photo simulée, puis renvoie vers les notions à revoir.
 
@@ -44,7 +119,7 @@ Le moteur de rendu mesure chaque photo simulée, puis renvoie vers les notions �
 - Cadrage : inclinaison de l'horizon, éléments parasites dans le cadre.
 - Intention : atteinte ou non, par exemple le flou d'arrière-plan mesuré.
 
-## Boîtier virtuel
+### Boîtier virtuel
 
 - Générique : il porte tous les réglages des domaines EXP, BOI, MAP, MES, COU et LUM, et les réglages d'objectif d'OPT (focale, filtres).
 - Profils d'appareil génériques : format de capteur (plein format, APS-C, Micro 4/3, 1 pouce), bruit, plage dynamique, vitesse de synchro flash, type d'obturateur, type d'AF, viseur optique ou électronique.
@@ -72,7 +147,7 @@ Propres à certaines marques ou à certains modèles :
 
 Cette table devait devenir un fichier de données (`data/vocabulaire.yaml`), un terme par marque et par famille d'appareils. Julien a retenu le 15 novembre 2026 un champ `terms` par notion (décision D3, `docs/historique.md`) : chaque notion du référentiel porte les termes des manuels en français des boîtiers lus, un bloc par boîtier, avec sa source (`docs/lire-le-referentiel.md`). Nommer le boîtier dans chaque bloc garde ce que disait la table : un terme vaut pour un modèle, pas pour toute la marque. Dans l'interface, une phrase de la fenêtre « Boîtier de référence » dit que les noms des modes et des menus restent ceux du Nikon Z 6 ; des libellés par marque seraient une extension (constat INT-10 de l'audit).
 
-## Format de scène 2.5D
+### Format de scène 2.5D
 
 - Capture HDR calibrée en luminance réelle, soleil et reflets compris (filtre ND, bracketing étendu) ; une source écrêtée est signalée dans les métadonnées.
 - Capture nette de bout en bout, à bas ISO et sans flou : le moteur ajoute flou et bruit, il ne sait pas en retirer.
@@ -85,14 +160,14 @@ Cette table devait devenir un fichier de données (`data/vocabulaire.yaml`), un 
 - Séquences d'images sans trou entre les images pour les poses longues, ou flou interpolé entre elles ([Tabellion et al., 2023](https://arxiv.org/abs/2308.01379)).
 - Métadonnées : lieu, date, heure, matériel, auteur, licence, plage de focales et de rotation.
 
-## Langue
+### Langue
 
 - TutoPhoto est en français seul depuis la version 0.3.60 (décision de Julien du 15 novembre 2026). Avant, le projet était bilingue, français et anglais.
 - Les textes de l'interface du simulateur restent sous une clé, dans une seule table (`app/src/texts.ts`).
 - Depuis la version 0.3.61, les titres du référentiel (`data/`) et, dans le manifeste d'une scène, son titre, le rôle et les modifications de chaque élément sont des chaînes en français ; avant, c'étaient des objets à deux champs, `fr` et `en` (`docs/propositions.md`, section 5, « Retrait de l'anglais »).
 - Les contenus juridiques s'écrivent pays par pays, ils ne se traduisent pas.
 
-## Droits
+### Droits
 
 - Chaque scène porte son auteur et sa licence.
 - En France, utiliser l'image d'une personne identifiable demande en principe son autorisation expresse et spéciale, au titre du respect de la vie privée prévu par l'article 9 du Code civil ([Village de la Justice, Patrick Lingibé, 2019](https://www.village-justice.com/articles/droit-image-quelles-sont-les-regles-applicables,30783.html)). Dans un lieu public, l'accord est requis si la personne est isolée et reconnaissable ([Service-public.fr, vérifié le 6 mai 2022](https://www.service-public.gouv.fr/particuliers/vosdroits/F32103)) : un passant qu'un zoom peut isoler compte donc comme identifiable (autorisation, floutage ou figurant).
