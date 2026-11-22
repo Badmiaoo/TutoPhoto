@@ -44,7 +44,7 @@ notions:
       explanation: "Ce que ces moments changent : soleil bas, lumière chaude et rasante, puis ciel bleu dense après le coucher"
       simulator: "Même scène à plusieurs moments de la journée"
       exercise: "Choisir le moment pour une scène de ville"
-    situations: [SIT-10, SIT-17]
+    situations: [SIT-03, SIT-10, SIT-17]
     sources: [suncalc]
     todo:
       - "Sourcer la qualité de la lumière à ces heures à la rédaction ; le calcul des horaires relève de PLA-01."

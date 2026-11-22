@@ -11,7 +11,7 @@ notions:
       explanation: "Molettes, déclencheur, viseur, écran, touches : ce que chacun commande"
       simulator: "Boîtier virtuel cliquable"
       exercise: "« Trouve le réglage » chronométré"
-    situations: [SIT-28]
+    situations: all
     since: v0.1
   - id: BOI-02
     title: "Déclencheur à mi-course"

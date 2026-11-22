@@ -28,10 +28,10 @@ Source : `data/situations.yaml` (champ `level`, « Niveau d'entrée = niveau mé
 | SIT-13 | Neige, plage et scènes très claires | Extérieur, plein jour | N1 à N2 | MES-03, MES-04, MES-07, EXP-11 |
 | SIT-14 | Brouillard et temps couvert | Extérieur | N1 à N3 | LUM-05, COU-04, EXP-12 |
 | SIT-17 | Ville à l'heure bleue | Ville, crépuscule | N1 à N2 | MVT-08, LUM-04, COU-04, BOI-09 |
-| SIT-21 | Feux d'artifice | Nuit | N1 à N2 | BOI-10, MAP-02, MES-09 |
+| SIT-21 | Feux d'artifice | Nuit | N1 à N2 | BOI-10, MAP-02, MES-09, MVT-12 (MVT-12 ajoutée à la version 0.4.0) |
 | SIT-23 | Plat ou objet sur une table | Intérieur, près d'une fenêtre | N1 à N2 | LUM-07, COU-02, CMP-05, CMP-09 |
 | SIT-26 | À travers une vitre ou un grillage | Zoo, aquarium, vitrine | N1 à N2 | MAP-07, MAP-08, OPT-12, NET-01 |
-| SIT-28 | Autoportrait au retardateur | Partout | N1 | BOI-12, MAP-08, BOI-01 |
+| SIT-28 | Autoportrait au retardateur | Partout | N1 | BOI-12, MAP-08 (BOI-01 retirée à la version 0.4.0) |
 | SIT-29 | Depuis un train ou un avion | Transport | N1 à N2 | MVT-01, MVT-02, OPT-12 |
 | SIT-36 | Journée de voyage | Ville ou nature, du matin au soir | N1 | OPT-04, OPT-15, BOI-17, BOI-22, BOI-23, BOI-25, PLA-06, PLA-08, RET-11 |
 | SIT-38 | Sport en extérieur, au bord du terrain | Stade ou terrain, jour | N1 à N2 | MAP-04, MAP-05, MAP-07, MAP-10, MVT-01, MVT-10, OPT-04, BOI-13 |

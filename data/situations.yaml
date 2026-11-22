@@ -132,7 +132,7 @@ situations:
     level_max: N3
     where_when: "Ville"
     intention: "Des verticales droites"
-    key_notions: [OPT-07, OPT-13, CMP-02, PLA-02]
+    key_notions: [OPT-07, OPT-13, CMP-02, PLA-02, BOI-04, RET-05]
     since: v0.1
   - id: SIT-17
     title: "Ville à l'heure bleue"
@@ -173,7 +173,7 @@ situations:
     level_max: N2
     where_when: "Nuit"
     intention: "Traînées nettes et colorées"
-    key_notions: [BOI-10, MAP-02, MES-09]
+    key_notions: [BOI-10, MAP-02, MES-09, MVT-12]
     since: v0.1
   - id: SIT-22
     title: "Macro : fleur ou insecte"
@@ -230,7 +230,7 @@ situations:
     level_max: N1
     where_when: "Partout"
     intention: "Être net et bien cadré sans opérateur"
-    key_notions: [BOI-12, MAP-08, BOI-01]
+    key_notions: [BOI-12, MAP-08]
     since: v0.1
   - id: SIT-29
     title: "Depuis un train ou un avion"
@@ -271,7 +271,7 @@ situations:
     level_max: N2
     where_when: "Extérieur, nuit d'orage, à distance et à l'abri"
     intention: "Saisir un ou plusieurs éclairs nets"
-    key_notions: [BOI-10, BOI-26, MAP-15, PLA-04]
+    key_notions: [BOI-10, BOI-26, MAP-15, PLA-04, MVT-12]
     since: v0.2
   - id: SIT-34
     title: "Portrait de nuit en ville"
@@ -343,9 +343,9 @@ situations:
     title: "Sous l'eau, près de la surface"
     level: N2
     level_max: N3
-    where_when: "Mer ou piscine, en apnée, de jour"
+    where_when: "Mer ou piscine, en apnée, de jour, boîtier dans un caisson étanche"
     intention: "Des couleurs naturelles malgré l'eau"
-    key_notions: [COU-09, LUM-18, COU-02]
+    key_notions: [COU-09, LUM-18, COU-02, PLA-08]
     flash: optional
     since: v0.2
   - id: SIT-V2-01
