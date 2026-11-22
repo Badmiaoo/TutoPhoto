@@ -54,7 +54,7 @@ notions:
     situations: [SIT-16]
     sources: [nikon-z6-perspective-fr, wikipedia-perspective-control]
     todo:
-      - "À la rédaction de la fiche, dire que la correction de la perspective dans le boîtier n'est sourcée que pour le Nikon Z 6 (menu Retouche, « Perspective ») ; la chercher dans le texte des manuels de l'A6000 et de l'EOS R50, pas seulement dans leurs titres ; dire aussi, d'après wikipedia-perspective-control, que la perte de définition dépend de la définition de départ, de l'ampleur de la correction, de la taille d'affichage et de la distance de vue."
+      - "À la rédaction de la fiche, dire que la correction de la perspective dans le boîtier n'est sourcée que pour le Nikon Z 6 (menu Retouche, « Perspective ») ; la chercher dans le texte des manuels de l'A6000 et de l'EOS R50, pas seulement dans leurs titres ; dire aussi, d'après wikipedia-perspective-control, que l'interpolation de la correction adoucit les détails fins, et que cette perte de qualité se voit plus ou moins selon la définition de départ, l'ampleur de la correction, la taille du tirage ou de l'affichage et la distance de vue."
     since: v0.1
   - id: RET-06
     title: "Accentuation et bruit"
