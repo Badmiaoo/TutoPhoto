@@ -155,7 +155,7 @@ function reading(overrides: Partial<DiagnosticReading> = {}): DiagnosticReading 
 test("lignes de l'affichage : version, WebGL, densités, débit, durées, capacités", () => {
   const lines = diagnosticLines(reading());
   assert.deepEqual(lines, [
-    `Diagnostic, moyennes de la dernière seconde · Version du site${NBSP}: 0.3.88`,
+    `Diagnostic (moyennes sur 1 s) · Version du site${NBSP}: 0.3.88`,
     "WebGL 2 · processeur d'essai",
     `Densité${NBSP}: écran 2,63, viseur 2,00 · image de 824 × 882 px`,
     `Images par seconde${NBSP}: 59,8`,

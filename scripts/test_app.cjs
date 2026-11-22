@@ -620,17 +620,17 @@ async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
       const r = await read();
       const lines = r.view.split("\n");
       const caps = lines.find((line) => line.startsWith("Rendu en flottants")) ?? "";
-      const fps = /^Images par seconde : (\d+,\d)$/m.exec(r.view);
+      const fps = /^Images par seconde\u00a0: (\d+,\d)$/m.exec(r.view);
       if (!masked) {
         check(
           `affichage de diagnostic (?diagnostic), témoin : version, WebGL ${version}, débit, durées, capacités exigées à « oui », aucun problème`,
           shown &&
-            /^Diagnostic, moyennes de la dernière seconde · Version du site : \d+\.\d+\.\d+$/.test(lines[0]) &&
+            /^Diagnostic \(moyennes sur 1 s\) · Version du site\u00a0: \d+\.\d+\.\d+$/.test(lines[0]) &&
             (lines[1] ?? "").startsWith(`WebGL ${version} · `) &&
             Boolean(fps) &&
             Number(fps[1].replace(",", ".")) > 0 &&
-            /^Durée d'une image, processeur : \d+,\d ms \(textures de rendu : \d+,\d ms\)$/m.test(r.view) &&
-            /^Durée d'une image, processeur graphique : /m.test(r.view) &&
+            /^Durée d'une image, processeur\u00a0: \d+,\d ms \(textures de rendu\u00a0: \d+,\d ms\)$/m.test(r.view) &&
+            /^Durée d'une image, processeur graphique\u00a0: /m.test(r.view) &&
             caps.includes("textureFloatRender oui, textureHalfFloatRender oui") &&
             !r.problem &&
             errors.length === 0,
@@ -652,9 +652,9 @@ async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
       check(
         `rendu en flottants absent (${mask.join(" et ")} ${mask.length > 1 ? "masquées" : "masquée"}, WebGL ${version}) : message affiché, capacités à « non », déclenchement refusé`,
         shown &&
-          r.problem.startsWith("Photo impossible sur cet appareil : ") &&
-          r.problem.includes("textureFloatRender, textureHalfFloatRender : non") &&
-          /Version du site : \d+\.\d+\.\d+$/.test(r.problem) &&
+          r.problem.startsWith("Photo impossible sur cet appareil\u00a0: ") &&
+          r.problem.includes("textureFloatRender, textureHalfFloatRender\u00a0: non") &&
+          /Version du site\u00a0: \d+\.\d+\.\d+$/.test(r.problem) &&
           caps.includes("textureFloatRender non, textureHalfFloatRender non") &&
           refused &&
           review.caption.startsWith("La photo n'a pas pu être calculée. Cet appareil ne le permet pas") &&

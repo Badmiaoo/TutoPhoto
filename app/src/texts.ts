@@ -283,7 +283,7 @@ const messages = {
   // Affichage de diagnostic, ouvert par « ?diagnostic » dans l'adresse (constat ARC-06 de l'audit, version 0.3.88 ;
   // diagnosticModel.ts, ui/diagnosticView.ts). Les capacités et l'extension gardent leur nom technique : c'est celui que
   // relèvent Julien et les testeurs, et que cite docs/pile-technique.md.
-  diagTitle: "Diagnostic, moyennes de la dernière seconde",
+  diagTitle: "Diagnostic (moyennes sur 1 s)",
   diagWebgl: "WebGL {version} · {renderer}",
   diagDensity: "Densité : écran {screen}, viseur {density} · image de {width} × {height} px",
   diagFps: "Images par seconde : {fps}",
