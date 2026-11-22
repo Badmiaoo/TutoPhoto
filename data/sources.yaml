@@ -1122,7 +1122,7 @@ sources:
     used_in: [docs/camera-physique.md]
   - id: sony-a6000-help-guide-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, accueil (4-534-933-21(1)) : ses deux sommaires (contentslist01 et contentslist02) listent 247 et 59 pages, 306 en tout ; « collimateur » n'est dans aucune, « cadre du télémètre » dans quatre (relevé le 20 novembre 2026) ; aucune ne porte sur des zébrures (relevé le 22 novembre 2026)"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, accueil (4-534-933-21(1)) : ses deux sommaires (contentslist01 et contentslist02) listent 247 et 59 pages, 306 en tout ; « collimateur » n'est dans aucune, « cadre du télémètre » dans quatre (relevé le 20 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/index.html"
     used_in: [content/notions/MAP-06.md]
   - id: bcn-2020-reflex
@@ -1172,6 +1172,10 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Mode de mesure : « Multi » (réglage par défaut, « mesure Multi »), « Centre » (« mesure Pondération centrale ») et « Spot » (« mesure Spot ») (lu le 22 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000227050.html"
+  - id: sony-a6000-zebra-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Rayons diagon. : « Le motif zébré apparaît sur la portion d'une image si le niveau de luminosité dépasse l'IRE que vous avez défini. » ; « MENU → (Réglages personnalis.) → [Rayons diagon.] » ; « OFF (réglage par défaut) » et les niveaux « 70/75/80/85/90/95/100/100+ » ; la page ne parle pas de vidéo (apostrophes typographiques dans la page ; lu le 22 novembre 2026)"
+    url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000227056.html"
   - id: canon-eos-r50-metering-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS R50 en français, Mode de mesure : « Mesure évaluative », « Mesure sélective », « Mesure spot » et « Moy. à préd. centrale » ; « En principe, la mesure évaluative est conseillée. » (lu le 22 novembre 2026)"

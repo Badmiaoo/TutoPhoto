@@ -357,7 +357,7 @@ notions:
     title: "Exposition multiple"
     level: N2
     spec:
-      explanation: "Combiner plusieurs vues en une image dans le boîtier (« Surimpression » sur le Nikon Z 6) ; chez Nikon, de 2 à 10 vues, par addition, moyenne, plus clair ou plus sombre"
+      explanation: "Combiner plusieurs vues en une image dans le boîtier (« Surimpression » sur le Nikon Z 6) ; sur le Z 6 et le ZR, de 2 à 10 vues, par addition, moyenne, plus clair ou plus sombre"
       simulator: "Superposition de vues de scènes du catalogue, mode de fusion au choix"
       exercise: "Placer une Lune détaillée dans un paysage de crépuscule"
     situations: [SIT-21, SIT-31]

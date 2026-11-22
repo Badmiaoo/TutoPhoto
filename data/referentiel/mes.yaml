@@ -72,8 +72,8 @@ notions:
       exercise: "Exposer au plus clair sans brûler une robe blanche"
     situations: [SIT-02, SIT-13]
     notes:
-      - "Boîtiers de référence du simulateur, en photo : le Nikon Z 6 montre les hautes lumières à la lecture (page « Hautes lumières ») et réserve leur affichage pendant la visée à la vidéo (réglage g6, groupe « g : Vidéo ») ; le Canon EOS R50 décrit ses zébrures « avant ou pendant l'enregistrement vidéo » ; les deux sommaires du manuel d'aide en français du Sony A6000 n'ont pas de page sur des zébrures, ce qui ne prouve pas que le boîtier n'en a pas (relevé le 22 novembre 2026). Le Sony A7 III, lui, a un réglage de zébras que son guide ne limite pas à la vidéo (sony-a7iii-zebra)."
-    sources: [nikon-z6-photo-information-fr, nikon-z6-photo-information, sony-a7iii-switching-display-fr, sony-a7iii-switching-display, sony-a7iii-zebra-fr, sony-a7iii-zebra, nikon-z6-g6-fr, nikon-z6-g6, canon-eos-r50-zebra-fr, sony-a6000-help-guide-fr]
+      - "Boîtiers de référence du simulateur, en photo : le Nikon Z 6 montre les hautes lumières à la lecture (page « Hautes lumières ») et réserve leur affichage pendant la visée à la vidéo (réglage g6, groupe « g : Vidéo ») ; le Canon EOS R50 décrit ses zébrures « avant ou pendant l'enregistrement vidéo » ; le Sony A6000 a un motif zébré, « Rayons diagon. » (menu Réglages personnalisés, désactivé par défaut), que sa page ne limite pas à la vidéo, comme le réglage de zébras du Sony A7 III (sony-a7iii-zebra) (relevé le 22 novembre 2026)."
+    sources: [nikon-z6-photo-information-fr, nikon-z6-photo-information, sony-a7iii-switching-display-fr, sony-a7iii-switching-display, sony-a7iii-zebra-fr, sony-a7iii-zebra, nikon-z6-g6-fr, nikon-z6-g6, canon-eos-r50-zebra-fr, sony-a6000-zebra-fr]
     since: v0.1
   - id: MES-08
     title: "Bracketing d'exposition"
