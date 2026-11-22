@@ -2,7 +2,7 @@
 
 ## Explication
 
-Le mode de zone AF dit quelle partie du cadre sert à faire le point. Sur le Nikon Z 6 ([manuel en ligne, « Focus »](https://onlinemanual.nikonimglib.com/z7_z6/en/05_basic_settings_01.html), lu le 9 novembre 2026 ; termes du [manuel en français](https://onlinemanual.nikonimglib.com/z7_z6/fr/05_basic_settings_01.html)) :
+Le mode de zone AF dit quelle partie du cadre sert à faire le point. Sur le Nikon Z 6 ([manuel en ligne, « Focus »](https://onlinemanual.nikonimglib.com/z7_z6/en/05_basic_settings_01.html) ; termes du [manuel en français](https://onlinemanual.nikonimglib.com/z7_z6/fr/05_basic_settings_01.html), relus le 22 novembre 2026) :
 - **AF point sélectif** : l'appareil fait le point sur un point choisi par l'utilisateur ; c'est le réglage par défaut ;
 - **AF zone large (S) et (L)** : comme le point sélectif, sur une zone plus large, les zones (L) étant plus grandes que les zones (S) ; si la zone contient des sujets à différentes distances, l'appareil donne la priorité au plus proche ;
 - **AF zone automatique** : l'appareil détecte le sujet et choisit lui-même la zone (voir MAP-09).

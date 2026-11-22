@@ -784,14 +784,14 @@ sources:
     read: 2026-11-11
   - id: nikon-z6-focus
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, Focus : AF-S « focus will lock while the shutter-release button is pressed halfway », collimateur qui passe du rouge au vert, priorité à la mise au point par défaut ; AF-C « focuses continuously while the shutter-release button is pressed halfway », priorité au déclenchement par défaut ; AF-area mode : zone large (S) et (L), « the camera will assign priority to the closest subject », zones (L) plus grandes que les zones (S), sans dimensions ; Touch Shutter, « Touch the display to focus on the selected point » sans déclencher (lu le 9 novembre 2026). Relu le 10 novembre 2026 : « The focus point can be positioned using the sub-selector or multi-selector » ; réglage a5 (Focus points used), « Every other point » pour n'utiliser qu'un quart des points"
+    label: "Nikon, manuel en ligne Z 7/Z 6, Focus : AF-S « focus will lock while the shutter-release button is pressed halfway », collimateur qui passe du rouge au vert, priorité à la mise au point par défaut ; AF-C « focuses continuously while the shutter-release button is pressed halfway », priorité au déclenchement par défaut ; AF-area mode : zone large (S) et (L), « the camera will assign priority to the closest subject », zones (L) plus grandes que les zones (S), sans dimensions ; Touch Shutter, « Touch the display to focus on the selected point » sans déclencher (lu le 9 novembre 2026). Relu le 10 novembre 2026 : « The focus point can be positioned using the sub-selector or multi-selector » ; réglage a5 (Focus points used), « Every other point » pour n'utiliser qu'un quart des points ; ce qu'en tirent aussi les fiches MAP-04, MAP-05 et MAP-09 : en AF-C, « the camera will predict the final distance to the subject » ; « The default setting is Single-point AF » ; en zone automatique, « The camera automatically detects the subject and selects the focus area », et, s'il détecte un sujet de portrait, met le point sur son visage ou sur l'un de ses yeux ; au toucher, l'appareil « will focus on and track the face or eye » le plus proche du point touché ; la détection « may not perform as expected » si le visage occupe « a very large or very small proportion of the frame », ou s'il est caché, comme les yeux, « by hair or other objects » (apostrophes typographiques dans la page) ; le tout relu le 22 novembre 2026"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/05_basic_settings_01.html"
-    read: 2026-11-19
+    read: 2026-11-22
   - id: nikon-z6-focus-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Mise au point : termes « AF ponctuel », « AF continu », « Mode de zone AF », « AF point sélectif », « AF zone large (S) » et « (L) », « AF zone automatique » (lu le 9 novembre 2026) ; « point AF » pour le point de mise au point (relu le 20 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Mise au point : termes « AF ponctuel », « AF continu », « Mode de zone AF », « AF point sélectif », « AF zone large (S) » et « (L) », « AF zone automatique » (lu le 9 novembre 2026) ; « point AF » pour le point de mise au point (relu le 20 novembre 2026) ; « collimateur de mise au point » pour la mise au point manuelle (« Positionnez le collimateur de mise au point sur votre sujet »), ce que tire la fiche MAP-06, avec les termes que tire la fiche MAP-05 (apostrophes typographiques dans la page ; relu le 22 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/05_basic_settings_01.html"
-    read: 2026-11-20
+    read: 2026-11-22
   - id: nikon-z6-a4
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé a4 Auto-Area AF Face/Eye Detection : « Face and eye detection on », « Face detection on », « Animal detection », « Off » ; « one or the other of the subject's eyes, or on the subject's face if the eyes are not detected » (lu le 9 novembre 2026)"
@@ -819,7 +819,7 @@ sources:
     read: 2026-11-14
   - id: wikipedia-circle-of-confusion
     group: "Physique, rendu et technique"
-    label: "Wikipedia, Circle of confusion (révision 1335590423, source secondaire) : flou acceptable d/1500 (0,029 mm en plein format) ; diamètre du flou c = A × |S₂ − S₁| / S₂ × f / (S₁ − f) (lue le 10 novembre 2026) ; ce qu'en tirent de plus les fiches NET-01 et NET-06 : « A lens can precisely focus objects at only one distance » ; la tache de flou, d'autant plus grande que l'objet est loin du plan de mise au point ; la profondeur de champ, « the range of object distances over which objects appear sharp » ; la valeur du flou acceptable, qui « depends on visual acuity, viewing conditions, and the amount of enlargement » ; A = f / N (lue le 11 novembre 2026) ; la section « Wall 1889 », où la même limite sert au flou de mouvement (« The common 1/100 inch CoC limit has been applied to blur other than defocus blur »), sur laquelle s'appuie, sans la citer, le critère « figé » de la fiche MVT-01 ; le tout relu le 22 novembre 2026"
+    label: "Wikipedia, Circle of confusion (révision 1335590423, source secondaire) : flou acceptable d/1500 (0,029 mm en plein format) ; diamètre du flou c = A × |S₂ − S₁| / S₂ × f / (S₁ − f) (lue le 10 novembre 2026) ; ce qu'en tirent de plus les fiches NET-01 et NET-06 : « A lens can precisely focus objects at only one distance » ; la tache de flou, d'autant plus grande que l'objet est loin du plan de mise au point ; la profondeur de champ, « the range of object distances over which objects appear sharp » ; la valeur du flou acceptable, qui « depends on visual acuity, viewing conditions, and the amount of enlargement » ; A = f / N (lue le 11 novembre 2026) ; la section « Wall 1889 », où la limite usuelle du flou acceptable, 1/100 de pouce, sert aussi au flou de mouvement (« The common 1/100 inch CoC limit has been applied to blur other than defocus blur »), sur laquelle s'appuie, sans la citer, le critère « figé » de la fiche MVT-01 ; le tout relu le 22 novembre 2026"
     url: "https://en.wikipedia.org/w/index.php?title=Circle_of_confusion&oldid=1335590423"
     read: 2026-11-22
   - id: nikon-z6-release-mode
@@ -854,34 +854,34 @@ sources:
     read: 2026-11-22
   - id: nikon-z6-exposure-compensation
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, The Exposure Compensation Button : de −5 à +5 IL par tiers ; « Exposure compensation is not reset when the camera is turned off » ; « In mode M, exposure compensation affects only the exposure indicator », l'ISO auto en tenant compte (lu le 10 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6, The Exposure Compensation Button : de −5 à +5 IL par tiers ; « Exposure compensation is not reset when the camera is turned off » ; « In mode M, exposure compensation affects only the exposure indicator », l'ISO auto en tenant compte (lu le 10 novembre 2026) ; ce qu'en tire aussi la fiche MES-04 : hors du mode automatique, la correction modifie l'exposition « from the value suggested by the camera, making pictures brighter or darker » ; « positive values make the subject brighter while negative values make it darker » ; le tout relu le 22 novembre 2026"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_03.html"
-    read: 2026-11-14
+    read: 2026-11-22
   - id: nikon-z6-exposure-compensation-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande correction d'exposition : terme « correction d'exposition » (lu le 10 novembre 2026 ; titre relu le 20 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande correction d'exposition : terme « correction d'exposition » (lu le 10 novembre 2026 ; titre relu le 20 novembre 2026) ; ce qu'en tire la fiche MES-04 : hors du mode automatique, elle permet « de modifier la valeur d'exposition proposée par l'appareil photo pour prendre des photos plus claires ou plus sombres », de –5 IL à +5 IL « par incréments de 1/3 IL » ; « si vous choisissez une valeur positive, le sujet devient plus clair, tandis qu'une valeur négative l'assombrit » ; en mode M, elle « n'affecte que l'indicateur d'exposition » ; elle « ne se réinitialise pas avec l'extinction de l'appareil photo » (apostrophes typographiques dans la page ; relu le 22 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_03.html"
-    read: 2026-11-20
+    read: 2026-11-22
   - id: nikon-z6-iso-button
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, The ISO (ISO Sensitivity) Button : l'ISO auto agit « if optimal exposure cannot be achieved at the value selected » ; sensibilité maximale de ISO 200 (Z 6) à Hi 2 ; « ISO AUTO » affiché, et la valeur modifiée ; une valeur choisie plus haute que le maximum sert à sa place (lu le 10 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6, The ISO (ISO Sensitivity) Button : l'ISO auto agit « if optimal exposure cannot be achieved at the value selected » ; sensibilité maximale de ISO 200 (Z 6) à Hi 2 ; « ISO AUTO » affiché, et la valeur modifiée ; une valeur choisie plus haute que le maximum sert à sa place (lu le 10 novembre 2026) ; ce qu'en tire la fiche EXP-06 : « The higher the ISO sensitivity, the less light needed to make an exposure, allowing faster shutter speeds or smaller apertures, but the more likely the image is to be affected by noise » ; « Noise is particularly likely at settings between Hi 0.3 and Hi 2 » ; en Lo, « Highlights may lose some detail » (relu le 22 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_02.html"
-    read: 2026-11-14
+    read: 2026-11-22
   - id: nikon-z6-iso-button-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande ISO (sensibilité [ISO]) : « entre 100 ISO et 51 200 ISO » pour le Z 6, réglages étendus Lo 0,3 à Lo 1 et Hi 0,3 à Hi 2 (lu le 20 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Commande ISO (sensibilité [ISO]) : « entre 100 ISO et 51 200 ISO » pour le Z 6, réglages étendus Lo 0,3 à Lo 1 et Hi 0,3 à Hi 2 (lu le 20 novembre 2026) ; ce qu'en tire la fiche EXP-06 : « Plus la sensibilité est élevée, moins il vous faut de lumière pour réaliser votre prise de vue » ; « Le bruit est notamment plus susceptible d'apparaître avec les réglages Hi 0,3 à Hi 2 » ; en Lo, « Il est possible que les hautes lumières perdent en détails » (apostrophes typographiques dans la page ; relu le 22 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_02.html"
-    read: 2026-11-20
+    read: 2026-11-22
   - id: nikon-z6-iso-settings
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, ISO Sensitivity Settings : Maximum sensitivity ; Minimum shutter speed, « below which auto ISO sensitivity control will kick in to prevent underexposure in modes P and A », de 1/4000 s à 30 s ou Auto selon la focale ; vitesse sous le minimum si la sensibilité maximale ne suffit pas (lu le 10 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6, ISO Sensitivity Settings : Maximum sensitivity ; Minimum shutter speed, « below which auto ISO sensitivity control will kick in to prevent underexposure in modes P and A », de 1/4000 s à 30 s ou Auto selon la focale ; vitesse sous le minimum si la sensibilité maximale ne suffit pas (lu le 10 novembre 2026) ; ce qu'en tire aussi la fiche MES-10 : « the camera will automatically adjust ISO sensitivity when optimal exposure cannot be achieved at the value selected for ISO sensitivity » ; « Shutter speeds may drop below the selected minimum if optimum exposure cannot be achieved at the ISO sensitivity chosen for Maximum sensitivity » (relu le 22 novembre 2026, avec la sensibilité maximale et la vitesse minimale)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_03_08.html"
-    read: 2026-11-14
+    read: 2026-11-22
   - id: nikon-z6-iso-settings-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Réglage de la sensibilité : termes « Contrôle de la sensibilité auto. », « Sensibilité maximale », « Vitesse d'obturation minimale » (lu le 10 novembre 2026) ; avec « Automatique », « l'appareil photo choisit la vitesse d'obturation minimale selon la focale de l'objectif utilisé » (relu le 20 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Réglage de la sensibilité : termes « Contrôle de la sensibilité auto. », « Sensibilité maximale », « Vitesse d'obturation minimale » (lu le 10 novembre 2026) ; avec « Automatique », « l'appareil photo choisit la vitesse d'obturation minimale selon la focale de l'objectif utilisé » (relu le 20 novembre 2026) ; ce qu'en tire la fiche MES-10 : « l'appareil photo règle automatiquement la sensibilité (ISO) s'il est impossible d'obtenir l'exposition optimale avec la valeur sélectionnée pour Sensibilité », la sensibilité maximale, la vitesse d'obturation minimale, et des vitesses qui « peuvent être plus lentes que la vitesse minimale sélectionnée » (apostrophes typographiques dans la page ; relu le 22 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_03_08.html"
-    read: 2026-11-20
+    read: 2026-11-22
   - id: nikon-z6-defaults
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Defaults : ISO 100 en P, S, A, M, contrôle de la sensibilité auto activé, sensibilité maximale 51200 (Z 6), vitesse minimale Auto ; Focus mode Single AF, AF-area mode Single-point AF ; a4 Face and eye detection on ; c2 retardateur 10 s ; d1 Continu L 3 vps (lu le 10 novembre 2026) ; d9 Framing grid display Off ; g6 Highlight display, Display pattern Off, Highlight display threshold 248 ; aucune ligne pour Playback display options (relu le 12 novembre 2026) ; c1 Shutter-release button AE-L Off (relu le 19 novembre 2026) ; contrôle de la sensibilité auto (« Auto ISO sensitivity control » « On »), c2 « Self-timer delay » 10 s et d1 « CL mode shooting speed » 3 fps, que tirent les fiches MES-10 et BOI-12 (relu le 22 novembre 2026)"
@@ -968,9 +968,9 @@ sources:
     read: 2026-11-14
   - id: canon-850d-grid-display
     group: "Constructeurs : manuels et pages techniques"
-    label: "Canon, manuel de l'EOS 850D, « Grid Display When Shooting » : grilles « 3x3 », « 6x4 » et « 3x3+diag » (« Displays grid lines in a 6x4 pattern to help you level the camera vertically and horizontally. ») ; boîtier voisin, pas un boîtier du simulateur (lu le 12 novembre 2026)"
+    label: "Canon, manuel de l'EOS 850D, « Grid Display When Shooting » : grilles « 3x3 », « 6x4 » et « 3x3+diag » (« Displays grid lines in a 6x4 pattern to help you level the camera vertically and horizontally. ») ; boîtier voisin, pas un boîtier du simulateur (lu le 12 novembre 2026) ; « 3x3+diag », « Displays a grid together with diagonal lines », que tire aussi la fiche CMP-02 ; le tout relu le 22 novembre 2026"
     url: "https://cam.start.canon/en/C002/manual/html/UG-09_Set-up_0200.html"
-    read: 2026-11-14
+    read: 2026-11-22
   - id: canon-r6-shooting-info-display
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS R6, « Shooting Information Display » : « A grid can be displayed on the screen and viewfinder. » ; la capture du menu montre « Off », « 3x3 », « 6x4 », « 3x3+diag » avec leurs icônes ; boîtier voisin, pas un boîtier du simulateur (lu le 12 novembre 2026)"
@@ -1133,9 +1133,9 @@ sources:
     read: 2026-11-20
   - id: canon-eos-r50-af-area-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Canon, manuel de l'EOS R50 en français, Sélection de la zone autofocus : menu « Zone AF », options « Autofocus spot », « 1 collimateur AF », « Élargir zone AF » (deux formes), « AF 1 zone flexible » à « AF 3 zone flexible », « AF zone complète » ; « Sujet à détecter » : « Auto », « Personnes », « Animaux », « Véhicules », « Aucun » ; « Détection œil » : « Vous pouvez photographier avec les yeux de personnes ou d'animaux nets. » (lu le 20 novembre 2026) ; section « Réglage manuel des collimateurs AF ou des cadres Zone AF » (écrans montrés « avec le réglage AF 1 zone flexible ») : « (mais veuillez noter qu'avec certains objectifs, il peut ne pas se déplacer au bord de l'écran) », « Vous pouvez également faire la mise au point en tapotant une position sur l'écran pour y déplacer le collimateur AF. » (lu le 21 novembre 2026)"
+    label: "Canon, manuel de l'EOS R50 en français, Sélection de la zone autofocus : menu « Zone AF », options « Autofocus spot », « 1 collimateur AF », « Élargir zone AF » (deux formes), « AF 1 zone flexible » à « AF 3 zone flexible », « AF zone complète » ; « Sujet à détecter » : « Auto », « Personnes », « Animaux », « Véhicules », « Aucun » ; « Détection œil » : « Vous pouvez photographier avec les yeux de personnes ou d'animaux nets. » (lu le 20 novembre 2026) ; section « Réglage manuel des collimateurs AF ou des cadres Zone AF » (écrans montrés « avec le réglage AF 1 zone flexible ») : « (mais veuillez noter qu'avec certains objectifs, il peut ne pas se déplacer au bord de l'écran) », « Vous pouvez également faire la mise au point en tapotant une position sur l'écran pour y déplacer le collimateur AF. » (lu le 21 novembre 2026) ; « Animaux » : « Détecte les animaux (chiens, chats ou oiseaux) et les personnes » ; « Véhicules » : « Détecte les véhicules de sports mécaniques à deux ou quatre roues et les personnes », ce que tire la fiche MAP-09 avec les options de « Sujet à détecter » et la « Détection œil » (relu le 22 novembre 2026)"
     url: "https://cam.start.canon/fr/C011/manual/html/UG-06_AF-Drive_0060.html"
-    read: 2026-11-21
+    read: 2026-11-22
   - id: canon-eos-r50-specifications-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS R50 en français, Caractéristiques techniques : capteur d'image « Capteur CMOS APS-C », « Environ 22,3 × 14,9 mm » ; « Pixels effectifs », « Environ 24,2 mégapixels max. », arrondi aux 100 000 les plus proches ; autofocus, « Nombre de zones autofocus disponibles pour la sélection automatique », zone de mise au point « Horizontal : environ 100 %, vertical : environ 100 % » ; « Positions sélectionnables pour le collimateur AF », zone de mise au point « Horizontal : environ 90 %, vertical : environ 100 % », « En cas de réglage sur [1 collimateur AF] et de sélection avec les touches directionnelles » ; sous le tableau de la sélection automatique, « Peut varier selon les réglages. » ; « Compatibilité des objectifs d'après la zone de mise au point : reportez-vous au site Web de Canon » ; pixels enregistrés en RAW et en JPEG L, « 24,0 mégapixels (6000×4000) » (lu le 21 novembre 2026)"
