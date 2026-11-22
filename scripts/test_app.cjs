@@ -582,9 +582,10 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
  * déclencheur grisé, et, réactivé par la routine, un appui qui ne calcule rien et le regrise ; l'affichage donne les
  * deux capacités à « non » et la densité du viseur plafonnée à 2. Dans ce contexte, Babylon.js et le pilote écrivent
  * des avertissements sur les cibles de rendu incomplètes (« Render to float textures is not supported », « Framebuffer
- * is incomplete ») : la console n'y est pas contrôlée, seules les erreurs de la page le sont. Ne sont pas essayées : la
- * mesure côté processeur graphique (Chromium sans écran n'expose aucune extension de mesure) et une photo prise avec
- * l'affichage ouvert.
+ * is incomplete ») : la console n'y est pas contrôlée, seules les erreurs de la page le sont. La ligne du processeur
+ * graphique est contrôlée dans sa forme (une durée, l'attente d'une mesure, ou « non mesurée » et sa raison), pas dans
+ * sa valeur : selon la machine, Chromium expose ou non l'extension de mesure (docs/pile-technique.md, « Affichage de
+ * diagnostic »). N'est pas essayée : une photo prise avec l'affichage ouvert.
  */
 async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
   const version = webgl1 ? 1 : 2;
@@ -660,7 +661,7 @@ async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
             Boolean(fps) &&
             Number(fps[1].replace(",", ".")) > 0 &&
             /^Durée d'une image, processeur\u00a0: \d+,\d ms \(textures de rendu\u00a0: \d+,\d ms\)$/m.test(view) &&
-            /^Durée d'une image, processeur graphique\u00a0: /m.test(view) &&
+            /^Durée d'une image, processeur graphique\u00a0: (\d+,\d ms|en attente d'une mesure|non mesurée \(.+\))$/m.test(view) &&
             caps.includes("textureFloatRender oui, textureHalfFloatRender oui") &&
             densityOk &&
             !problem &&
@@ -689,7 +690,7 @@ async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
           problem.startsWith("Photo impossible sur cet appareil\u00a0: ") &&
           problem.includes("textureFloatRender, textureHalfFloatRender\u00a0: non") &&
           problem.includes("le bouton «\u00a0Déclencher\u00a0» est désactivé.") &&
-          problem.includes("floute tout le cadre.") &&
+          problem.includes("floute tout le cadre, autant que sa partie la plus floue.") &&
           /Version du site\u00a0: \d+\.\d+\.\d+$/.test(problem) &&
           greyed &&
           !after.review &&
@@ -772,8 +773,8 @@ async function runProfile(browser, name, base) {
     const simTitle = await page.title();
     check("simulateur : titre de la page", simTitle === "Simulateur · TutoPhoto", `« ${simTitle} »`);
     // Ligne de diagnostic (app/src/main.ts) : erreurs JavaScript, bruit ou profondeur de champ du viseur
-    // indisponibles, scène affichée avant d'être prête ; vide et masquée sans problème. Lue ici, puis en fin de
-    // parcours (« aucun problème affiché à la fin du parcours », plus bas).
+    // indisponibles, rendu en flottants absent, scène affichée avant d'être prête ; vide et masquée sans problème. Lue
+    // ici, puis en fin de parcours (« aucun problème affiché à la fin du parcours », plus bas).
     const diagnosticText = () =>
       page.evaluate(() => {
         const d = document.getElementById("diagnostic");

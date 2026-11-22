@@ -33,9 +33,9 @@ export function fullDensityRequested(search: string): boolean {
  * texture en demi-flottants et fait sa somme dans deux textures en flottants de 32 bits (camera/photo.ts), et
  * l'autofocus rend sa carte de profondeur en flottants de 32 bits (camera/autofocus.ts), que l'aperçu de la profondeur
  * de champ lit aussi (camera/viewfinderDof.ts). Sans l'une d'elles, la photo sort presque noire ; sans
- * `textureFloatRender`, l'autofocus ne voit plus les sujets et l'aperçu floute tout le cadre (constat ARC-13, et essais
- * de la version 0.3.88, extension masquée). En WebGL 2, Babylon.js tire les deux de la même extension ; en WebGL 1, il
- * les essaie l'une après l'autre.
+ * `textureFloatRender`, l'autofocus ne voit plus les sujets et l'aperçu floute tout le cadre autant que sa partie la
+ * plus floue (constat ARC-13, et essais de la version 0.3.88, extension masquée). En WebGL 2, Babylon.js tire les deux
+ * de la même extension ; en WebGL 1, il les essaie l'une après l'autre.
  */
 export const REQUIRED_FLOAT_CAPS = ["textureFloatRender", "textureHalfFloatRender"] as const;
 

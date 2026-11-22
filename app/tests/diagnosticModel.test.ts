@@ -56,14 +56,15 @@ test("message des capacités : le déclencheur désactivé ; la mise au point et
   const both = floatRenderMessage(["textureFloatRender", "textureHalfFloatRender"]);
   assert.equal(
     both,
-    `son navigateur ne sait pas rendre l'image dans des textures en flottants (textureFloatRender, textureHalfFloatRender${NBSP}: non)${NNBSP}; le bouton «${NBSP}Déclencher${NBSP}» est désactivé. La mise au point ne voit pas les sujets (elle se fait sur le sol ou le fond), et l'aperçu de la profondeur de champ floute tout le cadre.`,
+    `son navigateur ne sait pas rendre l'image dans des textures en flottants (textureFloatRender, textureHalfFloatRender${NBSP}: non)${NNBSP}; le bouton «${NBSP}Déclencher${NBSP}» est désactivé. La mise au point ne voit pas les sujets (elle se fait sur le sol ou le fond), et l'aperçu de la profondeur de champ floute tout le cadre, autant que sa partie la plus floue.`,
   );
   // En WebGL 1, Babylon.js essaie les deux capacités l'une après l'autre : sans les demi-flottants seulement, la carte
   // de profondeur en flottants de 32 bits se rend, et rien n'est dit de la mise au point.
   const half = floatRenderMessage(["textureHalfFloatRender"]);
   assert.ok(half.includes(`(textureHalfFloatRender${NBSP}: non)`), half);
   assert.ok(!half.includes("mise au point"), half);
-  assert.ok(floatRenderMessage(["textureFloatRender"]).endsWith("floute tout le cadre."));
+  const focus = floatRenderMessage(["textureFloatRender"]);
+  assert.ok(focus.endsWith("floute tout le cadre, autant que sa partie la plus floue."), focus);
 });
 
 test("capacités affichées : les deux exigées d'abord, puis colorBufferFloat et colorBufferHalfFloat (plan du Sujet 28)", () => {

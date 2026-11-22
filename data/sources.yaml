@@ -454,7 +454,7 @@ sources:
     used_in: [docs/pile-technique.md]
   - id: mdn-bcd-8-1-8-webgl-extensions
     group: "Outils"
-    label: "MDN, browser-compat-data, version 8.1.8 (commit 29768a4 du 2 novembre 2026), fichiers api/EXT_color_buffer_float.json, api/EXT_disjoint_timer_query_webgl2.json et api/EXT_disjoint_timer_query.json : EXT_color_buffer_float dans Chrome depuis la version 56, Firefox depuis 51, Safari depuis 15, Chrome Android et Safari iOS comme leur version pour ordinateur (« mirror ») ; EXT_disjoint_timer_query_webgl2 dans Chrome depuis 70 (et de 56 à 62), pas dans Chrome Android, Firefox ni Safari ; EXT_disjoint_timer_query dans Chrome depuis 70, « Only supported on macOS », retirée de Chrome Android à 65 et de Firefox à 59, « Removed due to the GLitch exploit » (lien retiré de la citation) (lu le 22 novembre 2026)"
+    label: "MDN, browser-compat-data, version 8.1.8 (commit 29768a4 du 2 novembre 2026), fichiers api/EXT_color_buffer_float.json, api/EXT_disjoint_timer_query_webgl2.json et api/EXT_disjoint_timer_query.json : EXT_color_buffer_float dans Chrome depuis la version 56, Firefox depuis 51, Safari depuis 15, Chrome Android et Safari iOS comme leur version pour ordinateur (« mirror ») ; EXT_disjoint_timer_query_webgl2 dans Chrome depuis 70 (et de 56 à 61, retirée à 62), pas dans Chrome Android, Firefox ni Safari ; EXT_disjoint_timer_query dans Chrome depuis 70, « Only supported on macOS », retirée de Chrome Android à 65 et de Firefox à 59, « Removed due to the GLitch exploit » (lien retiré de la citation) (lu le 22 novembre 2026)"
     url: "https://github.com/mdn/browser-compat-data/tree/v8.1.8"
     used_in: [docs/pile-technique.md]
   - id: khronos-webgl-ext-color-buffer-float
