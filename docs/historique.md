@@ -254,3 +254,8 @@ Message de Julien dans la session du Sujet 15, vers 9 h 51 UTC, mot pour mot sau
 
 Ce que Claude en fait : chaque session de la chaîne est créée avec le même modèle et le niveau d'effort le plus haut, « max » (paramètre `effort` de l'outil qui crée une session), et la consigne de la session suivante le redit. Une session ne peut pas changer son propre niveau d'effort : la session du Sujet 15, créée sans ce paramètre, finit son sujet au niveau qu'elle a. Les agents lancés dans une session gardent leur niveau par défaut tant que Julien ne demande rien pour eux.
 
+## 22 novembre 2026 : erreur du simulateur sur un iPhone
+
+Message de Julien dans la session du Sujet 35, après 18 h 03 UTC, juste après la fusion de la version 0.4.3, mot pour mot : « J'ai une erreur sur le site faut corriger ! », avec une capture d'écran de son iPhone (transcrite dans `docs/tests-a-faire-faire.md`, T22). Puis, dans la même session, peu avant 18 h 10 min 23 s UTC, en réponse aux questions de Claude (modèle de l'iPhone, version d'iOS, l'erreur au rechargement, une capture de l'affichage de diagnostic) : « Le soucis vient de safari sur iphone ». Ses réponses aux questions à choix de la session suivante, le même soir, sont dans `docs/tests-a-faire-faire.md` (T22) ; pour Safari, il s'appuie sur le simulateur qui marchait au même moment sur un autre appareil.
+
+Ce que Claude en fait : un sujet à part entière, traité avant le Sujet 36 du plan de corrections, version 0.4.4. Ce qui est établi et ce qui ne l'est pas : `docs/pile-technique.md`, « Contexte perdu au démarrage » ; les choix : `docs/propositions.md`, « Erreur du simulateur sur iPhone ».
