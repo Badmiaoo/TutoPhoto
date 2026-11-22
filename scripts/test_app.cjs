@@ -31,6 +31,15 @@
 //   document.elementFromPoint en son centre, et aucun autre élément de main n'est affiché (le voile du cadre, qui ne
 //   prend pas les touchers, le couvrait sans que elementFromPoint le voie) ; le canevas est masqué (constat COD-11 de
 //   l'audit, version 0.3.70), le bouton « Défis » de l'en-tête aussi, et la page n'a aucune erreur ;
+// - affichage de diagnostic et capacités de rendu en flottants (constats ARC-06 et ARC-13 de l'audit, version 0.3.88),
+//   dans deux contextes à part, le simulateur ouvert avec « ?diagnostic » : témoin, capacités du navigateur telles
+//   quelles : l'affichage donne la version du site, WebGL 2 (WebGL 1 sur le profil webgl1), un débit d'images, la
+//   durée d'une image côté processeur, la ligne du processeur graphique et les deux capacités exigées à « oui », et
+//   aucun problème n'est affiché ; extension masquée (getExtension rend null pour EXT_color_buffer_float en WebGL 2,
+//   pour OES_texture_float et OES_texture_half_float en WebGL 1, comme les essais de la contre-vérification d'ARC-13) :
+//   le message le dit, avec la version du site, l'affichage donne les deux capacités à « non », et le déclencheur,
+//   appuyé sans attendre la fin du chargement, ouvre l'écran de revue sur le refus, sans image ni calcul ; aucune
+//   erreur de la page dans les deux contextes, ni de la console dans le témoin ;
 // - la fiche SIT-05 a un bouton « Jouer le défi » (simulateur/?defi=SIT-05), et le simulateur ouvert à l'adresse
 //   simulateur?defi=SIT-06, sans la barre finale, ajoute la barre, montre la progression du chargement et a le
 //   défi SIT-06 choisi ; tout fichier compté par la progression est chargé par la scène (version 0.3.55) ; le
@@ -44,7 +53,8 @@
 //   navigateur, par app/tests/lum02Model.test.ts (constat INT-14, version 0.3.87) : la routine lit ce que la page écrit ;
 // - avec --photo : les notions « À revoir » du bulletin et le bouton « Fiche » de la fenêtre « Défis » ouvrent la
 //   fiche par-dessus le simulateur, et un lien de la fiche vers une autre fiche reste dans la fenêtre ;
-// - la scène se charge (le message de chargement disparaît) et aucun problème ne s'affiche à l'écran ;
+// - la scène se charge (le message de chargement disparaît) et aucun problème ne s'affiche à l'écran ; sans
+//   « ?diagnostic » dans l'adresse, la page n'a pas d'affichage de diagnostic (version 0.3.88) ;
 // - le rendu est à la densité de l'écran plafonnée à 2 (pixels CSS × min(densité, 2), version 0.3.53) et le cadre a les
 //   proportions du capteur ;
 // - à ISO 6400, le bruit du viseur varie d'une image à l'autre ; aperçu coupé, il disparaît ;
@@ -561,6 +571,104 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
   }
 }
 
+/**
+ * Affichage de diagnostic et capacités de rendu en flottants (constats ARC-06 et ARC-13 de l'audit, version 0.3.88), dans
+ * deux contextes à part, aux dimensions du profil : témoin, puis extension masquée. Dans le contexte masqué, Babylon.js
+ * et le pilote écrivent des avertissements sur les cibles de rendu incomplètes (« Render to float textures is not
+ * supported », « Framebuffer is incomplete ») : la console n'y est pas contrôlée, seules les erreurs de la page le sont.
+ */
+async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
+  const version = webgl1 ? 1 : 2;
+  const mask = webgl1 ? ["OES_texture_float", "OES_texture_half_float"] : ["EXT_color_buffer_float"];
+  for (const masked of [false, true]) {
+    const context = await browser.newContext(contextOptions);
+    try {
+      await context.addInitScript(
+        ({ webgl1, mask }) => {
+          const original = HTMLCanvasElement.prototype.getContext;
+          HTMLCanvasElement.prototype.getContext = function (type, attributes) {
+            if (webgl1 && type === "webgl2") return null;
+            const gl = original.call(this, type, attributes);
+            if (gl && mask.length > 0 && (type === "webgl" || type === "webgl2" || type === "experimental-webgl")) {
+              const getExtension = gl.getExtension.bind(gl);
+              gl.getExtension = (extension) => (mask.includes(extension) ? null : getExtension(extension));
+              const supported = gl.getSupportedExtensions.bind(gl);
+              gl.getSupportedExtensions = () => (supported() ?? []).filter((extension) => !mask.includes(extension));
+            }
+            return gl;
+          };
+        },
+        { webgl1, mask: masked ? mask : [] },
+      );
+      const page = await context.newPage();
+      const errors = [];
+      page.on("pageerror", (error) => errors.push(`page : ${error.message}`));
+      page.on("console", (message) => {
+        if (!masked && message.type() === "error") errors.push(`console : ${message.text().slice(0, 200)}`);
+      });
+      await page.goto(`${base}/simulateur/?diagnostic`);
+      // L'affichage réécrit ses lignes chaque seconde : la ligne du débit dit qu'au moins une image a été finie.
+      const shown = await page
+        .waitForFunction(() => /Images par seconde/.test(document.getElementById("diagnostic-view")?.textContent ?? ""), null, { timeout: 120000 })
+        .then(() => true)
+        .catch(() => false);
+      const read = () =>
+        page.evaluate(() => {
+          const problem = document.getElementById("diagnostic");
+          return { view: document.getElementById("diagnostic-view")?.textContent ?? "", problem: problem.hidden ? "" : problem.textContent };
+        });
+      const r = await read();
+      const lines = r.view.split("\n");
+      const caps = lines.find((line) => line.startsWith("Rendu en flottants")) ?? "";
+      const fps = /^Images par seconde : (\d+,\d)$/m.exec(r.view);
+      if (!masked) {
+        check(
+          `affichage de diagnostic (?diagnostic), témoin : version, WebGL ${version}, débit, durées, capacités exigées à « oui », aucun problème`,
+          shown &&
+            /^Diagnostic, moyennes de la dernière seconde · Version du site : \d+\.\d+\.\d+$/.test(lines[0]) &&
+            (lines[1] ?? "").startsWith(`WebGL ${version} · `) &&
+            Boolean(fps) &&
+            Number(fps[1].replace(",", ".")) > 0 &&
+            /^Durée d'une image, processeur : \d+,\d ms \(textures de rendu : \d+,\d ms\)$/m.test(r.view) &&
+            /^Durée d'une image, processeur graphique : /m.test(r.view) &&
+            caps.includes("textureFloatRender oui, textureHalfFloatRender oui") &&
+            !r.problem &&
+            errors.length === 0,
+          `${r.view.replace(/\n/g, " | ") || "affichage absent"} ; problème : ${r.problem || "aucun"} ; erreurs : ${errors.join(" | ") || "aucune"}`,
+        );
+        continue;
+      }
+      // Déclencheur appuyé sans attendre la fin du chargement : le refus vient avant tout calcul.
+      await page.click("#shutter-button");
+      const refused = await page
+        .waitForFunction(() => !document.getElementById("review").hidden, null, { timeout: 30000 })
+        .then(() => true)
+        .catch(() => false);
+      const review = await page.evaluate(() => ({
+        caption: document.getElementById("review-caption").textContent,
+        image: !document.getElementById("review-image").hidden,
+        progress: !document.getElementById("progress").hidden,
+      }));
+      check(
+        `rendu en flottants absent (${mask.join(" et ")} ${mask.length > 1 ? "masquées" : "masquée"}, WebGL ${version}) : message affiché, capacités à « non », déclenchement refusé`,
+        shown &&
+          r.problem.startsWith("Photo impossible sur cet appareil : ") &&
+          r.problem.includes("textureFloatRender, textureHalfFloatRender : non") &&
+          /Version du site : \d+\.\d+\.\d+$/.test(r.problem) &&
+          caps.includes("textureFloatRender non, textureHalfFloatRender non") &&
+          refused &&
+          review.caption.startsWith("La photo n'a pas pu être calculée. Cet appareil ne le permet pas") &&
+          !review.image &&
+          !review.progress &&
+          errors.length === 0,
+        `problème : « ${r.problem} » ; ${caps || "ligne des capacités absente"} ; écran de revue ${refused ? "ouvert" : "fermé"}, légende « ${review.caption} », image ${review.image ? "affichée" : "masquée"}, calcul ${review.progress ? "en cours" : "non"} ; erreurs : ${errors.join(" | ") || "aucune"}`,
+      );
+    } finally {
+      await context.close();
+    }
+  }
+}
+
 async function runProfile(browser, name, base) {
   const profile = PROFILES[name];
   if (!profile) throw new Error(`Profil inconnu : ${name}`);
@@ -601,6 +709,7 @@ async function runProfile(browser, name, base) {
   try {
     await checkPages(page, base, name, check);
     await checkNoWebgl(browser, contextOptions, base, check);
+    await checkFloatRender(browser, contextOptions, base, check, Boolean(noWebgl2));
     // Le simulateur est ouvert avec « ?lang=en », paramètre retiré en version 0.3.60 : il doit s'ouvrir en français,
     // sans bouton de langue. Toute la suite de la routine lit des textes français sur cette page.
     await page.goto(`${base}/simulateur/?lang=en`);
@@ -635,6 +744,9 @@ async function runProfile(browser, name, base) {
       });
     const diagnostic = await diagnosticText();
     check("aucun problème affiché", !diagnostic, diagnostic);
+    // Affichage de diagnostic (version 0.3.88) : créé seulement avec « ?diagnostic » dans l'adresse.
+    const diagnosticView = await page.evaluate(() => document.getElementById("diagnostic-view") !== null);
+    check("sans ?diagnostic : pas d'affichage de diagnostic", !diagnosticView, diagnosticView ? "affichage présent" : "absent");
     // Sans scène, la suite n'a pas d'objet ; le bloc finally ajoute encore à checks le contrôle des erreurs.
     if (!loaded) return { name, checks };
     // Mise au point par défaut (MAP-04, MAP-05) : AF-S et point sélectif, comme le Z 6 (app/src/ui/cameraPanel.ts,

@@ -452,6 +452,26 @@ sources:
     label: "MDN, browser-compat-data, version 8.1.8 (commit 29768a4 du 2 novembre 2026), fichiers api/GPU.json et api/WebGL2RenderingContext.json"
     url: "https://github.com/mdn/browser-compat-data/tree/v8.1.8"
     used_in: [docs/pile-technique.md]
+  - id: mdn-bcd-8-1-8-webgl-extensions
+    group: "Outils"
+    label: "MDN, browser-compat-data, version 8.1.8 (commit 29768a4 du 2 novembre 2026), fichiers api/EXT_color_buffer_float.json, api/EXT_disjoint_timer_query_webgl2.json et api/EXT_disjoint_timer_query.json : EXT_color_buffer_float dans Chrome depuis la version 56, Firefox depuis 51, Safari depuis 15, Chrome Android et Safari iOS comme leur version pour ordinateur (« mirror ») ; EXT_disjoint_timer_query_webgl2 dans Chrome depuis 70 (et de 56 à 62), pas dans Chrome Android, Firefox ni Safari ; EXT_disjoint_timer_query dans Chrome depuis 70, « Only supported on macOS », retirée de Chrome Android à 65 et de Firefox à 59, « Removed due to the GLitch exploit » (lien retiré de la citation) (lu le 22 novembre 2026)"
+    url: "https://github.com/mdn/browser-compat-data/tree/v8.1.8"
+    used_in: [docs/pile-technique.md]
+  - id: khronos-webgl-ext-color-buffer-float
+    group: "Outils"
+    label: "Khronos, spécification de l'extension WebGL EXT_color_buffer_float : « The following floating-point internal formats become color-renderable: R16F, RG16F, RGBA16F, R32F, RG32F, RGBA32F and R11F_G11F_B10F. A renderbuffer or a texture with a color-renderable internal format can be used as a rendering target by attaching it to a framebuffer object as a color attachment. » (dépôt KhronosGroup/WebGL, commit 3944321, fichier extensions/EXT_color_buffer_float/extension.xml, dernière révision datée du 19 avril 2017 ; lu le 22 novembre 2026)"
+    url: "https://raw.githubusercontent.com/KhronosGroup/WebGL/39443210f7f81db4773eb104facadfb85d05dfa4/extensions/EXT_color_buffer_float/extension.xml"
+    used_in: [docs/pile-technique.md]
+  - id: khronos-webgl-ext-disjoint-timer-query
+    group: "Outils"
+    label: "Khronos, spécification de l'extension WebGL EXT_disjoint_timer_query : « This extension provides a query mechanism that can be used to determine the amount of time it takes to fully complete a set of GL commands, and without stalling the rendering pipeline. » ; EXT_disjoint_timer_query_webgl2 « provides the same functionality as EXT_disjoint_timer_query » pour WebGL 2.0 (dépôt KhronosGroup/WebGL, commit 3944321, fichiers extensions/EXT_disjoint_timer_query/extension.xml et extensions/EXT_disjoint_timer_query_webgl2/extension.xml ; lu le 22 novembre 2026)"
+    url: "https://raw.githubusercontent.com/KhronosGroup/WebGL/39443210f7f81db4773eb104facadfb85d05dfa4/extensions/EXT_disjoint_timer_query/extension.xml"
+    used_in: [docs/pile-technique.md]
+  - id: mdn-request-animation-frame
+    group: "Outils"
+    label: "MDN, « Window: requestAnimationFrame() method » : « The frequency of calls to the callback function will generally match the display refresh rate. The most common refresh rate is 60hz, (60 cycles/frames per second), though 75hz, 120hz, and 144hz are also widely used. » ; « requestAnimationFrame() calls are paused in most browsers when running in background tabs » (dépôt mdn/content, commit df622a2, fichier files/en-us/web/api/window/requestanimationframe/index.md ; lu le 22 novembre 2026)"
+    url: "https://raw.githubusercontent.com/mdn/content/df622a2a1c1e9626976cb3c091622d35e799b0cf/files/en-us/web/api/window/requestanimationframe/index.md"
+    used_in: [docs/pile-technique.md]
   - id: spdx-apache-2
     group: "Licences"
     label: "SPDX License List, texte de la licence Apache-2.0 (dépôt spdx/license-list-data, commit 3184648 du 29 octobre 2026)"
