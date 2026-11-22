@@ -188,7 +188,7 @@ sources:
     url: "https://helpguide.sony.net/ilc/2110/v1/en/contents/TP1000640179.html"
   - id: sony-rx10iv-limiter
     group: "Constructeurs : manuels et pages techniques"
-    label: "Sony RX10 IV (DSC-RX10M4), Focus Mode, section « Focus range limiter » : l'interrupteur du limiteur de cet appareil, qui n'est pas un boîtier à objectif interchangeable (son guide d'aide le range parmi les « Digital Still Camera » de Sony, pas parmi les « Interchangeable Lens Digital Camera » ; lu le 22 novembre 2026)"
+    label: "Sony RX10 IV (DSC-RX10M4), Focus Mode, section « Focus range limiter » : « When the focus range limiter switch is set to “∞-3m,” the camera focuses on subjects more than 3 m away in telephoto shooting », un interrupteur de cet appareil, qui n'est pas un boîtier à objectif interchangeable (son guide d'aide le range parmi les « Digital Still Camera » de Sony, pas parmi les « Interchangeable Lens Digital Camera » ; lu le 22 novembre 2026)"
     url: "https://helpguide.sony.net/dsc/1720/v1/en/contents/TP0001593199.html"
   - id: sony-a7iii-infinity
     group: "Constructeurs : manuels et pages techniques"
@@ -309,7 +309,7 @@ sources:
     url: "https://fujifilm-dsc.com/en/manual/x100t/shooting/photometry/index.html"
     note: "Nature de l'appareil : wikipedia-fujifilm-x100, source secondaire. La page du manuel n'est pas joignable d'ici (fujifilm-dsc.com refusé par le proxy de l'environnement de Claude, 22 novembre 2026)."
   - id: wikipedia-fujifilm-x100
-    group: "Constructeurs : manuels et pages techniques"
+    group: "Physique, rendu et technique"
     label: "Wikipedia, Fujifilm X100 : « The Fujifilm X100 is a series of digital compact cameras with a fixed prime lens », série qui comprend le X100T ; encadré : « Large sensor fixed-lens camera », « Fixed lens » (révision 1380553046, source secondaire, lue le 22 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Fujifilm_X100&oldid=1380553046"
     used_in: [docs/architecture.md]
