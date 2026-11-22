@@ -1,11 +1,11 @@
 # fichier: data/sources.yaml
-# Champs : docs/lire-le-referentiel.md. Règle : une source est relue à son adresse, ou au même contenu ailleurs quand
-# son hôte ne se joint pas d'ici, avant qu'une fiche, le code ou la documentation s'appuie sur elle ; `read` donne la
-# date de sa dernière lecture connue (version 0.4.1, constat SRC-04 de l'audit), le libellé ce qui a été lu, et
-# l'auteur et la date de la page quand elle les donne. Les 78 entrées
-# venues du référentiel 0.2 (commit 818c9d8, 7 novembre 2026) n'avaient pas de date de lecture ; 39 de celles qui
-# restent n'en ont toujours pas, l'audit n'ayant pas pu les relire (hôte non joignable) : rien ne dit si leur page a
-# été ouverte ce jour-là, ou seulement vue dans un résultat de recherche. Des entrées sans `read` appuient encore la
+# Champs : docs/lire-le-referentiel.md. Règle : une source est relue à son adresse, ou, quand son hôte ne se joint
+# pas d'ici, au même contenu ailleurs ou au texte qu'en relève Julien, avant qu'une fiche, le code ou la documentation
+# s'appuie sur elle ; `read` donne la date de sa dernière lecture connue (version 0.4.1, constat SRC-04 de l'audit),
+# le libellé ce qui a été lu, et l'auteur et la date de la page quand elle les donne. Les 78 entrées venues du
+# référentiel 0.2 (commit 818c9d8, 7 novembre 2026) n'avaient pas de date de lecture ; 39 de celles qui restent n'en
+# ont toujours pas, l'audit n'ayant pas pu les relire (hôte non joignable) : rien ne dit si leur page a été ouverte
+# ce jour-là, ou seulement vue dans un résultat de recherche. Des entrées sans `read` appuient encore la
 # documentation et le code : docs/lire-le-referentiel.md.
 sources:
   - id: levoy-teaching
