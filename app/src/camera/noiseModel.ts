@@ -11,9 +11,20 @@
 // Bayer, bruit brut sans réduction, dans le viseur et sur la photo).
 //
 // Pour un photosite, à la sensibilité S :
-// - électrons à saturation : e_sat = capacité × 100 / S ;
+// - électrons à saturation : e_sat = capacité × 100 / S, la loi de la colonne « Saturation (e-) » de la page du bruit
+//   de lecture de William J. Claff, que le code de la page calcule fwc / 2^(isoEv − loEv), soit fwc × 100 / ISO pour
+//   les trois boîtiers d'ISO 100 à 6400 [photonstophotos-read-noise] (capacités : camera/bodies.ts) ;
 // - électrons reçus : n = v × e_sat, v étant la valeur rapportée à la saturation (exposition comprise) ;
-// - écart type : √(n + σ_r²), σ_r le bruit de lecture mesuré à cet ISO (interpolé en log-log).
+// - écart type : √(n + σ_r²), σ_r le bruit de lecture mesuré à cet ISO (interpolé en log-log). Le bruit photonique
+//   vaut √n : « Photon Noise in electrons is equal to the square root of the signal in electrons »
+//   [photonstophotos-sensor-analysis-primer-gain] (page d'explication, source secondaire pour cette loi).
+//   Additionner sa variance, n, et celle du bruit de lecture, σ_r², suppose les deux bruits indépendants : c'est une
+//   hypothèse de TutoPhoto, qu'aucune page lue n'écrit (constat PHY-04 de l'audit).
+// Deux autres hypothèses (constat PHY-18 de l'audit) : les canaux rouge, vert et bleu de l'image tiennent lieu des
+// canaux du capteur, sans gains de balance des blancs ni matrice de couleur ; les tirages sont gaussiens, alors que le
+// bruit photonique suit une loi de Poisson, que la loi normale approche bien « except for small numbers »
+// [photonstophotos-sensor-analysis-primer-gain] : l'approximation est moins bonne dans les ombres profondes, où un
+// pixel de l'image compte peu d'électrons dans un canal (un tirage par pixel et par canal, pour k × part photosites).
 // Un pixel de l'image regroupe k photosites ; pour chaque canal, seule une part capte sa couleur :
 // la moitié pour le vert, un quart pour le rouge et pour le bleu (matrice de Bayer, deux fois plus de
 // verts que de rouges ou de bleus [wikipedia-bayer-filter]
@@ -62,7 +73,7 @@ export function readNoiseAt(body: Body, iso: number): number {
   if (iso <= points[0][0]) return points[0][1];
   const last = points[points.length - 1];
   // Au-delà de la dernière mesure, on garde la dernière valeur (les trois boîtiers ont des mesures jusqu'à ISO 6400,
-  // le haut de l'échelle de TutoPhoto).
+  // le haut de l'échelle de TutoPhoto, toutes dans la plage analogique de la page : camera/bodies.ts).
   if (iso >= last[0]) return last[1];
   for (let i = 1; i < points.length; i++) {
     const [isoB, rnB] = points[i];

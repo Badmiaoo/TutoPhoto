@@ -8,7 +8,7 @@
 //   h × tan(i) : environ 0,3 m à 17° d'inclinaison pour le banc et la poubelle (jugés à 0,5 m du sol) et pour le
 //   chien (yeux vers 0,67 m) ; quelques centimètres pour les yeux des personnages (1,51 m à 1,71 m).
 // - Champ : angle horizontal du cadre, 2 × atan(côté / (2 × focale)), avec le côté horizontal du capteur
-//   (camera/optics.ts, halfFieldTangent).
+//   (camera/optics.ts, halfFieldTangent), le champ d'une mise au point à l'infini (fieldOfView).
 // - Personnages et objets dessinés à leur position au sol ; le promeneur et le chien à l'instant présent. Sont
 //   marqués nets ceux que le bulletin de la photo jugerait nets (camera/bulletin.ts, measureThing ; constat FMA-12,
 //   version 0.3.69) : profondeur le long de l'axe de visée de l'appareil (z de la caméra, inclinaison comprise) du

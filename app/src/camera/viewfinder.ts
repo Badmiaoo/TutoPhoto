@@ -36,7 +36,8 @@ export function frameFor(canvasWidth: number, canvasHeight: number, body: Body):
 
 /**
  * Champ de vue de la caméra 3D : le cadre couvre le champ du capteur le long de son grand côté,
- * 2 × atan(grand côté / (2 × focale)) ; le canevas, plus grand que le cadre, voit un peu plus.
+ * 2 × atan(grand côté / (2 × focale)), le champ d'une mise au point à l'infini (camera/optics.ts, fieldOfView) ; le
+ * canevas, plus grand que le cadre, voit un peu plus.
  */
 export function cameraFov(canvasWidth: number, canvasHeight: number, frame: Frame, body: Body, focalMm: number): CameraFov {
   const half = Math.tan(fieldOfView(body.sensorWidthMm, focalMm) / 2);

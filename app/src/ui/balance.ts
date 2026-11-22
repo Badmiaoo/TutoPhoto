@@ -7,7 +7,13 @@
 //   (d : diagonale du capteur ; 0,029 mm en plein format) [wikipedia-circle-of-confusion]
 //   https://en.wikipedia.org/w/index.php?title=Circle_of_confusion&oldid=1335590423 . Avec
 //   q = c × N × (S₁ − f) / f² : limite proche S₁ / (1 + q), limite lointaine S₁ / (1 − q), ou l'infini si q ≥ 1.
-// - Vitesse : traînée du sujet visé pendant la pose, sur le capteur, comparée au même flou acceptable.
+// - Vitesse : traînée du sujet visé pendant la pose, sur le capteur, comparée au même flou acceptable. Appliquer au
+//   mouvement la limite du flou de mise au point a une source, secondaire, la section « Wall 1889 » de la même
+//   révision [wikipedia-circle-of-confusion] : la limite usuelle de 1/100 de pouce « has been applied to blur other
+//   than defocus blur » ; la règle de Wall (1889, p. 92), pose la plus longue = (1/100 de pouce) × distance /
+//   (focale × vitesse du sujet), donne une traînée f × v × t / distance égale à cette limite. Prendre d / 1500 au
+//   lieu de 1/100 de pouce est un choix de TutoPhoto (constat PHY-20 de l'audit). Seul le déplacement d'ensemble du
+//   sujet est jugé, pas celui de ses membres (camera/bulletin.ts ; constat FMA-06).
 //   Projection d'un point (X, Y, Z) de la caméra : x = f X / Z ; un sujet de vitesse (vX, vY, vZ) se déplace
 //   de f (vX Z − X vZ) / Z² × t (et de même en y). Sujets en mouvement de la scène : le promeneur et le chien.
 //   Calcul fait par la fonction du bulletin (camera/bulletin.ts, measureThing), aux yeux du sujet (constat
@@ -26,7 +32,7 @@
 //   canal vert seul, la norme pondérant luminance et couleur d'une façon que l'article ne détaille pas.
 // - Le point : au centre quand rien ne dépasse ; il s'écarte vers l'ISO si le bruit dépasse 40:1 (un peu)
 //   ou 10:1 (beaucoup), vers la vitesse si la traînée dépasse le flou acceptable. Géométrie choisie pour
-//   l'affichage ; les seuils, eux, sont sourcés.
+//   l'affichage ; les seuils, eux, sont sourcés, celui de la vitesse avec le choix dit plus haut.
 // Non simulé : le bougé de la main (MVT-01), sans source ni simulation à ce jour.
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
