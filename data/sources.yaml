@@ -1202,7 +1202,7 @@ sources:
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/09_menu_guide_07_08.html"
   - id: wikipedia-perspective-control
     group: "Physique, rendu et technique"
-    label: "Wikipedia, Perspective control, révision 1376293807 du 23 septembre 2026, la révision du jour (source secondaire, lue le 22 novembre 2026) : « Perspective distortion occurs in photographs when the film plane is not parallel to lines that are required to be parallel in the photo. » ; « Digital post-processing software provides means to correct converging verticals and other distortions introduced at image capture. » ; « These transforms involve interpolation, as in image scaling, which degrades the image quality »"
+    label: "Wikipedia, Perspective control, révision 1376293807 du 23 septembre 2026, la révision du jour (source secondaire, lue le 22 novembre 2026) : « Perspective distortion occurs in photographs when the film plane is not parallel to lines that are required to be parallel in the photo. » ; « Digital post-processing software provides means to correct converging verticals and other distortions introduced at image capture. » ; « These transforms involve interpolation, as in image scaling, which degrades the image quality » ; la même section nuance : des logiciels permettent « to achieve, with care, the desired control without any significant degradation in the overall image quality », et « How significant this is depends on the original image resolution, degree of manipulation, print/display size, and viewing distance »"
     url: "https://en.wikipedia.org/w/index.php?title=Perspective_control&oldid=1376293807"
   - id: canon-eos-r50-self-timer-fr
     group: "Constructeurs : manuels et pages techniques"

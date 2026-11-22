@@ -40,6 +40,8 @@ notions:
       simulator: "Couches d'affichage activables"
       exercise: "Redresser un horizon au niveau électronique"
     situations: [SIT-10, SIT-16, SIT-32]
+    todo:
+      - "À la rédaction de la fiche, sourcer que l'appareil tenu sans inclinaison vers le haut garde les verticales droites (BOI-04 est notion clé de SIT-16, « Des verticales droites », depuis la version 0.4.0 ; wikipedia-perspective-control, source secondaire, lie le défaut au plan du film non parallèle aux lignes qui doivent rester parallèles) ; dire si le niveau électronique des boîtiers de référence montre aussi l'inclinaison vers l'avant ou l'arrière."
     since: v0.1
   - id: BOI-05
     title: "Modes auto et scènes"
