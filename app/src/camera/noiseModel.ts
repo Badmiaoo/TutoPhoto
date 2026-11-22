@@ -17,14 +17,14 @@
 // - électrons reçus : n = v × e_sat, v étant la valeur rapportée à la saturation (exposition comprise) ;
 // - écart type : √(n + σ_r²), σ_r le bruit de lecture mesuré à cet ISO (interpolé en log-log). Le bruit photonique
 //   vaut √n : « Photon Noise in electrons is equal to the square root of the signal in electrons »
-//   [photonstophotos-sensor-analysis-primer-gain]. Additionner sa variance, n, et celle du bruit de lecture, σ_r²,
-//   suppose les deux bruits indépendants : c'est une hypothèse de TutoPhoto, qu'aucune page lue n'écrit (constat
-//   PHY-04 de l'audit).
+//   [photonstophotos-sensor-analysis-primer-gain] (page d'explication, source secondaire pour cette loi).
+//   Additionner sa variance, n, et celle du bruit de lecture, σ_r², suppose les deux bruits indépendants : c'est une
+//   hypothèse de TutoPhoto, qu'aucune page lue n'écrit (constat PHY-04 de l'audit).
 // Deux autres hypothèses (constat PHY-18 de l'audit) : les canaux rouge, vert et bleu de l'image tiennent lieu des
 // canaux du capteur, sans gains de balance des blancs ni matrice de couleur ; les tirages sont gaussiens, alors que le
 // bruit photonique suit une loi de Poisson, que la loi normale approche bien « except for small numbers »
 // [photonstophotos-sensor-analysis-primer-gain] : l'approximation est moins bonne dans les ombres profondes, où un
-// photosite reçoit peu d'électrons.
+// pixel de l'image compte peu d'électrons dans un canal (un tirage par pixel et par canal, pour k × part photosites).
 // Un pixel de l'image regroupe k photosites ; pour chaque canal, seule une part capte sa couleur :
 // la moitié pour le vert, un quart pour le rouge et pour le bleu (matrice de Bayer, deux fois plus de
 // verts que de rouges ou de bleus [wikipedia-bayer-filter]

@@ -13,12 +13,14 @@
 // clic sur le nom du boîtier dans la légende du graphique, égale au paramètre fwc de sa série
 // [photonstophotos-read-noise] ; la page ne dit pas comment elle obtient cette saturation. Pour les deux autres, cette
 // colonne donne 80 359 (Z 6) et 32 205 (A6000), soit 4,0 % et 2,7 % de moins que leur capacité dérivée : un
-// recoupement, qui ne remplace pas les valeurs retenues (constat PHY-13 de l'audit ; effet sur le bruit de 2 % au plus).
+// recoupement, qui ne remplace pas les valeurs retenues (constat PHY-13 de l'audit ; effet sur le bruit d'environ 2 %).
 // Bruit de lecture rapporté à l'entrée, en électrons, par réglage ISO : graphique « Input-referred Read Noise
 // versus ISO Setting » du même auteur [photonstophotos-read-noise], converti de log₂ ; ISO lus sur le graphique,
 // 3,125 × 2^x arrondi, x étant donné au centième (251 pour le tiers 100 × 2^(4/3) ≈ 252, par exemple). Les mesures
 // retenues, d'ISO 100 à 6400, sont toutes dans la plage analogique de la page : aucune n'a le symbole ouvert de « Open
-// symbols indicate values outside the normal analog range » (relu le 22 novembre 2026).
+// symbols indicate values outside the normal analog range » (relu le 22 novembre 2026). Ce n'est pas dire qu'elles
+// viennent toutes d'un gain analogique : « Flat spots in groups of three in the analog region usually indicate where
+// digital intermediate ISO gain is present », et l'EOS R50 a de tels paliers ; elles sont prises telles quelles.
 
 export type Brand = "nikon" | "sony" | "canon";
 /**

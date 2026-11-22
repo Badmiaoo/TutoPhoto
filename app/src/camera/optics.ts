@@ -28,7 +28,7 @@ export interface FramePoint {
 
 // ——— Champ de vue ———
 
-/** Tangente du demi-champ le long d'un côté du capteur : côté / (2 × focale). */
+/** Tangente du demi-champ le long d'un côté du capteur : côté / (2 × focale), à l'infini (fieldOfView). */
 export function halfFieldTangent(sideMm: number, focalMm: number): number {
   return sideMm / (2 * focalMm);
 }
