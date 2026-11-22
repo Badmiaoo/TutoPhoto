@@ -32,14 +32,16 @@
 //   prend pas les touchers, le couvrait sans que elementFromPoint le voie) ; le canevas est masqué (constat COD-11 de
 //   l'audit, version 0.3.70), le bouton « Défis » de l'en-tête aussi, et la page n'a aucune erreur ;
 // - affichage de diagnostic et capacités de rendu en flottants (constats ARC-06 et ARC-13 de l'audit, version 0.3.88),
-//   dans deux contextes à part, le simulateur ouvert avec « ?diagnostic » : témoin, capacités du navigateur telles
-//   quelles : l'affichage donne la version du site, WebGL 2 (WebGL 1 sur le profil webgl1), un débit d'images, la
-//   durée d'une image côté processeur, la ligne du processeur graphique et les deux capacités exigées à « oui », et
-//   aucun problème n'est affiché ; extension masquée (getExtension rend null pour EXT_color_buffer_float en WebGL 2,
-//   pour OES_texture_float et OES_texture_half_float en WebGL 1, comme les essais de la contre-vérification d'ARC-13) :
-//   le message le dit, avec la version du site, l'affichage donne les deux capacités à « non », et le déclencheur,
-//   appuyé sans attendre la fin du chargement, ouvre l'écran de revue sur le refus, sans image ni calcul ; aucune
-//   erreur de la page dans les deux contextes, ni de la console dans le témoin ;
+//   dans deux contextes à part : témoin, capacités du navigateur telles quelles, simulateur ouvert avec
+//   « ?diagnostic=densite-complete » et scène chargée : l'affichage donne la version du site, WebGL 2 (WebGL 1 sur le
+//   profil webgl1), un débit d'images, la durée d'une image côté processeur, la ligne du processeur graphique, les deux
+//   capacités exigées à « oui » et un viseur à la densité de l'écran, et aucun problème n'est affiché ; extension
+//   masquée (getExtension rend null pour EXT_color_buffer_float en WebGL 2, pour OES_texture_float et
+//   OES_texture_half_float en WebGL 1, comme les essais de la contre-vérification d'ARC-13), simulateur ouvert avec
+//   « ?diagnostic » : le message le dit, avec la mise au point, l'aperçu de la profondeur de champ et la version du
+//   site, le déclencheur est grisé, et, réactivé par la routine, un appui ne lance aucun calcul, n'ouvre pas l'écran de
+//   revue et le regrise ; l'affichage donne les deux capacités à « non » et le viseur à la densité plafonnée à 2 ;
+//   aucune erreur de la page dans les deux contextes, ni de la console dans le témoin ;
 // - la fiche SIT-05 a un bouton « Jouer le défi » (simulateur/?defi=SIT-05), et le simulateur ouvert à l'adresse
 //   simulateur?defi=SIT-06, sans la barre finale, ajoute la barre, montre la progression du chargement et a le
 //   défi SIT-06 choisi ; tout fichier compté par la progression est chargé par la scène (version 0.3.55) ; le
@@ -572,14 +574,24 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
 }
 
 /**
- * Affichage de diagnostic et capacités de rendu en flottants (constats ARC-06 et ARC-13 de l'audit, version 0.3.88), dans
- * deux contextes à part, aux dimensions du profil : témoin, puis extension masquée. Dans le contexte masqué, Babylon.js
- * et le pilote écrivent des avertissements sur les cibles de rendu incomplètes (« Render to float textures is not
- * supported », « Framebuffer is incomplete ») : la console n'y est pas contrôlée, seules les erreurs de la page le sont.
+ * Affichage de diagnostic et capacités de rendu en flottants (constats ARC-06 et ARC-13 de l'audit, version 0.3.88),
+ * dans deux contextes à part, aux dimensions du profil. Témoin, ouvert avec « ?diagnostic=densite-complete » et scène
+ * chargée : l'affichage donne la version, WebGL, un débit, les durées, la ligne du processeur graphique, les deux
+ * capacités exigées à « oui » et un viseur à la densité de l'écran ; aucun problème affiché, aucune erreur de la page ni
+ * de la console. Extension masquée, ouvert avec « ?diagnostic » : le message, avec la mise au point et l'aperçu ; le
+ * déclencheur grisé, et, réactivé par la routine, un appui qui ne calcule rien et le regrise ; l'affichage donne les
+ * deux capacités à « non » et la densité du viseur plafonnée à 2. Dans ce contexte, Babylon.js et le pilote écrivent
+ * des avertissements sur les cibles de rendu incomplètes (« Render to float textures is not supported », « Framebuffer
+ * is incomplete ») : la console n'y est pas contrôlée, seules les erreurs de la page le sont. Ne sont pas essayées : la
+ * mesure côté processeur graphique (Chromium sans écran n'expose aucune extension de mesure) et une photo prise avec
+ * l'affichage ouvert.
  */
 async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
   const version = webgl1 ? 1 : 2;
   const mask = webgl1 ? ["OES_texture_float", "OES_texture_half_float"] : ["EXT_color_buffer_float"];
+  // Densités écrites par l'affichage : deux décimales, virgule (app/src/diagnosticModel.ts, decimal).
+  const decimal2 = (value) => value.toFixed(2).replace(".", ",");
+  const screen = contextOptions.deviceScaleFactor ?? 1;
   for (const masked of [false, true]) {
     const context = await browser.newContext(contextOptions);
     try {
@@ -606,62 +618,87 @@ async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
       page.on("console", (message) => {
         if (!masked && message.type() === "error") errors.push(`console : ${message.text().slice(0, 200)}`);
       });
-      await page.goto(`${base}/simulateur/?diagnostic`);
-      // L'affichage réécrit ses lignes chaque seconde : la ligne du débit dit qu'au moins une image a été finie.
-      const shown = await page
-        .waitForFunction(() => /Images par seconde/.test(document.getElementById("diagnostic-view")?.textContent ?? ""), null, { timeout: 120000 })
-        .then(() => true)
-        .catch(() => false);
-      const read = () =>
-        page.evaluate(() => {
-          const problem = document.getElementById("diagnostic");
-          return { view: document.getElementById("diagnostic-view")?.textContent ?? "", problem: problem.hidden ? "" : problem.textContent };
-        });
-      const r = await read();
-      const lines = r.view.split("\n");
+      await page.goto(`${base}/simulateur/${masked ? "?diagnostic" : "?diagnostic=densite-complete"}`);
+      // Témoin : scène chargée (le message de chargement disparaît), comme dans le contexte principal du profil.
+      const loaded = masked
+        ? true
+        : await page
+            .waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 })
+            .then(() => true)
+            .catch(() => false);
+      // L'affichage réécrit ses lignes chaque seconde : le texte est lu dans l'écriture même qui a une ligne du débit
+      // (relu à part, il pouvait avoir changé entre-temps ; relecture de la version 0.3.88, constat C6).
+      const view = await page
+        .waitForFunction(
+          () => {
+            const text = document.getElementById("diagnostic-view")?.textContent ?? "";
+            return /Images par seconde/.test(text) ? text : null;
+          },
+          null,
+          { timeout: 120000 },
+        )
+        .then((handle) => handle.jsonValue())
+        .catch(() => "");
+      const problem = await page.evaluate(() => {
+        const line = document.getElementById("diagnostic");
+        return line.hidden ? "" : line.textContent;
+      });
+      const lines = view.split("\n");
       const caps = lines.find((line) => line.startsWith("Rendu en flottants")) ?? "";
-      const fps = /^Images par seconde\u00a0: (\d+,\d)$/m.exec(r.view);
+      const fps = /^Images par seconde\u00a0: (\d+,\d)$/m.exec(view);
+      const density = /^Densité\u00a0: écran (\d+,\d\d), viseur (\d+,\d\d) · image de (\d+) × (\d+) px$/m.exec(view);
+      const viewfinder = masked ? Math.min(2, screen) : screen;
+      const densityOk =
+        Boolean(density) && density[1] === decimal2(screen) && density[2] === decimal2(viewfinder) && Number(density[3]) > 0 && Number(density[4]) > 0;
+      const densityText = density ? density[0] : "ligne des densités absente";
       if (!masked) {
         check(
-          `affichage de diagnostic (?diagnostic), témoin : version, WebGL ${version}, débit, durées, capacités exigées à « oui », aucun problème`,
-          shown &&
+          `affichage de diagnostic (?diagnostic=densite-complete), témoin, scène chargée : version, WebGL ${version}, débit, durées, capacités exigées à « oui », viseur à la densité de l'écran (${decimal2(screen)}), aucun problème`,
+          loaded &&
             /^Diagnostic \(moyennes sur 1 s\) · Version du site\u00a0: \d+\.\d+\.\d+$/.test(lines[0]) &&
             (lines[1] ?? "").startsWith(`WebGL ${version} · `) &&
             Boolean(fps) &&
             Number(fps[1].replace(",", ".")) > 0 &&
-            /^Durée d'une image, processeur\u00a0: \d+,\d ms \(textures de rendu\u00a0: \d+,\d ms\)$/m.test(r.view) &&
-            /^Durée d'une image, processeur graphique\u00a0: /m.test(r.view) &&
+            /^Durée d'une image, processeur\u00a0: \d+,\d ms \(textures de rendu\u00a0: \d+,\d ms\)$/m.test(view) &&
+            /^Durée d'une image, processeur graphique\u00a0: /m.test(view) &&
             caps.includes("textureFloatRender oui, textureHalfFloatRender oui") &&
-            !r.problem &&
+            densityOk &&
+            !problem &&
             errors.length === 0,
-          `${r.view.replace(/\n/g, " | ") || "affichage absent"} ; problème : ${r.problem || "aucun"} ; erreurs : ${errors.join(" | ") || "aucune"}`,
+          `scène ${loaded ? "chargée" : "non chargée"} ; ${view.replace(/\n/g, " | ") || "affichage absent"} ; problème : ${problem || "aucun"} ; erreurs : ${errors.join(" | ") || "aucune"}`,
         );
         continue;
       }
-      // Déclencheur appuyé sans attendre la fin du chargement : le refus vient avant tout calcul.
-      await page.click("#shutter-button");
-      const refused = await page
-        .waitForFunction(() => !document.getElementById("review").hidden, null, { timeout: 30000 })
-        .then(() => true)
-        .catch(() => false);
-      const review = await page.evaluate(() => ({
-        caption: document.getElementById("review-caption").textContent,
-        image: !document.getElementById("review-image").hidden,
+      // Déclencheur grisé dès le départ ; réactivé par la routine, un appui (clic sans pointeur, comme au clavier) ne
+      // lance aucun calcul, n'ouvre pas l'écran de revue et le regrise (ui/shutter.ts, refusedForCapabilities).
+      const greyed = await page.evaluate(() => document.getElementById("shutter-button").disabled);
+      await page.evaluate(() => {
+        const button = document.getElementById("shutter-button");
+        button.disabled = false;
+        button.click();
+      });
+      await page.waitForTimeout(1500);
+      const after = await page.evaluate(() => ({
+        review: !document.getElementById("review").hidden,
         progress: !document.getElementById("progress").hidden,
+        greyed: document.getElementById("shutter-button").disabled,
       }));
       check(
-        `rendu en flottants absent (${mask.join(" et ")} ${mask.length > 1 ? "masquées" : "masquée"}, WebGL ${version}) : message affiché, capacités à « non », déclenchement refusé`,
-        shown &&
-          r.problem.startsWith("Photo impossible sur cet appareil\u00a0: ") &&
-          r.problem.includes("textureFloatRender, textureHalfFloatRender\u00a0: non") &&
-          /Version du site\u00a0: \d+\.\d+\.\d+$/.test(r.problem) &&
+        `rendu en flottants absent (${mask.join(" et ")} ${mask.length > 1 ? "masquées" : "masquée"}, WebGL ${version}) : message affiché, déclencheur grisé, appui sans calcul, capacités à « non », densité du viseur plafonnée (${decimal2(Math.min(2, screen))})`,
+        Boolean(fps) &&
+          problem.startsWith("Photo impossible sur cet appareil\u00a0: ") &&
+          problem.includes("textureFloatRender, textureHalfFloatRender\u00a0: non") &&
+          problem.includes("le bouton «\u00a0Déclencher\u00a0» est désactivé.") &&
+          problem.includes("floute tout le cadre.") &&
+          /Version du site\u00a0: \d+\.\d+\.\d+$/.test(problem) &&
+          greyed &&
+          !after.review &&
+          !after.progress &&
+          after.greyed &&
           caps.includes("textureFloatRender non, textureHalfFloatRender non") &&
-          refused &&
-          review.caption.startsWith("La photo n'a pas pu être calculée. Cet appareil ne le permet pas") &&
-          !review.image &&
-          !review.progress &&
+          densityOk &&
           errors.length === 0,
-        `problème : « ${r.problem} » ; ${caps || "ligne des capacités absente"} ; écran de revue ${refused ? "ouvert" : "fermé"}, légende « ${review.caption} », image ${review.image ? "affichée" : "masquée"}, calcul ${review.progress ? "en cours" : "non"} ; erreurs : ${errors.join(" | ") || "aucune"}`,
+        `problème : « ${problem} » ; déclencheur ${greyed ? "grisé" : "actif"} au départ ; après l'appui forcé : écran de revue ${after.review ? "ouvert" : "fermé"}, calcul ${after.progress ? "en cours" : "non"}, déclencheur ${after.greyed ? "grisé" : "actif"} ; ${caps || "ligne des capacités absente"} ; ${densityText} ; erreurs : ${errors.join(" | ") || "aucune"}`,
       );
     } finally {
       await context.close();

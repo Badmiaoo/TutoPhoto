@@ -14,7 +14,7 @@ import type { Scene } from "@babylonjs/core/scene";
 import { RegisterAbstractEngineTimeQuery } from "@babylonjs/core/Engines/AbstractEngine/abstractEngine.timeQuery.pure";
 import { RegisterEnginesExtensionsEngineQuery } from "@babylonjs/core/Engines/Extensions/engine.query.pure";
 import { EngineInstrumentation } from "@babylonjs/core/Instrumentation/engineInstrumentation";
-import { FrameMeter, SHOWN_FLOAT_CAPS, diagnosticLines, type FloatCaps } from "../diagnosticModel";
+import { FrameMeter, SHOWN_FLOAT_CAPS, diagnosticLines, type FloatCaps, type GpuReading } from "../diagnosticModel";
 import { siteVersion } from "../version";
 
 /** Intervalle de réécriture de l'affichage, et durée de la fenêtre du compteur des images. */
@@ -23,17 +23,23 @@ const REFRESH_MS = 1000;
 const NS_PER_MS = 1e6;
 
 export class DiagnosticView {
+  /**
+   * `host` : l'élément `main` de la page. Le calque y est placé juste avant l'écran de revue : à z-index égal (1), celui-ci
+   * le couvre, et la bande de calcul, la ligne des problèmes et les messages de la scène passent au-dessus de lui
+   * (style.css, .diagnostic-view ; relecture de la version 0.3.88, constat C4). À créer après l'autofocus : sa
+   * préparation des os, au début de la phase des textures de rendu, reste ainsi hors de la part mesurée (constat C7).
+   */
   constructor(engine: Engine, scene: Scene, host: HTMLElement) {
     const element = document.createElement("div");
     element.id = "diagnostic-view";
     element.className = "diagnostic-view";
-    host.append(element);
+    host.insertBefore(element, document.getElementById("review"));
 
     // Images de la boucle de rendu : le moteur notifie onBeginFrameObservable et onEndFrameObservable avant et après
     // chacune (Babylon.js 9.35.0, Engines/abstractEngine.pure.js, _processFrame). La phase des textures de rendu (carte
     // d'ombres, carte de profondeur du viseur) : entre onBeforeRenderTargetsRenderObservable et
     // onAfterRenderTargetsRenderObservable de la scène, notifiés autour de chaque phase (scene.pure.js, render et
-    // _renderForCamera).
+    // _renderForCamera) ; un observateur ajouté s'exécute après ceux qui l'étaient déjà (Misc/observable.pure.js).
     const meter = new FrameMeter(performance.now());
     engine.onBeginFrameObservable.add(() => meter.beginFrame(performance.now()));
     scene.onBeforeRenderTargetsRenderObservable.add(() => meter.beginTargets(performance.now()));
@@ -42,10 +48,16 @@ export class DiagnosticView {
 
     const caps = engine.getCaps();
     // Extension de mesure côté processeur graphique (Engines/thinEngine.pure.js, capacité timerQuery) : en WebGL 2,
-    // EXT_disjoint_timer_query_webgl2, en WebGL 1, EXT_disjoint_timer_query.
+    // EXT_disjoint_timer_query_webgl2, en WebGL 1, EXT_disjoint_timer_query. En WebGL 1 sans horodatage
+    // (canUseTimestampForTimerQuery), Babylon.js 9.35.0 ne mesure qu'une image : endTimeQuery ne remet à zéro le jeton de
+    // la mesure en cours que dans la branche WebGL 2 (Engines/Extensions/engine.query.pure.js, startTimeQuery et
+    // endTimeQuery), et startTimeQuery rend ensuite toujours ce jeton vidé (relecture de la version 0.3.88, constat C2).
     const extension = engine.webGLVersion > 1 ? "EXT_disjoint_timer_query_webgl2" : "EXT_disjoint_timer_query";
+    let unmeasured: GpuReading | null = null;
+    if (!caps.timerQuery) unmeasured = { state: "missing", extension };
+    else if (engine.webGLVersion === 1 && !caps.canUseTimestampForTimerQuery) unmeasured = { state: "unsupported" };
     let gpu: EngineInstrumentation | null = null;
-    if (caps.timerQuery) {
+    if (unmeasured === null) {
       RegisterAbstractEngineTimeQuery();
       RegisterEnginesExtensionsEngineQuery();
       gpu = new EngineInstrumentation(engine);
@@ -54,10 +66,20 @@ export class DiagnosticView {
     const floatCaps = Object.fromEntries(SHOWN_FLOAT_CAPS.map((name) => [name, Boolean(caps[name])])) as FloatCaps;
     const renderer = engine.getGlInfo().renderer;
 
+    // Nombre de mesures côté processeur graphique à la réécriture précédente : une durée n'est écrite que si une mesure
+    // est arrivée depuis. Babylon.js n'en commence une qu'une fois le résultat de la précédente lu, et sa moyenne
+    // (PerfCounter.lastSecAverage, Misc/perfCounter.js) est celle des mesures arrivées pendant la dernière seconde
+    // écoulée, la première mesure seule au début ; elle garde sa valeur quand plus rien n'arrive (constat C3).
+    let measuredBefore = 0;
+    const gpuReading = (): GpuReading => {
+      if (unmeasured !== null || gpu === null) return unmeasured ?? { state: "waiting" };
+      const counter = gpu.gpuFrameTimeCounter;
+      const fresh = counter.count > measuredBefore && counter.lastSecAverage > 0;
+      measuredBefore = counter.count;
+      return fresh ? { state: "measured", ms: counter.lastSecAverage / NS_PER_MS } : { state: "waiting" };
+    };
+
     const render = () => {
-      const counter = gpu?.gpuFrameTimeCounter ?? null;
-      // Moyenne de la dernière seconde (PerfCounter de Babylon.js) : nulle tant qu'une seconde de mesures n'est pas passée.
-      const gpuNs = counter && counter.lastSecAverage > 0 ? counter.lastSecAverage : null;
       element.textContent = diagnosticLines({
         version: siteVersion(),
         webgl: engine.webGLVersion,
@@ -67,8 +89,7 @@ export class DiagnosticView {
         renderWidth: engine.getRenderWidth(),
         renderHeight: engine.getRenderHeight(),
         window: meter.take(performance.now()),
-        gpuMs: gpuNs === null ? null : gpuNs / NS_PER_MS,
-        gpuMissing: caps.timerQuery ? null : extension,
+        gpu: gpuReading(),
         caps: floatCaps,
       }).join("\n");
     };

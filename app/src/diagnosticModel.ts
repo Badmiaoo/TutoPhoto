@@ -31,8 +31,11 @@ export function fullDensityRequested(search: string): boolean {
 /**
  * Capacités exigées, sous leur nom dans Babylon.js 9.35.0 (`engine.getCaps()`) : la photo rend chaque image dans une
  * texture en demi-flottants et fait sa somme dans deux textures en flottants de 32 bits (camera/photo.ts), et
- * l'autofocus rend sa carte de profondeur en flottants de 32 bits (camera/autofocus.ts). Sans l'une d'elles, la photo
- * sort presque noire et l'autofocus ne voit plus les sujets (constat ARC-13, essayé en masquant l'extension).
+ * l'autofocus rend sa carte de profondeur en flottants de 32 bits (camera/autofocus.ts), que l'aperçu de la profondeur
+ * de champ lit aussi (camera/viewfinderDof.ts). Sans l'une d'elles, la photo sort presque noire ; sans
+ * `textureFloatRender`, l'autofocus ne voit plus les sujets et l'aperçu floute tout le cadre (constat ARC-13, et essais
+ * de la version 0.3.88, extension masquée). En WebGL 2, Babylon.js tire les deux de la même extension ; en WebGL 1, il
+ * les essaie l'une après l'autre.
  */
 export const REQUIRED_FLOAT_CAPS = ["textureFloatRender", "textureHalfFloatRender"] as const;
 
@@ -56,6 +59,16 @@ export type FloatCaps = Record<FloatCapName, boolean>;
 /** Capacités exigées qui manquent, dans l'ordre de REQUIRED_FLOAT_CAPS ; une liste vide si rien ne manque. */
 export function missingFloatRender(caps: Pick<FloatCaps, (typeof REQUIRED_FLOAT_CAPS)[number]>): string[] {
   return REQUIRED_FLOAT_CAPS.filter((name) => !caps[name]);
+}
+
+/**
+ * Détail de la ligne des problèmes quand des capacités manquent (`missing`, non vide) : les capacités absentes et le
+ * déclencheur désactivé ; puis, si `textureFloatRender` manque, la mise au point et l'aperçu de la profondeur de champ,
+ * qui lisent la carte de profondeur en flottants de 32 bits.
+ */
+export function floatRenderMessage(missing: readonly string[]): string {
+  const detail = t("floatRenderDetail").replace("{caps}", missing.join(", "));
+  return missing.includes("textureFloatRender") ? `${detail} ${t("floatRenderFocus")}` : detail;
 }
 
 /** Bilan d'une fenêtre du compteur des images. Durées en millisecondes, côté processeur. */
@@ -163,15 +176,21 @@ export interface DiagnosticReading {
   renderHeight: number;
   /** Bilan de la dernière fenêtre du compteur des images. */
   window: FrameWindow;
-  /**
-   * Durée d'une image côté processeur graphique, en millisecondes : moyenne de la dernière seconde des images
-   * mesurées ; null tant qu'aucune mesure n'est arrivée.
-   */
-  gpuMs: number | null;
-  /** Extension de mesure côté processeur graphique : son nom si elle manque, null si le navigateur l'expose. */
-  gpuMissing: string | null;
+  /** Durée d'une image côté processeur graphique. */
+  gpu: GpuReading;
   caps: FloatCaps;
 }
+
+/**
+ * Mesure côté processeur graphique : extension absente (son nom), WebGL 1 sans horodatage (Babylon.js 9.35.0 n'y mesure
+ * qu'une image : ui/diagnosticView.ts), aucune mesure arrivée depuis la réécriture précédente, ou une durée en
+ * millisecondes.
+ */
+export type GpuReading =
+  | { state: "missing"; extension: string }
+  | { state: "unsupported" }
+  | { state: "waiting" }
+  | { state: "measured"; ms: number };
 
 /** Lignes de l'affichage, dans l'ordre. */
 export function diagnosticLines(r: DiagnosticReading): string[] {
@@ -193,9 +212,11 @@ export function diagnosticLines(r: DiagnosticReading): string[] {
     lines.push(fill("diagFps", { fps: decimal(w.fps, 1) }));
     lines.push(fill("diagFrame", { frame: decimal(w.frameMs, 1), targets: decimal(w.targetsMs, 1) }));
   }
-  if (r.gpuMissing !== null) lines.push(fill("diagGpuMissing", { extension: r.gpuMissing }));
-  else if (r.gpuMs === null) lines.push(t("diagGpuWaiting"));
-  else lines.push(fill("diagGpu", { gpu: decimal(r.gpuMs, 1) }));
+  const gpu = r.gpu;
+  if (gpu.state === "missing") lines.push(fill("diagGpuMissing", { extension: gpu.extension }));
+  else if (gpu.state === "unsupported") lines.push(t("diagGpuUnsupported"));
+  else if (gpu.state === "waiting") lines.push(t("diagGpuWaiting"));
+  else lines.push(fill("diagGpu", { gpu: decimal(gpu.ms, 1) }));
   const caps = SHOWN_FLOAT_CAPS.map((name) => `${name} ${t(r.caps[name] ? "diagYes" : "diagNo")}`).join(", ");
   lines.push(fill("diagCaps", { caps }));
   return lines;

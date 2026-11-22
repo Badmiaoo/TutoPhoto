@@ -12,6 +12,7 @@ import {
   decimal,
   diagnosticLines,
   diagnosticRequested,
+  floatRenderMessage,
   fullDensityRequested,
   missingFloatRender,
   type DiagnosticReading,
@@ -20,6 +21,7 @@ import {
 import { assertClose } from "./approx";
 
 const NBSP = String.fromCharCode(0xa0);
+const NNBSP = String.fromCharCode(0x202f);
 
 test("paramètre de l'adresse : « diagnostic », avec ou sans valeur, parmi d'autres", () => {
   for (const search of ["?diagnostic", "?diagnostic=1", "?diagnostic=", "?defi=SIT-05&diagnostic", "?diagnostic&defi=SIT-06"]) {
@@ -48,6 +50,20 @@ test("capacités exigées : les deux de la photo et de l'autofocus, et celles qu
     "textureFloatRender",
     "textureHalfFloatRender",
   ]);
+});
+
+test("message des capacités : le déclencheur désactivé ; la mise au point et l'aperçu seulement sans textureFloatRender", () => {
+  const both = floatRenderMessage(["textureFloatRender", "textureHalfFloatRender"]);
+  assert.equal(
+    both,
+    `son navigateur ne sait pas rendre l'image dans des textures en flottants (textureFloatRender, textureHalfFloatRender${NBSP}: non)${NNBSP}; le bouton «${NBSP}Déclencher${NBSP}» est désactivé. La mise au point ne voit pas les sujets (elle se fait sur le sol ou le fond), et l'aperçu de la profondeur de champ floute tout le cadre.`,
+  );
+  // En WebGL 1, Babylon.js essaie les deux capacités l'une après l'autre : sans les demi-flottants seulement, la carte
+  // de profondeur en flottants de 32 bits se rend, et rien n'est dit de la mise au point.
+  const half = floatRenderMessage(["textureHalfFloatRender"]);
+  assert.ok(half.includes(`(textureHalfFloatRender${NBSP}: non)`), half);
+  assert.ok(!half.includes("mise au point"), half);
+  assert.ok(floatRenderMessage(["textureFloatRender"]).endsWith("floute tout le cadre."));
 });
 
 test("capacités affichées : les deux exigées d'abord, puis colorBufferFloat et colorBufferHalfFloat (plan du Sujet 28)", () => {
@@ -79,6 +95,31 @@ test("compteur des images : moyenne des durées, phases des textures additionné
   assertClose(w.fps, 2, 1e-12, "images par seconde");
   assertClose(w.frameMs ?? NaN, 15, 1e-12, "durée moyenne d'une image");
   assertClose(w.targetsMs ?? NaN, 3, 1e-12, "durée moyenne des textures de rendu");
+});
+
+test("compteur des images : débit sur une fenêtre de 2 s ; deux fenêtres pleines de suite, chacune ses propres images", () => {
+  const meter = new FrameMeter(0);
+  // Trois images de 10, 20 et 30 ms en 2 s : 1,5 image par seconde, durée moyenne 20 ms.
+  for (const [start, length] of [[100, 10], [700, 20], [1500, 30]]) {
+    meter.beginFrame(start);
+    meter.beginTargets(start + 1);
+    meter.endTargets(start + 1 + length / 10);
+    meter.endFrame(start + length);
+  }
+  const first = meter.take(2000);
+  assertClose(first.fps, 1.5, 1e-12, "images par seconde sur 2 s");
+  assertClose(first.frameMs ?? NaN, 20, 1e-12, "durée moyenne, première fenêtre");
+  assertClose(first.targetsMs ?? NaN, 2, 1e-12, "textures, première fenêtre ((1 + 2 + 3) / 3)");
+  // Seconde fenêtre, de 2000 à 2500 ms : une image de 4 ms, textures de 1 ms ; rien de la première n'y reste.
+  meter.beginFrame(2100);
+  meter.beginTargets(2101);
+  meter.endTargets(2102);
+  meter.endFrame(2104);
+  const second = meter.take(2500);
+  assert.equal(second.frames, 1);
+  assertClose(second.fps, 2, 1e-12, "une image en 0,5 s");
+  assertClose(second.frameMs ?? NaN, 4, 1e-12, "durée moyenne, seconde fenêtre");
+  assertClose(second.targetsMs ?? NaN, 1, 1e-12, "textures, seconde fenêtre");
 });
 
 test("compteur des images : fenêtre neuve après un bilan ; sans image, ni durée ni débit", () => {
@@ -145,8 +186,7 @@ function reading(overrides: Partial<DiagnosticReading> = {}): DiagnosticReading 
     renderWidth: 824,
     renderHeight: 882,
     window: { seconds: 1, frames: 60, fps: 59.83, frameMs: 4.24, targetsMs: 1.06 },
-    gpuMs: 12.34,
-    gpuMissing: null,
+    gpu: { state: "measured", ms: 12.34 },
     caps: allCaps(true),
     ...overrides,
   };
@@ -165,17 +205,17 @@ test("lignes de l'affichage : version, WebGL, densités, débit, durées, capaci
   ]);
 });
 
-test("lignes de l'affichage : sans image, sans extension de mesure, en attente, capacités absentes", () => {
+test("lignes de l'affichage : sans image, sans extension de mesure, WebGL 1 sans horodatage, en attente, capacités absentes", () => {
   const stopped = diagnosticLines(
-    reading({ window: { seconds: 1, frames: 0, fps: 0, frameMs: null, targetsMs: null }, gpuMs: null, gpuMissing: "EXT_disjoint_timer_query_webgl2" }),
+    reading({ window: { seconds: 1, frames: 0, fps: 0, frameMs: null, targetsMs: null }, gpu: { state: "missing", extension: "EXT_disjoint_timer_query_webgl2" } }),
   );
   assert.equal(stopped.length, 6);
   assert.ok(stopped[3].startsWith("Aucune image du viseur dans la dernière seconde"), stopped[3]);
   assert.equal(stopped[4], `Durée d'une image, processeur graphique${NBSP}: non mesurée (EXT_disjoint_timer_query_webgl2 absente)`);
-  const waiting = diagnosticLines(reading({ gpuMs: null }));
+  const waiting = diagnosticLines(reading({ gpu: { state: "waiting" } }));
   assert.equal(waiting[5], `Durée d'une image, processeur graphique${NBSP}: en attente d'une mesure`);
-  // L'extension absente l'emporte sur une mesure : sans extension, aucune mesure ne peut arriver.
-  assert.match(diagnosticLines(reading({ gpuMissing: "EXT_disjoint_timer_query" }))[5], /non mesurée \(EXT_disjoint_timer_query absente\)$/);
+  const webgl1 = diagnosticLines(reading({ webgl: 1, gpu: { state: "unsupported" } }));
+  assert.equal(webgl1[5], `Durée d'une image, processeur graphique${NBSP}: non mesurée (WebGL 1 sans horodatage, que Babylon.js 9.35.0 ne mesure qu'une fois)`);
   const masked = diagnosticLines(reading({ caps: { ...allCaps(true), textureFloatRender: false, textureHalfFloatRender: false, colorBufferFloat: false } }));
   assert.equal(
     masked[6],

@@ -15,7 +15,7 @@ import { ChallengePicker } from "./ui/challenges";
 import { FicheDialog } from "./ui/ficheDialog";
 import { ReviewInfo } from "./ui/reviewInfo";
 import { DiagnosticView } from "./ui/diagnosticView";
-import { diagnosticRequested, fullDensityRequested, missingFloatRender } from "./diagnosticModel";
+import { diagnosticRequested, floatRenderMessage, fullDensityRequested, missingFloatRender } from "./diagnosticModel";
 import { t } from "./texts";
 import { siteVersion } from "./version";
 
@@ -254,12 +254,11 @@ if (!Engine.isSupported()) {
   // Capacités de rendu en flottants (constat ARC-13 de l'audit, version 0.3.88) : la photo et l'autofocus en ont besoin,
   // et Babylon.js crée leurs textures sans vérifier qu'il peut y rendre. Sans elles, la photo sortait presque noire, avec
   // sa légende ordinaire, et l'autofocus ne voyait plus les sujets, sans aucun message. Le message le dit dès le
-  // démarrage, et ui/shutter.ts refuse le déclenchement. Aucun repli n'est écrit (décision D24 en attente).
+  // démarrage, et ui/shutter.ts grise le déclencheur et refuse tout calcul. Aucun repli n'est écrit (décision D24 en
+  // attente).
   const missingFloat = missingFloatRender(engine.getCaps());
-  if (missingFloat.length > 0) report("problemFloatRender", t("floatRenderDetail").replace("{caps}", missingFloat.join(", ")));
+  if (missingFloat.length > 0) report("problemFloatRender", floatRenderMessage(missingFloat));
   const { scene, camera, ready, filesSettled, time, subjects, eye } = createScene(engine, canvas);
-  // Affichage de diagnostic (constat ARC-06 de l'audit, version 0.3.88) : seulement avec « ?diagnostic » dans l'adresse.
-  if (diagnosticRequested(window.location.search)) new DiagnosticView(engine, scene, canvas.parentElement ?? document.body);
   // Serveur de développement seulement (absent du site construit) : accès pour les mesures sur la scène.
   if (import.meta.env.DEV) {
     void import("@babylonjs/core/Culling/ray");
@@ -299,6 +298,9 @@ if (!Engine.isSupported()) {
   const ground = { eyeHeight: EYE_HEIGHT, domeRadius: DOME_RADIUS };
   const autofocus = new Autofocus(scene, camera, ground, () => panel.focusArea(), subjects);
   panel.attachAutofocus(autofocus);
+  // Affichage de diagnostic (constat ARC-06 de l'audit, version 0.3.88) : seulement avec « ?diagnostic » dans l'adresse ;
+  // créé après l'autofocus (ui/diagnosticView.ts).
+  if (diagnosticRequested(window.location.search)) new DiagnosticView(engine, scene, canvas.parentElement ?? document.body);
   const dof = new ViewfinderDepthOfField(
     scene,
     camera,

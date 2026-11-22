@@ -1010,9 +1010,10 @@ dialog fieldset label {
 /* Affichage de diagnostic (version 0.3.88, ui/diagnosticView.ts), ouvert par « ?diagnostic » dans l'adresse : un calque
    en bas à gauche du viseur, coin que n'occupent ni l'indicateur d'équilibre (en haut à gauche), ni la vue de dessus (en
    bas à droite), ni les badges (au centre), sur un écran large. Sur un téléphone, il couvre une bonne part du viseur
-   (161 px de haut, sur 441 px de viseur pour le Pixel 7 émulé et 266 px pour l'iPhone 14 émulé) : il passe sous les messages de la scène et la
-   ligne des problèmes (z-index 3) et sous la bande « Calcul de la photo… » (z-index 2), au-dessus de la vue de dessus
-   et de l'indicateur d'équilibre. Il ne prend pas les touchers : le viseur se touche à travers lui. */
+   (161 px de haut, sur 441 px de viseur pour le Pixel 7 émulé et 266 px pour l'iPhone 14 émulé). Placé dans la page
+   juste avant l'écran de revue, au même z-index (1), il passe sous lui, sous la bande « Calcul de la photo… » (2), sous
+   la ligne des problèmes et les messages de la scène (3), et au-dessus de la vue de dessus et de l'indicateur
+   d'équilibre. Il ne prend pas les touchers : le viseur se touche à travers lui. */
 .diagnostic-view {
   position: absolute;
   left: 0.5rem;
