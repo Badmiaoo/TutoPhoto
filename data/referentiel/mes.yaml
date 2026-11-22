@@ -119,7 +119,7 @@ notions:
     situations: [SIT-03, SIT-19]
     sources: [sony-a7iv-spot-point, fujifilm-x100t-photometry]
     todo:
-      - "Chercher l'option de Fujifilm dans le manuel d'un hybride de la marque avant d'écrire la fiche : fujifilm-x100t-photometry vient d'un compact à objectif fixe. L'hôte fujifilm-dsc.com est à faire ajouter à l'environnement de Claude par Julien."
+      - "Chercher l'option de Fujifilm dans le manuel d'un hybride de la marque avant d'écrire la fiche : fujifilm-x100t-photometry vient d'un compact à objectif fixe. Hôte à faire ajouter : docs/etat-des-travaux.md, « Ce que Julien seul peut faire »."
     since: v0.2
   - id: MES-13
     title: "Système de zones"
