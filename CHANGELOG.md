@@ -12,6 +12,14 @@
 
 Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré.
 
+## [0.4.4] - 2026-11-22
+
+Demande de Julien du 22 novembre 2026 (« J'ai une erreur sur le site faut corriger ! », `docs/historique.md`), traitée avant le Sujet 36 du plan de corrections : sur son iPhone, dans Safari, le simulateur de la version 0.4.2 s'arrêtait au démarrage, viseur gris, avec « Error: Unable to create vertex buffer » et un message qui disait le rendu en flottants absent. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Section écrite pendant le travail, réécrite avant la fusion.
+
+### Modifié
+
+- `docs/etat-des-travaux.md` : la demande en tête de la file, avant le Sujet 36.
+
 ## [0.4.3] - 2026-11-22
 
 Sujet 35 du plan de corrections de l'audit (`docs/audit/README.md`) : fiches, dire qu'une source est secondaire, accorder les dates de lecture (constats FEX-18 de `docs/audit/fiches-exposition.md` et FMA-09 de `docs/audit/fiches-mise-au-point.md`, avec leurs contre-vérifications). Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z. Le site publié change par le texte de dix-huit fiches : des mentions et des dates dans des parenthèses de citation, des guillemets dans EXP-06 et, dans BOI-07 et BOI-08, la phrase des remèdes quand l'indicateur clignote ; le simulateur ne change pas, et aucun exercice ni aucune recette n'est réécrit. Choix de Claude : `docs/propositions.md`, section 5, « Fiches : source secondaire, dates de lecture », dix choix.
@@ -2262,6 +2270,7 @@ Première version : le dépôt reprend le brouillon de référentiel v0.2 de `RE
 - `README.md`, `README.en.md`, `CLAUDE.md`, ce changelog.
 - Workflow GitHub Actions qui lance `validate.py` et `coverage.py` sur chaque pull request et sur `main`.
 
+[0.4.4]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/Badmiaoo/TutoPhoto/compare/v0.4.0...v0.4.1
