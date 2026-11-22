@@ -68,12 +68,12 @@ sources:
     url: "https://hugin.sourceforge.io/docs/manual/Entrance_pupil.html"
   - id: dpreview-iso-invariance
     group: "Physique, rendu et technique"
-    label: "DPReview, What is ISO invariance, and should I care? (Richard Butler, publié le 27 juillet 2026, mis à jour le 16 septembre 2026). Texte relevé par Julien le 11 novembre 2026, le site refusant les lectures automatiques : « ISO invariance is an assessment of how much or little improvement in noise you get by increasing gain » ; un cran de gain écrête le cran le plus clair des hautes lumières ; « Setting ISO higher than you need will result in capturing less light than you might others, and this reduction in light leaves the image looking noisier » ; un capteur est ISO invariant quand un cran d'ISO retire un cran de plage dynamique"
+    label: "DPReview, What is ISO invariance, and should I care? (Richard Butler, publié le 27 juillet 2026, mis à jour le 16 septembre 2026), source secondaire. Texte relevé par Julien le 11 novembre 2026, le site refusant les lectures automatiques : « ISO invariance is an assessment of how much or little improvement in noise you get by increasing gain » ; un cran de gain écrête le cran le plus clair des hautes lumières ; « Setting ISO higher than you need will result in capturing less light than you might others, and this reduction in light leaves the image looking noisier » ; un capteur est ISO invariant quand un cran d'ISO retire un cran de plage dynamique"
     url: "https://www.dpreview.com/articles/iso-invar/"
     read: 2026-11-11
   - id: pl-iso-invariance
     group: "Physique, rendu et technique"
-    label: "Photography Life, ISO Invariance Explained (Spencer Cox, mis à jour le 22 août 2022). Texte relevé par Julien le 11 novembre 2026, le site refusant les lectures automatiques : bruit photonique, « Photon noise occurs due to fluctuations in photons from in the scene in front of your camera. It has nothing to do with the camera itself! », égal à la racine carrée du nombre de photons ; bruit de lecture, qui vient de l'appareil ; ISO étendus simulés : « Those ISO values don't provide any image quality benefit, and actually harm your image quality by making it much easier to “clip” detail in the highlights »"
+    label: "Photography Life, ISO Invariance Explained (Spencer Cox, mis à jour le 22 août 2022), source secondaire. Texte relevé par Julien le 11 novembre 2026, le site refusant les lectures automatiques : bruit photonique, « Photon noise occurs due to fluctuations in photons from in the scene in front of your camera. It has nothing to do with the camera itself! », égal à la racine carrée du nombre de photons ; bruit de lecture, qui vient de l'appareil ; ISO étendus simulés : « Those ISO values don't provide any image quality benefit, and actually harm your image quality by making it much easier to “clip” detail in the highlights »"
     url: "https://photographylife.com/iso-invariance-explained"
     read: 2026-11-11
   - id: petapixel-perspective
@@ -735,19 +735,19 @@ sources:
     read: 2026-11-21
   - id: wikipedia-f-number
     group: "Physique, rendu et technique"
-    label: "Wikipedia, F-number, « Typical one-third-stop f-number scale » (révision 1382682702, source secondaire, lue le 8 novembre 2026)"
+    label: "Wikipedia, F-number (révision 1382682702, source secondaire) : « Typical one-third-stop f-number scale » (lue le 8 novembre 2026) ; ce qu'en tire la fiche EXP-04 : la définition, « the ratio of the system's focal length to the diameter of the entrance pupil » ; l'éclairement de l'image, qui « decreases with the square of the f-number » ; le cran entier, diamètre divisé par √2 et « a halving of the area of the pupil », qui vaut un IL (« The one-stop unit is also known as the EV (exposure value) unit ») ; le nombre f, « key in determining the depth of field » (lue le 11 novembre 2026, relue le 22 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=F-number&oldid=1382682702"
-    read: 2026-11-14
+    read: 2026-11-22
   - id: wikipedia-shutter-speed
     group: "Physique, rendu et technique"
-    label: "Wikipedia, Shutter speed : crans normalisés de 1/1000 à 1 s, échelle 2:1 (révision 1382495283, source secondaire, lue le 8 novembre 2026)"
+    label: "Wikipedia, Shutter speed (révision 1382495283, source secondaire) : crans normalisés de 1/1000 à 1 s, échelle 2:1 (lue le 8 novembre 2026) ; ce qu'en tire la fiche EXP-05 : la définition, « the length of time that the film or digital sensor inside the camera is exposed to light » ; « doubling the exposure time doubles the amount of light » ; l'échelle 2:1, adoptée pour qu'un cran d'ouverture et un cran de vitesse donnent « the identical exposure » (lue le 11 novembre 2026, relue le 22 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Shutter_speed&oldid=1382495283"
-    read: 2026-11-14
+    read: 2026-11-22
   - id: wikipedia-film-speed
     group: "Physique, rendu et technique"
-    label: "Wikipedia, Film speed, tableau des valeurs ISO par tiers (révision 1383727213, source secondaire, lue le 8 novembre 2026) ; vitesse fondée sur le bruit : rapports signal sur bruit par pixel de 40:1 (« excellent image quality ») et 10:1 (« acceptable image quality »), pour 70 pixels par cm vus à 25 cm (lu le 10 novembre 2026)"
+    label: "Wikipedia, Film speed, tableau des valeurs ISO par tiers (révision 1383727213, source secondaire, lue le 8 novembre 2026) ; vitesse fondée sur le bruit : rapports signal sur bruit par pixel de 40:1 (« excellent image quality ») et 10:1 (« acceptable image quality »), pour 70 pixels par cm vus à 25 cm (lu le 10 novembre 2026, relu le 22 novembre 2026 pour la fiche EXP-06)"
     url: "https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213"
-    read: 2026-11-21
+    read: 2026-11-22
   - id: nikon-z6-specifications
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Specifications : capteur 35.9 × 23.9 mm, 24.5 millions de pixels effectifs, vitesses 1/8000 – 30 s par pas de 1/3 ou 1/2 IL, ISO 100 – 51200 (lu le 8 novembre 2026) ; « Self-timer 2 s, 5 s, 10 s, 20 s » ; Z 6, « High-speed continuous (extended) : 12 fps (14-bit NEF/RAW: 9 fps) » (relu le 20 novembre 2026)"
@@ -819,9 +819,9 @@ sources:
     read: 2026-11-14
   - id: wikipedia-circle-of-confusion
     group: "Physique, rendu et technique"
-    label: "Wikipedia, Circle of confusion : flou acceptable d/1500 (0,029 mm en plein format) ; diamètre du flou c = A × |S₂ − S₁| / S₂ × f / (S₁ − f) (révision 1335590423, source secondaire, lue le 10 novembre 2026)"
+    label: "Wikipedia, Circle of confusion (révision 1335590423, source secondaire) : flou acceptable d/1500 (0,029 mm en plein format), que cite aussi la fiche MVT-01 ; diamètre du flou c = A × |S₂ − S₁| / S₂ × f / (S₁ − f) (lue le 10 novembre 2026) ; ce qu'en tirent de plus les fiches NET-01 et NET-06 : « A lens can precisely focus objects at only one distance » ; la tache de flou, d'autant plus grande que l'objet est loin du plan de mise au point ; la profondeur de champ, « the range of object distances over which objects appear sharp » ; la valeur du flou acceptable, qui « depends on visual acuity, viewing conditions, and the amount of enlargement » ; A = f / N (lue le 11 novembre 2026, relue le 22 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Circle_of_confusion&oldid=1335590423"
-    read: 2026-11-21
+    read: 2026-11-22
   - id: nikon-z6-release-mode
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The Release Mode/Self-Timer Button : Single frame, Continuous L (1–5 vps), Continuous H (environ 5,5 vps), Continuous H (extended) (12 vps au Z 6), Self-timer ; table des cadences maximales (12 vps en JPEG en Continuous H (extended)) (lu le 10 novembre 2026). Réglages d2 (Max. Continuous Release, de 1 à 200 vues) et c2 (Self-Timer) lus le même jour."
@@ -844,14 +844,14 @@ sources:
     read: 2026-11-22
   - id: nikon-z6-indicators
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6, Indicators and Error Messages : « Exposure indicators and shutter speed or aperture display flash », « Subject too bright; photo will be overexposed », « Subject too dark; photo will be underexposed » (lu le 10 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6, Indicators and Error Messages : « Exposure indicators and shutter speed or aperture display flash », « Subject too bright; photo will be overexposed », « Subject too dark; photo will be underexposed » (lu le 10 novembre 2026) ; ce qu'en tirent les fiches BOI-07 et BOI-08 : en mode S, « Increase shutter speed » quand le sujet est trop clair, « Lower shutter speed » ou « Increase ISO sensitivity » quand il est trop sombre ; en mode A, « Choose a smaller aperture (higher f-number) » et « Choose larger aperture (lower f-number) » (relu le 22 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/13_troubleshooting_02.html"
-    read: 2026-11-14
+    read: 2026-11-22
   - id: nikon-z6-indicators-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Indicateurs et messages d'erreur : « Les indicateurs d'exposition et l'affichage de la vitesse d'obturation ou de l'ouverture clignotent » ; en mode A, « Choisissez une ouverture plus petite (valeur plus grande) » quand le sujet est trop clair, « une ouverture plus grande » quand il est trop sombre (lu le 20 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Indicateurs et messages d'erreur : « Les indicateurs d'exposition et l'affichage de la vitesse d'obturation ou de l'ouverture clignotent » ; en mode A, « Choisissez une ouverture plus petite (valeur plus grande) » quand le sujet est trop clair, « une ouverture plus grande » quand il est trop sombre (lu le 20 novembre 2026) ; en mode S, « Augmentez la vitesse d'obturation » quand le sujet est trop clair, « Diminuez la vitesse d'obturation » ou « Utilisez une sensibilité (ISO) plus élevée » quand il est trop sombre, ce que tire la fiche BOI-08 (apostrophes typographiques dans la page ; relu le 22 novembre 2026, avec le mode A pour la fiche BOI-07)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/13_troubleshooting_02.html"
-    read: 2026-11-20
+    read: 2026-11-22
   - id: nikon-z6-exposure-compensation
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The Exposure Compensation Button : de −5 à +5 IL par tiers ; « Exposure compensation is not reset when the camera is turned off » ; « In mode M, exposure compensation affects only the exposure indicator », l'ISO auto en tenant compte (lu le 10 novembre 2026)"
@@ -904,9 +904,9 @@ sources:
     read: 2026-11-20
   - id: wikipedia-umbra-penumbra
     group: "Physique, rendu et technique"
-    label: "Wikipedia, Umbra, penumbra and antumbra : la pénombre est la zone où la source n'est cachée qu'en partie ; avec une source ponctuelle, seule l'ombre pleine existe (révision 1379008615, source secondaire, lue le 11 novembre 2026)"
+    label: "Wikipedia, Umbra, penumbra and antumbra : la pénombre est la zone où la source n'est cachée qu'en partie ; avec une source ponctuelle, seule l'ombre pleine existe (révision 1379008615, source secondaire, lue le 11 novembre 2026, relue le 22 novembre 2026 pour la fiche LUM-02)"
     url: "https://en.wikipedia.org/w/index.php?title=Umbra,_penumbra_and_antumbra&oldid=1379008615"
-    read: 2026-11-14
+    read: 2026-11-22
   - id: wikipedia-inverse-square-law
     group: "Physique, rendu et technique"
     label: "Wikipedia, Inverse-square law : « doubling the distance reduces illumination to one quarter » ; « when the size of the light source is less than one-fifth of the distance to the subject, the calculation error is less than 1% » (révision 1384166303 du 6 novembre 2026, source secondaire, lue le 20 novembre 2026)"
@@ -919,14 +919,14 @@ sources:
     read: 2026-11-14
   - id: tiffen-lowel-soft-light
     group: "Cours et pédagogie"
-    label: "Tiffen (Lowel), Foundations of Lighting: Understanding Soft Light : « A soft light source would be one that appears larger in relative size than the subject being lit » ; le soleil, très loin, « appears smaller » et donne une lumière plus dure ; par ciel couvert, « the entire white cloudy sky is now the light source » ; reculer la source la rend plus petite et plus dure ; un réflecteur devient la source (lu le 11 novembre 2026) ; « bouncing the output of a light […] off a white ceiling or wall to bring up the ambient light level in a room is well known » (relu le 20 novembre 2026)"
+    label: "Tiffen (Lowel), Foundations of Lighting: Understanding Soft Light, source secondaire : « A soft light source would be one that appears larger in relative size than the subject being lit » ; le soleil, très loin, « appears smaller » et donne une lumière plus dure ; par ciel couvert, « the entire white cloudy sky is now the light source » ; reculer la source la rend plus petite et plus dure ; un réflecteur devient la source (lu le 11 novembre 2026) ; « bouncing the output of a light […] off a white ceiling or wall to bring up the ambient light level in a room is well known » (relu le 20 novembre 2026) ; pour la fiche LUM-02, avec la première phrase : « Being larger than the subject, the light source is covering it from a greater angle and, as a result, filling in more of the potential shadow areas » (relu le 22 novembre 2026)"
     url: "https://tiffen.reamaze.com/kb/lowel-guides/foundations-of-lighting-understanding-soft-light"
-    read: 2026-11-20
+    read: 2026-11-22
   - id: pvc-adams-soft-light
     group: "Cours et pédagogie"
-    label: "Art Adams (directeur de la photographie), LIGHTING STRATEGIES: What Makes Soft Lights Cast Soft Shadows?, ProVideo Coalition, 27 décembre 2011 : une grande source est cachée peu à peu par l'objet, d'où l'ombre douce ; « Soft light is dependent on how big the source is in relation to the object it is lighting » ; une grande source lointaine paraît minuscule, comme le soleil (lu le 11 novembre 2026)"
+    label: "Art Adams (directeur de la photographie), LIGHTING STRATEGIES: What Makes Soft Lights Cast Soft Shadows?, ProVideo Coalition, 27 décembre 2011, source secondaire : une grande source est cachée peu à peu par l'objet, d'où l'ombre douce ; « Soft light is dependent on how big the source is in relation to the object it is lighting » ; une grande source lointaine paraît minuscule, comme le soleil (lu le 11 novembre 2026) ; pour la fiche LUM-02 : « a big source is gradually eclipsed by an object, but there’s no point where the light is abruptly hidden by the object », l'ombre devenant « darker and darker » (apostrophe typographique dans la page ; relu le 22 novembre 2026)"
     url: "https://www.provideocoalition.com/lighting_strategies_what_makes_soft_lights_cast_soft_shadows/"
-    read: 2026-11-14
+    read: 2026-11-22
   - id: nikon-z6-launch-2018
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, communiqué du 23 août 2018, « Nikon introduces the new Nikon Z mount system, and releases two full-frame mirrorless cameras: the Nikon Z 7 and Nikon Z 6 » : « the Z 6 has 273 focus points*, enabling broad coverage of approximately 90% of the imaging area both horizontally and vertically », « * With FX (36x24) format and single-point AF » (lu le 10 novembre 2026)"
@@ -1018,9 +1018,9 @@ sources:
     read: 2026-11-14
   - id: wikipedia-rule-of-thirds
     group: "Cours et pédagogie"
-    label: "Wikipedia, Rule of thirds : image divisée en neuf parties égales par deux lignes horizontales et deux lignes verticales, éléments importants sur ces lignes ou à leurs croisements ; « to discourage placement of the subject at the center » ; expression écrite pour la première fois par John Thomas Smith en 1797 ; réserves de George Field (1845) et étude d'Amirshahi et collègues (2014) (révision 1383322855 du 2 novembre 2026, source secondaire, lue le 12 novembre 2026)"
+    label: "Wikipedia, Rule of thirds (révision 1383322855 du 2 novembre 2026, source secondaire) : image divisée en neuf parties égales par deux lignes horizontales et deux lignes verticales, éléments importants sur ces lignes ou à leurs croisements ; « to discourage placement of the subject at the center » ; expression écrite pour la première fois par John Thomas Smith en 1797 ; réserves de George Field (1845) et étude d'Amirshahi et collègues (2014) (lue le 12 novembre 2026) ; ce qu'en tire aussi la fiche CMP-02 : « rule of thumb » ; « more tension, energy and interest » qu'un sujet centré ; l'horizon qui ne doit pas paraître couper l'image en deux ; le corps sur une ligne verticale et les yeux sur une ligne horizontale ; l'espace laissé devant un sujet immobile qui ne fait pas face à l'appareil ; les proportions de deux tiers pour un tiers que propose Smith, indépendantes de l'usage du terme en photographie (relue le 22 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Rule_of_thirds&oldid=1383322855"
-    read: 2026-11-14
+    read: 2026-11-22
   - id: nikon-z6-photo-information
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Photo Information : à la lecture, la commande DISP fait défiler les pages d'information, dont « None (image only) », « RGB histogram » et « Highlights », affichées seulement si elles sont sélectionnées dans « Playback display options » ; « Histogram (RGB channel) », puis canaux rouge, vert et bleu ; « Highlights (areas that may be overexposed) » ; « Histograms show tone distribution, with pixel brightness (tone) plotted on the horizontal axis and the number of pixels on the vertical axis. » ; « Camera histograms are intended as a guide only and may differ from those displayed in imaging applications. » ; avec la loupe, « The histogram will be updated to show only the data for the portion of the image visible in the display. » ; la page ne définit pas « RGB channel » et ne dit ni comment les hautes lumières sont marquées ni à quel seuil (lu le 12 novembre 2026)"
@@ -1073,9 +1073,9 @@ sources:
     read: 2026-11-14
   - id: wikipedia-srgb
     group: "Physique, rendu et technique"
-    label: "Wikipedia, sRGB, section « Primaries » : matrice du sRGB linéaire vers XYZ, dont la ligne Y vaut 0,2126 ; 0,7152 ; 0,0722, « these 4-digit coefficients should be considered exact » (révision 1378992844 du 7 octobre 2026, source secondaire, lue le 12 novembre 2026). TutoPhoto applique ces coefficients aux valeurs encodées de la photo pour son histogramme de luminance : c'est son choix, pas celui de la norme."
+    label: "Wikipedia, sRGB, section « Primaries » : matrice du sRGB linéaire vers XYZ, dont la ligne Y vaut 0,2126 ; 0,7152 ; 0,0722, « these 4-digit coefficients should be considered exact » (révision 1378992844 du 7 octobre 2026, source secondaire, lue le 12 novembre 2026, relue le 22 novembre 2026 pour la fiche MES-06). TutoPhoto applique ces coefficients aux valeurs encodées de la photo pour son histogramme de luminance : c'est son choix, pas celui de la norme."
     url: "https://en.wikipedia.org/w/index.php?title=SRGB&oldid=1378992844"
-    read: 2026-11-14
+    read: 2026-11-22
   - id: sony-a6000-aperture-priority-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Priorité ouvert. : le sélecteur de mode sur A, « Priorité ouvert. » ; « La vitesse d'obturation est réglée automatiquement pour obtenir l'exposition adaptée. » (apostrophes typographiques dans la page ; lu le 20 novembre 2026)"

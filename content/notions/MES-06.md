@@ -22,7 +22,7 @@ Affichage « histogrammes » : la photo, réduite, et quatre histogrammes sous e
 
 Choix de TutoPhoto, non sourcés, aucune page lue ne donnant le calcul d'un boîtier :
 - les histogrammes sont calculés sur la photo finale, en 8 bits par couche : 256 colonnes, de 0 à 255 ;
-- luminance : 0,2126 R + 0,7152 V + 0,0722 B, arrondi à l'entier, sur les valeurs de la photo. Ces coefficients sont ceux de la norme sRGB ([Wikipedia, « sRGB », révision 1378992844](https://en.wikipedia.org/w/index.php?title=SRGB&oldid=1378992844), source secondaire, lue le 12 novembre 2026), où ils s'appliquent à des valeurs linéaires ; les appliquer aux valeurs de la photo est un choix de TutoPhoto, qui reprend le nom « Luminance » de Sony ;
+- luminance : 0,2126 R + 0,7152 V + 0,0722 B, arrondi à l'entier, sur les valeurs de la photo. Ces coefficients sont ceux de la norme sRGB ([Wikipedia, « sRGB », révision 1378992844](https://en.wikipedia.org/w/index.php?title=SRGB&oldid=1378992844), source secondaire, relue le 22 novembre 2026), où ils s'appliquent à des valeurs linéaires ; les appliquer aux valeurs de la photo est un choix de TutoPhoto, qui reprend le nom « Luminance » de Sony ;
 - hauteur : chaque histogramme est rapporté à sa colonne la plus haute, sans compter les colonnes 0 et 255, pour qu'un pic à une extrémité n'écrase pas le reste ; ces deux colonnes sont tracées à leur vraie hauteur, limitée au bord du tracé.
 
 Ce que la luminance cache : un pixel rouge vif (255, 0, 0) a une couche à la valeur maximale, mais sa luminance vaut 0,2126 × 255, soit 54. L'histogramme de luminance le range parmi les tons sombres ; celui du rouge le montre à l'extrémité droite.

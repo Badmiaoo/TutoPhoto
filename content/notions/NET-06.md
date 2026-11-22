@@ -2,7 +2,7 @@
 
 ## Explication
 
-Plus un objet est loin du plan de mise au point, plus sa tache de flou est grande ([Wikipedia, « Circle of confusion », révision 1335590423](https://en.wikipedia.org/w/index.php?title=Circle_of_confusion&oldid=1335590423), lue le 11 novembre 2026). Pour une mise au point sur le sujet à la distance S₁, un fond à S₂ donne une tache de diamètre c = A × |S₂ − S₁| / S₂ × f / (S₁ − f), avec A = f / N (même source) : la tache grandit avec l'écart entre le sujet et le fond, jusqu'à un maximum pour un fond à l'infini.
+Plus un objet est loin du plan de mise au point, plus sa tache de flou est grande ([Wikipedia, « Circle of confusion », révision 1335590423](https://en.wikipedia.org/w/index.php?title=Circle_of_confusion&oldid=1335590423), source secondaire, relue le 22 novembre 2026). Pour une mise au point sur le sujet à la distance S₁, un fond à S₂ donne une tache de diamètre c = A × |S₂ − S₁| / S₂ × f / (S₁ − f), avec A = f / N (même source) : la tache grandit avec l'écart entre le sujet et le fond, jusqu'à un maximum pour un fond à l'infini.
 
 Calcul au 50 mm et f/4, mise au point sur Sophia à 6,6 m (A = 12,5 mm) : la poubelle à 10,5 m donne 0,035 mm, 1,2 fois le flou acceptable de 0,029 mm ; le promeneur à 12,5 m, 0,045 mm (1,6 fois) ; le fond photo, à l'infini, 0,095 mm (3,3 fois).
 
