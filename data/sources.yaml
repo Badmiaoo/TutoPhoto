@@ -667,7 +667,7 @@ sources:
     group: "Physique, rendu et technique"
     label: "Wikipedia, Film speed, tableau des valeurs ISO par tiers (révision 1383727213, source secondaire, lue le 8 novembre 2026) ; vitesse fondée sur le bruit : rapports signal sur bruit par pixel de 40:1 (« excellent image quality ») et 10:1 (« acceptable image quality »), pour 70 pixels par cm vus à 25 cm (lu le 10 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213"
-    used_in: [docs/camera-physique.md, app/src/ui/balance.ts, content/notions/EXP-06.md]
+    used_in: [docs/camera-physique.md, app/src/ui/balance.ts, app/src/camera/noiseModel.ts, content/notions/EXP-06.md]
   - id: nikon-z6-specifications
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Specifications : capteur 35.9 × 23.9 mm, 24.5 millions de pixels effectifs, vitesses 1/8000 – 30 s par pas de 1/3 ou 1/2 IL, ISO 100 – 51200 (lu le 8 novembre 2026) ; « Self-timer 2 s, 5 s, 10 s, 20 s » ; Z 6, « High-speed continuous (extended) : 12 fps (14-bit NEF/RAW: 9 fps) » (relu le 20 novembre 2026)"
@@ -692,7 +692,7 @@ sources:
     group: "Physique, rendu et technique"
     label: "Wikipedia, Bayer filter : « twice as many green elements as red or blue » (révision 1384004962, source secondaire, lue le 9 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Bayer_filter&oldid=1384004962"
-    used_in: [docs/camera-physique.md]
+    used_in: [docs/camera-physique.md, app/src/camera/noiseModel.ts]
   - id: wikipedia-sony-a6000
     group: "Physique, rendu et technique"
     label: "Wikipedia, Sony α6000 : capteur 23.5 × 15.6 mm, « 24.3 MP » (révision 1380408739 du 15 octobre 2026, source secondaire, lue le 9 novembre 2026) ; section « Popularity » : « By early 2016, it was reported to be the best-selling interchangeable-lens camera in the over-US$600 price range as well as the best-selling mirrorless camera of all time. » (relue le 20 novembre 2026 ; les sources que cite l'article, Wired et Imaging Resource, 2016, ne sont pas joignables depuis l'environnement de Claude)"
@@ -742,7 +742,7 @@ sources:
     group: "Physique, rendu et technique"
     label: "Wikipedia, Circle of confusion : flou acceptable d/1500 (0,029 mm en plein format) ; diamètre du flou c = A × |S₂ − S₁| / S₂ × f / (S₁ − f) (révision 1335590423, source secondaire, lue le 10 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Circle_of_confusion&oldid=1335590423"
-    used_in: [docs/camera-physique.md, app/src/ui/balance.ts, app/src/camera/sharpZone.ts, content/notions/MVT-01.md, content/notions/NET-01.md, content/notions/NET-06.md]
+    used_in: [docs/camera-physique.md, app/src/ui/balance.ts, app/src/camera/optics.ts, content/notions/MVT-01.md, content/notions/NET-01.md, content/notions/NET-06.md]
   - id: nikon-z6-release-mode
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The Release Mode/Self-Timer Button : Single frame, Continuous L (1–5 vps), Continuous H (environ 5,5 vps), Continuous H (extended) (12 vps au Z 6), Self-timer ; table des cadences maximales (12 vps en JPEG en Continuous H (extended)) (lu le 10 novembre 2026). Réglages d2 (Max. Continuous Release, de 1 à 200 vues) et c2 (Self-Timer) lus le même jour."
@@ -807,7 +807,7 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, Defaults : ISO 100 en P, S, A, M, contrôle de la sensibilité auto activé, sensibilité maximale 51200 (Z 6), vitesse minimale Auto ; Focus mode Single AF, AF-area mode Single-point AF ; a4 Face and eye detection on ; c2 retardateur 10 s ; d1 Continu L 3 vps (lu le 10 novembre 2026) ; d9 Framing grid display Off ; g6 Highlight display, Display pattern Off, Highlight display threshold 248 ; aucune ligne pour Playback display options (relu le 12 novembre 2026) ; c1 Shutter-release button AE-L Off (relu le 19 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html"
-    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, content/notions/BOI-12.md, content/notions/MAP-04.md, content/notions/MAP-06.md, content/notions/MES-10.md, content/notions/CMP-02.md, docs/dossiers/balance-des-blancs.md, docs/dossiers/viseur-aides.md]
+    used_in: [docs/camera-physique.md, app/src/ui/cameraPanel.ts, app/src/camera/viewfinder.ts, content/notions/BOI-12.md, content/notions/MAP-04.md, content/notions/MAP-06.md, content/notions/MES-10.md, content/notions/CMP-02.md, docs/dossiers/balance-des-blancs.md, docs/dossiers/viseur-aides.md]
   - id: nikon-z6-defaults-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6 en français, Réglages par défaut : « Délai du retardateur 10 s » ; d1, CL « 3 vps » (lu le 20 novembre 2026)"
@@ -887,17 +887,17 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé d9 Framing Grid Display : « Choose On to display a grid for reference when framing shots. » ; la page ne décrit pas le tracé du quadrillage (lu le 12 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d09.html"
-    used_in: [app/src/ui/cameraPanel.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [app/src/camera/viewfinder.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: canon-850d-grid-display
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS 850D, « Grid Display When Shooting » : grilles « 3x3 », « 6x4 » et « 3x3+diag » (« Displays grid lines in a 6x4 pattern to help you level the camera vertically and horizontally. ») ; boîtier voisin, pas un boîtier du simulateur (lu le 12 novembre 2026)"
     url: "https://cam.start.canon/en/C002/manual/html/UG-09_Set-up_0200.html"
-    used_in: [app/src/ui/cameraPanel.ts, content/notions/CMP-02.md, docs/camera-physique.md]
+    used_in: [app/src/camera/viewfinder.ts, content/notions/CMP-02.md, docs/camera-physique.md]
   - id: canon-r6-shooting-info-display
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS R6, « Shooting Information Display » : « A grid can be displayed on the screen and viewfinder. » ; la capture du menu montre « Off », « 3x3 », « 6x4 », « 3x3+diag » avec leurs icônes ; boîtier voisin, pas un boîtier du simulateur (lu le 12 novembre 2026)"
     url: "https://cam.start.canon/en/C004/manual/html/UG-03_Shooting-1_0360.html"
-    used_in: [app/src/ui/cameraPanel.ts, content/notions/CMP-02.md, docs/camera-physique.md]
+    used_in: [app/src/camera/viewfinder.ts, content/notions/CMP-02.md, docs/camera-physique.md]
   - id: nikon-z6-f2
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé f2 Custom Control Assignment, « Framing grid display » : « Press the control to turn the framing grid display on or off. » (lu le 12 novembre 2026)"
@@ -912,7 +912,7 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III), Grid Line : « Rule of 3rds Grid », « Place main subjects close to one of the grid lines that divide the image into thirds for a well-balanced composition » ; « Square Grid », « Diag. + Square Grid », « Off » ; ni le nombre de cases, ni le tracé des diagonales, ni le réglage par défaut ne sont donnés (lu le 12 novembre 2026)"
     url: "https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001653165.html"
-    used_in: [app/src/ui/cameraPanel.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [app/src/camera/viewfinder.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: sony-a7iii-grid-line-fr
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-7M3 (A7 III) en français, Quadrillage : termes « Grille règle des tiers », « Grille carrée », « Diag. + Grille carrée », « OFF » ; « Positionnez les principaux sujets à proximité de l'une des lignes du quadrillage qui divise l'image en trois pour une composition bien équilibrée » (apostrophes typographiques dans la page ; lu le 12 novembre 2026)"
@@ -932,12 +932,12 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, guide d'aide ILCE-6000 (A6000), Grid Line (Copyright 2014 Sony Corporation) : mêmes types et mêmes textes que l'A7 III ; « Off (default setting): Does not display the grid line. » (lu le 12 novembre 2026). La page française à la même adresse répond 404."
     url: "https://helpguide.sony.net/gbmig/45349331/v1/en/contents/TP0000518347.html"
-    used_in: [app/src/ui/cameraPanel.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [app/src/camera/viewfinder.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: nikon-d5600-digitutor-framing-grid
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, Digitutor D5600, Framing Grid (Live View) (© 2025 Nikon Corporation) : affichage « Framing grid » de la visée écran ; son illustration montre trois lignes verticales et trois lignes horizontales, soit seize cases, le texte ne donnant pas ce nombre (page d'aide, pas le manuel ; lue le 12 novembre 2026)"
     url: "https://imaging.nikon.com/imaging/support/digitutor/d5600/functions/framing_grid_liveview.html"
-    used_in: [app/src/ui/cameraPanel.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
+    used_in: [app/src/camera/viewfinder.ts, content/notions/CMP-02.md, docs/camera-physique.md, docs/dossiers/viseur-aides.md]
   - id: wikipedia-rule-of-thirds
     group: "Cours et pédagogie"
     label: "Wikipedia, Rule of thirds : image divisée en neuf parties égales par deux lignes horizontales et deux lignes verticales, éléments importants sur ces lignes ou à leurs croisements ; « to discourage placement of the subject at the center » ; expression écrite pour la première fois par John Thomas Smith en 1797 ; réserves de George Field (1845) et étude d'Amirshahi et collègues (2014) (révision 1383322855 du 2 novembre 2026, source secondaire, lue le 12 novembre 2026)"

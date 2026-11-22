@@ -19,8 +19,8 @@
 // dans la fenêtre « Exposition » ouverte par l'indicateur ; l'appareil choisit ce que le mode lui laisse
 // (camera/exposureModes.ts), et tout le reste (viseur, bruit, profondeur de champ, photo) suit ses réglages.
 // Grilles de cadrage (CMP-02, version 0.3.56) : une aide du viseur, choisie dans la fenêtre « Aperçu », la même
-// pour tous les boîtiers (GRIDS ; décision de Julien du 12 novembre 2026 : les grilles sont des outils de
-// composition, les mêmes partout). Choix de TutoPhoto, non sourcés, confirmés par Julien : la grille est masquée
+// pour tous les boîtiers (GRIDS, camera/viewfinder.ts ; décision de Julien du 12 novembre 2026 : les grilles sont des
+// outils de composition, les mêmes partout). Choix de TutoPhoto, non sourcés, confirmés par Julien : la grille est masquée
 // quand la loupe agrandit l'image, et elle n'est dessinée ni sur la photo ni sur l'écran de revue (aucune page lue
 // ne dit ce que fait un boîtier). Non simulé : le quadrillage du Nikon Z 6, dont le manuel ne décrit pas le tracé ;
 // les grilles « Square Grid » et « Diag. + Square Grid » de Sony, non décrites.
@@ -47,7 +47,8 @@ import {
   type ExposureSettings,
 } from "../camera/exposure";
 import { COMPENSATION_RANGE, resolveExposure, type ExposureMode, type ResolvedExposure } from "../camera/exposureModes";
-import { cameraFov, frameFor, type Frame } from "../camera/viewfinder";
+import { cameraFov, frameFor, gridLines, isGridKind, type Frame, type GridKind } from "../camera/viewfinder";
+import { windowProjection } from "../camera/optics";
 import type { ViewfinderNoise } from "../camera/noise";
 import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
 import type { AreaMode, Autofocus, FocusArea, FocusMode, Rect } from "../camera/autofocus";
@@ -128,53 +129,6 @@ const TARGET_KEYS: Record<"eye" | "face" | "nearest" | "point", MessageKey> = {
   point: "targetPoint",
 };
 
-/**
- * Grilles de cadrage (CMP-02, version 0.3.56) : positions des lignes, en fractions du grand côté et du petit côté du
- * cadre. Les mêmes grilles pour tous les boîtiers (décision de Julien du 12 novembre 2026) : celles que les manuels
- * lus nomment ou montrent.
- * - « thirds » : deux lignes dans chaque sens, aux tiers. Sony, « Grid Line », « Rule of 3rds Grid » : « Place
- *   main subjects close to one of the grid lines that divide the image into thirds for a well-balanced
- *   composition » (guides d'aide de l'A7 III et de l'A6000) [sony-a7iii-grid-line] [sony-a6000-grid-line] ; le
- *   nombre de lignes est déduit de ce texte, la page n'a pas d'illustration. Canon, « 3x3 » : « Displays grid lines
- *   in a 3x3 pattern » (manuel de l'EOS 850D) [canon-850d-grid-display].
- * - « sixteen » : trois lignes dans chaque sens, aux quarts, soit seize cases. Nikon, Digitutor du D5600, « Framing
- *   Grid (Live View) » : c'est ce que montre l'illustration de l'affichage « Framing grid » ; le texte de la page
- *   ne donne pas ce nombre [nikon-d5600-digitutor-framing-grid]. Lignes mesurées sur l'illustration à environ
- *   25 %, 50 % et 75 % du cadre ; les quarts exacts sont retenus.
- * - « twentyFour » : Canon, « 6x4 » : « Displays grid lines in a 6x4 pattern » [canon-850d-grid-display]. Six
- *   cases sur le grand côté et quatre sur le petit : sens déduit du nom, la page ne le dit pas (sur un capteur
- *   3:2, les cases sont alors carrées).
- * - « thirdsDiagonals » : Canon, « 3x3+diag » : « Displays a grid together with diagonal lines »
- *   [canon-850d-grid-display]. Deux diagonales d'un coin du cadre à l'autre : tracé déduit de l'icône du menu
- *   (capture du manuel de l'EOS R6) [canon-r6-shooting-info-display], la page ne le décrit pas.
- * Les manuels de Canon lus sont ceux de l'EOS 850D et de l'EOS R6, pas ceux des boîtiers du simulateur.
- * Par défaut, aucune grille : « d9 Framing grid display Off » sur le Z 6 [nikon-z6-defaults], « Off (default
- * setting) » sur l'A6000 [sony-a6000-grid-line]. Le manuel du Z 6 dit seulement « Choose On to display a grid for
- * reference when framing shots » [nikon-z6-d9] : son tracé n'est pas simulé.
- *   https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001653165.html
- *   https://helpguide.sony.net/gbmig/45349331/v1/en/contents/TP0000518347.html
- *   https://imaging.nikon.com/imaging/support/digitutor/d5600/functions/framing_grid_liveview.html
- *   https://cam.start.canon/en/C002/manual/html/UG-09_Set-up_0200.html
- *   https://cam.start.canon/en/C004/manual/html/UG-03_Shooting-1_0360.html
- *   https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_05_d09.html
- */
-type GridKind = "none" | "thirds" | "sixteen" | "twentyFour" | "thirdsDiagonals";
-interface GridLayout {
-  /** Lignes qui divisent le grand côté du cadre, puis le petit côté, en fractions de ce côté. */
-  long: readonly number[];
-  short: readonly number[];
-  diagonals: boolean;
-}
-const THIRDS = [1 / 3, 2 / 3] as const;
-const QUARTERS = [1 / 4, 1 / 2, 3 / 4] as const;
-const GRIDS: Record<GridKind, GridLayout> = {
-  none: { long: [], short: [], diagonals: false },
-  thirds: { long: THIRDS, short: THIRDS, diagonals: false },
-  sixteen: { long: QUARTERS, short: QUARTERS, diagonals: false },
-  twentyFour: { long: [1 / 6, 2 / 6, 3 / 6, 4 / 6, 5 / 6], short: QUARTERS, diagonals: false },
-  thirdsDiagonals: { long: THIRDS, short: THIRDS, diagonals: true },
-};
-const isGridKind = (value: unknown): value is GridKind => typeof value === "string" && Object.prototype.hasOwnProperty.call(GRIDS, value);
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 /** Interrupteurs de l'aperçu dans le viseur. */
@@ -796,7 +750,7 @@ export class CameraPanel {
     this.updateGrid();
     // Bruit du viseur : chaque pixel du cadre regroupe effectivePixels / (largeur × hauteur × grossissement²)
     // photosites, compté par pixel calculé, ou par pixel CSS quand un pixel calculé compte moins d'un photosite de
-    // rouge ou de bleu (loupe, à une densité supérieure à 1 : viewfinderNoiseGrid, camera/noise.ts).
+    // rouge ou de bleu (loupe, à une densité supérieure à 1 : viewfinderNoiseGrid, camera/noiseModel.ts).
     const resolved = this.resolved();
     const gain = this.showsBrightness() ? 1 : 2 ** resolved.offset;
     this.noise.update(
@@ -844,7 +798,7 @@ export class CameraPanel {
     const tall = this.frame !== null && this.frame.height > this.frame.width;
     const key = `${kind}:${tall ? "vertical" : "horizontal"}`;
     if (this.drawnGrid !== key) {
-      const layout = GRIDS[kind];
+      const layout = gridLines(kind, tall);
       const line = (direction: "vertical" | "horizontal", at: number) => {
         const element = document.createElement("div");
         element.className = `grid-line ${direction}`;
@@ -871,8 +825,8 @@ export class CameraPanel {
         return svg;
       };
       grid.replaceChildren(
-        ...(tall ? layout.short : layout.long).map((at) => line("vertical", at)),
-        ...(tall ? layout.long : layout.short).map((at) => line("horizontal", at)),
+        ...layout.vertical.map((at) => line("vertical", at)),
+        ...layout.horizontal.map((at) => line("horizontal", at)),
         ...(layout.diagonals ? [diagonals()] : []),
       );
       grid.dataset.grid = kind;
@@ -903,7 +857,8 @@ export class CameraPanel {
 
   /**
    * Projection du viseur grossie autour du point de mise au point : x' = (x − centre) × grossissement, en
-   * coordonnées normalisées, soit m0 et m5 multipliés et m8, m9 décalés. La zone grossie reste dans le cadre.
+   * coordonnées normalisées, soit m0 et m5 multipliés et m8, m9 décalés (camera/optics.ts, windowProjection). La zone
+   * grossie reste dans le cadre.
    */
   private applyLoupe(frame: Frame, body: Body): void {
     const tr = t;
@@ -929,11 +884,7 @@ export class CameraPanel {
     const limit = (half: number) => half - half / zoom;
     const clamp = (value: number, max: number) => Math.min(max, Math.max(-max, value));
     this.loupeCenter = { x: clamp(target.x, limit(halfX)), y: clamp(target.y, limit(halfY)) };
-    const m = Array.from(this.camera.getProjectionMatrix(true).asArray());
-    m[0] *= zoom;
-    m[5] *= zoom;
-    m[8] = (m[8] - this.loupeCenter.x) * zoom;
-    m[9] = (m[9] - this.loupeCenter.y) * zoom;
+    const m = windowProjection(this.camera.getProjectionMatrix(true).asArray(), this.loupeCenter, { x: zoom, y: zoom });
     this.camera.freezeProjectionMatrix(Matrix.FromArray(m));
   }
 

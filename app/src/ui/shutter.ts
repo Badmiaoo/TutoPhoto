@@ -18,7 +18,8 @@ import type { Observer } from "@babylonjs/core/Misc/observable";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import type { Scene } from "@babylonjs/core/scene";
 import type { UniversalCamera } from "@babylonjs/core/Cameras/universalCamera";
-import { SceneNotReadyError, takePhoto, type GroundInfo, type PhotoRequest, type PhotoResult, type SceneTimeControl } from "../camera/photo";
+import { SceneNotReadyError, takePhoto, type PhotoRequest, type PhotoResult, type SceneTimeControl } from "../camera/photo";
+import type { GroundInfo } from "../camera/optics";
 import { sensorPixels } from "../camera/bodies";
 import type { CameraPanel, CurrentSettings, ReleaseMode } from "./cameraPanel";
 import type { ViewfinderNoise } from "../camera/noise";
@@ -479,7 +480,7 @@ export class Shutter {
           sensorHeightMm: settings.body.sensorHeightMm,
           portrait: settings.frame.portrait,
         });
-        if (challenge) bulletin.criteria = judgeChallenge(challenge, bulletin);
+        if (challenge) bulletin.criteria = judgeChallenge(challenge, bulletin, this.ground.domeRadius);
         shots.push({ settings, request, photo, focusMode, areaMode, focusLocked, target, frame, bulletin, challenge, noise });
       }
     } catch (error) {

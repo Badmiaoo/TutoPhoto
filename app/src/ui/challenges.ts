@@ -2,6 +2,8 @@
 // Le défi se choisit dans la fenêtre « Défis » de l'en-tête ; le bulletin s'affiche sous chaque photo, défi ou non.
 
 import { CHALLENGES, type Bulletin, type ChallengeId, type Criterion } from "../camera/bulletin";
+import type { NoiseLevel } from "../camera/noiseModel";
+import { sensorMmToPixels } from "../camera/optics";
 import { t, type MessageKey } from "../texts";
 
 const STORAGE_KEY = "tutophoto.defi";
@@ -54,7 +56,7 @@ const CRITERION_KEYS: Record<Criterion["key"], MessageKey> = {
 
 export interface NoiseReading {
   snr: number;
-  level: "ok" | "warn" | "bad";
+  level: NoiseLevel;
 }
 
 interface ChallengeElements {
@@ -175,8 +177,8 @@ export function renderBulletin(
     const level = tr(extra.noise.level === "ok" ? "balanceExcellent" : extra.noise.level === "warn" ? "balanceAcceptable" : "balanceInsufficient");
     lines.push({ text: `${tr("bulletinNoise")} ${level} (${tr("balanceSnr")} ${Math.round(extra.noise.snr)}:1)` });
   }
-  // Flou acceptable en pixels de la photo : (diagonale / 1500) × 1500 / grand côté.
-  const limitPx = (bulletin.blurMm * 1500) / extra.longSideMm;
+  // Flou acceptable en pixels de la photo : (diagonale / 1500) × 1500 / grand côté (camera/optics.ts, PHOTO_LONG_SIDE).
+  const limitPx = sensorMmToPixels(bulletin.blurMm, extra.longSideMm);
   for (const m of bulletin.measures) {
     if (!m.inFrame || m.trailMm === 0) continue;
     const verdict = tr(m.frozen ? "bulletinFrozen" : "bulletinTrail");

@@ -86,8 +86,3 @@ export const DEFAULT_SETTINGS: ExposureSettings = {
 /** Focales proposées par l'objectif virtuel (18 à 200 mm, ouvrant à f/1.4 partout ; décision du 8 novembre 2026). */
 export const FOCAL_LENGTHS = [18, 24, 28, 35, 50, 70, 85, 105, 135, 200] as const;
 export const DEFAULT_FOCAL_INDEX = FOCAL_LENGTHS.indexOf(50);
-
-/** Champ de vue le long d'un côté du capteur : 2 × atan(côté / (2 × focale)). */
-export function fieldOfView(sideMm: number, focalMm: number): number {
-  return 2 * Math.atan(sideMm / (2 * focalMm));
-}

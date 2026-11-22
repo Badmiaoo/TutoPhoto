@@ -1,24 +1,6 @@
-// Bruit numérique physique (docs/camera-physique.md ; décisions du 9 novembre 2026 : bruit coloré selon
-// la matrice de Bayer, bruit brut sans réduction, dans le viseur et sur la photo).
-//
-// Pour un photosite, à la sensibilité S :
-// - électrons à saturation : e_sat = capacité × 100 / S ;
-// - électrons reçus : n = v × e_sat, v étant la valeur rapportée à la saturation (exposition comprise) ;
-// - écart type : √(n + σ_r²), σ_r le bruit de lecture mesuré à cet ISO (interpolé en log-log).
-// Un pixel de l'image regroupe k photosites ; pour chaque canal, seule une part capte sa couleur :
-// la moitié pour le vert, un quart pour le rouge et pour le bleu (matrice de Bayer, deux fois plus de
-// verts que de rouges ou de bleus [wikipedia-bayer-filter]). Écart type relatif à la saturation, par canal :
-// σ = √(n + σ_r²) / (e_sat × √(k × part)).
-// Vue à 100 % ou presque (loupe) : moins d'un photosite de la couleur par pixel. Le dématriçage interpole
-// les couleurs manquantes, d'une manière propre à chaque boîtier et non documentée dans les sources lues ;
-// on garde alors le bruit d'un photosite seul : k × part est ramené à 1 au moins.
-// Viseur à une densité supérieure à 1 (version 0.3.52 : densité de l'écran, plafonnée à 2 en version 0.3.53) : un
-// tirage indépendant par pixel calculé, k compté par pixel calculé. Quand un pixel calculé compte moins d'un
-// photosite de rouge ou de bleu (loupe), le plancher de 1 laisse à chaque pixel calculé le bruit d'un photosite, et
-// les densité² tirages d'un pixel CSS se moyennent : à densité 2, le bruit vu par pixel CSS était divisé par deux à
-// 100 % (constat PHY-07 de l'audit ; mesuré le 20 novembre 2026 : 0,52 fois le bruit de la densité 1,
-// docs/camera-physique.md, « Loupe »). Le tirage se fait alors sur la grille des pixels CSS, avec k compté par
-// pixel CSS, comme dans le viseur à densité 1 (viewfinderNoiseGrid).
+// Bruit du capteur, côté rendu : texture des tirages gaussiens, liaison des uniformes du bruit à un shader, et
+// post-traitement du viseur. La loi du bruit (paramètres, écart type, la même loi en GLSL) est dans
+// camera/noiseModel.ts, sans rendu (constat ARC-07 de l'audit, version 0.3.87) ; elle y est décrite.
 
 import type { Scene } from "@babylonjs/core/scene";
 import type { Camera } from "@babylonjs/core/Cameras/camera";
@@ -29,96 +11,7 @@ import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 import { PostProcess } from "@babylonjs/core/PostProcesses/postProcess";
 import { ShaderStore } from "@babylonjs/core/Engines/shaderStore";
 import type { Body } from "./bodies";
-
-/** Part des photosites qui captent chaque canal (rouge, vert, bleu) dans une matrice de Bayer. */
-const BAYER_SHARE = [0.25, 0.5, 0.25] as const;
-/** Côté de la texture de tirages gaussiens, en pixels. */
-export const NOISE_TILE = 512;
-
-export interface NoiseParameters {
-  /** Électrons à saturation, par photosite. */
-  saturation: number;
-  /** Carré du bruit de lecture, en électrons². */
-  readNoise2: number;
-  /** Photosites par pixel de l'image, pour chaque canal. */
-  photosites: [number, number, number];
-}
-
-/** Bruit de lecture à un ISO donné, interpolé entre les mesures en log₂(ISO) et log₂(électrons). */
-export function readNoiseAt(body: Body, iso: number): number {
-  const points = body.readNoise;
-  if (iso <= points[0][0]) return points[0][1];
-  const last = points[points.length - 1];
-  // Au-delà de la dernière mesure, on garde la dernière valeur (les trois boîtiers ont des mesures jusqu'à ISO 6400,
-  // le haut de l'échelle de TutoPhoto).
-  if (iso >= last[0]) return last[1];
-  for (let i = 1; i < points.length; i++) {
-    const [isoB, rnB] = points[i];
-    if (iso <= isoB) {
-      const [isoA, rnA] = points[i - 1];
-      const t = Math.log2(iso / isoA) / Math.log2(isoB / isoA);
-      return 2 ** (Math.log2(rnA) + t * Math.log2(rnB / rnA));
-    }
-  }
-  return last[1];
-}
-
-/** Grille des tirages du bruit du viseur : pixels de l'image pour compter k, taille d'une cellule de tirage. */
-export interface NoiseGrid {
-  /** Pixels de l'image (cadre entier, loupe comprise) sur lesquels k est compté. */
-  imagePixels: number;
-  /**
-   * Facteur appliqué aux coordonnées du pixel calculé avant l'arrondi vers le bas : 1, un tirage par pixel calculé ;
-   * le niveau de mise à l'échelle (1 / densité), un tirage par pixel CSS.
-   */
-  cellScale: number;
-}
-
-/**
- * Grille des tirages du viseur. computedPixels : pixels calculés du cadre, multipliés par le carré du grossissement de
- * la loupe ; scalingLevel : niveau de mise à l'échelle de Babylon.js, pixels CSS par pixel calculé (1 / densité).
- * Un tirage par pixel calculé tant que chacun compte au moins un photosite de chaque couleur (de rouge et de bleu, les
- * moins nombreux) ; sinon, à une densité supérieure à 1, un tirage par pixel CSS, k compté par pixel CSS (constat
- * PHY-07 de l'audit). À densité 1, rien ne change : pixels calculés et pixels CSS se confondent.
- */
-export function viewfinderNoiseGrid(body: Body, computedPixels: number, scalingLevel: number): NoiseGrid {
-  const k = body.effectivePixels / Math.max(1, computedPixels);
-  if (scalingLevel >= 1 || k * Math.min(...BAYER_SHARE) >= 1) return { imagePixels: computedPixels, cellScale: 1 };
-  return { imagePixels: computedPixels * scalingLevel * scalingLevel, cellScale: scalingLevel };
-}
-
-export function noiseParameters(body: Body, iso: number, imagePixels: number): NoiseParameters {
-  const k = body.effectivePixels / Math.max(1, imagePixels);
-  const rn = readNoiseAt(body, iso);
-  return {
-    saturation: (body.fullWellElectrons * 100) / iso,
-    readNoise2: rn * rn,
-    photosites: [Math.max(1, k * BAYER_SHARE[0]), Math.max(1, k * BAYER_SHARE[1]), Math.max(1, k * BAYER_SHARE[2])],
-  };
-}
-
-/** Fonctions GLSL communes : ajout du bruit à une valeur linéaire rapportée à la saturation. */
-export const NOISE_GLSL = `
-uniform sampler2D noiseSampler;
-uniform float noiseSaturation;
-uniform float noiseRead2;
-uniform vec3 noisePhotosites;
-uniform vec4 noiseOffsets;
-// Deux lectures de la texture de tirages gaussiens, la seconde tournée de 37 degrés, pour casser la
-// répétition du motif ; la somme de deux tirages indépendants, divisée par racine de 2, reste gaussienne.
-vec3 gaussianAt(vec2 pixel) {
-  const float c = 0.79863551;
-  const float s = 0.60181502;
-  vec2 rotated = vec2(c * pixel.x - s * pixel.y, s * pixel.x + c * pixel.y);
-  vec3 a = texture2D(noiseSampler, (pixel + noiseOffsets.xy) / ${NOISE_TILE.toFixed(1)}).rgb;
-  vec3 b = texture2D(noiseSampler, (rotated + noiseOffsets.zw) / ${NOISE_TILE.toFixed(1)}).rgb;
-  return (a + b) * 0.70710678;
-}
-vec3 addSensorNoise(vec3 v, vec2 pixel) {
-  vec3 electrons = max(v, 0.0) * noiseSaturation;
-  vec3 sigma = sqrt(electrons + noiseRead2) / (noiseSaturation * sqrt(noisePhotosites));
-  return v + gaussianAt(pixel) * sigma;
-}`;
+import { NOISE_GLSL, NOISE_TILE, NOISE_UNIFORMS, noiseParameters, viewfinderNoiseGrid, type NoiseParameters } from "./noiseModel";
 
 let sharedTexture: RawTexture | null = null;
 
@@ -156,8 +49,6 @@ export function bindNoise(effect: Effect, scene: Scene, params: NoiseParameters)
   const r = () => Math.random() * NOISE_TILE;
   effect.setFloat4("noiseOffsets", r(), r(), r(), r());
 }
-
-export const NOISE_UNIFORMS = ["noiseSaturation", "noiseRead2", "noisePhotosites", "noiseOffsets"];
 
 const VIEWFINDER_SHADER = "viseurBruit";
 ShaderStore.ShadersStore[`${VIEWFINDER_SHADER}FragmentShader`] = `

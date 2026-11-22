@@ -15,11 +15,13 @@
 //   position au sol (centre du modèle) est à moins de 1 m, à l'horizontale, du point vu sous le repère,
 //   reconstruit à la profondeur lue dans la carte du viseur.
 //   Traînée aussi donnée en pixels de la photo (MVT-01, « traînée mesurée en pixels ») : traînée sur le capteur
-//   × 1500 / grand côté du capteur, la photo faisant 1500 px sur le grand côté du capteur.
+//   × 1500 / grand côté du capteur, la photo faisant 1500 px sur le grand côté du capteur (camera/optics.ts,
+//   PHOTO_LONG_SIDE et sensorMmToPixels).
 // - ISO : rapport signal sur bruit d'un pixel de la photo (1500 px de grand côté) au point visé, avec le
-//   modèle de bruit du viseur (camera/noise.ts). Seuils de la norme des sensibilités numériques : 40:1,
-//   « excellent image quality », et 10:1, « acceptable image quality », définis pour 70 pixels par cm vus à
-//   25 cm [wikipedia-film-speed] https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213 ;
+//   modèle de bruit du viseur et de la photo (camera/noiseModel.ts, signalToNoise et noiseLevel). Seuils de la norme
+//   des sensibilités numériques : 40:1, « excellent image quality », et 10:1, « acceptable image quality », définis
+//   pour 70 pixels par cm vus à 25 cm [wikipedia-film-speed]
+//   https://en.wikipedia.org/w/index.php?title=Film_speed&oldid=1383727213 ;
 //   une photo de 1500 px y fait environ 21 cm de large (1500 / 70 ≈ 21,4 cm). Approximation :
 //   canal vert seul, la norme pondérant luminance et couleur d'une façon que l'article ne détaille pas.
 // - Le point : au centre quand rien ne dépasse ; il s'écarte vers l'ISO si le bruit dépasse 40:1 (un peu)
@@ -32,10 +34,10 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { Camera } from "@babylonjs/core/Cameras/camera";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import type { Autofocus } from "../camera/autofocus";
-import { blurLimitMm, sharpZone } from "../camera/sharpZone";
+import { PHOTO_LONG_SIDE, blurLimitMm, photoSize, rayThrough, sharpZone } from "../camera/optics";
 import type { NoiseReading } from "./challenges";
-import { noiseParameters } from "../camera/noise";
-import { PHOTO_LONG_SIDE, type SceneTimeControl } from "../camera/photo";
+import { GREEN, noiseLevel, noiseParameters, signalToNoise } from "../camera/noiseModel";
+import type { SceneTimeControl } from "../camera/photo";
 import { measureThing } from "../camera/bulletin";
 import type { FaceSubject } from "../camera/faces";
 import { judgedPoints } from "../scene";
@@ -143,7 +145,7 @@ export class BalanceIndicator {
       const body = s.body;
       const blurLimit = blurLimitMm(body.sensorWidthMm, body.sensorHeightMm);
 
-      // Ouverture : zone nette (camera/sharpZone.ts).
+      // Ouverture : zone nette (camera/optics.ts, sharpZone).
       const { near, far } = sharpZone(f, N, S1, blurLimit);
       const farText = Number.isFinite(far) ? `${this.decimal(far, 1)} m` : "∞";
       const dofText = `${s.labels.aperture} · ${tr("balanceDof")} ${this.decimal(near, 1)} m – ${farText}`;
@@ -170,15 +172,14 @@ export class BalanceIndicator {
         if (v >= 0.99) {
           this.el.noise.textContent = `${isoText} · ${tr("balanceClipped")}`;
         } else {
-          const pixels = PHOTO_LONG_SIDE * Math.round((PHOTO_LONG_SIDE * body.sensorHeightMm) / body.sensorWidthMm);
-          const p = noiseParameters(body, s.iso, pixels);
-          const electrons = Math.max(v, 1e-6) * p.saturation;
-          const sigma = Math.sqrt(electrons + p.readNoise2) / (p.saturation * Math.sqrt(p.photosites[1]));
-          const snr = v / sigma;
-          noise = snr >= 40 ? "ok" : snr >= 10 ? "warn" : "bad";
-          this.noiseReading = { snr, level: noise };
-          const level = tr(noise === "ok" ? "balanceExcellent" : noise === "warn" ? "balanceAcceptable" : "balanceInsufficient");
-          this.el.noise.textContent = `${isoText} · ${tr("balanceNoise")} ${level} (${tr("balanceSnr")} ${Math.round(snr)}:1)`;
+          const photo = photoSize(body.sensorWidthMm, body.sensorHeightMm, PHOTO_LONG_SIDE, false);
+          const p = noiseParameters(body, s.iso, photo.width * photo.height);
+          const snr = signalToNoise(v, p, GREEN);
+          const level = noiseLevel(snr);
+          noise = level;
+          this.noiseReading = { snr, level };
+          const levelText = tr(level === "ok" ? "balanceExcellent" : level === "warn" ? "balanceAcceptable" : "balanceInsufficient");
+          this.el.noise.textContent = `${isoText} · ${tr("balanceNoise")} ${levelText} (${tr("balanceSnr")} ${Math.round(snr)}:1)`;
         }
       }
       this.draw(this.lastMotion, noise);
@@ -192,8 +193,8 @@ export class BalanceIndicator {
       if (!mover) {
         const seen = (await this.autofocus.depthUnder(point)) ?? S1;
         if (!this.panel.isEnabled()) return;
-        const m = this.camera.getProjectionMatrix().asArray();
-        const aimed = new Vector3((((point.x * 2 - 1) - m[8]) / m[0]) * seen, (((1 - point.y * 2) - m[9]) / m[5]) * seen, seen);
+        const ray = rayThrough(this.camera.getProjectionMatrix().asArray(), point);
+        const aimed = new Vector3(ray.x * seen, ray.y * seen, seen);
         const aimedWorld = Vector3.TransformCoordinates(aimed, this.camera.getViewMatrix().clone().invert());
         let best = MOVER_RADIUS_M;
         for (const mv of this.time.movers()) {
