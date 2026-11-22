@@ -324,8 +324,8 @@ def check_sources(ref, lieux, absentes):
     for s in ref.sources:
         if not lieux.get(s["id"]):
             warn(f"source {s['id']} citée nulle part : ni par une notion, un domaine ou une situation, ni par son "
-                 f"adresse ou son identifiant dans une fiche, le code, une page de docs/ hors des dossiers et de "
-                 f"l'audit, ou un manifeste de scène")
+                 f"adresse dans une fiche, le code, une page de docs/ hors des dossiers et de l'audit ou un manifeste "
+                 f"de scène, ni par son identifiant entre crochets dans le code")
     for rel, numero, adresse in absentes:
         error(f"{rel}, ligne {numero} : {adresse} n'est pas dans data/sources.yaml ; une adresse sur laquelle s'appuie "
               f"une fiche, le code ou une page de docs/ y a son entrée (docs/lire-le-referentiel.md), une adresse qui "
