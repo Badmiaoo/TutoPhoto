@@ -250,13 +250,14 @@ if (!Engine.isSupported()) {
 
 /**
  * Démarrage du simulateur, ou message qui dit qu'il n'a pas pu démarrer (version 0.4.4, demande de Julien du
- * 22 novembre 2026). Sur l'iPhone de Julien, dans Safari, le navigateur a donné à la page un contexte WebGL déjà
- * inutilisable : les capacités lues valaient toutes « non », et Babylon.js a levé « Unable to create vertex buffer » à
- * la création de la scène, `createBuffer()` ayant rendu null. L'exception arrêtait le démarrage en silence : la
- * progression du chargement comptait les secondes sans fin, les boutons du boîtier restaient sans texte, et le
- * message des capacités imputait la panne au rendu en flottants. Un contexte perdu dès la création du moteur, ou une
- * exception pendant le démarrage, arrêtent maintenant le démarrage avec un message et « Recharger », et le message des
- * capacités n'est donné que pour un contexte qui n'est pas perdu. Ce qui est établi, et ce qui ne l'est pas :
+ * 22 novembre 2026). Sur l'iPhone de Julien, dans Safari, les capacités lues valaient toutes « non », et Babylon.js a
+ * levé « Unable to create vertex buffer » à la création de la scène, `createBuffer()` ayant rendu null : tout indique un
+ * contexte WebGL inutilisable dès l'ouverture, sans que `isContextLost()` y ait été lu. L'exception arrêtait le
+ * démarrage sans que rien ne le dise : la ligne des problèmes l'écrivait, mais la progression du chargement comptait
+ * les secondes sans fin, les boutons du boîtier restaient sans texte, rien ne disait de recharger, et le message des
+ * capacités imputait la panne au rendu en flottants. Un contexte perdu dès la création du moteur, ou une exception
+ * pendant le démarrage, arrêtent maintenant le démarrage avec un message et « Recharger », et le message des capacités
+ * n'est donné que pour un contexte qui n'est pas perdu. Ce qui est établi, et ce qui ne l'est pas :
  * docs/pile-technique.md, « Contexte perdu au démarrage ».
  */
 function startOrFail(): void {
@@ -305,10 +306,21 @@ function startOrFail(): void {
  * Démarrage arrêté (version 0.4.4) : le message dit que le simulateur n'a pas pu démarrer, avec la version du site et
  * « Recharger », suivi de la ligne des problèmes ; le canevas, le panneau du boîtier, dont les boutons n'ont pas reçu
  * leur texte, et les éléments du viseur que le démarrage n'a pas remplis sont masqués (style.css, body.start-failed) ;
- * la boucle de rendu est arrêtée.
+ * la boucle de rendu est arrêtée. Rien d'autre n'est libéré : arrêté après la création de la scène, le démarrage laisse
+ * son chargement aller au bout, et les minuteries des objets déjà créés tourner (autofocus, indicateur d'équilibre,
+ * vue de dessus).
+ *
+ * L'écouteur de restauration de Babylon.js 9.35.0 est retiré : Babylon.js demande au navigateur de restaurer un
+ * contexte perdu (`evt.preventDefault()`, Engines/thinEngine.pure.js, l. 186), et WebKit le fait ; mais sur un moteur
+ * créé avec un contexte déjà perdu, sa remise en état lève une TypeError (« Cannot set properties of undefined
+ * (setting 'active') », `disableAttributeByIndex`, l. 1534 : les pointeurs des attributs, l. 265-267, n'ont pas été
+ * créés, MAX_VERTEX_ATTRIBS valant null sur un contexte perdu), que la ligne des problèmes écrivait sous le message
+ * (relecture de la version 0.4.4). Le démarrage arrêté ne se sert pas de la restauration.
  */
 function failStart(key: "startContextLost" | "startError", engine: Engine | null): void {
   engine?.stopRenderLoop();
+  const onRestored = (engine as unknown as { _onContextRestored?: (event: Event) => void } | null)?._onContextRestored;
+  if (onRestored) canvas.removeEventListener("webglcontextrestored", onRestored);
   statusKey = key;
   document.body.classList.add("start-failed");
   applyTexts();
