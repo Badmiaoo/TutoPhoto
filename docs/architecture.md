@@ -1,10 +1,10 @@
 # Architecture
 
-> **Deux parties.** La carte de l'application, ci-dessous, décrit le code tel qu'il est ; elle se tient à jour à chaque refonte et à chaque module ajouté, retiré ou déplacé. L'architecture du produit, ensuite, est le brouillon du 7 novembre 2026, en partie caduc. Il devait être réécrit avec le choix de la pile technique, fait le même jour (Babylon.js, `docs/pile-technique.md`) ; il ne l'a pas été, et sa réécriture attend la fin des refontes du plan de corrections de l'audit (constat ARC-09, `docs/audit/architecture-application.md` ; plan : `docs/audit/README.md`, Sujet 29).
+> **Deux parties.** La carte de l'application, ci-dessous, décrit le code tel qu'il est, et se tient à jour (règle sous son titre). L'architecture du produit, ensuite, est le brouillon du 7 novembre 2026, en partie caduc. Il devait être réécrit avec le choix de la pile technique, fait le même jour (Babylon.js, `docs/pile-technique.md`) ; il ne l'a pas été, et sa réécriture attend la fin des refontes du plan de corrections de l'audit (constat ARC-09, `docs/audit/architecture-application.md` ; plan : `docs/audit/README.md`, Sujet 29).
 
 ## Carte de l'application
 
-Écrite le 22 novembre 2026, à la version 0.3.89, d'après la carte du rapport d'architecture de l'audit (`docs/audit/architecture-application.md`, « Carte de l'application », écrite pour la version 0.3.57, et sa contre-vérification) et le code (Sujet 29 du plan de corrections). Nombres de lignes : `wc -l`, à la version 0.3.89 ; ils donnent la taille de chaque module, et ne se refont qu'avec une mise à jour de la carte. Ce que chaque module simule, et ses sources : `docs/camera-physique.md` ; outillage, construction et publication : `docs/pile-technique.md`, « Outillage de l'application » ; routine de test : même page, « Tests sur ordinateur et sur mobile ».
+Écrite le 22 novembre 2026, à la version 0.3.89, d'après la carte du rapport d'architecture de l'audit (`docs/audit/architecture-application.md`, « Carte de l'application », écrite pour la version 0.3.57, et sa contre-vérification) et le code (Sujet 29 du plan de corrections). Elle se met à jour dans la pull request qui ajoute, retire, déplace ou découpe un module de `app/`, ou qui change ce qu'elle en dit (rôle d'un module, ordre des créations, trajets, dépendances) : à chaque refonte, notamment. Ses nombres de lignes (`wc -l`, à la version 0.3.89) donnent la taille de chaque module ; ils ne se refont qu'avec une telle mise à jour. Ce que chaque module simule, et ses sources : `docs/camera-physique.md` ; outillage, construction et publication : `docs/pile-technique.md`, « Outillage de l'application » ; routine de test : même page, « Tests sur ordinateur et sur mobile ».
 
 ### Pages et constructions (`app/`)
 
@@ -40,7 +40,7 @@
   - `reviewInfo.ts` (239) : photo seule, histogrammes et hautes lumières de l'écran de revue.
   - `balance.ts` (311) : l'indicateur d'équilibre entre ouverture, vitesse et ISO.
   - `topView.ts` (215) : la vue de dessus, d'où l'on déplace l'appareil.
-  - `challenges.ts` (224) : choix du défi (fenêtre « Défis », paramètre `?defi=`) et bulletin affiché sous la photo (`renderBulletin`). Ce bulletin ajoute aux mesures de `camera/bulletin.ts` l'écart d'exposition des réglages, que calcule `shutter.ts`, et une ligne du bruit qui est la dernière lecture de l'indicateur d'équilibre dans le viseur, pas une mesure de la photo (constat ARC-10 ; décision D21, « Décisions en attente » de `docs/etat-des-travaux.md`).
+  - `challenges.ts` (224) : choix du défi (fenêtre « Défis », paramètre `?defi=`) et bulletin affiché sous la photo (`renderBulletin`). Ce bulletin ajoute aux mesures de `camera/bulletin.ts` l'écart d'exposition des réglages (`resolveExposure`), que lui passe `shutter.ts`, et une ligne du bruit qui est la dernière lecture de l'indicateur d'équilibre dans le viseur, pas une mesure de la photo (constat ARC-10 ; décision D21, « Décisions en attente » de `docs/etat-des-travaux.md`).
   - `ficheDialog.ts` (87) : la fiche ouverte par-dessus le simulateur.
   - `diagnosticView.ts` (99) : l'affichage de diagnostic, ouvert par `?diagnostic`.
 - Hors de `camera/` et de `ui/`.
