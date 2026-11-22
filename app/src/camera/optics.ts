@@ -33,7 +33,13 @@ export function halfFieldTangent(sideMm: number, focalMm: number): number {
   return sideMm / (2 * focalMm);
 }
 
-/** Champ de vue le long d'un côté du capteur, en radians : 2 × atan(côté / (2 × focale)). */
+/**
+ * Champ de vue le long d'un côté du capteur, en radians : 2 × atan(côté / (2 × focale)), la formule d'un objectif
+ * rectiligne mis au point à l'infini [wikipedia-angle-of-view] (source secondaire). Le champ garde cette valeur à toute
+ * distance de mise au point ; d'après la même page, il varie un peu quand la mise au point est plus proche (« the angle
+ * of view varies slightly when the focus is not at infinity ») : non simulé (constat PHY-05 de l'audit ;
+ * docs/camera-physique.md, « Boîtier virtuel »).
+ */
 export function fieldOfView(sideMm: number, focalMm: number): number {
   return 2 * Math.atan(halfFieldTangent(sideMm, focalMm));
 }

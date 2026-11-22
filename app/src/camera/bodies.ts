@@ -12,10 +12,13 @@
 // saturation à ISO 100 de la page du bruit de lecture, colonne « Saturation (e-) » du tableau que la page ouvre d'un
 // clic sur le nom du boîtier dans la légende du graphique, égale au paramètre fwc de sa série
 // [photonstophotos-read-noise] ; la page ne dit pas comment elle obtient cette saturation. Pour les deux autres, cette
-// colonne donne 80 359 (Z 6) et 32 205 (A6000), soit 4,0 % et 2,7 % de moins que leur capacité dérivée.
+// colonne donne 80 359 (Z 6) et 32 205 (A6000), soit 4,0 % et 2,7 % de moins que leur capacité dérivée : un
+// recoupement, qui ne remplace pas les valeurs retenues (constat PHY-13 de l'audit ; effet sur le bruit de 2 % au plus).
 // Bruit de lecture rapporté à l'entrée, en électrons, par réglage ISO : graphique « Input-referred Read Noise
 // versus ISO Setting » du même auteur [photonstophotos-read-noise], converti de log₂ ; ISO lus sur le graphique,
-// 3,125 × 2^x arrondi, x étant donné au centième (251 pour le tiers 100 × 2^(4/3) ≈ 252, par exemple).
+// 3,125 × 2^x arrondi, x étant donné au centième (251 pour le tiers 100 × 2^(4/3) ≈ 252, par exemple). Les mesures
+// retenues, d'ISO 100 à 6400, sont toutes dans la plage analogique de la page : aucune n'a le symbole ouvert de « Open
+// symbols indicate values outside the normal analog range » (relu le 22 novembre 2026).
 
 export type Brand = "nikon" | "sony" | "canon";
 /**
@@ -57,7 +60,9 @@ export const BODIES: readonly Body[] = [
   { brand: "nikon", format: "ff", model: "Nikon Z 6", sensorWidthMm: 35.9, sensorHeightMm: 23.9, afCoverage: { horizontal: 0.9, vertical: 0.9 },
     effectivePixels: 24500000, fullWellElectrons: 83698,
     readNoise: [[100, 6.87], [126, 7.62], [159, 7.84], [200, 5.98], [251, 5.78], [318, 5.58], [400, 5.31], [503, 5.21], [636, 5.13], [800, 1.62], [1006, 1.49], [1273, 1.47], [1600, 1.37], [2011, 1.39], [2546, 1.37], [3200, 1.27], [4022, 1.25], [5091, 1.2], [6400, 1.21]] },
-  // [sony-ilce-6000-sensor] : extrait de recherche de la fiche Sony, page non ouverte.
+  // Capteur : « 23.5 × 15.6 mm (APS-C type) » [wikipedia-sony-a6000], source secondaire ; la fiche de Sony
+  // [sony-ilce-6000-sensor] n'est connue que par un extrait de recherche, page non ouverte (hôte refusé) : aucune
+  // source primaire lue pour le capteur.
   // Définition [wikipedia-sony-a6000] : « 24.3 MP », source secondaire.
   // Couverture AF : « 179 phase detection points (covering almost the entire image) », sans pourcentage
   // [sony-ilce-6000-af] : celle du Z 6, non sourcée pour l'A6000.
@@ -90,9 +95,13 @@ export const BODIES: readonly Body[] = [
 
 /**
  * Définition du capteur en pixels, le long de ses deux côtés : √(pixels effectifs × grand côté / petit côté)
- * et son complément. Approximation : la forme exacte de l'image n'est pas lue dans les sources du Z 6 ; celles de
- * l'EOS R50 et de l'A6000 le sont (6000 × 4000 pixels enregistrés, [canon-eos-r50-specifications-fr],
- * [sony-a6000-image-size-fr]), et ne sont pas reprises (Sujet 36 du plan de corrections).
+ * et son complément, calculée par Claude ; elle fixe le « 100 % » des loupes du viseur et de l'écran de revue (un pixel
+ * de l'image par photosite). Approximation : les trois boîtiers enregistrent des images dont la taille est lue, Z 6
+ * 6048 × 4024 [nikon-z6-specifications-fr], A6000 et EOS R50 6000 × 4000 [sony-a6000-image-size-fr]
+ * [canon-eos-r50-specifications-fr] ; le calcul les dépasse de 0,3 % (Z 6, EOS R50) à 0,8 % (A6000) sur le grand
+ * côté, et TutoPhoto le garde (constat PHY-14 de l'audit ; docs/propositions.md, section 5, « Sources du modèle »).
+ * Le bruit compte les pixels effectifs, pas ceux de l'image : rien de lu ne dit lequel des deux nombres couvre le
+ * capteur.
  */
 export function sensorPixels(body: Body): { long: number; short: number } {
   const long = Math.sqrt((body.effectivePixels * body.sensorWidthMm) / body.sensorHeightMm);

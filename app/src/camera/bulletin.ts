@@ -1,12 +1,18 @@
 // Bulletin de la photo et défis des trois situations de la V1 minimale (SIT-01, SIT-05, SIT-06), proposés le
 // 10 novembre 2026 et validés par Julien le 11 novembre (« Suivons tes propositions »).
 //
-// Critères, tous tirés de mesures déjà sourcées :
+// Critères, tirés de mesures sourcées, celui du sujet figé avec un choix dit plus bas :
 // - zone nette : limites de camera/optics.ts (sharpZone), flou acceptable d / 1500 [wikipedia-circle-of-confusion] ;
 // - sujet figé : traînée pendant la pose, sur le capteur, au plus égale au même flou acceptable, par la même
 //   fonction que l'indicateur d'équilibre (measureThing, appelée aussi par ui/balance.ts) : un point (X, Y, Z) de la
 //   caméra de vitesse (vX, vY, vZ) se déplace sur le capteur de f (vX Z − X vZ) / Z² × t (et de même en y)
-//   (camera/optics.ts, sensorVelocity et trailMm) ;
+//   (camera/optics.ts, sensorVelocity et trailMm). Appliquer au mouvement la limite du flou de mise au point a une
+//   source, secondaire : la section « Wall 1889 » de la page « Circle of confusion » [wikipedia-circle-of-confusion],
+//   où la limite usuelle de 1/100 de pouce « has been applied to blur other than defocus blur », par la règle de Wall
+//   (1889) qui donne la pose la plus longue d'un sujet en mouvement ; prendre d / 1500 au lieu de 1/100 de pouce est
+//   un choix de TutoPhoto (constat PHY-20 de l'audit). La vitesse jugée est
+//   celle du sujet entier (SceneThing.velocity, celle de son porteur : scene.ts, movers), appliquée à ses yeux ; les
+//   mouvements de ses membres ne sont pas jugés (constat FMA-06) ;
 // - dans le cadre : le point se projette dans le capteur (x = f X / Z, |x| ≤ largeur / 2, de même en y)
 //   (camera/optics.ts, sensorPosition et onSensor).
 // Choix de TutoPhoto : « derrière le sujet » veut dire à plus de 1 m derrière lui ; le fond photo à 360° compte
