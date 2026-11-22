@@ -21,7 +21,7 @@ notions:
       simulator: "Motif de pondération superposé, exposition recalculée"
       exercise: "Exposer un visage en contre-jour avec le bon mode"
     situations: [SIT-03, SIT-19]
-    sources: [canon-m50ii-metering, nikon-zr-metering, sony-a9-metering, fujifilm-xt4-photometry, sony-rx0ii-highlight, fujifilm-gfx100-photometry]
+    sources: [canon-m50ii-metering, nikon-zr-metering, sony-a9-metering, fujifilm-xt4-photometry, fujifilm-gfx100-photometry]
     since: v0.1
   - id: MES-03
     title: "Pièges de la mesure"
@@ -118,6 +118,8 @@ notions:
       exercise: "Exposer en spot un visage décentré en contre-jour, sans mémorisation"
     situations: [SIT-03, SIT-19]
     sources: [sony-a7iv-spot-point, fujifilm-x100t-photometry]
+    todo:
+      - "Chercher l'option de Fujifilm dans le manuel d'un hybride de la marque avant d'écrire la fiche : fujifilm-x100t-photometry vient d'un compact à objectif fixe. Hôte à faire ajouter : docs/etat-des-travaux.md, « Ce que Julien seul peut faire »."
     since: v0.2
   - id: MES-13
     title: "Système de zones"
