@@ -120,6 +120,6 @@ notions:
       explanation: "Quand le trépied s'impose, comment le rendre stable (colonne centrale basse, poids suspendu), et les appuis de fortune"
       simulator: "Bougé résiduel selon le support, la colonne centrale et le mode de déclenchement"
       exercise: "Réussir une pose de 2 s sans flou, avec puis sans trépied"
-    situations: [SIT-12, SIT-20]
-    sources: [cic-tripods]
+    situations: [SIT-12, SIT-17, SIT-20, SIT-21, SIT-24, SIT-33, SIT-35]
+    sources: [cic-tripods, nikon-z6-mode-dial-fr]
     since: v0.2

@@ -123,6 +123,7 @@ notions:
       simulator: "Touche de mémorisation configurable, rotation sur place, écart de netteté mesuré"
       exercise: "Verrouiller sur le sujet et recadrer avec un premier plan flou, puis comparer avec le déplacement du collimateur à f/1.4"
     situations: [SIT-01, SIT-04, SIT-26, SIT-28]
+    sources: [canon-eos-r50-self-timer-fr]
     notes:
       - "Fusion de MAP-13 (mémorisation AF) en v0.2 ; niveau N1 pour le geste, la limite fait partie de l'explication."
     since: v0.1

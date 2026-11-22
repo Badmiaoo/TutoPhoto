@@ -82,10 +82,11 @@ notions:
     title: "Préparer son sac"
     level: N1
     spec:
-      explanation: "Matériel selon la situation, protection contre la pluie et le froid"
+      explanation: "Matériel selon la situation, protection contre la pluie et le froid, caisson étanche sous l'eau"
       simulator: "Sac virtuel lié à une situation"
       exercise: "Préparer le sac d'une sortie de nuit"
-    situations: [SIT-12, SIT-20, SIT-36, SIT-40]
+    situations: [SIT-12, SIT-20, SIT-36, SIT-40, SIT-42]
+    sources: [nikon-z6-cautions-fr, wikipedia-underwater-photography]
     since: v0.1
   - id: PLA-09
     title: "Photo par drone : règles et sécurité"
