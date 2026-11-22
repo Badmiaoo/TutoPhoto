@@ -49,16 +49,16 @@ def warn(msg):
 _textes = {}
 
 
-def texte(path, nom):
+def texte(path, nom, conseil=""):
     """Texte d'un fichier du dépôt, lu une seule fois. S'il ne se lit pas (absent, ou pas en UTF-8), une erreur qui le
-    nomme, avec la ligne d'un octet invalide, et None (version 0.3.83 ; avant, pour un fichier nommé par le champ
-    `used_in` des sources, retiré à la version 0.4.2, ou une fiche lue pour `terms`, une trace Python qui ne le nommait
-    pas)."""
+    nomme, avec la ligne d'un octet invalide, suivie de `conseil`, et None (version 0.3.83 ; avant, pour un fichier
+    nommé par le champ `used_in` des sources, retiré à la version 0.4.2, ou une fiche lue pour `terms`, une trace Python
+    qui ne le nommait pas)."""
     if path not in _textes:
         try:
             _textes[path] = referentiel.lire_texte(path, nom)
         except referentiel.LectureImpossible as e:
-            error(str(e))
+            error(f"{e}{conseil}")
             _textes[path] = None
     return _textes[path]
 
@@ -191,18 +191,22 @@ def check_levels(ref):
 # Règle d'entrée d'une adresse : docs/lire-le-referentiel.md, « Champs d'une source ».
 
 # Les fichiers qui peuvent s'appuyer sur une source : les fiches, le code (app/, le site, sa construction et ses
-# tests ; scripts/, les contrôles du dépôt) et les pages de docs/. Hors d'eux (HORS_CITANTS) : les dossiers de travail,
-# qui citent leurs adresses eux-mêmes, et les rapports d'audit ; app/public/, que le site publie tel quel (les scènes,
-# dont les manifestes sont lus à part, et la page des licences) ; ce qu'écrit la construction (app/dist/) ; la liste
-# des paquets installés (app/package-lock.json), dont les adresses sont celles du registre npm. Les dossiers
-# node_modules et __pycache__ ne sont pas lus. CHANGELOG.md, README.md et REPRISE.md ne sont pas non plus des fichiers
-# qui citent : un récit, une présentation et une archive.
+# tests ; scripts/, les contrôles du dépôt), le référentiel hors de data/sources.yaml (ses notes et ses commentaires) et
+# les pages de docs/. Hors d'eux (HORS_CITANTS) : data/sources.yaml lui-même ; les dossiers de travail, qui citent
+# leurs adresses eux-mêmes, et les rapports d'audit ; app/public/, que le site publie tel quel (les scènes, dont les
+# manifestes sont lus à part, et la page des licences) ; ce qu'écrit la construction (app/dist/) ; la liste des paquets
+# installés (app/package-lock.json), dont les adresses sont celles du registre npm. Les dossiers node_modules et
+# __pycache__ ne sont pas lus, ni un fichier ou un dossier caché (« .venv », « .DS_Store », une copie de sauvegarde
+# d'éditeur) : la CI part d'une copie neuve, un passage sur la machine d'un contributeur aussi lit son arbre de travail
+# (contrôle final de la version 0.4.2, F6). CHANGELOG.md, README.md et REPRISE.md ne sont pas non plus des fichiers qui
+# citent : un récit, une présentation et une archive.
 CODE = ("app", "scripts")
-CITANTS = ("content", *CODE, "docs")
-HORS_CITANTS = ("docs/dossiers", "docs/audit", "app/public", "app/dist", "app/package-lock.json")
-# Tout fichier de CITANTS est lu en UTF-8 (sinon, une erreur qui le nomme), sauf ceux qui ne sont pas du texte.
-SUFFIXES_BINAIRES = {".bin", ".gif", ".glb", ".hdr", ".ico", ".jpeg", ".jpg", ".ktx2", ".otf", ".pdf", ".png", ".ttf",
-                     ".webp", ".woff", ".woff2"}
+CITANTS = ("content", *CODE, "data", "docs")
+HORS_CITANTS = ("data/sources.yaml", "docs/dossiers", "docs/audit", "app/public", "app/dist", "app/package-lock.json")
+# Tout fichier de CITANTS est lu en UTF-8 (sinon, une erreur qui le nomme), sauf ceux dont le suffixe est ici : des
+# fichiers qui ne sont pas du texte. Un autre fichier qui n'est pas du texte s'ajoute par son suffixe.
+SUFFIXES_BINAIRES = {".bin", ".gif", ".glb", ".hdr", ".ico", ".jpeg", ".jpg", ".ktx2", ".otf", ".pdf", ".png", ".pyc",
+                     ".ttf", ".webp", ".woff", ".woff2"}
 # Le manifeste d'une scène écrit l'adresse de la page d'origine de chaque élément (`source`), celle où sa licence a été
 # vérifiée (`license_checked_at`), celles de ses fichiers et de sa licence : une source dont il écrit l'adresse y est
 # citée. Ces adresses sont les métadonnées que demande docs/licences.md, que contrôle scripts/check_scenes.py, et la
@@ -222,7 +226,8 @@ ADRESSES_TECHNIQUES = {
     "https://…": "une adresse d'exemple, coupée (« [texte](https://…) »)",
 }
 # « https:/{2} » plutôt que les deux barres : ce fichier ne contient ainsi pas d'autre adresse que celles
-# d'ADRESSES_TECHNIQUES. Une barre oblique inverse finit l'adresse : celle du « \n » qui la suit dans une chaîne du code.
+# d'ADRESSES_TECHNIQUES. Une barre oblique inverse finit l'adresse : celle du « \n » qui la suit dans une chaîne du
+# code.
 ADRESSE = re.compile(r"https:/{2}[^\s<>\"'`\]\\]+")
 CROCHETS = re.compile(r"\[([a-z0-9]+(?:-[a-z0-9]+)*)\]")
 
@@ -248,17 +253,19 @@ def adresses(contenu):
 
 
 def fichiers_citants(ref):
-    """Chemins des fichiers de CITANTS, triés : hors de HORS_CITANTS, des dossiers node_modules et __pycache__, et des
-    fichiers dont le suffixe est dans SUFFIXES_BINAIRES. Les chemins sont pris à partir de la racine du dépôt : un
-    dépôt rangé sous un dossier « node_modules » est lu comme un autre (relecture de la version 0.4.2, R5)."""
+    """Chemins des fichiers de CITANTS, triés : hors de HORS_CITANTS, des dossiers node_modules et __pycache__, des
+    fichiers et dossiers cachés, et des fichiers dont le suffixe est dans SUFFIXES_BINAIRES. Les chemins sont pris à
+    partir de la racine du dépôt : un dépôt rangé sous un dossier « node_modules » est lu comme un autre (relecture de
+    la version 0.4.2, R5)."""
     chemins = []
     for dossier in CITANTS:
         for racine, dossiers, fichiers in os.walk(ref.root / dossier):
             rel = ref.rel(racine)
-            dossiers[:] = [d for d in dossiers
-                           if d not in ("node_modules", "__pycache__") and f"{rel}/{d}" not in HORS_CITANTS]
+            dossiers[:] = [d for d in dossiers if d not in ("node_modules", "__pycache__") and not d.startswith(".")
+                           and f"{rel}/{d}" not in HORS_CITANTS]
             for nom in fichiers:
-                if f"{rel}/{nom}" not in HORS_CITANTS and pathlib.PurePath(nom).suffix.lower() not in SUFFIXES_BINAIRES:
+                if (not nom.startswith(".") and f"{rel}/{nom}" not in HORS_CITANTS
+                        and pathlib.PurePath(nom).suffix.lower() not in SUFFIXES_BINAIRES):
                     chemins.append(pathlib.Path(racine) / nom)
     return sorted(chemins)
 
@@ -297,7 +304,9 @@ def citations(ref):
     fichiers += [(path, False) for path in sorted(ref.root.glob(MANIFESTES_DE_SCENE))]
     for path, deux_sens in fichiers:
         rel = ref.rel(path)
-        contenu = texte(path, rel)
+        contenu = texte(path, rel, "" if rel.startswith("content/") else
+                        " ; si ce n'est pas un fichier de texte, ajouter son suffixe à SUFFIXES_BINAIRES "
+                        "(scripts/validate.py)")
         if contenu is None:
             continue
         for numero, adresse in adresses(contenu):
@@ -306,7 +315,7 @@ def citations(ref):
                     citer(sid, rel)
             elif deux_sens and adresse not in ADRESSES_TECHNIQUES:
                 absentes.append((rel, numero, adresse))
-        if any(rel.startswith(d + "/") for d in CODE):
+        if deux_sens and any(rel.startswith(d + "/") for d in CODE):
             for m in CROCHETS.finditer(contenu):
                 citer(m[1], rel)
     return lieux, absentes
@@ -315,14 +324,15 @@ def citations(ref):
 def check_sources(ref, lieux, absentes):
     """Les identifiants de sources du référentiel existent ; une source citée nulle part est un avertissement ; une
     adresse d'un fichier de CITANTS absente de data/sources.yaml, hors ADRESSES_TECHNIQUES, est une erreur ; une source
-    dont l'adresse, écrite dans un texte, ne se lirait pas entière (apostrophe, ponctuation finale) est une erreur : elle
-    ne serait jamais reconnue (relecture de la version 0.4.2, R6)."""
+    dont l'adresse, écrite dans un texte, ne se lirait pas entière (apostrophe, ponctuation finale) est une erreur :
+    elle ne serait jamais reconnue (relecture de la version 0.4.2, R6)."""
     known = {s["id"] for s in ref.sources}
     for s in ref.sources:
         lues = [adresse for _, adresse in adresses(s["url"])]
         if lues != [s["url"]]:
             error(f"data/sources.yaml : {s['id']} : l'adresse {s['url']} se lit « {' '.join(lues)} » dans un texte ; "
-                  f"écrire en pour-cent le caractère qui la coupe (%27 pour une apostrophe, %2E pour un point final)")
+                  f"l'écrire autrement, par exemple le caractère qui la coupe en pour-cent (%27 pour une apostrophe, "
+                  f"%2E pour un point final), et vérifier que la page s'ouvre à l'adresse ainsi écrite")
     for path, data in ref.domain_files:
         for sid in data["domain"].get("sources", []):
             if sid not in known:
@@ -342,12 +352,12 @@ def check_sources(ref, lieux, absentes):
     for s in ref.sources:
         if not lieux.get(s["id"]):
             warn(f"source {s['id']} citée nulle part : ni par une notion, un domaine ou une situation, ni par son "
-                 f"adresse dans une fiche, le code, une page de docs/ hors des dossiers et de l'audit ou un manifeste "
-                 f"de scène, ni par son identifiant entre crochets dans le code")
+                 f"adresse dans une fiche, le code, le référentiel, une page de docs/ hors des dossiers et de l'audit "
+                 f"ou un manifeste de scène, ni par son identifiant entre crochets dans le code")
     for rel, numero, adresse in absentes:
         error(f"{rel}, ligne {numero} : {adresse} n'est pas dans data/sources.yaml ; une adresse sur laquelle s'appuie "
-              f"une fiche, le code ou une page de docs/ y a son entrée (docs/lire-le-referentiel.md), une adresse qui "
-              f"n'est pas une source va dans ADRESSES_TECHNIQUES (scripts/validate.py)")
+              f"une fiche, le code, le référentiel ou une page de docs/ y a son entrée (docs/lire-le-referentiel.md), "
+              f"une adresse qui n'est pas une source va dans ADRESSES_TECHNIQUES (scripts/validate.py)")
 
 
 def check_sources_des_fiches(ref):
@@ -771,7 +781,7 @@ def ecrire_citations(ref, lieux, ids):
     connues = [s["id"] for s in ref.sources]
     for sid in ids:
         if sid not in connues:
-            racine = " (la racine du dépôt s'écrit avant --citations)" if pathlib.Path(sid).is_dir() else ""
+            racine = " (la racine du dépôt s'écrit avant --citations)" if os.path.isdir(sid) else ""
             error(f"--citations : source inconnue : {sid}{racine}")
     for sid in [i for i in ids if i in connues] if ids else connues:
         print(f"{sid} : {', '.join(lieux.get(sid, [])) or 'citée nulle part'}")
