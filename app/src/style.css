@@ -1006,3 +1006,26 @@ dialog fieldset label {
 .fiche-actions {
   font-size: 0.9rem;
 }
+
+/* Affichage de diagnostic (version 0.3.88, ui/diagnosticView.ts), ouvert par « ?diagnostic » dans l'adresse : un calque
+   en bas à gauche du viseur, coin que n'occupent ni l'indicateur d'équilibre (en haut à gauche), ni la vue de dessus (en
+   bas à droite), ni les badges (au centre). Il ne prend pas les touchers : le viseur se touche à travers lui. */
+.diagnostic-view {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  z-index: 3;
+  max-width: min(30rem, calc(100% - 1rem));
+  margin: 0;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  background: var(--fond);
+  color: var(--texte);
+  opacity: 0.9;
+  font-size: 0.72rem;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}

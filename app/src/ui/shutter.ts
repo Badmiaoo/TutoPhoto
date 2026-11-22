@@ -176,6 +176,11 @@ export class Shutter {
     private readonly info: ReviewInfo,
     /** État du chargement : un fichier en échec (failed), et la scène toujours pas prête après (stuck). */
     private readonly sceneState: () => { failed: boolean; stuck: boolean },
+    /**
+     * Capacités de rendu en flottants qui manquent à l'appareil (diagnosticModel.ts, lues par main.ts au démarrage) :
+     * si la liste n'est pas vide, toute photo est refusée (constat ARC-13 de l'audit, version 0.3.88).
+     */
+    private readonly missingFloatRender: readonly string[] = [],
   ) {
     // Perte du contexte WebGL (relecture du Sujet 10, version 0.3.70) : pendant la perte, le rendu donnait une photo
     // toute noire, avec son bulletin ; perdu pendant le calcul, le contexte peut aussi fausser la photo.
@@ -337,6 +342,12 @@ export class Shutter {
   /** Appui sur le déclencheur : vue par vue tout de suite, rafale jusqu'au relâchement, ou retardateur. */
   private pressStart(): void {
     if (this.busy || this.shooting || this.press || this.countdown !== null) return;
+    // Appareil sans rendu en flottants : refus dès l'appui, sans compte à rebours ni rafale (version 0.3.88).
+    const unsupported = this.capabilityRefusal();
+    if (unsupported) {
+      this.showError(unsupported);
+      return;
+    }
     const mode = this.panel.releaseMode();
     if (mode.kind === "timer") {
       this.startCountdown(mode.delay);
@@ -682,8 +693,21 @@ export class Shutter {
     this.el.review.scrollTop = 0;
   }
 
+  /**
+   * Refus d'un appareil sans rendu en flottants (constat ARC-13 de l'audit, version 0.3.88) : la photo aurait été
+   * presque noire, livrée avec sa légende ordinaire. Le refus est tenu ici, et non par le seul bouton grisé :
+   * CameraPanel.setEnabled(true), appelé à la fin de chaque calcul, réactive tous les boutons du panneau (contre-
+   * vérification d'ARC-13).
+   */
+  private capabilityRefusal(): PhotoRefused | null {
+    if (this.missingFloatRender.length === 0) return null;
+    return new PhotoRefused("photoNoFloatRender", `capacités absentes : ${this.missingFloatRender.join(", ")}`);
+  }
+
   /** Raison de refuser une photo avant tout calcul, ou null. */
   private refusal(): PhotoRefused | null {
+    const unsupported = this.capabilityRefusal();
+    if (unsupported) return unsupported;
     if (this.lost()) return new PhotoRefused("photoContextLost", "contexte WebGL perdu");
     if (this.sceneState().stuck && !this.scene.isReady()) return new PhotoRefused("photoNotReadyFile", "fichier non reçu, scène pas prête");
     return null;
