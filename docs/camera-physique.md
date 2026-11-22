@@ -363,7 +363,7 @@ Non simulé :
 - les échecs de l'autofocus (sujet peu contrasté, faible lumière, motifs répétés, d'après la liste du manuel Nikon) : la mise au point réussit toujours ;
 - le temps de mise au point, et la priorité au déclenchement ou à la mise au point ;
 - la prédiction du mouvement : en AF-C, la distance mesurée au déclenchement est exacte, donc la mise au point parfaite ;
-- le mode automatique et ses hésitations, que cite la fiche de MAP-04 ; le mode AF-F du Z 6, réservé à la vidéo ; la mise au point manuelle.
+- le mode automatique de certains boîtiers, que cite la fiche de MAP-04 (« AF automatique » de l'A6000, « AF Ai-Focus » de l'EOS R50) ; le mode AF-F du Z 6, réservé à la vidéo ; la mise au point manuelle.
 
 ## Modes de zone AF (version 0.3.27)
 

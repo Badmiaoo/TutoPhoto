@@ -59,9 +59,13 @@ _Ce qui reste ouvert dans la simulation et dans les contenus : limites connues, 
 - Sources et vérifications à compléter, d'après les champs `todo` du référentiel :
 
   - MES-04, BOI-14, BOI-19, MAP-03, NET-02, NET-03, NET-04, MVT-02, MVT-09, OPT-03, LUM-08, LUM-11, LUM-12, COU-01, COU-06, PLA-05 : sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026). Pour MES-04, la fiche est rédigée (version 0.3.39), mais l'exercice du référentiel (« Rendre la neige blanche ») n'y est pas, la scène de parc n'ayant pas de neige : ce que la cellule fait de la neige reste à sourcer quand SIT-03 ou SIT-13 seront écrites.
+  - MES-12 : l'option de Fujifilm vient d'un compact à objectif fixe, le X100T ; la chercher dans le manuel d'un hybride de la marque avant d'écrire la fiche (hôte à faire ajouter : `docs/etat-des-travaux.md`, « Ce que Julien seul peut faire »).
   - MES-13 : ajouter une source primaire (Wikipedia est secondaire).
   - BOI-28 : source ancienne, à compléter par une source récente.
-  - OPT-12 : ajouter une source pour la polarisation du ciel, maximale à 90° du soleil.
+  - BOI-31 : sourcer le cas des LED (SIT-07, gymnase éclairé aux LED) ; les pages citées ne nomment que les tubes fluorescents et les lampes à vapeur de mercure.
+  - MAP-14 : sourcer le limiteur de mise au point d'un objectif de reflex ou d'hybride ; la seule source décrit l'interrupteur d'un appareil que Sony ne range pas parmi ses boîtiers à objectif interchangeable (RX10 IV).
+  - MAP-16 : sourcer le nom de la technique à la rédaction de la fiche ; aucun des manuels lus n'emploie « mise au point par zone ».
+  - OPT-12 : doubler par une source primaire la polarisation du ciel, maximale à 90° du soleil, et l'angle des reflets ; la seule source est une révision de Wikipedia, source secondaire.
   - LUM-04 : sourcer la qualité de la lumière à ces heures à la rédaction ; le calcul des horaires relève de PLA-01.
   - COU-05 : remplacer Canon Print Studio Pro, source indirecte, par une source directe (audit A).
   - COU-09 : sourcer la pratique de la balance des blancs sous l'eau à la rédaction.

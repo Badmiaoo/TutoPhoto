@@ -12,6 +12,8 @@ notions:
       simulator: "Mini-développeur appliqué aux photos simulées"
       exercise: "Rattraper une photo sous-exposée de 2 IL"
     situations: [SIT-10]
+    notes:
+      - "Simulateur reporté en V2 : Julien a demandé le 9 novembre 2026 de prévoir en V2 des curseurs de correction de la photo (docs/historique.md) ; le principe est dans docs/camera-physique.md, « Corriger la photo après la prise ». En V1, rien n'est simulé."
     since: v0.1
   - id: RET-02
     title: "Contraste et courbes"
@@ -21,6 +23,8 @@ notions:
       simulator: "Courbe éditable, avant/après"
       exercise: "Reproduire un rendu doux, puis contrasté"
     situations: [SIT-14]
+    notes:
+      - "Simulateur reporté en V2 : Julien a demandé le 9 novembre 2026 de prévoir en V2 des curseurs de correction de la photo (docs/historique.md) ; le principe est dans docs/camera-physique.md, « Corriger la photo après la prise ». En V1, rien n'est simulé."
     since: v0.1
   - id: RET-03
     title: "Balance des blancs au développement"

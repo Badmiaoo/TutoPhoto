@@ -67,7 +67,7 @@ notions:
       simulator: "Alerte de vitesse trop lente"
       exercise: "Portrait fond flou sans bougé"
     situations: [SIT-01, SIT-11]
-    sources: [nikon-z6-mode-dial, nikon-z6-mode-dial-fr, nikon-z6-indicators]
+    sources: [nikon-z6-mode-dial, nikon-z6-mode-dial-fr, nikon-z6-indicators, nikon-z6-indicators-fr, sony-a6000-aperture-priority-fr, canon-eos-r50-av-fr]
     terms:
       - brand: nikon
         body: "Nikon Z 6"
@@ -90,7 +90,7 @@ notions:
       simulator: "Ouverture qui atteint sa limite et clignote"
       exercise: "Figer un enfant qui court en fin de journée"
     situations: [SIT-06, SIT-09]
-    sources: [nikon-z6-mode-dial, nikon-z6-mode-dial-fr, nikon-z6-indicators]
+    sources: [nikon-z6-mode-dial, nikon-z6-mode-dial-fr, nikon-z6-indicators, nikon-z6-indicators-fr, sony-a6000-shutter-priority-fr, canon-eos-r50-tv-fr]
     terms:
       - brand: nikon
         body: "Nikon Z 6"
@@ -141,7 +141,7 @@ notions:
       simulator: "Rafale qui produit une série à trier"
       exercise: "Capter le sommet d'un saut"
     situations: [SIT-06, SIT-28, SIT-37]
-    sources: [nikon-z6-release-mode, nikon-z6-release-mode-fr]
+    sources: [nikon-z6-release-mode, nikon-z6-release-mode-fr, nikon-z6-specifications, nikon-z6-specifications-fr, nikon-z6-defaults, nikon-z6-defaults-fr, sony-a6000-drive-fr, canon-eos-r50-drive-fr]
     terms:
       - brand: nikon
         body: "Nikon Z 6"
@@ -339,6 +339,8 @@ notions:
       simulator: "Gymnase aux lampes qui scintillent : série avec et sans la fonction"
       exercise: "Obtenir une série homogène sous un éclairage qui scintille"
     situations: [SIT-07, SIT-19]
+    todo:
+      - "Sourcer le cas des LED : SIT-07 se passe dans un gymnase éclairé aux LED, et les deux pages citées ne nomment que les tubes fluorescents et les lampes à vapeur de mercure (« fluorescent or mercury-vapor lamps », relu le 22 novembre 2026)."
     sources: [nikon-zf-flicker, nikon-d6-flicker]
     since: v0.2
   - id: BOI-32
@@ -355,11 +357,11 @@ notions:
     title: "Exposition multiple"
     level: N2
     spec:
-      explanation: "Combiner plusieurs vues en une image dans le boîtier ; chez Nikon, de 2 à 10 vues, par addition, moyenne, plus clair ou plus sombre"
+      explanation: "Combiner plusieurs vues en une image dans le boîtier (« Surimpression » sur le Nikon Z 6) ; sur le Z 6 et le ZR, de 2 à 10 vues, par addition, moyenne, plus clair ou plus sombre"
       simulator: "Superposition de vues de scènes du catalogue, mode de fusion au choix"
       exercise: "Placer une Lune détaillée dans un paysage de crépuscule"
     situations: [SIT-21, SIT-31]
-    sources: [nikon-zr-multiple-exposure]
+    sources: [nikon-zr-multiple-exposure, nikon-z6-multiple-exposure-fr]
     since: v0.2
   - id: BOI-34
     title: "Zone d'image, recadrage APS-C, zoom numérique"

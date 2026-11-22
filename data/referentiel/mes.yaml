@@ -17,11 +17,11 @@ notions:
     title: "Modes de mesure"
     level: N1
     spec:
-      explanation: "Multizone, pondérée centrale, spot et variantes de marque : quand utiliser chacune"
+      explanation: "Multizone (« Mesure matricielle » sur le Nikon Z 6, « Mesure évaluative » sur le Canon EOS R50, « Multi » sur le Sony A6000), pondérée centrale, spot et variantes de marque : quand utiliser chacune"
       simulator: "Motif de pondération superposé, exposition recalculée"
       exercise: "Exposer un visage en contre-jour avec le bon mode"
     situations: [SIT-03, SIT-19]
-    sources: [canon-m50ii-metering, nikon-zr-metering, sony-a9-metering, fujifilm-xt4-photometry, fujifilm-gfx100-photometry]
+    sources: [canon-m50ii-metering, nikon-zr-metering, sony-a9-metering, fujifilm-xt4-photometry, fujifilm-gfx100-photometry, nikon-z6-metering-fr, canon-eos-r50-metering-fr, sony-a6000-metering-fr]
     since: v0.1
   - id: MES-03
     title: "Pièges de la mesure"
@@ -61,15 +61,19 @@ notions:
       simulator: "Histogramme en direct et après la prise, relié aux zones de l'image"
       exercise: "Associer quatre histogrammes à quatre photos"
     situations: [SIT-10, SIT-13]
+    sources: [nikon-z6-photo-information-fr, nikon-z6-photo-information, sony-a7iii-switching-display-fr, sony-a7iii-switching-display, sony-a7iii-icons, wikipedia-srgb]
     since: v0.1
   - id: MES-07
     title: "Alertes de surexposition et zébras"
     level: N1
     spec:
-      explanation: "Repérer en direct les zones brûlées"
-      simulator: "Clignotement et zébras réglables"
+      explanation: "Repérer les zones brûlées : à la lecture, sur l'écran de revue ; pendant la visée, par les zébras, que certains boîtiers réservent à la vidéo"
+      simulator: "Alerte à la lecture ; zébras en visée, selon le boîtier"
       exercise: "Exposer au plus clair sans brûler une robe blanche"
     situations: [SIT-02, SIT-13]
+    notes:
+      - "Boîtiers de référence du simulateur, en photo : le Nikon Z 6 montre les hautes lumières à la lecture (page « Hautes lumières ») et réserve leur affichage pendant la visée à la vidéo (réglage g6, groupe « g : Vidéo ») ; le Canon EOS R50 décrit ses zébrures « avant ou pendant l'enregistrement vidéo » ; le Sony A6000 a un motif zébré, « Rayons diagon. » (menu « Réglages personnalis. », désactivé par défaut), que sa page ne limite pas à la vidéo, comme le réglage de zébras du Sony A7 III (sony-a7iii-zebra) (relevé le 22 novembre 2026)."
+    sources: [nikon-z6-photo-information-fr, nikon-z6-photo-information, sony-a7iii-switching-display-fr, sony-a7iii-switching-display, sony-a7iii-zebra-fr, sony-a7iii-zebra, nikon-z6-g6-fr, nikon-z6-g6, canon-eos-r50-zebra-fr, sony-a6000-zebra-fr]
     since: v0.1
   - id: MES-08
     title: "Bracketing d'exposition"
@@ -98,7 +102,7 @@ notions:
       simulator: "Menu ISO auto, l'appareil explique son choix"
       exercise: "Régler l'ISO auto pour un enfant qui court en fin de journée"
     situations: [SIT-06, SIT-07, SIT-34, SIT-35, SIT-37, SIT-39]
-    sources: [nikon-z6-iso-button, nikon-z6-iso-settings, nikon-z6-iso-settings-fr, nikon-z6-defaults, nikon-d850-auto-iso]
+    sources: [nikon-z6-iso-button, nikon-z6-iso-settings, nikon-z6-iso-settings-fr, nikon-z6-defaults, nikon-d850-auto-iso, nikon-z6-mode-dial, nikon-z6-mode-dial-fr, nikon-z6-exposure-compensation, nikon-z6-exposure-compensation-fr, nikon-z6-defaults-fr]
     since: v0.1
   - id: MES-11
     title: "Mesure incidente"
