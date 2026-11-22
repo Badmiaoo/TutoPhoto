@@ -1,7 +1,8 @@
 # fichier: data/sources.yaml
-# Champs : docs/lire-le-referentiel.md. Règle : une source est relue à son adresse avant qu'une fiche, le code ou la
-# documentation s'appuie sur elle ; `read` donne la date de sa dernière lecture connue (version 0.4.1, constat SRC-04
-# de l'audit), le libellé ce qui a été lu, et l'auteur et la date de la page quand elle les donne. Les 78 entrées
+# Champs : docs/lire-le-referentiel.md. Règle : une source est relue à son adresse, ou au même contenu ailleurs quand
+# son hôte ne se joint pas d'ici, avant qu'une fiche, le code ou la documentation s'appuie sur elle ; `read` donne la
+# date de sa dernière lecture connue (version 0.4.1, constat SRC-04 de l'audit), le libellé ce qui a été lu, et
+# l'auteur et la date de la page quand elle les donne. Les 78 entrées
 # venues du référentiel 0.2 (commit 818c9d8, 7 novembre 2026) n'avaient pas de date de lecture ; 39 de celles qui
 # restent n'en ont toujours pas, l'audit n'ayant pas pu les relire (hôte non joignable) : rien ne dit si leur page a
 # été ouverte ce jour-là, ou seulement vue dans un résultat de recherche. Des entrées sans `read` appuient encore la
@@ -1320,7 +1321,7 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, accueil (4-534-933-21(1)) : ses deux sommaires (contentslist01 et contentslist02) listent 247 et 59 pages, 306 en tout ; « collimateur » n'est dans aucune, « cadre du télémètre » dans quatre (relevé le 20 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/index.html"
-    read: 2026-11-20
+    read: 2026-11-22
     used_in: [content/notions/MAP-06.md]
   - id: bcn-2020-reflex
     group: "Marché : ventes et usage"
