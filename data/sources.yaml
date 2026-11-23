@@ -397,9 +397,15 @@ sources:
     read: 2026-11-14
   - id: github-pages-limits
     group: "Outils"
-    label: "GitHub Docs, GitHub Pages limits (source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026)"
+    label: "GitHub Docs, GitHub Pages limits : en tête de la page (champ product), le texte réutilisé data/reusables/gated-features/pages.md : « GitHub Pages is available in public repositories with GitHub Free and GitHub Free for organizations, and in public and private repositories with GitHub Pro, GitHub Team, GitHub Enterprise Cloud, and GitHub Enterprise Server. » (noms écrits par des variables, data/variables/product.yml ; fichier content/pages/getting-started-with-github-pages/github-pages-limits.md ; source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026, par l'audit le 14 novembre 2026, puis le 23 novembre 2026)"
     url: "https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits"
-    read: 2026-11-14
+    read: 2026-11-23
+  - id: github-pages-creating-site
+    group: "Outils"
+    label: "GitHub Docs, Creating a GitHub Pages site, section « Creating your site » (l. 38 du fichier) : l'avertissement du texte réutilisé data/reusables/pages/private_pages_are_public_warning.md ; pour GitHub Free, Pro et Team : « GitHub Pages sites are publicly available on the internet, even if the repository for the site is private (if your plan or organization allows it). » ; pour GitHub Enterprise Cloud : « […] GitHub Pages sites are publicly available on the internet by default, even if the repository for the site is private or internal. You can publish a site privately by managing access control for the site. » ; dans la version de la page pour GitHub Enterprise Cloud seulement, le texte réutilisé data/reusables/pages/privately-publish-ghec-only.md : « To publish a GitHub Pages site privately, your organization must use GitHub Enterprise Cloud. » (noms écrits par des variables, data/variables/product.yml ; fichier content/pages/getting-started-with-github-pages/creating-a-github-pages-site.md ; source lue dans le dépôt github/docs, commit 8cd1075 du 6 novembre 2026, le 23 novembre 2026 ; fichiers identiques au commit 9a7087e du 23 novembre 2026)"
+    url: "https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site"
+    read: 2026-11-23
+    note: "Adresse déduite du chemin du fichier, d'après la règle des liens de content/README.md du même dépôt (l. 366) ; la page est dans la liste children de l'index de sa rubrique (l. 16). Page non ouverte à son adresse : docs.github.com refusé par le proxy de l'environnement de Claude (« CONNECT tunnel failed, response 403 », 23 novembre 2026)."
   - id: yaml-spec-1-2-2
     group: "Outils"
     label: "YAML Language Development Team, YAML Ain't Markup Language (YAML) version 1.2, révision 1.2.2 (1er octobre 2021), section « Nodes », définition « Mapping » : « The content of a mapping node is an unordered set of key/value node pairs, with the restriction that each of the keys is unique » (source du texte dans le dépôt yaml/yaml-spec, commit 1b1a1be, fichier spec/1.2.2/spec.md, l. 891-892 ; lue le 21 novembre 2026)"
@@ -579,9 +585,26 @@ sources:
     note: "Lu dans le registre (registry.npmjs.org), la page de www.npmjs.com répondant 403 aux lectures automatiques (22 novembre 2026)."
   - id: npm-vite
     group: "Outils"
-    label: "Vite, registre npm (version 8.3.6, licence MIT, lu le 7 novembre 2026)"
+    label: "Vite, registre npm (version 8.3.6, celle qu'épingle app/package.json, publiée le 5 novembre 2026, licence MIT ; dépend de rolldown « ~1.2.16 » ; dernière version le 23 novembre 2026 : 8.3.8, du 11 novembre ; lu le 7 novembre 2026, puis le 23 novembre 2026). Le fichier LICENSE.md du paquet 8.3.6 commence par « # Vite core license », la licence MIT de Vite (« Copyright (c) 2019-present, VoidZero Inc. and Vite contributors », l. 1-24) ; la suite, à partir de « # Licenses of bundled dependencies », porte sur les dépendances que le paquet embarque pour l'outil lui-même"
     url: "https://www.npmjs.com/package/vite"
-    read: 2026-11-14
+    read: 2026-11-23
+    note: "Lu dans le registre (registry.npmjs.org) et dans le paquet installé par npm ci, dont l'empreinte integrity est celle du verrou ; la page de www.npmjs.com répond 403 aux lectures automatiques (23 novembre 2026)."
+  - id: npm-rolldown
+    group: "Outils"
+    label: "Rolldown, registre npm (version 1.2.16, celle qu'installe app/package-lock.json, publiée le 29 octobre 2026, licence MIT ; dernière version le 23 novembre 2026 : 1.3.3, du 18 novembre ; lu le 23 novembre 2026). Le fichier LICENSE du paquet : licence MIT (« Copyright (c) 2024-present VoidZero Inc. & Contributors »), puis une phrase qui renvoie, pour les parties tirées d'autres bibliothèques, à THIRD-PARTY-LICENSE, fichier du même paquet (licences MIT de Rollup et d'esbuild)"
+    url: "https://www.npmjs.com/package/rolldown"
+    read: 2026-11-23
+    note: "Lu dans le registre (registry.npmjs.org) et dans le paquet installé par npm ci, dont l'empreinte integrity est celle du verrou ; la page de www.npmjs.com répond 403 aux lectures automatiques (23 novembre 2026)."
+  - id: vite-preload-helper
+    group: "Outils"
+    label: "Vite, packages/vite/src/node/plugins/importAnalysisBuild.ts au tag v8.3.6 (commit 0fd9a29 du 5 novembre 2026) : le module ajouté à la construction, « \\0vite/preload-helper.js » (l. 131), sa fonction preload (l. 241) et l'évènement « vite:preloadError » (l. 349), que l'on retrouve dans le fichier du simulateur construit (lu le 23 novembre 2026)"
+    url: "https://raw.githubusercontent.com/vitejs/vite/0fd9a29f57d49d496f39c952f44c1b5fc3e90769/packages/vite/src/node/plugins/importAnalysisBuild.ts"
+    read: 2026-11-23
+  - id: rolldown-runtime-base
+    group: "Outils"
+    label: "Rolldown, crates/rolldown/src/runtime/runtime-base.js au tag v1.2.16 (commit de6facf du 29 octobre 2026) : les fonctions d'assemblage __defProp (l. 2), __esmMin (l. 17) et __exportAll (l. 34), que l'on retrouve en tête du fichier du simulateur construit ; le fichier n'a ni en-tête de licence ni renvoi à une autre bibliothèque (lu le 23 novembre 2026)"
+    url: "https://raw.githubusercontent.com/rolldown/rolldown/de6facf2228279718e042b801dd6b60dd6503918/crates/rolldown/src/runtime/runtime-base.js"
+    read: 2026-11-23
   - id: npm-typescript
     group: "Outils"
     label: "TypeScript, registre npm (version 7.0.2, licence Apache-2.0, lu le 7 novembre 2026)"

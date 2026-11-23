@@ -11,7 +11,11 @@ export default defineConfig({
   define: { __TUTOPHOTO_VERSION__: JSON.stringify(readVersion()) },
   build: {
     outDir: "dist",
-    // Pas de polyfill de préchargement : le site publié ne contient ainsi que notre code et celui de Babylon.js.
+    // Pas de polyfill de préchargement. La construction ajoute quand même au fichier du simulateur la fonction de
+    // préchargement de Vite, qui enveloppe les imports dynamiques de Babylon.js, et deux fonctions d'assemblage de
+    // Rolldown (__esmMin, __exportAll), sous licence MIT : le site publié contient notre code, celui de Babylon.js et
+    // ces fonctions, dont les licences sont recopiées dans dist/licences/ par scripts/copy-licences.mjs (version
+    // 0.4.14, constat LIC-08 de l'audit).
     modulePreload: { polyfill: false },
     rollupOptions: {
       // Le simulateur est sous simulateur/ depuis la version 0.3.46 ; l'activité de LUM-02 a sa propre construction
