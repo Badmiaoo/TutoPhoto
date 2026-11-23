@@ -14,7 +14,7 @@ Chaque version range ses changements sous : Ajouté, Modifié, Corrigé, Retiré
 
 ## [0.4.8] - 2026-11-23
 
-Sujet 39 du plan de corrections de l'audit (`docs/audit/README.md`) : photo interrompue par le plafond de 5 s, garder le flou (constat PHY-21 de `docs/audit/modele-physique.md`, pour son code, avec sa contre-vérification). En cours. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z.
+Sujet 39 du plan de corrections de l'audit (`docs/audit/README.md`) : photo interrompue par le plafond de 5 s, garder le flou (constat PHY-21 de `docs/audit/modele-physique.md`, pour son code, avec sa contre-vérification). En cours : l'ordre des rendus est codé (`app/src/camera/optics.ts`, `sampleOrder` ; `app/src/camera/photo.ts`) et contrôlé par les tests rapides (`app/tests/optics.test.ts`), avec sa source (`wikipedia-energy-distance`) ; restent les essais dans Chromium, la photo à grand flou de la routine et la documentation. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z.
 
 ### Modifié
 

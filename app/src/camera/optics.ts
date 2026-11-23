@@ -261,6 +261,8 @@ export function pixelWindow(
 // - Nombre de rendus M : de quoi espacer les copies d'un grand flou de 4 px au plus (espacement estimé à
 //   0,9 × flou / √M sur un disque, flou / M le long d'un mouvement), de 16 à 256 ; la photo s'arrête aussi à 5 s.
 // - Lissage : flou résiduel de rayon 0,45 × flou / √M, selon la profondeur de la vue centrale.
+// - Ordre des rendus : sampleOrder, pour qu'une photo arrêtée à 5 s garde des rendus répartis sur tout le disque et toute
+//   la pose (constat PHY-21 de l'audit, version 0.4.8).
 
 /** Espacement visé entre les copies d'un flou, en pixels de la photo. */
 const MAX_SPACING_PX = 4;
@@ -312,8 +314,11 @@ function gcd(a: number, b: number): number {
 }
 
 /**
- * Pas de la permutation des instants, décorrélée des places sur le disque : environ 0,618 × M, augmenté jusqu'à être
- * premier avec M, pour que i × pas modulo M parcoure chaque instant une fois.
+ * Pas de la permutation des instants : environ 0,618 × M, augmenté jusqu'à être premier avec M, pour que i × pas
+ * modulo M parcoure chaque instant une fois. Elle décorrèle l'instant du rayon de la place sur le disque, pas de son
+ * angle : i × 0,618 tour et i × 0,382 tour (l'angle d'or) font i tours à eux deux, et les instants voisins tombent sur
+ * des places de même direction, à une dérive près (calcul de la version 0.4.8 ; docs/etat-des-travaux.md, « Défauts
+ * connus, hors du plan »).
  */
 export function instantStride(samples: number): number {
   let stride = Math.max(1, Math.round(samples * 0.618));
@@ -324,6 +329,76 @@ export function instantStride(samples: number): number {
 /** Instant du rendu i, en part du temps de pose, de 0 à 1 : ((i × pas) modulo M + 0,5) / M. */
 export function sampleInstant(i: number, samples: number, stride: number): number {
   return (((i * stride) % samples) + 0.5) / samples;
+}
+
+/**
+ * Ordre des rendus d'une photo (constat PHY-21 de l'audit, Sujet 39 du plan de corrections, version 0.4.8) : le rendu
+ * n° j prend la paire d'indice ordre[j], c'est-à-dire sa place sur le disque (eyeOffset) et son instant de la pose
+ * (sampleInstant). Les paires ne changent pas. Parcourues dans l'ordre de leurs indices, elles allaient du centre du
+ * disque vers son bord : une photo arrêtée par le plafond de temps n'avait que le disque d'une ouverture plus petite,
+ * de rayon √(reçus / prévus) fois celui de l'ouverture. Dans cet ordre-ci, les rendus faits restent répartis comme
+ * l'ensemble des paires, sur tout le disque et toute la pose. Le premier est la paire 0 (centre du disque, début de la
+ * pose), comme avant ; chaque suivant est la paire restante qui rend la plus petite la distance d'énergie entre les
+ * rendus faits, elle comprise, et l'ensemble des paires [wikipedia-energy-distance] : celle qui maximise
+ * Σ d(paire, rendus faits) − (k + 1) × moyenne de d(paire, chaque paire), k rendus faits. Distance entre deux paires :
+ * d = |Δplace| + 2 |Δinstant| + 0,5 |Δr²| + 0,5 √((Δr²)² + Δinstant²), places sur le disque de rayon 1, instants en
+ * part de la pose, r² = (i + 0,5) / M ; le premier terme répartit les places sur le disque, le deuxième les instants sur la
+ * pose, le troisième les rayons, le quatrième évite de lier le rayon à l'instant. Les poids sont un choix de TutoPhoto,
+ * fait par essais (docs/camera-physique.md, « Photo interrompue par ce plafond »). Une photo complète garde les mêmes
+ * rendus, dans un autre ordre. Répartition contrôlée pour M de 16 à 256 et chaque nombre de rendus faits à partir de 16
+ * par app/tests/optics.test.ts.
+ */
+export function sampleOrder(samples: number, stride: number = instantStride(samples)): number[] {
+  const m = samples;
+  const x = new Float64Array(m);
+  const y = new Float64Array(m);
+  const t = new Float64Array(m);
+  const r2 = new Float64Array(m);
+  for (let i = 0; i < m; i++) {
+    const place = eyeOffset(i, m, 1);
+    x[i] = place.x;
+    y[i] = place.y;
+    t[i] = sampleInstant(i, m, stride);
+    r2[i] = (i + 0.5) / m;
+  }
+  const d = new Float64Array(m * m);
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < i; j++) {
+      const dt = Math.abs(t[i] - t[j]);
+      const dr = Math.abs(r2[i] - r2[j]);
+      const v = Math.hypot(x[i] - x[j], y[i] - y[j]) + 2 * dt + 0.5 * dr + 0.5 * Math.hypot(dr, dt);
+      d[i * m + j] = v;
+      d[j * m + i] = v;
+    }
+  }
+  const mean = new Float64Array(m);
+  for (let i = 0; i < m; i++) {
+    let s = 0;
+    for (let j = 0; j < m; j++) s += d[i * m + j];
+    mean[i] = s / m;
+  }
+  const order = [0];
+  const used = new Uint8Array(m);
+  used[0] = 1;
+  // Σ d(paire, rendus faits), le rendu 0 fait.
+  const sum = d.slice(0, m);
+  for (let k = 1; k < m; k++) {
+    let best = -1;
+    let bestScore = -Infinity;
+    for (let j = 0; j < m; j++) {
+      if (used[j]) continue;
+      const score = sum[j] - (k + 1) * mean[j];
+      // À égalité, la paire d'indice le plus petit.
+      if (score > bestScore) {
+        bestScore = score;
+        best = j;
+      }
+    }
+    order.push(best);
+    used[best] = 1;
+    for (let j = 0; j < m; j++) sum[j] += d[best * m + j];
+  }
+  return order;
 }
 
 /** Facteur du lissage de la photo, pour M rendus : 0,45 / √M (rayon = facteur × flou). */
