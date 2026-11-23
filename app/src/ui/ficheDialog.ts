@@ -59,6 +59,18 @@ export class FicheDialog {
       const main = page.querySelector("main");
       if (!main) throw new Error("main");
       main.querySelectorAll(".crumb, .actions, script").forEach((n) => n.remove());
+      // Le titre de la fiche devient un titre de niveau 2, sous celui de la page : ses sections descendent d'un niveau,
+      // pour ne pas être au niveau de son titre (constat INT-19 de l'audit, point 8, version 0.4.7 ; critère « Info and
+      // Relationships » du WCAG 2.2 [wcag-22-info-and-relationships]). Du plus profond
+      // au moins profond, pour ne descendre chaque titre qu'une fois.
+      for (const level of [5, 4, 3, 2]) {
+        main.querySelectorAll(`h${level}`).forEach((heading) => {
+          const lower = page.createElement(`h${level + 1}`);
+          for (const attribute of heading.attributes) lower.setAttribute(attribute.name, attribute.value);
+          lower.append(...heading.childNodes);
+          heading.replaceWith(lower);
+        });
+      }
       const title = main.querySelector("h1");
       if (title) {
         const h2 = page.createElement("h2");

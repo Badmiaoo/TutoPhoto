@@ -234,7 +234,6 @@ export class Shutter {
   applyTexts(): void {
     const tr = t;
     this.el.button.textContent = tr("shutterButton");
-    this.el.marker.title = tr("focusPoint");
     this.el.progressLabel.textContent = tr("computing");
     this.el.reviewBack.textContent = tr("reviewBack");
     this.el.reviewWhole.textContent = tr("reviewWhole");
@@ -569,6 +568,7 @@ export class Shutter {
   /** Vue de la série à afficher, avec les boutons de la série. */
   private showFrame(index: number): void {
     if (index < 0 || index >= this.shots.length) return;
+    const focused = document.activeElement;
     this.shotIndex = index;
     const shot = this.shots[index];
     this.el.reviewSave.href = shot.photo.url;
@@ -577,6 +577,10 @@ export class Shutter {
     this.el.reviewCount.textContent = many ? this.countText() : "";
     this.el.reviewPrev.disabled = index === 0;
     this.el.reviewNext.disabled = index === this.shots.length - 1;
+    // Dernière « Vue suivante » ou première « Vue précédente » : le bouton grisé perdait le focus, qui tombait sur la
+    // page ; il passe à l'autre bouton de la série (défaut « Focus clavier perdu », Sujet 38, version 0.4.7).
+    if (focused === this.el.reviewNext && this.el.reviewNext.disabled && !this.el.reviewPrev.disabled) this.el.reviewPrev.focus({ preventScroll: true });
+    if (focused === this.el.reviewPrev && this.el.reviewPrev.disabled && !this.el.reviewNext.disabled) this.el.reviewNext.focus({ preventScroll: true });
     this.showWhole();
   }
 
@@ -691,6 +695,11 @@ export class Shutter {
   private openReview(): void {
     this.el.review.hidden = false;
     this.el.review.scrollTop = 0;
+    // « Déclencher », grisé pendant le calcul, perdait le focus, qui tombait sur la page : quand l'écran de revue
+    // s'ouvre sans élément qui ait le focus, il va à « Revenir au viseur », comme dans keepFocus (défaut « Focus
+    // clavier perdu », Sujet 38, version 0.4.7).
+    const active = document.activeElement;
+    if (active === null || active === document.body) this.el.reviewBack.focus({ preventScroll: true });
   }
 
   /**
@@ -792,6 +801,10 @@ export class Shutter {
 
   private closeReview(): void {
     this.view++;
+    const hadFocus = this.el.review.contains(document.activeElement);
     this.el.review.hidden = true;
+    // « Revenir au viseur » masqué avec l'écran de revue : le focus tombait sur la page. Il revient à « Déclencher »,
+    // ou au viseur si le bouton est grisé (défaut « Focus clavier perdu », Sujet 38, version 0.4.7).
+    if (hadFocus) (this.el.button.disabled ? this.el.canvas : this.el.button).focus({ preventScroll: true });
   }
 }

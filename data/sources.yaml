@@ -1361,3 +1361,48 @@ sources:
     label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, MaP manuelle : « Lorsqu'il est difficile d'obtenir une mise au point correcte en mode autofocus, il est possible d'ajuster manuellement la mise au point. » ; « Lorsque vous tournez la bague de mise au point, la distance de mise au point s'affiche à l'écran. » (apostrophes typographiques dans la première phrase, droites dans la seconde ; lu le 23 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000227222.html"
     read: 2026-11-23
+  - id: wcag-22-non-text-contrast
+    group: "Accessibilité"
+    label: "W3C, WCAG 2.2, critère « Non-text Contrast » (niveau AA), texte source dans le dépôt w3c/wcag, commit 2766fae (tête de la branche main le 23 novembre 2026, d'après git ls-remote ; guidelines/index.html y est titré « Web Content Accessibility Guidelines (WCAG) 2.2 ») : « The visual presentation of the following have a contrast ratio of at least 3:1 against adjacent color(s) », pour les « User Interface Components » et les « Graphical Objects » : « Parts of graphics required to understand the content » ; ce qu'en tire TutoPhoto : les trois repères du constat INT-18 de l'audit, zone couverte par l'autofocus, barre de progression du calcul d'une photo et sommets de l'indicateur d'équilibre, portés à 3:1 au moins (version 0.4.7) ; lu le 23 novembre 2026"
+    url: "https://raw.githubusercontent.com/w3c/wcag/2766fae25fc8286f60181d655115cba054b797e1/guidelines/sc/21/non-text-contrast.html"
+    read: 2026-11-23
+  - id: wcag-22-contrast-ratio
+    group: "Accessibilité"
+    label: "W3C, WCAG 2.2, définition « contrast ratio », texte source dans le dépôt w3c/wcag, commit 2766fae (tête de la branche main le 23 novembre 2026, d'après git ls-remote ; guidelines/index.html y est titré « Web Content Accessibility Guidelines (WCAG) 2.2 ») : « (L1 + 0.05) / (L2 + 0.05), where L1 is the relative luminance of the lighter of the colors, and L2 is the relative luminance of the darker of the colors » ; formule des contrastes calculés pour la version 0.4.7 ; lu le 23 novembre 2026"
+    url: "https://raw.githubusercontent.com/w3c/wcag/2766fae25fc8286f60181d655115cba054b797e1/guidelines/terms/20/contrast-ratio.html"
+    read: 2026-11-23
+  - id: wcag-22-relative-luminance
+    group: "Accessibilité"
+    label: "W3C, WCAG 2.2, définition « relative luminance », texte source dans le dépôt w3c/wcag, commit 2766fae (tête de la branche main le 23 novembre 2026, d'après git ls-remote ; guidelines/index.html y est titré « Web Content Accessibility Guidelines (WCAG) 2.2 ») : « L = 0.2126 * R + 0.7152 * G + 0.0722 * B », chaque couche valant RsRGB/12.92 jusqu'à 0.04045 et ((RsRGB+0.055)/1.055) ^ 2.4 au-delà, avec RsRGB = R8bit/255 ; formule des contrastes calculés pour la version 0.4.7 ; lu le 23 novembre 2026"
+    url: "https://raw.githubusercontent.com/w3c/wcag/2766fae25fc8286f60181d655115cba054b797e1/guidelines/terms/20/relative-luminance.html"
+    read: 2026-11-23
+  - id: wcag-c40-two-color
+    group: "Accessibilité"
+    label: "W3C, technique C40 des WCAG, « Creating a two-color focus indicator to ensure sufficient contrast with all components », source dans le dépôt w3c/wcag, commit 2766fae (tête de la branche main le 23 novembre 2026, d'après git ls-remote ; guidelines/index.html y est titré « Web Content Accessibility Guidelines (WCAG) 2.2 ») : « if the focus indicator uses two highly-contrasting colors - a light color and a dark color - then the same indicator can be re-used, since at least one of the two colors will always have enough contrast against any background color » ; « As long as the two indicator colors have a contrast ratio of at least 9:1 with each other, at least one of the two colors is guaranteed to meet 3:1 contrast with any solid background color » ; et, sur un fond qui n'est pas d'une seule couleur, « if the background is an image or gradient [...] it may still be necessary to compare the indicator pixel-by-pixel against the background » ; ce qu'en tire TutoPhoto : la zone couverte par l'autofocus en pointillés clairs bordés d'un trait sombre, dont les contrastes avec la scène sont calculés couleur par couleur, les deux couleurs étant posées en transparence (version 0.4.7) ; lu le 23 novembre 2026"
+    url: "https://raw.githubusercontent.com/w3c/wcag/2766fae25fc8286f60181d655115cba054b797e1/techniques/css/C40.html"
+    read: 2026-11-23
+  - id: wcag-22-status-messages
+    group: "Accessibilité"
+    label: "W3C, WCAG 2.2, critère « Status Messages » (niveau AA), texte source dans le dépôt w3c/wcag, commit 2766fae (tête de la branche main le 23 novembre 2026, d'après git ls-remote ; guidelines/index.html y est titré « Web Content Accessibility Guidelines (WCAG) 2.2 ») : « In content implemented using markup languages, status messages can be programmatically determined through role or properties such that they can be presented to the user by assistive technologies without receiving focus » ; ce qu'en tire TutoPhoto : la réponse de l'activité de LUM-02 dans une zone vivante, et les messages réécrits chaque seconde ou quatre fois par seconde sortis de leur zone vivante (version 0.4.7) ; lu le 23 novembre 2026"
+    url: "https://raw.githubusercontent.com/w3c/wcag/2766fae25fc8286f60181d655115cba054b797e1/guidelines/sc/21/status-messages.html"
+    read: 2026-11-23
+  - id: wcag-22-label-in-name
+    group: "Accessibilité"
+    label: "W3C, WCAG 2.2, critère « Label in Name » (niveau A), texte source dans le dépôt w3c/wcag, commit 2766fae (tête de la branche main le 23 novembre 2026, d'après git ls-remote ; guidelines/index.html y est titré « Web Content Accessibility Guidelines (WCAG) 2.2 ») : « For user interface components with labels that include text or images of text, the name contains the text that is presented visually. A best practice is to have the text of the label at the start of the name. » ; ce qu'en tire TutoPhoto : les noms accessibles des boutons de l'indicateur d'exposition et de la mise au point, qui commencent par leur texte affiché (version 0.4.7) ; lu le 23 novembre 2026"
+    url: "https://raw.githubusercontent.com/w3c/wcag/2766fae25fc8286f60181d655115cba054b797e1/guidelines/sc/21/label-in-name.html"
+    read: 2026-11-23
+  - id: wcag-22-label-in-name-understanding
+    group: "Accessibilité"
+    label: "W3C, « Understanding SC 2.5.3: Label in Name », document explicatif du critère, source dans le dépôt w3c/wcag, commit 2766fae (tête de la branche main le 23 novembre 2026, d'après git ls-remote ; guidelines/index.html y est titré « Web Content Accessibility Guidelines (WCAG) 2.2 ») : section « Symbolic text characters » : « text should not be considered a visible label if it is used in a symbolic manner, rather than directly expressing something in human language » ; l'exemple d'un « > » qui imite la flèche d'un bouton « Next » ; ce qu'en tire TutoPhoto : les signes « − » et « + » des molettes sont des symboles, et le nom de chaque bouton dit son effet, le mot du signe gardé en tête (version 0.4.7) ; lu le 23 novembre 2026"
+    url: "https://raw.githubusercontent.com/w3c/wcag/2766fae25fc8286f60181d655115cba054b797e1/understanding/21/label-in-name.html"
+    read: 2026-11-23
+  - id: wcag-22-focus-order
+    group: "Accessibilité"
+    label: "W3C, WCAG 2.2, critère « Focus Order » (niveau A), texte source dans le dépôt w3c/wcag, commit 2766fae (tête de la branche main le 23 novembre 2026, d'après git ls-remote ; guidelines/index.html y est titré « Web Content Accessibility Guidelines (WCAG) 2.2 ») : « If a web page can be navigated sequentially and the navigation sequences affect meaning or operation, focusable components receive focus in an order that preserves meaning and operability. » ; ce qu'en tire TutoPhoto : le viseur prend le focus à sa place dans la page (constat INT-08 de l'audit, première étape, version 0.4.7) ; lu le 23 novembre 2026"
+    url: "https://raw.githubusercontent.com/w3c/wcag/2766fae25fc8286f60181d655115cba054b797e1/guidelines/sc/20/focus-order.html"
+    read: 2026-11-23
+  - id: wcag-22-info-and-relationships
+    group: "Accessibilité"
+    label: "W3C, WCAG 2.2, critère « Info and Relationships » (niveau A), texte source dans le dépôt w3c/wcag, commit 2766fae (tête de la branche main le 23 novembre 2026, d'après git ls-remote ; guidelines/index.html y est titré « Web Content Accessibility Guidelines (WCAG) 2.2 ») : « Information, structure, and relationships conveyed through presentation can be programmatically determined or are available in text. » ; ce qu'en tire TutoPhoto : les deux groupes de boutons radio nommés par le titre de leur fenêtre, et les titres d'une fiche ouverte par-dessus le simulateur descendus d'un niveau sous son titre (constat INT-19 de l'audit, points 6 et 8, version 0.4.7) ; lu le 23 novembre 2026"
+    url: "https://raw.githubusercontent.com/w3c/wcag/2766fae25fc8286f60181d655115cba054b797e1/guidelines/sc/20/info-and-relationships.html"
+    read: 2026-11-23

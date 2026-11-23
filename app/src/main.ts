@@ -30,6 +30,11 @@ const creditsButton = element<HTMLButtonElement>("credits");
 const creditsDialog = element<HTMLDialogElement>("credits-dialog");
 const creditsList = element<HTMLUListElement>("credits-list");
 const status = element<HTMLParagraphElement>("status");
+// Dans le message de la scène, la zone vivante (role="status") ne porte que le message : le compteur du chargement,
+// réécrit chaque seconde, la faisait annoncer chaque seconde (constat INT-15 de l'audit, version 0.4.7). Le compteur
+// et « Recharger » sont à côté d'elle, dans le même paragraphe.
+const statusMessage = element<HTMLSpanElement>("status-message");
+const statusDetail = element<HTMLSpanElement>("status-detail");
 const diagnostic = element<HTMLParagraphElement>("diagnostic");
 // Le simulateur est sous simulateur/ depuis la version 0.3.46 : la scène est un dossier plus haut.
 const manifest = loadManifest("../scenes/parc/scene.json");
@@ -166,6 +171,7 @@ let renderedStatus: string | null = null;
 function renderStatus(): void {
   if (reloadButton.textContent !== t("reload")) reloadButton.textContent = t("reload");
   let message: string;
+  let detail = "";
   let reload = true;
   if (statusKey === "startContextLost" || statusKey === "startError") {
     message = withVersion(t(statusKey));
@@ -174,19 +180,20 @@ function renderStatus(): void {
   } else if (statusKey === "loadError") {
     message = withVersion(failedFile ? t("loadErrorFile").replace("{file}", failedFile) : t("loadError"));
   } else {
-    message = statusKey === "loading" ? t("loading") + loadingProgress() : "";
+    message = statusKey === "loading" ? t("loading") : "";
+    detail = statusKey === "loading" ? loadingProgress() : "";
     reload = false;
   }
   // Réécrit seulement quand le texte change (relecture du Sujet 10) : pendant une perte du contexte en cours de
-  // chargement, la mise à jour de chaque seconde retirait et remettait « Recharger », qui perdait le focus.
-  const key = `${reload ? "R" : "-"}${message}`;
+  // chargement, la mise à jour de chaque seconde retirait et remettait « Recharger », qui perdait le focus. La zone
+  // vivante n'est réécrite que quand son message change, pas à chaque seconde du compteur.
+  if (statusMessage.textContent !== message) statusMessage.textContent = message;
+  if (statusDetail.textContent !== detail) statusDetail.textContent = detail;
+  const key = reload ? "R" : "-";
   if (key !== renderedStatus) {
     renderedStatus = key;
-    if (reload) {
-      const text = document.createElement("span");
-      text.textContent = message;
-      status.replaceChildren(text, " ", reloadButton);
-    } else status.textContent = message;
+    if (reload) status.replaceChildren(statusMessage, statusDetail, " ", reloadButton);
+    else status.replaceChildren(statusMessage, statusDetail);
   }
   status.hidden = statusKey === null && !contextLost;
 }
@@ -276,7 +283,12 @@ function startOrFail(): void {
   const limitDeviceRatio = fullDensityRequested(window.location.search) ? undefined : MAX_DEVICE_RATIO;
   let engine: Engine | null = null;
   try {
-    engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, limitDeviceRatio }, true);
+    // canvasTabIndex 0 : le viseur prend le focus à sa place dans la page, après l'en-tête, et non en premier (constat
+    // INT-08 de l'audit, première étape, version 0.4.7 ; critère « Focus Order » du WCAG 2.2 [wcag-22-focus-order]).
+    // Babylon.js 9.35.0 lui donne sinon tabindex="1", qui le met
+    // avant tout le reste dans l'ordre de tabulation (abstractEngine.pure.js, valeur par défaut, et
+    // DeviceInput/webDeviceInputSystem.js, qui la pose sur le canevas).
+    engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, limitDeviceRatio, canvasTabIndex: 0 }, true);
     // Perte du contexte WebGL (constat COD-12 de l'audit, version 0.3.70) : Babylon.js reprend seul le rendu à la
     // restauration, si le navigateur la fait ; entre les deux, le viseur restait figé sans rien dire. Branchée dès la
     // création du moteur depuis la version 0.4.4 : branchée en fin de démarrage, elle ne disait rien d'une perte

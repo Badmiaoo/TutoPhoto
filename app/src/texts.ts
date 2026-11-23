@@ -6,6 +6,9 @@ const messages = {
   subtitle: "Simulateur photo : la scène de parc, en construction",
   home: "Accueil",
   ficheOpen: "Fiche",
+  // Nom accessible de chacun des trois boutons « Fiche » de la fenêtre « Défis » (constat INT-19 de l'audit, point 7,
+  // version 0.4.7) : le texte affiché, puis l'identifiant de la situation.
+  ficheOpenNamed: "Fiche {id}",
   fichePage: "Ouvrir la page de la fiche",
   ficheUnavailable: "fiche indisponible.",
   licences: "Licences",
@@ -22,8 +25,23 @@ const messages = {
   focal: "Focale",
   decrease: "moins",
   increase: "plus",
+  // Effet de chaque bouton de molette, dans son nom accessible et son infobulle (constat INT-16 de l'audit, version
+  // 0.4.7) : « + » augmente le nombre affiché (nombre f, durée de pose, ISO, focale), ce qui ferme le diaphragme et
+  // allonge la pose ; les noms « Ouverture : plus » et « Vitesse : plus » disaient l'inverse. Les signes sont des
+  // symboles, pas des textes affichés au sens du critère « Label in Name » [wcag-22-label-in-name-understanding] : le
+  // nom dit l'effet, après le mot du signe, gardé pour qui le prononce. Ouvertures, vitesses et
+  // ISO vont par tiers de cran (camera/exposure.ts) ; les focales suivent la liste de l'objectif virtuel.
+  apertureDecrease: "ouvrir d'un tiers de cran (nombre f plus petit)",
+  apertureIncrease: "fermer d'un tiers de cran (nombre f plus grand)",
+  shutterDecrease: "pose plus courte d'un tiers de cran",
+  shutterIncrease: "pose plus longue d'un tiers de cran",
+  isoDecrease: "sensibilité plus basse d'un tiers de cran",
+  isoIncrease: "sensibilité plus élevée d'un tiers de cran",
+  focalDecrease: "focale plus courte",
+  focalIncrease: "focale plus longue",
   meterUnit: "IL",
-  meterHelp: "0 : exposition correcte. Plus : photo plus claire. Moins : photo plus sombre.",
+  // Dans la fenêtre « Exposition » et l'infobulle du bouton de l'indicateur (constat INT-09 de l'audit, version 0.4.7).
+  meterHelp: "Indicateur d'exposition : 0 pour une exposition correcte, plus pour une photo plus claire, moins pour une photo plus sombre.",
   bodyTitle: "Boîtier de référence",
   brand: "Marque",
   // Dans la note des capteurs de la fenêtre « Boîtier de référence » : « Nikon Z 6, plein format de 35,9 × 23,9 mm ».
@@ -43,7 +61,6 @@ const messages = {
   reviewBack: "Revenir au viseur",
   save: "Enregistrer la photo",
   focusHint: "AF-C : touche le viseur pour choisir le point de mise au point ; la mise au point le suit.",
-  focusPoint: "Point de mise au point",
   renders: "rendus",
   computedIn: "calculée en",
   focusedAt: "mise au point à",
@@ -53,6 +70,12 @@ const messages = {
   afMode: "Mode de mise au point",
   afSingle: "AF-S : AF ponctuel",
   afContinuous: "AF-C : AF continu",
+  // Nom accessible du bouton de la mise au point : le texte affiché (« AF-S · Point »), puis ce qu'il ouvre et les
+  // réglages en toutes lettres (constat INT-15 de l'audit, version 0.4.7 ; critère « Label in Name » du WCAG 2.2,
+  // [wcag-22-label-in-name]).
+  afButtonName: "mise au point, {mode}, {area}",
+  afSingleName: "AF ponctuel",
+  afContinuousName: "AF continu",
   areaMode: "Mode de zone AF",
   areaPoint: "AF point sélectif",
   areaWideS: "AF zone large (S)",
@@ -163,6 +186,9 @@ const messages = {
   topViewReset: "Retour au départ",
   exposureTitle: "Exposition",
   exposureButtonTitle: "Mode d'exposition, correction d'exposition et ISO auto",
+  // Nom accessible du bouton de l'indicateur : son texte (« M · −0,2 IL »), puis ce qu'il ouvre (constat INT-15 de
+  // l'audit, version 0.4.7).
+  exposureButtonName: "mode d'exposition, correction d'exposition et ISO auto",
   exposureModeLegend: "Sélecteur de mode",
   modeM: "M : Manuel",
   modeA: "A : Auto à priorité ouverture",
@@ -176,8 +202,14 @@ const messages = {
   isoAuto: "ISO auto",
   isoChosen: "valeur choisie",
   setByCamera: "auto",
-  tooBright: "trop de lumière : photo surexposée",
-  tooDark: "pas assez de lumière : photo sous-exposée",
+  // Les mots du manuel du Nikon Z 6 [nikon-z6-indicators-fr] : quand « les indicateurs d'exposition et l'affichage de
+  // la vitesse d'obturation ou de l'ouverture clignotent », « Le sujet est trop clair ; la photo sera surexposée. » ou
+  // « Le sujet est trop sombre ; la photo sera sous-exposée. ». Écrits dans la fenêtre « Exposition » tant que la
+  // valeur clignote, et plus seulement dans une infobulle (constat INT-09 de l'audit, version 0.4.7).
+  tooBright: "le sujet est trop clair ; la photo sera surexposée",
+  tooDark: "le sujet est trop sombre ; la photo sera sous-exposée",
+  limitShutter: "La vitesse clignote avec l'indicateur d'exposition",
+  limitAperture: "L'ouverture clignote avec l'indicateur d'exposition",
   // Limite de TutoPhoto (constat PHY-12 de l'audit) : la scène vaut 12,5 IL où que l'on vise (SCENE_EV100,
   // camera/exposure.ts). Phrase provisoire, à retirer avec la mesure de la lumière ; la phrase de la fiche MES-04,
   // complétée sur le mode de mesure. Espaces insécables (\u00a0) dans « Z 6 », « ISO 100 », « 12,5 IL » et « mode P » :
@@ -238,6 +270,9 @@ const messages = {
   floatRenderFocus:
     "La mise au point ne voit pas les sujets (elle se fait sur le sol ou le fond), et l'aperçu de la profondeur de champ floute tout le cadre, autant que sa partie la plus floue.",
   percent: "\u00a0%",
+  // Infobulle du bouton « Loupe », et note de la fenêtre « Mise au point » après loupeNoteLead (constat INT-09 de
+  // l'audit, version 0.4.7) : la loupe grossit autour du point de mise au point.
+  loupeNoteLead: "Bouton « Loupe » :",
   loupeHelp: "Grossit l'image autour du point de mise au point, jusqu'à 100\u00a0% : un pixel de la page pour un photosite du capteur (sur un écran à haute densité, comme celui d'un téléphone, ce pixel en couvre plusieurs de l'écran).",
   reviewWhole: "Photo entière",
   reviewHint: "Touche la photo pour la voir à 100\u00a0% à cet endroit.",
