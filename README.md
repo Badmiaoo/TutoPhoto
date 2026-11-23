@@ -41,8 +41,8 @@ npm test         # tests rapides des formules (app/tests/)
 
 ## Tester le site construit
 
-- `node scripts/test_app.cjs --photo`, depuis la racine du dépôt, sur le site construit par `npm run build` : la routine de test contrôle les liens de toutes les pages, puis ouvre l'accueil, des fiches, l'activité de LUM-02 et le simulateur sur quatre profils (ordinateur, Android, iPhone, WebGL 1), l'un après l'autre, et, avec `--photo`, calcule des photos ; `--profils ordinateur` n'en lance qu'un. Chromium seul, en rendu logiciel : les profils de téléphone émulent l'écran et l'identification du navigateur, pas le processeur graphique ni le moteur de Safari.
-- Elle demande Playwright et son Chromium, installés hors du dépôt, leur dossier donné à Node.js par `NODE_PATH`, comme dans la CI ; la version à installer est celle de la CI, `PLAYWRIGHT_VERSION` dans `.github/workflows/routine.yml`. Sans Playwright, elle s'arrête et donne les commandes d'installation.
+- `node scripts/test_app.cjs --photo`, depuis la racine du dépôt, sur le site construit par `npm run build` : la routine de test contrôle les liens internes de toutes les pages, puis ouvre l'accueil, des fiches, l'activité de LUM-02 et le simulateur sur quatre profils (ordinateur, Android, iPhone, WebGL 1), l'un après l'autre, et, avec `--photo`, calcule des photos ; `--profils ordinateur` n'en lance qu'un. Chromium seul, en rendu logiciel : les profils de téléphone émulent l'écran et l'identification du navigateur, pas le processeur graphique ni le moteur de Safari.
+- Elle demande Playwright et son Chromium, installés hors du dépôt, le dossier de Playwright donné à Node.js par `NODE_PATH`, comme dans la CI ; la version à installer est celle de la CI, `PLAYWRIGHT_VERSION` dans `.github/workflows/routine.yml`. Sans Playwright, elle s'arrête et donne les commandes d'installation.
 - La CI la lance sur chaque pull request qui touche `app/`, `content/`, `data/` ou la routine, un job par profil, en parallèle : à la version 0.4.10, de 24 à 49 minutes par job.
 
 ## Vérifier le référentiel
