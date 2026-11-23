@@ -1,5 +1,11 @@
 # REPRISE — Simulateur photo open source (FR/EN) · référentiel v0.2
 
+> **Archive du 7 novembre 2026.** Ne fait plus foi : les règles sont dans `CLAUDE.md`, les données dans `data/`, les décisions de Julien dans `docs/historique.md`, l'état et la file de travail, d'où l'on reprend, dans `docs/etat-des-travaux.md`.
+>
+> Section 0 : les instructions du 7 novembre 2026 pour Claude Code, périmées ; `scripts/extract_reprise.py`, qu'elle décrit, est supprimé depuis la version 0.3.61. Les blocs de données des sections 4, 5 et 10 sont le référentiel v0.2, les situations et les sources du 7 novembre 2026, d'où `data/` est parti. Les sections 1, 2, 3, 8 et 9 sont reprises, dans cet ordre, dans `docs/cadrage.md`, `docs/architecture.md` (seconde partie), `docs/lire-le-referentiel.md`, `docs/questions-ouvertes.md` et `docs/historique.md`.
+>
+> Le reste du fichier est celui de son premier commit (7 novembre 2026), à une ligne près (section 0.1 : lien privé retiré le même jour, version 0.3.6) ; cet avertissement est de la version 0.4.13.
+
 Fichier unique de reprise, produit le 7 novembre 2026. Il contient les instructions pour Claude Code, le cadrage, l'architecture, le référentiel v0.2 complet sous forme de fichiers de données (191 notions, 42 situations V1, 7 situations V2), les questions ouvertes, l'historique des décisions et les sources. Il remplace le Claude Doc « Simulateur photo open source — référentiel et cadrage », qui reste en v0.1 et n'est plus mis à jour.
 
 Sommaire

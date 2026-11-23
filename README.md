@@ -20,7 +20,7 @@ TutoPhoto est le nom du projet. L'application est publiée sur GitHub Pages : ht
 | `schemas/` | Schémas JSON des fichiers de `data/` et des manifestes de scène |
 | `app/` | Application (TypeScript, Babylon.js, Vite) ; scènes 3D et leurs crédits dans `app/public/scenes/` |
 | `scripts/` | Validation, couverture et contrôles (scènes 3D, dépôt public, changelog) ; routine de test du site construit |
-| `REPRISE.md` | Fichier de reprise du 7 novembre 2026, gardé tel quel comme archive |
+| `REPRISE.md` | Fichier de reprise du 7 novembre 2026, gardé comme archive, avec un avertissement en tête |
 | `CLAUDE.md` | Règles de travail |
 | `CHANGELOG.md` | Versions et tags |
 | `LICENSE`, `LICENSES/` | Textes des licences |
