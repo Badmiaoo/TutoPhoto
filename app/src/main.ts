@@ -106,14 +106,22 @@ const loadingTimer = window.setInterval(() => {
 }, 1000);
 /**
  * Message de la scène : chargement en cours, chargement en échec, ou démarrage arrêté (version 0.4.4) par un contexte
- * WebGL perdu dès la création du moteur ou pendant le démarrage (startContextLost) ou par une autre exception
- * (startError) ; null quand la scène est prête.
+ * WebGL perdu dès la création du moteur ou pendant le démarrage (startContextLost), perdu pendant le chargement de la
+ * scène (startContextLostLoading, version 0.4.15) ou par une autre exception (startError) ; null quand la scène est
+ * prête.
  */
-let statusKey: "loading" | "loadError" | "startContextLost" | "startError" | null = "loading";
+type StartFailure = "startContextLost" | "startContextLostLoading" | "startError";
+let statusKey: "loading" | "loadError" | StartFailure | null = "loading";
 /** Fichier nommé par l'échec du chargement, s'il est connu (version 0.3.70). */
 let failedFile: string | null = null;
 /** Contexte WebGL perdu, en attente de sa restauration (version 0.3.70, constat COD-12 de l'audit). */
 let contextLost = false;
+/**
+ * Chargement de la scène en cours (version 0.4.15) : jusqu'à ce que la scène soit prête (ready résolue), ou, après
+ * l'échec d'un fichier, jusqu'à la fin du chargement de chacun (filesSettled). Une perte du contexte pendant ce temps
+ * arrête le démarrage ; après, c'est une perte en cours d'usage.
+ */
+let sceneLoading = true;
 /**
  * Chargement en échec, et scène toujours pas prête 20 s après l'arrivée ou l'échec du dernier fichier : une photo est
  * alors refusée tout de suite, au lieu d'attendre 20 s pour échouer (relecture du Sujet 10, version 0.3.70).
@@ -175,7 +183,7 @@ function renderStatus(): void {
   let message: string;
   let detail = "";
   let reload = true;
-  if (statusKey === "startContextLost" || statusKey === "startError") {
+  if (statusKey === "startContextLost" || statusKey === "startContextLostLoading" || statusKey === "startError") {
     message = withVersion(t(statusKey));
   } else if (contextLost) {
     message = withVersion(t("contextLost"));
@@ -270,7 +278,8 @@ if (!Engine.isSupported()) {
  * les secondes sans fin, les boutons du boîtier restaient sans texte, rien ne disait de recharger, et le message des
  * capacités imputait la panne au rendu en flottants. Un contexte perdu dès la création du moteur, ou une exception
  * pendant le démarrage, arrêtent maintenant le démarrage avec un message et « Recharger », et le message des capacités
- * n'est donné que pour un contexte qui n'est pas perdu. Ce qui est établi, et ce qui ne l'est pas :
+ * n'est donné que pour un contexte qui n'est pas perdu. Depuis la version 0.4.15 (demande de Julien du 23 novembre
+ * 2026), un contexte perdu pendant le chargement de la scène l'arrête aussi. Ce qui est établi, et ce qui ne l'est pas :
  * docs/pile-technique.md, « Contexte perdu au démarrage ».
  */
 function startOrFail(): void {
@@ -293,14 +302,26 @@ function startOrFail(): void {
     // Babylon.js 9.35.0 lui donne sinon tabindex="1", qui le met
     // avant tout le reste dans l'ordre de tabulation (abstractEngine.pure.js, valeur par défaut, et
     // DeviceInput/webDeviceInputSystem.js, qui la pose sur le canevas).
-    engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, limitDeviceRatio, canvasTabIndex: 0 }, true);
+    const created = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, limitDeviceRatio, canvasTabIndex: 0 }, true);
+    engine = created;
     // Perte du contexte WebGL (constat COD-12 de l'audit, version 0.3.70) : Babylon.js reprend seul le rendu à la
     // restauration, si le navigateur la fait ; entre les deux, le viseur restait figé sans rien dire. Branchée dès la
     // création du moteur depuis la version 0.4.4 : branchée en fin de démarrage, elle ne disait rien d'une perte
-    // pendant le démarrage.
+    // pendant le démarrage. Depuis la version 0.4.15 (demande de Julien du 23 novembre 2026), une perte pendant le
+    // chargement de la scène arrête le démarrage : sur l'iPhone de la capture, le message de la perte en cours d'usage,
+    // qui dit que l'affichage peut reprendre seul, s'affichait, puis Babylon.js levait « Unable to create texture »
+    // (`gl.createTexture()` rendant null, Engines/thinEngine.pure.js, `_createTexture`), et le viseur restait vide. Une
+    // texture dont la création a échoué manque à la scène même si le contexte est restauré ensuite.
+    // L'événement de la perte arrive par une tâche, après la fin du code en cours : une perte pendant startSimulator
+    // est vue ici après lui, ou par l'exception qu'il rattrape (startContextLost).
+    // Dans Chromium, la page faisant rendre null aux fonctions de création comme ces branches de WebKit, l'exception
+    // de Babylon.js arrive avant l'événement, et fait échouer le chargement d'un fichier : le démarrage s'arrête alors
+    // aussi après l'échec d'un fichier (loadError), tant que le chargement n'est pas fini, et ready.catch, plus bas,
+    // regarde le contexte.
     engine.onContextLostObservable.add(() => {
       contextLost = true;
-      renderStatus();
+      if (sceneLoading && (statusKey === "loading" || statusKey === "loadError")) failStart("startContextLostLoading", created);
+      else renderStatus();
     });
     engine.onContextRestoredObservable.add(() => {
       contextLost = false;
@@ -324,9 +345,10 @@ function startOrFail(): void {
  * Démarrage arrêté (version 0.4.4) : le message dit que le simulateur n'a pas pu démarrer, avec la version du site et
  * « Recharger », suivi de la ligne des problèmes ; le canevas, le panneau du boîtier, dont les boutons n'ont pas reçu
  * leur texte, et les éléments du viseur que le démarrage n'a pas remplis sont masqués (style.css, body.start-failed) ;
- * la boucle de rendu est arrêtée. Rien d'autre n'est libéré : arrêté après la création de la scène, le démarrage laisse
- * son chargement aller au bout, et les minuteries des objets déjà créés tourner (autofocus, indicateur d'équilibre,
- * vue de dessus).
+ * l'affichage de diagnostic, s'il a été créé, reste sous eux (version 0.4.15). La boucle de rendu est arrêtée. Rien
+ * d'autre n'est libéré : arrêté après la création de la scène (pendant son chargement, depuis la version 0.4.15), le
+ * démarrage laisse le chargement aller au bout, et les minuteries des objets déjà créés tourner (autofocus,
+ * indicateur d'équilibre, vue de dessus, affichage de diagnostic).
  *
  * L'écouteur de restauration de Babylon.js 9.35.0 est retiré : Babylon.js demande au navigateur de restaurer un
  * contexte perdu (`evt.preventDefault()`, Engines/thinEngine.pure.js, l. 186), et WebKit essaie de le faire ; mais sur un moteur
@@ -335,12 +357,16 @@ function startOrFail(): void {
  * créés, MAX_VERTEX_ATTRIBS valant null sur un contexte perdu), que la ligne des problèmes écrivait sous le message
  * (relecture de la version 0.4.4). Le démarrage arrêté ne se sert pas de la restauration.
  */
-function failStart(key: "startContextLost" | "startError", engine: Engine | null): void {
+function failStart(key: StartFailure, engine: Engine | null): void {
   engine?.stopRenderLoop();
   const onRestored = (engine as unknown as { _onContextRestored?: (event: Event) => void } | null)?._onContextRestored;
   if (onRestored) canvas.removeEventListener("webglcontextrestored", onRestored);
   statusKey = key;
   document.body.classList.add("start-failed");
+  // L'affichage de diagnostic, inséré avant l'écran de revue, passe sous la ligne des problèmes : le message reste en
+  // haut (version 0.4.15).
+  const view = document.getElementById("diagnostic-view");
+  if (view) diagnostic.after(view);
   applyTexts();
 }
 
@@ -509,6 +535,7 @@ function startSimulator(engine: Engine): void {
   );
   ready
     .then((waiting) => {
+      sceneLoading = false;
       // Un démarrage arrêté après la création de la scène garde son message (version 0.4.4).
       if (statusKey !== "loading") return;
       statusKey = null;
@@ -516,7 +543,16 @@ function startSimulator(engine: Engine): void {
     })
     .catch((error: unknown) => {
       console.error(error);
+      void filesSettled.then(() => {
+        sceneLoading = false;
+      });
       if (statusKey !== "loading") return;
+      // Fichier en échec parce que le contexte est perdu (version 0.4.15) : sa texture n'a pas pu être créée ; le
+      // démarrage s'arrête, au lieu de dire le fichier non reçu.
+      if (engine._gl.isContextLost()) {
+        failStart("startContextLostLoading", engine);
+        return;
+      }
       statusKey = "loadError";
       // Chemin relatif au dossier de la scène (relecture du Sujet 10) : cinq modèles ont un scene.bin, et le nom seul
       // ne disait pas lequel manquait.

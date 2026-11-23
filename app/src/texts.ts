@@ -326,10 +326,13 @@ const messages = {
   reload: "Recharger",
   contextLost: "Affichage 3D interrompu par le navigateur. Il peut reprendre seul ; sinon, recharge la page.",
   // Démarrage arrêté (version 0.4.4, demande de Julien du 22 novembre 2026 ; main.ts, startOrFail) : contexte WebGL
-  // perdu dès la création du moteur ou pendant le démarrage, ou autre exception, dont le détail est dans la ligne des
-  // problèmes. La version du site et « Recharger » suivent le message.
+  // perdu dès la création du moteur ou pendant le démarrage, perdu pendant le chargement de la scène (version 0.4.15,
+  // demande de Julien du 23 novembre 2026), ou autre exception, dont le détail est dans la ligne des problèmes. La
+  // version du site et « Recharger » suivent le message.
   startContextLost:
     "Le simulateur n'a pas pu démarrer : le navigateur a perdu l'affichage 3D (contexte WebGL) dès l'ouverture de la page. Recharge la page.",
+  startContextLostLoading:
+    "Le simulateur n'a pas pu démarrer : le navigateur a perdu l'affichage 3D (contexte WebGL) pendant le chargement de la scène. Recharge la page.",
   startError: "Le simulateur n'a pas pu démarrer. Recharge la page.",
   creditsUnavailable:
     "Crédits indisponibles : la liste des éléments de la scène (scenes/parc/scene.json) n'a pas pu être chargée. Recharge la page pour réessayer.",
