@@ -77,9 +77,9 @@
 //   mesures se font appareil déplacé de 6 m vers la gauche par la vue de dessus, là où aucun personnage n'entre
 //   dans la zone mesurée, puis l'appareil est ramené au départ (version 0.3.59) ;
 // - avec --photo, au même endroit (135 mm, f/1.4, mise au point verrouillée sur le sol), une photo à grand flou : le
-//   diamètre du flou de la moitié basse de la zone de la mesure du viseur (de 15 à 35 % de la largeur, de 10 à 20 % de
-//   la hauteur), ajusté entre elle et une photo de référence à f/22 prise juste avant, vaut de 85 à 115 % du flou
-//   attendu au fond, même quand le plafond de 5 s arrête le calcul (constat PHY-21 de l'audit, version 0.4.8 : avant,
+//   diamètre du flou du bas de la zone de la mesure du viseur (de 15 à 35 % de la largeur, de 10 à 20 % de la hauteur ;
+//   cette zone va de 2 à 20 %), ajusté entre elle et une photo de référence à f/22 prise juste avant, vaut de 85 à
+//   115 % du flou attendu au fond, même quand le plafond de 5 s arrête le calcul (constat PHY-21 de l'audit, version 0.4.8 : avant,
 //   une photo arrêtée après k rendus sur M avait un flou réduit de √(k / M)) ;
 // - la loupe passe à 50 %, puis à 100 %, et l'indique ; centrée sur le fond, à ISO 6400, elle montre du bruit ; à
 //   50 %, le bruit du vert vaut moins de 85 % de celui du rouge (k compté par pixel CSS : environ 71 %) ; à densité
@@ -1254,10 +1254,10 @@ async function runProfile(browser, name, base) {
     // d'ordinaire en rendu logiciel (« 97/256 rendus, calculée en 47,2 s » dans l'essai de la contre-vérification du
     // constat). Avant la version 0.4.8, les rendus allaient du centre du disque d'ouverture vers son bord, et une photo
     // arrêtée après k rendus sur M avait un flou réduit de √(k / M). Mesure : photo de référence à f/22 (8 crans
-    // d'ouverture et 8 crans de vitesse plus loin, même exposition), puis photo à f/1.4 ; diamètre du flou de la moitié
-    // basse de la zone de la mesure du viseur, plus bas (de 15 à 35 % de la largeur, de 10 à 20 % de la hauteur), ajusté
-    // entre les deux (blurDiameter) ; diamètre
-    // attendu au fond, la sphère du fond étant à 500 m (DOME_RADIUS, app/src/scene.ts) : c = A × f × (D − S) / (D × (S − f)),
+    // d'ouverture et 8 crans de vitesse plus loin, même exposition), puis photo à f/1.4 ; diamètre du flou du bas de la
+    // zone de la mesure du viseur, plus bas (de 15 à 35 % de la largeur, de 10 à 20 % de la hauteur ; cette zone va de 2
+    // à 20 %), ajusté entre les deux (blurDiameter) ; diamètre attendu au fond, la sphère du fond étant à 500 m
+    // (DOME_RADIUS, app/src/scene.ts) : c = A × f × (D − S) / (D × (S − f)),
     // A = f / N [wikipedia-circle-of-confusion], N = √2 (apertureValue, app/src/camera/exposure.ts), S la distance de
     // mise au point de la légende (verrouillée par le toucher du sol, plus haut), ramené à la photo de 1500 px de grand
     // côté (PHOTO_LONG_SIDE, app/src/camera/optics.ts) pour les 35,9 mm du Z 6 (app/src/camera/bodies.ts). Seuil : de

@@ -720,7 +720,7 @@ Une pull request par étape :
 
 - La luminance absolue de la photo autumn_hockey, ni laquelle des deux lignes de la table (couvert lumineux ou épais) la décrit.
 - Si les objets 3D sont vraiment environ deux fois trop clairs par rapport au fond (« Exposition ») : établi par les fichiers et par le calcul, pas mesuré dans un rendu.
-- Le temps de calcul d'une photo sur les téléphones des testeurs, et si le plafond de 5 s y interrompt des photos (« Photo calculée » : mesuré sur le téléphone de Julien le 9 novembre 2026).
+- Le temps de calcul d'une photo sur les téléphones des testeurs, et si le plafond de 5 s y interrompt des photos (« Photo calculée » : mesuré sur le téléphone de Julien le 9 novembre 2026 ; essai T25).
 - Ce que la visée d'un hybride montre du flou de mouvement (« Flou de mouvement et de bougé »).
 - Le modèle du tremblement de la main pour le flou de bougé.
 - Si le bruit photonique et le bruit de lecture s'additionnent en variance, comme le suppose TutoPhoto (« Bruit numérique ») : aucune page lue ne le dit.
