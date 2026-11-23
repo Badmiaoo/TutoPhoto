@@ -24,7 +24,7 @@ notions:
       simulator: "Loupe et mise en relief calculées sur l'image simulée"
       exercise: "Faire le point à la loupe sur une étoile"
     situations: [SIT-20, SIT-21, SIT-22]
-    sources: [nikon-z6-d10-fr, nikon-z6-d10]
+    sources: [nikon-z6-d10-fr, nikon-z6-d10, nikon-z6-focus-fr]
     since: v0.1
   - id: MAP-03
     title: "Comment l'AF voit"
@@ -123,7 +123,7 @@ notions:
       simulator: "Touche de mémorisation configurable, rotation sur place, écart de netteté mesuré"
       exercise: "Verrouiller sur le sujet et recadrer avec un premier plan flou, puis comparer avec le déplacement du collimateur à f/1.4"
     situations: [SIT-01, SIT-04, SIT-26, SIT-28]
-    sources: [canon-eos-r50-self-timer-fr]
+    sources: [canon-eos-r50-self-timer-fr, canon-eos-r50-af-operation-fr]
     notes:
       - "Fusion de MAP-13 (mémorisation AF) en v0.2 ; niveau N1 pour le geste, la limite fait partie de l'explication."
     since: v0.1
@@ -158,6 +158,7 @@ notions:
       simulator: "Sujet mobile qui passe derrière un obstacle"
       exercise: "Garder la netteté sur un cycliste qui passe derrière un poteau"
     situations: [SIT-07, SIT-09, SIT-38]
+    sources: [nikon-z6-a3-fr]
     since: v0.1
   - id: MAP-11
     title: "Découplage AF"
@@ -167,6 +168,7 @@ notions:
       simulator: "Touche AF-ON assignable"
       exercise: "Passer d'un sujet fixe à un sujet mobile sans changer de mode"
     situations: [SIT-06, SIT-15]
+    sources: [nikon-z6-a7-fr]
     since: v0.1
   - id: MAP-12
     title: "Priorité au déclenchement ou à la mise au point"

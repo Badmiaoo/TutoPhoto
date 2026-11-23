@@ -125,8 +125,9 @@ notions:
       simulator: "Sujet mobile, flash, choix du rideau"
       exercise: "Danseur net avec une traînée naturelle"
     situations: [SIT-17, SIT-25, SIT-34]
+    sources: [nikon-z6-flash-modes-fr]
     todo:
-      - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+      - "Sourcer la traînée devant le sujet en synchro sur le premier rideau : les pages des modes de flash lues dans les manuels du Nikon Z 6, du Canon EOS R50 et du Sony A6000 ne décrivent que la traînée de la synchro sur le second rideau."
     since: v0.1
   - id: LUM-13
     title: "Flash de débouchage"
