@@ -31,7 +31,7 @@ Sujet 39 du plan de corrections de l'audit (`docs/audit/README.md`) : photo inte
 - `app/src/camera/photo.ts` : les rendus suivent `sampleOrder` ; l'en-tête le dit.
 - Commentaires de `instantStride` (`app/src/camera/optics.ts`) et de `photo.ts` : la permutation des instants n'est décorrélée que du rayon des places sur le disque, pas de leur angle (choix 8).
 - `docs/camera-physique.md`, « Photo interrompue par ce plafond » : l'ancien ordre et sa mesure par l'audit ; le nouvel ordre, ce que le test rapide en trouve, les mesures de cette version, ce qui reste.
-- `docs/etat-des-travaux.md` : la fin de la version 0.4.7 relue ; le Sujet 39 fait, sa ligne dans la file et celle de ses choix dans « Décisions en attente » ; le Sujet 40 ou 41 en « Sujet suivant » ; « Lignée des sessions » ; dans « Leçons pratiques », les redémarrages du conteneur de la session du Sujet 38 et les relevés de la limite d'usage ; l'essai T25.
+- `docs/etat-des-travaux.md` : la fin de la version 0.4.7 relue ; le Sujet 39 fait, sa ligne dans la file et celle de ses choix dans « Décisions en attente » ; le Sujet 41 en « Sujet suivant », le Sujet 40 attendant l'essai T21 ; « Lignée des sessions » ; dans « Leçons pratiques », les redémarrages du conteneur de la session du Sujet 38 et les relevés de la limite d'usage ; l'essai T25.
 
 ### Corrigé
 
