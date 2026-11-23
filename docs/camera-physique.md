@@ -6,7 +6,7 @@ Décisions prises par Julien le 8 novembre 2026 ; le modèle qui suit est propos
 
 - Mot d'ordre (Julien, 9 novembre 2026) : « fais ce qu'il y a de plus réaliste, ça reste une sandbox de simulation pour entraînement. Ça doit être le mot d'ordre partout. » À chaque choix, le comportement le plus réaliste, sourcé ; ce qui ne l'est pas est dit.
 - Rendu en deux temps :
-  - le viseur montre en temps réel le cadrage, l'exposition et une profondeur de champ approchée, avec les effets de Babylon.js ;
+  - le viseur montre en temps réel le cadrage, l'exposition et une profondeur de champ approchée, avec les effets de Babylon.js ; le 9 novembre 2026, Julien a remplacé cette profondeur de champ par un flou en disque de taille physique, écrit pour TutoPhoto (version 0.3.23 ; « Profondeur de champ du viseur », plus bas) ;
   - au déclenchement, la photo est calculée exactement, par accumulation de rendus.
 - Capteur : plein format ou APS-C, au choix du débutant ; depuis la version 0.3.80, par le choix du boîtier : plein format avec le Nikon Z 6, APS-C avec le Sony A6000 et le Canon EOS R50.
 - Bruit numérique : modèle physique (bruit photonique et bruit de lecture), à partir de mesures publiées.

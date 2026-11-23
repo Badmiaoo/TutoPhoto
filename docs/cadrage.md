@@ -1,8 +1,8 @@
 # Cadrage
 
-_Repris de la section 1 de `REPRISE.md` (7 novembre 2026), puis mis à jour le même jour avec les décisions de la session 1 ; détail dans `docs/historique.md`._
+_Repris de la section 1 de `REPRISE.md` (7 novembre 2026), puis mis à jour avec les décisions de Julien : celles de la session 1, le même jour (version 0.3.0) ; le principe et le découpage du 10 novembre 2026 (versions 0.3.30 et 0.3.35) ; le retrait de l'anglais du 15 novembre 2026 (version 0.3.60) ; la scène de parc du 8 novembre 2026 et les tests avec des débutants, qui ne bloquent plus le travail depuis le 15 novembre 2026 (version 0.4.12). Détail dans `docs/historique.md`._
 
-Un simulateur en 3D de synthèse apprend aux débutants à se servir d'un boîtier reflex ou hybride, avec les situations au centre. On commence par une V1 minimale, testée avec des débutants avant d'étendre.
+Un simulateur en 3D de synthèse apprend aux débutants à se servir d'un boîtier reflex ou hybride, avec les situations au centre. On commence par une V1 minimale (une scène de parc, trois situations), à faire essayer par des débutants ; depuis le 15 novembre 2026, ces essais ne bloquent pas le travail (décision D14, `docs/historique.md`).
 
 ## Principe du 10 novembre 2026
 
@@ -23,9 +23,9 @@ Décisions de Julien, sur le bilan de la V1 minimale :
 ## Décisions du 7 novembre 2026
 
 - Public : débutants avec un boîtier reflex ou hybride. La photo au smartphone, les compacts et les bridges sont hors périmètre.
-- Scènes en 3D de synthèse dès la V1, à la place des photos réelles et de leur carte de profondeur (2.5D).
+- Scènes en 3D de synthèse dès la V1, à la place des photos réelles et de leur carte de profondeur (2.5D). Précisée le 8 novembre 2026 pour la scène de parc : le fond et l'éclairage viennent d'une photo à 360°, seul le premier plan est en 3D, et l'appareil reste au point de prise de vue de la photo (`docs/historique.md`, 8 novembre 2026).
 - Plus de découpage V1/V2 dans le référentiel : ses 191 notions et 49 situations relèvent toutes de la V1.
-- V1 minimale d'abord : une scène 3D de parc, avec SIT-01 (portrait à l'ombre), SIT-05 (photo de groupe) et SIT-06 (enfant ou chien qui court), testée avec quelques débutants avant d'étendre.
+- V1 minimale d'abord : une scène 3D de parc, avec SIT-01 (portrait à l'ombre), SIT-05 (photo de groupe) et SIT-06 (enfant ou chien qui court), testée avec quelques débutants avant d'étendre. Le 15 novembre 2026, Julien a levé cette attente : les tests avec des débutants ne bloquent pas le travail (décision D14, `docs/historique.md`).
 
 ## Décisions du 6 novembre 2026
 

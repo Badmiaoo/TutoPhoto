@@ -83,4 +83,4 @@ Décisions de Julien du 11 novembre 2026, version 0.3.46, en français seul depu
 
 ## Limite connue
 
-La brique simulateur est comptée par sa section de fiche. Quand les simulateurs existeront, il faudra décider comment relier cette section au simulateur réel.
+La brique simulateur est comptée par la présence de sa section dans la fiche (`scripts/coverage.py`). Le simulateur existe, mais la limite reste : une section « Simulateur » qui n'est pas vide suffit à compter la brique, sans que rien ne contrôle que le simulateur fait ce qu'elle décrit.
