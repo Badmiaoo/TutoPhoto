@@ -121,6 +121,13 @@ class LoupeDropped extends Error {
 
 export class Shutter {
   private busy = false;
+  /**
+   * « Déclencher » avait le focus quand le calcul a commencé (celui de la première vue, pour une série) : grisé pendant
+   * le calcul, il le perd. L'écran de revue le donne alors à « Revenir au viseur » à son ouverture, et remet le drapeau
+   * à faux (défaut « Focus clavier perdu », Sujet 38, version 0.4.7 ; série : contrôle final, F1). Rien de tel après un
+   * clic de souris dans Safari, qui ne donne pas le focus à un bouton cliqué, ni après une loupe.
+   */
+  private refocusReview = false;
   /** Contexte WebGL perdu, et nombre de pertes depuis l'ouverture (relecture du Sujet 10). */
   private contextLost = false;
   private losses = 0;
@@ -234,7 +241,6 @@ export class Shutter {
   applyTexts(): void {
     const tr = t;
     this.el.button.textContent = tr("shutterButton");
-    this.el.marker.title = tr("focusPoint");
     this.el.progressLabel.textContent = tr("computing");
     this.el.reviewBack.textContent = tr("reviewBack");
     this.el.reviewWhole.textContent = tr("reviewWhole");
@@ -302,6 +308,7 @@ export class Shutter {
     if (this.lost()) throw new PhotoRefused("photoContextLost", "contexte WebGL perdu");
     const losses = this.losses;
     this.busy = true;
+    if (document.activeElement === this.el.button) this.refocusReview = true;
     this.panel.setEnabled(false);
     this.el.progressLabel.textContent = label;
     this.el.progress.hidden = false;
@@ -569,6 +576,7 @@ export class Shutter {
   /** Vue de la série à afficher, avec les boutons de la série. */
   private showFrame(index: number): void {
     if (index < 0 || index >= this.shots.length) return;
+    const focused = document.activeElement;
     this.shotIndex = index;
     const shot = this.shots[index];
     this.el.reviewSave.href = shot.photo.url;
@@ -577,6 +585,10 @@ export class Shutter {
     this.el.reviewCount.textContent = many ? this.countText() : "";
     this.el.reviewPrev.disabled = index === 0;
     this.el.reviewNext.disabled = index === this.shots.length - 1;
+    // Dernière « Vue suivante » ou première « Vue précédente » : le bouton grisé perdait le focus, qui tombait sur la
+    // page ; il passe à l'autre bouton de la série (défaut « Focus clavier perdu », Sujet 38, version 0.4.7).
+    if (focused === this.el.reviewNext && this.el.reviewNext.disabled && !this.el.reviewPrev.disabled) this.el.reviewPrev.focus({ preventScroll: true });
+    if (focused === this.el.reviewPrev && this.el.reviewPrev.disabled && !this.el.reviewNext.disabled) this.el.reviewNext.focus({ preventScroll: true });
     this.showWhole();
   }
 
@@ -691,6 +703,14 @@ export class Shutter {
   private openReview(): void {
     this.el.review.hidden = false;
     this.el.review.scrollTop = 0;
+    // « Déclencher », grisé pendant le calcul, perdait le focus, qui tombait sur la page : s'il l'avait au départ du
+    // calcul et que rien ne l'a pris depuis, le focus va à « Revenir au viseur », comme dans keepFocus (défaut « Focus
+    // clavier perdu », Sujet 38, version 0.4.7). Le bouton grisé peut aussi garder le focus jusqu'au rendu suivant.
+    const active = document.activeElement;
+    if (this.refocusReview && (active === null || active === document.body || active === this.el.button)) {
+      this.el.reviewBack.focus({ preventScroll: true });
+    }
+    this.refocusReview = false;
   }
 
   /**
@@ -792,6 +812,10 @@ export class Shutter {
 
   private closeReview(): void {
     this.view++;
+    const hadFocus = this.el.review.contains(document.activeElement);
     this.el.review.hidden = true;
+    // « Revenir au viseur » masqué avec l'écran de revue : le focus tombait sur la page. Il revient à « Déclencher »,
+    // ou au viseur si le bouton est grisé (défaut « Focus clavier perdu », Sujet 38, version 0.4.7).
+    if (hadFocus) (this.el.button.disabled ? this.el.canvas : this.el.button).focus({ preventScroll: true });
   }
 }

@@ -295,12 +295,22 @@ body.start-failed #diagnostic {
   stroke-width: 1px;
 }
 
-/* Zone couverte par l'autofocus (MAP-06) : environ 90 % du cadre en largeur et en hauteur, en pointillés
-   discrets. */
+/* Zone couverte par l'autofocus (MAP-06) : environ 90 % du cadre en largeur et en hauteur, en pointillés clairs
+   bordés à l'extérieur d'un trait sombre continu, comme les lignes des grilles (constat INT-18 de l'audit, version
+   0.4.7). Les pointillés blancs à 40 %, seuls, descendaient sous 3:1 de contraste avec la scène dès qu'elle était plus
+   claire que le niveau 68 sur 255 (critère « Non-text Contrast » du WCAG 2.2 [wcag-22-non-text-contrast]). Avec
+   des pointillés blancs à 85 % et un trait noir à 65 %, posés sur la scène, là où un tiret est tracé, l'un des deux
+   atteint au moins 3,43:1 sur toute scène grise de 0 à 255, et 3,41:1 sur un échantillon de couleurs (formules du
+   WCAG [wcag-22-relative-luminance] [wcag-22-contrast-ratio] ; calcul dans CHANGELOG.md, version 0.4.7) ; entre deux
+   tirets, le trait sombre seul descend sous 3:1 sur une scène sombre. Un repère en deux couleurs, l'une claire,
+   l'une sombre, comme la technique C40 du WCAG [wcag-c40-two-color], appliquée par analogie : posées en transparence,
+   les deux couleurs ne sont pas à 9:1 l'une de l'autre sur toute scène (7,0:1 sur une scène blanche), et les
+   contrastes viennent du calcul direct. */
 .af-coverage {
   position: absolute;
   pointer-events: none;
-  border: 1px dashed rgb(255 255 255 / 0.4);
+  border: 1px dashed rgb(255 255 255 / 0.85);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.65);
   box-sizing: border-box;
 }
 
@@ -686,8 +696,11 @@ dialog fieldset label {
   stroke-width: 4;
 }
 
+/* Sommet sans jugement (l'ouverture) : #c2c2bd, à 3,21:1 au moins sur le calque noir à 60 %, quelle que soit la scène ;
+   #b9b9b4 avant la version 0.4.7, à 2,92:1 derrière une scène blanche (contrôle final de la version 0.4.7, F2 ;
+   [wcag-22-non-text-contrast]). */
 .balance-vertex.neutral {
-  fill: #b9b9b4;
+  fill: #c2c2bd;
 }
 
 .balance-vertex.ok,
@@ -706,6 +719,16 @@ dialog fieldset label {
 }
 
 .balance-point {
+  stroke: #fff;
+  stroke-width: 3;
+}
+
+/* Sommet rouge (limite dépassée) : un contour blanc, comme le point central (constat INT-18 de l'audit, version
+   0.4.7). Sur le calque noir à 60 %, le rouge descendait à 1,73:1 derrière une scène blanche ; le contour blanc est à
+   5,74:1 au moins sur ce calque, quelle que soit la scène, et le rouge à 3,32:1 contre lui
+   [wcag-22-non-text-contrast]. Les sommets vert et ambre restent sans contour : à 3,15:1 et 3,13:1 au moins sur le
+   calque, ils ne seraient plus qu'à 1,82:1 et 1,83:1 contre un contour blanc (relecture de la version 0.4.7, R3). */
+.balance-vertex.bad {
   stroke: #fff;
   stroke-width: 3;
 }
@@ -762,10 +785,14 @@ dialog fieldset label {
   margin: 0 0 0.4rem;
 }
 
+/* Piste sans fond, bordée d'un trait en --discret ; la partie remplie, en --texte, se détache du fond du calque
+   (constat INT-18 de l'audit, version 0.4.7) : avant, remplie en --texte sur une piste en --discret, 2,48:1 en thème
+   clair et 2,12:1 en thème sombre ; le trait de la piste est à 6,30:1 et 7,23:1 sur le fond, la partie remplie à
+   15,60:1 et 15,31:1 [wcag-22-non-text-contrast]. */
 .progress-track {
   height: 0.4rem;
+  border: 1px solid var(--discret);
   border-radius: 999px;
-  background: var(--discret);
   overflow: hidden;
 }
 
@@ -998,8 +1025,9 @@ dialog fieldset label {
   line-height: 1.5;
 }
 
+/* Sections de la fiche, descendues d'un niveau dans la fenêtre (ui/ficheDialog.ts, version 0.4.7). */
 .fiche-body h3,
-.fiche-body section h2 {
+.fiche-body h4 {
   font-size: 1rem;
   margin: 1rem 0 0.25rem;
 }

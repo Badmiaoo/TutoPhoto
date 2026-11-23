@@ -167,6 +167,12 @@ function renderQuiz(): void {
       const feedback = document.createElement("p");
       feedback.className = "act-feedback";
       feedback.hidden = true;
+      // La réponse est dans une zone vivante, présente dans la page avant la réponse, pour être annoncée sans prendre
+      // le focus (constat INT-15 de l'audit, point 7, version 0.4.7 ; critère « Status Messages » du WCAG 2.2,
+      // [wcag-22-status-messages]).
+      const live = document.createElement("div");
+      live.setAttribute("role", "status");
+      live.append(feedback);
       question.answers.forEach((answer, ai) => {
         const button = document.createElement("button");
         button.type = "button";
@@ -181,7 +187,7 @@ function renderQuiz(): void {
         });
         answers.append(button);
       });
-      block.append(p, answers, feedback);
+      block.append(p, answers, live);
       return block;
     }),
   );

@@ -46,6 +46,8 @@ const TEXT = {
   trainIntro: "Le simulateur : un boîtier virtuel dans la scène de parc, en entraînement libre ou avec un défi par situation.",
   trainSize: (mib) => `Il télécharge la scène 3D, ${mib} Mio.`,
   prefetch: "Télécharger les ressources du simulateur",
+  // Nom de la barre de progression du téléchargement (constat INT-15 de l'audit, version 0.4.7).
+  prefetchBar: "Progression du téléchargement des ressources du simulateur",
   prefetchNote: "Pour mesurer ton réseau ou préparer le simulateur à l'avance : la progression et le débit s'affichent en direct.",
   learnDoor: "J'apprends",
   learnIntro: "Chaque notion a une explication, ce qu'en montre le simulateur et un exercice.",
@@ -323,7 +325,8 @@ footer { max-width: 44rem; margin: 0 auto; padding: 1rem; border-top: 1px solid 
 .actions-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
 .button.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); font: inherit; font-weight: 600; cursor: pointer; }
 .prefetch progress { width: 100%; height: 1rem; }
-.prefetch-status { margin: 0.25rem 0; }
+.prefetch-status, .prefetch-progress { margin: 0.25rem 0; }
+.prefetch-status:empty, .prefetch-progress:empty { margin: 0; }
 .prefetch-errors { color: var(--muted); font-size: 0.9rem; }
 `;
 
@@ -441,8 +444,9 @@ ${situations.map(item).join("\n")}
 <p class="actions-row"><a class="button" href="simulateur/">${t.openSimulator}</a> <button type="button" class="button secondary" data-prefetch>${t.prefetch}</button></p>
 <p class="mark">${t.prefetchNote}</p>
 <div class="prefetch" data-prefetch-panel hidden>
-<progress max="100" value="0"></progress>
-<p class="prefetch-status" aria-live="polite"></p>
+<progress max="100" value="0" aria-label="${t.prefetchBar}"></progress>
+<p class="prefetch-progress"></p>
+<p class="prefetch-status" role="status"></p>
 <ul class="prefetch-errors"></ul>
 </div>
 </section>
@@ -482,7 +486,10 @@ const PREFETCH_SCRIPT = `<script>
   document.querySelectorAll("[data-prefetch]").forEach(function (button) {
     var panel = document.querySelector("[data-prefetch-panel]");
     var bar = panel.querySelector("progress");
+    // Bilan final dans la zone vivante (role="status") ; la progression, réécrite toutes les 250 ms, à côté d'elle, pour
+    // ne pas être annoncée quatre fois par seconde (constat INT-15 de l'audit, version 0.4.7).
     var status = panel.querySelector(".prefetch-status");
+    var progressText = panel.querySelector(".prefetch-progress");
     var errors = panel.querySelector(".prefetch-errors");
     var label = button.textContent;
     var got = {};
@@ -496,6 +503,7 @@ const PREFETCH_SCRIPT = `<script>
       button.disabled = true;
       panel.hidden = false;
       errors.replaceChildren();
+      status.textContent = "";
       var todo = files.filter(function (f) { return !ok[f.url]; });
       todo.forEach(function (f) { got[f.url] = 0; });
       var failed = [];
@@ -515,11 +523,10 @@ const PREFETCH_SCRIPT = `<script>
         };
         if (!final) {
           var idle = (now - last) / 1000;
-          status.textContent = fill(t.progress) + (idle >= STALL_S ? " · " + t.stall.replace("{s}", Math.round(idle)) : "");
-        } else if (failed.length === 0) {
-          status.textContent = fill(t.done) + " " + t.cache;
+          progressText.textContent = fill(t.progress) + (idle >= STALL_S ? " · " + t.stall.replace("{s}", Math.round(idle)) : "");
         } else {
-          status.textContent = t.failed.replace("{n}", failed.length);
+          progressText.textContent = "";
+          status.textContent = failed.length === 0 ? fill(t.done) + " " + t.cache : t.failed.replace("{n}", failed.length);
         }
       };
       var timer = setInterval(function () { show(false); }, 250);

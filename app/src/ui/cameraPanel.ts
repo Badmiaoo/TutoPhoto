@@ -149,6 +149,19 @@ interface Preview {
 
 type Dial = "aperture" | "shutter" | "iso" | "focal";
 
+/**
+ * Effet de chaque bouton de molette, « − » puis « + », pour son nom accessible et son infobulle (constat INT-16 de
+ * l'audit, version 0.4.7). Voir step() : « + » augmente le nombre f, la durée de pose, l'ISO et la focale.
+ */
+const DIAL_EFFECTS: Record<Dial, { decrease: MessageKey; increase: MessageKey }> = {
+  aperture: { decrease: "apertureDecrease", increase: "apertureIncrease" },
+  shutter: { decrease: "shutterDecrease", increase: "shutterIncrease" },
+  iso: { decrease: "isoDecrease", increase: "isoIncrease" },
+  focal: { decrease: "focalDecrease", increase: "focalIncrease" },
+};
+/** Avec l'ISO auto, les boutons de la molette « ISO auto » changent la valeur choisie (relecture de la version 0.4.7, R1). */
+const AUTO_ISO_EFFECTS: { decrease: MessageKey; increase: MessageKey } = { decrease: "isoDecreaseAuto", increase: "isoIncreaseAuto" };
+
 /** Réglages courants, pour la photo calculée. */
 export interface CurrentSettings {
   body: Body;
@@ -540,10 +553,24 @@ export class CameraPanel {
     return t(resolved.offset - this.compensation / 3 > 0 ? "tooBright" : "tooDark");
   }
 
+  /** « La vitesse clignote avec l'indicateur d'exposition : le sujet est trop clair ; la photo sera surexposée. » */
+  private limitSentence(resolved: ResolvedExposure): string {
+    if (!resolved.flashing) return "";
+    return `${t(resolved.flashing === "shutter" ? "limitShutter" : "limitAperture")}\u00a0: ${this.limitText(resolved)}.`;
+  }
+
   /** Fenêtre « Exposition » : mode, correction, ISO auto. */
-  private updateExposureDialog(tr: (key: MessageKey) => string): void {
+  private updateExposureDialog(tr: (key: MessageKey) => string, resolved: ResolvedExposure): void {
     const dialog = this.el.exposureDialog;
     dialog.querySelector("#exposure-title")!.textContent = tr("exposureTitle");
+    // Ce que dit l'indicateur, et la phrase du clignotement tant qu'il dure : écrites dans la fenêtre que le bouton de
+    // l'indicateur ouvre, au doigt et au clavier, et plus seulement dans son infobulle (constat INT-09 de l'audit,
+    // version 0.4.7). La phrase n'est réécrite que quand elle change : elle est dans une zone vivante.
+    dialog.querySelector("#exposure-meter-help")!.textContent = tr("meterHelp");
+    const limit = dialog.querySelector<HTMLElement>("#exposure-limit")!;
+    const sentence = this.limitSentence(resolved);
+    if (limit.textContent !== sentence) limit.textContent = sentence;
+    limit.hidden = sentence === "";
     dialog.querySelector("#exposure-mode-legend")!.textContent = tr("exposureModeLegend");
     dialog.querySelector("#exposure-m-label")!.textContent = tr("modeM");
     dialog.querySelector("#exposure-a-label")!.textContent = tr("modeA");
@@ -679,8 +706,15 @@ export class CameraPanel {
       output.title =
         dial === "iso" && resolved.isoAltered ? `${tr("isoChosen")}\u00a0: ${isoLabel(this.settings.iso)}` : resolved.flashing === dial ? this.limitText(resolved) : "";
       for (const button of box.querySelectorAll<HTMLButtonElement>("button[data-step]")) button.disabled = !this.enabled || byCamera;
-      box.querySelector<HTMLButtonElement>('[data-step="-1"]')!.setAttribute("aria-label", `${name}\u00a0: ${tr("decrease")}`);
-      box.querySelector<HTMLButtonElement>('[data-step="1"]')!.setAttribute("aria-label", `${name}\u00a0: ${tr("increase")}`);
+      // Nom et infobulle : la molette, le signe affiché, puis l'effet (constat INT-16 de l'audit, version 0.4.7). Les
+      // signes ne changent pas : « + » augmente le nombre affiché pour les quatre molettes.
+      const effects = dial === "iso" && this.autoIso ? AUTO_ISO_EFFECTS : DIAL_EFFECTS[dial];
+      for (const [step, sign, effect] of [["-1", "decrease", effects.decrease], ["1", "increase", effects.increase]] as const) {
+        const button = box.querySelector<HTMLButtonElement>(`[data-step="${step}"]`)!;
+        const text = `${name}, ${tr(sign)}\u00a0: ${tr(effect)}`;
+        button.setAttribute("aria-label", text);
+        button.title = text;
+      }
     }
 
     this.el.loupeButton.title = tr("loupeHelp");
@@ -695,10 +729,14 @@ export class CameraPanel {
     const sign = indicator > 0.05 ? "+" : indicator < -0.05 ? "−" : "";
     const amount = Math.abs(indicator).toFixed(1);
     const correction = this.compensation !== 0 ? ` · ${tr("compensationShort")} ${this.compensationText(this.compensation)}` : "";
-    this.el.meterValue.textContent = `${this.exposureMode} · ${sign}${amount.replace(".", ",")} ${tr("meterUnit")}${correction}`;
+    const meterText = `${this.exposureMode} · ${sign}${amount.replace(".", ",")} ${tr("meterUnit")}${correction}`;
+    this.el.meterValue.textContent = meterText;
     this.el.meterValue.classList.toggle("flashing", resolved.flashing !== null);
-    this.el.meterValue.title = `${tr("exposureButtonTitle")}. ${tr("meterHelp")}${resolved.flashing ? ` ${this.limitText(resolved)}.` : ""}`;
-    this.updateExposureDialog(tr);
+    // Nom accessible : le texte affiché, puis ce que le bouton ouvre (constat INT-15 de l'audit, version 0.4.7) ; avant,
+    // son nom était sa seule valeur. L'infobulle garde l'aide, écrite aussi dans la fenêtre « Exposition » (INT-09).
+    this.el.meterValue.setAttribute("aria-label", `${meterText}\u00a0: ${tr("exposureButtonName")}`);
+    this.el.meterValue.title = `${tr("exposureButtonTitle")}. ${tr("meterHelp")}${resolved.flashing ? ` ${this.limitSentence(resolved)}` : ""}`;
+    this.updateExposureDialog(tr, resolved);
     // Aperçu de la luminosité coupé : exposition correcte quels que soient les réglages.
     this.scene.imageProcessingConfiguration.exposure = this.showsBrightness() ? 2 ** offset : 1;
     this.noise.setEnabled(this.showsNoise());
@@ -916,12 +954,15 @@ export class CameraPanel {
     const single = this.focusMode === "single";
     const short = single ? "AF-S" : "AF-C";
     const areaShort = tr(AREA_KEYS[this.areaMode].short);
-    this.el.afButton.textContent = `${short} · ${areaShort}`;
+    const afText = `${short} · ${areaShort}`;
+    this.el.afButton.textContent = afText;
     this.el.afButton.title = tr("afTitle");
-    this.el.afButton.setAttribute(
-      "aria-label",
-      `${tr("afTitle")}\u00a0: ${tr(single ? "afSingle" : "afContinuous")}, ${tr(AREA_KEYS[this.areaMode].label)}`,
-    );
+    // Nom accessible : le texte affiché d'abord (constat INT-15 de l'audit, version 0.4.7 ; avant, « Mise au point :
+    // AF-S : AF ponctuel, AF point sélectif » pour le texte « AF-S · Point »).
+    const afName = tr("afButtonName")
+      .replace("{mode}", tr(single ? "afSingleName" : "afContinuousName"))
+      .replace("{area}", tr(AREA_KEYS[this.areaMode].label));
+    this.el.afButton.setAttribute("aria-label", `${afText}\u00a0: ${afName}`);
     const dialog = this.el.afDialog;
     dialog.querySelector("#af-title")!.textContent = tr("afTitle");
     dialog.querySelector("#af-mode-legend")!.textContent = tr("afMode");
@@ -938,6 +979,10 @@ export class CameraPanel {
     dialog.querySelector("#af-det-animal-label")!.textContent = tr("detAnimal");
     dialog.querySelector("#af-det-off-label")!.textContent = tr("detOff");
     dialog.querySelector("#af-note")!.textContent = tr("afHelp");
+    // La loupe grossit autour du point de mise au point : son aide est écrite dans cette fenêtre, et plus seulement dans
+    // l'infobulle de son bouton (constat INT-09 de l'audit, version 0.4.7).
+    const loupeHelp = tr("loupeHelp");
+    dialog.querySelector("#af-loupe-note")!.textContent = `${tr("loupeNoteLead")} ${loupeHelp.charAt(0).toLowerCase()}${loupeHelp.slice(1)}`;
     dialog.querySelector("#af-close")!.textContent = tr("close");
     for (const input of dialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) {
       const current = input.name === "focusMode" ? this.focusMode : input.name === "areaMode" ? this.areaMode : this.detection;

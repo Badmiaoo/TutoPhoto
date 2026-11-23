@@ -26,6 +26,12 @@
 //   listée dans data/relecture.yaml, et son bouton mène au simulateur ;
 // - le simulateur (simulateur/) a un lien vers l'accueil et son propre titre, « Simulateur · TutoPhoto » (INT-19,
 //   version 0.3.73) ;
+// - accessibilité, lue dans les attributs de la page et non dans l'arbre d'accessibilité (Sujet 38, version 0.4.7 ;
+//   constats INT-08, INT-15 et INT-16 de l'audit) : le viseur a tabindex 0, à sa place dans l'ordre de tabulation ;
+//   chacune des quatre valeurs de molette est nommée par le nom de sa molette ; le « + » de l'ouverture dit « fermer »,
+//   celui de la vitesse « pose plus longue » ; les noms des boutons de l'indicateur et de la mise au point commencent
+//   par leur texte, et le premier n'est plus une zone vivante ; la zone vivante du message de la scène est le seul
+//   message (#status-message), sans le compteur du chargement ;
 // - sans WebGL (getContext rend null pour webgl et webgl2, dans un contexte à part) : le message du simulateur est
 //   lisible, c'est-à-dire affiché dans la fenêtre, avec son texte et la version du site, rendu par
 //   document.elementFromPoint en son centre, et aucun autre élément de main n'est affiché (le voile du cadre, qui ne
@@ -941,6 +947,39 @@ async function runProfile(browser, name, base) {
     check("sans ?diagnostic : pas d'affichage de diagnostic", !diagnosticView, diagnosticView ? "affichage présent" : "absent");
     // Sans scène, la suite n'a pas d'objet ; le bloc finally ajoute encore à checks le contrôle des erreurs.
     if (!loaded) return { name, checks };
+    // Accessibilité (Sujet 38, version 0.4.7 ; constats INT-08, INT-15 et INT-16 de l'audit), lue dans les attributs.
+    const a11y = await page.evaluate(() => {
+      const named = (id) => {
+        const e = document.getElementById(id);
+        return { text: e?.textContent ?? "", label: e?.getAttribute("aria-label") ?? "", live: e?.hasAttribute("aria-live") ?? true };
+      };
+      return {
+        tabIndex: document.getElementById("scene").getAttribute("tabindex"),
+        outputs: [...document.querySelectorAll(".dial output")].map((o) => document.getElementById(o.getAttribute("aria-labelledby") ?? "")?.textContent ?? ""),
+        aperture: document.querySelector('[data-dial="aperture"][data-step="1"]')?.getAttribute("aria-label") ?? "",
+        shutter: document.querySelector('[data-dial="shutter"][data-step="1"]')?.getAttribute("aria-label") ?? "",
+        meter: named("meter-value"),
+        af: named("af-button"),
+        statusRole: document.getElementById("status").getAttribute("role"),
+        messageRole: document.getElementById("status-message")?.getAttribute("role") ?? "",
+      };
+    });
+    check(
+      "accessibilité : viseur à sa place dans la tabulation, valeurs et boutons nommés",
+      a11y.tabIndex === "0" &&
+        a11y.outputs.length === 4 &&
+        a11y.outputs.every((n) => n !== "") &&
+        /fermer/.test(a11y.aperture) &&
+        /pose plus longue/.test(a11y.shutter) &&
+        a11y.meter.text !== "" &&
+        a11y.meter.label.startsWith(a11y.meter.text) &&
+        !a11y.meter.live &&
+        a11y.af.text !== "" &&
+        a11y.af.label.startsWith(a11y.af.text) &&
+        a11y.statusRole === null &&
+        a11y.messageRole === "status",
+      `tabindex ${a11y.tabIndex} ; valeurs nommées : ${a11y.outputs.join(", ")} ; « ${a11y.aperture} » ; « ${a11y.shutter} » ; « ${a11y.meter.label} » ; « ${a11y.af.label} »`,
+    );
     // Mise au point par défaut (MAP-04, MAP-05) : AF-S et point sélectif, comme le Z 6 (app/src/ui/cameraPanel.ts,
     // [nikon-z6-defaults]). Lue avant que la routine ne règle quoi que ce soit en mise au point (INT-05 de l'audit,
     // version 0.3.64) : en fin de test, « mise au point : retour à AF-S et point sélectif » relit un réglage que la

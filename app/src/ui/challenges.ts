@@ -138,7 +138,12 @@ export class ChallengePicker {
     }
     dialog.querySelector("#challenge-note")!.textContent = tr("challengeNote");
     dialog.querySelector("#challenge-close")!.textContent = tr("close");
-    for (const button of dialog.querySelectorAll<HTMLButtonElement>(".fiche-open")) button.textContent = tr("ficheOpen");
+    // Trois boutons « Fiche » : chacun son nom, le texte affiché puis la situation (constat INT-19 de l'audit, point 7,
+    // version 0.4.7).
+    for (const button of dialog.querySelectorAll<HTMLButtonElement>(".fiche-open")) {
+      button.textContent = tr("ficheOpen");
+      button.setAttribute("aria-label", tr("ficheOpenNamed").replace("{id}", button.dataset.fiche ?? ""));
+    }
     for (const input of dialog.querySelectorAll<HTMLInputElement>("input[name=challenge]")) {
       input.checked = input.value === (this.active ?? "none");
     }

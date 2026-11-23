@@ -94,41 +94,44 @@
           <a id="review-save" download="tutophoto.jpg"></a>
         </div>
       </section>
-      <p id="status" class="status" role="status"></p>
+      <!-- Message de la scène (main.ts, renderStatus) : la zone vivante ne porte que le message ; le compteur du
+           chargement, réécrit chaque seconde, et le bouton « Recharger » sont à côté d'elle (constat INT-15 de l'audit,
+           version 0.4.7). -->
+      <p id="status" class="status"><span id="status-message" role="status"></span><span id="status-detail"></span></p>
       <p id="diagnostic" class="diagnostic" role="alert" hidden></p>
       <p id="no-webgl" class="error" hidden></p>
     </main>
     <section id="camera-panel" class="panel">
       <div class="dials">
         <div class="dial" data-box="aperture">
-          <span class="dial-name"></span>
+          <span class="dial-name" id="dial-aperture-name"></span>
           <div class="dial-row">
             <button type="button" data-dial="aperture" data-step="-1">−</button>
-            <output aria-live="polite"></output>
+            <output aria-live="polite" aria-labelledby="dial-aperture-name"></output>
             <button type="button" data-dial="aperture" data-step="1">+</button>
           </div>
         </div>
         <div class="dial" data-box="shutter">
-          <span class="dial-name"></span>
+          <span class="dial-name" id="dial-shutter-name"></span>
           <div class="dial-row">
             <button type="button" data-dial="shutter" data-step="-1">−</button>
-            <output aria-live="polite"></output>
+            <output aria-live="polite" aria-labelledby="dial-shutter-name"></output>
             <button type="button" data-dial="shutter" data-step="1">+</button>
           </div>
         </div>
         <div class="dial" data-box="iso">
-          <span class="dial-name"></span>
+          <span class="dial-name" id="dial-iso-name"></span>
           <div class="dial-row">
             <button type="button" data-dial="iso" data-step="-1">−</button>
-            <output aria-live="polite"></output>
+            <output aria-live="polite" aria-labelledby="dial-iso-name"></output>
             <button type="button" data-dial="iso" data-step="1">+</button>
           </div>
         </div>
         <div class="dial" data-box="focal">
-          <span class="dial-name"></span>
+          <span class="dial-name" id="dial-focal-name"></span>
           <div class="dial-row">
             <button type="button" data-dial="focal" data-step="-1">−</button>
-            <output aria-live="polite"></output>
+            <output aria-live="polite" aria-labelledby="dial-focal-name"></output>
             <button type="button" data-dial="focal" data-step="1">+</button>
           </div>
         </div>
@@ -142,7 +145,7 @@
           <span class="meter-tick" style="left: 100%">+3</span>
           <span id="meter-needle" class="meter-needle"></span>
         </div>
-        <button id="meter-value" type="button" class="body-button meter-value" aria-live="polite"></button>
+        <button id="meter-value" type="button" class="body-button meter-value"></button>
         <button id="body-button" type="button" class="body-button"></button>
         <button id="preview-button" type="button" class="body-button"></button>
         <button id="af-button" type="button" class="body-button"></button>
@@ -212,13 +215,16 @@
         <label><input type="radio" name="detection" value="off" /> <span id="af-det-off-label"></span></label>
       </fieldset>
       <p id="af-note" class="note"></p>
+      <p id="af-loupe-note" class="note"></p>
       <form method="dialog">
         <button id="af-close" type="submit"></button>
       </form>
     </dialog>
     <dialog id="challenge-dialog" aria-labelledby="challenge-title">
       <h2 id="challenge-title"></h2>
-      <fieldset>
+      <!-- Groupe nommé par le titre de la fenêtre, comme celui de la fenêtre « Mode de déclenchement » (constat INT-19 de
+           l'audit, point 6, version 0.4.7 ; [wcag-22-info-and-relationships]). -->
+      <fieldset aria-labelledby="challenge-title">
         <label><input type="radio" name="challenge" value="none" /> <span id="challenge-none-label"></span></label>
         <div class="challenge-line"><label><input type="radio" name="challenge" value="SIT-01" /> <span id="challenge-SIT-01-label"></span></label> <button type="button" class="fiche-open" data-fiche="SIT-01"></button></div>
         <div class="challenge-line"><label><input type="radio" name="challenge" value="SIT-05" /> <span id="challenge-SIT-05-label"></span></label> <button type="button" class="fiche-open" data-fiche="SIT-05"></button></div>
@@ -231,6 +237,11 @@
     </dialog>
     <dialog id="exposure-dialog" aria-labelledby="exposure-title">
       <h2 id="exposure-title"></h2>
+      <!-- Ce que dit l'indicateur, et pourquoi une valeur clignote : écrits ici et non dans une seule infobulle (constat
+           INT-09 de l'audit, version 0.4.7). La phrase du clignotement n'est affichée que pendant qu'il dure ; la zone
+           vivante qui la contient reste dans la page. -->
+      <p id="exposure-meter-help" class="note"></p>
+      <div role="status"><p id="exposure-limit" class="note" hidden></p></div>
       <fieldset>
         <legend id="exposure-mode-legend"></legend>
         <label><input type="radio" name="exposureMode" value="M" /> <span id="exposure-m-label"></span></label>
@@ -251,7 +262,7 @@
     </dialog>
     <dialog id="release-dialog" aria-labelledby="release-title">
       <h2 id="release-title"></h2>
-      <fieldset>
+      <fieldset aria-labelledby="release-title">
         <label><input type="radio" name="release" value="single" /> <span id="release-single-label"></span></label>
         <label><input type="radio" name="release" value="cl" /> <span id="release-cl-label"></span></label>
         <label><input type="radio" name="release" value="ch" /> <span id="release-ch-label"></span></label>
