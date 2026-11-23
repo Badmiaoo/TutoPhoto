@@ -182,7 +182,7 @@ Demandé par Julien le 9 novembre 2026 : tester sur ordinateur et sur mobile à 
 - Profils :
   - ordinateur (1280 × 800) ;
   - Android (Pixel 7 émulé) ;
-  - iPhone (iPhone 14 émulé, avec l'identification de Safari, que Babylon.js utilise pour iPhone et iPad) ;
+  - iPhone (iPhone 14 émulé, avec l'identification de Safari, que Babylon.js utilise pour iPhone et iPad) ; ce profil ouvre aussi un contexte à part pour la mise en page sur téléphone (version 0.4.10) : le simulateur chargé tenu à l'horizontale (750 × 340 px), puis redimensionné à 390 × 664, 412 × 839, 600 × 960 et 320 × 664 px ;
   - ordinateur sans WebGL 2.
 - Contrôles : leur liste tenue à jour est en tête de `scripts/test_app.cjs`, à côté de leur code. Cette page n'en tient plus de copie depuis la version 0.3.89 : la sienne était en retard sur le script (constat ARC-09 de l'audit). Les spécifications de `docs/specifications/` disent, à leur date, les contrôles prévus pour leur fonction, et `docs/camera-physique.md` en cite quelques-uns avec ce qu'ils vérifient ; ni les unes ni l'autre ne sont des listes tenues à jour.
 - Mesures sur la scène : sur le serveur de développement seulement (`npm run dev`), `window.__tutophoto` donne la scène, la caméra et l'horloge, et charge le module de visée de Babylon (`Culling/ray`). Le site construit n'en contient rien. Il a servi le 9 novembre 2026 à placer les yeux des modèles sans squelette.

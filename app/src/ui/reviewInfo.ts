@@ -124,7 +124,11 @@ export class ReviewInfo {
     if (display !== "photo" && this.tones) {
       const review = this.el.review;
       const bottom = this.el.clipping.getBoundingClientRect().bottom - review.getBoundingClientRect().top + review.scrollTop + 8;
-      if (bottom > review.scrollTop + review.clientHeight) review.scrollTop = bottom - review.clientHeight;
+      // La barre collée au bas de l'écran de revue (« Revenir au viseur », « Enregistrer la photo ») couvre le bas de la
+      // zone visible : ce qui vient de s'afficher doit tenir au-dessus d'elle (relecture de la version 0.4.10, R2).
+      const bar = review.querySelector<HTMLElement>(":scope > .review-actions:last-child");
+      const visible = review.clientHeight - (bar && getComputedStyle(bar).position === "sticky" ? bar.offsetHeight : 0);
+      if (bottom > review.scrollTop + visible) review.scrollTop = bottom - visible;
     }
   }
 

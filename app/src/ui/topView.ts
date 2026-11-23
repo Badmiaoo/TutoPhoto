@@ -65,8 +65,10 @@ export class TopView {
     private readonly subjects: readonly FaceSubject[],
     private readonly el: TopViewElements,
   ) {
-    // Replié sur petit écran, comme l'indicateur d'équilibre.
-    this.expanded = window.innerWidth > 700;
+    // Replié sur petit écran, comme l'indicateur d'équilibre : fenêtre de 700 px de large ou moins, ou de 500 px de haut
+    // ou moins, comme un téléphone tenu à l'horizontale. Déplié dans un tel viseur, il en couvrait la droite, son bouton
+    // hors de la page (constat INT-03 de l'audit : iPhone 14 émulé, 750 × 340 px ; version 0.4.10).
+    this.expanded = window.matchMedia("(min-width: 701px) and (min-height: 501px)").matches;
     el.map.setAttribute("viewBox", `${MAP.minX} ${-MAP.maxZ} ${MAP.maxX - MAP.minX} ${MAP.maxZ - MAP.minZ}`);
     const group = (name: string) => {
       const g = document.createElementNS(NS, "g");

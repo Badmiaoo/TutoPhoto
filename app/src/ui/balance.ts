@@ -101,8 +101,10 @@ export class BalanceIndicator {
     setInterval(() => void this.refresh(), REFRESH_MS);
     engine.onContextLostObservable.add(() => (this.contextLost = true));
     engine.onContextRestoredObservable.add(() => (this.contextLost = false));
-    // Petit écran : le triangle seul au départ ; un toucher affiche ou masque les lignes.
-    let collapsed = window.matchMedia("(max-width: 700px)").matches;
+    // Petit écran : le triangle seul au départ ; un toucher affiche ou masque les lignes. Comme pour la vue de dessus,
+    // une fenêtre de 500 px de haut ou moins (téléphone tenu à l'horizontale) est un petit écran : déplié, l'indicateur
+    // couvrait la gauche du viseur et en débordait (constat INT-03 de l'audit, version 0.4.10).
+    let collapsed = !window.matchMedia("(min-width: 701px) and (min-height: 501px)").matches;
     const apply = () => {
       el.root.classList.toggle("collapsed", collapsed);
       el.toggle.setAttribute("aria-expanded", String(!collapsed));

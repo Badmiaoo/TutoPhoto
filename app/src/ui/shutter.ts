@@ -61,6 +61,8 @@ interface ShutterElements {
   reviewNext: HTMLButtonElement;
   reviewCount: HTMLElement;
   reviewBulletin: HTMLElement;
+  /** Ce que l'écran de revue couvre quand il prend tout l'écran : en-tête, panneau, vue de dessus, indicateur d'équilibre. */
+  covered: HTMLElement[];
 }
 
 /** Instant d'une vue : début de la pose sur l'horloge de la scène, et orientation de l'appareil alors. */
@@ -233,6 +235,14 @@ export class Shutter {
     el.reviewPrev.addEventListener("click", () => this.showFrame(this.shotIndex - 1));
     el.reviewNext.addEventListener("click", () => this.showFrame(this.shotIndex + 1));
     el.reviewBack.addEventListener("click", () => this.closeReview());
+    // Tourné, un téléphone peut passer d'une mise en page à l'autre : ce que couvre l'écran de revue est revu.
+    window.addEventListener("resize", () => this.updateCovered());
+    // Marge de défilement de l'écran de revue : la hauteur réelle de la barre collée en bas, qui fait deux ou trois
+    // rangées sur un téléphone étroit (contrôle final de la version 0.4.10, F3 ; style.css, .review).
+    const bar = el.review.querySelector<HTMLElement>(":scope > .review-actions:last-child");
+    if (bar && typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(() => (el.review.style.scrollPaddingBottom = `${bar.offsetHeight + 8}px`)).observe(bar);
+    }
     el.reviewWhole.addEventListener("click", () => this.showWhole());
     el.reviewImage.addEventListener("click", (e) => void this.magnify(e));
     panel.onViewChange(() => this.placeMarker());
@@ -643,7 +653,11 @@ export class Shutter {
     const fullWidth = Math.round(shot.request.portrait ? pixels.short : pixels.long);
     const fullHeight = Math.round(shot.request.portrait ? pixels.long : pixels.short);
     // Fenêtre de la taille de la zone d'affichage, en pixels CSS, sans dépasser l'image complète.
-    const width = Math.min(fullWidth, LOUPE_MAX_SIDE, Math.max(64, Math.floor(this.el.review.clientWidth - 24)));
+    // Largeur de la zone d'affichage : celle de l'écran de revue moins ses marges intérieures (0,75rem de chaque côté,
+    // aucune sur un téléphone, où la photo prend toute la largeur : relecture de la version 0.4.10, R6).
+    const pad = getComputedStyle(this.el.review);
+    const inner = this.el.review.clientWidth - parseFloat(pad.paddingLeft) - parseFloat(pad.paddingRight);
+    const width = Math.min(fullWidth, LOUPE_MAX_SIDE, Math.max(64, Math.floor(inner)));
     const height = Math.min(fullHeight, LOUPE_MAX_SIDE, Math.max(64, Math.floor(this.el.review.clientHeight - 140)));
     const clamp = (value: number, max: number) => Math.min(max, Math.max(0, Math.round(value)));
     const left = clamp(at.x * fullWidth - width / 2, fullWidth - width);
@@ -713,6 +727,37 @@ export class Shutter {
       this.el.reviewBack.focus({ preventScroll: true });
     }
     this.refocusReview = false;
+    this.updateCovered();
+  }
+
+  /**
+   * Écran de revue sur tout l'écran (téléphone, fenêtre basse ; style.css, version 0.4.10) : ce qu'il couvre, viseur
+   * compris, sort de la tabulation et des technologies d'assistance (`inert`), et un focus resté dessous passe à
+   * « Revenir au viseur ». Sans cela, la touche Tab menait à des boutons cachés sous lui (relecture de la version 0.4.10,
+   * R3 ; critère « Focus Not Obscured (Minimum) » du WCAG 2.2 [wcag-22-focus-not-obscured-minimum]). L'attribut est
+   * appliqué par Chrome depuis la version 102, Firefox depuis 112 et Safari depuis 15.5 [mdn-bcd-8-1-10-layout]. Revu à
+   * chaque changement de taille de la fenêtre : tourné, un téléphone peut passer d'une mise en page à l'autre.
+   */
+  /**
+   * Focus tombé sur la page pendant que l'écran de revue couvre tout l'écran (une fenêtre fermée dont le bouton
+   * d'ouverture, dans le panneau, est devenu inerte) : il passe à « Revenir au viseur » (contrôle final de la version
+   * 0.4.10, F9).
+   */
+  keepFocusInReview(): void {
+    // À l'événement « close », le focus peut être encore sur un élément de la fenêtre fermée ; il tombe sur la page
+    // ensuite (essayé dans Chromium).
+    const active = document.activeElement;
+    const dialog = active?.closest("dialog");
+    const stranded = active === null || active === document.body || (dialog !== null && dialog !== undefined && !dialog.open);
+    if (this.el.canvas.inert && stranded) this.el.reviewBack.focus({ preventScroll: true });
+  }
+
+  private updateCovered(): void {
+    const covers = !this.el.review.hidden && getComputedStyle(this.el.review).position === "fixed";
+    const elements = [...this.el.covered, this.el.canvas];
+    const stranded = covers && elements.some((element) => element.contains(document.activeElement));
+    for (const element of elements) element.inert = covers;
+    if (stranded) this.el.reviewBack.focus({ preventScroll: true });
   }
 
   /**
@@ -816,6 +861,7 @@ export class Shutter {
     this.view++;
     const hadFocus = this.el.review.contains(document.activeElement);
     this.el.review.hidden = true;
+    this.updateCovered();
     // « Revenir au viseur » masqué avec l'écran de revue : le focus tombait sur la page. Il revient à « Déclencher »,
     // ou au viseur si le bouton est grisé (défaut « Focus clavier perdu », Sujet 38, version 0.4.7).
     if (hadFocus) (this.el.button.disabled ? this.el.canvas : this.el.button).focus({ preventScroll: true });

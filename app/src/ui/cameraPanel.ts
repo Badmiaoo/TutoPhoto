@@ -48,6 +48,7 @@ import {
 import { COMPENSATION_RANGE, resolveExposure, type ExposureMode, type ResolvedExposure } from "../camera/exposureModes";
 import { cameraFov, frameFor, gridLines, isGridKind, type Frame } from "../camera/viewfinder";
 import { windowProjection } from "../camera/optics";
+import { openDialog } from "./dialogs";
 import type { ViewfinderNoise } from "../camera/noise";
 import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
 import type { Autofocus, FocusArea, Rect } from "../camera/autofocus";
@@ -241,9 +242,10 @@ export class CameraPanel {
     const touch = camera.inputs.attached["touch"] as FreeCameraTouchInput | undefined;
     this.baseTouchSensibility = touch ? touch.touchAngularSensibility : null;
     el.loupeButton.addEventListener("click", () => this.cycleLoupe());
-    el.afButton.addEventListener("click", () => el.afDialog.showModal());
-    el.releaseButton.addEventListener("click", () => el.releaseDialog.showModal());
-    el.meterValue.addEventListener("click", () => el.exposureDialog.showModal());
+    // Les fenêtres s'ouvrent en haut de leur contenu (ui/dialogs.ts ; constat INT-20 de l'audit, version 0.4.10).
+    el.afButton.addEventListener("click", () => openDialog(el.afDialog));
+    el.releaseButton.addEventListener("click", () => openDialog(el.releaseDialog));
+    el.meterValue.addEventListener("click", () => openDialog(el.exposureDialog));
     // Chaque choix des fenêtres s'écrit dans le magasin, qui le mémorise ; l'affichage suit par l'abonnement.
     for (const input of el.exposureDialog.querySelectorAll<HTMLInputElement | HTMLSelectElement>("input, select")) {
       input.addEventListener("change", () => {
@@ -271,13 +273,13 @@ export class CameraPanel {
     for (const button of el.panel.querySelectorAll<HTMLButtonElement>("button[data-dial]")) {
       button.addEventListener("click", () => this.step(button.dataset.dial as Dial, Number(button.dataset.step)));
     }
-    el.bodyButton.addEventListener("click", () => el.bodyDialog.showModal());
+    el.bodyButton.addEventListener("click", () => openDialog(el.bodyDialog));
     for (const input of el.bodyDialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) {
       input.addEventListener("change", () => {
         if (input.name === "brand") settings.set({ brand: input.value as Brand });
       });
     }
-    el.previewButton.addEventListener("click", () => el.previewDialog.showModal());
+    el.previewButton.addEventListener("click", () => openDialog(el.previewDialog));
     for (const input of el.previewDialog.querySelectorAll<HTMLInputElement>("input[type=checkbox]")) {
       input.addEventListener("change", () => {
         settings.set({ [PREVIEW_SWITCHES[input.value as PreviewSwitch]]: input.checked } as Partial<Settings>);
@@ -978,7 +980,19 @@ export class CameraPanel {
       input.checked = input.value === current;
       if (input.name === "detection") input.disabled = areaMode !== "auto";
     }
-    this.el.focusHint.textContent = tr(single ? "focusHintSingle" : "focusHint");
+    // Les deux phrases de la consigne, posées l'une sur l'autre : celle du mode qui n'est pas choisi est invisible et
+    // retirée des technologies d'assistance, et la consigne garde la hauteur de la plus longue (constat INT-04 de
+    // l'audit, version 0.4.10).
+    const hints = [
+      ["#focus-hint-single", "focusHintSingle", single],
+      ["#focus-hint-continuous", "focusHint", !single],
+    ] as const;
+    for (const [selector, key, shown] of hints) {
+      const span = this.el.focusHint.querySelector<HTMLElement>(selector)!;
+      span.textContent = tr(key);
+      if (shown) span.removeAttribute("aria-hidden");
+      else span.setAttribute("aria-hidden", "true");
+    }
     const af = this.autofocus;
     this.el.afBadge.hidden = !af;
     if (!af) return;
@@ -1048,6 +1062,12 @@ export class CameraPanel {
     if (!this.showsDepthOfField()) hidden.push(tr("previewDepthOfFieldShort"));
     if (!this.showsBalance()) hidden.push(tr("previewBalanceShort"));
     this.el.previewBadge.hidden = hidden.length === 0;
+    // Tout l'aperçu coupé : le rappel seul, sans la liste, qui faisait quatre lignes sur un téléphone ; le détail reste
+    // dans la fenêtre « Aperçu » (constat INT-11 de l'audit, version 0.4.10).
+    if (hidden.length === 4) {
+      this.el.previewBadge.textContent = tr("previewOff");
+      return;
+    }
     const list = hidden.length > 1 ? `${hidden.slice(0, -1).join(", ")}${tr("and")}${hidden[hidden.length - 1]}` : hidden.join("");
     this.el.previewBadge.textContent = `${tr("previewOff")}\u00a0: ${list}`;
   }

@@ -220,6 +220,9 @@ body.start-failed #diagnostic {
   color: var(--erreur);
   font-size: 0.8rem;
   overflow-wrap: anywhere;
+  /* Texte seul, sans bouton : un toucher passe au viseur qu'elle couvre (défaut relevé à la relecture de la version
+     0.3.88, constat C1 ; version 0.4.10). */
+  pointer-events: none;
 }
 
 .diagnostic[hidden] {
@@ -318,6 +321,9 @@ body.start-failed #diagnostic {
 .panel {
   padding: 0.5rem 0.75rem 0.75rem;
   border-top: 1px solid var(--discret);
+  /* Conteneur des requêtes de largeur : la disposition des molettes et des boutons suit la largeur du panneau, qu'il
+     soit sous le viseur (téléphone tenu droit) ou à côté de lui (téléphone tenu à l'horizontale), version 0.4.10. */
+  container-type: inline-size;
 }
 
 .dials {
@@ -415,6 +421,12 @@ body.start-failed #diagnostic {
   right: 0.5rem;
   bottom: 0.5rem;
   max-width: 13rem;
+  /* Jamais plus haute que le viseur : dépliée dans un viseur bas, elle défile, et son bouton reste en haut, visible (le
+     haut du bouton « Vue de dessus » était à 94 px au-dessus du haut de la page sur l'iPhone 14 émulé tenu à
+     l'horizontale, police Inter, et à 89 px avec celle de la CI, constat INT-03 de l'audit ; et sous l'en-tête sur
+     l'iPhone SE émulé ; version 0.4.10). */
+  max-height: calc(100% - 1rem);
+  overflow-y: auto;
   padding: 0.3rem;
   border-radius: 4px;
   background: rgb(0 0 0 / 0.6);
@@ -558,6 +570,15 @@ dialog fieldset label {
   font-size: 0.9rem;
 }
 
+@container (width <= 32.5rem) {
+  .dials {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Même règle d'après la largeur de la fenêtre, pour un navigateur sans requêtes de conteneur (Safari avant la version 16
+   [mdn-bcd-8-1-10-layout]) : sans elle, les molettes restaient sur quatre colonnes et la page défilait en largeur
+   (relecture de la version 0.4.10, R4). */
 @media (max-width: 520px) {
   .dials {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -600,8 +621,22 @@ dialog fieldset label {
   cursor: default;
 }
 
+/* Consigne de mise au point : les phrases de l'AF-S et de l'AF-C sont posées l'une sur l'autre, celle du mode qui
+   n'est pas choisi invisible. La consigne a la hauteur de la plus longue, quelles que soient la largeur et la police, et
+   n'en change plus quand on passe d'un mode à l'autre (constat INT-04 de l'audit : 51 px en AF-S et 34 px en AF-C à
+   360 px de large, d'où un viseur et un cadre qui changeaient de taille, et un cadre qui pouvait changer de sens,
+   constat INT-12 ; version 0.4.10). */
 .focus-hint {
+  display: grid;
   margin: 0.4rem 0 0;
+}
+
+.focus-hint > span {
+  grid-area: 1 / 1;
+}
+
+.focus-hint > span[aria-hidden="true"] {
+  visibility: hidden;
 }
 
 /* Aperçu dans le viseur : interrupteurs, et rappel de ce qui n'est pas montré. */
@@ -629,7 +664,11 @@ dialog fieldset label {
   background: rgb(0 0 0 / 0.6);
   color: #fff;
   font-size: 0.85rem;
-  white-space: nowrap;
+  /* Pas plus large que le viseur, moins une marge : un texte plus long passe à la ligne (constat INT-11 de l'audit :
+     « Aperçu coupé : luminosité, bruit, profondeur de champ et indicateur » faisait 454 px, coupée de 32 px de chaque
+     côté sur l'iPhone 14 émulé ; version 0.4.10). */
+  max-width: calc(100% - 1rem);
+  text-align: center;
   pointer-events: none;
 }
 
@@ -637,15 +676,28 @@ dialog fieldset label {
   display: none;
 }
 
-.loupe-badge {
-  top: auto;
-  bottom: 2.1rem;
+/* Loupe, puis mode et distance de mise au point, empilés en bas à gauche du viseur, et pas plus larges que ce que
+   laisse le bouton « Vue de dessus », replié en bas à droite (8,5rem avec sa marge). Centrée, la pastille de mise au
+   point passait sous ce bouton, qui en cachait la fin, c'est-à-dire la distance (constat INT-11 de l'audit : 60 px de
+   recouvrement pour « AF-C · Auto · sujet le plus proche · 5,8 m » sur l'iPhone 14 émulé) ; empilées, les deux
+   pastilles ne se recouvrent pas quand la seconde passe à la ligne (version 0.4.10). */
+.viewfinder-info {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  max-width: calc(100% - 8.5rem);
+  pointer-events: none;
 }
 
-/* Mode et distance de mise au point, en bas du viseur, sous la loupe. */
-.af-badge {
-  top: auto;
-  bottom: 0.5rem;
+.viewfinder-info .preview-badge {
+  position: static;
+  max-width: 100%;
+  transform: none;
+  text-align: left;
 }
 
 /* Distance verrouillée en AF-S : repère vert, comme le collimateur du Nikon Z 6. */
@@ -664,6 +716,9 @@ dialog fieldset label {
   align-items: flex-start;
   gap: 0.4rem;
   max-width: min(23rem, calc(100% - 1rem));
+  /* Comme la vue de dessus : jamais plus haut que le viseur, son triangle restant en haut (version 0.4.10). */
+  max-height: calc(100% - 1rem);
+  overflow-y: auto;
   padding: 0.3rem 0.45rem;
   border-radius: 6px;
   background: rgb(0 0 0 / 0.6);
@@ -806,6 +861,11 @@ dialog fieldset label {
 .review {
   position: absolute;
   inset: 0;
+  /* Un élément qui reçoit le focus est amené au-dessus de la barre collée en bas (« Revenir au viseur », « Enregistrer la
+     photo »), pas dessous (relecture de la version 0.4.10 ; critère « Focus Not Obscured (Minimum) » du WCAG 2.2
+     [wcag-22-focus-not-obscured-minimum]) : la hauteur d'une rangée de boutons ici, la hauteur réelle de la barre
+     posée par ui/shutter.ts, qui fait deux ou trois rangées sur un téléphone étroit (contrôle final, F3). */
+  scroll-padding-bottom: 3.5rem;
   z-index: 1;
   display: flex;
   flex-direction: column;
@@ -1054,7 +1114,8 @@ dialog fieldset label {
 
 /* Affichage de diagnostic (version 0.3.88, ui/diagnosticView.ts), ouvert par « ?diagnostic » dans l'adresse : un calque
    en bas à gauche du viseur, coin que n'occupent ni l'indicateur d'équilibre (en haut à gauche), ni la vue de dessus (en
-   bas à droite), ni les badges (au centre), sur un écran large. Sur un téléphone, il couvre une bonne part du viseur
+   bas à droite), ni la pastille de l'aperçu (en haut, au centre), sur un écran large. Depuis la version 0.4.10, la loupe et
+   la pastille de mise au point sont aussi en bas à gauche : le calque les couvre, et ses chiffres restent lisibles. Sur un téléphone, il couvre une bonne part du viseur
    (docs/pile-technique.md, « Affichage de diagnostic »). Placé dans la page juste avant l'écran de revue, au même
    z-index (1), il passe sous lui, sous la bande « Calcul de la photo… » (2), sous la ligne des problèmes et les
    messages de la scène (3), et au-dessus de la vue de dessus et de l'indicateur d'équilibre. Il ne prend pas les
@@ -1077,4 +1138,275 @@ dialog fieldset label {
   white-space: pre-line;
   overflow-wrap: anywhere;
   pointer-events: none;
+}
+
+/* Mise en page sur téléphone (Sujet 42 du plan de corrections de l'audit, version 0.4.10 ; constats INT-04, INT-12,
+   INT-03, INT-11, INT-17 et INT-20 de docs/audit/interface.md ; choix : docs/propositions.md, section 5, « Mise en page
+   sur téléphone »). Le viseur prend la hauteur que lui laissent l'en-tête et le panneau ; ces deux hauteurs ne dépendent
+   plus des textes (réglages, défi choisi, consigne), et le cadre ne change plus de taille ni de sens quand un libellé
+   s'allonge. Mesuré dans Chromium avant la correction, fenêtre de 412 × 839 px (Pixel 7 émulé), police de la CI : choisir
+   « Continu H (étendu) » faisait passer le viseur de 445 à 405 px de haut, et le cadre de vertical (296 × 445 px) à
+   horizontal (412 × 274 px). */
+
+/* Panneau de 1000 px de contenu au plus (téléphone, tablette) : boutons en grille de six colonnes, chacun sur une, deux,
+   trois ou six colonnes, en lignes d'au moins deux lignes de texte. Un libellé qui s'allonge (« Continu H (étendu) ·
+   12 vps », « Canon EOS R50 », « Rafale : 20 vues », « Retardateur : 20 s ») passe à la ligne dans son bouton ; aucun
+   n'y demande plus de deux lignes aux largeurs essayées, de 320 à 1000 px, avec la police Inter et celle de la CI : ni
+   la hauteur du panneau ni la place du déclencheur ne changent. Un texte agrandi par le navigateur agrandit la ligne au
+   lieu d'être coupé : le critère « Resize Text » du WCAG 2.2 demande qu'un texte agrandi jusqu'à 200 % ne perde rien de
+   son contenu [wcag-22-resize-text]. Au-delà de 1000 px de contenu, une seule rangée, en grille elle aussi (règle
+   suivante). Les boutons gardent l'ordre de la page, qui est aussi celui de la tabulation.
+   Sans requêtes de conteneur (Safari avant la version 16, d'après les données de compatibilité de MDN
+   [mdn-bcd-8-1-10-layout]), le panneau garde sa disposition d'avant la version 0.4.10. Les seuils des requêtes de
+   conteneur sont en rem (62,5rem, 32,5rem et 21,25rem : 1000, 520 et 340 px à la taille de texte par défaut, 16 px) :
+   avec un texte agrandi par le navigateur, le panneau passe à la disposition plus étroite au lieu de laisser déborder
+   « Aperçu », « Loupe » ou « Déclencher » de leur case (contrôle final de la version 0.4.10, F1 : à 1280 × 800 px et
+   à 200 %, « Aperçu » avait 108 px de texte pour une case de 89). La forme « width > 62.5rem » ne laisse aucune largeur
+   entre deux règles (F5). */
+@container (width <= 62.5rem) {
+  .meter-row {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-auto-rows: minmax(2.4rem, auto);
+    gap: 0.35rem;
+    margin-top: 0.45rem;
+  }
+
+  /* L'échelle, sans déborder sur le bouton voisin : ses graduations extrêmes sont centrées sur ses bords. */
+  .meter {
+    grid-column: span 4;
+    align-self: center;
+    min-width: 0;
+    margin: 0 0.7rem;
+  }
+
+  /* Chaque bouton remplit sa case, quel que soit le nombre de lignes de son libellé : le déclencheur ne change ni de
+     place ni de taille quand son libellé passe de « Déclencher » à « Retardateur : 20 s » (la rangée centre ses
+     éléments, align-items: center). */
+  .meter-row > button {
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0.1rem 0.25rem;
+    font-size: 0.8rem;
+    line-height: 1.12;
+  }
+
+  .meter-value,
+  #body-button,
+  #preview-button,
+  #af-button,
+  .shutter-button {
+    grid-column: span 2;
+  }
+
+  #release-button {
+    grid-column: span 3;
+  }
+
+  #loupe-button {
+    grid-column: span 1;
+  }
+}
+
+/* Panneau très étroit (téléphones de 360 px de large et moins) : une ligne de plus, le déclencheur sur toute la largeur. */
+@container (width <= 21.25rem) {
+  .meter,
+  .meter-value {
+    grid-column: span 3;
+  }
+
+  #release-button {
+    grid-column: span 4;
+  }
+
+  #loupe-button {
+    grid-column: span 2;
+  }
+
+  .shutter-button {
+    grid-column: span 6;
+  }
+}
+
+/* Panneau large (plus de 1000 px de contenu, écran d'ordinateur) : une seule rangée de huit cases, dans l'ordre de la
+   page, l'indicateur, sa valeur, le mode de déclenchement et le déclencheur sur deux parts de largeur, les autres sur
+   une. Un libellé long passe à la ligne dans sa case au lieu de faire passer la rangée à la ligne : avec la rangée
+   d'avant, le panneau passait de 142 à 182 px de haut à 1100 × 800 et à 1200 × 800 px, police de la CI, et le viseur de
+   607 à 567 px (relecture de la version 0.4.10, R1). */
+@container (width > 62.5rem) {
+  .meter-row {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr 1fr 1fr 2fr 1fr 2fr;
+    grid-auto-rows: minmax(2.4rem, auto);
+    gap: 0.35rem 0.6rem;
+  }
+
+  .meter {
+    align-self: center;
+    min-width: 0;
+    margin: 0 0.7rem;
+  }
+
+  .meter-row > button {
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.85rem;
+    line-height: 1.12;
+  }
+}
+
+/* Panneau de tablette (de 521 à 1000 px de contenu) : la grille de six colonnes, le texte des boutons un peu plus grand. */
+@container (32.5rem < width <= 62.5rem) {
+  .meter-row > button {
+    font-size: 0.85rem;
+  }
+}
+
+/* Écran étroit : en-tête de deux lignes, le titre puis les liens, qui ne passent pas à la ligne ; sa hauteur ne dépend
+   plus du libellé du bouton des défis (« Défis » ou « Défi SIT-05 » : de 114 à 130 px à 320 px de large, police de la
+   CI). Le sous-titre est masqué : sur deux lignes, il prenait 40 px au viseur. */
+@media (max-width: 520px) {
+  .bar {
+    padding: 0.4rem 0.75rem;
+    row-gap: 0.3rem;
+  }
+
+  .bar h1 {
+    flex-basis: 100%;
+    font-size: 1.15rem;
+  }
+
+  .subtitle {
+    display: none;
+  }
+
+  .links {
+    margin-left: 0;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+
+  .links a,
+  .links button {
+    font-size: 0.85rem;
+  }
+
+  .links button {
+    padding: 0.15rem 0.45rem;
+  }
+}
+
+/* Téléphone tenu à l'horizontale (fenêtre basse) : le panneau à droite du viseur, l'en-tête sur une ligne. Dessous, le
+   viseur ne faisait que 78 px de haut et le cadre 117 × 78 px sur l'iPhone 14 émulé, 750 × 340 px (constat INT-03 de
+   l'audit). Le panneau défile s'il est plus haut que la fenêtre. Le critère « Orientation » du WCAG 2.2 demande que le
+   contenu ne se limite pas à une orientation qui n'est pas essentielle [wcag-22-orientation] : on ne demande pas de tenir
+   le téléphone droit. */
+@media (orientation: landscape) and (max-height: 500px) {
+  body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .bar {
+    grid-column: 1 / -1;
+    flex-wrap: nowrap;
+    padding: 0.3rem 0.75rem;
+    white-space: nowrap;
+  }
+
+  .bar h1 {
+    font-size: 1.1rem;
+  }
+
+  .subtitle {
+    display: none;
+  }
+
+  main {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .panel {
+    grid-column: 2;
+    grid-row: 2;
+    overflow-y: auto;
+    border-top: 0;
+    border-left: 1px solid var(--discret);
+  }
+
+  /* Pour un navigateur sans requêtes de conteneur : les molettes sur deux colonnes dans le panneau de 20rem. */
+  .dials {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Écran de revue sur téléphone : il couvre tout l'écran, panneau compris, et la photo prend toute la largeur (constat
+   INT-17 de l'audit, corrections 2 et 3 : la photo s'affichait en 220 × 146 px, plus petite que le cadre du viseur
+   de 390 × 260 px où elle avait été composée, et le panneau du boîtier, inutile à ce moment, gardait 298 px). */
+@media (max-width: 520px), (orientation: landscape) and (max-height: 500px) {
+  .review {
+    position: fixed;
+    padding: 0.5rem 0 0;
+  }
+
+  .review > :not(img, canvas) {
+    margin-inline: 0.75rem;
+  }
+
+  .review img,
+  .review.with-histograms img {
+    max-height: calc(100% - 3.5rem);
+  }
+
+  /* Les histogrammes, avec la marge des autres éléments, sans élargir la page (relecture de la version 0.4.10, R6). */
+  .review-histograms {
+    width: calc(100% - 1.5rem);
+  }
+
+  /* L'écran de revue couvrant tout l'écran, la bande « Calcul de la loupe… » se place par rapport à lui. */
+  main:has(> .review:not([hidden])) > .progress {
+    position: fixed;
+  }
+}
+
+/* Pendant le calcul d'une loupe, la bande « Calcul de la loupe… » en haut de l'écran de revue, et pas en bas, où elle
+   couvrait les boutons collés au bas (contrôle final de la version 0.4.10, F2 : « Revenir au viseur » couvert à 95 % à
+   1280 × 800 px), ni au milieu de la photo, où tombait le bas du viseur sur un téléphone. Sans le sélecteur :has()
+   (Safari avant la version 15.4 [mdn-bcd-8-1-10-layout]), elle reste en bas du viseur. */
+main:has(> .review:not([hidden])) > .progress {
+  top: 0.5rem;
+  bottom: auto;
+}
+
+/* « Revenir au viseur » et « Enregistrer la photo » collés au bas de l'écran de revue : visibles sans le faire défiler,
+   sur un téléphone comme à 1280 × 800 px, où ils étaient sous le bas de l'écran (constat INT-17 de l'audit ; défaut
+   relevé à la relecture de la version 0.3.71). */
+.review > .review-actions:last-child {
+  position: sticky;
+  bottom: 0;
+  justify-content: center;
+  align-self: stretch;
+  padding: 0.5rem 0.75rem;
+  background: var(--fond);
+}
+
+/* Fenêtres : « Fermer » collé au bas de la fenêtre, visible sans la faire défiler quand le contenu est plus haut que
+   l'écran (constat INT-20 de l'audit : « Mise au point », 725 px de contenu pour 630 visibles sur l'iPhone 14 émulé ;
+   fiche SIT-05, « Fermer » à 1 148 px du haut). La marge intérieure de la fenêtre (1em) est reprise par des marges
+   négatives, pour que le bandeau couvre le contenu qui défile dessous. */
+dialog > form[method="dialog"]:last-child {
+  position: sticky;
+  bottom: -1em;
+  margin: 0.75rem -1em -1em;
+  padding: 0.6rem 1em;
+  border-top: 1px solid var(--discret);
+  background: var(--fond);
 }

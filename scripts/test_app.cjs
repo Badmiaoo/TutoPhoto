@@ -55,6 +55,21 @@
 //   le message du démarrage arrêté, avec la version du site et « Recharger », lisible et inchangé 2 s plus tard, aucun
 //   message des capacités de rendu en flottants, le canevas, le panneau du boîtier et le bouton « Défis » masqués, la
 //   ligne des problèmes vide ou avec l'exception rattrapée, et aucune erreur non rattrapée ;
+// - mise en page sur téléphone (Sujet 42, version 0.4.10 ; constats INT-04, INT-12, INT-03, INT-11, INT-17, INT-20 et
+//   INT-14 de l'audit), profil iphone seulement, dans un contexte à part : le simulateur chargé téléphone tenu à
+//   l'horizontale (iPhone 14 émulé, 750 × 340 px) a son panneau à droite du viseur, un cadre d'au moins 60 % de la
+//   hauteur de la fenêtre, la vue de dessus et l'indicateur d'équilibre repliés et le bouton « Vue de dessus » dans le
+//   viseur ; à cette taille, puis à 390 × 664, 412 × 839, 600 × 960 et 320 × 664 px, onze gestes qui changent les textes
+//   de l'en-tête et du panneau (mode et zone de mise au point, modes de déclenchement, boîtier, mode d'exposition et
+//   correction, défi, libellés du déclencheur pendant une rafale et un compte à rebours, aperçu coupé, loupe à 100 %),
+//   puis le retour aux réglages de départ, ne déplacent ni le viseur, ni le cadre (même sens, même grand côté à 1,5 px
+//   près), ni le déclencheur ; aucun libellé n'est coupé, les pastilles restent dans le viseur et hors du bloc « Vue de dessus », la
+//   page ne défile pas en largeur ; tenu droit, le viseur fait au moins 35 % de la hauteur de la fenêtre ; à
+//   320 × 664 px, les fenêtres « Mise au point », « Aperçu » et « Exposition » montrent « Fermer » sans défiler, se
+//   rouvrent en haut, se ferment par un toucher sur le fond (écran tactile émulé) et pas par un appui de souris commencé
+//   dedans et relâché sur lui ; à
+//   l'horizontale et à 320 × 664 px, l'écran de revue couvre tout l'écran, la photo y fait au moins 90 % de la largeur
+//   du cadre, et « Revenir au viseur » et « Enregistrer la photo » sont visibles sans le faire défiler ;
 // - la fiche SIT-05 a un bouton « Jouer le défi » (simulateur/?defi=SIT-05), et le simulateur ouvert à l'adresse
 //   simulateur?defi=SIT-06, sans la barre finale, ajoute la barre, montre la progression du chargement et a le
 //   défi SIT-06 choisi ; tout fichier compté par la progression est chargé par la scène (version 0.3.55) ; le
@@ -126,10 +141,11 @@
 //   ni histogramme ni clignotement ; « Infos » une fois : quatre histogrammes (luminance, rouge, vert, bleu), la
 //   somme des colonnes de chacun égale au nombre de pixels de la photo (le calcul des histogrammes est aussi essayé
 //   sans navigateur, par app/tests/histogram.test.ts, version 0.3.86 : la routine lit les colonnes que l'écran de revue
-//   a reçues) ; photo surexposée de 3,2 IL : elle s'ouvre en
+//   a reçues), et la phrase des zones écrêtées visible en son centre, pas sous la barre collée en bas de l'écran de revue
+//   (version 0.4.10) ; photo surexposée de 3,2 IL : elle s'ouvre en
 //   haut de l'écran de revue, sans défilement gardé de la photo d'avant (INT-17, version 0.3.59), part écrêtée
 //   supérieure à 0 dans le texte, puis « Infos » encore une fois : zones écrêtées posées sur la photo, sans prendre
-//   les touchers ; avec « réduire les animations », émulé, le calque des zones n'a aucune animation et le texte dit
+//   les touchers, et la phrase visible ; avec « réduire les animations », émulé, le calque des zones n'a aucune animation et le texte dit
 //   « sans clignoter » ; réglage rendu, il clignote de nouveau (version 0.3.62) ; photo sous-exposée de 3,2 IL :
 //   aucune zone, plus de la moitié des pixels de luminance dans la moitié gauche ; retour à « photo seule » et aux
 //   réglages de départ ;
@@ -962,6 +978,261 @@ async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
   }
 }
 
+// Mise en page sur téléphone (Sujet 42, version 0.4.10 ; constats INT-04, INT-12, INT-03, INT-11, INT-17, INT-20 et
+// INT-14 de l'audit). Un contexte à part, ouvert par le profil iphone : le simulateur chargé téléphone tenu à
+// l'horizontale (iPhone 14 émulé, 750 × 340 px), puis la même page à 390 × 664 px (tenu droit), 412 × 839 px (taille du
+// Pixel 7 émulé), 600 × 960 px et 320 × 664 px. À chaque taille, des gestes qui changent les textes de l'en-tête et du panneau, puis
+// leur retour : le viseur, le cadre et le déclencheur ne doivent pas bouger, aucun libellé ne doit être coupé, les
+// pastilles doivent rester dans le viseur et hors du bloc « Vue de dessus ». Puis les fenêtres et l'écran de revue.
+// Le chargement à l'horizontale vérifie aussi ce qu'un téléphone tenu ainsi montre au départ ; la page tournée ensuite
+// garde la vue de dessus et l'indicateur d'équilibre comme ils étaient, comme un vrai téléphone qu'on tourne.
+const LAYOUT_STEPS = [
+  ["AF-C", () => document.querySelector('input[name="focusMode"][value="continuous"]').click()],
+  ["zone automatique", () => document.querySelector('input[name="areaMode"][value="auto"]').click()],
+  ["Continu H (étendu)", () => document.querySelector('input[name="release"][value="chx"]').click()],
+  ["retardateur", () => document.querySelector('input[name="release"][value="timer"]').click()],
+  ["Canon EOS R50", () => document.querySelector('input[name="brand"][value="canon"]').click()],
+  [
+    "mode A avec une correction",
+    () => {
+      document.querySelector('input[name="exposureMode"][value="A"]').click();
+      const select = document.querySelector('select[name="compensation"]');
+      select.value = [...select.options].find((o) => /−/.test(o.textContent)).value;
+      select.dispatchEvent(new Event("change"));
+    },
+  ],
+  ["défi SIT-05", () => document.querySelector('input[name="challenge"][value="SIT-05"]').click()],
+  // Libellés du déclencheur pendant une rafale et un compte à rebours, posés à la main : au plus 20 vues par rafale
+  // (MAX_BURST, ui/shutter.ts) et 20 s de retardateur (TIMER_DELAYS, camera/settings.ts).
+  ["libellé d'une rafale", () => (document.getElementById("shutter-button").textContent = "Rafale\u00a0: 20 vues")],
+  ["libellé d'un compte à rebours", () => (document.getElementById("shutter-button").textContent = "Retardateur\u00a0: 20 s")],
+  [
+    "aperçu coupé",
+    () => {
+      document.getElementById("shutter-button").textContent = "Déclencher";
+      const all = document.querySelector('#preview-dialog input[value="all"]');
+      if (all.checked) all.click();
+    },
+  ],
+  // La loupe passe à 100 % (« Loupe 100 % ») ; le bouton parcourt 50 %, 100 %, puis rien.
+  [
+    "loupe à 100 %",
+    () => {
+      const loupe = document.getElementById("loupe-button");
+      for (let i = 0; i < 3 && !/100/.test(loupe.textContent); i++) loupe.click();
+    },
+  ],
+  [
+    "réglages de départ",
+    () => {
+      const loupe = document.getElementById("loupe-button");
+      for (let i = 0; i < 3 && /\d/.test(loupe.textContent); i++) loupe.click();
+      const all = document.querySelector('#preview-dialog input[value="all"]');
+      if (!all.checked) all.click();
+      document.querySelector('input[name="challenge"][value="none"]').click();
+      const select = document.querySelector('select[name="compensation"]');
+      select.value = "0";
+      select.dispatchEvent(new Event("change"));
+      document.querySelector('input[name="exposureMode"][value="M"]').click();
+      document.querySelector('input[name="brand"][value="nikon"]').click();
+      document.querySelector('input[name="release"][value="single"]').click();
+      document.querySelector('input[name="areaMode"][value="point"]').click();
+      document.querySelector('input[name="focusMode"][value="single"]').click();
+    },
+  ],
+];
+
+/** Relevé de la mise en page : viseur, cadre, déclencheur, libellés coupés, pastilles, défilement horizontal. */
+function layoutState() {
+  const box = (e) => {
+    const r = e.getBoundingClientRect();
+    return { x: r.x, y: r.y, w: r.width, h: r.height, right: r.right, bottom: r.bottom };
+  };
+  const main = box(document.querySelector("main"));
+  const shutter = box(document.getElementById("shutter-button"));
+  const top = box(document.getElementById("top-view"));
+  const meets = (a, b) => Math.min(a.right, b.right) - Math.max(a.x, b.x) > 0.5 && Math.min(a.bottom, b.bottom) - Math.max(a.y, b.y) > 0.5;
+  const faults = [];
+  for (const e of document.querySelectorAll("#camera-panel button, .bar a, .bar button")) {
+    if (e.offsetParent && (e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1)) faults.push(`libellé coupé : « ${e.textContent} »`);
+  }
+  for (const id of ["preview-badge", "af-badge", "loupe-badge"]) {
+    const e = document.getElementById(id);
+    if (e.hidden) continue;
+    const b = box(e);
+    if (b.x < main.x - 0.5 || b.right > main.right + 0.5 || b.y < main.y - 0.5 || b.bottom > main.bottom + 0.5) faults.push(`${id} hors du viseur`);
+    if (id !== "preview-badge" && meets(b, top)) faults.push(`${id} sous la vue de dessus`);
+  }
+  if (document.documentElement.scrollWidth > innerWidth) faults.push(`défilement horizontal (${document.documentElement.scrollWidth} px)`);
+  const inside = shutter.y >= 0 && shutter.bottom <= innerHeight && shutter.x >= 0 && shutter.right <= innerWidth;
+  if (!inside) faults.push("déclencheur hors de l'écran");
+  const frame = box(document.getElementById("frame"));
+  return { main: main.h, mainW: main.w, frame: `${Math.round(frame.w)} × ${Math.round(frame.h)}`, frameW: frame.w, frameH: frame.h, shutter: `${shutter.x.toFixed(1)},${shutter.y.toFixed(1)},${shutter.w.toFixed(1)}×${shutter.h.toFixed(1)}`, faults };
+}
+
+async function checkPhoneLayout(browser, base, check) {
+  const context = await browser.newContext({ ...devices["iPhone 14 landscape"] });
+  const page = await context.newPage();
+  page.setDefaultTimeout(300000);
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(`page : ${error.message}`));
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(`console : ${message.text()}`);
+  });
+  const cycle = async (label) => {
+    const states = [{ step: "chargé", ...(await page.evaluate(layoutState)) }];
+    for (const [step, act] of LAYOUT_STEPS) {
+      await page.evaluate(act);
+      await page.waitForTimeout(400);
+      states.push({ step, ...(await page.evaluate(layoutState)) });
+    }
+    const changes = (key) => states.filter((s, i) => i > 0 && s[key] !== states[i - 1][key]).map((s) => `${s.step} : ${s[key]}`);
+    const mains = states.map((s) => s.main);
+    // Le cadre suit les proportions du capteur : avec l'EOS R50 (22,3 × 14,9 mm, rapport 1,497 ; Z 6 : 1,502), il change
+    // d'un pixel au plus. On vérifie qu'il garde son sens et son grand côté, à 1,5 px près.
+    const shapes = new Set(states.map((s) => (s.frameW >= s.frameH ? "horizontal" : "vertical")));
+    const longs = states.map((s) => Math.max(s.frameW, s.frameH));
+    const frameMoved = shapes.size > 1 || Math.max(...longs) - Math.min(...longs) > 1.5;
+    const moved = Math.max(...mains) - Math.min(...mains) > 0.5 || frameMoved || changes("shutter").length > 0;
+    check(
+      `${label} : viseur, cadre et déclencheur immobiles quand les textes changent (INT-04, INT-12)`,
+      !moved,
+      `viseur de ${Math.min(...mains).toFixed(1)} à ${Math.max(...mains).toFixed(1)} px de haut ; cadre ${[...shapes].join(" puis ")}, ${states[0].frame}${frameMoved ? `, puis ${changes("frame").join(", ")}` : ""} ; déclencheur ${changes("shutter").length ? `déplacé (${changes("shutter").join(", ")})` : "immobile"} ; ${states.length - 1} étapes`,
+    );
+    const faults = states.flatMap((s) => s.faults.map((f) => `${s.step} : ${f}`));
+    check(
+      `${label} : libellés entiers, pastilles dans le viseur et hors de la vue de dessus, déclencheur à l'écran (INT-11)`,
+      faults.length === 0,
+      faults.length ? [...new Set(faults)].slice(0, 8).join(" ; ") : `${states.length} relevés sans défaut`,
+    );
+    return states[0];
+  };
+  const review = async (label) => {
+    const before = await page.evaluate(layoutState);
+    await page.evaluate(() => document.getElementById("shutter-button").click());
+    await page.waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden && document.getElementById("review-image").complete, null, { timeout: 300000 });
+    await page.waitForTimeout(400);
+    const r = await page.evaluate(() => {
+      const box = (id) => document.getElementById(id).getBoundingClientRect();
+      const visible = (b) => b.top >= 0 && b.bottom <= innerHeight && b.left >= 0 && b.right <= innerWidth;
+      const review = box("review");
+      const image = box("review-image");
+      return { width: image.width, height: image.height, covers: review.top <= 0.5 && review.bottom >= innerHeight - 0.5 && review.left <= 0.5 && review.right >= innerWidth - 0.5, back: visible(box("review-back")), save: visible(box("review-save")) };
+    });
+    check(
+      `${label} : écran de revue sur tout l'écran, photo d'au moins 90 % de la largeur du cadre, « Revenir au viseur » et « Enregistrer la photo » visibles (INT-17)`,
+      r.covers && r.width >= 0.9 * before.frameW && r.back && r.save,
+      `photo de ${Math.round(r.width)} × ${Math.round(r.height)} px, cadre du viseur de ${before.frame} px ; ${r.covers ? "tout l'écran" : "pas tout l'écran"} ; « Revenir au viseur » ${r.back ? "visible" : "hors de l'écran"}, « Enregistrer la photo » ${r.save ? "visible" : "hors de l'écran"}`,
+    );
+    await page.evaluate(() => document.getElementById("review-back").click());
+    await page.waitForFunction(() => document.getElementById("review").hidden, null, { timeout: 60000 });
+  };
+  try {
+    await page.goto(`${base}/simulateur/`);
+    const loaded = await page
+      .waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 })
+      .then(() => true)
+      .catch(() => false);
+    check("à l'horizontale (750 × 340) : chargement", loaded);
+    if (!loaded) return;
+    await page.waitForTimeout(800);
+    const start = await page.evaluate(() => {
+      const box = (id) => document.getElementById(id).getBoundingClientRect();
+      const main = document.querySelector("main").getBoundingClientRect();
+      const toggle = box("top-view-toggle");
+      return {
+        topCollapsed: document.getElementById("top-view").classList.contains("collapsed"),
+        balanceCollapsed: document.getElementById("balance").classList.contains("collapsed"),
+        toggleInside: toggle.top >= main.top && toggle.bottom <= main.bottom && toggle.left >= main.left && toggle.right <= main.right,
+        panelBeside: box("camera-panel").left >= main.right - 0.5,
+        frameH: box("frame").height,
+        vh: innerHeight,
+      };
+    });
+    check(
+      "à l'horizontale (750 × 340) : panneau à droite du viseur, cadre d'au moins 60 % de la hauteur de la fenêtre, vue de dessus et indicateur d'équilibre repliés, bouton « Vue de dessus » dans le viseur (INT-03)",
+      start.panelBeside && start.frameH >= 0.6 * start.vh && start.topCollapsed && start.balanceCollapsed && start.toggleInside,
+      `panneau ${start.panelBeside ? "à droite" : "pas à droite"} ; cadre de ${Math.round(start.frameH)} px de haut pour ${start.vh} ; vue de dessus ${start.topCollapsed ? "repliée" : "dépliée"}, indicateur ${start.balanceCollapsed ? "replié" : "déplié"} ; bouton ${start.toggleInside ? "dans le viseur" : "hors du viseur"}`,
+    );
+    await cycle("à l'horizontale (750 × 340)");
+    await review("à l'horizontale (750 × 340)");
+    for (const [width, height, label] of [[390, 664, "droit (390 × 664)"], [412, 839, "droit (412 × 839)"], [600, 960, "droit (600 × 960)"], [320, 664, "droit (320 × 664)"]]) {
+      await page.setViewportSize({ width, height });
+      // Le cadre n'est replacé qu'au rendu suivant (ResizeObserver, puis le moteur, puis le panneau), qui prend plus d'une
+      // demi-seconde dans la CI : on attend qu'il remplisse la zone du viseur sur un de ses côtés (relecture de la
+      // version 0.4.10, R7).
+      await page.waitForFunction(
+        () => {
+          const m = document.querySelector("main").getBoundingClientRect();
+          const f = document.getElementById("frame").getBoundingClientRect();
+          // Le cadre d'avant peut remplir la nouvelle zone sur un côté et la dépasser sur l'autre : il doit aussi y tenir
+          // (contrôle final de la version 0.4.10, F7).
+          return (Math.abs(f.width - m.width) < 1 || Math.abs(f.height - m.height) < 1) && f.width <= m.width + 1 && f.height <= m.height + 1;
+        },
+        null,
+        { timeout: 60000 },
+      );
+      await page.waitForTimeout(400);
+      const first = await cycle(label);
+      check(`${label} : viseur assez grand (INT-04)`, first.main >= 0.35 * height, `${first.main.toFixed(1)} px de haut, fenêtre de ${height} px`);
+    }
+    // Fenêtres (INT-20), à 320 × 664 px : « Fermer » visible sans faire défiler ; rouverte, la fenêtre est en haut ;
+    // un toucher sur le fond la ferme, un doigt posé dedans et levé sur le fond ne la ferme pas.
+    const dialogs = [];
+    for (const [button, id, close] of [["af-button", "af-dialog", "af-close"], ["preview-button", "preview-dialog", "preview-close"], ["meter-value", "exposure-dialog", "exposure-close"]]) {
+      await page.evaluate((b) => document.getElementById(b).click(), button);
+      await page.waitForTimeout(200);
+      const shown = await page.evaluate(({ id, close }) => {
+        const d = document.getElementById(id);
+        const db = d.getBoundingClientRect();
+        const cb = document.getElementById(close).getBoundingClientRect();
+        return { open: d.open, taller: d.scrollHeight > d.clientHeight + 1, closeVisible: cb.top >= db.top && cb.bottom <= db.bottom && cb.bottom <= innerHeight };
+      }, { id, close });
+      await page.evaluate((id) => {
+        const d = document.getElementById(id);
+        d.scrollTop = d.scrollHeight;
+      }, id);
+      await page.evaluate((c) => document.getElementById(c).click(), close);
+      await page.waitForTimeout(150);
+      await page.evaluate((b) => document.getElementById(b).click(), button);
+      await page.waitForTimeout(150);
+      const reopened = await page.evaluate((id) => document.getElementById(id).scrollTop, id);
+      // Un toucher de l'écran tactile émulé, en haut à gauche, sur le fond.
+      await page.touchscreen.tap(3, 3);
+      await page.waitForTimeout(150);
+      const closedByBackdrop = await page.evaluate((id) => !document.getElementById(id).open, id);
+      if (!closedByBackdrop) await page.keyboard.press("Escape");
+      await page.evaluate((b) => document.getElementById(b).click(), button);
+      await page.waitForTimeout(150);
+      const inside = await page.evaluate((id) => {
+        const b = document.querySelector(`#${id} h2`).getBoundingClientRect();
+        return { x: b.left + 5, y: b.top + 5 };
+      }, id);
+      await page.mouse.move(inside.x, inside.y);
+      await page.mouse.down();
+      await page.mouse.move(3, 3);
+      await page.mouse.up();
+      await page.waitForTimeout(150);
+      const keptOpen = await page.evaluate((id) => document.getElementById(id).open, id);
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(100);
+      dialogs.push({ id, ...shown, reopened, closedByBackdrop, keptOpen });
+    }
+    const bad = dialogs.filter((d) => !d.open || !d.closeVisible || d.reopened !== 0 || !d.closedByBackdrop || !d.keptOpen);
+    check(
+      "droit (320 × 664) : fenêtres « Mise au point », « Aperçu » et « Exposition » : « Fermer » visible sans faire défiler, rouvertes en haut, fermées par un toucher sur le fond, pas par un appui de souris commencé dedans et relâché sur lui (INT-20)",
+      bad.length === 0 && dialogs.some((d) => d.taller),
+      dialogs.map((d) => `${d.id} : ${d.taller ? "plus haute que l'écran" : "tient dans l'écran"}, « Fermer » ${d.closeVisible ? "visible" : "caché"}, rouverte à ${Math.round(d.reopened)} px, ${d.closedByBackdrop ? "fermée" : "pas fermée"} par un toucher sur le fond, ${d.keptOpen ? "ouverte" : "fermée"} après un appui relâché sur le fond`).join(" ; "),
+    );
+    await review("droit (320 × 664)");
+  } catch (error) {
+    check("mise en page sur téléphone : déroulement", false, String(error).split("\n").slice(0, 8).join(" ⏎ "));
+  } finally {
+    check("mise en page sur téléphone : aucune erreur de la page ni de la console", errors.length === 0, errors.length ? errors.slice(0, 5).join(" | ") : "aucune");
+    await context.close();
+  }
+}
+
 async function runProfile(browser, name, base) {
   const profile = PROFILES[name];
   if (!profile) throw new Error(`Profil inconnu : ${name}`);
@@ -1004,6 +1275,9 @@ async function runProfile(browser, name, base) {
     await checkNoWebgl(browser, contextOptions, base, check);
     await checkFloatRender(browser, contextOptions, base, check, Boolean(noWebgl2));
     await checkLostAtStart(browser, contextOptions, base, check, Boolean(noWebgl2));
+    // Mise en page sur téléphone, dans un contexte à part (Sujet 42, version 0.4.10) : profil iphone seulement, pour ne
+    // charger la scène qu'une fois de plus.
+    if (name === "iphone") await checkPhoneLayout(browser, base, check);
     // Le simulateur est ouvert avec « ?lang=en », paramètre retiré en version 0.3.60 : il doit s'ouvrir en français,
     // sans bouton de langue. Toute la suite de la routine lit des textes français sur cette page.
     await page.goto(`${base}/simulateur/?lang=en`);
@@ -1585,6 +1859,13 @@ async function runProfile(browser, name, base) {
           });
           const clipping = document.getElementById("review-clipping");
           const text = shown(clipping) ? clipping.textContent : "";
+          // La phrase, visible en son centre et pas sous la barre collée en bas de l'écran de revue (relecture de la
+          // version 0.4.10, R2) ; null quand elle n'est pas affichée.
+          let textVisible = null;
+          if (shown(clipping)) {
+            const c = clipping.getBoundingClientRect();
+            textVisible = clipping.contains(document.elementFromPoint(c.left + c.width / 2, c.top + c.height / 2));
+          }
           const m = /: (\d+,\d)\s% de l'image/.exec(text);
           const overlay = document.getElementById("review-highlights");
           const zones = { shown: shown(overlay), opaque: 0, gap: NaN };
@@ -1607,6 +1888,7 @@ async function runProfile(browser, name, base) {
             pixels,
             histograms,
             text,
+            textVisible,
             share: m ? Number(m[1].replace(",", ".")) : /^Aucun pixel à la valeur maximale/.test(text) ? 0 : NaN,
             zones,
             touched: document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)?.id ?? "",
@@ -1628,8 +1910,9 @@ async function runProfile(browser, name, base) {
           infoHistograms.histograms.map((h) => h.channel).join() === "luminance,red,green,blue" &&
           infoHistograms.histograms.every((h) => h.count === 256 && h.total === infoHistograms.pixels) &&
           infoHistograms.pixels > 0 &&
-          infoHistograms.saved === "histograms",
-        `${infoHistograms.histograms.map((h) => `${h.channel} ${h.total}`).join(", ")} ; photo de ${infoHistograms.pixels} pixels ; ${infoHistograms.text} ; tutophoto.revue : ${infoHistograms.saved}`,
+          infoHistograms.saved === "histograms" &&
+          infoHistograms.textVisible === true,
+        `${infoHistograms.histograms.map((h) => `${h.channel} ${h.total}`).join(", ")} ; photo de ${infoHistograms.pixels} pixels ; ${infoHistograms.text} ; phrase ${infoHistograms.textVisible ? "visible" : "cachée"} ; tutophoto.revue : ${infoHistograms.saved}`,
       );
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-histogrammes.png`), timeout: 120000 });
       // Retour à « photo seule » (par « hautes lumières ») : la loupe de l'écran de revue est contrôlée comme avant.
@@ -1926,8 +2209,8 @@ async function runProfile(browser, name, base) {
       const zoneShare = (100 * overZones.zones.opaque) / overZones.pixels;
       check(
         "« Infos » encore une fois : zones écrêtées posées sur la photo",
-        overZones.button === "Infos\u00a0: hautes lumières" && overZones.zones.shown && overZones.zones.opaque > 0 && Math.abs(zoneShare - overZones.share) < 0.06 && overZones.zones.gap <= 1 && overZones.touched === "review-image" && overZones.histograms.length === 0,
-        `${overZones.zones.opaque} pixels en noir, soit ${zoneShare.toFixed(2)} % ; ${overZones.text} ; écart avec la photo ${overZones.zones.gap.toFixed(2)} px ; toucher au centre de la photo : ${overZones.touched}`,
+        overZones.button === "Infos\u00a0: hautes lumières" && overZones.zones.shown && overZones.zones.opaque > 0 && Math.abs(zoneShare - overZones.share) < 0.06 && overZones.zones.gap <= 1 && overZones.touched === "review-image" && overZones.histograms.length === 0 && overZones.textVisible === true,
+        `${overZones.zones.opaque} pixels en noir, soit ${zoneShare.toFixed(2)} % ; ${overZones.text} ; phrase ${overZones.textVisible ? "visible" : "cachée"} ; écart avec la photo ${overZones.zones.gap.toFixed(2)} px ; toucher au centre de la photo : ${overZones.touched}`,
       );
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-hautes-lumieres.png`), timeout: 120000 });
       // « Réduire les animations » (réglage du système, émulé par Playwright) : l'écran de revue écrit alors que les
