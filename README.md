@@ -8,7 +8,7 @@ TutoPhoto est le nom du projet. L'application est publiée sur GitHub Pages : ht
 
 - Cadrage et référentiel à l'état de brouillon, à remettre en question ; application en construction. Une fiche que les relecteurs n'ont pas encore vérifiée le dit sous son titre (« Fiche en cours de relecture »).
 - Pour débutants avec un boîtier reflex ou hybride. Scènes en 3D de synthèse ; on commence par une V1 minimale (une scène de parc, trois situations), à faire essayer par des débutants.
-- Ce qui est en ligne : le site, dont l'accueil et la fenêtre « Crédits » du simulateur donnent la version. Ce que chaque version a changé : [CHANGELOG.md](CHANGELOG.md) ; le modèle de l'appareil simulé, et ce qu'il ne simule pas : [docs/camera-physique.md](docs/camera-physique.md).
+- Ce qui est en ligne : [le site](https://badmiaoo.github.io/TutoPhoto/), dont l'accueil et la fenêtre « Crédits de la scène » du simulateur (bouton « Crédits ») donnent la version. Ce que chaque version a changé : [CHANGELOG.md](CHANGELOG.md) ; le modèle de l'appareil simulé, et ce qu'il ne simule pas : [docs/camera-physique.md](docs/camera-physique.md).
 
 ## Contenu du dépôt
 
@@ -41,9 +41,9 @@ npm test         # tests rapides des formules (app/tests/)
 
 ## Tester le site construit
 
-- `node scripts/test_app.cjs --photo`, depuis la racine du dépôt, sur le site construit par `npm run build` : la routine de test ouvre l'accueil, une fiche et le simulateur sur quatre profils (ordinateur, Android, iPhone, WebGL 1), et, avec `--photo`, calcule des photos ; `--profils ordinateur` n'en lance qu'un. Chromium seul, en rendu logiciel : les profils de téléphone émulent l'écran et l'identification du navigateur, pas le processeur graphique ni le moteur de Safari.
-- Elle demande Playwright et son Chromium, installés hors du dépôt, à la version de `PLAYWRIGHT_VERSION` dans `.github/workflows/routine.yml` ; sans Playwright, elle s'arrête et donne les commandes d'installation.
-- La CI la lance sur chaque pull request qui touche `app/`, `content/`, `data/` ou la routine, un job par profil : à la version 0.4.10, de 24 à 49 minutes par job.
+- `node scripts/test_app.cjs --photo`, depuis la racine du dépôt, sur le site construit par `npm run build` : la routine de test contrôle les liens de toutes les pages, puis ouvre l'accueil, des fiches, l'activité de LUM-02 et le simulateur sur quatre profils (ordinateur, Android, iPhone, WebGL 1), l'un après l'autre, et, avec `--photo`, calcule des photos ; `--profils ordinateur` n'en lance qu'un. Chromium seul, en rendu logiciel : les profils de téléphone émulent l'écran et l'identification du navigateur, pas le processeur graphique ni le moteur de Safari.
+- Elle demande Playwright et son Chromium, installés hors du dépôt, leur dossier donné à Node.js par `NODE_PATH`, comme dans la CI ; la version à installer est celle de la CI, `PLAYWRIGHT_VERSION` dans `.github/workflows/routine.yml`. Sans Playwright, elle s'arrête et donne les commandes d'installation.
+- La CI la lance sur chaque pull request qui touche `app/`, `content/`, `data/` ou la routine, un job par profil, en parallèle : à la version 0.4.10, de 24 à 49 minutes par job.
 
 ## Vérifier le référentiel
 
