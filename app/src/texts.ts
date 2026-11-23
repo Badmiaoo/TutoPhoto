@@ -13,8 +13,13 @@ const messages = {
   ficheUnavailable: "fiche indisponible.",
   licences: "Licences",
   credits: "Crédits",
-  creditsTitle: "Crédits de la scène",
-  creditsIntro: "Les éléments de la scène, leurs auteurs et leurs licences.",
+  creditsTitle: "Crédits",
+  creditsIntro: "Les éléments de la scène, leurs auteurs et leurs licences, puis le code de tiers du simulateur.",
+  // Code de tiers du simulateur, sous la liste des crédits de la scène (version 0.4.14, décision D13 ; constats PHY-19
+  // et LIC-08 de l'audit). Les mentions et les textes des licences sont sur la page des licences (docs/licences.md).
+  creditsCode:
+    "Code de tiers : Babylon.js (Apache-2.0) ; la boucle du flou du viseur, reprise de l'exemple 45-bokeh de bgfx (Copyright 2021 elven cache ; licence BSD à 2 clauses de bgfx) ; la fonction de préchargement de Vite et deux fonctions d'assemblage de Rolldown, que la construction ajoute (MIT). Mentions et textes des licences :",
+  creditsCodeLink: "page des licences",
   by: "par",
   changes: "Modifications :",
   siteVersion: "Version du site : {version}",

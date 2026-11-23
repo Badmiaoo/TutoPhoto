@@ -1,6 +1,7 @@
 // Crédits de la scène : auteurs, licences et adresses d'origine, lus dans scene.json.
 // Les licences CC BY exigent d'attribuer l'œuvre ; on attribue aussi les éléments CC0, par courtoisie.
-// La fenêtre donne aussi la version du site, au-dessus de la liste des crédits (version 0.3.59).
+// La fenêtre donne aussi la version du site, au-dessus de la liste des crédits (version 0.3.59), et, sous la liste, le
+// code de tiers du simulateur, avec un lien vers la page des licences (version 0.4.14, décision D13).
 
 import { frenchSpaces, t } from "./texts";
 import { siteVersion } from "./version";
@@ -73,6 +74,15 @@ export function renderCreditsUnavailable(list: HTMLElement): void {
   const item = document.createElement("li");
   item.textContent = t("creditsUnavailable");
   list.replaceChildren(item);
+}
+
+/**
+ * Écrit sous la liste des crédits le code de tiers du simulateur (Babylon.js, la boucle du flou du viseur reprise de
+ * bgfx, les fonctions que Vite et Rolldown ajoutent à la construction) et le lien vers la page des licences, qui en
+ * donne les mentions et les textes. À part de renderCredits, comme la version : la phrase ne dépend pas du manifeste.
+ */
+export function renderCodeCredits(target: HTMLElement): void {
+  target.replaceChildren(t("creditsCode"), " ", link("../licences/", t("creditsCodeLink")), ".");
 }
 
 /**
