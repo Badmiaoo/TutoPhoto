@@ -10,6 +10,10 @@
 //   (camera/noiseModel.ts), écrêtage au blanc et courbe de Babylon (puissance 1/2,2), comme dans le viseur.
 // - Nombre de rendus : de quoi espacer les copies d'un grand flou de 4 px au plus (espacement estimé
 //   à 0,9 × flou / √M sur un disque, flou / M le long d'un mouvement), de 16 à 256, et 5 s au plus.
+// - Ordre des rendus (constat PHY-21 de l'audit, version 0.4.8) : les paires place-instant sont parcourues dans un
+//   ordre où les rendus faits restent répartis sur tout le disque et toute la pose (camera/optics.ts, sampleOrder) ;
+//   une photo arrêtée par le plafond de temps garde ainsi le flou de son ouverture, au lieu de celui d'une ouverture
+//   plus petite. Une photo complète garde les mêmes rendus.
 // - Lissage : flou résiduel de rayon 0,45 × flou / √M, selon la profondeur de la vue centrale. Le
 //   rayon ne dépendant que de cette profondeur, lisser la moyenne revient à lisser chaque rendu.
 // - Loupe de l'écran de revue : la même photo (même instant, même orientation, même mise au point) est
@@ -54,6 +58,7 @@ import {
   pixelWindow,
   plannedSamples,
   sampleInstant,
+  sampleOrder,
   sensorMmToPixels,
   shiftedProjection,
   smoothingFactor,
@@ -381,8 +386,11 @@ export async function takePhoto(
     const lensRadius = eyeDiskRadiusM(request.focalMm, request.aperture, focusDistance);
     const right = camera.getDirection(Axis.X);
     const up = camera.getDirection(Axis.Y);
-    // Permutation des instants, décorrélée des positions sur le disque : pas premier avec planned.
+    // Permutation des instants, décorrélée du rayon des places sur le disque (pas de leur angle : camera/optics.ts,
+    // instantStride) : pas premier avec planned. Ordre de parcours des paires place-instant : camera/optics.ts,
+    // sampleOrder.
     const stride = instantStride(planned);
+    const order = sampleOrder(planned, stride);
 
     // Rendus en lumière linéaire. Le traitement d'image des matériaux passe en gamma et écrête à 1, même
     // désactivé (applyImageProcessing, pbrBlockImageProcessing) ; avec applyByPostProcess, ils rendent la
@@ -392,11 +400,12 @@ export async function takePhoto(
     camera.outputRenderTarget = color;
     let done = 0;
     for (let i = 0; i < planned; i++) {
-      const { x: dx, y: dy } = eyeOffset(i, planned, lensRadius);
+      const pair = order[i];
+      const { x: dx, y: dy } = eyeOffset(pair, planned, lensRadius);
       // Projection décentrée : x_ndc = x × m0 / z + m8 ; m8 = dx × m0 / S garde fixe le plan z = S.
       camera.freezeProjectionMatrix(windowed(shiftedProjection(full.asArray(), dx, dy, focusDistance)));
       time.setEyeOffset(right.scale(dx).add(up.scale(dy)));
-      time.setFrozenTime(t0 + request.shutterSeconds * sampleInstant(i, planned, stride));
+      time.setFrozenTime(t0 + request.shutterSeconds * sampleInstant(pair, planned, stride));
       // Sans mise à jour de la caméra, comme pour la carte de profondeur.
       scene.render(false);
 

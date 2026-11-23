@@ -852,6 +852,11 @@ sources:
     label: "Wikipedia, Angle of view (photography) (révision 1382676604 du 29 octobre 2026, source secondaire) : « For a lens projecting a rectilinear image (focused at infinity, see derivation), the angle of view (α) can be calculated from the chosen dimension (d), and effective focal length (f) », α = 2 arctan(d / 2f) ; « Note that the angle of view varies slightly when the focus is not at infinity (See breathing (lens)) », le tirage valant alors S₂ = S₁F / (S₁ − F) (lu le 22 novembre 2026)"
     url: "https://en.wikipedia.org/w/index.php?title=Angle_of_view_(photography)&oldid=1382676604"
     read: 2026-11-22
+  - id: wikipedia-energy-distance
+    group: "Physique, rendu et technique"
+    label: "Wikipedia, Energy distance (révision 1377447813 du 29 septembre 2026, source secondaire) : « Energy distance is a statistical distance between probability distributions » ; D²(F, G) = 2 E‖X − Y‖ − E‖X − X'‖ − E‖Y − Y'‖ ; sur un espace métrique (M, d), D²(μ, ν) = 2 E[d(X, Y)] − E[d(X, X')] − E[d(Y, Y')], qui, sans condition sur d, « is not necessarily non-negative, however ». L'ordre des rendus de la photo (camera/optics.ts, sampleOrder ; docs/camera-physique.md) prend à chaque rendu la paire place-instant qui rend la plus petite cette distance entre les rendus faits et l'ensemble des paires (lue le 23 novembre 2026, à 4 h 57 UTC, par index.php avec action=raw)"
+    url: "https://en.wikipedia.org/w/index.php?title=Energy_distance&oldid=1377447813"
+    read: 2026-11-23
   - id: nikon-z6-release-mode
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, The Release Mode/Self-Timer Button : Single frame, Continuous L (1–5 vps), Continuous H (environ 5,5 vps), Continuous H (extended) (12 vps au Z 6), Self-timer ; table des cadences maximales (12 vps en JPEG en Continuous H (extended)) (lu le 10 novembre 2026). Réglages d2 (Max. Continuous Release, de 1 à 200 vues) et c2 (Self-Timer) lus le même jour."

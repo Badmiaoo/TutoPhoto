@@ -32,6 +32,7 @@ import {
   plannedSamples,
   rayThrough,
   sampleInstant,
+  sampleOrder,
   sensorMmToPixels,
   sensorPosition,
   sensorVelocity,
@@ -501,6 +502,98 @@ test("instants : i × pas modulo M parcourt chaque instant une fois, au milieu d
       slices.add(Math.round(slice));
     }
     assert.equal(slices.size, samples, `${samples} rendus`);
+  }
+});
+
+// Ordre des rendus (constat PHY-21 de l'audit, Sujet 39, version 0.4.8). Pour chaque nombre de rendus prévu M, de 16 à
+// 256, et chaque nombre de rendus faits k, de 16 à M, les k premiers rendus de l'ordre doivent être répartis comme
+// l'ensemble des paires. Le plafond de temps peut arrêter le calcul après n'importe quel rendu ; en dessous de 16 rendus
+// faits, rien n'est contrôlé : de 2 à 15, le rayon quadratique moyen va de 0,678 à 1,076 fois celui de toutes les places
+// (calcul du relecteur de la version 0.4.8, refait par Claude), et un seul rendu, la paire 0, n'a aucun flou de mise au
+// point, comme avant cette version. Critères :
+// - rayon quadratique moyen des places : de 0,95 à 1,04 fois celui de toutes les places (√0,5 fois le rayon du disque) ;
+//   il donne la taille du flou ; mesuré pour la version 0.4.8, de 0,958 à 1,029 ;
+// - centre des places à moins de 0,08 rayon du centre du disque (mesuré : 0,0761 au plus, à k = 16) ;
+// - rayon de couverture du disque (distance du point du disque le plus loin de toute place) au plus 1,75 fois celui de
+//   k places sur la spirale de la photo (eyeOffset avec M = k), calculé sur une grille de pas 0,025 et 400 points du
+//   bord : mesuré, 1,57 fois au plus ; la contre-vérification du constat tenait pour mal réparti un vide plus de 2 fois
+//   celui d'une répartition régulière ;
+// - plus grand intervalle de la pose sans instant, bords compris, au plus 4 fois 1 / k (critère de la
+//   contre-vérification ; mesuré : 3,963 fois au plus) ;
+// - pose couverte, du premier au dernier instant, au moins 90 % de celle de k instants réguliers (critère de la
+//   contre-vérification ; mesuré : 95 %) ;
+// - corrélation entre le carré du rayon et l'instant, en valeur absolue, au plus 0,5 (mesuré : 0,49 au plus, à
+//   k = 16 ; 0,38 au plus avec l'ordre des indices, d'avant cette version).
+// Avec l'ordre des indices, les k premiers rendus couvrent le disque de rayon √(k / M) : à k = M / 4, rayon quadratique
+// moyen de 0,5 fois celui de toutes les places, le flou d'une ouverture fermée de deux diaphragmes.
+test("ordre des rendus : une photo arrêtée après k rendus garde des places et des instants répartis comme toutes les paires", () => {
+  const step = 0.025;
+  const grid: number[] = [];
+  for (let gx = -1; gx <= 1 + 1e-9; gx += step) {
+    for (let gy = -1; gy <= 1 + 1e-9; gy += step) if (gx * gx + gy * gy <= 1) grid.push(gx, gy);
+  }
+  for (let a = 0; a < 400; a++) grid.push(Math.cos((2 * Math.PI * a) / 400), Math.sin((2 * Math.PI * a) / 400));
+  const points = grid.length / 2;
+  // Rayon de couverture de chaque préfixe des places données.
+  const covering = (places: { x: number; y: number }[]): number[] => {
+    const nearest = new Float64Array(points).fill(Infinity);
+    return places.map((place) => {
+      let worst = 0;
+      for (let g = 0; g < points; g++) {
+        const dx = grid[2 * g] - place.x;
+        const dy = grid[2 * g + 1] - place.y;
+        nearest[g] = Math.min(nearest[g], dx * dx + dy * dy);
+        worst = Math.max(worst, nearest[g]);
+      }
+      return Math.sqrt(worst);
+    });
+  };
+  const regular = [0];
+  for (let k = 1; k <= MAX_SAMPLES; k++) regular.push(covering(Array.from({ length: k }, (_, i) => eyeOffset(i, k, 1)))[k - 1]);
+  const rms = (order: number[], samples: number, k: number) =>
+    Math.sqrt(order.slice(0, k).reduce((sum, i) => sum + (i + 0.5) / samples, 0) / k / 0.5);
+  const byIndex = Array.from({ length: 256 }, (_, i) => i);
+  assertClose(rms(byIndex, 256, 64), 0.5, 1e-12, "ordre des indices, 64 rendus sur 256");
+  for (let samples = MIN_SAMPLES; samples <= MAX_SAMPLES; samples++) {
+    const stride = instantStride(samples);
+    const order = sampleOrder(samples, stride);
+    assert.equal(order[0], 0, `${samples} rendus : premier rendu au centre du disque, au début de la pose`);
+    assert.deepEqual([...order].sort((a, b) => a - b), byIndex.slice(0, samples), `${samples} rendus : mêmes paires`);
+    const places = order.map((i) => eyeOffset(i, samples, 1));
+    const instants = order.map((i) => sampleInstant(i, samples, stride));
+    const radii = order.map((i) => (i + 0.5) / samples);
+    const cover = covering(places);
+    let sx = 0;
+    let sy = 0;
+    let sr = 0;
+    let st = 0;
+    let srr = 0;
+    let stt = 0;
+    let srt = 0;
+    for (let k = 1; k <= samples; k++) {
+      const j = k - 1;
+      sx += places[j].x;
+      sy += places[j].y;
+      sr += radii[j];
+      st += instants[j];
+      srr += radii[j] * radii[j];
+      stt += instants[j] * instants[j];
+      srt += radii[j] * instants[j];
+      if (k < MIN_SAMPLES) continue;
+      const what = `${k} rendus faits sur ${samples}`;
+      const rho = Math.sqrt(sr / k / 0.5);
+      assert.ok(rho >= 0.95 && rho <= 1.04, `${what} : rayon quadratique moyen ${rho}`);
+      assert.ok(Math.hypot(sx / k, sy / k) <= 0.08, `${what} : centre des places`);
+      assert.ok(cover[j] <= 1.75 * regular[k], `${what} : rayon de couverture ${cover[j] / regular[k]} fois`);
+      const sorted = instants.slice(0, k).sort((a, b) => a - b);
+      let gap = Math.max(sorted[0], 1 - sorted[k - 1]);
+      for (let q = 1; q < k; q++) gap = Math.max(gap, sorted[q] - sorted[q - 1]);
+      assert.ok(gap * k <= 4, `${what} : intervalle sans instant de ${gap * k} fois 1 / k`);
+      assert.ok((sorted[k - 1] - sorted[0]) / ((k - 1) / k) >= 0.9, `${what} : pose couverte`);
+      const covariance = srt / k - (sr / k) * (st / k);
+      const correlation = covariance / Math.sqrt((srr / k - (sr / k) ** 2) * (stt / k - (st / k) ** 2));
+      assert.ok(Math.abs(correlation) <= 0.5, `${what} : corrélation du rayon et de l'instant ${correlation}`);
+    }
   }
 });
 
