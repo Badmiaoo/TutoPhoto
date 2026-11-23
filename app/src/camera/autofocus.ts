@@ -45,10 +45,7 @@ import { DepthRenderer } from "@babylonjs/core/Rendering/depthRenderer";
 import { RenderTargetTexture } from "@babylonjs/core/Materials/Textures/renderTargetTexture";
 import { depthOrGround, type GroundInfo } from "./optics";
 import { detectFaces, nearestFace, type CanvasPoint, type DetectionView, type FaceSubject } from "./faces";
-
-export type FocusMode = "single" | "continuous";
-/** Mode de zone AF : point sélectif, zone large (S) ou (L), zone automatique. */
-export type AreaMode = "point" | "wideS" | "wideL" | "auto";
+import type { FocusMode, SettingsStore } from "./settings";
 
 export interface Rect {
   left: number;
@@ -89,7 +86,6 @@ const RENDER_WAIT_MS = 5000;
 
 export class Autofocus {
   private readonly depth: DepthRenderer;
-  private focusMode: FocusMode = "continuous";
   /** Distance de mise au point en mètres. */
   private focusDistance = 5;
   /** AF-S : distance verrouillée par un toucher ou par une photo. */
@@ -110,11 +106,15 @@ export class Autofocus {
   private wasAuto = false;
   private focusTarget: FocusTarget | null = null;
 
-  /** focusArea : point ou zone de mise au point, dans le canevas, loupe comprise. */
+  /**
+   * settings : magasin de réglages (camera/settings.ts), où se lit le mode de mise au point ; focusArea : point ou zone
+   * de mise au point, dans le canevas, loupe comprise.
+   */
   constructor(
     private readonly scene: Scene,
     private readonly camera: Camera,
     private readonly ground: GroundInfo,
+    private readonly settings: SettingsStore,
     private readonly focusArea: () => FocusArea,
     private readonly subjects: readonly FaceSubject[] = [],
   ) {
@@ -152,8 +152,14 @@ export class Autofocus {
       }
     });
     setInterval(() => {
-      if ((this.focusMode === "continuous" || !this.measuredOnce) && !this.measuring && !this.suspended) void this.measure();
+      if ((this.mode() === "continuous" || !this.measuredOnce) && !this.measuring && !this.suspended) void this.measure();
     }, FOCUS_REFRESH_MS);
+    // Passage en AF-S : l'objectif reste à la distance courante, sans verrou. Passage en AF-C : plus de verrou.
+    settings.subscribe((changed) => {
+      if (!changed.has("focusMode")) return;
+      this.isLocked = false;
+      this.notify();
+    });
   }
 
   /** Carte de profondeur du viseur, pour la profondeur de champ. */
@@ -168,16 +174,9 @@ export class Autofocus {
     this.applyRefreshRate();
   }
 
+  /** Mode de mise au point, réglé dans la fenêtre « Mise au point » et lu dans le magasin de réglages. */
   mode(): FocusMode {
-    return this.focusMode;
-  }
-
-  /** Passage en AF-S : l'objectif reste à la distance courante, sans verrou. Passage en AF-C : plus de verrou. */
-  setMode(mode: FocusMode): void {
-    if (mode === this.focusMode) return;
-    this.focusMode = mode;
-    this.isLocked = false;
-    this.notify();
+    return this.settings.get("focusMode");
   }
 
   /** Distance de mise au point courante, en mètres. */
@@ -187,7 +186,7 @@ export class Autofocus {
 
   /** AF-S : distance verrouillée. */
   locked(): boolean {
-    return this.focusMode === "single" && this.isLocked;
+    return this.mode() === "single" && this.isLocked;
   }
 
   /** Ce sur quoi la zone automatique a fait le point ; null dans les autres modes. */
@@ -201,15 +200,15 @@ export class Autofocus {
    */
   touch(): Promise<void> {
     this.reselect = true;
-    if (this.focusMode === "single") return this.focusNow();
+    if (this.mode() === "single") return this.focusNow();
     return this.measure();
   }
 
   /** Toucher le viseur en AF-S, l'équivalent de la mi-course : mesure au point choisi, puis verrou. */
   focusNow(): Promise<void> {
-    if (this.focusMode !== "single") return this.queue;
+    if (this.mode() !== "single") return this.queue;
     return this.measure(() => {
-      if (this.focusMode === "single") this.isLocked = true;
+      if (this.mode() === "single") this.isLocked = true;
     });
   }
 
@@ -224,7 +223,7 @@ export class Autofocus {
 
   /** Photo prise en AF-S sans verrou : l'objectif a fait le point au déclenchement, la distance est verrouillée. */
   lockAt(distance: number): void {
-    if (this.focusMode !== "single") return;
+    if (this.mode() !== "single") return;
     this.focusDistance = distance;
     this.measuredOnce = true;
     this.isLocked = true;

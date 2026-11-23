@@ -60,6 +60,13 @@
 //   défi SIT-06 choisi ; tout fichier compté par la progression est chargé par la scène (version 0.3.55) ; le
 //   paramètre ?defi= est retiré de l'adresse une fois mémorisé, et après « Aucun défi » puis un rechargement, le
 //   bouton dit « Défis » (constat COD-03, version 0.3.72) ;
+// - mémoire des réglages (magasin de réglages, constat ARC-02, version 0.4.9) : des réglages mémorisés, changés dans
+//   les fenêtres avant ce chargement pour le défi SIT-06 (Sony A6000, mode A, correction +0,7 IL, ISO auto coupé,
+//   plafond ISO 1600, vitesse minimale 1/60 s, Continu L à 4 vues par seconde, retardateur de 5 s, AF-S, zone large (L),
+//   détection des animaux, bruit et profondeur de champ du viseur coupés, grille des tiers, histogrammes à l'écran de
+//   revue), sont écrits dans tutophoto.boitier, tutophoto.apercu et tutophoto.revue avec les champs d'avant le magasin,
+//   dans le même ordre, puis relus au chargement (fenêtres, boutons du boîtier, de la mise au point et du
+//   déclenchement, bouton « Infos ») ; le chargement ne récrit pas la mémoire ;
 // - l'activité LUM-02 (activites/LUM-02/) : la fiche y mène ; l'exemple « Grande fenêtre » (120 cm à 200 cm) donne une
 //   pénombre de 120 × 50 / 200 = 30 cm ; la bonne réponse à la première question est saluée ; pas de défilement horizontal ;
 //   source à 150 cm et à 20 cm : pénombre de 30 × 70 / 20 + 150 × 50 / 20 = 480 cm de haut, dite « au-delà du mur
@@ -2514,6 +2521,59 @@ async function runProfile(browser, name, base) {
     // gardée.
     // La ligne de diagnostic est relue juste avant ce rechargement, qui l'efface : elle garde ce que la page a signalé
     // pendant tout le parcours du simulateur (INT-06 de l'audit, version 0.3.64) ; puis une fois encore à la fin.
+    // Mémoire des réglages (magasin de réglages, constat ARC-02 de l'audit, version 0.4.9) : des réglages mémorisés,
+    // changés ici dans les fenêtres, par le code de la page (un clic de Playwright prend plusieurs secondes en rendu
+    // logiciel), doivent être relus au chargement qui suit. Choisis pour ne rien coûter au rendu de la suite : AF-S, bruit
+    // et profondeur de champ du viseur coupés. Le relevé des fenêtres et des boutons, avant et après, doit être le même.
+    const memoryState = () =>
+      page.evaluate(() => ({
+        storage: Object.fromEntries(["tutophoto.boitier", "tutophoto.apercu", "tutophoto.revue"].map((key) => [key, localStorage.getItem(key)])),
+        inputs: [
+          ...document.querySelectorAll(
+            "#exposure-dialog input, #exposure-dialog select, #release-dialog input, #release-dialog select, #af-dialog input, #body-dialog input, #preview-dialog input",
+          ),
+        ]
+          .map((e) => `${e.name}=${e.type === "radio" || e.type === "checkbox" ? (e.checked ? e.value : "") : e.value}`)
+          .filter((text) => !text.endsWith("="))
+          .join(" "),
+        buttons: ["body-button", "af-button", "release-button", "review-info"].map((id) => document.getElementById(id)?.textContent ?? "").join(" | "),
+      }));
+    await page.evaluate(() => {
+      const radio = (dialog, name, value) => document.querySelector(`#${dialog} input[name=${name}][value=${value}]`).click();
+      const choose = (dialog, name, value) => {
+        const select = document.querySelector(`#${dialog} select[name=${name}]`);
+        select.value = value;
+        select.dispatchEvent(new Event("change"));
+      };
+      const tick = (selector, checked) => {
+        const box = document.querySelector(selector);
+        if (box.checked !== checked) box.click();
+      };
+      radio("body-dialog", "brand", "sony");
+      radio("exposure-dialog", "exposureMode", "A");
+      choose("exposure-dialog", "compensation", "2");
+      // Plafond et vitesse minimale avant de couper l'ISO auto, qui grise leurs listes.
+      tick("#exposure-dialog input[name=autoIso]", true);
+      choose("exposure-dialog", "maxIso", "12");
+      choose("exposure-dialog", "minShutter", "33");
+      tick("#exposure-dialog input[name=autoIso]", false);
+      radio("release-dialog", "release", "cl");
+      choose("release-dialog", "clRate", "4");
+      choose("release-dialog", "timerDelay", "5");
+      radio("af-dialog", "focusMode", "single");
+      // La détection ne se choisit qu'en zone automatique.
+      radio("af-dialog", "areaMode", "auto");
+      radio("af-dialog", "detection", "animal");
+      radio("af-dialog", "areaMode", "wideL");
+      tick("#preview-dialog input[type=checkbox][value=all]", true);
+      tick("#preview-dialog input[type=checkbox][value=noise]", false);
+      tick("#preview-dialog input[type=checkbox][value=depthOfField]", false);
+      radio("preview-dialog", "grid", "thirds");
+      for (let i = 0; i < 3 && JSON.parse(localStorage.getItem("tutophoto.revue") ?? "null")?.display !== "histograms"; i++) {
+        document.getElementById("review-info").click();
+      }
+    });
+    const memoryBefore = await memoryState();
     const problemBeforeReload = await diagnosticText();
     await page.goto(`${base}/simulateur?defi=SIT-06`);
     const progress = await page
@@ -2530,6 +2590,41 @@ async function runProfile(browser, name, base) {
       /SIT-06$/.test(chosen.text) && chosen.path === "/simulateur/" && /Mio reçus|préparation/.test(progress) && !/^attente échouée/.test(progress),
       `${chosen.path} ; ${chosen.text} ; pendant le chargement : « ${progress} »`,
     );
+    {
+      const memoryAfter = await memoryState();
+      const saved = (key) => {
+        try {
+          return JSON.parse(memoryBefore.storage[key] ?? "null") ?? {};
+        } catch {
+          return {};
+        }
+      };
+      const box = saved("tutophoto.boitier");
+      const preview = saved("tutophoto.apercu");
+      const fields = [
+        Object.keys(box).join(","),
+        Object.keys(preview).join(","),
+        Object.keys(saved("tutophoto.revue")).join(","),
+      ];
+      const written =
+        fields[0] === "brand,focusMode,areaMode,detection,release,clRate,timerDelay,exposureMode,compensation,autoIso,maxIso,minShutter" &&
+        fields[1] === "all,brightness,noise,depthOfField,balance,grid" &&
+        fields[2] === "display" &&
+        JSON.stringify([box.brand, box.focusMode, box.areaMode, box.detection, box.release, box.clRate, box.timerDelay]) ===
+          JSON.stringify(["sony", "single", "wideL", "animal", "cl", 4, 5]) &&
+        JSON.stringify([box.exposureMode, box.compensation, box.autoIso, box.maxIso, box.minShutter]) === JSON.stringify(["A", 2, false, 12, 33]) &&
+        JSON.stringify([preview.all, preview.noise, preview.depthOfField, preview.grid]) === JSON.stringify([true, false, false, "thirds"]) &&
+        saved("tutophoto.revue").display === "histograms";
+      check(
+        "mémoire des réglages : écrite avec les champs d'avant le magasin, relue au chargement, pas récrite (ARC-02)",
+        written &&
+          JSON.stringify(memoryAfter.storage) === JSON.stringify(memoryBefore.storage) &&
+          memoryAfter.inputs === memoryBefore.inputs &&
+          memoryAfter.buttons === memoryBefore.buttons &&
+          /^Sony A6000 \| AF-S · Zone L \| Continu L · 4 vps/.test(memoryAfter.buttons),
+        `champs : ${fields.join(" ; ")} ; boutons avant : ${memoryBefore.buttons} ; après : ${memoryAfter.buttons} ; fenêtres ${memoryAfter.inputs === memoryBefore.inputs ? "identiques" : `avant : ${memoryBefore.inputs} ; après : ${memoryAfter.inputs}`} ; mémoire ${JSON.stringify(memoryAfter.storage) === JSON.stringify(memoryBefore.storage) ? "inchangée" : `récrite : ${JSON.stringify(memoryAfter.storage)}`}`,
+      );
+    }
     // Le paramètre ?defi= est retiré de l'adresse une fois lu et mémorisé (constat COD-03 de l'audit, version 0.3.72).
     check(
       "défi de l'adresse : mémorisé, puis retiré de l'adresse",

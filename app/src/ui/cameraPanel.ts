@@ -24,6 +24,8 @@
 // quand la loupe agrandit l'image, et elle n'est dessinée ni sur la photo ni sur l'écran de revue (aucune page lue
 // ne dit ce que fait un boîtier). Non simulé : le quadrillage du Nikon Z 6, dont le manuel ne décrit pas le tracé ;
 // les grilles « Square Grid » et « Diag. + Square Grid » de Sony, non décrites.
+// Réglages, valeurs de départ et mémoire du navigateur : camera/settings.ts (magasin de réglages, version 0.4.9). Le
+// panneau y lit les réglages et y écrit ce que l'on choisit ; il se met à jour par son abonnement (settingsChanged).
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
@@ -33,27 +35,37 @@ import type { FreeCameraTouchInput } from "@babylonjs/core/Cameras/Inputs/freeCa
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { BODIES, findBody, sensorPixels, type Body, type Brand } from "../camera/bodies";
 import {
-  DEFAULT_FOCAL_INDEX,
-  DEFAULT_SETTINGS,
   FOCAL_LENGTHS,
   SCALES,
   apertureLabel,
   apertureValue,
   isoLabel,
   isoValue,
-  shutterIndexOf,
   shutterLabel,
   shutterSeconds,
   type ExposureSettings,
 } from "../camera/exposure";
 import { COMPENSATION_RANGE, resolveExposure, type ExposureMode, type ResolvedExposure } from "../camera/exposureModes";
-import { cameraFov, frameFor, gridLines, isGridKind, type Frame, type GridKind } from "../camera/viewfinder";
+import { cameraFov, frameFor, gridLines, isGridKind, type Frame } from "../camera/viewfinder";
 import { windowProjection } from "../camera/optics";
 import type { ViewfinderNoise } from "../camera/noise";
 import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
-import type { AreaMode, Autofocus, FocusArea, FocusMode, Rect } from "../camera/autofocus";
+import type { Autofocus, FocusArea, Rect } from "../camera/autofocus";
 import type { Detection } from "../camera/faces";
+import {
+  CL_RATES,
+  MAX_ISO_FIRST,
+  RELEASE_FPS,
+  TIMER_DELAYS,
+  type AreaMode,
+  type FocusMode,
+  type ReleaseKind,
+  type SettingKey,
+  type Settings,
+  type SettingsStore,
+} from "../camera/settings";
 import type { BalanceIndicator } from "./balance";
+import { t, type MessageKey } from "../texts";
 
 /**
  * Couverture de l'autofocus (MAP-06) : environ 90 % du cadre en largeur et en hauteur, au centre. Nikon, pour
@@ -72,41 +84,8 @@ import type { BalanceIndicator } from "./balance";
  */
 export const AF_COVERAGE = { horizontal: 0.9, vertical: 0.9 };
 
-/**
- * Mode de déclenchement (BOI-12), d'après le manuel du Nikon Z 6 (« The Release Mode/Self-Timer Button »,
- * lu le 10 novembre 2026) [nikon-z6-release-mode]
- * https://onlinemanual.nikonimglib.com/z7_z6/en/06_shooting_controls_04.html : vue par vue ; Continu L, 1 à 5 vues par seconde ; Continu H,
- * jusqu'à environ 5,5 ; Continu H (étendu), 12 au Z 6 en JPEG ; retardateur de 2, 5, 10 ou 20 s. Réglages par
- * défaut du Z 6 (« Defaults », lu le 10 novembre 2026) [nikon-z6-defaults] : 3 vues par seconde (d1), 10 s (c2).
- */
-export type ReleaseKind = "single" | "cl" | "ch" | "chx" | "timer";
-export interface ReleaseMode {
-  kind: ReleaseKind;
-  /** Vues par seconde au plus, en rafale. */
-  fps: number;
-  /** Délai du retardateur, en secondes. */
-  delay: number;
-}
-const RELEASE_FPS: Record<"ch" | "chx", number> = { ch: 5.5, chx: 12 };
-const EXPOSURE_MODES: readonly ExposureMode[] = ["M", "A", "S"];
-/** Sensibilité maximale de l'ISO auto : de ISO 200 (Z 6) au haut de l'échelle de TutoPhoto, ISO 6400. */
-const MAX_ISO_FIRST = 3;
-/**
- * Vitesse minimale par défaut. Le Z 6 a « Auto » par défaut [nikon-z6-defaults], selon la focale ; la page ne donne
- * pas la règle ; le manuel du D850 fixe 1/30 s quand « Auto » ne peut pas fonctionner (objectif sans données)
- * [nikon-d850-auto-iso].
- *   https://onlinemanual.nikonimglib.com/z7_z6/en/09_menu_guide_01.html
- *   https://onlinemanual.nikonimglib.com/d850/en/10_iso_sensitivity_02.html
- */
-const DEFAULT_MIN_SHUTTER = "1/30";
-const CL_RATES = [1, 2, 3, 4, 5] as const;
-const TIMER_DELAYS = [2, 5, 10, 20] as const;
-import { t, type MessageKey } from "../texts";
-
 /** Écart maximal affiché par la cellule, en IL. */
 const METER_RANGE = 3;
-const STORAGE_KEY = "tutophoto.boitier";
-const PREVIEW_STORAGE_KEY = "tutophoto.apercu";
 /** Grossissements de la loupe, en fraction de la vue à 100 % ; un cran trop proche de 1 est sauté. */
 const LOUPE_LEVELS = [0.5, 1] as const;
 const LOUPE_MIN_ZOOM = 1.25;
@@ -121,7 +100,6 @@ const AREA_KEYS: Record<AreaMode, { label: MessageKey; short: MessageKey }> = {
   wideL: { label: "areaWideL", short: "areaWideLShort" },
   auto: { label: "areaAuto", short: "areaAutoShort" },
 };
-const DETECTIONS: readonly Detection[] = ["faceEye", "face", "animal", "off"];
 const TARGET_KEYS: Record<"eye" | "face" | "nearest" | "point", MessageKey> = {
   eye: "targetEye",
   face: "targetFace",
@@ -131,21 +109,46 @@ const TARGET_KEYS: Record<"eye" | "face" | "nearest" | "point", MessageKey> = {
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-/** Interrupteurs de l'aperçu dans le viseur. */
-const PREVIEW_SWITCHES = ["all", "brightness", "noise", "depthOfField", "balance"] as const;
-type PreviewSwitch = (typeof PREVIEW_SWITCHES)[number];
+/** Interrupteurs de l'aperçu dans le viseur : valeur de la case de la fenêtre « Aperçu », et le réglage qu'elle coche. */
+const PREVIEW_SWITCHES = {
+  all: "previewAll",
+  brightness: "previewBrightness",
+  noise: "previewNoise",
+  depthOfField: "previewDepthOfField",
+  balance: "previewBalance",
+} as const satisfies Record<string, SettingKey>;
+type PreviewSwitch = keyof typeof PREVIEW_SWITCHES;
 
-/** Aperçu dans le viseur : interrupteurs et grille de cadrage. */
-interface Preview {
-  all: boolean;
-  brightness: boolean;
-  noise: boolean;
-  depthOfField: boolean;
-  /** Indicateur d'équilibre (ui/balance.ts) : une aide, que l'on peut couper pour s'entraîner. */
-  balance: boolean;
-  /** Grille de cadrage : une aide, qui ne dépend pas de l'interrupteur général. */
-  grid: GridKind;
-}
+/**
+ * Ce que chaque réglage met à jour quand il change (settingsChanged) : tout le panneau ; le seul mode de
+ * déclenchement ; la seule mise au point, puis la vue ; rien (affichage de l'écran de revue, ui/reviewInfo.ts). Les
+ * mêmes mises à jour qu'avant le magasin de réglages, fenêtre par fenêtre.
+ */
+const REFRESH: Record<SettingKey, "panel" | "release" | "focus" | "none"> = {
+  aperture: "panel",
+  shutter: "panel",
+  iso: "panel",
+  focalIndex: "panel",
+  brand: "panel",
+  exposureMode: "panel",
+  compensation: "panel",
+  autoIso: "panel",
+  maxIso: "panel",
+  minShutter: "panel",
+  focusMode: "focus",
+  areaMode: "focus",
+  detection: "focus",
+  release: "release",
+  clRate: "release",
+  timerDelay: "release",
+  previewAll: "panel",
+  previewBrightness: "panel",
+  previewNoise: "panel",
+  previewDepthOfField: "panel",
+  previewBalance: "panel",
+  grid: "panel",
+  reviewDisplay: "none",
+};
 
 type Dial = "aperture" | "shutter" | "iso" | "focal";
 
@@ -205,35 +208,12 @@ interface PanelElements {
 type Point = { x: number; y: number };
 
 export class CameraPanel {
-  /** Réglages choisis avec les molettes ; l'appareil peut en changer certains (resolved). */
-  private settings: ExposureSettings = { ...DEFAULT_SETTINGS };
-  private exposureMode: ExposureMode = "M";
-  /** Correction d'exposition, en tiers d'IL. */
-  private compensation = 0;
-  /** Contrôle de la sensibilité auto : activé par défaut sur le Z 6 [nikon-z6-defaults]. */
-  private autoIso = true;
-  private maxIso = SCALES.iso - 1;
-  private minShutter = shutterIndexOf(DEFAULT_MIN_SHUTTER);
-  private focalIndex = DEFAULT_FOCAL_INDEX;
-  private brand: Brand = "nikon";
   private frame: Frame | null = null;
-  private preview: Preview = { all: true, brightness: true, noise: true, depthOfField: true, balance: true, grid: "none" };
   /** Grille dont les lignes sont tracées dans le cadre ; null avant le premier tracé. */
   private drawnGrid: string | null = null;
   private balance: BalanceIndicator | null = null;
   private dof: ViewfinderDepthOfField | null = null;
   private autofocus: Autofocus | null = null;
-  /**
-   * Réglages par défaut du Z 6 [nikon-z6-defaults] : AF ponctuel (« Single AF »), AF point sélectif, détection des
-   * visages et des yeux (a4). AF-S depuis la version 0.3.36 ; AF-C avant, choisi faute d'avoir lu cette page.
-   */
-  private focusMode: FocusMode = "single";
-  private areaMode: AreaMode = "point";
-  private detection: Detection = "faceEye";
-  private releaseKind: ReleaseKind = "single";
-  // Valeurs par défaut du Z 6 (Continu L, retardateur) [nikon-z6-defaults].
-  private clRate = 3;
-  private timerDelay = 10;
   /** Cran de la loupe dans LOUPE_LEVELS ; -1 : pas de loupe. */
   private loupeLevel = -1;
   private loupeZoom = 1;
@@ -254,6 +234,8 @@ export class CameraPanel {
     private readonly camera: UniversalCamera,
     private readonly el: PanelElements,
     private readonly noise: ViewfinderNoise,
+    /** Magasin de réglages (camera/settings.ts), relu dans la mémoire du navigateur avant le panneau. */
+    private readonly settings: SettingsStore,
   ) {
     this.baseAngularSensibility = camera.angularSensibility;
     const touch = camera.inputs.attached["touch"] as FreeCameraTouchInput | undefined;
@@ -262,70 +244,77 @@ export class CameraPanel {
     el.afButton.addEventListener("click", () => el.afDialog.showModal());
     el.releaseButton.addEventListener("click", () => el.releaseDialog.showModal());
     el.meterValue.addEventListener("click", () => el.exposureDialog.showModal());
+    // Chaque choix des fenêtres s'écrit dans le magasin, qui le mémorise ; l'affichage suit par l'abonnement.
     for (const input of el.exposureDialog.querySelectorAll<HTMLInputElement | HTMLSelectElement>("input, select")) {
       input.addEventListener("change", () => {
-        if (input.name === "exposureMode") this.exposureMode = input.value as ExposureMode;
-        if (input.name === "compensation") this.compensation = Number(input.value);
-        if (input.name === "autoIso") this.autoIso = (input as HTMLInputElement).checked;
-        if (input.name === "maxIso") this.maxIso = Number(input.value);
-        if (input.name === "minShutter") this.minShutter = Number(input.value);
-        this.saveBody();
-        this.update();
+        if (input.name === "exposureMode") settings.set({ exposureMode: input.value as ExposureMode });
+        if (input.name === "compensation") settings.set({ compensation: Number(input.value) });
+        if (input.name === "autoIso") settings.set({ autoIso: (input as HTMLInputElement).checked });
+        if (input.name === "maxIso") settings.set({ maxIso: Number(input.value) });
+        if (input.name === "minShutter") settings.set({ minShutter: Number(input.value) });
       });
     }
     for (const input of el.releaseDialog.querySelectorAll<HTMLInputElement | HTMLSelectElement>("input[type=radio], select")) {
       input.addEventListener("change", () => {
-        if (input.name === "release") this.releaseKind = input.value as ReleaseKind;
-        if (input.name === "clRate") this.clRate = Number(input.value);
-        if (input.name === "timerDelay") this.timerDelay = Number(input.value);
-        this.saveBody();
-        this.updateRelease();
+        if (input.name === "release") settings.set({ release: input.value as ReleaseKind });
+        if (input.name === "clRate") settings.set({ clRate: Number(input.value) });
+        if (input.name === "timerDelay") settings.set({ timerDelay: Number(input.value) });
       });
     }
     for (const input of el.afDialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) {
       input.addEventListener("change", () => {
-        if (input.name === "focusMode") this.focusMode = input.value as FocusMode;
-        if (input.name === "areaMode") this.areaMode = input.value as AreaMode;
-        if (input.name === "detection") this.detection = input.value as Detection;
-        this.saveBody();
-        this.autofocus?.setMode(this.focusMode);
-        this.updateFocus();
-        // La zone couverte peut changer avec le mode de zone (EOS R50, afCoverageAuto) : applyView la redessine, y
-        // ramène le point et prévient les écouteurs.
-        if (input.name === "areaMode") this.applyView();
-        else for (const listener of this.viewListeners) listener();
+        if (input.name === "focusMode") settings.set({ focusMode: input.value as FocusMode });
+        if (input.name === "areaMode") settings.set({ areaMode: input.value as AreaMode });
+        if (input.name === "detection") settings.set({ detection: input.value as Detection });
       });
     }
-    this.restoreBody();
-    this.restorePreview();
     for (const button of el.panel.querySelectorAll<HTMLButtonElement>("button[data-dial]")) {
       button.addEventListener("click", () => this.step(button.dataset.dial as Dial, Number(button.dataset.step)));
     }
     el.bodyButton.addEventListener("click", () => el.bodyDialog.showModal());
     for (const input of el.bodyDialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) {
       input.addEventListener("change", () => {
-        if (input.name === "brand") this.brand = input.value as Brand;
-        this.saveBody();
-        this.update();
+        if (input.name === "brand") settings.set({ brand: input.value as Brand });
       });
     }
     el.previewButton.addEventListener("click", () => el.previewDialog.showModal());
     for (const input of el.previewDialog.querySelectorAll<HTMLInputElement>("input[type=checkbox]")) {
       input.addEventListener("change", () => {
-        this.preview[input.value as PreviewSwitch] = input.checked;
-        this.savePreview();
-        this.update();
+        settings.set({ [PREVIEW_SWITCHES[input.value as PreviewSwitch]]: input.checked } as Partial<Settings>);
       });
     }
     for (const input of el.previewDialog.querySelectorAll<HTMLInputElement>("input[name=grid]")) {
       input.addEventListener("change", () => {
-        if (isGridKind(input.value)) this.preview.grid = input.value;
-        this.savePreview();
-        this.update();
+        if (isGridKind(input.value)) settings.set({ grid: input.value });
       });
     }
+    settings.subscribe((changed) => this.settingsChanged(changed));
     engine.onResizeObservable.add(() => this.applyView());
     this.update();
+  }
+
+  /** Abonnement au magasin de réglages : les mises à jour que demandent les réglages changés (REFRESH). */
+  private settingsChanged(changed: ReadonlySet<SettingKey>): void {
+    const kinds = new Set([...changed].map((key) => REFRESH[key]));
+    // update() refait aussi la mise au point, le mode de déclenchement et la vue.
+    if (kinds.has("panel")) {
+      this.update();
+      return;
+    }
+    if (kinds.has("release")) this.updateRelease();
+    if (kinds.has("focus")) {
+      this.updateFocus();
+      // La zone couverte peut changer avec le mode de zone (EOS R50, afCoverageAuto) : applyView la redessine, y
+      // ramène le point et prévient les écouteurs.
+      if (changed.has("areaMode")) this.applyView();
+      else for (const listener of this.viewListeners) listener();
+    }
+  }
+
+  /** Ouverture, vitesse et ISO choisis avec les molettes ; l'appareil peut en changer certains (resolved). */
+  private chosen(): ExposureSettings {
+    const s = this.settings.all();
+    return { aperture: s.aperture, shutter: s.shutter, iso: s.iso };
   }
 
   applyTexts(): void {
@@ -337,7 +326,7 @@ export class CameraPanel {
     const resolved = this.resolved();
     return {
       body: this.body(),
-      focalMm: FOCAL_LENGTHS[this.focalIndex],
+      focalMm: FOCAL_LENGTHS[this.settings.get("focalIndex")],
       aperture: apertureValue(resolved.settings.aperture),
       shutterSeconds: shutterSeconds(resolved.settings.shutter),
       iso: isoValue(resolved.settings.iso),
@@ -355,22 +344,24 @@ export class CameraPanel {
 
   /** Réglages retenus par l'appareil, selon le mode, la correction et l'ISO auto. */
   private resolved(): ResolvedExposure {
+    const s = this.settings.all();
     return resolveExposure({
-      mode: this.exposureMode,
-      chosen: this.settings,
-      compensation: this.compensation,
-      autoIso: this.autoIso,
-      maxIso: this.maxIso,
-      minShutter: this.minShutter,
+      mode: s.exposureMode,
+      chosen: this.chosen(),
+      compensation: s.compensation,
+      autoIso: s.autoIso,
+      maxIso: s.maxIso,
+      minShutter: s.minShutter,
     });
   }
 
   /** « A · f/4 · 1/200 s · ISO 100 (auto) · corr. +1,0 IL · 50 mm ». */
   private summary(resolved: ResolvedExposure): string {
     const tr = t;
-    const iso = `ISO ${this.label("iso", resolved)}${this.autoIso ? ` (${tr("setByCamera")})` : ""}`;
-    const parts = [this.exposureMode, this.label("aperture", resolved), this.label("shutter", resolved), iso];
-    if (this.compensation !== 0) parts.push(`${tr("compensationShort")} ${this.compensationText(this.compensation)} ${tr("meterUnit")}`);
+    const s = this.settings.all();
+    const iso = `ISO ${this.label("iso", resolved)}${s.autoIso ? ` (${tr("setByCamera")})` : ""}`;
+    const parts = [s.exposureMode, this.label("aperture", resolved), this.label("shutter", resolved), iso];
+    if (s.compensation !== 0) parts.push(`${tr("compensationShort")} ${this.compensationText(s.compensation)} ${tr("meterUnit")}`);
     parts.push(this.label("focal", resolved));
     return parts.join(" · ");
   }
@@ -393,10 +384,9 @@ export class CameraPanel {
     return this.showsBrightness() ? 1 : 2 ** this.resolved().offset;
   }
 
-  /** Autofocus du viseur, créé après le panneau (il lit le point de mise au point). */
+  /** Autofocus du viseur, créé après le panneau (il lit le point de mise au point, et son mode dans le magasin). */
   attachAutofocus(autofocus: Autofocus): void {
     this.autofocus = autofocus;
-    autofocus.setMode(this.focusMode);
     autofocus.onChange(() => this.updateFocus());
     this.updateFocus();
   }
@@ -434,12 +424,12 @@ export class CameraPanel {
     const frame = this.frame;
     const { width, height } = this.canvasSize;
     const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
-    if (this.areaMode === "auto") {
+    if (this.settings.get("areaMode") === "auto") {
       return {
         point,
         zone: bounds,
         auto: {
-          detection: this.detection,
+          detection: this.settings.get("detection"),
           frame: bounds,
           frameLongSidePx: Math.max(frame.width, frame.height),
           zoom: this.loupeZoom,
@@ -490,7 +480,7 @@ export class CameraPanel {
    */
   private afMargins(): { x: number; y: number } {
     const body = this.body();
-    const coverage = (this.areaMode === "auto" ? body.afCoverageAuto : undefined) ?? body.afCoverage ?? AF_COVERAGE;
+    const coverage = (this.settings.get("areaMode") === "auto" ? body.afCoverageAuto : undefined) ?? body.afCoverage ?? AF_COVERAGE;
     const portrait = this.frame?.portrait ?? false;
     const across = portrait ? coverage.vertical : coverage.horizontal;
     const down = portrait ? coverage.horizontal : coverage.vertical;
@@ -506,29 +496,25 @@ export class CameraPanel {
 
   /** Taille de la zone large dans le canevas (fractions de sa largeur et de sa hauteur) ; null pour un point. */
   zoneOnCanvas(): { width: number; height: number } | null {
-    if (this.areaMode === "point" || this.areaMode === "auto" || !this.frame) return null;
-    const side = WIDE_AREA_SIZE[this.areaMode] * Math.max(this.frame.width, this.frame.height) * this.loupeZoom;
+    const areaMode = this.settings.get("areaMode");
+    if (areaMode === "point" || areaMode === "auto" || !this.frame) return null;
+    const side = WIDE_AREA_SIZE[areaMode] * Math.max(this.frame.width, this.frame.height) * this.loupeZoom;
     return { width: side / this.canvasSize.width, height: side / this.canvasSize.height };
-  }
-
-  /** Mode de déclenchement courant. */
-  releaseMode(): ReleaseMode {
-    const fps = this.releaseKind === "cl" ? this.clRate : this.releaseKind === "ch" || this.releaseKind === "chx" ? RELEASE_FPS[this.releaseKind] : 1;
-    return { kind: this.releaseKind, fps, delay: this.timerDelay };
   }
 
   /** Bouton et fenêtre « Mode de déclenchement ». */
   private updateRelease(): void {
     const tr = t;
+    const { release, clRate, timerDelay } = this.settings.all();
     const fpsText = (fps: number) => `${String(fps).replace(".", ",")} ${tr("releaseFpsShort")}`;
     const labels: Record<ReleaseKind, string> = {
       single: tr("releaseSingle"),
-      cl: `${tr("releaseCL")} · ${fpsText(this.clRate)}`,
+      cl: `${tr("releaseCL")} · ${fpsText(clRate)}`,
       ch: `${tr("releaseCH")} · ${fpsText(RELEASE_FPS.ch)}`,
       chx: `${tr("releaseCHX")} · ${fpsText(RELEASE_FPS.chx)}`,
-      timer: `${tr("releaseTimer")} · ${this.timerDelay} s`,
+      timer: `${tr("releaseTimer")} · ${timerDelay} s`,
     };
-    this.el.releaseButton.textContent = labels[this.releaseKind];
+    this.el.releaseButton.textContent = labels[release];
     this.el.releaseButton.title = tr("releaseTitle");
     const dialog = this.el.releaseDialog;
     dialog.querySelector("#release-title")!.textContent = tr("releaseTitle");
@@ -541,16 +527,16 @@ export class CameraPanel {
     dialog.querySelector("#release-delay-label")!.textContent = tr("releaseDelay");
     dialog.querySelector("#release-note")!.textContent = tr("releaseNote");
     dialog.querySelector("#release-close")!.textContent = tr("close");
-    for (const input of dialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) input.checked = input.value === this.releaseKind;
+    for (const input of dialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) input.checked = input.value === release;
     const rate = dialog.querySelector<HTMLSelectElement>("select[name=clRate]")!;
     const delay = dialog.querySelector<HTMLSelectElement>("select[name=timerDelay]")!;
-    rate.replaceChildren(...CL_RATES.map((r) => new Option(fpsText(r), String(r), false, r === this.clRate)));
-    delay.replaceChildren(...TIMER_DELAYS.map((d) => new Option(`${d} s`, String(d), false, d === this.timerDelay)));
+    rate.replaceChildren(...CL_RATES.map((r) => new Option(fpsText(r), String(r), false, r === clRate)));
+    delay.replaceChildren(...TIMER_DELAYS.map((d) => new Option(`${d} s`, String(d), false, d === timerDelay)));
   }
 
   /** Pourquoi la vitesse (A) ou l'ouverture (S) clignote : trop ou pas assez de lumière. */
   private limitText(resolved: ResolvedExposure): string {
-    return t(resolved.offset - this.compensation / 3 > 0 ? "tooBright" : "tooDark");
+    return t(resolved.offset - this.settings.get("compensation") / 3 > 0 ? "tooBright" : "tooDark");
   }
 
   /** « La vitesse clignote avec l'indicateur d'exposition : le sujet est trop clair ; la photo sera surexposée. » */
@@ -582,28 +568,25 @@ export class CameraPanel {
     dialog.querySelector("#exposure-min-label")!.textContent = tr("minShutter");
     dialog.querySelector("#exposure-note")!.textContent = tr("exposureNote");
     dialog.querySelector("#exposure-close")!.textContent = tr("close");
-    for (const input of dialog.querySelectorAll<HTMLInputElement>("input[name=exposureMode]")) input.checked = input.value === this.exposureMode;
-    dialog.querySelector<HTMLInputElement>("input[name=autoIso]")!.checked = this.autoIso;
+    const s = this.settings.all();
+    for (const input of dialog.querySelectorAll<HTMLInputElement>("input[name=exposureMode]")) input.checked = input.value === s.exposureMode;
+    dialog.querySelector<HTMLInputElement>("input[name=autoIso]")!.checked = s.autoIso;
     const unit = tr("meterUnit");
     const compensation = dialog.querySelector<HTMLSelectElement>("select[name=compensation]")!;
     const steps = Array.from({ length: 2 * COMPENSATION_RANGE + 1 }, (_, k) => COMPENSATION_RANGE - k);
-    compensation.replaceChildren(...steps.map((c) => new Option(`${this.compensationText(c)} ${unit}`, String(c), false, c === this.compensation)));
+    compensation.replaceChildren(...steps.map((c) => new Option(`${this.compensationText(c)} ${unit}`, String(c), false, c === s.compensation)));
     const maxIso = dialog.querySelector<HTMLSelectElement>("select[name=maxIso]")!;
     const isoSteps = Array.from({ length: SCALES.iso - MAX_ISO_FIRST }, (_, k) => MAX_ISO_FIRST + k);
-    maxIso.replaceChildren(...isoSteps.map((i) => new Option(`ISO ${isoLabel(i)}`, String(i), false, i === this.maxIso)));
-    maxIso.disabled = !this.autoIso;
+    maxIso.replaceChildren(...isoSteps.map((i) => new Option(`ISO ${isoLabel(i)}`, String(i), false, i === s.maxIso)));
+    maxIso.disabled = !s.autoIso;
     const minShutter = dialog.querySelector<HTMLSelectElement>("select[name=minShutter]")!;
     // Du plus rapide au plus lent, comme la liste du Z 6 (« from 1/4000 s to 30 s »).
     const shutterSteps = Array.from({ length: SCALES.shutter }, (_, k) => SCALES.shutter - 1 - k);
+    const chosen = this.chosen();
     minShutter.replaceChildren(
-      ...shutterSteps.map((k) => new Option(this.label("shutter", { settings: { ...this.settings, shutter: k } }), String(k), false, k === this.minShutter)),
+      ...shutterSteps.map((k) => new Option(this.label("shutter", { settings: { ...chosen, shutter: k } }), String(k), false, k === s.minShutter)),
     );
-    minShutter.disabled = !this.autoIso;
-  }
-
-  /** Mode de zone AF, pour la légende de la photo. */
-  area(): AreaMode {
-    return this.areaMode;
+    minShutter.disabled = !s.autoIso;
   }
 
   /** Appelé à chaque changement du viseur (taille, focale, boîtier, loupe). */
@@ -656,19 +639,22 @@ export class CameraPanel {
   }
 
   private body() {
-    return findBody(this.brand);
+    return findBody(this.settings.get("brand"));
   }
 
-  /** « + » augmente la valeur affichée : nombre f, durée de pose, ISO, focale. */
+  /**
+   * « + » augmente la valeur affichée : nombre f, durée de pose, ISO, focale. Au bout d'une échelle, rien ne change et
+   * rien n'est redessiné (avant le magasin de réglages, update() redessinait le même état).
+   */
   private step(dial: Dial, delta: number): void {
     const clamp = (value: number, size: number) => Math.min(size - 1, Math.max(0, value));
+    const s = this.settings.all();
     // En S, l'appareil choisit l'ouverture ; en A, la vitesse.
-    if (dial === "aperture" && this.exposureMode !== "S") this.settings.aperture = clamp(this.settings.aperture + delta, SCALES.aperture);
+    if (dial === "aperture" && s.exposureMode !== "S") this.settings.set({ aperture: clamp(s.aperture + delta, SCALES.aperture) });
     // L'échelle des vitesses va de 30 s à 1/4000 s : une pose plus longue est un indice plus petit.
-    if (dial === "shutter" && this.exposureMode !== "A") this.settings.shutter = clamp(this.settings.shutter - delta, SCALES.shutter);
-    if (dial === "iso") this.settings.iso = clamp(this.settings.iso + delta, SCALES.iso);
-    if (dial === "focal") this.focalIndex = clamp(this.focalIndex + delta, FOCAL_LENGTHS.length);
-    this.update();
+    if (dial === "shutter" && s.exposureMode !== "A") this.settings.set({ shutter: clamp(s.shutter - delta, SCALES.shutter) });
+    if (dial === "iso") this.settings.set({ iso: clamp(s.iso + delta, SCALES.iso) });
+    if (dial === "focal") this.settings.set({ focalIndex: clamp(s.focalIndex + delta, FOCAL_LENGTHS.length) });
   }
 
   /** Libellé d'un réglage retenu par l'appareil (ou choisi, pour les listes de la fenêtre « Exposition »). */
@@ -686,29 +672,30 @@ export class CameraPanel {
       case "iso":
         return isoLabel(settings.iso);
       case "focal":
-        return `${FOCAL_LENGTHS[this.focalIndex]} mm`;
+        return `${FOCAL_LENGTHS[this.settings.get("focalIndex")]} mm`;
     }
   }
 
   private update(): void {
     const tr = t;
     const resolved = this.resolved();
+    const s = this.settings.all();
     for (const dial of ["aperture", "shutter", "iso", "focal"] as const) {
       const box = this.el.panel.querySelector<HTMLElement>(`[data-box="${dial}"]`);
       if (!box) continue;
-      const byCamera = (dial === "aperture" && this.exposureMode === "S") || (dial === "shutter" && this.exposureMode === "A");
-      const name = dial === "iso" && this.autoIso ? tr("isoAuto") : byCamera ? `${tr(dial)} (${tr("setByCamera")})` : tr(dial);
+      const byCamera = (dial === "aperture" && s.exposureMode === "S") || (dial === "shutter" && s.exposureMode === "A");
+      const name = dial === "iso" && s.autoIso ? tr("isoAuto") : byCamera ? `${tr(dial)} (${tr("setByCamera")})` : tr(dial);
       box.querySelector(".dial-name")!.textContent = name;
       const output = box.querySelector("output")!;
       output.textContent = this.label(dial, resolved);
       output.classList.toggle("by-camera", byCamera || (dial === "iso" && resolved.isoAltered));
       output.classList.toggle("flashing", resolved.flashing === dial);
       output.title =
-        dial === "iso" && resolved.isoAltered ? `${tr("isoChosen")}\u00a0: ${isoLabel(this.settings.iso)}` : resolved.flashing === dial ? this.limitText(resolved) : "";
+        dial === "iso" && resolved.isoAltered ? `${tr("isoChosen")}\u00a0: ${isoLabel(s.iso)}` : resolved.flashing === dial ? this.limitText(resolved) : "";
       for (const button of box.querySelectorAll<HTMLButtonElement>("button[data-step]")) button.disabled = !this.enabled || byCamera;
       // Nom et infobulle : la molette, le signe affiché, puis l'effet (constat INT-16 de l'audit, version 0.4.7). Les
       // signes ne changent pas : « + » augmente le nombre affiché pour les quatre molettes.
-      const effects = dial === "iso" && this.autoIso ? AUTO_ISO_EFFECTS : DIAL_EFFECTS[dial];
+      const effects = dial === "iso" && s.autoIso ? AUTO_ISO_EFFECTS : DIAL_EFFECTS[dial];
       for (const [step, sign, effect] of [["-1", "decrease", effects.decrease], ["1", "increase", effects.increase]] as const) {
         const button = box.querySelector<HTMLButtonElement>(`[data-step="${step}"]`)!;
         const text = `${name}, ${tr(sign)}\u00a0: ${tr(effect)}`;
@@ -728,8 +715,8 @@ export class CameraPanel {
     this.el.meterNeedle.classList.toggle("flashing", resolved.flashing !== null);
     const sign = indicator > 0.05 ? "+" : indicator < -0.05 ? "−" : "";
     const amount = Math.abs(indicator).toFixed(1);
-    const correction = this.compensation !== 0 ? ` · ${tr("compensationShort")} ${this.compensationText(this.compensation)}` : "";
-    const meterText = `${this.exposureMode} · ${sign}${amount.replace(".", ",")} ${tr("meterUnit")}${correction}`;
+    const correction = s.compensation !== 0 ? ` · ${tr("compensationShort")} ${this.compensationText(s.compensation)}` : "";
+    const meterText = `${s.exposureMode} · ${sign}${amount.replace(".", ",")} ${tr("meterUnit")}${correction}`;
     this.el.meterValue.textContent = meterText;
     this.el.meterValue.classList.toggle("flashing", resolved.flashing !== null);
     // Nom accessible : le texte affiché, puis ce que le bouton ouvre (constat INT-15 de l'audit, version 0.4.7) ; avant,
@@ -765,7 +752,7 @@ export class CameraPanel {
     ).join("\u202f; ");
     this.el.bodyDialog.querySelector("#sensor-note")!.textContent = `${tr("sensor")}\u00a0: ${sensors}.`;
     for (const input of this.el.bodyDialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) {
-      input.checked = input.value === this.brand;
+      input.checked = input.value === s.brand;
     }
     this.applyView();
   }
@@ -781,7 +768,8 @@ export class CameraPanel {
     this.canvasSize = { width, height };
     // Le boîtier ou le cadrage a pu changer : le point reste dans la zone couverte.
     this.focusPoint = this.clampToCoverage(this.focusPoint);
-    const fov = cameraFov(width, height, frame, body, FOCAL_LENGTHS[this.focalIndex]);
+    const focalMm = FOCAL_LENGTHS[this.settings.get("focalIndex")];
+    const fov = cameraFov(width, height, frame, body, focalMm);
     this.camera.fovMode = fov.axis === "vertical" ? Camera.FOVMODE_VERTICAL_FIXED : Camera.FOVMODE_HORIZONTAL_FIXED;
     this.camera.fov = fov.fov;
     if (this.enabled) this.applyLoupe(frame, body);
@@ -800,7 +788,7 @@ export class CameraPanel {
     );
     // Profondeur de champ : pixels du canevas par millimètre de capteur, loupe comprise.
     this.dof?.update({
-      focalMm: FOCAL_LENGTHS[this.focalIndex],
+      focalMm,
       aperture: apertureValue(resolved.settings.aperture),
       pixelsPerMm: (Math.max(frame.width, frame.height) / body.sensorWidthMm) * this.loupeZoom,
     });
@@ -829,7 +817,7 @@ export class CameraPanel {
    * grossie, et les lignes ne diviseraient plus l'image entière (choix de TutoPhoto, non sourcé).
    */
   private updateGrid(): void {
-    const kind = this.preview.grid;
+    const kind = this.settings.get("grid");
     const grid = this.el.grid;
     // Cadre vertical (zone du viseur plus haute que large) : le grand côté du capteur est vertical, les six cases de
     // « 6 × 4 » aussi.
@@ -951,9 +939,10 @@ export class CameraPanel {
    */
   private updateFocus(): void {
     const tr = t;
-    const single = this.focusMode === "single";
+    const { focusMode, areaMode, detection } = this.settings.all();
+    const single = focusMode === "single";
     const short = single ? "AF-S" : "AF-C";
-    const areaShort = tr(AREA_KEYS[this.areaMode].short);
+    const areaShort = tr(AREA_KEYS[areaMode].short);
     const afText = `${short} · ${areaShort}`;
     this.el.afButton.textContent = afText;
     this.el.afButton.title = tr("afTitle");
@@ -961,7 +950,7 @@ export class CameraPanel {
     // AF-S : AF ponctuel, AF point sélectif » pour le texte « AF-S · Point »).
     const afName = tr("afButtonName")
       .replace("{mode}", tr(single ? "afSingleName" : "afContinuousName"))
-      .replace("{area}", tr(AREA_KEYS[this.areaMode].label));
+      .replace("{area}", tr(AREA_KEYS[areaMode].label));
     this.el.afButton.setAttribute("aria-label", `${afText}\u00a0: ${afName}`);
     const dialog = this.el.afDialog;
     dialog.querySelector("#af-title")!.textContent = tr("afTitle");
@@ -985,9 +974,9 @@ export class CameraPanel {
     dialog.querySelector("#af-loupe-note")!.textContent = `${tr("loupeNoteLead")} ${loupeHelp.charAt(0).toLowerCase()}${loupeHelp.slice(1)}`;
     dialog.querySelector("#af-close")!.textContent = tr("close");
     for (const input of dialog.querySelectorAll<HTMLInputElement>("input[type=radio]")) {
-      const current = input.name === "focusMode" ? this.focusMode : input.name === "areaMode" ? this.areaMode : this.detection;
+      const current = input.name === "focusMode" ? focusMode : input.name === "areaMode" ? areaMode : detection;
       input.checked = input.value === current;
-      if (input.name === "detection") input.disabled = this.areaMode !== "auto";
+      if (input.name === "detection") input.disabled = areaMode !== "auto";
     }
     this.el.focusHint.textContent = tr(single ? "focusHintSingle" : "focusHint");
     const af = this.autofocus;
@@ -997,7 +986,7 @@ export class CameraPanel {
     const meters = af.distance().toFixed(1);
     const distance = `${meters.replace(".", ",")} m`;
     // Zone automatique : ce sur quoi l'appareil a fait le point (œil, visage, sujet le plus proche, point touché).
-    const target = this.areaMode === "auto" ? af.target() : null;
+    const target = areaMode === "auto" ? af.target() : null;
     const what = target ? `${tr(TARGET_KEYS[target.kind])} · ` : "";
     const text = `${short} · ${areaShort} · ${what}${locked ? `${tr("lockedAt")} ` : ""}${distance}`;
     if (this.el.afBadge.textContent !== text) this.el.afBadge.textContent = text;
@@ -1007,19 +996,23 @@ export class CameraPanel {
   }
 
   private showsBrightness(): boolean {
-    return this.preview.all && this.preview.brightness;
+    const s = this.settings.all();
+    return s.previewAll && s.previewBrightness;
   }
 
   private showsNoise(): boolean {
-    return this.preview.all && this.preview.noise;
+    const s = this.settings.all();
+    return s.previewAll && s.previewNoise;
   }
 
   private showsDepthOfField(): boolean {
-    return this.preview.all && this.preview.depthOfField;
+    const s = this.settings.all();
+    return s.previewAll && s.previewDepthOfField;
   }
 
   private showsBalance(): boolean {
-    return this.preview.all && this.preview.balance;
+    const s = this.settings.all();
+    return s.previewAll && s.previewBalance;
   }
 
   /** Textes de la fenêtre de l'aperçu, cases cochées, grille choisie, et rappel dans le viseur de ce qui n'est pas montré. */
@@ -1042,12 +1035,13 @@ export class CameraPanel {
     dialog.querySelector("#preview-grid-diagonals-label")!.textContent = tr("gridThirdsDiagonals");
     dialog.querySelector("#preview-grid-note")!.textContent = tr("gridNote");
     dialog.querySelector("#preview-close")!.textContent = tr("close");
+    const s = this.settings.all();
     for (const input of dialog.querySelectorAll<HTMLInputElement>("input[type=checkbox]")) {
-      input.checked = this.preview[input.value as PreviewSwitch];
-      if (input.value !== "all") input.disabled = !this.preview.all;
+      input.checked = s[PREVIEW_SWITCHES[input.value as PreviewSwitch]];
+      if (input.value !== "all") input.disabled = !s.previewAll;
     }
     // La grille ne dépend pas de l'interrupteur général : il ne la grise pas, et elle ne compte pas dans le rappel.
-    for (const input of dialog.querySelectorAll<HTMLInputElement>("input[name=grid]")) input.checked = input.value === this.preview.grid;
+    for (const input of dialog.querySelectorAll<HTMLInputElement>("input[name=grid]")) input.checked = input.value === s.grid;
     const hidden: string[] = [];
     if (!this.showsBrightness()) hidden.push(tr("previewBrightnessShort"));
     if (!this.showsNoise()) hidden.push(tr("previewNoiseShort"));
@@ -1056,88 +1050,5 @@ export class CameraPanel {
     this.el.previewBadge.hidden = hidden.length === 0;
     const list = hidden.length > 1 ? `${hidden.slice(0, -1).join(", ")}${tr("and")}${hidden[hidden.length - 1]}` : hidden.join("");
     this.el.previewBadge.textContent = `${tr("previewOff")}\u00a0: ${list}`;
-  }
-
-  private restorePreview(): void {
-    try {
-      const saved = JSON.parse(window.localStorage.getItem(PREVIEW_STORAGE_KEY) ?? "null") as (Partial<Record<PreviewSwitch, unknown>> & { grid?: unknown }) | null;
-      if (saved) {
-        for (const key of PREVIEW_SWITCHES) {
-          const value = saved[key];
-          if (typeof value === "boolean") this.preview[key] = value;
-        }
-        // Une valeur inconnue vaut « none », la valeur par défaut.
-        if (isGridKind(saved.grid)) this.preview.grid = saved.grid;
-      }
-    } catch {
-      // Stockage indisponible : aperçu complet.
-    }
-  }
-
-  private savePreview(): void {
-    try {
-      window.localStorage.setItem(PREVIEW_STORAGE_KEY, JSON.stringify(this.preview));
-    } catch {
-      // Sans stockage, le choix vaut pour la page en cours seulement.
-    }
-  }
-
-  private restoreBody(): void {
-    try {
-      const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null") as {
-        brand?: string;
-        focusMode?: string;
-        areaMode?: string;
-        detection?: string;
-        release?: string;
-        clRate?: number;
-        timerDelay?: number;
-        exposureMode?: string;
-        compensation?: number;
-        autoIso?: boolean;
-        maxIso?: number;
-        minShutter?: number;
-      } | null;
-      // Un boîtier par marque depuis la version 0.3.80 : un choix mémorisé avant (marque et format) donne le boîtier
-      // de sa marque, le format est ignoré.
-      if (saved && BODIES.some((b) => b.brand === saved.brand)) this.brand = saved.brand as Brand;
-      if (saved?.focusMode === "single" || saved?.focusMode === "continuous") this.focusMode = saved.focusMode;
-      if (saved?.areaMode && Object.prototype.hasOwnProperty.call(AREA_KEYS, saved.areaMode)) this.areaMode = saved.areaMode as AreaMode;
-      if (DETECTIONS.includes(saved?.detection as Detection)) this.detection = saved!.detection as Detection;
-      if (["single", "cl", "ch", "chx", "timer"].includes(saved?.release ?? "")) this.releaseKind = saved!.release as ReleaseKind;
-      if ((CL_RATES as readonly number[]).includes(saved?.clRate ?? 0)) this.clRate = saved!.clRate!;
-      if ((TIMER_DELAYS as readonly number[]).includes(saved?.timerDelay ?? 0)) this.timerDelay = saved!.timerDelay!;
-      // La correction d'exposition ne se remet pas à zéro à l'extinction du Z 6 [nikon-z6-exposure-compensation].
-      if (EXPOSURE_MODES.includes(saved?.exposureMode as ExposureMode)) this.exposureMode = saved!.exposureMode as ExposureMode;
-      const isIndex = (value: unknown, min: number, max: number) => Number.isInteger(value) && (value as number) >= min && (value as number) <= max;
-      if (isIndex(saved?.compensation, -COMPENSATION_RANGE, COMPENSATION_RANGE)) this.compensation = saved!.compensation!;
-      if (typeof saved?.autoIso === "boolean") this.autoIso = saved.autoIso;
-      if (isIndex(saved?.maxIso, MAX_ISO_FIRST, SCALES.iso - 1)) this.maxIso = saved!.maxIso!;
-      if (isIndex(saved?.minShutter, 0, SCALES.shutter - 1)) this.minShutter = saved!.minShutter!;
-    } catch {
-      // Stockage indisponible : boîtier par défaut.
-    }
-  }
-
-  private saveBody(): void {
-    try {
-      const saved = {
-        brand: this.brand,
-        focusMode: this.focusMode,
-        areaMode: this.areaMode,
-        detection: this.detection,
-        release: this.releaseKind,
-        clRate: this.clRate,
-        timerDelay: this.timerDelay,
-        exposureMode: this.exposureMode,
-        compensation: this.compensation,
-        autoIso: this.autoIso,
-        maxIso: this.maxIso,
-        minShutter: this.minShutter,
-      };
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
-    } catch {
-      // Sans stockage, le choix vaut pour la page en cours seulement.
-    }
   }
 }

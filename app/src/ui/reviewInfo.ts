@@ -13,8 +13,9 @@
 //   https://onlinemanual.nikonimglib.com/z7_z6/en/08_more_about_playback_02.html
 //   https://helpguide.sony.net/ilc/1720/v1/en/contents/TP0001653116.html
 //
-// Dans TutoPhoto : un bouton « Infos » fait défiler trois affichages, comme la commande DISP. Le choix est mémorisé
-// (clé tutophoto.revue) et vaut pour les photos suivantes, pour chaque vue d'une série et pour la loupe.
+// Dans TutoPhoto : un bouton « Infos » fait défiler trois affichages, comme la commande DISP. Le choix est un réglage
+// du magasin (camera/settings.ts), mémorisé sous la clé tutophoto.revue, et vaut pour les photos suivantes, pour chaque
+// vue d'une série et pour la loupe.
 //
 // Choix de TutoPhoto, non sourcés :
 // - trois affichages seulement, dans l'ordre photo seule, histogrammes, hautes lumières ;
@@ -28,11 +29,8 @@
 // display options » du Z 6, qui choisit les pages affichées.
 
 import { TONE_CHANNELS, TONE_LEVELS, columnHeights, type PhotoTones, type ToneChannel } from "../camera/histogram";
+import { REVIEW_DISPLAYS, type ReviewDisplay, type SettingsStore } from "../camera/settings";
 import { t, type MessageKey } from "../texts";
-
-const STORAGE_KEY = "tutophoto.revue";
-const DISPLAYS = ["photo", "histograms", "highlights"] as const;
-type ReviewDisplay = (typeof DISPLAYS)[number];
 
 const DISPLAY_KEYS: Record<ReviewDisplay, MessageKey> = {
   photo: "reviewDisplayPhoto",
@@ -64,7 +62,6 @@ export interface ReviewInfoElements {
 }
 
 export class ReviewInfo {
-  private display: ReviewDisplay;
   /** Mesures de l'image affichée (photo ou fenêtre de la loupe) ; null : rien à montrer. */
   private tones: PhotoTones | null = null;
   /** L'image affichée est une partie de la photo (loupe). */
@@ -75,8 +72,12 @@ export class ReviewInfo {
 
   constructor(
     private readonly el: ReviewInfoElements,
+    /** Magasin de réglages (camera/settings.ts) : l'affichage choisi (reviewDisplay). */
+    private readonly settings: SettingsStore,
   ) {
-    this.display = this.restore();
+    settings.subscribe((changed) => {
+      if (changed.has("reviewDisplay")) this.render();
+    });
     for (const channel of TONE_CHANNELS) {
       const figure = document.createElement("figure");
       figure.className = `histogram ${channel}`;
@@ -115,39 +116,22 @@ export class ReviewInfo {
     this.render();
   }
 
-  /** Bouton « Infos » : affichage suivant, mémorisé. */
+  /** Bouton « Infos » : affichage suivant, écrit dans le magasin, qui le mémorise ; l'abonnement redessine. */
   private next(): void {
-    this.display = DISPLAYS[(DISPLAYS.indexOf(this.display) + 1) % DISPLAYS.length];
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ display: this.display }));
-    } catch {
-      // Sans stockage, le choix vaut pour la page en cours seulement.
-    }
-    this.render();
+    const display = REVIEW_DISPLAYS[(REVIEW_DISPLAYS.indexOf(this.settings.get("reviewDisplay")) + 1) % REVIEW_DISPLAYS.length];
+    this.settings.set({ reviewDisplay: display });
     // Ce qui vient de s'afficher sous la photo est amené dans l'écran de revue, qui défile.
-    if (this.display !== "photo" && this.tones) {
+    if (display !== "photo" && this.tones) {
       const review = this.el.review;
       const bottom = this.el.clipping.getBoundingClientRect().bottom - review.getBoundingClientRect().top + review.scrollTop + 8;
       if (bottom > review.scrollTop + review.clientHeight) review.scrollTop = bottom - review.clientHeight;
     }
   }
 
-  private restore(): ReviewDisplay {
-    try {
-      const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null") as { display?: unknown } | null;
-      const found = DISPLAYS.find((d) => d === saved?.display);
-      // Une valeur inconnue vaut « photo », la valeur par défaut.
-      if (found) return found;
-    } catch {
-      // Stockage indisponible ou illisible : photo seule.
-    }
-    return "photo";
-  }
-
   private render(): void {
     const tr = t;
     const { el, tones } = this;
-    el.button.textContent = `${tr("reviewInfo")}\u00a0: ${tr(DISPLAY_KEYS[this.display])}`;
+    el.button.textContent = `${tr("reviewInfo")}\u00a0: ${tr(DISPLAY_KEYS[this.settings.get("reviewDisplay")])}`;
     el.button.title = tr("reviewInfoTitle");
     el.limits.textContent = tr("reviewInfoLimits");
     el.note.textContent = tr("reviewInfoNote");
@@ -156,7 +140,7 @@ export class ReviewInfo {
       plot.svg.setAttribute("aria-label", `${tr("histogramOf")} ${tr(CHANNEL_KEYS[plot.channel])}`);
     }
     // Sans mesures (photo qui n'a pas pu être calculée), ni bouton ni affichage.
-    const display = tones ? this.display : "photo";
+    const display = tones ? this.settings.get("reviewDisplay") : "photo";
     el.row.hidden = !tones;
     el.histograms.hidden = display !== "histograms";
     el.clipping.hidden = display === "photo";
