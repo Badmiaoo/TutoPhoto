@@ -1076,7 +1076,7 @@ async function runProfile(browser, name, base) {
         a11y.messageRole === "status",
       `tabindex ${a11y.tabIndex} ; valeurs nommées : ${a11y.outputs.join(", ")} ; « ${a11y.aperture} » ; « ${a11y.shutter} » ; « ${a11y.meter.label} » ; « ${a11y.af.label} »`,
     );
-    // Mise au point par défaut (MAP-04, MAP-05) : AF-S et point sélectif, comme le Z 6 (app/src/ui/cameraPanel.ts,
+    // Mise au point par défaut (MAP-04, MAP-05) : AF-S et point sélectif, comme le Z 6 (app/src/camera/settings.ts,
     // [nikon-z6-defaults]). Lue avant que la routine ne règle quoi que ce soit en mise au point (INT-05 de l'audit,
     // version 0.3.64) : en fin de test, « mise au point : retour à AF-S et point sélectif » relit un réglage que la
     // routine vient de faire dans la fenêtre « Mise au point ».
