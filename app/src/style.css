@@ -570,7 +570,7 @@ dialog fieldset label {
   font-size: 0.9rem;
 }
 
-@container (max-width: 520px) {
+@container (width <= 32.5rem) {
   .dials {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -863,7 +863,8 @@ dialog fieldset label {
   inset: 0;
   /* Un élément qui reçoit le focus est amené au-dessus de la barre collée en bas (« Revenir au viseur », « Enregistrer la
      photo »), pas dessous (relecture de la version 0.4.10 ; critère « Focus Not Obscured (Minimum) » du WCAG 2.2
-     [wcag-22-focus-not-obscured-minimum]). */
+     [wcag-22-focus-not-obscured-minimum]) : la hauteur d'une rangée de boutons ici, la hauteur réelle de la barre
+     posée par ui/shutter.ts, qui fait deux ou trois rangées sur un téléphone étroit (contrôle final, F3). */
   scroll-padding-bottom: 3.5rem;
   z-index: 1;
   display: flex;
@@ -1156,8 +1157,13 @@ dialog fieldset label {
    son contenu [wcag-22-resize-text]. Au-delà de 1000 px de contenu, une seule rangée, en grille elle aussi (règle
    suivante). Les boutons gardent l'ordre de la page, qui est aussi celui de la tabulation.
    Sans requêtes de conteneur (Safari avant la version 16, d'après les données de compatibilité de MDN
-   [mdn-bcd-8-1-10-layout]), le panneau garde sa disposition d'avant la version 0.4.10. */
-@container (max-width: 1000px) {
+   [mdn-bcd-8-1-10-layout]), le panneau garde sa disposition d'avant la version 0.4.10. Les seuils des requêtes de
+   conteneur sont en rem (62,5rem, 32,5rem et 21,25rem : 1000, 520 et 340 px à la taille de texte par défaut, 16 px) :
+   avec un texte agrandi par le navigateur, le panneau passe à la disposition plus étroite au lieu de laisser déborder
+   « Aperçu », « Loupe » ou « Déclencher » de leur case (contrôle final de la version 0.4.10, F1 : à 1280 × 800 px et
+   à 200 %, « Aperçu » avait 108 px de texte pour une case de 89). La forme « width > 62.5rem » ne laisse aucune largeur
+   entre deux règles (F5). */
+@container (width <= 62.5rem) {
   .meter-row {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -1205,7 +1211,7 @@ dialog fieldset label {
 }
 
 /* Panneau très étroit (téléphones de 360 px de large et moins) : une ligne de plus, le déclencheur sur toute la largeur. */
-@container (max-width: 340px) {
+@container (width <= 21.25rem) {
   .meter,
   .meter-value {
     grid-column: span 3;
@@ -1229,7 +1235,7 @@ dialog fieldset label {
    une. Un libellé long passe à la ligne dans sa case au lieu de faire passer la rangée à la ligne : avec la rangée
    d'avant, le panneau passait de 142 à 182 px de haut à 1100 × 800 et à 1200 × 800 px, police de la CI, et le viseur de
    607 à 567 px (relecture de la version 0.4.10, R1). */
-@container (min-width: 1001px) {
+@container (width > 62.5rem) {
   .meter-row {
     display: grid;
     grid-template-columns: 2fr 2fr 1fr 1fr 1fr 2fr 1fr 2fr;
@@ -1255,7 +1261,7 @@ dialog fieldset label {
 }
 
 /* Panneau de tablette (de 521 à 1000 px de contenu) : la grille de six colonnes, le texte des boutons un peu plus grand. */
-@container (min-width: 521px) and (max-width: 1000px) {
+@container (32.5rem < width <= 62.5rem) {
   .meter-row > button {
     font-size: 0.85rem;
   }
@@ -1365,13 +1371,19 @@ dialog fieldset label {
     width: calc(100% - 1.5rem);
   }
 
-  /* Pendant le calcul d'une loupe, la bande « Calcul de la loupe… » au-dessus des boutons du bas, et pas au milieu de
-     la photo, là où tombe le bas du viseur caché sous l'écran de revue. Sans le sélecteur :has() (Safari avant la
-     version 15.4 [mdn-bcd-8-1-10-layout]), elle reste en bas du viseur. */
+  /* L'écran de revue couvrant tout l'écran, la bande « Calcul de la loupe… » se place par rapport à lui. */
   main:has(> .review:not([hidden])) > .progress {
     position: fixed;
-    bottom: 4.5rem;
   }
+}
+
+/* Pendant le calcul d'une loupe, la bande « Calcul de la loupe… » en haut de l'écran de revue, et pas en bas, où elle
+   couvrait les boutons collés au bas (contrôle final de la version 0.4.10, F2 : « Revenir au viseur » couvert à 95 % à
+   1280 × 800 px), ni au milieu de la photo, où tombait le bas du viseur sur un téléphone. Sans le sélecteur :has()
+   (Safari avant la version 15.4 [mdn-bcd-8-1-10-layout]), elle reste en bas du viseur. */
+main:has(> .review:not([hidden])) > .progress {
+  top: 0.5rem;
+  bottom: auto;
 }
 
 /* « Revenir au viseur » et « Enregistrer la photo » collés au bas de l'écran de revue : visibles sans le faire défiler,

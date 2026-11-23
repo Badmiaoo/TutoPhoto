@@ -237,6 +237,12 @@ export class Shutter {
     el.reviewBack.addEventListener("click", () => this.closeReview());
     // Tourné, un téléphone peut passer d'une mise en page à l'autre : ce que couvre l'écran de revue est revu.
     window.addEventListener("resize", () => this.updateCovered());
+    // Marge de défilement de l'écran de revue : la hauteur réelle de la barre collée en bas, qui fait deux ou trois
+    // rangées sur un téléphone étroit (contrôle final de la version 0.4.10, F3 ; style.css, .review).
+    const bar = el.review.querySelector<HTMLElement>(":scope > .review-actions:last-child");
+    if (bar && typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(() => (el.review.style.scrollPaddingBottom = `${bar.offsetHeight + 8}px`)).observe(bar);
+    }
     el.reviewWhole.addEventListener("click", () => this.showWhole());
     el.reviewImage.addEventListener("click", (e) => void this.magnify(e));
     panel.onViewChange(() => this.placeMarker());
@@ -732,6 +738,20 @@ export class Shutter {
    * appliqué par Chrome depuis la version 102, Firefox depuis 112 et Safari depuis 15.5 [mdn-bcd-8-1-10-layout]. Revu à
    * chaque changement de taille de la fenêtre : tourné, un téléphone peut passer d'une mise en page à l'autre.
    */
+  /**
+   * Focus tombé sur la page pendant que l'écran de revue couvre tout l'écran (une fenêtre fermée dont le bouton
+   * d'ouverture, dans le panneau, est devenu inerte) : il passe à « Revenir au viseur » (contrôle final de la version
+   * 0.4.10, F9).
+   */
+  keepFocusInReview(): void {
+    // À l'événement « close », le focus peut être encore sur un élément de la fenêtre fermée ; il tombe sur la page
+    // ensuite (essayé dans Chromium).
+    const active = document.activeElement;
+    const dialog = active?.closest("dialog");
+    const stranded = active === null || active === document.body || (dialog !== null && dialog !== undefined && !dialog.open);
+    if (this.el.canvas.inert && stranded) this.el.reviewBack.focus({ preventScroll: true });
+  }
+
   private updateCovered(): void {
     const covers = !this.el.review.hidden && getComputedStyle(this.el.review).position === "fixed";
     const elements = [...this.el.covered, this.el.canvas];

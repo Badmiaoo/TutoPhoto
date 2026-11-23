@@ -230,7 +230,12 @@ function applyTexts(): void {
 // la version 0.4.10 (ui/dialogs.ts, constat INT-20 de l'audit).
 creditsButton.addEventListener("click", () => openDialog(creditsDialog));
 // Toutes les fenêtres se ferment par un toucher sur le fond, hors d'elles (constat INT-20 de l'audit, version 0.4.10).
-for (const dialog of document.querySelectorAll("dialog")) closeOnBackdrop(dialog);
+// Fermée pendant que l'écran de revue couvre tout l'écran, une fenêtre ne peut pas rendre le focus à son bouton,
+// devenu inerte : il va à « Revenir au viseur » (contrôle final de la version 0.4.10, F9).
+for (const dialog of document.querySelectorAll("dialog")) {
+  closeOnBackdrop(dialog);
+  dialog.addEventListener("close", () => shutter?.keepFocusInReview());
+}
 // Fiches ouvertes par-dessus le simulateur (bulletin, fenêtre « Défis ») : indépendant de la scène 3D.
 ficheDialog = new FicheDialog(
   {

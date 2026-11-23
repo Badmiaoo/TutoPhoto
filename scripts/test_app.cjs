@@ -981,7 +981,7 @@ async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
 // Mise en page sur téléphone (Sujet 42, version 0.4.10 ; constats INT-04, INT-12, INT-03, INT-11, INT-17, INT-20 et
 // INT-14 de l'audit). Un contexte à part, ouvert par le profil iphone : le simulateur chargé téléphone tenu à
 // l'horizontale (iPhone 14 émulé, 750 × 340 px), puis la même page à 390 × 664 px (tenu droit), 412 × 839 px (taille du
-// Pixel 7 émulé) et 320 × 664 px. À chaque taille, des gestes qui changent les textes de l'en-tête et du panneau, puis
+// Pixel 7 émulé), 600 × 960 px et 320 × 664 px. À chaque taille, des gestes qui changent les textes de l'en-tête et du panneau, puis
 // leur retour : le viseur, le cadre et le déclencheur ne doivent pas bouger, aucun libellé ne doit être coupé, les
 // pastilles doivent rester dans le viseur et hors du bloc « Vue de dessus ». Puis les fenêtres et l'écran de revue.
 // Le chargement à l'horizontale vérifie aussi ce qu'un téléphone tenu ainsi montre au départ ; la page tournée ensuite
@@ -1165,7 +1165,9 @@ async function checkPhoneLayout(browser, base, check) {
         () => {
           const m = document.querySelector("main").getBoundingClientRect();
           const f = document.getElementById("frame").getBoundingClientRect();
-          return Math.abs(f.width - m.width) < 1 || Math.abs(f.height - m.height) < 1;
+          // Le cadre d'avant peut remplir la nouvelle zone sur un côté et la dépasser sur l'autre : il doit aussi y tenir
+          // (contrôle final de la version 0.4.10, F7).
+          return (Math.abs(f.width - m.width) < 1 || Math.abs(f.height - m.height) < 1) && f.width <= m.width + 1 && f.height <= m.height + 1;
         },
         null,
         { timeout: 60000 },
