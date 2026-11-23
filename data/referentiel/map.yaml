@@ -24,7 +24,7 @@ notions:
       simulator: "Loupe et mise en relief calculées sur l'image simulée"
       exercise: "Faire le point à la loupe sur une étoile"
     situations: [SIT-20, SIT-21, SIT-22]
-    sources: [nikon-z6-d10-fr, nikon-z6-d10, nikon-z6-focus-fr]
+    sources: [nikon-z6-d10-fr, nikon-z6-d10, nikon-z6-focus-fr, sony-a6000-manual-focus-fr]
     since: v0.1
   - id: MAP-03
     title: "Comment l'AF voit"
@@ -123,7 +123,7 @@ notions:
       simulator: "Touche de mémorisation configurable, rotation sur place, écart de netteté mesuré"
       exercise: "Verrouiller sur le sujet et recadrer avec un premier plan flou, puis comparer avec le déplacement du collimateur à f/1.4"
     situations: [SIT-01, SIT-04, SIT-26, SIT-28]
-    sources: [canon-eos-r50-self-timer-fr, canon-eos-r50-af-operation-fr]
+    sources: [canon-eos-r50-self-timer-fr, canon-eos-r50-af-operation-fr, nikon-z6-sub-selector-fr]
     notes:
       - "Fusion de MAP-13 (mémorisation AF) en v0.2 ; niveau N1 pour le geste, la limite fait partie de l'explication."
     since: v0.1

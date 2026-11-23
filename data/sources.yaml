@@ -834,9 +834,9 @@ sources:
     read: 2026-11-19
   - id: nikon-z6-sub-selector-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Sélecteur secondaire : « Recomposez et prenez la photo » ; encadré AF-S, « la mise au point est mémorisée tant que vous appuyez sur le déclencheur à mi-course » ; « Ne modifiez pas la distance entre l'appareil photo et le sujet pendant la mémorisation de la mise au point. Si le sujet se déplace, effectuez à nouveau la mise au point en fonction de la nouvelle distance » (lu le 19 novembre 2026)"
+    label: "Nikon, manuel en ligne Z 7/Z 6 en français, Sélecteur secondaire : « Recomposez et prenez la photo » ; encadré AF-S, « la mise au point est mémorisée tant que vous appuyez sur le déclencheur à mi-course » ; « Ne modifiez pas la distance entre l'appareil photo et le sujet pendant la mémorisation de la mise au point. Si le sujet se déplace, effectuez à nouveau la mise au point en fonction de la nouvelle distance » (lu le 19 novembre 2026) ; « Servez-vous du sélecteur secondaire comme d'un joystick afin de sélectionner le point AF, ou appuyez en son centre pour mémoriser la mise au point et/ou l'exposition. » ; section « Mémorisation de la mise au point et de l'exposition » : « Positionnez le sujet dans le point AF sélectionné et appuyez sur le déclencheur à mi-course pour régler la mise au point et l'exposition. » ; « Tout en maintenant le déclencheur enfoncé à mi-course, appuyez au centre du sélecteur secondaire pour mémoriser à la fois la mise au point et l'exposition (l'icône AE-L s'affiche). » (apostrophes typographiques dans la page ; relu le 23 novembre 2026)"
     url: "https://onlinemanual.nikonimglib.com/z7_z6/fr/06_shooting_controls_05.html"
-    read: 2026-11-19
+    read: 2026-11-23
   - id: nikon-p1100-af-area
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne COOLPIX P1100, AF area mode : sans visage détecté, « the camera automatically selects one or more of the nine focus areas containing the subject closest to the camera » (compact, pas un hybride ; lu le 9 novembre 2026)"
@@ -1313,7 +1313,7 @@ sources:
     read: 2026-11-23
   - id: canon-eos-r50-long-exposure-nr-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Canon, manuel de l'EOS R50 en français, Réduction du bruit pour les expositions longues : « Il est possible de réduire le bruit comme les points lumineux ou l'effet de bande qui a tendance à se produire lors des expositions longues à une vitesse d'obturation d'une seconde ou plus lente. » ; « Avec [ Auto ] ou [ Act. ] réglé, la réduction du bruit après la prise de vue peut durer aussi longtemps que l'exposition de la prise. » ; « [ BUSY ] s'affiche pendant la réduction du bruit, et l'écran de prise de vue n'apparaît pas tant que le traitement n'est pas terminé » (lu le 23 novembre 2026)"
+    label: "Canon, manuel de l'EOS R50 en français, Réduction du bruit pour les expositions longues : « Il est possible de réduire le bruit comme les points lumineux ou l'effet de bande qui a tendance à se produire lors des expositions longues à une vitesse d'obturation d'une seconde ou plus lente. » ; « Avec [Auto] ou [Act.] réglé, la réduction du bruit après la prise de vue peut durer aussi longtemps que l'exposition de la prise. » ; « [BUSY] s'affiche pendant la réduction du bruit, et l'écran de prise de vue n'apparaît pas tant que le traitement n'est pas terminé, lorsque vous pouvez reprendre la prise de vue. » (lu le 23 novembre 2026)"
     url: "https://cam.start.canon/fr/C011/manual/html/UG-05_Shooting-1_0250.html"
     read: 2026-11-23
   - id: sony-a6000-long-exposure-nr-fr
@@ -1340,4 +1340,24 @@ sources:
     group: "Constructeurs : manuels et pages techniques"
     label: "Canon, manuel de l'EOS R50 en français, Verrouillage de l'exposition (Mémorisation d'exposition) : « Vous pouvez verrouiller l'exposition lorsque vous souhaitez régler la mise au point et l'exposition séparément ou si vous prenez plusieurs photos avec le même réglage d'exposition. Appuyez sur la touche […] pour mémoriser l'exposition, puis recomposez et prenez la photo. » ; « Elle convient pour photographier des sujets en contre-jour, etc. » (les crochets remplacent l'icône de la touche ; lu le 23 novembre 2026)"
     url: "https://cam.start.canon/fr/C011/manual/html/UG-05_Shooting-1_0080.html"
+    read: 2026-11-23
+  - id: canon-eos-r50-shutter-mode-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, manuel de l'EOS R50 en français, Mode d'obturation : « Vous pouvez choisir la méthode de déclenchement de l'obturateur. » ; « L'obturateur électronique est utilisé pour le premier rideau et l'obturateur mécanique pour le deuxième rideau. » ; parmi les précautions du réglage [Électronique], « Les images des sujets se déplaçant rapidement peuvent sembler déformées. » et « Des bandes de lumières peuvent s'afficher et les images capturées peuvent être affectées par un effet de bande claire et sombre si vous photographiez avec l'obturateur électronique pendant le déclenchement du flash d'autres appareils photo ou sous un éclairage fluorescent ou d'autres sources lumineuses scintillantes. » ; la page ne nomme pas les LED (lu le 23 novembre 2026)"
+    url: "https://cam.start.canon/fr/C011/manual/html/UG-05_Shooting-1_0300.html"
+    read: 2026-11-23
+  - id: canon-eos-r50-flash-settings-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Canon, manuel de l'EOS R50 en français, Réglages des fonctions du flash : synchronisation lente, « La vitesse de synchronisation du flash se réglera automatiquement entre 1/250e de seconde et 30 secondes en fonction de la luminosité de la scène. La prise de vue avec synchronisation lente est utilisée dans les endroits faiblement éclairés (dans certaines conditions de prise de vue) et la vitesse d'obturation est automatiquement diminuée. » ; réglages du flash intégré, « En principe, réglez sur [1er rideau] pour que le flash se déclenche juste après le début de prise de vue. » et « Réglez sur [2e rideau] et utilisez une vitesse d'obturation faible pour obtenir des photos naturelles des traînées de mouvement du sujet, comme les phares de voiture. » ; la page ne dit pas où va la traînée en synchronisation sur le premier rideau (lu le 23 novembre 2026)"
+    url: "https://cam.start.canon/fr/C011/manual/html/UG-04_Flash_0030.html"
+    read: 2026-11-23
+  - id: sony-a6000-flash-mode-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Mode Flash : Sync. lente, « La prise de vue en synchronisation lente permet de photographier une image claire à la fois du sujet et de l'arrière-plan, en ralentissant la vitesse d'obturation. » ; Sync. arrière, « Le flash se déclenche juste avant la fin du temps d'exposition à chaque fois que vous appuyez sur le déclencheur. La synchronisation arrière vous permet de photographier une image naturelle de la traînée de sujets en déplacement, comme une voiture qui roule ou une personne en train de marcher. » ; la page ne dit pas où va la traînée hors de la synchronisation arrière (apostrophes typographiques dans la page ; lu le 23 novembre 2026)"
+    url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000378506.html"
+    read: 2026-11-23
+  - id: sony-a6000-manual-focus-fr
+    group: "Constructeurs : manuels et pages techniques"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, MaP manuelle : « Lorsqu'il est difficile d'obtenir une mise au point correcte en mode autofocus, il est possible d'ajuster manuellement la mise au point. » ; « Lorsque vous tournez la bague de mise au point, la distance de mise au point s'affiche à l'écran. » (apostrophes typographiques dans la première phrase, droites dans la seconde ; lu le 23 novembre 2026)"
+    url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000227222.html"
     read: 2026-11-23

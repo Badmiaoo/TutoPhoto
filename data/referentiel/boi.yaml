@@ -21,7 +21,7 @@ notions:
       simulator: "Déclencheur à deux niveaux, confirmation de netteté"
       exercise: "Faire le point, recadrer, déclencher sans relâcher"
     situations: [SIT-05]
-    sources: [nikon-z6-taking-photographs-fr, canon-eos-r50-basic-operations-fr]
+    sources: [nikon-z6-taking-photographs-fr, nikon-z6-sub-selector-fr, canon-eos-r50-basic-operations-fr]
     since: v0.1
   - id: BOI-03
     title: "Viseur et écran"
@@ -178,7 +178,7 @@ notions:
       simulator: "Obturateur électronique qui déforme et crée des bandes"
       exercise: "Choisir l'obturateur pour un concert, un gymnase, une église"
     situations: [SIT-07, SIT-18, SIT-19, SIT-37, SIT-39]
-    sources: [nikon-z6-silent-mode-fr]
+    sources: [nikon-z6-silent-mode-fr, canon-eos-r50-shutter-mode-fr]
     todo:
       - "Sourcer les bandes sous LED : les pages lues des manuels du Nikon Z 6 (« Mode silencieux ») et du Canon EOS R50 (« Mode d'obturation ») ne nomment pas les LED ; elles parlent de l'éclairage fluorescent, à vapeur de mercure ou de sodium, et d'éclairages intermittents ou scintillants."
     since: v0.1
