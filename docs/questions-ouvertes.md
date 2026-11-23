@@ -59,16 +59,18 @@ _Ce qui reste ouvert dans la simulation et dans les contenus : limites connues, 
 - SunCalc : la v2.0 a changé unités et conventions ; à l'usage, figer la version étiquetée du jour.
 - Sources et vérifications à compléter, d'après les champs `todo` du référentiel :
 
-  - MES-04, BOI-14, BOI-19, MAP-03, NET-02, NET-03, NET-04, MVT-02, MVT-09, OPT-03, LUM-08, LUM-11, LUM-12, COU-01, COU-06, PLA-05 : sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026). Pour MES-04, la fiche est rédigée (version 0.3.39), mais l'exercice du référentiel (« Rendre la neige blanche ») n'y est pas, la scène de parc n'ayant pas de neige : ce que la cellule fait de la neige reste à sourcer quand SIT-03 ou SIT-13 seront écrites.
+  - MES-04, MAP-03, NET-02, NET-03, NET-04, MVT-02, MVT-09, OPT-03, LUM-08, LUM-11, COU-01, COU-06, PLA-05 : sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026). Pour MES-04, la fiche est rédigée (version 0.3.39), mais l'exercice du référentiel (« Rendre la neige blanche ») n'y est pas, la scène de parc n'ayant pas de neige : ce que la cellule fait de la neige reste à sourcer quand SIT-03 ou SIT-13 seront écrites.
   - MES-12 : l'option de Fujifilm vient d'un compact à objectif fixe, le X100T ; la chercher dans le manuel d'un hybride de la marque avant d'écrire la fiche (hôte à faire ajouter : `docs/etat-des-travaux.md`, « Ce que Julien seul peut faire »).
   - MES-13 : ajouter une source primaire (Wikipedia est secondaire).
   - BOI-04 : à la rédaction de la fiche, sourcer que l'appareil tenu sans inclinaison vers le haut garde les verticales droites (notion clé de SIT-16 depuis la version 0.4.0 ; la révision de « Perspective control » de Wikipedia, source secondaire, lie le défaut au plan du film non parallèle aux lignes qui doivent rester parallèles) ; dire si le niveau électronique des boîtiers de référence montre aussi l'inclinaison vers l'avant ou l'arrière.
+  - BOI-14 : sourcer les bandes sous LED ; les pages lues des manuels du Nikon Z 6 (« Mode silencieux ») et du Canon EOS R50 (« Mode d'obturation ») ne nomment pas les LED, elles parlent de l'éclairage fluorescent, à vapeur de mercure ou de sodium, et d'éclairages intermittents ou scintillants (version 0.4.6).
   - BOI-28 : source ancienne, à compléter par une source récente.
   - BOI-31 : sourcer le cas des LED (SIT-07, gymnase éclairé aux LED) ; les pages citées ne nomment que les tubes fluorescents et les lampes à vapeur de mercure.
   - MAP-14 : sourcer le limiteur de mise au point d'un objectif de reflex ou d'hybride ; la seule source décrit l'interrupteur d'un appareil que Sony ne range pas parmi ses boîtiers à objectif interchangeable (RX10 IV).
   - MAP-16 : sourcer le nom de la technique à la rédaction de la fiche ; aucun des manuels lus n'emploie « mise au point par zone ».
   - OPT-12 : doubler par une source primaire la polarisation du ciel, maximale à 90° du soleil, et l'angle des reflets ; la seule source est une révision de Wikipedia, source secondaire.
   - LUM-04 : sourcer la qualité de la lumière à ces heures à la rédaction ; le calcul des horaires relève de PLA-01.
+  - LUM-12 : sourcer la traînée devant le sujet en synchro sur le premier rideau ; les pages des modes de flash lues dans les manuels du Nikon Z 6, du Canon EOS R50 et du Sony A6000 ne décrivent que la traînée de la synchro sur le second rideau (version 0.4.6).
   - COU-05 : remplacer Canon Print Studio Pro, source indirecte, par une source directe (audit A).
   - COU-09 : sourcer la pratique de la balance des blancs sous l'eau à la rédaction.
   - PLA-07 : écrire le contenu juridique pays par pays, à partir des textes officiels ; aucun chiffre ni article inventé.

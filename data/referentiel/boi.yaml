@@ -21,6 +21,7 @@ notions:
       simulator: "Déclencheur à deux niveaux, confirmation de netteté"
       exercise: "Faire le point, recadrer, déclencher sans relâcher"
     situations: [SIT-05]
+    sources: [nikon-z6-taking-photographs-fr, nikon-z6-sub-selector-fr, canon-eos-r50-basic-operations-fr]
     since: v0.1
   - id: BOI-03
     title: "Viseur et écran"
@@ -60,6 +61,7 @@ notions:
       simulator: "Couples équivalents affichés pendant le décalage"
       exercise: "En P, obtenir un fond flou"
     situations: [SIT-01]
+    sources: [nikon-z6-mode-dial-fr]
     since: v0.1
   - id: BOI-07
     title: "Priorité à l'ouverture"
@@ -134,6 +136,7 @@ notions:
       simulator: "Sauvegarde et rappel de configurations"
       exercise: "Créer une configuration action et une paysage"
     situations: [SIT-06, SIT-10]
+    sources: [nikon-z6-mode-dial-fr]
     since: v0.1
   - id: BOI-12
     title: "Modes d'entraînement"
@@ -175,8 +178,9 @@ notions:
       simulator: "Obturateur électronique qui déforme et crée des bandes"
       exercise: "Choisir l'obturateur pour un concert, un gymnase, une église"
     situations: [SIT-07, SIT-18, SIT-19, SIT-37, SIT-39]
+    sources: [nikon-z6-silent-mode-fr, canon-eos-r50-shutter-mode-fr]
     todo:
-      - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+      - "Sourcer les bandes sous LED : les pages lues des manuels du Nikon Z 6 (« Mode silencieux ») et du Canon EOS R50 (« Mode d'obturation ») ne nomment pas les LED ; elles parlent de l'éclairage fluorescent, à vapeur de mercure ou de sodium, et d'éclairages intermittents ou scintillants."
     since: v0.1
   - id: BOI-15
     title: "Réglages de stabilisation"
@@ -219,12 +223,11 @@ notions:
     title: "Réduction du bruit en pose longue"
     level: N2
     spec:
-      explanation: "La seconde pose qui allonge l'attente ; quand l'activer"
+      explanation: "Un traitement après la pose, qui peut durer autant qu'elle et pendant lequel on ne peut pas photographier ; quand l'activer"
       simulator: "Attente simulée, comparaison avec et sans"
       exercise: "Décider pour une série d'étoiles"
     situations: [SIT-20]
-    todo:
-      - "Sourcer les affirmations à la rédaction de la fiche (audit A du 7 novembre 2026)."
+    sources: [nikon-z6-long-exposure-nr-fr, canon-eos-r50-long-exposure-nr-fr, sony-a6000-long-exposure-nr-fr]
     since: v0.1
   - id: BOI-20
     title: "Personnaliser les commandes"

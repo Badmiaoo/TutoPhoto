@@ -52,6 +52,7 @@ notions:
       simulator: "Bouton de mémorisation, mesure puis rotation dans la scène"
       exercise: "Mesurer sur le visage, recadrer au tiers"
     situations: [SIT-03, SIT-19, SIT-30]
+    sources: [canon-eos-r50-ae-lock-fr]
     since: v0.1
   - id: MES-06
     title: "Histogramme"
@@ -93,6 +94,7 @@ notions:
       simulator: "Échelle d'exposition virtuelle dans le viseur"
       exercise: "Régler à 0, puis à −1 IL volontairement"
     situations: [SIT-17, SIT-21]
+    sources: [nikon-z6-mode-dial-fr]
     since: v0.1
   - id: MES-10
     title: "ISO auto"
