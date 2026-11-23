@@ -76,6 +76,11 @@
 // - au 135 mm à f/1.4, la profondeur de champ du viseur floute le fond ; coupée, le fond redevient net ; les deux
 //   mesures se font appareil déplacé de 6 m vers la gauche par la vue de dessus, là où aucun personnage n'entre
 //   dans la zone mesurée, puis l'appareil est ramené au départ (version 0.3.59) ;
+// - avec --photo, au même endroit (135 mm, f/1.4, mise au point verrouillée sur le sol), une photo à grand flou : le
+//   diamètre du flou de la zone de la mesure du viseur (de 10 à 20 % de la hauteur), ajusté entre elle et une photo
+//   de référence à f/22 prise juste avant, vaut de 85 à 115 % du flou attendu au fond, même quand le plafond de 5 s
+//   arrête le calcul (constat PHY-21 de l'audit, version 0.4.8 : avant, une photo arrêtée après k rendus sur M avait un
+//   flou réduit de √(k / M)) ;
 // - la loupe passe à 50 %, puis à 100 %, et l'indique ; centrée sur le fond, à ISO 6400, elle montre du bruit ; à
 //   50 %, le bruit du vert vaut moins de 85 % de celui du rouge (k compté par pixel CSS : environ 71 %) ; à densité
 //   2 (entière), ce bruit est tiré par pixel CSS : mesuré par pixel CSS, il vaut au moins 85 % de celui d'un pixel
@@ -373,6 +378,89 @@ async function sharpness(page) {
         resolve(sum / n);
       }))),
   );
+}
+
+/**
+ * Diamètre du flou d'une zone d'une photo, en pixels de la photo (Sujet 39, version 0.4.8 ; constat PHY-21 de l'audit) :
+ * celui du disque uniforme qui, appliqué à une photo de référence de la même vue, approche le mieux la photo floue sur
+ * la zone, au sens des moindres carrés, avec un gain et un décalage libres ; méthode de la contre-vérification du
+ * constat, qui ajustait un disque sur une photo de référence à f/22. Chaque région est la zone et une marge de `margin`
+ * pixels de chaque côté, en lumière linéaire : moyenne des trois couches, chacune à la puissance 2,2, la photo étant
+ * écrite à la puissance 1/2,2 (app/src/camera/photo.ts). Le disque est appliqué ligne par ligne : demi-largeur
+ * √(r² − dy²), le dernier pixel de chaque côté compté pour sa part. Diamètres essayés : de 2 à 2 × margin, de 2 en 2,
+ * puis au demi-pixel près autour du meilleur, et sommet de la parabole des trois meilleurs.
+ */
+function blurDiameter(reference, photo, margin) {
+  const width = reference.width;
+  const height = reference.height;
+  const zoneWidth = width - 2 * margin;
+  const zoneHeight = height - 2 * margin;
+  const prefix = new Float64Array(height * (width + 1));
+  for (let y = 0; y < height; y++) {
+    let sum = 0;
+    for (let x = 0; x < width; x++) {
+      sum += reference.luma[y * width + x];
+      prefix[y * (width + 1) + x + 1] = sum;
+    }
+  }
+  const row = (y, from, to) => prefix[y * (width + 1) + to + 1] - prefix[y * (width + 1) + from];
+  const error = (diameter) => {
+    const r = diameter / 2;
+    const lines = [];
+    let weight = 0;
+    for (let dy = -Math.floor(r); dy <= Math.floor(r); dy++) {
+      const half = Math.sqrt(r * r - dy * dy);
+      const full = Math.floor(half);
+      lines.push({ dy, full, part: half - full });
+      weight += 2 * full + 1 + 2 * (half - full);
+    }
+    let n = 0;
+    let sb = 0;
+    let st = 0;
+    let sbb = 0;
+    let sbt = 0;
+    let stt = 0;
+    for (let y = margin; y < margin + zoneHeight; y++) {
+      for (let x = margin; x < margin + zoneWidth; x++) {
+        let b = 0;
+        for (const { dy, full, part } of lines) {
+          const yy = y + dy;
+          b += row(yy, x - full, x + full) + part * (reference.luma[yy * width + x - full - 1] + reference.luma[yy * width + x + full + 1]);
+        }
+        b /= weight;
+        const t = photo.luma[y * width + x];
+        n++;
+        sb += b;
+        st += t;
+        sbb += b * b;
+        sbt += b * t;
+        stt += t * t;
+      }
+    }
+    // Moindres carrés de t ≈ gain × b + décalage : résidu = variance de t − covariance² / variance de b.
+    const vb = sbb / n - (sb / n) ** 2;
+    const vt = stt / n - (st / n) ** 2;
+    const cbt = sbt / n - (sb / n) * (st / n);
+    return vt - (cbt * cbt) / vb;
+  };
+  let best = 2;
+  let bestError = Infinity;
+  for (let d = 2; d <= 2 * margin; d += 2) {
+    const e = error(d);
+    if (e < bestError) {
+      bestError = e;
+      best = d;
+    }
+  }
+  const tried = [];
+  for (let d = Math.max(1, best - 2); d <= Math.min(2 * margin, best + 2); d += 0.5) tried.push([d, error(d)]);
+  tried.sort((a, b) => a[1] - b[1]);
+  const [[d0, e0]] = tried;
+  const left = tried.find(([d]) => Math.abs(d - (d0 - 0.5)) < 1e-9);
+  const right = tried.find(([d]) => Math.abs(d - (d0 + 0.5)) < 1e-9);
+  if (!left || !right) return d0;
+  const curvature = left[1] - 2 * e0 + right[1];
+  return curvature > 0 ? d0 + (0.25 * (left[1] - right[1])) / curvature : d0;
 }
 
 /**
@@ -1161,6 +1249,69 @@ async function runProfile(browser, name, base) {
     await page.waitForTimeout(800);
     const sharp = await sharpness(page);
     check("profondeur de champ du viseur", blurred < 0.6 * sharp, `netteté du fond ${blurred.toFixed(2)} avec, ${sharp.toFixed(2)} sans`);
+    // Photo à grand flou (constat PHY-21 de l'audit, Sujet 39, version 0.4.8) : au même endroit, au 135 mm à f/1.4, le
+    // fond de la photo doit avoir le flou de l'ouverture, même quand le plafond de 5 s arrête le calcul, ce qu'il fait
+    // d'ordinaire en rendu logiciel (« 97/256 rendus, calculée en 47,2 s » dans l'essai de la contre-vérification du
+    // constat). Avant la version 0.4.8, les rendus allaient du centre du disque d'ouverture vers son bord, et une photo
+    // arrêtée après k rendus sur M avait un flou réduit de √(k / M). Mesure : photo de référence à f/22 (8 crans
+    // d'ouverture et 8 crans de vitesse plus loin, même exposition), puis photo à f/1.4 ; diamètre du flou de la zone
+    // de la mesure du viseur, plus bas (10 à 20 % de la hauteur), ajusté entre les deux (blurDiameter) ; diamètre
+    // attendu au fond, la sphère du fond étant à 500 m (DOME_RADIUS, app/src/scene.ts) : c = A × f × (D − S) / (D × (S − f)),
+    // A = f / N [wikipedia-circle-of-confusion], N = √2 (apertureValue, app/src/camera/exposure.ts), S la distance de
+    // mise au point de la légende (verrouillée par le toucher du sol, plus haut), ramené à la photo de 1500 px de grand
+    // côté (PHOTO_LONG_SIDE, app/src/camera/optics.ts) pour les 35,9 mm du Z 6 (app/src/camera/bodies.ts). Seuil : de
+    // 85 à 115 %. Essai de cette séquence pour la version 0.4.8 (CHANGELOG.md), photo arrêtée de force après 64, 97 ou
+    // 256 rendus, mise au point à 5,8 m : de 98,6 à 99,2 % du flou attendu ; avec l'ancien ordre, 49,9 % à 64 rendus
+    // et 60,7 % à 97.
+    if (withPhoto) {
+      const margin = 80;
+      const press = (selector, n) => page.evaluate(([s, k]) => { for (let i = 0; i < k; i++) document.querySelector(s).click(); }, [selector, n]);
+      const shootRegion = async () => {
+        await page.evaluate(() => document.getElementById("shutter-button").click());
+        await page.waitForFunction(
+          () => !document.getElementById("review").hidden && document.getElementById("progress").hidden && document.getElementById("review-image").complete && document.getElementById("review-image").naturalWidth > 0,
+          null,
+          { timeout: 600000 },
+        );
+        const region = await page.evaluate((m) => {
+          const img = document.getElementById("review-image");
+          const width = img.naturalWidth;
+          const height = img.naturalHeight;
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const g = canvas.getContext("2d");
+          g.drawImage(img, 0, 0);
+          const w = Math.round(0.2 * width) + 2 * m;
+          const h = Math.round(0.1 * height) + 2 * m;
+          const d = g.getImageData(Math.round(0.15 * width) - m, Math.round(0.1 * height) - m, w, h).data;
+          const luma = new Array(w * h);
+          for (let i = 0; i < w * h; i++) luma[i] = ((d[4 * i] / 255) ** 2.2 + (d[4 * i + 1] / 255) ** 2.2 + (d[4 * i + 2] / 255) ** 2.2) / 3;
+          return { width: w, height: h, luma, size: `${width}×${height}`, caption: document.getElementById("review-caption").textContent };
+        }, margin);
+        await page.evaluate(() => document.getElementById("review-back").click());
+        await page.waitForFunction(() => document.getElementById("review").hidden, null, { timeout: 60000 });
+        return region;
+      };
+      await press('[data-dial="aperture"][data-step="1"]', 24);
+      await press('[data-dial="shutter"][data-step="1"]', 24);
+      const reference = await shootRegion();
+      await press('[data-dial="aperture"][data-step="-1"]', 24);
+      await press('[data-dial="shutter"][data-step="-1"]', 24);
+      const wide = await shootRegion();
+      const focusMatch = /(?:mise au point|verrouillée) à (\d+,\d) m/.exec(wide.caption);
+      const focusM = focusMatch ? Number(focusMatch[1].replace(",", ".")) : NaN;
+      const f = 135;
+      const expected = ((((f / Math.SQRT2) * f * (500 - focusM)) / (500 * (focusM * 1000 - f))) * 1500) / 35.9;
+      const measured = blurDiameter(reference, wide, margin);
+      const ratio = measured / expected;
+      const renders = /(\d+(?:\/\d+)?) rendus, calculée en ([\d,]+) s/.exec(wide.caption);
+      check(
+        "photo à grand flou : flou du fond gardé (135 mm, f/1.4)",
+        /^M · f\/1.4 · /.test(wide.caption) && /^M · f\/22 · /.test(reference.caption) && focusM > 0 && ratio >= 0.85 && ratio <= 1.15,
+        `${wide.size}, ${renders ? `${renders[1]} rendus en ${renders[2]} s` : wide.caption} ; flou du fond ${measured.toFixed(1)} px pour ${expected.toFixed(1)} px attendus (${(100 * ratio).toFixed(0)} %, mise au point à ${focusM} m) ; référence : ${reference.caption.split(" · ").slice(0, 2).join(" · ")}`,
+      );
+    }
     // Retour au point de départ avant la suite, vue de dessus repliée comme elle l'était.
     await page.click("#top-view-reset");
     await cameraAt(0, 0);
