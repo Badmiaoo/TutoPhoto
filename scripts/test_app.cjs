@@ -59,14 +59,15 @@
 //   INT-14 de l'audit), profil iphone seulement, dans un contexte à part : le simulateur chargé téléphone tenu à
 //   l'horizontale (iPhone 14 émulé, 750 × 340 px) a son panneau à droite du viseur, un cadre d'au moins 60 % de la
 //   hauteur de la fenêtre, la vue de dessus et l'indicateur d'équilibre repliés et le bouton « Vue de dessus » dans le
-//   viseur ; à cette taille, puis à 390 × 664, 412 × 839 et 320 × 664 px, onze gestes qui changent les textes de
-//   l'en-tête et du panneau (mode et zone de mise au point, modes de déclenchement, boîtier, mode d'exposition et
-//   correction, défi, libellés du déclencheur pendant une rafale et un compte à rebours, aperçu coupé, puis retour aux
-//   réglages de départ) ne déplacent ni le viseur, ni le cadre (même sens, même grand côté à 1,5 px près), ni le
-//   déclencheur ; aucun libellé n'est coupé, les pastilles restent dans le viseur et hors du bloc « Vue de dessus », la
+//   viseur ; à cette taille, puis à 390 × 664, 412 × 839, 600 × 960 et 320 × 664 px, onze gestes qui changent les textes
+//   de l'en-tête et du panneau (mode et zone de mise au point, modes de déclenchement, boîtier, mode d'exposition et
+//   correction, défi, libellés du déclencheur pendant une rafale et un compte à rebours, aperçu coupé, loupe à 100 %),
+//   puis le retour aux réglages de départ, ne déplacent ni le viseur, ni le cadre (même sens, même grand côté à 1,5 px
+//   près), ni le déclencheur ; aucun libellé n'est coupé, les pastilles restent dans le viseur et hors du bloc « Vue de dessus », la
 //   page ne défile pas en largeur ; tenu droit, le viseur fait au moins 35 % de la hauteur de la fenêtre ; à
 //   320 × 664 px, les fenêtres « Mise au point », « Aperçu » et « Exposition » montrent « Fermer » sans défiler, se
-//   rouvrent en haut, se ferment par un toucher sur le fond et pas par un doigt posé dedans et levé sur lui ; à
+//   rouvrent en haut, se ferment par un toucher sur le fond (écran tactile émulé) et pas par un appui de souris commencé
+//   dedans et relâché sur lui ; à
 //   l'horizontale et à 320 × 664 px, l'écran de revue couvre tout l'écran, la photo y fait au moins 90 % de la largeur
 //   du cadre, et « Revenir au viseur » et « Enregistrer la photo » sont visibles sans le faire défiler ;
 // - la fiche SIT-05 a un bouton « Jouer le défi » (simulateur/?defi=SIT-05), et le simulateur ouvert à l'adresse
@@ -140,10 +141,11 @@
 //   ni histogramme ni clignotement ; « Infos » une fois : quatre histogrammes (luminance, rouge, vert, bleu), la
 //   somme des colonnes de chacun égale au nombre de pixels de la photo (le calcul des histogrammes est aussi essayé
 //   sans navigateur, par app/tests/histogram.test.ts, version 0.3.86 : la routine lit les colonnes que l'écran de revue
-//   a reçues) ; photo surexposée de 3,2 IL : elle s'ouvre en
+//   a reçues), et la phrase des zones écrêtées visible en son centre, pas sous la barre collée en bas de l'écran de revue
+//   (version 0.4.10) ; photo surexposée de 3,2 IL : elle s'ouvre en
 //   haut de l'écran de revue, sans défilement gardé de la photo d'avant (INT-17, version 0.3.59), part écrêtée
 //   supérieure à 0 dans le texte, puis « Infos » encore une fois : zones écrêtées posées sur la photo, sans prendre
-//   les touchers ; avec « réduire les animations », émulé, le calque des zones n'a aucune animation et le texte dit
+//   les touchers, et la phrase visible ; avec « réduire les animations », émulé, le calque des zones n'a aucune animation et le texte dit
 //   « sans clignoter » ; réglage rendu, il clignote de nouveau (version 0.3.62) ; photo sous-exposée de 3,2 IL :
 //   aucune zone, plus de la moitié des pixels de luminance dans la moitié gauche ; retour à « photo seule » et aux
 //   réglages de départ ;
@@ -1012,9 +1014,19 @@ const LAYOUT_STEPS = [
       if (all.checked) all.click();
     },
   ],
+  // La loupe passe à 100 % (« Loupe 100 % ») ; le bouton parcourt 50 %, 100 %, puis rien.
+  [
+    "loupe à 100 %",
+    () => {
+      const loupe = document.getElementById("loupe-button");
+      for (let i = 0; i < 3 && !/100/.test(loupe.textContent); i++) loupe.click();
+    },
+  ],
   [
     "réglages de départ",
     () => {
+      const loupe = document.getElementById("loupe-button");
+      for (let i = 0; i < 3 && /\d/.test(loupe.textContent); i++) loupe.click();
       const all = document.querySelector('#preview-dialog input[value="all"]');
       if (!all.checked) all.click();
       document.querySelector('input[name="challenge"][value="none"]').click();
@@ -1085,7 +1097,7 @@ async function checkPhoneLayout(browser, base, check) {
     check(
       `${label} : viseur, cadre et déclencheur immobiles quand les textes changent (INT-04, INT-12)`,
       !moved,
-      `viseur de ${Math.min(...mains).toFixed(1)} à ${Math.max(...mains).toFixed(1)} px de haut ; cadre ${[...shapes].join(" puis ")}, ${states[0].frame}${frameMoved ? `, puis ${changes("frame").join(", ")}` : ""} ; déclencheur ${changes("shutter").length ? `déplacé (${changes("shutter").join(", ")})` : "immobile"} ; ${states.length - 1} gestes`,
+      `viseur de ${Math.min(...mains).toFixed(1)} à ${Math.max(...mains).toFixed(1)} px de haut ; cadre ${[...shapes].join(" puis ")}, ${states[0].frame}${frameMoved ? `, puis ${changes("frame").join(", ")}` : ""} ; déclencheur ${changes("shutter").length ? `déplacé (${changes("shutter").join(", ")})` : "immobile"} ; ${states.length - 1} étapes`,
     );
     const faults = states.flatMap((s) => s.faults.map((f) => `${s.step} : ${f}`));
     check(
@@ -1144,9 +1156,21 @@ async function checkPhoneLayout(browser, base, check) {
     );
     await cycle("à l'horizontale (750 × 340)");
     await review("à l'horizontale (750 × 340)");
-    for (const [width, height, label] of [[390, 664, "droit (390 × 664)"], [412, 839, "droit (412 × 839)"], [320, 664, "droit (320 × 664)"]]) {
+    for (const [width, height, label] of [[390, 664, "droit (390 × 664)"], [412, 839, "droit (412 × 839)"], [600, 960, "droit (600 × 960)"], [320, 664, "droit (320 × 664)"]]) {
       await page.setViewportSize({ width, height });
-      await page.waitForTimeout(800);
+      // Le cadre n'est replacé qu'au rendu suivant (ResizeObserver, puis le moteur, puis le panneau), qui prend plus d'une
+      // demi-seconde dans la CI : on attend qu'il remplisse la zone du viseur sur un de ses côtés (relecture de la
+      // version 0.4.10, R7).
+      await page.waitForFunction(
+        () => {
+          const m = document.querySelector("main").getBoundingClientRect();
+          const f = document.getElementById("frame").getBoundingClientRect();
+          return Math.abs(f.width - m.width) < 1 || Math.abs(f.height - m.height) < 1;
+        },
+        null,
+        { timeout: 60000 },
+      );
+      await page.waitForTimeout(400);
       const first = await cycle(label);
       check(`${label} : viseur assez grand (INT-04)`, first.main >= 0.35 * height, `${first.main.toFixed(1)} px de haut, fenêtre de ${height} px`);
     }
@@ -1171,7 +1195,8 @@ async function checkPhoneLayout(browser, base, check) {
       await page.evaluate((b) => document.getElementById(b).click(), button);
       await page.waitForTimeout(150);
       const reopened = await page.evaluate((id) => document.getElementById(id).scrollTop, id);
-      await page.mouse.click(3, 3);
+      // Un toucher de l'écran tactile émulé, en haut à gauche, sur le fond.
+      await page.touchscreen.tap(3, 3);
       await page.waitForTimeout(150);
       const closedByBackdrop = await page.evaluate((id) => !document.getElementById(id).open, id);
       if (!closedByBackdrop) await page.keyboard.press("Escape");
@@ -1193,9 +1218,9 @@ async function checkPhoneLayout(browser, base, check) {
     }
     const bad = dialogs.filter((d) => !d.open || !d.closeVisible || d.reopened !== 0 || !d.closedByBackdrop || !d.keptOpen);
     check(
-      "droit (320 × 664) : fenêtres « Mise au point », « Aperçu » et « Exposition » : « Fermer » visible sans faire défiler, rouvertes en haut, fermées par un toucher sur le fond et pas par un doigt levé sur lui (INT-20)",
+      "droit (320 × 664) : fenêtres « Mise au point », « Aperçu » et « Exposition » : « Fermer » visible sans faire défiler, rouvertes en haut, fermées par un toucher sur le fond, pas par un appui de souris commencé dedans et relâché sur lui (INT-20)",
       bad.length === 0 && dialogs.some((d) => d.taller),
-      dialogs.map((d) => `${d.id} : ${d.taller ? "plus haute que l'écran" : "tient dans l'écran"}, « Fermer » ${d.closeVisible ? "visible" : "caché"}, rouverte à ${Math.round(d.reopened)} px, ${d.closedByBackdrop ? "fermée" : "pas fermée"} par le fond, ${d.keptOpen ? "ouverte" : "fermée"} après un doigt levé sur le fond`).join(" ; "),
+      dialogs.map((d) => `${d.id} : ${d.taller ? "plus haute que l'écran" : "tient dans l'écran"}, « Fermer » ${d.closeVisible ? "visible" : "caché"}, rouverte à ${Math.round(d.reopened)} px, ${d.closedByBackdrop ? "fermée" : "pas fermée"} par un toucher sur le fond, ${d.keptOpen ? "ouverte" : "fermée"} après un appui relâché sur le fond`).join(" ; "),
     );
     await review("droit (320 × 664)");
   } catch (error) {
@@ -1832,6 +1857,13 @@ async function runProfile(browser, name, base) {
           });
           const clipping = document.getElementById("review-clipping");
           const text = shown(clipping) ? clipping.textContent : "";
+          // La phrase, visible en son centre et pas sous la barre collée en bas de l'écran de revue (relecture de la
+          // version 0.4.10, R2) ; null quand elle n'est pas affichée.
+          let textVisible = null;
+          if (shown(clipping)) {
+            const c = clipping.getBoundingClientRect();
+            textVisible = clipping.contains(document.elementFromPoint(c.left + c.width / 2, c.top + c.height / 2));
+          }
           const m = /: (\d+,\d)\s% de l'image/.exec(text);
           const overlay = document.getElementById("review-highlights");
           const zones = { shown: shown(overlay), opaque: 0, gap: NaN };
@@ -1854,6 +1886,7 @@ async function runProfile(browser, name, base) {
             pixels,
             histograms,
             text,
+            textVisible,
             share: m ? Number(m[1].replace(",", ".")) : /^Aucun pixel à la valeur maximale/.test(text) ? 0 : NaN,
             zones,
             touched: document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)?.id ?? "",
@@ -1875,8 +1908,9 @@ async function runProfile(browser, name, base) {
           infoHistograms.histograms.map((h) => h.channel).join() === "luminance,red,green,blue" &&
           infoHistograms.histograms.every((h) => h.count === 256 && h.total === infoHistograms.pixels) &&
           infoHistograms.pixels > 0 &&
-          infoHistograms.saved === "histograms",
-        `${infoHistograms.histograms.map((h) => `${h.channel} ${h.total}`).join(", ")} ; photo de ${infoHistograms.pixels} pixels ; ${infoHistograms.text} ; tutophoto.revue : ${infoHistograms.saved}`,
+          infoHistograms.saved === "histograms" &&
+          infoHistograms.textVisible === true,
+        `${infoHistograms.histograms.map((h) => `${h.channel} ${h.total}`).join(", ")} ; photo de ${infoHistograms.pixels} pixels ; ${infoHistograms.text} ; phrase ${infoHistograms.textVisible ? "visible" : "cachée"} ; tutophoto.revue : ${infoHistograms.saved}`,
       );
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-histogrammes.png`), timeout: 120000 });
       // Retour à « photo seule » (par « hautes lumières ») : la loupe de l'écran de revue est contrôlée comme avant.
@@ -2173,8 +2207,8 @@ async function runProfile(browser, name, base) {
       const zoneShare = (100 * overZones.zones.opaque) / overZones.pixels;
       check(
         "« Infos » encore une fois : zones écrêtées posées sur la photo",
-        overZones.button === "Infos\u00a0: hautes lumières" && overZones.zones.shown && overZones.zones.opaque > 0 && Math.abs(zoneShare - overZones.share) < 0.06 && overZones.zones.gap <= 1 && overZones.touched === "review-image" && overZones.histograms.length === 0,
-        `${overZones.zones.opaque} pixels en noir, soit ${zoneShare.toFixed(2)} % ; ${overZones.text} ; écart avec la photo ${overZones.zones.gap.toFixed(2)} px ; toucher au centre de la photo : ${overZones.touched}`,
+        overZones.button === "Infos\u00a0: hautes lumières" && overZones.zones.shown && overZones.zones.opaque > 0 && Math.abs(zoneShare - overZones.share) < 0.06 && overZones.zones.gap <= 1 && overZones.touched === "review-image" && overZones.histograms.length === 0 && overZones.textVisible === true,
+        `${overZones.zones.opaque} pixels en noir, soit ${zoneShare.toFixed(2)} % ; ${overZones.text} ; phrase ${overZones.textVisible ? "visible" : "cachée"} ; écart avec la photo ${overZones.zones.gap.toFixed(2)} px ; toucher au centre de la photo : ${overZones.touched}`,
       );
       if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-hautes-lumieres.png`), timeout: 120000 });
       // « Réduire les animations » (réglage du système, émulé par Playwright) : l'écran de revue écrit alors que les

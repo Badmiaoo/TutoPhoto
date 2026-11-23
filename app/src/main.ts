@@ -435,6 +435,7 @@ function startSimulator(engine: Engine): void {
       reviewNext: element<HTMLButtonElement>("review-next"),
       reviewCount: element("review-count"),
       reviewBulletin: element("review-bulletin"),
+      covered: [element("header"), element("camera-panel"), element("top-view"), element("balance")],
     },
     () => engine.runRenderLoop(render),
     noise,

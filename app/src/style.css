@@ -422,8 +422,9 @@ body.start-failed #diagnostic {
   bottom: 0.5rem;
   max-width: 13rem;
   /* Jamais plus haute que le viseur : dépliée dans un viseur bas, elle défile, et son bouton reste en haut, visible (le
-     bouton « Vue de dessus » était 94 px au-dessus du viseur, hors de la page, sur l'iPhone 14 émulé tenu à
-     l'horizontale, constat INT-03 de l'audit ; et sous l'en-tête sur l'iPhone SE émulé ; version 0.4.10). */
+     haut du bouton « Vue de dessus » était à 94 px au-dessus du haut de la page sur l'iPhone 14 émulé tenu à
+     l'horizontale, police Inter, et à 89 px avec celle de la CI, constat INT-03 de l'audit ; et sous l'en-tête sur
+     l'iPhone SE émulé ; version 0.4.10). */
   max-height: calc(100% - 1rem);
   overflow-y: auto;
   padding: 0.3rem;
@@ -570,6 +571,15 @@ dialog fieldset label {
 }
 
 @container (max-width: 520px) {
+  .dials {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Même règle d'après la largeur de la fenêtre, pour un navigateur sans requêtes de conteneur (Safari avant la version 16
+   [mdn-bcd-8-1-10-layout]) : sans elle, les molettes restaient sur quatre colonnes et la page défilait en largeur
+   (relecture de la version 0.4.10, R4). */
+@media (max-width: 520px) {
   .dials {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -851,6 +861,10 @@ dialog fieldset label {
 .review {
   position: absolute;
   inset: 0;
+  /* Un élément qui reçoit le focus est amené au-dessus de la barre collée en bas (« Revenir au viseur », « Enregistrer la
+     photo »), pas dessous (relecture de la version 0.4.10 ; critère « Focus Not Obscured (Minimum) » du WCAG 2.2
+     [wcag-22-focus-not-obscured-minimum]). */
+  scroll-padding-bottom: 3.5rem;
   z-index: 1;
   display: flex;
   flex-direction: column;
@@ -1099,7 +1113,8 @@ dialog fieldset label {
 
 /* Affichage de diagnostic (version 0.3.88, ui/diagnosticView.ts), ouvert par « ?diagnostic » dans l'adresse : un calque
    en bas à gauche du viseur, coin que n'occupent ni l'indicateur d'équilibre (en haut à gauche), ni la vue de dessus (en
-   bas à droite), ni les badges (au centre), sur un écran large. Sur un téléphone, il couvre une bonne part du viseur
+   bas à droite), ni la pastille de l'aperçu (en haut, au centre), sur un écran large. Depuis la version 0.4.10, la loupe et
+   la pastille de mise au point sont aussi en bas à gauche : le calque les couvre, et ses chiffres restent lisibles. Sur un téléphone, il couvre une bonne part du viseur
    (docs/pile-technique.md, « Affichage de diagnostic »). Placé dans la page juste avant l'écran de revue, au même
    z-index (1), il passe sous lui, sous la bande « Calcul de la photo… » (2), sous la ligne des problèmes et les
    messages de la scène (3), et au-dessus de la vue de dessus et de l'indicateur d'équilibre. Il ne prend pas les
@@ -1132,15 +1147,21 @@ dialog fieldset label {
    « Continu H (étendu) » faisait passer le viseur de 445 à 405 px de haut, et le cadre de vertical (296 × 445 px) à
    horizontal (412 × 274 px). */
 
-/* Panneau étroit : boutons en grille de six colonnes, chacun sur une, deux, trois ou six colonnes, en lignes de hauteur
-   fixe (deux lignes de texte). Un libellé qui s'allonge (« Continu H (étendu) · 12 vps », « Canon EOS R50 », « Rafale :
-   12 vues », « Retardateur : 10 s ») passe à la ligne dans son bouton : ni la hauteur du panneau ni la place du
-   déclencheur ne changent. Les boutons gardent l'ordre de la page, qui est aussi celui de la tabulation. */
-@container (max-width: 520px) {
+/* Panneau de 1000 px de contenu au plus (téléphone, tablette) : boutons en grille de six colonnes, chacun sur une, deux,
+   trois ou six colonnes, en lignes d'au moins deux lignes de texte. Un libellé qui s'allonge (« Continu H (étendu) ·
+   12 vps », « Canon EOS R50 », « Rafale : 20 vues », « Retardateur : 20 s ») passe à la ligne dans son bouton ; aucun
+   n'y demande plus de deux lignes aux largeurs essayées, de 320 à 1000 px, avec la police Inter et celle de la CI : ni
+   la hauteur du panneau ni la place du déclencheur ne changent. Un texte agrandi par le navigateur agrandit la ligne au
+   lieu d'être coupé : le critère « Resize Text » du WCAG 2.2 demande qu'un texte agrandi jusqu'à 200 % ne perde rien de
+   son contenu [wcag-22-resize-text]. Au-delà de 1000 px de contenu, une seule rangée, en grille elle aussi (règle
+   suivante). Les boutons gardent l'ordre de la page, qui est aussi celui de la tabulation.
+   Sans requêtes de conteneur (Safari avant la version 16, d'après les données de compatibilité de MDN
+   [mdn-bcd-8-1-10-layout]), le panneau garde sa disposition d'avant la version 0.4.10. */
+@container (max-width: 1000px) {
   .meter-row {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    grid-auto-rows: 2.4rem;
+    grid-auto-rows: minmax(2.4rem, auto);
     gap: 0.35rem;
     margin-top: 0.45rem;
   }
@@ -1153,6 +1174,9 @@ dialog fieldset label {
     margin: 0 0.7rem;
   }
 
+  /* Chaque bouton remplit sa case, quel que soit le nombre de lignes de son libellé : le déclencheur ne change ni de
+     place ni de taille quand son libellé passe de « Déclencher » à « Retardateur : 20 s » (la rangée centre ses
+     éléments, align-items: center). */
   .meter-row > button {
     min-width: 0;
     min-height: 0;
@@ -1161,7 +1185,6 @@ dialog fieldset label {
     padding: 0.1rem 0.25rem;
     font-size: 0.8rem;
     line-height: 1.12;
-    overflow: hidden;
   }
 
   .meter-value,
@@ -1198,6 +1221,43 @@ dialog fieldset label {
 
   .shutter-button {
     grid-column: span 6;
+  }
+}
+
+/* Panneau large (plus de 1000 px de contenu, écran d'ordinateur) : une seule rangée de huit cases, dans l'ordre de la
+   page, l'indicateur, sa valeur, le mode de déclenchement et le déclencheur sur deux parts de largeur, les autres sur
+   une. Un libellé long passe à la ligne dans sa case au lieu de faire passer la rangée à la ligne : avec la rangée
+   d'avant, le panneau passait de 142 à 182 px de haut à 1100 × 800 et à 1200 × 800 px, police de la CI, et le viseur de
+   607 à 567 px (relecture de la version 0.4.10, R1). */
+@container (min-width: 1001px) {
+  .meter-row {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr 1fr 1fr 2fr 1fr 2fr;
+    grid-auto-rows: minmax(2.4rem, auto);
+    gap: 0.35rem 0.6rem;
+  }
+
+  .meter {
+    align-self: center;
+    min-width: 0;
+    margin: 0 0.7rem;
+  }
+
+  .meter-row > button {
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.85rem;
+    line-height: 1.12;
+  }
+}
+
+/* Panneau de tablette (de 521 à 1000 px de contenu) : la grille de six colonnes, le texte des boutons un peu plus grand. */
+@container (min-width: 521px) and (max-width: 1000px) {
+  .meter-row > button {
+    font-size: 0.85rem;
   }
 }
 
@@ -1275,6 +1335,11 @@ dialog fieldset label {
     border-top: 0;
     border-left: 1px solid var(--discret);
   }
+
+  /* Pour un navigateur sans requêtes de conteneur : les molettes sur deux colonnes dans le panneau de 20rem. */
+  .dials {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* Écran de revue sur téléphone : il couvre tout l'écran, panneau compris, et la photo prend toute la largeur (constat
@@ -1294,6 +1359,19 @@ dialog fieldset label {
   .review.with-histograms img {
     max-height: calc(100% - 3.5rem);
   }
+
+  /* Les histogrammes, avec la marge des autres éléments, sans élargir la page (relecture de la version 0.4.10, R6). */
+  .review-histograms {
+    width: calc(100% - 1.5rem);
+  }
+
+  /* Pendant le calcul d'une loupe, la bande « Calcul de la loupe… » au-dessus des boutons du bas, et pas au milieu de
+     la photo, là où tombe le bas du viseur caché sous l'écran de revue. Sans le sélecteur :has() (Safari avant la
+     version 15.4 [mdn-bcd-8-1-10-layout]), elle reste en bas du viseur. */
+  main:has(> .review:not([hidden])) > .progress {
+    position: fixed;
+    bottom: 4.5rem;
+  }
 }
 
 /* « Revenir au viseur » et « Enregistrer la photo » collés au bas de l'écran de revue : visibles sans le faire défiler,
@@ -1304,7 +1382,6 @@ dialog fieldset label {
   bottom: 0;
   justify-content: center;
   align-self: stretch;
-  margin-bottom: 0;
   padding: 0.5rem 0.75rem;
   background: var(--fond);
 }
