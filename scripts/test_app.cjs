@@ -66,7 +66,8 @@
 //   détection des animaux, bruit et profondeur de champ du viseur coupés, grille des tiers, histogrammes à l'écran de
 //   revue), sont écrits dans tutophoto.boitier, tutophoto.apercu et tutophoto.revue avec les champs d'avant le magasin,
 //   dans le même ordre, puis relus au chargement (fenêtres, boutons du boîtier, de la mise au point et du
-//   déclenchement, bouton « Infos ») ; le chargement ne récrit pas la mémoire ;
+//   déclenchement, bouton « Infos ») ; pendant le chargement, rien n'est écrit dans ces trois clés (écritures comptées
+//   par un script posé avant lui) ;
 // - l'activité LUM-02 (activites/LUM-02/) : la fiche y mène ; l'exemple « Grande fenêtre » (120 cm à 200 cm) donne une
 //   pénombre de 120 × 50 / 200 = 30 cm ; la bonne réponse à la première question est saluée ; pas de défilement horizontal ;
 //   source à 150 cm et à 20 cm : pénombre de 30 × 70 / 20 + 150 × 50 / 20 = 480 cm de haut, dite « au-delà du mur
@@ -2574,6 +2575,17 @@ async function runProfile(browser, name, base) {
       }
     });
     const memoryBefore = await memoryState();
+    // Écritures dans les trois clés pendant le chargement qui suit, comptées par un script posé avant lui (il vaut pour les
+    // pages suivantes de l'onglet, sans rien changer d'autre). Comparer les chaînes avant et après ne suffisait pas : une
+    // écriture des mêmes réglages redonne les mêmes chaînes (relecture de la version 0.4.9, R1).
+    await page.addInitScript(() => {
+      const setItem = Storage.prototype.setItem;
+      window.__tutophotoMemoryWrites = [];
+      Storage.prototype.setItem = function (key, value) {
+        if (["tutophoto.boitier", "tutophoto.apercu", "tutophoto.revue"].includes(String(key))) window.__tutophotoMemoryWrites.push(String(key));
+        return setItem.call(this, key, value);
+      };
+    });
     const problemBeforeReload = await diagnosticText();
     await page.goto(`${base}/simulateur?defi=SIT-06`);
     const progress = await page
@@ -2592,6 +2604,7 @@ async function runProfile(browser, name, base) {
     );
     {
       const memoryAfter = await memoryState();
+      const memoryWrites = await page.evaluate(() => window.__tutophotoMemoryWrites ?? null);
       const saved = (key) => {
         try {
           return JSON.parse(memoryBefore.storage[key] ?? "null") ?? {};
@@ -2618,11 +2631,13 @@ async function runProfile(browser, name, base) {
       check(
         "mémoire des réglages : écrite avec les champs d'avant le magasin, relue au chargement, pas récrite (ARC-02)",
         written &&
+          Array.isArray(memoryWrites) &&
+          memoryWrites.length === 0 &&
           JSON.stringify(memoryAfter.storage) === JSON.stringify(memoryBefore.storage) &&
           memoryAfter.inputs === memoryBefore.inputs &&
           memoryAfter.buttons === memoryBefore.buttons &&
           /^Sony A6000 \| AF-S · Zone L \| Continu L · 4 vps/.test(memoryAfter.buttons),
-        `champs : ${fields.join(" ; ")} ; boutons avant : ${memoryBefore.buttons} ; après : ${memoryAfter.buttons} ; fenêtres ${memoryAfter.inputs === memoryBefore.inputs ? "identiques" : `avant : ${memoryBefore.inputs} ; après : ${memoryAfter.inputs}`} ; mémoire ${JSON.stringify(memoryAfter.storage) === JSON.stringify(memoryBefore.storage) ? "inchangée" : `récrite : ${JSON.stringify(memoryAfter.storage)}`}`,
+        `champs : ${fields.join(" ; ")} ; boutons avant : ${memoryBefore.buttons} ; après : ${memoryAfter.buttons} ; fenêtres ${memoryAfter.inputs === memoryBefore.inputs ? "identiques" : `avant : ${memoryBefore.inputs} ; après : ${memoryAfter.inputs}`} ; écritures pendant le chargement : ${memoryWrites === null ? "non comptées" : memoryWrites.join(", ") || "aucune"} ; mémoire ${JSON.stringify(memoryAfter.storage) === JSON.stringify(memoryBefore.storage) ? "inchangée" : `changée : ${JSON.stringify(memoryAfter.storage)}`}`,
       );
     }
     // Le paramètre ?defi= est retiré de l'adresse une fois lu et mémorisé (constat COD-03 de l'audit, version 0.3.72).

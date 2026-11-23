@@ -3,9 +3,9 @@
 // du navigateur garde y ont aussi leur place, dans STORAGE (clé et champ). Une lecture (get, all), une écriture (set)
 // et un abonnement (subscribe), dans SettingsStore : le panneau (ui/cameraPanel.ts), l'autofocus (camera/autofocus.ts),
 // le déclencheur (ui/shutter.ts) et l'écran de revue (ui/reviewInfo.ts) y lisent les réglages ; le panneau et l'écran
-// de revue y écrivent ceux que l'on choisit, et chacun se met à jour par son abonnement. Le module ne touche ni à la
-// page ni au rendu : la mémoire lui est passée (SettingsStorage), et les tests rapides le chargent sans navigateur
-// (app/tests/settings.test.ts).
+// de revue y écrivent ceux que l'on choisit, et chacun se met à jour par son abonnement. La classe reçoit la mémoire
+// (SettingsStorage) : seule browserStorage(), qu'appelle main.ts, lit window.localStorage. Le module ne touche ni à la
+// page ni au rendu, et les tests rapides l'essaient sans navigateur, sur une mémoire de test (app/tests/settings.test.ts).
 //
 // Mémoire du navigateur : les clés, les champs et les valeurs qu'écrivaient ui/cameraPanel.ts et ui/reviewInfo.ts
 // avant ce module (version 0.4.8), pour que les réglages déjà mémorisés restent :
@@ -54,7 +54,10 @@ export const TIMER_DELAYS = [2, 5, 10, 20] as const;
 export const REVIEW_DISPLAYS = ["photo", "histograms", "highlights"] as const;
 export type ReviewDisplay = (typeof REVIEW_DISPLAYS)[number];
 
-/** Sensibilité maximale de l'ISO auto : de ISO 200 (Z 6) au haut de l'échelle de TutoPhoto, ISO 6400. */
+/**
+ * Sensibilité maximale de l'ISO auto : de ISO 200, la plus basse que propose ce réglage sur le Z 6 [nikon-z6-iso-button],
+ * au haut de l'échelle de TutoPhoto, ISO 6400.
+ */
 export const MAX_ISO_FIRST = 3;
 /**
  * Vitesse minimale par défaut. Le Z 6 a « Auto » par défaut [nikon-z6-defaults], selon la focale ; la page ne donne
@@ -152,7 +155,8 @@ export const SETTINGS: { readonly [K in SettingKey]: Spec<Settings[K]> } = {
   clRate: { initial: 3, valid: oneOf(CL_RATES) },
   timerDelay: { initial: 10, valid: oneOf(TIMER_DELAYS) },
   // Aperçu dans le viseur en marche par défaut (décision du 9 novembre 2026, ui/cameraPanel.ts) ; grille « Aucune » par
-  // défaut, comme sur le Z 6 et l'A6000 (docs/camera-physique.md, « Grilles de cadrage »).
+  // défaut, comme sur le Z 6 (réglage d9, « Off ») [nikon-z6-defaults] et l'A6000 (« Off (default setting) »)
+  // [sony-a6000-grid-line] (docs/camera-physique.md, « Grilles de cadrage »).
   previewAll: { initial: true, valid: isBoolean },
   previewBrightness: { initial: true, valid: isBoolean },
   previewNoise: { initial: true, valid: isBoolean },
@@ -282,8 +286,11 @@ export class SettingsStore {
   private state: Readonly<Settings>;
   private readonly listeners: SettingsListener[] = [];
 
-  /** Relit la mémoire (null : sans mémoire, valeurs de départ). Champ par champ, sans paramètre de propriété : les tests
-   * rapides chargent ce module par Node.js, qui n'enlève que la syntaxe effaçable de TypeScript (erasableSyntaxOnly). */
+  /**
+   * Relit la mémoire (null : sans mémoire, valeurs de départ). Les champs sont posés un par un, sans paramètre de
+   * propriété : les tests rapides chargent ce module par Node.js, qui ne retire que les types et refuse les « parameter
+   * properties » [nodejs-22-typescript].
+   */
   constructor(storage: SettingsStorage | null) {
     this.storage = storage;
     this.state = Object.freeze(readSettings(storage));

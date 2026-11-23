@@ -3,9 +3,10 @@
 // relecture de ce que la mémoire contient aujourd'hui, écrit par les versions d'avant le magasin. Ce qui est attendu :
 // les valeurs de départ, les clés, les champs, les valeurs et l'ordre des champs de la version 0.4.8 (champs de
 // CameraPanel et de ReviewInfo ; saveBody et savePreview de ui/cameraPanel.ts, next de ui/reviewInfo.ts), recopiés ici
-// en chaînes JSON ; et, pour les formats plus anciens, les champs qu'écrivaient les versions 0.3.13 (marque et format),
-// 0.3.16 (trois interrupteurs de l'aperçu), 0.3.29 (mise au point, MAP-09) et 0.3.36 à 0.3.79 (treize champs, format
-// compris), relus dans l'historique de git.
+// en chaînes JSON ; et chacun des formats plus anciens, relus dans l'historique de git : tutophoto.boitier à 2 champs
+// (versions 0.3.13 à 0.3.25 : marque et format), 3 (0.3.26), 4 (0.3.27 et 0.3.28), 5 (0.3.29 à 0.3.32), 8 (0.3.33 à
+// 0.3.35) et 13 (0.3.36 à 0.3.79, format compris) ; tutophoto.apercu à 3 interrupteurs (0.3.16 à 0.3.21), 4 (0.3.22 à
+// 0.3.30) et 5 (0.3.31 à 0.3.55), puis avec la grille ; tutophoto.revue depuis la version 0.3.57.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -141,6 +142,8 @@ test("écriture refusée : réglage inconnu ou valeur refusée, une exception et
   assert.throws(() => store.set({ brand: "canon", compensation: 1.5 }), /compensation : 1.5/);
   assert.throws(() => store.set({ lang: "en" } as unknown as Partial<Settings>), /Réglage inconnu : lang/);
   assert.equal(store.all(), before);
+  assert.deepEqual(store.all(), initialSettings());
+  assert.equal(store.get("brand"), "nikon");
   assert.equal(calls, 0);
   assert.deepEqual(memory.writes, []);
 });
@@ -242,14 +245,32 @@ test("relecture de la mémoire écrite avant le magasin : formats des versions 0
   // Version 0.3.13 : la marque et le format seulement ; le reste garde sa valeur de départ.
   const v0313 = read({ [BOX]: '{"brand":"nikon","format":"apsc"}' });
   assertInitial(v0313, "0.3.13");
-  // Version 0.3.29 (détection des yeux et zone automatique, MAP-09) : cinq champs.
+  // Version 0.3.26 (AF-S ou AF-C, MAP-04) : trois champs ; versions 0.3.27 et 0.3.28 (modes de zone, MAP-05) : quatre.
+  const v0326 = read({ [BOX]: '{"brand":"canon","format":"ff","focusMode":"continuous"}' });
+  assertInitial({ ...v0326, brand: "nikon", focusMode: "single" }, "0.3.26");
+  assert.deepEqual([v0326.brand, v0326.focusMode], ["canon", "continuous"]);
+  const v0328 = read({ [BOX]: '{"brand":"sony","format":"ff","focusMode":"single","areaMode":"wideS"}' });
+  assertInitial({ ...v0328, brand: "nikon", areaMode: "point" }, "0.3.28");
+  assert.deepEqual([v0328.brand, v0328.areaMode], ["sony", "wideS"]);
+  // Versions 0.3.29 à 0.3.32 (détection des yeux et zone automatique, MAP-09) : cinq champs.
   const map09 = read({ [BOX]: '{"brand":"sony","format":"apsc","focusMode":"single","areaMode":"auto","detection":"off"}' });
   assertInitial({ ...map09, brand: "nikon", areaMode: "point", detection: "faceEye" }, "MAP-09");
   assert.deepEqual([map09.brand, map09.areaMode, map09.detection], ["sony", "auto", "off"]);
-  // Aperçu de la version 0.3.16 : trois interrupteurs ; depuis la version 0.3.56, avec la grille.
+  // Versions 0.3.33 à 0.3.35 (modes de déclenchement, BOI-12) : huit champs.
+  const v0335 = read({ [BOX]: '{"brand":"nikon","format":"apsc","focusMode":"continuous","areaMode":"wideL","detection":"animal","release":"chx","clRate":1,"timerDelay":20}' });
+  assertInitial({ ...v0335, focusMode: "single", areaMode: "point", detection: "faceEye", release: "single", clRate: 3, timerDelay: 10 }, "0.3.35");
+  assert.deepEqual([v0335.release, v0335.clRate, v0335.timerDelay], ["chx", 1, 20]);
+  // Aperçu des versions 0.3.16 à 0.3.21 : trois interrupteurs ; 0.3.22 à 0.3.30 : quatre (profondeur de champ) ; 0.3.31
+  // à 0.3.55 : cinq (indicateur d'équilibre) ; depuis la version 0.3.56, avec la grille.
   const v0316 = read({ [PREVIEW]: '{"all":false,"brightness":true,"noise":false}' });
   assertInitial({ ...v0316, previewAll: true, previewNoise: true }, "0.3.16");
   assert.deepEqual([v0316.previewAll, v0316.previewBrightness, v0316.previewNoise], [false, true, false]);
+  const v0322 = read({ [PREVIEW]: '{"all":true,"brightness":true,"noise":true,"depthOfField":false}' });
+  assertInitial({ ...v0322, previewDepthOfField: true }, "0.3.22");
+  assert.equal(v0322.previewDepthOfField, false);
+  const v0331 = read({ [PREVIEW]: '{"all":true,"brightness":false,"noise":true,"depthOfField":true,"balance":false}' });
+  assertInitial({ ...v0331, previewBrightness: true, previewBalance: true }, "0.3.31");
+  assert.deepEqual([v0331.previewBrightness, v0331.previewBalance], [false, false]);
   const v048Preview = read({ [PREVIEW]: '{"all":true,"brightness":true,"noise":true,"depthOfField":false,"balance":false,"grid":"sixteen"}' });
   assert.deepEqual([v048Preview.previewDepthOfField, v048Preview.previewBalance, v048Preview.grid], [false, false, "sixteen"]);
   // Écran de revue (depuis la version 0.3.57).
@@ -268,6 +289,14 @@ test("relecture : champ par champ, une valeur refusée ou une clé illisible lai
   // Une valeur refusée ne touche pas ses voisines.
   const mixed = read({ [BOX]: '{"brand":"canon","clRate":9,"timerDelay":20}', [PREVIEW]: '{"noise":false,"grid":"golden"}' });
   assert.deepEqual([mixed.brand, mixed.clRate, mixed.timerDelay, mixed.previewNoise, mixed.grid], ["canon", 3, 20, false, "none"]);
+  // Un objet que JavaScript ne sait pas convertir en texte, pour le mode de zone : la version 0.4.8 levait une exception
+  // à sa validation (hasOwnProperty, « Cannot convert object to primitive value »), et les neuf champs suivants gardaient
+  // leur valeur de départ ; ils sont lus (relecture de la version 0.4.9, R2).
+  const object = read({ [BOX]: '{"brand":"sony","areaMode":{"toString":1},"release":"cl","clRate":5,"exposureMode":"S","compensation":4}' });
+  assert.deepEqual(
+    [object.brand, object.areaMode, object.release, object.clRate, object.exposureMode, object.compensation],
+    ["sony", "point", "cl", 5, "S", 4],
+  );
   // JSON illisible dans une clé : ses réglages gardent leur valeur de départ, les autres clés sont lues.
   const broken = read({ [BOX]: '{"brand":', [PREVIEW]: '{"grid":"thirds"}', [REVIEW]: '{"display":"highlights"' });
   assertInitial({ ...broken, grid: "none" }, "clé illisible");

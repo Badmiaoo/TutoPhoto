@@ -642,10 +642,7 @@ export class CameraPanel {
     return findBody(this.settings.get("brand"));
   }
 
-  /**
-   * « + » augmente la valeur affichée : nombre f, durée de pose, ISO, focale. Au bout d'une échelle, rien ne change et
-   * rien n'est redessiné (avant le magasin de réglages, update() redessinait le même état).
-   */
+  /** « + » augmente la valeur affichée : nombre f, durée de pose, ISO, focale. */
   private step(dial: Dial, delta: number): void {
     const clamp = (value: number, size: number) => Math.min(size - 1, Math.max(0, value));
     const s = this.settings.all();
@@ -655,6 +652,9 @@ export class CameraPanel {
     if (dial === "shutter" && s.exposureMode !== "A") this.settings.set({ shutter: clamp(s.shutter - delta, SCALES.shutter) });
     if (dial === "iso") this.settings.set({ iso: clamp(s.iso + delta, SCALES.iso) });
     if (dial === "focal") this.settings.set({ focalIndex: clamp(s.focalIndex + delta, FOCAL_LENGTHS.length) });
+    // Au bout d'une échelle, rien ne change et le magasin ne prévient personne : le panneau est redessiné quand même,
+    // comme avant le magasin de réglages, et la valeur récrite dans sa zone vivante (relecture de la version 0.4.9, R3).
+    if (this.settings.all() === s) this.update();
   }
 
   /** Libellé d'un réglage retenu par l'appareil (ou choisi, pour les listes de la fenêtre « Exposition »). */
