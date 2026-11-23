@@ -32,3 +32,4 @@ jalons:
     notes:
       - "LUM-02 : activité interactive en V1, simulateur en V2 (décision de Julien du 10 novembre 2026)."
       - "Solveur de situations : en V2. Pour les trois situations de la V1 minimale, la recette est écrite à la main dans leur fiche (décision de Julien du 10 novembre 2026)."
+      - "Tests avec des débutants : depuis le 15 novembre 2026, ils ne bloquent pas le travail, l'extension aux autres situations comprise (décision D14 de Julien, docs/historique.md) ; Claude continue avec ses propres essais, et les tests que Julien fera faire sont dans docs/tests-a-faire-faire.md."
