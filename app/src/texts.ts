@@ -37,6 +37,10 @@ const messages = {
   shutterIncrease: "pose plus longue d'un tiers de cran",
   isoDecrease: "sensibilité plus basse d'un tiers de cran",
   isoIncrease: "sensibilité plus élevée d'un tiers de cran",
+  // Avec l'ISO auto, les boutons changent la valeur choisie, que l'appareil peut ne pas retenir : en M, il règle la
+  // sensibilité sans tenir compte d'elle (camera/exposureModes.ts, resolveExposure ; relecture de la version 0.4.7, R1).
+  isoDecreaseAuto: "valeur choisie plus basse d'un tiers de cran",
+  isoIncreaseAuto: "valeur choisie plus élevée d'un tiers de cran",
   focalDecrease: "focale plus courte",
   focalIncrease: "focale plus longue",
   meterUnit: "IL",

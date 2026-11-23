@@ -299,10 +299,13 @@ body.start-failed #diagnostic {
    bordés à l'extérieur d'un trait sombre continu, comme les lignes des grilles (constat INT-18 de l'audit, version
    0.4.7). Les pointillés blancs à 40 %, seuls, descendaient sous 3:1 de contraste avec la scène dès qu'elle était plus
    claire que le niveau 68 sur 255 (critère « Non-text Contrast » du WCAG 2.2 [wcag-22-non-text-contrast]). Avec
-   des pointillés blancs à 85 % et un trait noir à 65 %, posés sur la scène, l'un des deux atteint au moins 3,44:1
-   sur toute scène grise de 0 à 255, et 3,42:1 sur un échantillon de couleurs (formules du WCAG
-   [wcag-22-relative-luminance] [wcag-22-contrast-ratio] ; calcul dans CHANGELOG.md, version 0.4.7). Un repère en deux couleurs, dont l'une
-   contraste toujours avec le fond : technique C40 du WCAG [wcag-c40-two-color]. */
+   des pointillés blancs à 85 % et un trait noir à 65 %, posés sur la scène, là où un tiret est tracé, l'un des deux
+   atteint au moins 3,43:1 sur toute scène grise de 0 à 255, et 3,41:1 sur un échantillon de couleurs (formules du
+   WCAG [wcag-22-relative-luminance] [wcag-22-contrast-ratio] ; calcul dans CHANGELOG.md, version 0.4.7) ; entre deux
+   tirets, le trait sombre seul descend sous 3:1 sur une scène sombre. Un repère en deux couleurs, l'une claire,
+   l'une sombre, comme la technique C40 du WCAG [wcag-c40-two-color], appliquée par analogie : posées en transparence,
+   les deux couleurs ne sont pas à 9:1 l'une de l'autre sur toute scène (7,0:1 sur une scène blanche), et les
+   contrastes viennent du calcul direct. */
 .af-coverage {
   position: absolute;
   pointer-events: none;
@@ -717,10 +720,12 @@ dialog fieldset label {
   stroke-width: 3;
 }
 
-/* Sommets : un contour blanc, comme le point central (constat INT-18 de l'audit, version 0.4.7). Le sommet rouge,
-   sur le calque noir à 60 %, descendait à 1,73:1 derrière une scène blanche ; le contour blanc est à 5,74:1 au moins
-   sur ce calque, quelle que soit la scène, et le rouge à 3,32:1 contre lui [wcag-22-non-text-contrast]. */
-.balance-vertex {
+/* Sommet rouge (limite dépassée) : un contour blanc, comme le point central (constat INT-18 de l'audit, version
+   0.4.7). Sur le calque noir à 60 %, le rouge descendait à 1,73:1 derrière une scène blanche ; le contour blanc est à
+   5,74:1 au moins sur ce calque, quelle que soit la scène, et le rouge à 3,32:1 contre lui
+   [wcag-22-non-text-contrast]. Les sommets vert et ambre restent sans contour : à 3,15:1 et 3,13:1 au moins sur le
+   calque, ils ne seraient plus qu'à 1,82:1 et 1,83:1 contre un contour blanc (relecture de la version 0.4.7, R3). */
+.balance-vertex.bad {
   stroke: #fff;
   stroke-width: 3;
 }

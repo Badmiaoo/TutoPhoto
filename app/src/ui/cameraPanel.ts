@@ -159,6 +159,8 @@ const DIAL_EFFECTS: Record<Dial, { decrease: MessageKey; increase: MessageKey }>
   iso: { decrease: "isoDecrease", increase: "isoIncrease" },
   focal: { decrease: "focalDecrease", increase: "focalIncrease" },
 };
+/** Avec l'ISO auto, les boutons de la molette « ISO auto » changent la valeur choisie (relecture de la version 0.4.7, R1). */
+const AUTO_ISO_EFFECTS: { decrease: MessageKey; increase: MessageKey } = { decrease: "isoDecreaseAuto", increase: "isoIncreaseAuto" };
 
 /** Réglages courants, pour la photo calculée. */
 export interface CurrentSettings {
@@ -706,7 +708,7 @@ export class CameraPanel {
       for (const button of box.querySelectorAll<HTMLButtonElement>("button[data-step]")) button.disabled = !this.enabled || byCamera;
       // Nom et infobulle : la molette, le signe affiché, puis l'effet (constat INT-16 de l'audit, version 0.4.7). Les
       // signes ne changent pas : « + » augmente le nombre affiché pour les quatre molettes.
-      const effects = DIAL_EFFECTS[dial];
+      const effects = dial === "iso" && this.autoIso ? AUTO_ISO_EFFECTS : DIAL_EFFECTS[dial];
       for (const [step, sign, effect] of [["-1", "decrease", effects.decrease], ["1", "increase", effects.increase]] as const) {
         const button = box.querySelector<HTMLButtonElement>(`[data-step="${step}"]`)!;
         const text = `${name}, ${tr(sign)}\u00a0: ${tr(effect)}`;

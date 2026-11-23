@@ -121,6 +121,12 @@ class LoupeDropped extends Error {
 
 export class Shutter {
   private busy = false;
+  /**
+   * « Déclencher » avait le focus quand le calcul a commencé : grisé pendant le calcul, il le perd. L'écran de revue
+   * le donne alors à « Revenir au viseur » à son ouverture (défaut « Focus clavier perdu », Sujet 38, version 0.4.7).
+   * Rien de tel après un clic de souris dans Safari, qui ne donne pas le focus à un bouton cliqué, ni après une loupe.
+   */
+  private refocusReview = false;
   /** Contexte WebGL perdu, et nombre de pertes depuis l'ouverture (relecture du Sujet 10). */
   private contextLost = false;
   private losses = 0;
@@ -301,6 +307,7 @@ export class Shutter {
     if (this.lost()) throw new PhotoRefused("photoContextLost", "contexte WebGL perdu");
     const losses = this.losses;
     this.busy = true;
+    this.refocusReview = document.activeElement === this.el.button;
     this.panel.setEnabled(false);
     this.el.progressLabel.textContent = label;
     this.el.progress.hidden = false;
@@ -695,11 +702,14 @@ export class Shutter {
   private openReview(): void {
     this.el.review.hidden = false;
     this.el.review.scrollTop = 0;
-    // « Déclencher », grisé pendant le calcul, perdait le focus, qui tombait sur la page : quand l'écran de revue
-    // s'ouvre sans élément qui ait le focus, il va à « Revenir au viseur », comme dans keepFocus (défaut « Focus
-    // clavier perdu », Sujet 38, version 0.4.7).
+    // « Déclencher », grisé pendant le calcul, perdait le focus, qui tombait sur la page : s'il l'avait au départ du
+    // calcul et que rien ne l'a pris depuis, le focus va à « Revenir au viseur », comme dans keepFocus (défaut « Focus
+    // clavier perdu », Sujet 38, version 0.4.7). Le bouton grisé peut aussi garder le focus jusqu'au rendu suivant.
     const active = document.activeElement;
-    if (active === null || active === document.body) this.el.reviewBack.focus({ preventScroll: true });
+    if (this.refocusReview && (active === null || active === document.body || active === this.el.button)) {
+      this.el.reviewBack.focus({ preventScroll: true });
+    }
+    this.refocusReview = false;
   }
 
   /**
