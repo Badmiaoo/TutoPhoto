@@ -16,6 +16,7 @@ import { ChallengePicker } from "./ui/challenges";
 import { FicheDialog } from "./ui/ficheDialog";
 import { ReviewInfo } from "./ui/reviewInfo";
 import { DiagnosticView } from "./ui/diagnosticView";
+import { closeOnBackdrop, openDialog } from "./ui/dialogs";
 import { diagnosticRequested, floatRenderMessage, fullDensityRequested, missingFloatRender } from "./diagnosticModel";
 import { t } from "./texts";
 import { siteVersion } from "./version";
@@ -225,14 +226,11 @@ function applyTexts(): void {
   renderProblems();
 }
 
-creditsButton.addEventListener("click", () => {
-  creditsDialog.showModal();
-  // La fenêtre s'ouvre en haut, où est la ligne de version (version 0.3.59). Sans cela, elle gardait le défilement de
-  // l'ouverture d'avant : à 1280 × 800, en français, fermée par son bouton du bas puis rouverte, elle cachait cette
-  // ligne (mesuré dans Chromium ; constat INT-20 de l'audit, corrigé ici pour cette seule fenêtre). La remise à zéro
-  // vient après showModal() : demandée fenêtre fermée, elle n'a pas d'effet.
-  creditsDialog.scrollTop = 0;
-});
+// La fenêtre « Crédits » s'ouvre en haut, où est la ligne de version (version 0.3.59), comme toutes les fenêtres depuis
+// la version 0.4.10 (ui/dialogs.ts, constat INT-20 de l'audit).
+creditsButton.addEventListener("click", () => openDialog(creditsDialog));
+// Toutes les fenêtres se ferment par un toucher sur le fond, hors d'elles (constat INT-20 de l'audit, version 0.4.10).
+for (const dialog of document.querySelectorAll("dialog")) closeOnBackdrop(dialog);
 // Fiches ouvertes par-dessus le simulateur (bulletin, fenêtre « Défis ») : indépendant de la scène 3D.
 ficheDialog = new FicheDialog(
   {

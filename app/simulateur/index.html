@@ -30,8 +30,12 @@
       <div id="af-coverage" class="af-coverage" aria-hidden="true"></div>
       <div id="focus-marker" class="focus-marker" aria-hidden="true"></div>
       <p id="preview-badge" class="preview-badge" hidden></p>
-      <p id="loupe-badge" class="preview-badge loupe-badge" hidden></p>
-      <p id="af-badge" class="preview-badge af-badge" hidden></p>
+      <!-- Loupe, puis mode et distance de mise au point, empilés en bas à gauche du viseur (constat INT-11 de l'audit,
+           version 0.4.10). -->
+      <div class="viewfinder-info">
+        <p id="loupe-badge" class="preview-badge loupe-badge" hidden></p>
+        <p id="af-badge" class="preview-badge af-badge" hidden></p>
+      </div>
       <div id="top-view" class="top-view">
         <button id="top-view-toggle" type="button" class="top-view-toggle" aria-expanded="true"></button>
         <svg id="top-view-map" class="top-view-map" role="img"></svg>
@@ -153,7 +157,9 @@
         <button id="loupe-button" type="button" class="body-button" aria-pressed="false"></button>
         <button id="shutter-button" type="button" class="shutter-button"></button>
       </div>
-      <p id="focus-hint" class="note focus-hint"></p>
+      <!-- Les deux phrases de la consigne, l'une sur l'autre ; celle du mode qui n'est pas choisi est invisible, et la
+           consigne garde la hauteur de la plus longue (constat INT-04 de l'audit, version 0.4.10). -->
+      <p id="focus-hint" class="note focus-hint"><span id="focus-hint-single"></span><span id="focus-hint-continuous"></span></p>
     </section>
     <dialog id="body-dialog" aria-labelledby="body-title">
       <h2 id="body-title"></h2>

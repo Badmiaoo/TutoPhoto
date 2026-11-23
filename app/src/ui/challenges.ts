@@ -4,6 +4,7 @@
 import { CHALLENGES, type Bulletin, type ChallengeId, type Criterion } from "../camera/bulletin";
 import type { NoiseLevel } from "../camera/noiseModel";
 import { sensorMmToPixels } from "../camera/optics";
+import { openDialog } from "./dialogs";
 import { t, type MessageKey } from "../texts";
 
 const STORAGE_KEY = "tutophoto.defi";
@@ -103,7 +104,7 @@ export class ChallengePicker {
         // Adresse non modifiable : le défi de l'adresse revient au rechargement, comme avant.
       }
     }
-    el.button.addEventListener("click", () => el.dialog.showModal());
+    el.button.addEventListener("click", () => openDialog(el.dialog));
     for (const input of el.dialog.querySelectorAll<HTMLInputElement>("input[name=challenge]")) {
       input.addEventListener("change", () => {
         this.active = input.value === "none" ? null : (input.value as ChallengeId);

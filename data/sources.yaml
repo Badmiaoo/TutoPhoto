@@ -505,6 +505,16 @@ sources:
     label: "MDN, browser-compat-data, version 8.1.8 (commit 29768a4 du 2 novembre 2026), fichiers api/EXT_color_buffer_float.json, api/EXT_disjoint_timer_query_webgl2.json et api/EXT_disjoint_timer_query.json : EXT_color_buffer_float dans Chrome depuis la version 56, Firefox depuis 51, Safari depuis 15, Chrome Android et Safari iOS comme leur version pour ordinateur (« mirror ») ; EXT_disjoint_timer_query_webgl2 dans Chrome depuis 70 (et de 56 à 61, retirée à 62), pas dans Chrome Android, Firefox ni Safari ; EXT_disjoint_timer_query dans Chrome depuis 70, « Only supported on macOS », retirée de Chrome Android à 65 et de Firefox à 59, « Removed due to the GLitch exploit » (lien retiré de la citation) (lu le 22 novembre 2026)"
     url: "https://github.com/mdn/browser-compat-data/tree/v8.1.8"
     read: 2026-11-22
+  - id: whatwg-html-dialog-closedby
+    group: "Outils"
+    label: "WHATWG, HTML Living Standard, attribut closedby de l'élément dialog, texte source dans le dépôt whatwg/html, commit 6eac2b5 (tête de la branche main le 23 novembre 2026, d'après git ls-remote), fichier source : mot-clé « any », état « Any » : « Close requests or clicks outside close the dialog » ; « closerequest » : « Close requests close the dialog » ; « none » : « No user actions automatically close the dialog » ; sans l'attribut, l'état « Auto » « behaves as Close Request state when the dialog was shown using its showModal() method » ; parmi les demandes de fermeture : « The back button or gesture on certain mobile platforms such as Android » ; ce qu'en tire TutoPhoto : une fenêtre ouverte par showModal() se ferme par la touche Échap ou le geste retour d'Android, pas par un toucher sur le fond, sauf avec closedby=\"any\" (constat INT-20)"
+    url: "https://raw.githubusercontent.com/whatwg/html/6eac2b50b1af183f30fa2760b0269a0410f58a91/source"
+    read: 2026-11-23
+  - id: mdn-bcd-8-1-10-closedby
+    group: "Outils"
+    label: "MDN, browser-compat-data, version 8.1.10 (commit 557b13d, publiée sur le registre npm le 19 novembre 2026), fichiers html/elements/dialog.json et browsers/safari_ios.json : l'attribut closedby de l'élément dialog dans Chrome depuis la version 134, Firefox depuis 141, Safari depuis 27.3, et dans Chrome Android, Samsung Internet et Safari iOS comme dans leur version pour ordinateur (« mirror ») ; Safari iOS 27.2, sortie le 26 octobre 2026, y est la version courante (« current »), et la version 27.3 une bêta (lu le 23 novembre 2026)"
+    url: "https://raw.githubusercontent.com/mdn/browser-compat-data/v8.1.10/html/elements/dialog.json"
+    read: 2026-11-23
   - id: khronos-webgl-ext-color-buffer-float
     group: "Outils"
     label: "Khronos, spécification de l'extension WebGL EXT_color_buffer_float : « The following floating-point internal formats become color-renderable: R16F, RG16F, RGBA16F, R32F, RG32F, RGBA32F and R11F_G11F_B10F. A renderbuffer or a texture with a color-renderable internal format can be used as a rendering target by attaching it to a framebuffer object as a color attachment. » (dépôt KhronosGroup/WebGL, commit 3944321, fichier extensions/EXT_color_buffer_float/extension.xml, dernière révision datée du 19 avril 2017 ; lu le 22 novembre 2026)"
@@ -1410,4 +1420,9 @@ sources:
     group: "Accessibilité"
     label: "W3C, WCAG 2.2, critère « Info and Relationships » (niveau A), texte source dans le dépôt w3c/wcag, commit 2766fae (tête de la branche main le 23 novembre 2026, d'après git ls-remote ; guidelines/index.html y est titré « Web Content Accessibility Guidelines (WCAG) 2.2 ») : « Information, structure, and relationships conveyed through presentation can be programmatically determined or are available in text. » ; ce qu'en tire TutoPhoto : les deux groupes de boutons radio nommés par le titre de leur fenêtre, et les titres d'une fiche ouverte par-dessus le simulateur descendus d'un niveau sous son titre (constat INT-19 de l'audit, points 6 et 8, version 0.4.7) ; lu le 23 novembre 2026"
     url: "https://raw.githubusercontent.com/w3c/wcag/2766fae25fc8286f60181d655115cba054b797e1/guidelines/sc/20/info-and-relationships.html"
+    read: 2026-11-23
+  - id: wcag-22-orientation
+    group: "Accessibilité"
+    label: "W3C, WCAG 2.2, critère « Orientation » (niveau AA), texte source dans le dépôt w3c/wcag, commit 2766fae (tête de la branche main le 23 novembre 2026, d'après git ls-remote ; guidelines/index.html y est titré « Web Content Accessibility Guidelines (WCAG) 2.2 ») : « Content does not restrict its view and operation to a single display orientation, such as portrait or landscape, unless a specific display orientation is essential » ; ce qu'en tire TutoPhoto : le simulateur doit s'utiliser aussi téléphone tenu à l'horizontale (constat INT-03), plutôt que de demander de le tenir à la verticale"
+    url: "https://raw.githubusercontent.com/w3c/wcag/2766fae25fc8286f60181d655115cba054b797e1/guidelines/sc/21/orientation.html"
     read: 2026-11-23

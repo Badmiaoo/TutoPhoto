@@ -6,6 +6,7 @@
 
 import { FICHE_ID } from "../ficheId.mjs";
 import { t } from "../texts";
+import { openDialog } from "./dialogs";
 
 // Identifiant de fiche, et lien vers une autre fiche dans la page affichée : la même forme que la construction des
 // pages, « SIT-V2-02 » compris (ficheId.mjs ; constat RST-01 de l'audit, Sujet 21, version 0.3.81).
@@ -93,7 +94,7 @@ export class FicheDialog {
     if (this.current !== id) return;
     this.el.body.replaceChildren(...nodes);
     this.el.body.scrollTop = 0;
-    this.el.dialog.scrollTop = 0;
-    if (!this.el.dialog.open) this.el.dialog.showModal();
+    // Ouverte en haut, ou remise en haut si elle l'était déjà (ui/dialogs.ts ; constat INT-20 de l'audit).
+    openDialog(this.el.dialog);
   }
 }
