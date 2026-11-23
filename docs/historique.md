@@ -259,3 +259,9 @@ Ce que Claude en fait : chaque session de la chaîne est créée avec le même m
 Message de Julien dans la session du Sujet 35, après 18 h 03 UTC, juste après la fusion de la version 0.4.3, mot pour mot : « J'ai une erreur sur le site faut corriger ! », avec une capture d'écran d'un iPhone (transcrite dans `docs/tests-a-faire-faire.md`, T22). Puis, dans la même session, avant 18 h 10 UTC : « Le soucis vient de safari sur iphone ». Ses réponses aux questions à choix de la session suivante, le même soir, sont des résultats d'essai : `docs/tests-a-faire-faire.md`, T22.
 
 Ce que Claude en fait : un sujet à part entière, traité avant le Sujet 36 du plan de corrections, version 0.4.4. Ce qui est établi et ce qui ne l'est pas : `docs/pile-technique.md`, « Contexte perdu au démarrage » ; les choix : `docs/propositions.md`, « Erreur du simulateur sur iPhone ».
+
+## 23 novembre 2026 : erreur du simulateur sur un iPhone, au chargement
+
+Message de Julien dans la session du Sujet 46, après 20 h 47 UTC, pendant ce sujet, mot pour mot : « Il y a un bug », avec une capture d'écran d'un iPhone (transcrite dans `docs/tests-a-faire-faire.md`, T22). Ses réponses aux questions à choix de la session, avant 20 h 58 UTC : la panne est arrivée « Dès le chargement » ; au rechargement, « Nouveau message d'erreur au rechargement je te donne la capture d'écran » ; elle arrive « Régulièrement très régulièrement » ; à la question de savoir si l'essai T21 était suivi : « Je ne sais pas c'est pas moi qui utilise l'outil ». Puis, vers 20 h 58 UTC, la seconde capture, du rechargement (transcrite au même endroit).
+
+Ce que Claude en fait : un sujet à part entière, le suivant, après le Sujet 46, en cours à l'arrivée du message, et avant le Sujet 47 du plan de corrections ; les choix : `docs/propositions.md`, « Licences et publication », choix 14.
