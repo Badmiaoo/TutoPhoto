@@ -8,7 +8,7 @@ TutoPhoto est le nom du projet. L'application est publiée sur GitHub Pages : ht
 
 - Cadrage et référentiel à l'état de brouillon, à remettre en question ; application en construction. Une fiche que les relecteurs n'ont pas encore vérifiée le dit sous son titre (« Fiche en cours de relecture »).
 - Pour débutants avec un boîtier reflex ou hybride. Scènes en 3D de synthèse ; on commence par une V1 minimale (une scène de parc, trois situations), à faire essayer par des débutants.
-- Ce qui est en ligne : [le site](https://badmiaoo.github.io/TutoPhoto/), dont l'accueil et la fenêtre « Crédits de la scène » du simulateur (bouton « Crédits ») donnent la version. Ce que chaque version a changé : [CHANGELOG.md](CHANGELOG.md) ; le modèle de l'appareil simulé, et ce qu'il ne simule pas : [docs/camera-physique.md](docs/camera-physique.md).
+- Ce qui est en ligne : [le site](https://badmiaoo.github.io/TutoPhoto/), dont l'accueil et la fenêtre « Crédits » du simulateur donnent la version. Ce que chaque version a changé : [CHANGELOG.md](CHANGELOG.md) ; le modèle de l'appareil simulé, et ce qu'il ne simule pas : [docs/camera-physique.md](docs/camera-physique.md).
 
 ## Contenu du dépôt
 
