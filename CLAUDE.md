@@ -6,7 +6,7 @@ Source de vérité : `data/` (référentiel, situations, sources, jalons). Conte
 Archive de reprise : `REPRISE.md`. État des travaux, pour reprendre à tout moment : `docs/etat-des-travaux.md`.
 Mandat de Julien (15 novembre 2026) : finir la V1 en reprenant tout ce que l'audit a remonté, puis enchaîner sur la V2, puis sur une V3 qui ne touche pas au fonctionnel (ergonomie et interface seulement), Claude travaillant seul avec des relances automatiques. Ses mots, et ce que Claude en fait : `docs/etat-des-travaux.md`, « Mandat en cours ».
 
-`REPRISE.md`, et `docs/` qui en est copié, sont un brouillon : probablement incomplet, mal écrit par endroits, avec des erreurs. Tout peut être remis en question, arguments et sources à l'appui ; Julien tranche.
+`REPRISE.md`, et les parties de `docs/` qui en sont reprises (leur en-tête le dit), sont un brouillon : probablement incomplet, mal écrit par endroits, avec des erreurs. Tout peut être remis en question, arguments et sources à l'appui ; Julien tranche.
 
 ## Règles
 - Mot d'ordre partout : le réalisme. TutoPhoto est une sandbox de simulation pour s'entraîner ; à chaque choix de simulation, retenir le comportement le plus réaliste, sourcé, et dire ce qui ne l'est pas (Julien, 9 novembre 2026).
