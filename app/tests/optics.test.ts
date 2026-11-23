@@ -506,17 +506,20 @@ test("instants : i × pas modulo M parcourt chaque instant une fois, au milieu d
 });
 
 // Ordre des rendus (constat PHY-21 de l'audit, Sujet 39, version 0.4.8). Pour chaque nombre de rendus prévu M, de 16 à
-// 256, et chaque nombre de rendus faits k, de 16 à M (le plafond de temps arrête le calcul après n'importe quel rendu),
-// les k premiers rendus de l'ordre doivent être répartis comme l'ensemble des paires :
+// 256, et chaque nombre de rendus faits k, de 16 à M, les k premiers rendus de l'ordre doivent être répartis comme
+// l'ensemble des paires. Le plafond de temps peut arrêter le calcul après n'importe quel rendu ; en dessous de 16 rendus
+// faits, rien n'est contrôlé : de 2 à 15, le rayon quadratique moyen va de 0,678 à 1,076 fois celui de toutes les places
+// (calcul du relecteur de la version 0.4.8, refait par Claude), et un seul rendu, la paire 0, n'a aucun flou de mise au
+// point, comme avant cette version. Critères :
 // - rayon quadratique moyen des places : de 0,95 à 1,04 fois celui de toutes les places (√0,5 fois le rayon du disque) ;
 //   il donne la taille du flou ; mesuré pour la version 0.4.8, de 0,958 à 1,029 ;
-// - centre des places à moins de 0,08 rayon du centre du disque (mesuré : 0,076 au plus, à k = 16) ;
+// - centre des places à moins de 0,08 rayon du centre du disque (mesuré : 0,0761 au plus, à k = 16) ;
 // - rayon de couverture du disque (distance du point du disque le plus loin de toute place) au plus 1,75 fois celui de
 //   k places sur la spirale de la photo (eyeOffset avec M = k), calculé sur une grille de pas 0,025 et 400 points du
 //   bord : mesuré, 1,57 fois au plus ; la contre-vérification du constat tenait pour mal réparti un vide plus de 2 fois
 //   celui d'une répartition régulière ;
 // - plus grand intervalle de la pose sans instant, bords compris, au plus 4 fois 1 / k (critère de la
-//   contre-vérification ; mesuré : 3,96 fois) ;
+//   contre-vérification ; mesuré : 3,963 fois au plus) ;
 // - pose couverte, du premier au dernier instant, au moins 90 % de celle de k instants réguliers (critère de la
 //   contre-vérification ; mesuré : 95 %) ;
 // - corrélation entre le carré du rayon et l'instant, en valeur absolue, au plus 0,5 (mesuré : 0,49 au plus, à
