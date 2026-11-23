@@ -21,10 +21,11 @@ import type { UniversalCamera } from "@babylonjs/core/Cameras/universalCamera";
 import { SceneNotReadyError, takePhoto, type PhotoRequest, type PhotoResult, type SceneTimeControl } from "../camera/photo";
 import type { GroundInfo } from "../camera/optics";
 import { sensorPixels } from "../camera/bodies";
-import type { CameraPanel, CurrentSettings, ReleaseMode } from "./cameraPanel";
+import type { CameraPanel, CurrentSettings } from "./cameraPanel";
 import type { ViewfinderNoise } from "../camera/noise";
 import type { ViewfinderDepthOfField } from "../camera/viewfinderDof";
-import type { AreaMode, Autofocus, FocusMode } from "../camera/autofocus";
+import type { Autofocus } from "../camera/autofocus";
+import { releaseMode, type AreaMode, type FocusMode, type ReleaseMode, type SettingsStore } from "../camera/settings";
 import { t, type MessageKey } from "../texts";
 import { judgeChallenge, measureShot, type Bulletin, type ChallengeId, type SceneThing } from "../camera/bulletin";
 import type { FaceSubject } from "../camera/faces";
@@ -172,6 +173,8 @@ export class Shutter {
     private readonly time: SceneTimeControl,
     private readonly ground: GroundInfo,
     private readonly panel: CameraPanel,
+    /** Magasin de réglages (camera/settings.ts) : mode de déclenchement, mode de mise au point, mode de zone AF. */
+    private readonly settings: SettingsStore,
     private readonly el: ShutterElements,
     private readonly resumeRendering: () => void,
     private readonly noise: ViewfinderNoise,
@@ -355,7 +358,7 @@ export class Shutter {
     if (this.busy || this.shooting || this.press || this.countdown !== null) return;
     // Appareil sans rendu en flottants : refus dès l'appui, sans compte à rebours ni rafale (version 0.3.88).
     if (this.refusedForCapabilities()) return;
-    const mode = this.panel.releaseMode();
+    const mode = releaseMode(this.settings.all());
     if (mode.kind === "timer") {
       this.startCountdown(mode.delay);
       return;
@@ -452,8 +455,7 @@ export class Shutter {
     }
     this.shooting = true;
     const settings = this.panel.current();
-    const focusMode = this.autofocus.mode();
-    const areaMode = this.panel.area();
+    const { focusMode, areaMode } = this.settings.all();
     const current = this.camera.rotation.clone();
     const challenge = this.challenge();
     const noise = this.noiseReading();

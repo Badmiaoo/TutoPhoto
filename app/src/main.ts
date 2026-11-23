@@ -9,6 +9,7 @@ import { DOME_RADIUS, EYE_HEIGHT } from "./scene";
 import { ViewfinderNoise } from "./camera/noise";
 import { ViewfinderDepthOfField } from "./camera/viewfinderDof";
 import { Autofocus } from "./camera/autofocus";
+import { SettingsStore, browserStorage } from "./camera/settings";
 import { BalanceIndicator } from "./ui/balance";
 import { TopView } from "./ui/topView";
 import { ChallengePicker } from "./ui/challenges";
@@ -355,6 +356,9 @@ function startSimulator(engine: Engine): void {
     Object.assign(window, { __tutophoto: { scene, camera, time } });
   }
   const noise = new ViewfinderNoise(scene, camera, (message) => report("problemNoise", message));
+  // Magasin de réglages (camera/settings.ts, version 0.4.9) : relit la mémoire du navigateur ; le panneau, l'autofocus,
+  // le déclencheur et l'écran de revue y lisent les réglages.
+  const settings = new SettingsStore(browserStorage());
   cameraPanel = new CameraPanel(
     engine,
     scene,
@@ -383,10 +387,11 @@ function startSimulator(engine: Engine): void {
       focusHint: element("focus-hint"),
     },
     noise,
+    settings,
   );
   const panel = cameraPanel;
   const ground = { eyeHeight: EYE_HEIGHT, domeRadius: DOME_RADIUS };
-  const autofocus = new Autofocus(scene, camera, ground, () => panel.focusArea(), subjects);
+  const autofocus = new Autofocus(scene, camera, ground, settings, () => panel.focusArea(), subjects);
   panel.attachAutofocus(autofocus);
   // Affichage de diagnostic (constat ARC-06 de l'audit, version 0.3.88) : seulement avec « ?diagnostic » dans l'adresse ;
   // créé après l'autofocus (ui/diagnosticView.ts).
@@ -411,6 +416,7 @@ function startSimulator(engine: Engine): void {
     time,
     ground,
     cameraPanel,
+    settings,
     {
       canvas,
       frame: element("frame"),
@@ -453,6 +459,7 @@ function startSimulator(engine: Engine): void {
         limits: element("review-info-limits"),
         note: element("review-info-note"),
       },
+      settings,
     ),
     () => ({ failed: statusKey === "loadError", stuck: sceneStuck }),
     missingFloat,
