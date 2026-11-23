@@ -4,21 +4,22 @@ Boîte à outils open source, en français, qui apprend la photo aux débutants 
 
 TutoPhoto est le nom du projet. L'application est publiée sur GitHub Pages : https://badmiaoo.github.io/TutoPhoto/ (accueil et fiches ; le simulateur est sous `simulateur/`)
 
-## État au 8 novembre 2026
+## État
 
-- Cadrage et référentiel v0.4 (version 0.4.0, 22 novembre 2026) à l'état de brouillon, à remettre en question : 191 notions en 13 domaines, 49 situations, 256 sources.
-- Pour débutants avec un boîtier reflex ou hybride. Scènes en 3D de synthèse ; on commence par une V1 minimale (une scène de parc, trois situations), testée avec des débutants avant d'étendre.
-- Application en construction : la scène de parc s'affiche (fond photo à 360°, banc, poubelles, quatre personnages, un chien qui court), avec un boîtier virtuel minimal : ouverture, vitesse, ISO, focale, modes M, A et S, correction d'exposition et ISO auto, cellule et aperçu de l'exposition, mise au point en touchant le viseur, en AF ponctuel (AF-S) ou continu (AF-C), en point sélectif, en zone large ou en zone automatique avec détection des yeux, dans la zone couverte par l'autofocus (environ 90 % du cadre avec le Nikon Z 6 ; elle dépend du boîtier), photo calculée au déclenchement (profondeur de champ et flou de mouvement), vue par vue, en rafale ou au retardateur, bruit numérique physique, indicateur d'équilibre entre ouverture, vitesse et ISO au point visé, vue de dessus de la zone nette avec un appareil déplaçable, défis des trois situations et bulletin après chaque photo, aperçu réglable dans le viseur (luminosité, bruit, profondeur de champ approchée), grilles de cadrage (tiers, seize cases), loupe jusqu'à 100 %, dans le viseur et sur la photo, histogrammes et alerte des hautes lumières sur l'écran de revue. Pas encore de flou de bougé. Contenus : les fiches de 19 notions (les 16 de la V1 minimale, CMP-02, MES-06 et MES-07) et des 3 situations ; couverture 13 sur 191 (`python3 scripts/coverage.py`).
+- Cadrage et référentiel à l'état de brouillon, à remettre en question ; application en construction. Une fiche que les relecteurs n'ont pas encore vérifiée le dit sous son titre (« Fiche en cours de relecture »).
+- Pour débutants avec un boîtier reflex ou hybride. Scènes en 3D de synthèse ; on commence par une V1 minimale (une scène de parc, trois situations), à faire essayer par des débutants.
+- Ce qui est en ligne : [le site](https://badmiaoo.github.io/TutoPhoto/), dont l'accueil et la fenêtre « Crédits de la scène » du simulateur (bouton « Crédits ») donnent la version. Ce que chaque version a changé : [CHANGELOG.md](CHANGELOG.md) ; le modèle de l'appareil simulé, et ce qu'il ne simule pas : [docs/camera-physique.md](docs/camera-physique.md).
 
 ## Contenu du dépôt
 
 | Chemin | Rôle |
 | --- | --- |
 | `data/` | Référentiel (`data/referentiel/`), situations, sources et jalons : la source de vérité |
-| `docs/` | Cadrage, architecture, lecture du référentiel, contenus, licences, pile technique, caméra physique, publication, questions ouvertes, propositions et choix de Claude, historique |
+| `content/` | Fiches des notions et des situations, en Markdown, d'où la construction tire les fiches du site |
+| `docs/` | Suivi (état des travaux, questions ouvertes, tests à faire faire) ; cadrage et décisions (historique, propositions et choix de Claude) ; contenus (fiches et couverture, lecture du référentiel) ; technique (architecture, pile technique, caméra physique) ; licences et publication ; audit du travail antérieur et plan de corrections (`docs/audit/`), dossiers de sources (`docs/dossiers/`), spécifications (`docs/specifications/`) |
 | `schemas/` | Schémas JSON des fichiers de `data/` et des manifestes de scène |
 | `app/` | Application (TypeScript, Babylon.js, Vite) ; scènes 3D et leurs crédits dans `app/public/scenes/` |
-| `scripts/` | Validation, couverture et contrôles (scènes 3D, dépôt public, changelog) |
+| `scripts/` | Validation, couverture et contrôles (scènes 3D, dépôt public, changelog) ; routine de test du site construit |
 | `REPRISE.md` | Fichier de reprise du 7 novembre 2026, gardé tel quel comme archive |
 | `CLAUDE.md` | Règles de travail |
 | `CHANGELOG.md` | Versions et tags |
@@ -37,6 +38,12 @@ npm run dev      # serveur de développement
 npm run build    # vérification des types, simulateur, accueil et fiches dans app/dist/
 npm test         # tests rapides des formules (app/tests/)
 ```
+
+## Tester le site construit
+
+- `node scripts/test_app.cjs --photo`, depuis la racine du dépôt, sur le site construit par `npm run build` : la routine de test contrôle les liens internes de toutes les pages, puis ouvre l'accueil, des fiches, l'activité de LUM-02 et le simulateur sur quatre profils (ordinateur, Android, iPhone, WebGL 1), l'un après l'autre, et, avec `--photo`, calcule des photos ; `--profils ordinateur` n'en lance qu'un. Chromium seul, en rendu logiciel : les profils de téléphone émulent l'écran et l'identification du navigateur, pas le processeur graphique ni le moteur de Safari.
+- Elle demande Playwright et son Chromium, installés hors du dépôt, le dossier de Playwright donné à Node.js par `NODE_PATH`, comme dans la CI ; la version à installer est celle de la CI, `PLAYWRIGHT_VERSION` dans `.github/workflows/routine.yml`. Sans Playwright, elle s'arrête et donne les commandes d'installation.
+- La CI la lance sur chaque pull request qui touche `app/`, `content/`, `data/` ou la routine, un job par profil, en parallèle : à la version 0.4.10, de 24 à 49 minutes par job.
 
 ## Vérifier le référentiel
 
