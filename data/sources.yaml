@@ -672,7 +672,7 @@ sources:
     read: 2026-11-21
   - id: gitleaks-8-30-1-root
     group: "Outils"
-    label: "gitleaks 8.30.1, cmd/root.go : ordre de lecture de la configuration, « 1. --config/-c », « 2. env var GITLEAKS_CONFIG », « 3. env var GITLEAKS_CONFIG_TOML with the file content », « 4. (target path)/.gitleaks.toml », sinon la configuration par défaut (l. 35-40) ; lecture du .gitleaks.toml du dossier lu (l. 178-190) ; lecture d'un .gitleaksignore dans le dossier de l'option --gitleaks-ignore-path, « . » par défaut (l. 90), et dans le dossier lu (l. 311-321) (dépôt gitleaks/gitleaks, étiquette v8.30.1, commit 83d9cd6 ; lu le 23 novembre 2026)"
+    label: "gitleaks 8.30.1, cmd/root.go : ordre de lecture de la configuration, « 1. --config/-c », « 2. env var GITLEAKS_CONFIG », « 3. env var GITLEAKS_CONFIG_TOML with the file content », « 4. (target path)/.gitleaks.toml », puis « If none of the four options are used, then gitleaks will use the default config » (l. 35-41) ; dans le code, l'option (l. 146-151), les deux variables (l. 152-163), sinon le .gitleaks.toml du dossier lu (l. 178-190) ; lecture d'un .gitleaksignore dans le dossier de l'option --gitleaks-ignore-path, « . » par défaut (l. 90), et dans le dossier lu (l. 300-321), quelle que soit la configuration (dépôt gitleaks/gitleaks, étiquette v8.30.1, commit 83d9cd6 ; lu le 23 novembre 2026)"
     url: "https://raw.githubusercontent.com/gitleaks/gitleaks/83d9cd684c87d95d656c1458ef04895a7f1cbd8e/cmd/root.go"
     read: 2026-11-23
   - id: github-secret-scanning
