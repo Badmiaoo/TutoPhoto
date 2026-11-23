@@ -1318,7 +1318,7 @@ sources:
     read: 2026-11-23
   - id: sony-a6000-long-exposure-nr-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, RB Pose longue (image fixe) : « Lorsque la vitesse d'obturation est réglée sur une seconde ou plus (prise de vue en exposition longue), la réduction de bruit est activée pour la même durée que celle de l'ouverture de l'obturateur. » ; avec ON, le réglage par défaut, « Pendant la réduction de bruit, un message s'affiche et vous ne pouvez pas prendre d'autres clichés. Sélectionnez cette option pour donner la priorité à la qualité de l'image. » ; avec OFF, « Sélectionnez cette option pour donner la priorité au rythme de la prise de vue. » (apostrophes typographiques dans la page ; lu le 23 novembre 2026)"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, RB Pose longue (image fixe) : « Lorsque la vitesse d'obturation est réglée sur une seconde ou plus (prise de vue en exposition longue), la réduction de bruit est activée pour la même durée que celle de l'ouverture de l'obturateur. » ; avec ON, le réglage par défaut, « Pendant la réduction de bruit, un message s'affiche et vous ne pouvez pas prendre d'autres clichés. Sélectionnez cette option pour donner la priorité à la qualité de l'image. » ; avec OFF, « Sélectionnez cette option pour donner la priorité au rythme de la prise de vue. » (apostrophes typographiques dans les phrases citées, la page mêlant les deux formes ; lu le 23 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000227000.html"
     read: 2026-11-23
   - id: nikon-z6-flash-modes-fr
@@ -1343,7 +1343,7 @@ sources:
     read: 2026-11-23
   - id: canon-eos-r50-shutter-mode-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Canon, manuel de l'EOS R50 en français, Mode d'obturation : « Vous pouvez choisir la méthode de déclenchement de l'obturateur. » ; « L'obturateur électronique est utilisé pour le premier rideau et l'obturateur mécanique pour le deuxième rideau. » ; parmi les précautions du réglage [Électronique], « Les images des sujets se déplaçant rapidement peuvent sembler déformées. » et « Des bandes de lumières peuvent s'afficher et les images capturées peuvent être affectées par un effet de bande claire et sombre si vous photographiez avec l'obturateur électronique pendant le déclenchement du flash d'autres appareils photo ou sous un éclairage fluorescent ou d'autres sources lumineuses scintillantes. » ; la page ne nomme pas les LED (lu le 23 novembre 2026)"
+    label: "Canon, manuel de l'EOS R50 en français, Mode d'obturation : « Vous pouvez choisir la méthode de déclenchement de l'obturateur. » ; option [1 rideau élec.], « L'obturateur électronique est utilisé pour le premier rideau et l'obturateur mécanique pour le deuxième rideau. » ; parmi les précautions du réglage [Électronique], « Les images des sujets se déplaçant rapidement peuvent sembler déformées. » et « Des bandes de lumières peuvent s'afficher et les images capturées peuvent être affectées par un effet de bande claire et sombre si vous photographiez avec l'obturateur électronique pendant le déclenchement du flash d'autres appareils photo ou sous un éclairage fluorescent ou d'autres sources lumineuses scintillantes. » ; la page ne nomme pas les LED (lu le 23 novembre 2026)"
     url: "https://cam.start.canon/fr/C011/manual/html/UG-05_Shooting-1_0300.html"
     read: 2026-11-23
   - id: canon-eos-r50-flash-settings-fr
@@ -1353,7 +1353,7 @@ sources:
     read: 2026-11-23
   - id: sony-a6000-flash-mode-fr
     group: "Constructeurs : manuels et pages techniques"
-    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Mode Flash : Sync. lente, « La prise de vue en synchronisation lente permet de photographier une image claire à la fois du sujet et de l'arrière-plan, en ralentissant la vitesse d'obturation. » ; Sync. arrière, « Le flash se déclenche juste avant la fin du temps d'exposition à chaque fois que vous appuyez sur le déclencheur. La synchronisation arrière vous permet de photographier une image naturelle de la traînée de sujets en déplacement, comme une voiture qui roule ou une personne en train de marcher. » ; la page ne dit pas où va la traînée hors de la synchronisation arrière (apostrophes typographiques dans la page ; lu le 23 novembre 2026)"
+    label: "Sony, Manuel d'aide ILCE-6000 (α6000) en français, Mode Flash : Sync. lente, « La prise de vue en synchronisation lente permet de photographier une image claire à la fois du sujet et de l'arrière-plan, en ralentissant la vitesse d'obturation. » ; Sync. arrière, « Le flash se déclenche juste avant la fin du temps d'exposition à chaque fois que vous appuyez sur le déclencheur. La synchronisation arrière vous permet de photographier une image naturelle de la traînée de sujets en déplacement, comme une voiture qui roule ou une personne en train de marcher. » ; la page ne dit pas où va la traînée hors de la synchronisation arrière (apostrophes typographiques dans les phrases citées, la page mêlant les deux formes ; lu le 23 novembre 2026)"
     url: "https://helpguide.sony.net/mig/Z001924A11/FR/contents/TP0000378506.html"
     read: 2026-11-23
   - id: sony-a6000-manual-focus-fr
