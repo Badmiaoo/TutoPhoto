@@ -122,9 +122,10 @@ class LoupeDropped extends Error {
 export class Shutter {
   private busy = false;
   /**
-   * « Déclencher » avait le focus quand le calcul a commencé : grisé pendant le calcul, il le perd. L'écran de revue
-   * le donne alors à « Revenir au viseur » à son ouverture (défaut « Focus clavier perdu », Sujet 38, version 0.4.7).
-   * Rien de tel après un clic de souris dans Safari, qui ne donne pas le focus à un bouton cliqué, ni après une loupe.
+   * « Déclencher » avait le focus quand le calcul a commencé (celui de la première vue, pour une série) : grisé pendant
+   * le calcul, il le perd. L'écran de revue le donne alors à « Revenir au viseur » à son ouverture, et remet le drapeau
+   * à faux (défaut « Focus clavier perdu », Sujet 38, version 0.4.7 ; série : contrôle final, F1). Rien de tel après un
+   * clic de souris dans Safari, qui ne donne pas le focus à un bouton cliqué, ni après une loupe.
    */
   private refocusReview = false;
   /** Contexte WebGL perdu, et nombre de pertes depuis l'ouverture (relecture du Sujet 10). */
@@ -307,7 +308,7 @@ export class Shutter {
     if (this.lost()) throw new PhotoRefused("photoContextLost", "contexte WebGL perdu");
     const losses = this.losses;
     this.busy = true;
-    this.refocusReview = document.activeElement === this.el.button;
+    if (document.activeElement === this.el.button) this.refocusReview = true;
     this.panel.setEnabled(false);
     this.el.progressLabel.textContent = label;
     this.el.progress.hidden = false;

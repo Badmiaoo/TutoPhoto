@@ -696,8 +696,11 @@ dialog fieldset label {
   stroke-width: 4;
 }
 
+/* Sommet sans jugement (l'ouverture) : #c2c2bd, à 3,21:1 au moins sur le calque noir à 60 %, quelle que soit la scène ;
+   #b9b9b4 avant la version 0.4.7, à 2,92:1 derrière une scène blanche (contrôle final de la version 0.4.7, F2 ;
+   [wcag-22-non-text-contrast]). */
 .balance-vertex.neutral {
-  fill: #b9b9b4;
+  fill: #c2c2bd;
 }
 
 .balance-vertex.ok,
