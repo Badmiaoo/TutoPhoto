@@ -1034,6 +1034,11 @@ sources:
     label: "bgfx, exemple 45-bokeh (elven cache, 2021, licence BSD à 2 clauses de bgfx) : bokeh_dof.sh reproduit et commente l'algorithme de Gustafsson ; fs_bokeh_dof_combine.sc recompose le flou calculé à résolution réduite (lus le 9 novembre 2026)"
     url: "https://github.com/bkaradzic/bgfx/tree/master/examples/45-bokeh"
     read: 2026-11-14
+  - id: bgfx-license
+    group: "Physique, rendu et technique"
+    label: "bgfx, fichier LICENSE au commit 9714e32 du 23 novembre 2026 : « Copyright 2010-2026 Branimir Karadzic », puis la licence BSD à 2 clauses : « 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. » ; « 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. ». Au même commit, les fichiers bokeh_dof.sh et fs_bokeh_dof_combine.sc de l'exemple 45-bokeh commencent par « Copyright 2021 elven cache. All rights reserved. », suivi de l'adresse du LICENSE de bgfx sur sa branche master (lus le 23 novembre 2026 ; recopié tel quel dans LICENSES/bgfx-LICENSE.txt)"
+    url: "https://raw.githubusercontent.com/bkaradzic/bgfx/9714e329d7b9eda40254964634d57010d1e80659/LICENSE"
+    read: 2026-11-23
   - id: nikon-z6-d9
     group: "Constructeurs : manuels et pages techniques"
     label: "Nikon, manuel en ligne Z 7/Z 6, réglage personnalisé d9 Framing Grid Display : « Choose On to display a grid for reference when framing shots. » ; la page ne décrit pas le tracé du quadrillage (lu le 12 novembre 2026)"

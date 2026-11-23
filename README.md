@@ -67,7 +67,7 @@ python3 scripts/coverage.py
 
 ## Licence
 
-- Code (`scripts/`, `schemas/`, `.github/`, `app/` hors modèles et textures de tiers) : MIT, voir [LICENSE](LICENSE).
+- Code (`scripts/`, `schemas/`, `.github/`, `app/` hors modèles et textures de tiers) : MIT, voir [LICENSE](LICENSE) ; les quelques lignes du flou du viseur reprises de bgfx gardent la licence de bgfx (BSD à 2 clauses, [LICENSES/bgfx-LICENSE.txt](LICENSES/bgfx-LICENSE.txt)).
 - Contenus et données (`content/`, `docs/`, `data/`, README, changelog) : CC BY-SA 4.0, voir [LICENSES/CC-BY-SA-4.0.txt](LICENSES/CC-BY-SA-4.0.txt).
 - Modèles, textures et photos 3D de tiers (`app/public/scenes/`) : CC0 ou CC BY uniquement, chacun avec son auteur et sa licence, affichés dans l'application (bouton « Crédits »).
 

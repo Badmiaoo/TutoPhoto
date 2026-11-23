@@ -21,12 +21,20 @@ Sujet 46 du plan de corrections de l'audit (`docs/audit/README.md`) : documentat
 ### Ajouté
 
 - `docs/publication.md` : une section « Pull request d'un tiers » : la CI d'une pull request fait tourner ses propres fichiers, et une CI verte ne prouve rien sur ceux qui font les contrôles ou que la CI exécute ; ils se relisent avant d'approuver l'exécution des workflows, et avant de fusionner (phrase du plan, d'après la section du rapport des licences sur les pull requests de tiers, non contestée par son contre-avis).
-- `data/sources.yaml` : `github-pages-creating-site` (la page de GitHub qui dit le site publié public), `npm-rolldown`, `vite-preload-helper` et `rolldown-runtime-base` (le code d'où viennent les fonctions que la construction ajoute au site).
+- `data/sources.yaml` : `github-pages-creating-site` (la page de GitHub qui dit le site publié public), `npm-rolldown`, `vite-preload-helper` et `rolldown-runtime-base` (le code d'où viennent les fonctions que la construction ajoute au site), `bgfx-license` (la licence de bgfx et l'en-tête des fichiers de son exemple 45-bokeh).
+- `LICENSES/bgfx-LICENSE.txt` : la licence de bgfx (BSD à 2 clauses), recopiée telle quelle de son commit 9714e32 du 23 novembre 2026 (PHY-19, D13).
+- `app/scripts/copy-licences.mjs` : recopie aussi dans `licences/` le premier bloc du `LICENSE.md` de Vite (« Vite core license », l. 1-24, découpé à la construction, qui s'arrête si le fichier change de forme), le `LICENSE` et le `THIRD-PARTY-LICENSE` de Rolldown, et la licence de bgfx (LIC-08, PHY-19, D13).
+- Page des licences (`app/public/licences/index.html`) : bgfx, avec la mention de l'exemple 45-bokeh (« Copyright 2021 elven cache. All rights reserved. »), et Vite et Rolldown, avec les liens vers leurs textes.
+- Fenêtre « Crédits » du simulateur : sous la liste des éléments de la scène, une phrase sur le code de tiers (Babylon.js, la boucle du flou du viseur reprise de bgfx, les fonctions que Vite et Rolldown ajoutent à la construction) et un lien vers la page des licences (`app/src/credits.ts`, `app/src/texts.ts`, `app/simulateur/index.html`, `app/src/main.ts`).
 
 ### Modifié
 
 - `docs/etat-des-travaux.md` : la fin de la version 0.4.13 relue ; le Sujet 46 en cours, sa ligne dans la file ; « Lignée des sessions » ; dans « Leçons pratiques », les redémarrages du conteneur de la session du Sujet 45 et les relevés de la limite d'usage.
 - `data/sources.yaml` : `github-pages-limits` et `npm-vite` relues le 23 novembre 2026, leur libellé dit ce que la documentation en tire.
+- Fenêtre « Crédits » : son titre devient « Crédits » (« Crédits de la scène » avant), et sa phrase d'introduction annonce le code de tiers.
+- `docs/licences.md`, « Code de tiers dans le site publié » : Vite et Rolldown, bgfx, et la phrase de la fenêtre « Crédits » ; la ligne « Code » du tableau renvoie aux lignes reprises de bgfx. `README.md`, « Licence » : de même, en une phrase.
+- `app/src/camera/viewfinderDof.ts` : le commentaire de tête dit la mention de copyright et la licence des lignes reprises de bgfx, et où est son texte.
+- `docs/camera-physique.md`, « Algorithme » : la notice de bgfx, qui relevait de ce sujet, est faite. `docs/architecture.md`, carte de l'application : `credits.ts`, recompté.
 
 ### Corrigé
 

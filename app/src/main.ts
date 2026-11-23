@@ -2,7 +2,7 @@ import "./style.css";
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { createScene, SceneFileError } from "./scene";
 import { whenSceneReady } from "./camera/photo";
-import { loadManifest, renderCredits, renderCreditsUnavailable, renderVersion } from "./credits";
+import { loadManifest, renderCodeCredits, renderCredits, renderCreditsUnavailable, renderVersion } from "./credits";
 import { CameraPanel } from "./ui/cameraPanel";
 import { Shutter } from "./ui/shutter";
 import { DOME_RADIUS, EYE_HEIGHT } from "./scene";
@@ -211,6 +211,7 @@ function applyTexts(): void {
   element("credits-title").textContent = t("creditsTitle");
   element("credits-intro").textContent = t("creditsIntro");
   renderVersion(element("credits-version"));
+  renderCodeCredits(element("credits-code"));
   element("credits-close").textContent = t("close");
   element("no-webgl").textContent = withVersion(t("noWebgl"));
   canvas.setAttribute("aria-label", t("sceneLabel"));

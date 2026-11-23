@@ -13,6 +13,11 @@
 //   double de celui du centre, pour que le fond ne déborde pas sur un sujet net.
 // - Calcul à mi-résolution, puis recomposition en pleine résolution selon la taille moyenne du flou des
 //   échantillons, comme dans l'exemple de bgfx.
+// - Licence : les instructions du cœur de la boucle et la recomposition sont reprises, aux noms près, de l'exemple
+//   45-bokeh de bgfx (docs/camera-physique.md, « Algorithme »), dont les fichiers portent « Copyright 2021 elven
+//   cache. All rights reserved. » et renvoient à la licence de bgfx, BSD à 2 clauses (« Copyright 2010-2026 Branimir
+//   Karadzic »). Son texte est dans LICENSES/bgfx-LICENSE.txt, recopié dans le site construit
+//   (licences/bgfx-LICENSE.txt) [bgfx-license] (version 0.4.14, constat PHY-19 de l'audit, décision D13).
 // - La spirale s'arrête au plus grand flou présent dans l'image : celui d'un point à l'infini (le fond) ou
 //   celui du sol en bas du cadre, s'il est plus grand. Aux réglages courants, le flou est minuscule et le
 //   calcul presque gratuit.
