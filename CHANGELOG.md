@@ -26,7 +26,7 @@ Sujet 47 du plan de corrections de l'audit (`docs/audit/README.md`) : `scripts/c
 - Chaque situation du champ `situations` d'un manifeste doit être dans `data/situations.yaml` (cas 8, que le plan laissait sans contrôle ; choix 9).
 - `data/sources.yaml` : deux sources, `khronos-gltf-2-0` (la spécification de glTF 2.0, dépôt KhronosGroup/glTF, commit da88a3b) et `sketchfab-archive-cc0` (l'archive glTF et le fichier GLB d'un modèle de Sketchfab sous CC0, téléchargés pour lire la forme de leur `license.txt` et de leur bloc `asset.extras`) ; 306 sources.
 - `docs/licences.md`, « Règles pour les scènes 3D » : deux sous-sections, « Ce que contrôle `scripts/check_scenes.py` » et « Ce qu'il ne contrôle pas » : un fichier de tiers posé hors des scènes (cas 4, reporté par la contre-vérification) ; un fichier remplacé par un autre sans champ `changes` (cas 6), qui ne se voit que par un nouveau téléchargement, refait pour cette version ; le champ `asset.copyright` d'un fichier glTF ; un élément sans `license.txt` ni bloc `asset.extras` ; ce que dit la page d'origine (choix 11 et 12).
-- `docs/propositions.md`, section 5 : « `scripts/check_scenes.py` : croiser le manifeste et les fichiers », quinze choix.
+- `docs/propositions.md`, section 5 : « `scripts/check_scenes.py` : croiser le manifeste et les fichiers », dix-sept choix.
 
 ### Modifié
 
@@ -34,7 +34,7 @@ Sujet 47 du plan de corrections de l'audit (`docs/audit/README.md`) : `scripts/c
 - `scripts/check_scenes.py` : la ligne de bilan d'une scène compte les `license.txt` et les fichiers glTF lus (« 5 license.txt et 7 glTF lus » pour la scène de parc) ; les adresses des deux licences admises sont dans une table, `LICENCES` ; le script lit `data/situations.yaml` par `scripts/referentiel.py`.
 - `schemas/scene.schema.json` : trois commentaires, sur ce que le script contrôle au-delà de la forme (`situations`, `verified`, et la comparaison aux fichiers).
 - `README.md`, « Contribuer » : la phrase du contrôle des scènes dit la comparaison au manifeste.
-- `docs/etat-des-travaux.md` : la fin de la version 0.4.15 relue ; le Sujet 47 en cours ; « Lignée des sessions », avec la profondeur 4 de cette session ; dans « Leçons pratiques », le site publié, qui se joint depuis l'environnement de Claude, et le redémarrage du conteneur de la session de la demande de Julien à 7 h 49 UTC le 28 novembre.
+- `docs/etat-des-travaux.md` : la fin de la version 0.4.15 relue ; le Sujet 47 fait, sa ligne dans la file, celle du Sujet 48, et le sujet suivant, la révision du plan d'après la décision D10 (choix 17) ; « Lignée des sessions », avec la profondeur 4 de cette session ; la ligne des choix de cette version, et la question du Sujet 48 dans « Décisions en attente » ; dans « Leçons pratiques », les paragraphes « Limite d'usage » et « Agents » resserrés et un paragraphe « Redémarrages du conteneur », sans les relevés de chaque session, qui restent ici et dans l'historique de git de la page (choix 16), le filtre par chemins de la routine, le site publié et l'API de Sketchfab, qui se joignent depuis l'environnement de Claude. Aucun essai n'est ajouté à `docs/tests-a-faire-faire.md` : cette version ne change rien au site publié.
 
 ### Corrigé
 
