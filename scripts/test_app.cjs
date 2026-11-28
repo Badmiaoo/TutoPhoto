@@ -2,19 +2,41 @@
 // Routine de test du site construit, sur ordinateur et sur mobile (demande de Julien du 9 novembre 2026).
 //
 // Usage : node scripts/test_app.cjs [--dist app/dist] [--profils ordinateur,android,iphone,webgl1]
-//                                   [--photo] [--sorties dossier]
+//                                   [--photo] [--sorties dossier] [--pages] [--etapes id,id]
+//                                   [--echec-injecte id]
 // Prérequis : Playwright (licence Apache-2.0) et son Chromium, installés hors du dépôt ; le site construit
 // (cd app && npm run build).
 //
 // Limites : Chromium seul, avec un rendu logiciel (SwiftShader). Les profils mobiles émulent la taille et la
 // densité de l'écran et l'identification du navigateur (Babylon.js change de comportement sur iPhone et iPad), et
-// déclarent un écran tactile ; mais un seul geste de la routine est un toucher, la fermeture d'une fenêtre par un
-// toucher sur le fond (page.touchscreen.tap, profil iphone, checkPhoneLayout, depuis la version 0.4.10) : les autres
-// clics, glissés et appuis tenus passent par la souris (constat INT-13 de l'audit). Ils n'émulent ni le processeur
-// graphique ni le moteur Safari : un vrai téléphone reste nécessaire. Dans la liste des contrôles ci-dessous et dans leurs noms,
-// « toucher » nomme le geste de l'application (toucher le viseur, la carte, la photo) : la routine le fait à la
-// souris ; qu'un élément ne reçoive pas les touchers, elle le vérifie par l'élément qui se trouve sous le point
-// visé, lu avec document.elementFromPoint (relecture de la version 0.3.64).
+// déclarent un écran tactile. Depuis la version 0.4.19 (constat INT-13 de l'audit), ils touchent l'écran pour les
+// gestes du viseur, de la carte, de la photo et du déclencheur : un toucher par page.touchscreen.tap, ou par
+// locator.tap pour le déclencheur ; un glissé et un appui tenu par des événements tactiles du protocole de Chromium
+// (Input.dispatchTouchEvent) ; et, sur le profil iphone, la fermeture d'une fenêtre par un toucher sur le fond
+// (checkPhoneLayout, depuis la version 0.4.10). Les autres boutons, les fenêtres et les molettes sont cliqués à la
+// souris, comme sur les profils d'ordinateur, qui font tous leurs gestes à la souris (gestures, plus bas). Ils
+// n'émulent ni le processeur graphique ni le moteur Safari : un vrai téléphone reste nécessaire. Dans la liste des
+// contrôles ci-dessous et dans leurs noms, « toucher » nomme le geste de l'application (toucher le viseur, la carte,
+// la photo) : au doigt sur les profils de téléphone, à la souris sur ceux d'ordinateur ; qu'un élément ne reçoive pas
+// les touchers, la routine le vérifie par l'élément qui se trouve sous le point visé, lu avec
+// document.elementFromPoint (relecture de la version 0.3.64), et, pour le calque des zones écrêtées, par la valeur
+// calculée de pointer-events (version 0.4.19).
+//
+// Étapes (Sujet 49 du plan de corrections, version 0.4.19 ; refonte 3 du rapport d'architecture, constat ARC-05 de
+// l'audit) : chaque profil joue ses contrôles en étapes nommées (STEPS, dans runProfile), chacune dans son propre try ;
+// une exception n'arrête que son étape, et le bilan la nomme. Les étapes du simulateur partent des réglages de départ,
+// remis par un seul appel au magasin de réglages par l'accès de la routine (« ?routine » dans l'adresse,
+// app/src/routineAccess.ts), avec les écarts que chacune demande, et de l'appareil à sa place et à son orientation de
+// départ ; après une exception, ou si la page n'est pas prête (calcul en cours, écran de revue ou fenêtre ouverts),
+// l'étape suivante la recharge d'abord, mémoire des réglages et du défi effacée. Les contrôles d'une étape sont écrits
+// dès sa fin, sous une ligne qui donne son nom, son issue et sa durée ; le bilan de chaque profil suit, puis le nombre
+// d'échecs. Options : --pages ne joue que les pages, liens internes une fois puis, pour chaque profil, l'étape « pages »
+// (accueil, deux fiches, l'activité LUM-02) et les erreurs des pages (constat CHX-07 de l'audit, voie B ; la CI le
+// lance sur les profils ordinateur et iphone, seul quand une pull request ne touche que content/ ou data/) ;
+// --etapes id,id ne joue que ces étapes (et le chargement du simulateur, si l'une en a besoin) ; --echec-injecte id
+// lève une exception au début de cette étape, pour voir qu'elle seule s'arrête ; --echec-injecte navigateur ferme le
+// navigateur juste avant la fermeture du contexte du profil (défaut relevé à la version 0.3.64 : la routine sortait
+// alors sans écrire les contrôles du profil).
 //
 // Contrôles des pages statiques (version 0.3.46), une fois : chaque lien interne de chaque page HTML du site
 // construit mène à un fichier qui existe, et chaque ancre à un seul élément de la page visée (version 0.3.73).
@@ -131,6 +153,8 @@
 //   positions des lignes sont aussi essayées sans navigateur, par app/tests/viewfinder.test.ts (constat INT-14,
 //   version 0.3.87) : la routine mesure les lignes dessinées dans le cadre ;
 // - le viseur garde au moins 35 % de la hauteur de la fenêtre (iPhone : 41 % avant l'indicateur d'équilibre) ;
+// - gestes (constat INT-13 de l'audit, version 0.4.19) : le premier toucher du viseur de l'étape « bruit » arrive à
+//   la page en pointerdown de type « touch » sur les profils de téléphone, « mouse » sur ceux d'ordinateur ;
 // - indicateur d'équilibre : zone nette et bruit excellent aux réglages par défaut ; au même point du sol,
 //   immobile, le rapport signal/bruit à ISO 6400 tombe sous 40 % de celui à ISO 100 (environ 17 % attendus :
 //   6 IL de sensibilité en plus, 0,87 IL d'exposition en plus, bruit photonique) ; traînée du chien évaluée ;
@@ -159,7 +183,7 @@
 //   (version 0.4.10) ; photo surexposée de 3,2 IL : elle s'ouvre en
 //   haut de l'écran de revue, sans défilement gardé de la photo d'avant (INT-17, version 0.3.59), part écrêtée
 //   supérieure à 0 dans le texte, puis « Infos » encore une fois : zones écrêtées posées sur la photo, sans prendre
-//   les touchers, et la phrase visible ; avec « réduire les animations », émulé, le calque des zones n'a aucune animation et le texte dit
+//   les touchers (pointer-events calculé à none, version 0.4.19), et la phrase visible ; avec « réduire les animations », émulé, le calque des zones n'a aucune animation et le texte dit
 //   « sans clignoter » ; réglage rendu, il clignote de nouveau (version 0.3.62) ; photo sous-exposée de 3,2 IL :
 //   aucune zone, plus de la moitié des pixels de luminance dans la moitié gauche ; retour à « photo seule » et aux
 //   réglages de départ ;
@@ -168,15 +192,17 @@
 // - avec --photo, rafale (BOI-12) : en Continu L à 5 vues par seconde, déclencheur tenu jusqu'à deux vues au
 //   moins, espacées de 0,2 s sur l'horloge de la scène, que l'écran de revue fait défiler ;
 // - mise au point (MAP-04, MAP-05, MAP-09) : AF-S et point sélectif par défaut, comme le Z 6, lus juste après le
-//   chargement, avant tout réglage de la mise au point (constat INT-05 de l'audit, version 0.3.64) ; en fin de
-//   test, parce que la vue change : retour à AF-S et point sélectif par la fenêtre « Mise au point » ; en zone
+//   chargement, avant tout réglage de la mise au point (constat INT-05 de l'audit, version 0.3.64) ; depuis AF-C en
+//   zone automatique, AF-S et point sélectif par la fenêtre « Mise au point » (étape « AF-S, zone L et AF-C ») ; en zone
 //   automatique, un œil est détecté dans le groupe ; détection coupée, l'appareil prend le
 //   sujet le plus proche ; en détection des animaux, l'œil du chien est détecté quand il passe (au plus 30 s), puis,
 //   l'appareil tourné vers la partie de sa course qu'aucun personnage ne cache, il n'est pas lâché à découvert
 //   (FMA-23, version 0.3.66 ; une perte tolérée en 60 s) ;
 //   en AF-S, toucher le bas du cadre verrouille la distance ; au même endroit, la zone large (L)
 //   retient un sujet plus proche (le sol en bas du cadre) ; la distance ne bouge plus quand on relève
-//   l'appareil (et, avec --photo, la photo la garde) ; repassé en AF-C, la distance suit la zone ;
+//   l'appareil, d'au moins 0,3 rad, lu par l'accès de la routine une fois l'élan éteint (et, avec --photo, la photo
+//   la garde) ; repassé en AF-C, la distance suit la zone, et le contrôle dit l'inclinaison de l'appareil et ce que
+//   vise la zone, le fond à 500 m ou ce qui est plus près (version 0.4.19 : l'inclinaison n'était pas lue) ;
 // - avec --photo, pendant le calcul de cette photo, pointeur enfoncé et déplacé sur le viseur, bouton tenu jusqu'après
 //   l'ouverture de l'écran de revue : l'orientation de l'appareil, lue sur la vue de dessus, n'a pas changé à la
 //   reprise (COD-01, version 0.3.63) ; après la rafale, un glissé de 120 px sur le viseur tourne de nouveau
@@ -234,6 +260,11 @@ const option = (name, fallback) => {
 const dist = path.resolve(option("--dist", path.join(__dirname, "..", "app", "dist")));
 const profileNames = option("--profils", "ordinateur,android,iphone,webgl1").split(",");
 const withPhoto = args.includes("--photo");
+// Étapes choisies (--etapes, ou --pages pour l'étape « pages » seule) ; null : toutes. Étape où lever une exception
+// (--echec-injecte), pour essayer la routine elle-même.
+const onlyPages = args.includes("--pages");
+const chosenSteps = onlyPages ? new Set(["pages"]) : option("--etapes", null) ? new Set(option("--etapes", "").split(",")) : null;
+const injected = option("--echec-injecte", null);
 const outDir = option("--sorties", null);
 if (outDir) fs.mkdirSync(outDir, { recursive: true });
 
@@ -1385,7 +1416,67 @@ async function checkPhoneLayout(browser, base, check) {
   }
 }
 
-async function runProfile(browser, name, base) {
+/**
+ * Gestes du viseur, de la carte, de la photo et du déclencheur (constat INT-13 de l'audit, version 0.4.19) : au doigt
+ * sur les profils de téléphone, qui déclarent un écran tactile (hasTouch des profils de Playwright), à la souris sur
+ * les profils d'ordinateur. Toucher un point : page.touchscreen.tap ; toucher un élément : locator.tap, qui attend
+ * l'élément comme page.click ; poser le doigt, le glisser, le lever : Input.dispatchTouchEvent du protocole de Chromium
+ * (touchStart, touchMove, touchEnd), par une session ouverte au premier geste. La page reçoit alors des pointerdown de
+ * type « touch » (essai de la contre-vérification d'INT-13, profil iPhone 14, 14 novembre 2026 ; contrôle « gestes »,
+ * étape « bruit »), que Babylon.js prend dans son entrée de la souris, qui accepte les touchers (touchEnabled), et dans
+ * celle du toucher (FreeCameraTouchInput, singleFingerRotate, app/src/scene.ts), qui tourne l'appareil tant que le
+ * doigt est écarté de son point d'appui, à chaque image : un glissé au doigt tourne l'appareil au moins autant qu'à
+ * la souris (lu dans freeCameraMouseInput.js et freeCameraTouchInput.js de Babylon.js 9.35.0).
+ */
+function gestures(page, context, touch) {
+  let session = null;
+  let pressed = false;
+  const send = async (type, x, y) => {
+    session ??= await context.newCDPSession(page);
+    await session.send("Input.dispatchTouchEvent", { type, touchPoints: type === "touchEnd" ? [] : [{ x, y }] });
+  };
+  return {
+    touch,
+    tap: (x, y) => (touch ? page.touchscreen.tap(x, y) : page.mouse.click(x, y)),
+    tapElement: (selector) => (touch ? page.locator(selector).tap() : page.click(selector)),
+    down: async (x, y) => {
+      if (touch) {
+        await send("touchStart", x, y);
+        pressed = true;
+      } else {
+        await page.mouse.move(x, y);
+        await page.mouse.down();
+      }
+    },
+    move: (x, y) => (touch ? send("touchMove", x, y) : page.mouse.move(x, y)),
+    up: async () => {
+      if (!touch) return page.mouse.up();
+      pressed = false;
+      return send("touchEnd");
+    },
+    /** Relâche ce qui peut rester enfoncé après une exception : le bouton de la souris, le doigt. */
+    release: async () => {
+      await page.mouse.up().catch(() => undefined);
+      if (pressed) {
+        pressed = false;
+        await send("touchEnd").catch(() => undefined);
+      }
+    },
+  };
+}
+
+/** Durée lisible : « 42 s », « 3 min 05 s ». */
+function duration(ms) {
+  const s = Math.round(ms / 1000);
+  return s < 60 ? `${s} s` : `${Math.floor(s / 60)} min ${String(s % 60).padStart(2, "0")} s`;
+}
+
+/**
+ * Un profil de la routine, en étapes indépendantes (Sujet 49 du plan de corrections, version 0.4.19 ; en-tête de ce
+ * fichier, « Étapes »). `say` écrit une ligne, `report` un contrôle ; les deux écrivent au fil des étapes, pour que
+ * la CI garde ce qui est fait même si le job s'arrête avant la fin.
+ */
+async function runProfile(browser, name, base, say, report) {
   const profile = PROFILES[name];
   if (!profile) throw new Error(`Profil inconnu : ${name}`);
   const { noWebgl2, ...contextOptions } = profile;
@@ -1422,1711 +1513,201 @@ async function runProfile(browser, name, base) {
   const checks = [];
   const check = (label, ok, detail = "") => checks.push({ label, ok, detail });
   const started = Date.now();
-  try {
-    await checkPages(page, base, name, check);
-    await checkNoWebgl(browser, contextOptions, base, check);
-    await checkFloatRender(browser, contextOptions, base, check, Boolean(noWebgl2));
-    await checkLostAtStart(browser, contextOptions, base, check, Boolean(noWebgl2));
-    await checkLightTextures(browser, contextOptions, base, check, Boolean(noWebgl2));
-    // Mise en page sur téléphone, dans un contexte à part (Sujet 42, version 0.4.10) : profil iphone seulement, pour ne
-    // charger la scène qu'une fois de plus.
-    if (name === "iphone") await checkPhoneLayout(browser, base, check);
-    // Le simulateur est ouvert avec « ?lang=en », paramètre retiré en version 0.3.60 : il doit s'ouvrir en français,
-    // sans bouton de langue. Toute la suite de la routine lit des textes français sur cette page.
-    await page.goto(`${base}/simulateur/?lang=en`);
-    const french = await page.evaluate(() => ({
-      lang: document.documentElement.lang,
-      subtitle: document.getElementById("subtitle")?.textContent ?? "",
-      button: document.getElementById("lang") ? 1 : 0,
-      saved: localStorage.getItem("tutophoto.lang"),
-    }));
-    check(
-      "simulateur ouvert avec ?lang=en : en français, sans bouton de langue",
-      french.lang === "fr" && french.subtitle.startsWith("Simulateur photo") && french.button === 0 && french.saved === null,
-      `langue ${french.lang}, « ${french.subtitle} », ${french.button} bouton de langue, clé tutophoto.lang : ${french.saved}`,
-    );
-    const loaded = await page
-      .waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 })
-      .then(() => true)
-      .catch(() => false);
-    check("chargement", loaded, `${Math.round((Date.now() - started) / 1000)} s`);
-    const home = await page.evaluate(() => ({ text: document.getElementById("home")?.textContent ?? "", href: document.getElementById("home")?.getAttribute("href") ?? "" }));
-    check("simulateur : lien vers l'accueil", home.text === "Accueil" && home.href === "../", `« ${home.text} » → ${home.href}`);
-    // Titre propre au simulateur, distinct de celui de l'accueil dans l'historique et les onglets (INT-19, Sujet 13).
-    const simTitle = await page.title();
-    check("simulateur : titre de la page", simTitle === "Simulateur · TutoPhoto", `« ${simTitle} »`);
-    // Ligne de diagnostic (app/src/main.ts) : erreurs JavaScript, bruit ou profondeur de champ du viseur
-    // indisponibles, rendu en flottants absent, scène affichée avant d'être prête ; vide et masquée sans problème. Lue
-    // ici, puis en fin de parcours (« aucun problème affiché à la fin du parcours », plus bas).
-    const diagnosticText = () =>
-      page.evaluate(() => {
-        const d = document.getElementById("diagnostic");
-        return d && !d.hidden ? d.textContent : "";
-      });
-    const diagnostic = await diagnosticText();
-    check("aucun problème affiché", !diagnostic, diagnostic);
-    // Affichage de diagnostic (version 0.3.88) : créé seulement avec « ?diagnostic » dans l'adresse.
-    const diagnosticView = await page.evaluate(() => document.getElementById("diagnostic-view") !== null);
-    check("sans ?diagnostic : pas d'affichage de diagnostic", !diagnosticView, diagnosticView ? "affichage présent" : "absent");
-    // Sans scène, la suite n'a pas d'objet ; le bloc finally ajoute encore à checks le contrôle des erreurs.
-    if (!loaded) return { name, checks };
-    // Accessibilité (Sujet 38, version 0.4.7 ; constats INT-08, INT-15 et INT-16 de l'audit), lue dans les attributs.
-    const a11y = await page.evaluate(() => {
-      const named = (id) => {
-        const e = document.getElementById(id);
-        return { text: e?.textContent ?? "", label: e?.getAttribute("aria-label") ?? "", live: e?.hasAttribute("aria-live") ?? true };
-      };
-      return {
-        tabIndex: document.getElementById("scene").getAttribute("tabindex"),
-        outputs: [...document.querySelectorAll(".dial output")].map((o) => document.getElementById(o.getAttribute("aria-labelledby") ?? "")?.textContent ?? ""),
-        aperture: document.querySelector('[data-dial="aperture"][data-step="1"]')?.getAttribute("aria-label") ?? "",
-        shutter: document.querySelector('[data-dial="shutter"][data-step="1"]')?.getAttribute("aria-label") ?? "",
-        meter: named("meter-value"),
-        af: named("af-button"),
-        statusRole: document.getElementById("status").getAttribute("role"),
-        messageRole: document.getElementById("status-message")?.getAttribute("role") ?? "",
-      };
+  // Gestes du viseur, de la carte, de la photo et du déclencheur : au doigt sur les profils de téléphone (gestures).
+  const g = gestures(page, context, Boolean(contextOptions.hasTouch));
+
+  // Outils des étapes du simulateur, communs à plusieurs d'entre elles.
+  // Ligne de diagnostic (app/src/main.ts) : erreurs JavaScript, bruit ou profondeur de champ du viseur
+  // indisponibles, rendu en flottants absent, scène affichée avant d'être prête ; vide et masquée sans problème. Lue
+  // à la fin de l'étape « chargement du simulateur », puis avant chaque rechargement de la page et à la fin du parcours
+  // (« aucun problème affiché à la fin du parcours », étape « mémoire des réglages et défi de l'adresse »).
+  const diagnosticText = () =>
+    page.evaluate(() => {
+      const d = document.getElementById("diagnostic");
+      return d && !d.hidden ? d.textContent : "";
     });
-    check(
-      "accessibilité : viseur à sa place dans la tabulation, valeurs et boutons nommés",
-      a11y.tabIndex === "0" &&
-        a11y.outputs.length === 4 &&
-        a11y.outputs.every((n) => n !== "") &&
-        /fermer/.test(a11y.aperture) &&
-        /pose plus longue/.test(a11y.shutter) &&
-        a11y.meter.text !== "" &&
-        a11y.meter.label.startsWith(a11y.meter.text) &&
-        !a11y.meter.live &&
-        a11y.af.text !== "" &&
-        a11y.af.label.startsWith(a11y.af.text) &&
-        a11y.statusRole === null &&
-        a11y.messageRole === "status",
-      `tabindex ${a11y.tabIndex} ; valeurs nommées : ${a11y.outputs.join(", ")} ; « ${a11y.aperture} » ; « ${a11y.shutter} » ; « ${a11y.meter.label} » ; « ${a11y.af.label} »`,
-    );
-    // Mise au point par défaut (MAP-04, MAP-05) : AF-S et point sélectif, comme le Z 6 (app/src/camera/settings.ts,
-    // [nikon-z6-defaults]). Lue avant que la routine ne règle quoi que ce soit en mise au point (INT-05 de l'audit,
-    // version 0.3.64) : en fin de test, « mise au point : retour à AF-S et point sélectif » relit un réglage que la
-    // routine vient de faire dans la fenêtre « Mise au point ».
-    const afDefault = await page.evaluate(() => document.getElementById("af-badge").textContent);
-    check("mise au point : AF-S et point sélectif par défaut (Z 6)", /^AF-S · Point · /.test(afDefault), afDefault);
-
-    // Le rendu est à la densité de l'écran, plafonnée à 2 (version 0.3.53 : pixels calculés = pixels CSS ×
-    // min(densité, 2)), et le cadre a les proportions du capteur (Nikon Z 6 : 35,9 / 23,9).
-    await page.waitForTimeout(500);
-    const geometry = await page.evaluate(() => {
-      const c = document.getElementById("scene");
-      const f = document.getElementById("frame").getBoundingClientRect();
-      return { rw: c.width, rh: c.height, cw: c.clientWidth, ch: c.clientHeight, dpr: window.devicePixelRatio, ratio: Math.max(f.width, f.height) / Math.min(f.width, f.height) };
-    });
-    check(
-      "rendu à la densité de l'écran",
-      Math.abs(geometry.rw - geometry.cw * Math.min(geometry.dpr, 2)) <= 2 && Math.abs(geometry.rh - geometry.ch * Math.min(geometry.dpr, 2)) <= 2,
-      `${geometry.rw}×${geometry.rh} rendu, ${geometry.cw}×${geometry.ch} affiché, densité ${geometry.dpr}, plafond 2`,
-    );
-    check("cadre aux proportions du capteur", Math.abs(geometry.ratio - 35.9 / 23.9) < 0.02, `rapport ${geometry.ratio.toFixed(3)}, attendu ${(35.9 / 23.9).toFixed(3)}`);
-
-    const viewfinder = await page.evaluate(() => ({ h: document.getElementById("scene").clientHeight, vh: window.innerHeight }));
-    check("viseur assez grand", viewfinder.h >= 0.35 * viewfinder.vh, `${viewfinder.h} px de haut, fenêtre de ${viewfinder.vh} px`);
-
-    // Indicateur d'équilibre, réglages par défaut (50 mm, f/8, 1/100 s, ISO 100).
-    const balanceLine = (id, pattern) =>
-      page
-        .waitForFunction(
-          ([lineId, source]) => {
-            const text = document.getElementById(lineId).textContent;
-            return new RegExp(source).test(text) ? text : null;
-          },
-          [id, pattern.source],
-          { timeout: 30000 },
-        )
-        .then((handle) => handle.jsonValue())
-        .catch(() => null);
-    const noiseDefault = (await balanceLine("balance-noise", /bruit /)) ?? (await page.evaluate(() => document.getElementById("balance-noise").textContent));
-    const dofDefault = await page.evaluate(() => document.getElementById("balance-dof").textContent);
-    check(
-      "indicateur d'équilibre aux réglages par défaut",
-      /zone nette\u00a0: \d+,\d m – (\d+,\d m|∞)/.test(dofDefault) && /ISO 100 · bruit excellent/.test(noiseDefault),
-      `${dofDefault} | ${noiseDefault}`,
-    );
-    // Exposition (BOI-07, BOI-08, MES-04, MES-10) : M et ISO auto par défaut, comme le Z 6. L'ISO auto est coupé
-    // pour les contrôles suivants, qui règlent l'ISO à la main.
-    const setExposure = async ({ mode, autoIso, compensation }) => {
-      await page.click("#meter-value");
-      if (mode) await page.check(`#exposure-dialog input[name="exposureMode"][value="${mode}"]`);
-      if (autoIso === true) await page.check('#exposure-dialog input[name="autoIso"]');
-      if (autoIso === false) await page.uncheck('#exposure-dialog input[name="autoIso"]');
-      if (compensation !== undefined) await page.selectOption('#exposure-dialog select[name="compensation"]', String(compensation));
-      await page.click("#exposure-close");
-    };
-    const dialState = (dial) =>
-      page.evaluate((d) => {
-        const box = document.querySelector(`[data-box="${d}"]`);
-        const out = box.querySelector("output");
-        return {
-          name: box.querySelector(".dial-name").textContent,
-          value: out.textContent,
-          flashing: out.classList.contains("flashing"),
-          disabled: box.querySelector("button[data-step]").disabled,
-        };
-      }, dial);
-    const meterText = () => page.evaluate(() => document.getElementById("meter-value").textContent);
-    const isoDefault = await dialState("iso");
-    const meterDefault = await meterText();
-    check("exposition par défaut : M et ISO auto (Z 6)", /^M · /.test(meterDefault) && isoDefault.name === "ISO auto" && isoDefault.value === "100", `${meterDefault} ; ${isoDefault.name} ${isoDefault.value}`);
-    await setExposure({ autoIso: false });
-
-    // Vue de dessus (NET-01) et appareil déplaçable (NET-06). AF-C, zone automatique : l'œil de Sophia vers 6,6 m
-    // (le point central, au bord de Sophia une fois l'appareil reculé, tombait parfois à côté d'elle sur le profil
-    // Android). Reculé de 4 m en touchant la carte (x = 0, z = −4), l'appareil mesure environ 4 m de plus ;
-    // « Retour au départ » le ramène. Carte : x de −8 à 8 m, z de 15 m (en haut) à −7 m (en bas).
-    const badgeMetres = async () => {
-      const m = /(\d+[,.]\d) m$/.exec(await page.evaluate(() => document.getElementById("af-badge").textContent));
-      return m ? Number(m[1].replace(",", ".")) : NaN;
-    };
-    // Attend que la distance affichée en AF-C vérifie la condition (le rendu logiciel peut être lent) ; au plus 30 s.
-    // « group » : le groupe, à moins de 9 m ; « farther » : plus de v + 3 m ; « back » : à 0,3 m près de v.
-    const waitMetres = (kind, arg) =>
-      page
-        .waitForFunction(
-          ([mode, value]) => {
-            const m = /^AF-C · Auto · .* (\d+[,.]\d) m$/.exec(document.getElementById("af-badge").textContent);
-            if (!m) return false;
-            const d = Number(m[1].replace(",", "."));
-            return mode === "group" ? d < 9 : mode === "farther" ? d > value + 3 : Math.abs(d - value) < 0.3;
-          },
-          [kind, arg],
-          { timeout: 30000 },
-        )
-        .catch(() => undefined);
-    const topCollapsed = !(await page.locator("#top-view-map").isVisible());
-    if (topCollapsed) await page.click("#top-view-toggle");
-    await page.click("#af-button");
-    await page.check('#af-dialog input[name="focusMode"][value="continuous"]');
-    await page.check('#af-dialog input[name="areaMode"][value="auto"]');
-    await page.check('#af-dialog input[name="detection"][value="faceEye"]');
-    await page.click("#af-close");
-    await waitMetres("group", 0);
-    const fromStart = await badgeMetres();
-    const sharpCount = await page.evaluate(() => document.querySelectorAll("#top-view-map .top-things .sharp").length);
-    const map = await page.locator("#top-view-map").boundingBox();
-    await page.mouse.click(map.x + ((0 + 8) / 16) * map.width, map.y + ((4 + 15) / 22) * map.height);
-    await waitMetres("farther", fromStart);
-    const fromBack = await badgeMetres();
-    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-vue-de-dessus.png`), timeout: 120000 });
-    await page.click("#top-view-reset");
-    await waitMetres("back", fromStart);
-    const fromReset = await badgeMetres();
-    check(
-      "vue de dessus : appareil reculé de 4 m, puis ramené",
-      sharpCount > 0 && fromBack - fromStart > 3.5 && fromBack - fromStart < 4.5 && Math.abs(fromReset - fromStart) < 0.3,
-      `${fromStart} m au départ, ${fromBack} m reculé, ${fromReset} m ramené ; ${sharpCount} sujets dans la zone nette`,
-    );
-    await page.click("#af-button");
-    await page.check('#af-dialog input[name="focusMode"][value="single"]');
-    await page.check('#af-dialog input[name="areaMode"][value="point"]');
-    await page.click("#af-close");
-    if (topCollapsed) await page.click("#top-view-toggle");
-
-    // Point de mise au point sur le sol, immobile, en bas du cadre, pour comparer le bruit à deux ISO.
-    const snrOf = (text) => {
-      const m = /signal\/bruit (\d+):1/.exec(text ?? "");
-      return m ? Number(m[1]) : NaN;
-    };
-    const groundBox = await page.locator("#frame").boundingBox();
-    await page.mouse.click(groundBox.x + groundBox.width / 2, groundBox.y + 0.95 * groundBox.height);
-    await page.waitForTimeout(2000);
-    const groundLow = await page.evaluate(() => document.getElementById("balance-noise").textContent);
-
-    // Profondeur de champ : 135 mm, f/1.4, vitesse ajustée pour rester près de l'exposition correcte. Les
-    // réglages se font effet coupé, puis l'effet reste coupé : en rendu logiciel, il ralentit chaque image.
-    const clicks = async (selector, n) => { for (let i = 0; i < n; i++) await page.click(selector); };
-    const setDof = async (on) => {
-      await page.click("#preview-button");
-      if (on) await page.check('#preview-dialog input[value="depthOfField"]');
-      else await page.uncheck('#preview-dialog input[value="depthOfField"]');
-      await page.click("#preview-close");
-    };
-    await setDof(false);
-    await clicks('[data-dial="focal"][data-step="1"]', 4);
-    await clicks('[data-dial="aperture"][data-step="-1"]', 15);
-    await clicks('[data-dial="shutter"][data-step="-1"]', 14);
-    // Les deux mesures doivent comparer le même fond. Appareil au point de départ, ce n'était pas toujours le cas :
-    // la tête de Sophia (animée, presque dans le plan de netteté) et le promeneur (à 12,5 m, x de −5 à 5 m) passent
-    // dans la zone mesurée, et l'horloge de la scène avance entre les deux mesures. Selon l'instant, le contrôle
-    // échouait avec l'effet en place (« 1.40 avec, 2.34 sans », profil ordinateur, CI du 15 novembre 2026) et
-    // pouvait réussir sans effet. Appareil déplacé à x = −6 m (bord de la zone permise, même orientation), le cadre
-    // du 135 mm couvre à 12,5 m, en paysage, x de −7,7 à −4,3 m, et la zone mesurée x de −7,2 à −6,5 m (cadre
-    // vertical : plus étroit) : aucun personnage n'y va. Le critère n'a pas changé.
-    // Position de l'appareil, lue sur la vue de dessus : le centre du triangle qui le représente (ui/topView.ts),
-    // en mètres, x vers la droite et y = −z ; la vue de dessus doit être dépliée pour que ce triangle suive l'appareil.
-    const cameraAt = (x, z = null) =>
-      page.waitForFunction(
-        ([targetX, targetZ]) => {
-          const points = document.querySelector("#top-view-map .top-camera polygon")?.getAttribute("points");
-          if (!points) return false;
-          const corners = points.split(" ").map((point) => point.split(",").map(Number));
-          const centre = (k) => corners.reduce((sum, corner) => sum + corner[k], 0) / corners.length;
-          return Math.abs(centre(0) - targetX) < 0.05 && (targetZ === null || Math.abs(-centre(1) - targetZ) < 0.05);
-        },
-        [x, z],
-        { timeout: 30000 },
-      );
-    if (topCollapsed) await page.click("#top-view-toggle");
-    // Toucher à x = −7 m, z = 0 : l'application ramène l'appareil au bord de la zone permise, x = −6 m.
-    const dofMap = await page.locator("#top-view-map").boundingBox();
-    await page.mouse.click(dofMap.x + ((-7 + 8) / 16) * dofMap.width, dofMap.y + ((0 + 15) / 22) * dofMap.height);
-    await cameraAt(-6);
-    await setDof(true);
-    await page.waitForTimeout(1500);
-    const blurred = await sharpness(page);
-    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-profondeur-de-champ.png`), timeout: 120000 });
-    await setDof(false);
-    await page.waitForTimeout(800);
-    const sharp = await sharpness(page);
-    check("profondeur de champ du viseur", blurred < 0.6 * sharp, `netteté du fond ${blurred.toFixed(2)} avec, ${sharp.toFixed(2)} sans`);
-    // Photo à grand flou (constat PHY-21 de l'audit, Sujet 39, version 0.4.8) : au même endroit, au 135 mm à f/1.4, le
-    // fond de la photo doit avoir le flou de l'ouverture, même quand le plafond de 5 s arrête le calcul, ce qu'il fait
-    // d'ordinaire en rendu logiciel (« 97/256 rendus, calculée en 47,2 s » dans l'essai de la contre-vérification du
-    // constat). Avant la version 0.4.8, les rendus allaient du centre du disque d'ouverture vers son bord, et une photo
-    // arrêtée après k rendus sur M avait un flou réduit de √(k / M). Mesure : photo de référence à f/22 (8 crans
-    // d'ouverture et 8 crans de vitesse plus loin, même exposition), puis photo à f/1.4 ; diamètre du flou du bas de la
-    // zone de la mesure du viseur, plus bas (de 15 à 35 % de la largeur, de 10 à 20 % de la hauteur ; cette zone va de 2
-    // à 20 %), ajusté entre les deux (blurDiameter) ; diamètre attendu au fond, la sphère du fond étant à 500 m
-    // (DOME_RADIUS, app/src/scene.ts) : c = A × f × (D − S) / (D × (S − f)),
-    // A = f / N [wikipedia-circle-of-confusion], N = √2 (apertureValue, app/src/camera/exposure.ts), S la distance de
-    // mise au point de la légende (verrouillée par le toucher du sol, plus haut), ramené à la photo de 1500 px de grand
-    // côté (PHOTO_LONG_SIDE, app/src/camera/optics.ts) pour les 35,9 mm du Z 6 (app/src/camera/bodies.ts). Seuil : de
-    // 85 à 115 %. Essai de cette séquence pour la version 0.4.8 (CHANGELOG.md), photo arrêtée de force après 64, 97 ou
-    // 256 rendus, mise au point à 5,8 m : de 98,6 à 99,2 % du flou attendu ; avec l'ancien ordre, 49,9 % à 64 rendus
-    // et 60,7 % à 97.
-    if (withPhoto) {
-      const margin = 80;
-      const press = (selector, n) => page.evaluate(([s, k]) => { for (let i = 0; i < k; i++) document.querySelector(s).click(); }, [selector, n]);
-      const shootRegion = async () => {
-        await page.evaluate(() => document.getElementById("shutter-button").click());
-        await page.waitForFunction(
-          () => !document.getElementById("review").hidden && document.getElementById("progress").hidden && document.getElementById("review-image").complete && document.getElementById("review-image").naturalWidth > 0,
-          null,
-          { timeout: 600000 },
-        );
-        const region = await page.evaluate((m) => {
-          const img = document.getElementById("review-image");
-          const width = img.naturalWidth;
-          const height = img.naturalHeight;
-          const canvas = document.createElement("canvas");
-          canvas.width = width;
-          canvas.height = height;
-          const g = canvas.getContext("2d");
-          g.drawImage(img, 0, 0);
-          const w = Math.round(0.2 * width) + 2 * m;
-          const h = Math.round(0.1 * height) + 2 * m;
-          const d = g.getImageData(Math.round(0.15 * width) - m, Math.round(0.1 * height) - m, w, h).data;
-          const luma = new Array(w * h);
-          for (let i = 0; i < w * h; i++) luma[i] = ((d[4 * i] / 255) ** 2.2 + (d[4 * i + 1] / 255) ** 2.2 + (d[4 * i + 2] / 255) ** 2.2) / 3;
-          return { width: w, height: h, luma, size: `${width}×${height}`, caption: document.getElementById("review-caption").textContent };
-        }, margin);
-        await page.evaluate(() => document.getElementById("review-back").click());
-        await page.waitForFunction(() => document.getElementById("review").hidden, null, { timeout: 60000 });
-        return region;
-      };
-      await press('[data-dial="aperture"][data-step="1"]', 24);
-      await press('[data-dial="shutter"][data-step="1"]', 24);
-      const reference = await shootRegion();
-      await press('[data-dial="aperture"][data-step="-1"]', 24);
-      await press('[data-dial="shutter"][data-step="-1"]', 24);
-      const wide = await shootRegion();
-      const focusMatch = /(?:mise au point|verrouillée) à (\d+,\d) m/.exec(wide.caption);
-      const focusM = focusMatch ? Number(focusMatch[1].replace(",", ".")) : NaN;
-      const f = 135;
-      const expected = ((((f / Math.SQRT2) * f * (500 - focusM)) / (500 * (focusM * 1000 - f))) * 1500) / 35.9;
-      const measured = blurDiameter(reference, wide, margin);
-      const ratio = measured / expected;
-      const renders = /(\d+(?:\/\d+)?) rendus, calculée en ([\d,]+) s/.exec(wide.caption);
-      check(
-        "photo à grand flou : flou du fond gardé (135 mm, f/1.4)",
-        /^M · f\/1.4 · /.test(wide.caption) && /^M · f\/22 · /.test(reference.caption) && focusM > 0 && ratio >= 0.85 && ratio <= 1.15,
-        `${wide.size}, ${renders ? `${renders[1]} rendus en ${renders[2]} s` : wide.caption} ; flou du fond ${measured.toFixed(1)} px pour ${expected.toFixed(1)} px attendus (${(100 * ratio).toFixed(0)} %, mise au point à ${focusM} m) ; référence : ${reference.caption.split(" · ").slice(0, 2).join(" · ")}`,
-      );
-    }
-    // Retour au point de départ avant la suite, vue de dessus repliée comme elle l'était.
-    await page.click("#top-view-reset");
-    await cameraAt(0, 0);
-    if (topCollapsed) await page.click("#top-view-toggle");
-    await clicks('[data-dial="focal"][data-step="-1"]', 4);
-    await clicks('[data-dial="aperture"][data-step="1"]', 15);
-    await clicks('[data-dial="shutter"][data-step="1"]', 14);
-
-    for (let i = 0; i < 18; i++) await page.click('[data-dial="iso"][data-step="1"]');
-    for (let i = 0; i < 16; i++) await page.click('[data-dial="shutter"][data-step="-1"]');
-    await page.waitForTimeout(800);
-    const noisy = await frameNoise(page);
-    check("bruit du viseur à ISO 6400", Math.max(...noisy) > 0.3, noisy.map((v) => v.toFixed(2)).join(" / "));
-    const noiseHigh = (await balanceLine("balance-noise", /ISO 6400 · bruit /)) ?? (await page.evaluate(() => document.getElementById("balance-noise").textContent));
-    const snrRatio = snrOf(noiseHigh) / snrOf(groundLow);
-    check(
-      "indicateur : bruit au même point du sol, ISO 6400 contre ISO 100",
-      /ISO 100 · bruit excellent/.test(groundLow) && snrRatio < 0.4,
-      `${groundLow} → ${noiseHigh} (rapport ${snrRatio.toFixed(2)})`,
-    );
-    await page.mouse.click(groundBox.x + groundBox.width / 2, groundBox.y + groundBox.height / 2);
-    await page.click("#preview-button");
-    await page.uncheck('#preview-dialog input[value="all"]');
-    await page.click("#preview-close");
-    await page.waitForTimeout(500);
-    const quiet = await frameNoise(page);
-    check("aperçu coupé : pas de bruit", Math.max(...quiet) < 0.05, quiet.map((v) => v.toFixed(2)).join(" / "));
-    await page.click("#preview-button");
-    await page.check('#preview-dialog input[value="all"]');
-    await page.click("#preview-close");
-
-    // Modes d'exposition, réglages de départ f/8, 1/4000 s, ISO 6400 sans ISO auto. Scène à 12,5 IL : en indices
-    // d'échelle (tiers d'IL), ouverture + vitesse − ISO = 49,5 − correction (camera/exposureModes.ts).
-    // A à ISO 6400 : vitesse 49,5 − 15 + 18 = 52,5, au-delà de 1/4000 s : elle clignote (trop de lumière).
-    await setExposure({ mode: "A" });
-    const aBright = await dialState("shutter");
-    check(
-      "mode A : vitesse au-delà de 1/4000 s, qui clignote",
-      aBright.value === "1/4000 s" && aBright.flashing && aBright.disabled && /\(auto\)/.test(aBright.name),
-      `${aBright.name} ${aBright.value}${aBright.flashing ? ", clignote" : ""}${aBright.disabled ? ", molette grisée" : ""}`,
-    );
-    // ISO 100 puis f/4 : vitesse 34,5 → 1/100 s, puis 40,5 → 1/400 s (à égalité, le cran qui assombrit).
-    await clicks('[data-dial="iso"][data-step="-1"]', 18);
-    const a8 = await dialState("shutter");
-    await clicks('[data-dial="aperture"][data-step="-1"]', 6);
-    const a4 = await dialState("shutter");
-    check("mode A : la vitesse suit l'ouverture", a8.value === "1/100 s" && a4.value === "1/400 s" && !a4.flashing, `f/8 : ${a8.value} ; f/4 : ${a4.value}`);
-    await clicks('[data-dial="aperture"][data-step="1"]', 6);
-    // S à 1/4000 s, ISO 100 : ouverture −1,5, plus grande que f/1.4 : elle clignote (pas assez de lumière). Avec
-    // l'ISO auto, ISO 125 et f/1.4.
-    await setExposure({ mode: "S" });
-    const sDark = await dialState("aperture");
-    await setExposure({ autoIso: true });
-    const sAuto = await dialState("aperture");
-    const sIso = await dialState("iso");
-    check(
-      "mode S : ouverture à f/1.4 qui clignote, puis ISO auto",
-      sDark.value === "f/1.4" && sDark.flashing && !sAuto.flashing && sIso.name === "ISO auto" && sIso.value === "125",
-      `${sDark.value}${sDark.flashing ? " clignote" : ""} ; ISO auto : ${sAuto.value}, ${sIso.name} ${sIso.value}`,
-    );
-    // M, 1/100 s, ISO auto, correction +1 IL : ISO 15 + 35 − 46,5 = 3,5 → ISO 200 ; l'indicateur montre l'écart à
-    // l'exposition visée, −0,2 IL.
-    await clicks('[data-dial="shutter"][data-step="1"]', 16);
-    await setExposure({ mode: "M", compensation: 3 });
-    const mIso = await dialState("iso");
-    const mMeter = await meterText();
-    check(
-      "mode M : ISO auto avec correction d'exposition",
-      mIso.value === "200" && /^M · −0,2 IL · corr\. \+1,0$/.test(mMeter),
-      `${mIso.name} ${mIso.value} ; ${mMeter}`,
-    );
-    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-exposition.png`), timeout: 120000 });
-    // Retour aux réglages d'avant : M, sans correction ni ISO auto, f/8, 1/4000 s, ISO 6400.
-    await setExposure({ compensation: 0, autoIso: false });
-    await clicks('[data-dial="shutter"][data-step="-1"]', 16);
-    await clicks('[data-dial="iso"][data-step="1"]', 18);
-
-    // Grilles de cadrage (CMP-02, version 0.3.56), choisies dans la fenêtre « Aperçu ». Lignes visibles du cadre :
-    // position du milieu de chaque ligne, en fraction du cadre, et plus grand écart en pixels aux positions
-    // attendues (k / n de la largeur pour les verticales, k / m de la hauteur pour les horizontales).
-    const gridState = (across, down = across) =>
-      page.evaluate(([partsAcross, partsDown]) => {
-        const frame = document.getElementById("frame").getBoundingClientRect();
-        const visible = (el) => el.getClientRects().length > 0 && getComputedStyle(el).visibility !== "hidden";
-        const lines = [...document.querySelectorAll("#frame-grid .grid-line")].filter(visible);
-        const middle = (el, vertical) => {
-          const r = el.getBoundingClientRect();
-          return vertical ? r.left + r.width / 2 - frame.left : r.top + r.height / 2 - frame.top;
-        };
-        const vertical = lines.filter((el) => el.classList.contains("vertical")).map((el) => middle(el, true)).sort((a, b) => a - b);
-        const horizontal = lines.filter((el) => el.classList.contains("horizontal")).map((el) => middle(el, false)).sort((a, b) => a - b);
-        const worst = (found, size, parts) => Math.max(0, ...found.map((v, k) => Math.abs(v - ((k + 1) * size) / parts)));
-        // Diagonales : deux traits clairs, dans un dessin qui couvre tout le cadre.
-        const diagonals = [...document.querySelectorAll("#frame-grid .grid-diagonal.light")].filter(visible);
-        const drawing = document.querySelector("#frame-grid .grid-diagonals")?.getBoundingClientRect();
-        const spread = drawing ? Math.max(Math.abs(drawing.left - frame.left), Math.abs(drawing.top - frame.top), Math.abs(drawing.width - frame.width), Math.abs(drawing.height - frame.height)) : NaN;
-        // Les lignes ne reçoivent pas les touchers : au croisement des deux premières, l'élément touché n'est ni une
-        // ligne ni le cadre.
-        const hit = vertical.length && horizontal.length ? document.elementFromPoint(frame.left + vertical[0], frame.top + horizontal[0]) : null;
-        let saved = null;
-        try {
-          saved = JSON.parse(localStorage.getItem("tutophoto.apercu") ?? "null")?.grid ?? null;
-        } catch {
-          saved = "illisible";
-        }
-        return {
-          vertical: vertical.length,
-          horizontal: horizontal.length,
-          error: Math.max(worst(vertical, frame.width, partsAcross), worst(horizontal, frame.height, partsDown)),
-          diagonals: diagonals.length,
-          spread,
-          tall: frame.height > frame.width,
-          at: `${vertical.map((v) => ((100 * v) / frame.width).toFixed(1)).join(" / ")} % × ${horizontal.map((v) => ((100 * v) / frame.height).toFixed(1)).join(" / ")} %`,
-          caught: Boolean(hit && hit.closest("#frame")),
-          checked: document.querySelector('#preview-dialog input[name="grid"]:checked')?.value ?? "",
-          saved,
-        };
-      }, [across, down]);
-    const setGrid = async (kind) => {
-      await page.click("#preview-button");
-      await page.check(`#preview-dialog input[name="grid"][value="${kind}"]`);
-      await page.click("#preview-close");
-    };
-    const gridDefault = await gridState(3);
-    check(
-      "grille de cadrage : aucune par défaut",
-      gridDefault.vertical + gridDefault.horizontal === 0 && gridDefault.checked === "none",
-      `${gridDefault.vertical + gridDefault.horizontal} ligne(s) visible(s) ; bouton coché : ${gridDefault.checked}`,
-    );
-    await setGrid("thirds");
-    const thirds = await gridState(3);
-    check(
-      "grille « Tiers » : quatre lignes à 1/3 et 2/3 du cadre",
-      thirds.vertical === 2 && thirds.horizontal === 2 && thirds.error <= 1 && !thirds.caught && thirds.saved === "thirds",
-      `${thirds.vertical} + ${thirds.horizontal} lignes à ${thirds.at} ; écart ${thirds.error.toFixed(2)} px ; toucher ${thirds.caught ? "pris par la grille" : "laissé au viseur"} ; tutophoto.apercu : ${thirds.saved}`,
-    );
-    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-grille-tiers.png`), timeout: 120000 });
-    // « Vingt-quatre cases » : six cases sur le grand côté du cadre, quatre sur le petit (cadre vertical sur le profil
-    // Android). « Tiers et diagonales » : les tiers, et deux diagonales d'un coin du cadre à l'autre.
-    await setGrid("twentyFour");
-    const tall = thirds.tall;
-    const twentyFour = await gridState(tall ? 4 : 6, tall ? 6 : 4);
-    check(
-      "grille « Vingt-quatre cases » : six cases sur le grand côté, quatre sur le petit",
-      twentyFour.vertical === (tall ? 3 : 5) && twentyFour.horizontal === (tall ? 5 : 3) && twentyFour.error <= 1 && twentyFour.diagonals === 0 && twentyFour.saved === "twentyFour",
-      `cadre ${tall ? "vertical" : "horizontal"} ; ${twentyFour.vertical} + ${twentyFour.horizontal} lignes à ${twentyFour.at} ; écart ${twentyFour.error.toFixed(2)} px`,
-    );
-    await setGrid("thirdsDiagonals");
-    const withDiagonals = await gridState(3);
-    check(
-      "grille « Tiers et diagonales » : tiers et deux diagonales sur tout le cadre",
-      withDiagonals.vertical === 2 && withDiagonals.horizontal === 2 && withDiagonals.error <= 1 && withDiagonals.diagonals === 2 && withDiagonals.spread <= 1 && !withDiagonals.caught && withDiagonals.saved === "thirdsDiagonals",
-      `${withDiagonals.vertical} + ${withDiagonals.horizontal} lignes, ${withDiagonals.diagonals} diagonale(s) ; dessin à ${Number.isFinite(withDiagonals.spread) ? withDiagonals.spread.toFixed(2) : "?"} px du cadre ; toucher ${withDiagonals.caught ? "pris par la grille" : "laissé au viseur"}`,
-    );
-    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-grille-diagonales.png`), timeout: 120000 });
-    await setGrid("sixteen");
-    const sixteen = await gridState(4);
-    check(
-      "grille « Seize cases » : six lignes à 1/4, 1/2 et 3/4 du cadre",
-      sixteen.vertical === 3 && sixteen.horizontal === 3 && sixteen.error <= 1 && !sixteen.caught && sixteen.saved === "sixteen",
-      `${sixteen.vertical} + ${sixteen.horizontal} lignes à ${sixteen.at} ; écart ${sixteen.error.toFixed(2)} px ; tutophoto.apercu : ${sixteen.saved}`,
-    );
-
-    // Loupe du viseur et son bruit (constat PHY-07 de l'audit, version 0.3.78), à ISO 6400 (M, f/8, 1/4000 s, sans ISO
-    // auto). Le point de mise au point est d'abord posé en haut du cadre, au milieu, sur le fond : la loupe se centre
-    // sur lui, et la zone mesurée ne montre que le fond, immobile. À densité 2, le bruit doit être tiré par pixel CSS :
-    // mesuré par pixel CSS, il vaut alors celui d'un pixel calculé ; tiré par pixel calculé, il en valait la moitié
-    // (0,52 fois, mesuré le 20 novembre 2026 : docs/camera-physique.md, « Loupe »). À densité 1, pixels CSS et pixels
-    // calculés se confondent : ce rapport n'est pas contrôlé. À toute densité, la loupe doit montrer du bruit, et le
-    // rapport du vert au rouge à 50 % dit si k est compté par pixel CSS. Le point est ramené au centre une fois la
-    // loupe coupée.
-    const loupeFrame = await page.locator("#frame").boundingBox();
-    // Premier point, en haut du cadre, où le clic arrive au viseur (sur un téléphone, une aide du viseur peut couvrir
-    // le haut du cadre ; document.elementFromPoint donne l'élément qui recevrait le clic).
-    const loupeTarget = await page.evaluate((box) => {
-      const canvas = document.getElementById("scene");
-      for (const [u, v] of [[0.5, 0.15], [0.5, 0.25], [0.65, 0.15], [0.35, 0.15]]) {
-        if (document.elementFromPoint(box.x + u * box.width, box.y + v * box.height) === canvas) return { u, v };
-      }
-      return null;
-    }, loupeFrame);
-    if (loupeTarget) await page.mouse.click(loupeFrame.x + loupeTarget.u * loupeFrame.width, loupeFrame.y + loupeTarget.v * loupeFrame.height);
-    await page.waitForTimeout(1500);
-    await page.click("#loupe-button");
-    const loupeHalf = await page.evaluate(() => document.getElementById("loupe-badge").textContent);
-    await page.waitForTimeout(1500);
-    const noiseHalf = await loupeNoise(page);
-    await page.click("#loupe-button");
-    const loupe = await page.evaluate(() => document.getElementById("loupe-badge").textContent);
-    check("loupe du viseur à 100 %", /100/.test(loupe), loupe);
-    await page.waitForTimeout(1500);
-    const noiseFull = await loupeNoise(page);
-    const cssShare = (m) => m.css.map((v, c) => v / Math.max(1e-6, m.px[c]));
-    const loupeNoiseText = (label, m) =>
-      `${label} : ${m.px.map((v) => v.toFixed(2)).join(" / ")} par pixel calculé, ${m.css.map((v) => v.toFixed(2)).join(" / ")} par pixel CSS`;
-    // k compté par pixel CSS : à 50 %, un pixel CSS compte environ 4 photosites, dont 2 verts et 1 rouge ; le bruit du
-    // vert vaut environ 1 / √2 = 71 % de celui du rouge (mesuré de 71 à 74 %, Sujet 18). Avec k compté par pixel
-    // calculé à densité 2, les deux couleurs auraient le bruit d'un photosite (rapport de 1,05 mesuré avec le code
-    // d'avant) : ce rapport garde le compte de k, que le rapport entre pixels CSS et pixels calculés ne voit pas
-    // (relecture de la version 0.3.78).
-    const greenToRed = noiseHalf.css[1] / Math.max(1e-6, noiseHalf.css[0]);
-    const densityOk = noiseFull.density === 1 || !noiseFull.integer || [...cssShare(noiseHalf), ...cssShare(noiseFull)].every((r) => r > 0.85);
-    check(
-      `loupe du viseur : bruit tiré par pixel CSS, k compté par pixel CSS (densité ${noiseFull.density}${noiseFull.integer ? "" : ", non entière"})`,
-      loupeTarget !== null && /50/.test(loupeHalf) && noiseFull.px.every((v) => v > 1) && greenToRed < 0.85 && densityOk,
-      `${loupeTarget ? `point posé à ${Math.round(100 * loupeTarget.u)} % et ${Math.round(100 * loupeTarget.v)} % du cadre` : "aucun point du haut du cadre ne reçoit le clic"} ; ${loupeNoiseText(loupeHalf, noiseHalf)} ; ${loupeNoiseText(loupe, noiseFull)} ; vert / rouge à 50 % : ${greenToRed.toFixed(2)} ; zone de ${noiseFull.zone} pixels calculés${noiseFull.integer ? "" : " ; densité non entière : rapport entre pixels CSS et pixels calculés non contrôlé"}`,
-    );
-    const gridMagnified = await gridState(4);
-    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-loupe.png`), timeout: 120000 });
-    await page.click("#loupe-button");
-    await page.mouse.click(loupeFrame.x + loupeFrame.width / 2, loupeFrame.y + loupeFrame.height / 2);
-    await page.waitForTimeout(500);
-    const gridBack = await gridState(4);
-    check(
-      "grille masquée par la loupe à 100 %, revenue ensuite",
-      gridMagnified.vertical + gridMagnified.horizontal === 0 && gridBack.vertical === 3 && gridBack.horizontal === 3 && gridBack.error <= 1,
-      `loupe à 100 % : ${gridMagnified.vertical + gridMagnified.horizontal} ligne(s) visible(s) ; loupe coupée : ${gridBack.vertical + gridBack.horizontal}`,
-    );
-    // Retour à « Aucune » avant la suite.
-    await setGrid("none");
-    const gridOff = await gridState(3);
-    check("grille de cadrage : retour à « Aucune »", gridOff.vertical + gridOff.horizontal === 0 && gridOff.saved === "none", `${gridOff.vertical + gridOff.horizontal} ligne(s) visible(s) ; tutophoto.apercu : ${gridOff.saved}`);
-
-    if (withPhoto) {
-      await page.click("#shutter-button");
-      await page.waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("review-image").complete, null, { timeout: 300000 });
-      const photo = await page.evaluate(() => {
-        const img = document.getElementById("review-image");
-        if (!img.naturalWidth) return { mean: 0, caption: document.getElementById("review-caption").textContent };
-        const c = document.createElement("canvas");
-        c.width = img.naturalWidth;
-        c.height = img.naturalHeight;
-        const g = c.getContext("2d");
-        g.drawImage(img, 0, 0);
-        const d = g.getImageData(0, 0, c.width, c.height).data;
-        let s = 0;
-        for (let i = 0; i < d.length; i += 4) s += (d[i] + d[i + 1] + d[i + 2]) / 3;
-        return { mean: s / (d.length / 4), size: `${c.width}×${c.height}`, caption: document.getElementById("review-caption").textContent };
-      });
-      check("photo calculée, pas noire", photo.mean > 5, `${photo.size ?? "-"}, niveau moyen ${photo.mean.toFixed(1)} ; ${photo.caption}`);
-      check("légende : mode et réglages retenus", /^M · f\/8 · 1\/4000 s · ISO 6400 · 50 mm · /.test(photo.caption), photo.caption.slice(0, 60));
-      const bulletinText = await page.evaluate(() => document.getElementById("review-bulletin").innerText);
-      check("bulletin sous la photo", /Exposition\u00a0: /.test(bulletinText) && /Zone nette\u00a0: /.test(bulletinText), bulletinText.split("\n").slice(0, 3).join(" | "));
-      if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-photo.png`), timeout: 120000 });
-
-      // Histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07 ; version 0.3.57). Le bouton « Infos »
-      // fait défiler : photo seule (par défaut), histogrammes, hautes lumières. État lu dans la page :
-      // - histogrammes visibles, avec les nombres de pixels de leurs colonnes (attribut data-columns) ;
-      // - texte de la part écrêtée (« … : 3,2 % de l'image », avec une espace insécable devant « % », ou « Aucun
-      //   pixel à la valeur maximale ») ;
-      // - calque des zones écrêtées : affiché ou non (il clignote : sa visibilité ne compte pas), pixels opaques,
-      //   écart en pixels entre son rectangle et celui de la photo, et élément touché au centre de la photo.
-      const reviewInfo = () =>
-        page.evaluate(() => {
-          const shown = (el) => !el.hidden && el.getClientRects().length > 0;
-          const img = document.getElementById("review-image");
-          const pixels = img.naturalWidth * img.naturalHeight;
-          const histograms = [...document.querySelectorAll("#review-histograms svg[data-channel]")].filter(shown).map((svg) => {
-            const columns = (svg.dataset.columns ?? "").split(",").map(Number);
-            const sum = (list) => list.reduce((a, b) => a + b, 0);
-            return { channel: svg.dataset.channel, count: columns.length, total: sum(columns), left: sum(columns.slice(0, 128)) };
-          });
-          const clipping = document.getElementById("review-clipping");
-          const text = shown(clipping) ? clipping.textContent : "";
-          // La phrase, visible en son centre et pas sous la barre collée en bas de l'écran de revue (relecture de la
-          // version 0.4.10, R2) ; null quand elle n'est pas affichée.
-          let textVisible = null;
-          if (shown(clipping)) {
-            const c = clipping.getBoundingClientRect();
-            textVisible = clipping.contains(document.elementFromPoint(c.left + c.width / 2, c.top + c.height / 2));
-          }
-          const m = /: (\d+,\d)\s% de l'image/.exec(text);
-          const overlay = document.getElementById("review-highlights");
-          const zones = { shown: shown(overlay), opaque: 0, gap: NaN };
-          if (zones.shown) {
-            const data = overlay.getContext("2d").getImageData(0, 0, overlay.width, overlay.height).data;
-            for (let i = 3; i < data.length; i += 4) if (data[i] === 255) zones.opaque++;
-            const a = overlay.getBoundingClientRect();
-            const b = img.getBoundingClientRect();
-            zones.gap = Math.max(Math.abs(a.left - b.left), Math.abs(a.top - b.top), Math.abs(a.right - b.right), Math.abs(a.bottom - b.bottom));
-          }
-          const box = img.getBoundingClientRect();
-          let saved = null;
-          try {
-            saved = JSON.parse(localStorage.getItem("tutophoto.revue") ?? "null")?.display ?? null;
-          } catch {
-            saved = "illisible";
-          }
-          return {
-            button: document.getElementById("review-info").textContent,
-            pixels,
-            histograms,
-            text,
-            textVisible,
-            share: m ? Number(m[1].replace(",", ".")) : /^Aucun pixel à la valeur maximale/.test(text) ? 0 : NaN,
-            zones,
-            touched: document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)?.id ?? "",
-            exposure: /Exposition\u00a0: (\S+ IL)/.exec(document.getElementById("review-bulletin").innerText)?.[1] ?? "",
-            saved,
-          };
-        });
-      const infoDefault = await reviewInfo();
-      check(
-        "revue : ni histogramme ni clignotement par défaut",
-        infoDefault.button === "Infos\u00a0: photo seule" && infoDefault.histograms.length === 0 && !infoDefault.zones.shown && infoDefault.text === "" && infoDefault.saved === null,
-        `bouton « ${infoDefault.button} » ; ${infoDefault.histograms.length} histogramme(s) ; zones écrêtées ${infoDefault.zones.shown ? "affichées" : "masquées"} ; tutophoto.revue : ${infoDefault.saved}`,
-      );
-      await page.click("#review-info");
-      const infoHistograms = await reviewInfo();
-      check(
-        "revue, « Infos » une fois : quatre histogrammes, somme des colonnes égale au nombre de pixels",
-        infoHistograms.button === "Infos\u00a0: histogrammes" &&
-          infoHistograms.histograms.map((h) => h.channel).join() === "luminance,red,green,blue" &&
-          infoHistograms.histograms.every((h) => h.count === 256 && h.total === infoHistograms.pixels) &&
-          infoHistograms.pixels > 0 &&
-          infoHistograms.saved === "histograms" &&
-          infoHistograms.textVisible === true,
-        `${infoHistograms.histograms.map((h) => `${h.channel} ${h.total}`).join(", ")} ; photo de ${infoHistograms.pixels} pixels ; ${infoHistograms.text} ; phrase ${infoHistograms.textVisible ? "visible" : "cachée"} ; tutophoto.revue : ${infoHistograms.saved}`,
-      );
-      if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-histogrammes.png`), timeout: 120000 });
-      // Retour à « photo seule » (par « hautes lumières ») : la loupe de l'écran de revue est contrôlée comme avant.
-      await page.click("#review-info");
-      await page.click("#review-info");
-      const box = await page.locator("#review-image").boundingBox();
-      await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-      await page.waitForFunction(() => document.getElementById("progress").hidden && !document.getElementById("review-whole").hidden, null, { timeout: 300000 });
-      const caption = await page.evaluate(() => document.getElementById("review-caption").textContent);
-      check("loupe de l'écran de revue", /100/.test(caption), caption);
-      if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-loupe.png`), timeout: 120000 });
-
-      // Deux loupes séparées par « Photo entière », sur la même photo (constat COD-14 de l'audit, version 0.3.62).
-      // La première loupe, ci-dessus, est au centre. Après « Photo entière », la photo est touchée à 50 % de sa
-      // largeur et à 20 % de sa hauteur : la seconde loupe doit montrer cet endroit. Avant la correction, le toucher
-      // était lu comme une position dans la fenêtre de la première loupe, et la seconde loupe montrait un voisin du
-      // centre : pour ce point, le centre remonté de trois dixièmes de la hauteur de la fenêtre. Mesure, sur une
-      // seule photo (les sujets bougent d'une photo à l'autre ; la loupe rejoue l'instant de la photo) : la fenêtre
-      // de la loupe et une zone de la photo entière sont réduites à 12 × 4 cases, et l'écart est la moyenne, sur les
-      // cases, de la différence de luminance en valeur absolue (niveaux de 0 à 255). L'écart est pris avec la zone
-      // touchée, puis avec la zone du centre. La place d'une zone dans la photo entière vient de la taille de l'image
-      // complète du Nikon Z 6 (24,5 millions de pixels, capteur de 35,9 × 23,9 mm : sensorPixels,
-      // app/src/camera/bodies.ts) et de celle de la fenêtre, qui est à 100 % ; calcul de magnify
-      // (app/src/ui/shutter.ts). Cette taille est écrite ici en dur. Avec un autre boîtier par défaut, la zone serait
-      // fausse et le contrôle réussirait encore : la relecture de la version 0.3.62 l'a mesuré, hors de la routine,
-      // avec la taille du Canon EOS RP, boîtier retiré depuis (version 0.3.80) : 3 % en étendue, 2,5 niveaux sur
-      // ordinateur à ce point. C'est un changement du centrage de la fenêtre qui le fait échouer. La photo entière est relue à l'adresse du lien
-      // « Enregistrer ». Le contrôle demande un écart avec la zone touchée inférieur à 10 niveaux, et inférieur à
-      // l'écart avec la zone du centre.
-      //
-      // Le point touché est dans le haut de la photo, sur les arbres et les troncs. Le premier état du contrôle
-      // touchait à 85 % et 80 %, sur le sol de feuilles mortes, sans motif à l'échelle des cases. La relecture de la
-      // version 0.3.62 y a mesuré deux faiblesses, hors de la routine : sur les profils ordinateur et webgl1 (fenêtre
-      // de 1256 × 466), une loupe ouverte ailleurs sur le sol, à plusieurs fenêtres du point touché, restait sous 10
-      // niveaux (de 7,7 à 8,9) ; et sans la correction, l'écart avec la zone touchée restait inférieur à l'écart avec
-      // celle du centre sur trois profils sur quatre, où seul le seuil de 10 détectait le défaut. À 50 % et 20 %,
-      // même relecture, hors de la routine : avec la correction, 0,4 niveau (ordinateur, Pixel 7 émulé) et 0,7
-      // (iPhone 14 émulé, police de la CI) ; sans elle, 77 niveaux avec la zone touchée contre 33 avec celle du
-      // centre (ordinateur) et 86 contre 22 (Pixel 7 émulé) ; une image unie, au niveau moyen de la loupe, est à 14
-      // niveaux au moins. Dans la routine, le 17 novembre 2026, avec la correction : 0,4 niveau avec la zone touchée
-      // contre 51,8 avec celle du centre (ordinateur), 0,7 contre 112,9 (iphone, police de la CI).
-      //
-      // La zone touchée est placée d'après le point que la photo a reçu (décalage du clic dans l'image, divisé par sa
-      // taille affichée : ce que lit magnify), et non d'après le point visé : le clic arrive à un pixel CSS entier, et
-      // sur le profil iphone, avec la police de la CI (viseur de 238 px), la photo n'est affichée qu'en 178 × 118 px.
-      // Un pixel CSS y vaut 34 pixels de l'image complète, soit 8,5 pixels de la photo entière, plus qu'une case
-      // (7,5 × 6 pixels). Placé d'après le point visé, le premier état du contrôle échouait dans la CI sur ce profil,
-      // correction en place (16 novembre 2026, toucher à 85 % et 80 % : 12,6 niveaux ; refait sur la machine de
-      // Claude avec cette police : 12,9 d'après le point visé, 2,1 d'après le point reçu). Si le clic n'arrive pas à
-      // la photo (aucun point reçu en 30 s), aucune loupe n'est demandée : le contrôle échoue en le disant, sans
-      // attendre 300 s une loupe qui ne viendra pas.
-      await page.click("#review-whole");
-      await page.waitForFunction(() => document.getElementById("review-whole").hidden && document.getElementById("review-image").complete, null, { timeout: 300000 });
-      const secondTouch = { u: 0.5, v: 0.2 };
-      await page.evaluate(() => {
-        const image = document.getElementById("review-image");
-        window.routineSecondTouch = null;
-        image.addEventListener(
-          "click",
-          (e) => (window.routineSecondTouch = { u: e.offsetX / image.clientWidth, v: e.offsetY / image.clientHeight, shown: `${image.clientWidth}×${image.clientHeight}` }),
-          { capture: true, once: true },
-        );
-      });
-      const wholeBox = await page.locator("#review-image").boundingBox();
-      await page.mouse.click(wholeBox.x + wholeBox.width * secondTouch.u, wholeBox.y + wholeBox.height * secondTouch.v);
-      // Le clic est reçu par la photo avant que magnify commence : sans point reçu, « Photo entière » restera masqué.
-      const secondArrived = await page.waitForFunction(() => window.routineSecondTouch !== null, null, { timeout: 30000 }).then(
-        () => true,
-        () => false,
-      );
-      if (secondArrived) {
-        await page.waitForFunction(
-          () => document.getElementById("progress").hidden && !document.getElementById("review-whole").hidden && document.getElementById("review-image").complete,
-          null,
-          { timeout: 300000 },
-        );
-      }
-      const secondLoupe = !secondArrived ? null : await page.evaluate(async () => {
-        const received = window.routineSecondTouch;
-        const { u, v } = received;
-        const COLUMNS = 12;
-        const ROWS = 4;
-        const load = (src) =>
-          new Promise((resolve, reject) => {
-            const image = new Image();
-            image.onload = () => resolve(image);
-            image.onerror = () => reject(new Error("image illisible"));
-            image.src = src;
-          });
-        // Luminance moyenne (Rec. 709) de chaque case d'une zone de l'image, donnée en pixels de l'image.
-        const cells = (image, x0, y0, width, height) => {
-          const c = document.createElement("canvas");
-          c.width = image.naturalWidth;
-          c.height = image.naturalHeight;
-          const g = c.getContext("2d");
-          g.drawImage(image, 0, 0);
-          const out = [];
-          for (let row = 0; row < ROWS; row++) {
-            for (let column = 0; column < COLUMNS; column++) {
-              const xa = Math.min(c.width - 1, Math.round(x0 + (column * width) / COLUMNS));
-              const xb = Math.min(c.width, Math.max(xa + 1, Math.round(x0 + ((column + 1) * width) / COLUMNS)));
-              const ya = Math.min(c.height - 1, Math.round(y0 + (row * height) / ROWS));
-              const yb = Math.min(c.height, Math.max(ya + 1, Math.round(y0 + ((row + 1) * height) / ROWS)));
-              const d = g.getImageData(xa, ya, xb - xa, yb - ya).data;
-              let sum = 0;
-              for (let i = 0; i < d.length; i += 4) sum += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
-              out.push(sum / (d.length / 4));
-            }
-          }
-          return out;
-        };
-        const gap = (a, b) => a.reduce((sum, value, i) => sum + Math.abs(value - b[i]), 0) / a.length;
-        const loupe = await load(document.getElementById("review-image").src);
-        const photo = await load(document.getElementById("review-save").href);
-        const long = Math.sqrt((24.5e6 * 35.9) / 23.9);
-        const portrait = photo.naturalHeight > photo.naturalWidth;
-        const fullWidth = Math.round(portrait ? 24.5e6 / long : long);
-        const fullHeight = Math.round(portrait ? long : 24.5e6 / long);
-        const width = loupe.naturalWidth;
-        const height = loupe.naturalHeight;
-        // Fenêtre centrée sur le point, ramenée dans l'image complète, puis rapportée à la photo entière.
-        const zone = (x, y) => {
-          const left = Math.min(fullWidth - width, Math.max(0, Math.round(x * fullWidth - width / 2)));
-          const top = Math.min(fullHeight - height, Math.max(0, Math.round(y * fullHeight - height / 2)));
-          const sx = photo.naturalWidth / fullWidth;
-          const sy = photo.naturalHeight / fullHeight;
-          return cells(photo, left * sx, top * sy, width * sx, height * sy);
-        };
-        const shown = cells(loupe, 0, 0, width, height);
-        return {
-          touched: gap(shown, zone(u, v)),
-          centre: gap(shown, zone(0.5, 0.5)),
-          loupe: `${width}×${height}`,
-          photo: `${photo.naturalWidth}×${photo.naturalHeight}`,
-          shown: received.shown,
-          u,
-          v,
-          caption: document.getElementById("review-caption").textContent,
-        };
-      });
-      check(
-        "revue : après « Photo entière », la seconde loupe montre le point touché",
-        secondLoupe !== null && /100/.test(secondLoupe.caption) && secondLoupe.touched < 10 && secondLoupe.touched < secondLoupe.centre,
-        `toucher à ${(100 * secondTouch.u).toFixed(0)} % et ${(100 * secondTouch.v).toFixed(0)} %` +
-          (secondLoupe === null
-            ? " : le clic n'est pas arrivé à la photo (aucun point reçu en 30 s), aucune loupe n'a été demandée"
-            : `, reçu à ${(100 * secondLoupe.u).toFixed(1)} % et ${(100 * secondLoupe.v).toFixed(1)} % : écart de ${secondLoupe.touched.toFixed(1)} niveau(x) avec la zone touchée, de ${secondLoupe.centre.toFixed(1)} avec celle du centre ; fenêtre ${secondLoupe.loupe}, photo ${secondLoupe.photo}, affichée en ${secondLoupe.shown}`),
-      );
-      if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-loupe-2.png`), timeout: 120000 });
-
-      // Loupe, puis « Revenir au viseur » pendant son calcul (constat COD-08 de l'audit, version 0.3.71) : la loupe doit
-      // être jetée, l'écran de revue rester fermé. Avant la correction, il se rouvrait à la fin du calcul avec la
-      // fenêtre de la loupe (essai du 20 novembre 2026, construction de origin/main, hors de la routine). À la tâche
-      // suivante du toucher de la photo, calcul commencé, la routine fait défiler l'écran de revue en bas ; puis elle
-      // clique « Revenir au viseur » à la souris, en son centre : écran défilé en bas, la bande « Calcul de la
-      // loupe… » recouvrait le bouton et prenait le clic (constat B1 de la relecture du Sujet 11, version 0.3.71). Le
-      // contrôle relève l'élément sous le centre du bouton, que le clic est arrivé au bouton pendant le calcul, et lit
-      // l'écran de revue une seconde après la fin du calcul ; il donne le temps entre le clic et la fin du calcul.
-      await page.waitForFunction(() => document.getElementById("progress").hidden && !document.getElementById("review").hidden);
-      await page.evaluate(() => {
-        window.routineBack = null;
-        window.routineBackClick = null;
-        window.routineProgressEnd = null;
-        const progress = document.getElementById("progress");
-        new MutationObserver((_, observer) => {
-          if (progress.hidden && window.routineBackClick) {
-            window.routineProgressEnd = performance.now();
-            observer.disconnect();
-          }
-        }).observe(progress, { attributes: true, attributeFilter: ["hidden"] });
-        document.getElementById("review-back").addEventListener(
-          "click",
-          () => (window.routineBackClick = { at: performance.now(), computing: !progress.hidden, label: document.getElementById("progress-label").textContent }),
-          { once: true },
-        );
-        document.getElementById("review-image").addEventListener(
-          "click",
-          () =>
-            setTimeout(() => {
-              const review = document.getElementById("review");
-              review.scrollTop = review.scrollHeight;
-              window.routineBack = { computing: !progress.hidden };
-            }, 0),
-          { once: true },
-        );
-      });
-      const backBox = await page.locator("#review-image").boundingBox();
-      await page.mouse.click(backBox.x + backBox.width / 2, backBox.y + backBox.height / 2);
-      const backArrived = await page.waitForFunction(() => window.routineBack !== null, null, { timeout: 30000 }).then(
-        () => true,
-        () => false,
-      );
-      let backUnder = null;
-      if (backArrived) {
-        const button = await page.evaluate(() => {
-          const b = document.getElementById("review-back").getBoundingClientRect();
-          const x = b.left + b.width / 2;
-          const y = b.top + b.height / 2;
-          const under = document.elementFromPoint(x, y);
-          return { x, y, under: under ? under.id || under.className || under.tagName : null };
-        });
-        backUnder = button.under;
-        await page.mouse.click(button.x, button.y);
-      }
-      await page.waitForFunction(() => document.getElementById("progress").hidden);
-      await page.waitForTimeout(1000);
-      const back = await page.evaluate(() => ({
-        ...(window.routineBack ?? {}),
-        click: window.routineBackClick,
-        ended: window.routineProgressEnd && window.routineBackClick ? (window.routineProgressEnd - window.routineBackClick.at) / 1000 : null,
-        review: !document.getElementById("review").hidden,
-        caption: document.getElementById("review-caption").textContent,
-      }));
-      check(
-        "revue : loupe jetée après « Revenir au viseur » pendant son calcul, écran défilé en bas (COD-08, B1)",
-        backArrived && back.computing === true && back.click?.computing === true && !back.review,
-        !backArrived
-          ? "le clic n'est pas arrivé à la photo en 30 s"
-          : `sous le centre de « Revenir au viseur » : ${backUnder} ; clic ${back.click ? `arrivé au bouton, calcul ${back.click.computing ? `en cours (« ${back.click.label} »)` : "fini"}` : "pas arrivé au bouton"} ; écran de revue ${back.review ? `rouvert (« ${back.caption.slice(0, 60)} »)` : "resté fermé"}` +
-            (back.ended !== null ? ` ; calcul fini ${back.ended.toFixed(1).replace(".", ",")} s après le clic` : ""),
-      );
-
-      // Photo en échec après une bonne photo (constat B10 de la relecture de la version 0.3.70, version 0.3.71) : le
-      // message seul, sans l'image, « Touche la photo… » ni « Enregistrer la photo » de la photo d'avant, qui restaient
-      // affichés. La photo d'avant est une vue seule : les boutons de la série, relevés aussi, ne peuvent pas être
-      // affichés ici, et ce contrôle ne les vérifie pas (constat A1 de la relecture du Sujet 11). L'échec est provoqué par la routine : canvas.toBlob, dernière étape du calcul
-      // (app/src/camera/photo.ts), lève une erreur au texte reconnaissable, admise dans ADMITTED_ERRORS ; toBlob est
-      // rendu ensuite.
-      if (await page.isVisible("#review")) await page.click("#review-back");
-      await page.evaluate(() => {
-        const original = HTMLCanvasElement.prototype.toBlob;
-        window.routineRestoreBlob = () => (HTMLCanvasElement.prototype.toBlob = original);
-        HTMLCanvasElement.prototype.toBlob = function () {
-          throw new Error("échec injecté par la routine");
-        };
-      });
-      await page.click("#shutter-button");
-      const failedShown = await page
-        .waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden && /n'a pas pu/.test(document.getElementById("review-caption").textContent), null, { timeout: 300000 })
-        .then(() => true, () => false);
-      await page.evaluate(() => window.routineRestoreBlob());
-      const failedView = await page.evaluate(() => {
-        const shown = (id) => {
-          const el = document.getElementById(id);
-          return !el.hidden && el.getClientRects().length > 0;
-        };
-        return {
-          caption: document.getElementById("review-caption").textContent,
-          left: ["review-image", "review-save", "review-hint", "review-series", "review-whole"].filter(shown),
-        };
-      });
-      check(
-        "revue : photo en échec après une bonne photo, sans l'image ni « Enregistrer » d'avant (B10)",
-        failedShown && /échec injecté par la routine/.test(failedView.caption) && /ne reconnaît pas la cause\u202f; réessaie/.test(failedView.caption) && failedView.left.length === 0,
-        `« ${failedView.caption.slice(0, 90)} » ; encore affichés : ${failedView.left.join(", ") || "rien"}`,
-      );
-      await page.click("#review-back");
-
-      // Photo surexposée, puis sous-exposée (MES-06, MES-07). Réglages de départ : M, f/8, 1/4000 s, ISO 6400, soit
-      // +0,5 IL (12,5 − 12). Les crans valent un tiers d'IL et la scène est à un demi-tiers : 3 IL exactement
-      // n'existe pas. Vitesse à 1/640 s (8 crans) : +0,5 + 8/3 = +3,2 IL. Puis 1/4000 s et ISO 500 (11 crans) :
-      // +0,5 − 11/3 = −3,2 IL.
-      const shoot = async () => {
-        await page.click("#shutter-button");
-        await page.waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden && document.getElementById("review-image").complete, null, { timeout: 300000 });
-      };
-      await clicks('[data-dial="shutter"][data-step="1"]', 8);
-      await shoot();
-      // La photo suivante s'ouvre en haut de l'écran de revue (constat INT-17 de l'audit, version 0.3.59). Sur le
-      // profil iphone, avec la police de la CI (viseur de 238 px), « Infos » a fait défiler l'écran de revue de la
-      // première photo de 36 px ; ce défilement était gardé, et la photo, sans hauteur tant qu'elle n'était pas
-      // chargée, pouvait être poussée hors de l'écran par l'ancrage du défilement de Chromium : le contrôle « zones
-      // écrêtées posées sur la photo », plus bas, lisait alors l'en-tête au centre de la photo (CI du 15 novembre
-      // 2026). Sur les profils android et ordinateur, rien ne fait défiler l'écran de revue avant cette photo : ce
-      // contrôle y réussit aussi sur le site d'avant la correction, il n'y distingue pas le défaut.
-      const reopened = await page.evaluate(() => {
-        const review = document.getElementById("review");
-        return { scroll: review.scrollTop, top: document.getElementById("review-image").getBoundingClientRect().top - review.getBoundingClientRect().top };
-      });
-      check(
-        "photo suivante : écran de revue ouvert en haut",
-        reopened.scroll === 0 && reopened.top >= 0,
-        `défilement ${reopened.scroll.toFixed(0)} px ; haut de la photo à ${reopened.top.toFixed(0)} px du haut de l'écran de revue`,
-      );
-      await page.click("#review-info");
-      const over = await reviewInfo();
-      check(
-        "photo surexposée de 3,2 IL : part écrêtée supérieure à 0 dans le texte",
-        over.exposure === "+3,2 IL" && over.share > 0 && over.histograms.length === 4 && over.histograms.every((h) => h.total === over.pixels),
-        `exposition ${over.exposure} ; ${over.text}`,
-      );
-      await page.click("#review-info");
-      const overZones = await reviewInfo();
-      const zoneShare = (100 * overZones.zones.opaque) / overZones.pixels;
-      check(
-        "« Infos » encore une fois : zones écrêtées posées sur la photo",
-        overZones.button === "Infos\u00a0: hautes lumières" && overZones.zones.shown && overZones.zones.opaque > 0 && Math.abs(zoneShare - overZones.share) < 0.06 && overZones.zones.gap <= 1 && overZones.touched === "review-image" && overZones.histograms.length === 0 && overZones.textVisible === true,
-        `${overZones.zones.opaque} pixels en noir, soit ${zoneShare.toFixed(2)} % ; ${overZones.text} ; phrase ${overZones.textVisible ? "visible" : "cachée"} ; écart avec la photo ${overZones.zones.gap.toFixed(2)} px ; toucher au centre de la photo : ${overZones.touched}`,
-      );
-      if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-hautes-lumieres.png`), timeout: 120000 });
-      // « Réduire les animations » (réglage du système, émulé par Playwright) : l'écran de revue écrit alors que les
-      // zones sont en noir « sans clignoter », et le calque ne doit avoir aucune animation. Des versions 0.3.57 à
-      // 0.3.61, la règle qui coupe l'animation était écrite avant celle du calque, qui l'emportait : les zones
-      // clignotaient (relecture de la version 0.3.62). Le texte n'est écrit qu'au changement d'affichage : trois
-      // touchers sur « Infos » ramènent à « hautes lumières » sous le réglage émulé. C'est l'état du calque qui est
-      // lu, et non des captures d'écran : en rendu logiciel, deux captures à une seconde d'écart ne distinguent pas
-      // le défaut de façon sûre. Le réglage est rendu ensuite, et le calque doit retrouver son animation ; le texte
-      // reste celui du réglage émulé jusqu'à la photo suivante, qui le réécrit.
-      const blinkState = () =>
-        page.evaluate(() => {
-          const overlay = document.getElementById("review-highlights");
-          const style = getComputedStyle(overlay);
-          const clipping = document.getElementById("review-clipping");
-          return {
-            asked: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-            shown: !overlay.hidden && overlay.getClientRects().length > 0,
-            animation: style.animationName,
-            running: overlay.getAnimations().length,
-            opacity: style.opacity,
-            button: document.getElementById("review-info").textContent,
-            text: !clipping.hidden && clipping.getClientRects().length > 0 ? clipping.textContent : "",
-          };
-        });
-      const blinking = await blinkState();
-      await page.emulateMedia({ reducedMotion: "reduce" });
-      await clicks("#review-info", 3);
-      const still = await blinkState();
-      await page.emulateMedia({ reducedMotion: null });
-      const blinkingAgain = await blinkState();
-      check(
-        "« réduire les animations » : zones écrêtées en noir sans clignoter, comme l'écrit l'écran de revue",
-        !blinking.asked && blinking.animation === "clignote" && blinking.running === 1 && /Ces zones clignotent en noir sur la photo\.$/.test(blinking.text) &&
-          still.asked && still.shown && still.button === "Infos\u00a0: hautes lumières" && still.animation === "none" && still.running === 0 && still.opacity === "1" && /sans clignoter/.test(still.text) &&
-          !blinkingAgain.asked && blinkingAgain.animation === "clignote" && blinkingAgain.running === 1,
-        `sans le réglage : animation « ${blinking.animation} », ${blinking.running} en cours ; avec : « ${still.animation} », ${still.running} en cours, opacité ${still.opacity}, bouton « ${still.button} », « ${still.text.split(". ").pop()} » ; réglage rendu : « ${blinkingAgain.animation} », ${blinkingAgain.running} en cours`,
-      );
-      await page.click("#review-back");
-      await clicks('[data-dial="shutter"][data-step="-1"]', 8);
-      await clicks('[data-dial="iso"][data-step="-1"]', 11);
-      // L'affichage « hautes lumières » est gardé pour la photo suivante : sans zone écrêtée, rien ne clignote.
-      await shoot();
-      const underZones = await reviewInfo();
-      await page.click("#review-info");
-      await page.click("#review-info");
-      const under = await reviewInfo();
-      const luminance = under.histograms.find((h) => h.channel === "luminance") ?? { left: 0, total: 0 };
-      check(
-        "photo sous-exposée de 3,2 IL : aucune zone écrêtée, luminance dans la moitié gauche",
-        under.exposure === "−3,2 IL" && underZones.button === "Infos\u00a0: hautes lumières" && underZones.share === 0 && !underZones.zones.shown && under.share === 0 && luminance.left > under.pixels / 2 && luminance.total === under.pixels,
-        `exposition ${under.exposure} ; hautes lumières : ${underZones.text} ; ${luminance.left} pixels sur ${under.pixels} dans la moitié gauche de la luminance`,
-      );
-      // Retour à « photo seule » et aux réglages de départ avant la suite.
-      await page.click("#review-info");
-      await page.click("#review-info");
-      const infoOff = await reviewInfo();
-      check(
-        "revue : retour à « photo seule »",
-        infoOff.button === "Infos\u00a0: photo seule" && infoOff.histograms.length === 0 && !infoOff.zones.shown && infoOff.text === "" && infoOff.saved === "photo",
-        `bouton « ${infoOff.button} » ; tutophoto.revue : ${infoOff.saved}`,
-      );
-      await page.click("#review-back");
-      await clicks('[data-dial="iso"][data-step="1"]', 11);
-    }
-
-    if (withPhoto) {
-      // Défis (SIT-05, SIT-01), zone automatique avec détection des yeux : mise au point sur l'œil de Sophia, vers
-      // 6,6 m. À f/8 et 50 mm, zone nette d'environ 4 m à 17 m : le groupe y est (SIT-05 réussi). À f/22, la distance
-      // hyperfocale vaut 2500 / (22 × 0,02875) ≈ 4 m : mise au point à 6,6 m, la zone nette va jusqu'à l'infini et le
-      // fond photo est net (SIT-01 à reprendre), quel que soit le cadrage (vertical sur le profil Android, où la
-      // poubelle sort du cadre).
-      const challengeShot = async (id, during = null) => {
-        await page.click("#challenge-button");
-        await page.check(`#challenge-dialog input[name="challenge"][value="${id}"]`);
-        await page.click("#challenge-close");
-        await page.click("#shutter-button");
-        await page.waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden && !document.getElementById("review-bulletin").hidden, null, { timeout: 300000 });
-        const text = await page.evaluate(() => document.getElementById("review-bulletin").innerText);
-        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-defi-${id}.png`), timeout: 120000 });
-        if (during) await during();
-        await page.click("#review-back");
-        return text;
-      };
-      await page.click("#af-button");
-      await page.check('#af-dialog input[name="focusMode"][value="continuous"]');
-      await page.check('#af-dialog input[name="areaMode"][value="auto"]');
-      await page.check('#af-dialog input[name="detection"][value="faceEye"]');
-      await page.click("#af-close");
-      await page
-        .waitForFunction(() => /^AF-C · Auto · œil · /.test(document.getElementById("af-badge").textContent), null, { timeout: 30000 })
-        .catch(() => undefined);
-      const group = await challengeShot("SIT-05");
-      check("défi SIT-05 : groupe net, réussi", /Défi SIT-05 · Photo de groupe\u00a0: réussi/.test(group), group.split("\n").filter((l) => /Défi|Réussi|Manqué/.test(l)).join(" | "));
-      await clicks('[data-dial="aperture"][data-step="1"]', 9);
-      // Fiche ouverte depuis le bulletin, puis une autre fiche depuis un lien de la première (version 0.3.47).
-      const ficheTitle = (prefix) =>
-        page
-          .waitForFunction((p) => document.getElementById("fiche-dialog").open && (document.getElementById("fiche-title")?.textContent ?? "").startsWith(p), prefix, { timeout: 30000 })
-          .then(() => page.evaluate(() => ({ title: document.getElementById("fiche-title").textContent, banner: document.querySelectorAll("#fiche-body .banner").length })))
-          .catch(() => ({ title: "", banner: 0 }));
-      let fromBulletin = { title: "", banner: 0 };
-      let fromLink = { title: "", banner: 0 };
-      const portrait = await challengeShot("SIT-01", async () => {
-        await page.click("#review-bulletin [data-fiche]");
-        fromBulletin = await ficheTitle("NET-01");
-        await page.click('#fiche-body a[href="SIT-01.html"]');
-        fromLink = await ficheTitle("SIT-01");
-        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-fiche-fenetre.png`), timeout: 120000 });
-        await page.click("#fiche-close");
-      });
-      check(
-        "bulletin : fiche ouverte par-dessus le simulateur",
-        fromBulletin.title.startsWith("NET-01") && fromBulletin.banner === (isReviewed("NET-01") ? 0 : 1) && fromLink.title.startsWith("SIT-01"),
-        `${fromBulletin.title} (bandeau : ${fromBulletin.banner ? "oui" : "non"}) puis ${fromLink.title}`,
-      );
-      await clicks('[data-dial="aperture"][data-step="-1"]', 9);
-      check(
-        "défi SIT-01 à f/22 : fond encore net, à reprendre",
-        /Défi SIT-01 · .*\u00a0: à reprendre/.test(portrait) && /Manqué\u00a0: fond derrière Sophia hors de la zone nette\u00a0: encore net\u00a0: .*le fond photo/.test(portrait) && /À revoir\u00a0: NET-01/.test(portrait),
-        portrait.split("\n").filter((l) => /Défi|Réussi|Manqué|À revoir/.test(l)).join(" | "),
-      );
-      await page.click("#challenge-button");
-      await page.check('#challenge-dialog input[name="challenge"][value="none"]');
-      // Bouton « Fiche » de la fenêtre « Défis » : la fiche s'ouvre par-dessus, la fenêtre « Défis » reste derrière.
-      await page.click('#challenge-dialog .fiche-open[data-fiche="SIT-05"]');
-      const fromChallenges = await ficheTitle("SIT-05");
-      await page.click("#fiche-close");
-      const challengesOpen = await page.evaluate(() => document.getElementById("challenge-dialog").open);
-      check("défis : fiche de la situation", fromChallenges.title.startsWith("SIT-05") && challengesOpen, `${fromChallenges.title} ; fenêtre « Défis » encore ouverte : ${challengesOpen ? "oui" : "non"}`);
-      await page.click("#challenge-close");
-      await page.click("#af-button");
-      await page.check('#af-dialog input[name="focusMode"][value="single"]');
-      await page.check('#af-dialog input[name="areaMode"][value="point"]');
-      await page.click("#af-close");
-    }
-
-    // Mise au point. Le bas du cadre montre le sol, proche ; relever l'appareil y amène le sol lointain ou le
-    // fond. Les personnages bougent : en AF-C, on attend que la distance change, au plus 15 s.
-    const afText = () => page.evaluate(() => document.getElementById("af-badge").textContent);
-    const lockedMetres = (text) => {
-      const m = /(\d+[,.]\d) m/.exec(text);
-      return m ? Number(m[1].replace(",", ".")) : NaN;
-    };
-    const setAf = async (mode, area, detection) => {
-      await page.click("#af-button");
-      await page.check(`#af-dialog input[name="focusMode"][value="${mode}"]`);
-      await page.check(`#af-dialog input[name="areaMode"][value="${area}"]`);
-      if (detection) await page.check(`#af-dialog input[name="detection"][value="${detection}"]`);
-      await page.click("#af-close");
-    };
-    // Attend que l'indicateur corresponde au motif et renvoie ce texte-là ; null au bout du délai.
-    const waitBadge = (pattern, timeout) =>
-      page
-        .waitForFunction(
-          (source) => {
-            const text = document.getElementById("af-badge").textContent;
-            return new RegExp(source).test(text) ? text : null;
-          },
-          pattern.source,
-          { timeout },
-        )
-        .then((handle) => handle.jsonValue())
-        .catch(() => null);
-    // AF-S et point sélectif sont le dernier réglage que la routine a fait dans la fenêtre « Mise au point » : ce
-    // contrôle prouve que la fenêtre remet ce mode, pas le réglage de départ, contrôlé après le chargement (INT-05).
-    const startText = await afText();
-    check("mise au point : retour à AF-S et point sélectif", /^AF-S · Point · /.test(startText), startText);
-
-    // Zone automatique, vue de départ : le groupe est à environ 6,5 m.
-    await setAf("continuous", "auto", "faceEye");
-    const eyeText = (await waitBadge(/^AF-C · Auto · œil · \d+,\d m$/, 30000)) ?? (await afText());
-    const eyeAt = lockedMetres(eyeText);
-    const amber = await page.evaluate(() => document.getElementById("focus-marker").classList.contains("detected"));
-    check("zone automatique : œil détecté dans le groupe", /œil/.test(eyeText) && amber && eyeAt > 5.5 && eyeAt < 7.5, `${eyeText}${amber ? ", repère ambre" : ""}`);
-    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-zone-auto.png`), timeout: 120000 });
-    await setAf("continuous", "auto", "off");
-    const nearestText = (await waitBadge(/^AF-C · Auto · sujet le plus proche · /, 30000)) ?? (await afText());
-    check(
-      "zone automatique sans détection : sujet le plus proche",
-      /sujet le plus proche/.test(nearestText) && lockedMetres(nearestText) < eyeAt,
-      `${nearestText} ; œil : ${eyeText}`,
-    );
-    await setAf("continuous", "auto", "animal");
-    // Le chien court entre x = −5 et 5 m, à 9 m de l'appareil, de profil.
-    const dogText = await waitBadge(/^AF-C · Auto · (œil|visage) · /, 30000);
-    const dogAt = dogText ? lockedMetres(dogText) : NaN;
-    check("détection des animaux : œil ou visage du chien", Boolean(dogText) && dogAt > 8 && dogAt < 12, dogText ?? (await afText()));
-    // À 1/4000 s, le chien (3,5 m/s à 9 m, 50 mm) laisse 50 × 3,5 × 0,00025 / 9 ≈ 0,005 mm, sous la limite,
-    // soit 0,005 × 1500 / 35,9 ≈ 0,2 px sur la photo.
-    const dogMotion = await balanceLine("balance-motion", /chien\u00a0: /);
-    const dogPixels = /\((\d+(?:,\d)?) px sur la photo\)/.exec(dogMotion ?? "");
-    check(
-      "indicateur : traînée du chien évaluée, en pixels",
-      /1\/4000 s · chien\u00a0: net/.test(dogMotion ?? "") && Boolean(dogPixels) && Number(dogPixels[1].replace(",", ".")) < 1,
-      dogMotion ?? "chien non visé",
-    );
-    // Suivi du chien à découvert (FMA-23, version 0.3.66). L'appareil tourne vers la droite jusqu'à ce que le cadre
-    // ne montre que la partie de la course du chien qu'aucun personnage ne cache (lacet de 0,55 à 0,7 rad, lu sur la
-    // vue de dessus : au 50 mm, le bord gauche du cadre coupe la course du chien vers x ≈ 1,9 m à 0,55 rad et
-    // x ≈ 2,7 m à 0,7 rad, et le groupe, à 6,5 m, ne le cache qu'en deçà de x ≈ 1,45 m). L'indicateur est noté à chaque changement, avec l'heure, pendant 60 s. Le chien y passe
-    // en séries de lectures « œil » ou « visage », séparées par de longues séries « sujet le plus proche » quand il
-    // est hors du cadre (environ 4,4 s d'horloge de la scène, contre 1,3 s dans le cadre). Une perte du chien à
-    // découvert est une série « sujet le plus proche » entre deux séries « œil » ou « visage », plus courte que la
-    // plus longue série « œil » ou « visage » : à cadence constante, une sortie du cadre dure plus de trois fois plus
-    // longtemps. Mesuré hors de la routine (serveur de développement, rendu logiciel, environ 3,3 images par seconde,
-    // même lacet de 0,6 rad) : avant la correction, 13 pertes en 57 s d'horloge de la scène, et le chien détecté sur
-    // 46 des 86 images où son œil était à découvert et dans la zone couverte ; après, aucune perte en 60 s, 96 sur 96
-    // (CHANGELOG.md, section 0.3.66). Le contrôle tolère une perte.
-    // L'appareil est ramené ensuite à son lacet de départ.
-    {
-      const topClosed = !(await page.locator("#top-view-map").isVisible());
-      if (topClosed) await page.click("#top-view-toggle");
-      const readYaw = () =>
-        page.evaluate(() => {
-          const points = document.querySelector("#top-view-map .top-camera polygon")?.getAttribute("points");
-          if (!points) return NaN;
-          const [nose, left, right] = points.split(" ").map((point) => point.split(",").map(Number));
-          return Math.atan2(nose[0] - (left[0] + right[0]) / 2, -(nose[1] - (left[1] + right[1]) / 2));
-        });
-      const box = await page.locator("#frame").boundingBox();
-      // Glissés vers la droite (lacet croissant) ou vers la gauche, de longueur proportionnelle à l'écart qui reste
-      // jusqu'au milieu de la fenêtre : 400 px par radian, au moins 8 px (au-delà du seuil d'un toucher, 6 px), au plus
-      // 120 px. Un glissé de 120 px tourne l'appareil de 0,10 à 0,14 rad sur un écran de 1280 × 800 (contrôle d'après
-      // la rafale) et de 0,30 rad sur un Pixel 7 émulé (mesuré hors de la routine) : à 400 px par radian, chaque glissé
-      // reprend de 40 % à 100 % de l'écart, sans le dépasser.
-      const turnTo = async (low, high) => {
-        let current = await readYaw();
-        for (let i = 0; i < 30 && Number.isFinite(current) && !(current >= low && current <= high); i++) {
-          const error = (low + high) / 2 - current;
-          const length = Math.min(120, Math.max(8, Math.round(Math.abs(error) * 400)));
-          const step = Math.sign(error);
-          // Départ au centre du cadre, comme le glissé du contrôle d'après la rafale : sur le profil Android, un départ à
-          // 60 px à droite du centre tombe sur la carte de la vue de dessus, dépliée pour lire le lacet, et le glissé ne
-          // tourne pas l'appareil (CI du commit a3df28e ; vérifié hors de la routine sur un Pixel 7 émulé).
-          const cx = box.x + box.width / 2;
-          const cy = box.y + box.height / 2;
-          await page.mouse.move(cx, cy);
-          await page.mouse.down();
-          for (let k = 1; k <= 6; k++) await page.mouse.move(cx + (step * length * k) / 6, cy);
-          await page.mouse.up();
-          // La caméra tourne image par image (inertie, éteinte en une seconde environ) et la vue de dessus se
-          // redessine toutes les 250 ms : relire toutes les 600 ms jusqu'à deux lectures égales.
-          let previous = NaN;
-          for (let k = 0; k < 20 && !(Math.abs(current - previous) < 1e-4); k++) {
-            await page.waitForTimeout(600);
-            previous = current;
-            current = await readYaw();
-          }
-        }
-        return current;
-      };
-      const yawStart = await readYaw();
-      const yawDog = await turnTo(0.55, 0.7);
-      await page.evaluate(() => {
-        window.routineBadges = [];
-        const badge = document.getElementById("af-badge");
-        const note = () => window.routineBadges.push({ at: performance.now(), text: badge.textContent });
-        note();
-        window.routineBadgeObserver = new MutationObserver(note);
-        window.routineBadgeObserver.observe(badge, { childList: true, characterData: true, subtree: true });
-      });
-      await page.waitForTimeout(60000);
-      const badges = await page.evaluate(() => {
-        window.routineBadgeObserver.disconnect();
-        return window.routineBadges;
-      });
-      // Séries : [vu, durée en ms], la dernière, en cours, exclue.
-      const runs = [];
-      for (let i = 0; i + 1 < badges.length; i++) {
-        const seen = /· (œil|visage) ·/.test(badges[i].text);
-        const duration = badges[i + 1].at - badges[i].at;
-        if (runs.length && runs[runs.length - 1][0] === seen) runs[runs.length - 1][1] += duration;
-        else runs.push([seen, duration]);
-      }
-      const longestSeen = Math.max(0, ...runs.filter((r) => r[0]).map((r) => r[1]));
-      const passes = runs.filter((r) => r[0]).length;
-      const losses = runs.filter((r, i) => !r[0] && i > 0 && i + 1 < runs.length && r[1] < longestSeen).length;
-      // Garde contre un faux vert : un chien vu un instant à l'entrée de chaque passage, puis perdu jusqu'à la sortie,
-      // ne compte aucune perte. Dans le cadre pendant environ 1,7 s d'horloge sur un aller-retour de 5,7 s, il doit être
-      // vu, dans la plus longue série, au moins 0,15 fois la plus longue série « perdu » (environ 0,4 attendu).
-      const longestLost = Math.max(0, ...runs.filter((r) => !r[0]).map((r) => r[1]));
-      const yawBack = await turnTo(yawStart - 0.03, yawStart + 0.03);
-      if (topClosed) await page.click("#top-view-toggle");
-      check(
-        "détection des animaux : le chien à découvert n'est pas lâché (FMA-23)",
-        yawDog >= 0.55 && yawDog <= 0.7 && passes >= 2 && losses <= 1 && longestSeen >= 0.15 * longestLost && Math.abs(yawBack - yawStart) <= 0.03,
-        `lacet ${yawDog.toFixed(3)} rad ; ${passes} série(s) « œil » ou « visage », la plus longue de ${(longestSeen / 1000).toFixed(1)} s (plus longue série « perdu » : ${(longestLost / 1000).toFixed(1)} s) ; ${losses} perte(s) à découvert ; séries : ${runs.map((r) => `${r[0] ? "vu" : "perdu"} ${(r[1] / 1000).toFixed(1)} s`).join(", ")} ; lacet ramené à ${yawBack.toFixed(3)} rad (départ ${yawStart.toFixed(3)})`,
-      );
-    }
-    await setAf("continuous", "auto", "faceEye");
-    await setAf("single", "point");
-    const frameBox = await page.locator("#frame").boundingBox();
-    const tapLow = async (previous) => {
-      await page.mouse.click(frameBox.x + frameBox.width / 2, frameBox.y + 0.92 * frameBox.height);
-      await page
-        .waitForFunction(
-          (before) => {
-            const text = document.getElementById("af-badge").textContent;
-            return document.getElementById("focus-marker").classList.contains("locked") && text !== before;
-          },
-          previous,
-          { timeout: 30000 },
-        )
-        .catch(() => undefined);
-      return afText();
-    };
-    const pointText = await tapLow(startText);
-    const pointAt = lockedMetres(pointText);
-    check("AF-S : toucher le viseur verrouille la distance", /^AF-S · Point · verrouillée à /.test(pointText), pointText);
-    await setAf("single", "wideL");
-    const lockedText = await tapLow(await afText());
-    const lockedAt = lockedMetres(lockedText);
-    check(
-      "zone large (L) : sujet le plus proche de la zone",
-      /^AF-S · Zone L · verrouillée à /.test(lockedText) && lockedAt < pointAt - 0.1,
-      `${lockedText} ; point sélectif : ${pointText}`,
-    );
-    const cx = frameBox.x + frameBox.width / 2;
-    const cy = frameBox.y + frameBox.height / 2;
-    for (let k = 0; k < 2; k++) {
-      await page.mouse.move(cx, cy);
-      await page.mouse.down();
-      for (let i = 1; i <= 10; i++) await page.mouse.move(cx, cy - 15 * i);
-      await page.mouse.up();
-    }
-    await page.waitForTimeout(2500);
-    const tiltedText = await afText();
-    check("AF-S : distance gardée en relevant l'appareil", tiltedText === lockedText, tiltedText);
-    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-af-s.png`), timeout: 120000 });
-    // Orientation de l'appareil, lue sur la vue de dessus (triangle de l'appareil, ui/topView.ts) : pour les deux
-    // contrôles du viseur et du calcul d'une photo (COD-01, version 0.3.63), plus bas.
-    const yaw = () =>
-      page.evaluate(() => {
-        const points = document.querySelector("#top-view-map .top-camera polygon")?.getAttribute("points");
-        if (!points) return NaN;
-        const [nose, left, right] = points.split(" ").map((point) => point.split(",").map(Number));
-        return Math.atan2(nose[0] - (left[0] + right[0]) / 2, -(nose[1] - (left[1] + right[1]) / 2));
-      });
-    if (withPhoto) {
-      // Glissé sur le viseur pendant le calcul de cette photo (COD-01, version 0.3.63). Pendant le calcul, la caméra
-      // n'a plus de commandes ; à la reprise, elles sont rattachées sans rien de ce que le geste a pu accumuler, et un
-      // bouton resté enfoncé ne la tourne plus tant qu'il n'est pas relâché puis enfoncé de nouveau. Le pointeur est
-      // enfoncé au centre du viseur une fois le calcul commencé, déplacé vers la gauche (2 px toutes les 100 ms, 100 px
-      // au plus), puis, l'écran de revue ouvert, cinq fois de 8 px encore, bouton tenu, avant d'être relâché.
-      // L'orientation de l'appareil est lue sur la vue de dessus, dépliée le temps du contrôle sur les petits écrans.
-      // Avant la correction, la caméra, qui avait capturé le pointeur à l'appui, tournait avec ces derniers
-      // déplacements, même sous l'écran de revue : le contrôle échoue sur ce site-là. Il réussit aussi quand les
-      // commandes ne sont jamais rattachées après le calcul : le contrôle d'après la rafale, plus bas, le voit et le
-      // nomme ; sur une copie sans le rattachement, « AF-C : la distance suit la zone » échoue aussi, sans nommer la
-      // cause (l'appareil relevé plus haut ne tourne plus, ce relevé venant après les premières photos de la routine).
-      // Il ne voit pas la surimpression dans la photo elle-même (rendus de la photo sans mise à jour de la caméra) :
-      // il faudrait lire la caméra à chaque rendu, ce que le site construit n'expose pas.
-      if (topCollapsed) await page.click("#top-view-toggle");
-      const yawBefore = await yaw();
-      await page.evaluate(() => {
-        window.routinePress = null;
-        document.getElementById("scene").addEventListener("pointerdown", () => (window.routinePress = !document.getElementById("progress").hidden), { once: true });
-      });
-      await page.click("#shutter-button");
-      await page.waitForFunction(() => !document.getElementById("progress").hidden, null, { polling: 20, timeout: 60000 });
-      await page.mouse.move(cx, cy);
-      await page.mouse.down();
-      const reviewOpen = () => page.evaluate(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden);
-      let dragged = 0;
-      for (let i = 0; i < 3000 && !(await reviewOpen()); i++) {
-        if (dragged < 100) {
-          dragged += 2;
-          await page.mouse.move(cx - dragged, cy);
-        }
-        await page.waitForTimeout(100);
-      }
-      const duringCompute = dragged;
-      for (let i = 0; i < 5; i++) {
-        dragged += 8;
-        await page.mouse.move(cx - dragged, cy);
-      }
-      await page.mouse.up();
-      const caption = await page.evaluate(() => document.getElementById("review-caption").textContent);
-      const m = /AF-S · Zone L · mise au point verrouillée à (\d+[,.]\d) m/.exec(caption);
-      check("AF-S : la photo garde la distance verrouillée", Boolean(m) && Number(m[1].replace(",", ".")) === lockedAt, caption);
-      await page.click("#review-back");
-      await page.waitForTimeout(1500);
-      const yawAfter = await yaw();
-      if (topCollapsed) await page.click("#top-view-toggle");
-      const pressed = await page.evaluate(() => window.routinePress);
-      check(
-        "photo : glissé sur le viseur pendant le calcul, viseur inchangé à la reprise (COD-01)",
-        pressed === true && Number.isFinite(yawBefore) && Math.abs(yawAfter - yawBefore) < 1e-4,
-        `pointeur enfoncé sur le viseur ${pressed === true ? "pendant le calcul" : pressed === false ? "après le calcul" : "jamais (appui non reçu)"}, déplacé de ${duringCompute} px pendant le calcul et de ${dragged - duringCompute} px l'écran de revue ouvert ; orientation de l'appareil (vue de dessus) : ${yawBefore.toFixed(5)} rad avant, ${yawAfter.toFixed(5)} rad après, écart de ${(yawAfter - yawBefore).toFixed(5)} rad`,
-      );
-    }
-    await setAf("continuous", "wideL");
-    const followed = await page
+  // Ligne de l'indicateur d'équilibre qui correspond au motif ; null au bout de 30 s.
+  const balanceLine = (id, pattern) =>
+    page
       .waitForFunction(
-        (locked) => {
-          const text = document.getElementById("af-badge").textContent;
-          const m = /^AF-C · Zone L · (\d+[,.]\d) m/.exec(text);
-          // Seuil de 0,2 m (deux pas d'affichage). Depuis la version 0.3.34, la zone large est rognée à la zone couverte
-          // par l'autofocus : la distance verrouillée vaut 5,8 m au lieu de 5,4 m, et l'écart avec la mesure en AF-C
-          // après avoir relevé l'appareil (6,2 à 6,5 m dans les routines) n'est plus que de 0,5 à 0,7 m.
-          return Boolean(m) && Math.abs(Number(m[1].replace(",", ".")) - locked) > 0.2;
+        ([lineId, source]) => {
+          const text = document.getElementById(lineId).textContent;
+          return new RegExp(source).test(text) ? text : null;
         },
-        lockedAt,
-        { timeout: 15000 },
+        [id, pattern.source],
+        { timeout: 30000 },
       )
-      .then(() => true)
-      .catch(() => false);
-    check("AF-C : la distance suit la zone", followed, `${await afText()} ; avant : ${lockedText}`);
-
-    // Collimateurs (MAP-06) : la couverture de l'AF du Z 6 est d'environ 90 % du cadre en largeur et en
-    // hauteur. Un toucher dans le coin haut droit du cadre (l'indicateur d'équilibre occupe le coin haut gauche)
-    // ramène le point au bord de la zone couverte, à 5 % des bords.
-    await setAf("continuous", "point");
-    // Le cadre est mesuré ici, pas repris de plus haut : sa taille peut changer avec le mode AF. Sur le profil
-    // iPhone, avec une police plus large que celle de la machine de Claude (DejaVu Sans, celle de la CI), l'aide
-    // de la mise au point prend une ligne de plus en AF-S et le viseur perd 16 pixels de haut ; le cadre mesuré en
-    // AF-S donnait alors « repère à 98,0 % × 5,3 %, zone couverte 96,1 % × 96,0 % » (premier passage de la routine
-    // dans la CI, 12 novembre 2026, reproduit ensuite avec cette police).
-    await page.waitForTimeout(500);
-    const pointBox = await page.locator("#frame").boundingBox();
-    await page.mouse.click(pointBox.x + 0.99 * pointBox.width, pointBox.y + 0.01 * pointBox.height);
-    await page.waitForTimeout(500);
-    const coverage = await page.locator("#af-coverage").boundingBox();
-    const marker = await page.locator("#focus-marker").boundingBox();
-    const at = (box) => ({
-      x: (box.x + box.width / 2 - pointBox.x) / pointBox.width,
-      y: (box.y + box.height / 2 - pointBox.y) / pointBox.height,
-    });
-    const markerAt = marker ? at(marker) : { x: NaN, y: NaN };
-    const coverageShare = coverage ? { x: coverage.width / pointBox.width, y: coverage.height / pointBox.height } : { x: NaN, y: NaN };
-    check(
-      "collimateurs : point ramené dans la zone couverte (90 %)",
-      Math.abs(markerAt.x - 0.95) < 0.01 && Math.abs(markerAt.y - 0.05) < 0.01 && Math.abs(coverageShare.x - 0.9) < 0.01 && Math.abs(coverageShare.y - 0.9) < 0.01,
-      `repère à ${(markerAt.x * 100).toFixed(1)} % × ${(markerAt.y * 100).toFixed(1)} % du cadre ; zone couverte ${(coverageShare.x * 100).toFixed(1)} % × ${(coverageShare.y * 100).toFixed(1)} %`,
-    );
-    if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-collimateurs.png`), timeout: 120000 });
-    // Couverture par boîtier : un toucher en (99 % ; 1 %) du cadre est ramené au bord de la zone couverte. En cadre
-    // vertical (profil Android), grand et petit côtés du capteur sont échangés.
-    // Un boîtier par marque depuis la version 0.3.80 : la fenêtre n'a plus de choix du format.
-    const setBody = async (brand) => {
-      await page.click("#body-button");
-      await page.check(`#body-dialog input[name="brand"][value="${brand}"]`);
-      await page.click("#body-close");
-    };
-    const checkBodyCoverage = async (brand, label, long, short) => {
-      await setBody(brand);
-      const box = await page.locator("#frame").boundingBox();
-      await page.mouse.click(box.x + 0.99 * box.width, box.y + 0.01 * box.height);
-      await page.waitForTimeout(500);
-      const zone = await page.locator("#af-coverage").boundingBox();
-      const mark = await page.locator("#focus-marker").boundingBox();
-      const got = mark
-        ? { x: (mark.x + mark.width / 2 - box.x) / box.width, y: (mark.y + mark.height / 2 - box.y) / box.height }
-        : { x: NaN, y: NaN };
-      const share = zone ? { x: zone.width / box.width, y: zone.height / box.height } : { x: NaN, y: NaN };
-      const vertical = box.height > box.width;
-      const w = vertical ? short : long;
-      const h = vertical ? long : short;
-      const expected = { x: Math.min(0.99, 1 - (1 - w) / 2), y: Math.max(0.01, (1 - h) / 2), w, h };
-      check(
-        label,
-        Math.abs(got.x - expected.x) < 0.01 && Math.abs(got.y - expected.y) < 0.01 && Math.abs(share.x - expected.w) < 0.01 && Math.abs(share.y - expected.h) < 0.01,
-        `cadre ${vertical ? "vertical" : "horizontal"} ; repère à ${(got.x * 100).toFixed(1)} % × ${(got.y * 100).toFixed(1)} % ; zone couverte ${(share.x * 100).toFixed(1)} % × ${(share.y * 100).toFixed(1)} %`,
-      );
-    };
-    // Canon EOS R50 : « Positions sélectionnables pour le collimateur AF », « Horizontal : environ 90 %, vertical :
-    // environ 100 % » (manuel en français, « Caractéristiques techniques »).
-    await checkBodyCoverage("canon", "collimateurs : couverture du Canon EOS R50 (90 % × 100 %)", 0.9, 1);
-    // EOS R50 en zone automatique : « sélection automatique », « Horizontal : environ 100 %, vertical : environ
-    // 100 % » (même page). La zone tracée suit le mode de zone : 100 % × 100 % en zone automatique, puis de nouveau
-    // 90 % × 100 % en point sélectif, sans autre geste que le changement de mode (version 0.3.80). Le point la suit
-    // aussi : en zone automatique sans détection, un toucher en (99 % ; 1 %) reste où il est touché (« point
-    // touché ») ; revenu en point sélectif, il est ramené dans la zone, à 95 % × 1 % en cadre horizontal et 99 % × 5 %
-    // en cadre vertical (relecture de la version 0.3.80, constat C2). La détection est ensuite remise à « faceEye »,
-    // celle d'avant ce passage.
-    const coverageShareNow = async () => {
-      const box = await page.locator("#frame").boundingBox();
-      const zone = await page.locator("#af-coverage").boundingBox();
-      return {
-        vertical: box.height > box.width,
-        x: zone ? zone.width / box.width : NaN,
-        y: zone ? zone.height / box.height : NaN,
-      };
-    };
-    const markerShareNow = async () => {
-      const box = await page.locator("#frame").boundingBox();
-      const mark = await page.locator("#focus-marker").boundingBox();
-      return mark
-        ? { x: (mark.x + mark.width / 2 - box.x) / box.width, y: (mark.y + mark.height / 2 - box.y) / box.height }
-        : { x: NaN, y: NaN };
-    };
-    await setAf("continuous", "auto", "off");
-    await page.waitForTimeout(500);
-    const autoShare = await coverageShareNow();
-    check(
-      "collimateurs : couverture du Canon EOS R50 en zone automatique (100 % × 100 %)",
-      Math.abs(autoShare.x - 1) < 0.01 && Math.abs(autoShare.y - 1) < 0.01,
-      `cadre ${autoShare.vertical ? "vertical" : "horizontal"} ; zone couverte ${(autoShare.x * 100).toFixed(1)} % × ${(autoShare.y * 100).toFixed(1)} %`,
-    );
-    const autoBox = await page.locator("#frame").boundingBox();
-    await page.mouse.click(autoBox.x + 0.99 * autoBox.width, autoBox.y + 0.01 * autoBox.height);
-    const autoTouched = await waitBadge(/point touché/, 30000);
-    await page.waitForTimeout(500);
-    const autoMark = await markerShareNow();
-    check(
-      "collimateurs : Canon EOS R50 en zone automatique, toucher gardé à 99 % × 1 %",
-      autoTouched !== null && Math.abs(autoMark.x - 0.99) < 0.01 && Math.abs(autoMark.y - 0.01) < 0.01,
-      `${autoTouched ?? await afText()} ; repère à ${(autoMark.x * 100).toFixed(1)} % × ${(autoMark.y * 100).toFixed(1)} %`,
-    );
-    await setAf("continuous", "point");
-    await page.waitForTimeout(500);
-    const pointShare = await coverageShareNow();
-    const pointMark = await markerShareNow();
-    const pointW = pointShare.vertical ? 1 : 0.9;
-    const pointH = pointShare.vertical ? 0.9 : 1;
-    const pointBack = pointShare.vertical ? { x: 0.99, y: 0.05 } : { x: 0.95, y: 0.01 };
-    check(
-      "collimateurs : Canon EOS R50 revenu en point sélectif (90 % × 100 %), point ramené dans la zone",
-      Math.abs(pointShare.x - pointW) < 0.01 && Math.abs(pointShare.y - pointH) < 0.01 && Math.abs(pointMark.x - pointBack.x) < 0.01 && Math.abs(pointMark.y - pointBack.y) < 0.01,
-      `cadre ${pointShare.vertical ? "vertical" : "horizontal"} ; zone couverte ${(pointShare.x * 100).toFixed(1)} % × ${(pointShare.y * 100).toFixed(1)} % ; repère à ${(pointMark.x * 100).toFixed(1)} % × ${(pointMark.y * 100).toFixed(1)} %`,
-    );
-    await setAf("continuous", "auto", "faceEye");
-    await setAf("continuous", "point");
-    // Sony A6000 : « 179 phase detection points (covering almost the entire image) », sans pourcentage (page de
-    // Sony) : il garde la couverture du Z 6.
-    await checkBodyCoverage("sony", "collimateurs : couverture du Sony A6000 (celle du Z 6, 90 % × 90 %)", 0.9, 0.9);
-    await setBody("nikon");
-    const centreBox = await page.locator("#frame").boundingBox();
-    await page.mouse.click(centreBox.x + centreBox.width / 2, centreBox.y + centreBox.height / 2);
-
-    if (withPhoto) {
-      // Rafale : Continu L à 5 vues par seconde. En rendu logiciel, l'horloge de la scène avance moins vite que
-      // le temps réel (100 ms au plus par image) : le déclencheur est relâché quand le bouton annonce au moins
-      // deux vues, et non au bout d'une durée fixe (une seconde ne suffisait pas sur les profils mobiles).
-      await page.click("#release-button");
-      await page.check('#release-dialog input[name="release"][value="cl"]');
-      await page.selectOption('#release-dialog select[name="clRate"]', "5");
-      await page.click("#release-close");
-      const shutterBox = await page.locator("#shutter-button").boundingBox();
-      await page.mouse.move(shutterBox.x + shutterBox.width / 2, shutterBox.y + shutterBox.height / 2);
-      await page.mouse.down();
-      await page.waitForFunction(() => /Rafale\u00a0: ([2-9]|\d\d) vues/.test(document.getElementById("shutter-button").textContent), null, { timeout: 60000 });
-      await page.mouse.up();
-      await page.waitForFunction(() => !document.getElementById("review").hidden && !document.getElementById("review-series").hidden, null, { timeout: 300000 });
-      const first = await page.evaluate(() => ({ count: document.getElementById("review-count").textContent, caption: document.getElementById("review-caption").textContent }));
-      await page.click("#review-next");
-      const second = await page.evaluate(() => document.getElementById("review-caption").textContent);
-      check(
-        "rafale : série de vues espacées de 0,2 s",
-        /^Vue 1\/[2-9]\d* · \+0,00 s · /.test(first.caption) && /^Vue 2\/\d+ · \+0,20 s · /.test(second),
-        `${first.count} ; ${first.caption.slice(0, 60)} | ${second.slice(0, 60)}`,
-      );
-      if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-rafale.png`), timeout: 120000 });
-      await page.click("#review-back");
-      await page.click("#release-button");
-      await page.check('#release-dialog input[name="release"][value="single"]');
-      await page.click("#release-close");
-      // Viseur de nouveau commandé après les calculs (relecture de la version 0.3.63, constat C-2) : après la rafale,
-      // plusieurs calculs de suite, un glissé de 120 px sur le viseur, bouton relâché, doit tourner l'appareil de plus
-      // de 0,01 rad, lu sur la vue de dessus (dépliée le temps du contrôle sur les petits écrans). Mesuré hors de la
-      // routine, sur un écran de 1280 × 800 : de 0,10 à 0,14 rad avec les commandes rattachées à la fin du calcul,
-      // 0 sur une copie qui ne les rattache pas, sur laquelle le contrôle du glissé pendant le calcul réussit.
-      // L'orientation est relue toutes les 250 ms, 10 s au plus : la caméra tourne image par image (inertie).
-      const dragBox = await page.locator("#frame").boundingBox();
-      const dx = dragBox.x + dragBox.width / 2;
-      const dy = dragBox.y + dragBox.height / 2;
-      if (topCollapsed) await page.click("#top-view-toggle");
-      const yawRest = await yaw();
-      await page.mouse.move(dx, dy);
-      await page.mouse.down();
-      for (let i = 1; i <= 10; i++) await page.mouse.move(dx + 12 * i, dy);
-      await page.mouse.up();
-      let yawDragged = yawRest;
-      for (let i = 0; i < 40 && !(Math.abs(yawDragged - yawRest) > 0.01); i++) {
-        await page.waitForTimeout(250);
-        yawDragged = await yaw();
-      }
-      if (topCollapsed) await page.click("#top-view-toggle");
-      check(
-        "après la rafale : un glissé sur le viseur tourne l'appareil (commandes rattachées après le calcul)",
-        Number.isFinite(yawRest) && Math.abs(yawDragged - yawRest) > 0.01,
-        `glissé de 120 px sur le viseur ; orientation de l'appareil (vue de dessus) : ${yawRest.toFixed(5)} rad avant, ${yawDragged.toFixed(5)} rad après, écart de ${(yawDragged - yawRest).toFixed(5)} rad`,
-      );
-    }
-    // Défi choisi depuis la fiche d'une situation : simulateur?defi=SIT-06 (version 0.3.47), ici sans la barre finale
-    // de simulateur/ : le serveur de la routine ne redirige pas, la page doit ajouter la barre elle-même (0.3.51).
-    // Pendant le chargement, la progression s'affiche en Mio reçus.
-    // Le texte est rendu par le contrôle d'attente lui-même : le relire ensuite par un second appel laissait le temps
-    // au chargement de finir et au message de se vider (échec isolé du 11 novembre 2026 sur la machine de Claude,
-    // puis dans la CI le 12, les deux fois sur le profil webgl1, texte lu vide). Si l'attente échoue, sa raison est
-    // gardée.
-    // La ligne de diagnostic est relue juste avant ce rechargement, qui l'efface : elle garde ce que la page a signalé
-    // pendant tout le parcours du simulateur (INT-06 de l'audit, version 0.3.64) ; puis une fois encore à la fin.
-    // Mémoire des réglages (magasin de réglages, constat ARC-02 de l'audit, version 0.4.9) : des réglages mémorisés,
-    // changés ici dans les fenêtres, par le code de la page (un clic de Playwright prend plusieurs secondes en rendu
-    // logiciel), doivent être relus au chargement qui suit. Choisis pour ne rien coûter au rendu de la suite : AF-S, bruit
-    // et profondeur de champ du viseur coupés. Le relevé des fenêtres et des boutons, avant et après, doit être le même.
-    const memoryState = () =>
-      page.evaluate(() => ({
-        storage: Object.fromEntries(["tutophoto.boitier", "tutophoto.apercu", "tutophoto.revue"].map((key) => [key, localStorage.getItem(key)])),
-        inputs: [
-          ...document.querySelectorAll(
-            "#exposure-dialog input, #exposure-dialog select, #release-dialog input, #release-dialog select, #af-dialog input, #body-dialog input, #preview-dialog input",
-          ),
-        ]
-          .map((e) => `${e.name}=${e.type === "radio" || e.type === "checkbox" ? (e.checked ? e.value : "") : e.value}`)
-          .filter((text) => !text.endsWith("="))
-          .join(" "),
-        buttons: ["body-button", "af-button", "release-button", "review-info"].map((id) => document.getElementById(id)?.textContent ?? "").join(" | "),
-      }));
-    await page.evaluate(() => {
-      const radio = (dialog, name, value) => document.querySelector(`#${dialog} input[name=${name}][value=${value}]`).click();
-      const choose = (dialog, name, value) => {
-        const select = document.querySelector(`#${dialog} select[name=${name}]`);
-        select.value = value;
-        select.dispatchEvent(new Event("change"));
-      };
-      const tick = (selector, checked) => {
-        const box = document.querySelector(selector);
-        if (box.checked !== checked) box.click();
-      };
-      radio("body-dialog", "brand", "sony");
-      radio("exposure-dialog", "exposureMode", "A");
-      choose("exposure-dialog", "compensation", "2");
-      // Plafond et vitesse minimale avant de couper l'ISO auto, qui grise leurs listes.
-      tick("#exposure-dialog input[name=autoIso]", true);
-      choose("exposure-dialog", "maxIso", "12");
-      choose("exposure-dialog", "minShutter", "33");
-      tick("#exposure-dialog input[name=autoIso]", false);
-      radio("release-dialog", "release", "cl");
-      choose("release-dialog", "clRate", "4");
-      choose("release-dialog", "timerDelay", "5");
-      radio("af-dialog", "focusMode", "single");
-      // La détection ne se choisit qu'en zone automatique.
-      radio("af-dialog", "areaMode", "auto");
-      radio("af-dialog", "detection", "animal");
-      radio("af-dialog", "areaMode", "wideL");
-      tick("#preview-dialog input[type=checkbox][value=all]", true);
-      tick("#preview-dialog input[type=checkbox][value=noise]", false);
-      tick("#preview-dialog input[type=checkbox][value=depthOfField]", false);
-      radio("preview-dialog", "grid", "thirds");
-      for (let i = 0; i < 3 && JSON.parse(localStorage.getItem("tutophoto.revue") ?? "null")?.display !== "histograms"; i++) {
-        document.getElementById("review-info").click();
-      }
-    });
-    const memoryBefore = await memoryState();
-    // Écritures dans les trois clés pendant le chargement qui suit, comptées par un script posé avant lui (il vaut pour les
-    // pages suivantes de l'onglet, sans rien changer d'autre). Comparer les chaînes avant et après ne suffisait pas : une
-    // écriture des mêmes réglages redonne les mêmes chaînes (relecture de la version 0.4.9, R1).
-    await page.addInitScript(() => {
-      const setItem = Storage.prototype.setItem;
-      window.__tutophotoMemoryWrites = [];
-      Storage.prototype.setItem = function (key, value) {
-        if (["tutophoto.boitier", "tutophoto.apercu", "tutophoto.revue"].includes(String(key))) window.__tutophotoMemoryWrites.push(String(key));
-        return setItem.call(this, key, value);
-      };
-    });
-    const problemBeforeReload = await diagnosticText();
-    await page.goto(`${base}/simulateur?defi=SIT-06`);
-    const progress = await page
-      .waitForFunction(() => {
-        const text = document.getElementById("status")?.textContent ?? "";
-        return /Mio reçus|préparation/.test(text) ? text : false;
-      }, null, { timeout: 60000 })
       .then((handle) => handle.jsonValue())
-      .catch((error) => `attente échouée : ${String(error).split("\n")[0]}`);
-    await page.waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 }).catch(() => undefined);
-    const chosen = await page.evaluate(() => ({ text: document.getElementById("challenge-button").textContent, path: location.pathname, search: location.search }));
-    check(
-      "adresse sans barre finale, défi choisi par l'adresse, progression du chargement",
-      /SIT-06$/.test(chosen.text) && chosen.path === "/simulateur/" && /Mio reçus|préparation/.test(progress) && !/^attente échouée/.test(progress),
-      `${chosen.path} ; ${chosen.text} ; pendant le chargement : « ${progress} »`,
-    );
-    {
-      const memoryAfter = await memoryState();
-      const memoryWrites = await page.evaluate(() => window.__tutophotoMemoryWrites ?? null);
-      const saved = (key) => {
-        try {
-          return JSON.parse(memoryBefore.storage[key] ?? "null") ?? {};
-        } catch {
-          return {};
-        }
+      .catch(() => null);
+  // Fenêtre « Exposition », état d'une molette, texte de l'indicateur d'exposition.
+  const setExposure = async ({ mode, autoIso, compensation }) => {
+    await page.click("#meter-value");
+    if (mode) await page.check(`#exposure-dialog input[name="exposureMode"][value="${mode}"]`);
+    if (autoIso === true) await page.check('#exposure-dialog input[name="autoIso"]');
+    if (autoIso === false) await page.uncheck('#exposure-dialog input[name="autoIso"]');
+    if (compensation !== undefined) await page.selectOption('#exposure-dialog select[name="compensation"]', String(compensation));
+    await page.click("#exposure-close");
+  };
+  const dialState = (dial) =>
+    page.evaluate((d) => {
+      const box = document.querySelector(`[data-box="${d}"]`);
+      const out = box.querySelector("output");
+      return {
+        name: box.querySelector(".dial-name").textContent,
+        value: out.textContent,
+        flashing: out.classList.contains("flashing"),
+        disabled: box.querySelector("button[data-step]").disabled,
       };
-      const box = saved("tutophoto.boitier");
-      const preview = saved("tutophoto.apercu");
-      const fields = [
-        Object.keys(box).join(","),
-        Object.keys(preview).join(","),
-        Object.keys(saved("tutophoto.revue")).join(","),
-      ];
-      const written =
-        fields[0] === "brand,focusMode,areaMode,detection,release,clRate,timerDelay,exposureMode,compensation,autoIso,maxIso,minShutter" &&
-        fields[1] === "all,brightness,noise,depthOfField,balance,grid" &&
-        fields[2] === "display" &&
-        JSON.stringify([box.brand, box.focusMode, box.areaMode, box.detection, box.release, box.clRate, box.timerDelay]) ===
-          JSON.stringify(["sony", "single", "wideL", "animal", "cl", 4, 5]) &&
-        JSON.stringify([box.exposureMode, box.compensation, box.autoIso, box.maxIso, box.minShutter]) === JSON.stringify(["A", 2, false, 12, 33]) &&
-        JSON.stringify([preview.all, preview.noise, preview.depthOfField, preview.grid]) === JSON.stringify([true, false, false, "thirds"]) &&
-        saved("tutophoto.revue").display === "histograms";
-      check(
-        "mémoire des réglages : écrite avec les champs d'avant le magasin, relue au chargement, pas récrite (ARC-02)",
-        written &&
-          Array.isArray(memoryWrites) &&
-          memoryWrites.length === 0 &&
-          JSON.stringify(memoryAfter.storage) === JSON.stringify(memoryBefore.storage) &&
-          memoryAfter.inputs === memoryBefore.inputs &&
-          memoryAfter.buttons === memoryBefore.buttons &&
-          /^Sony A6000 \| AF-S · Zone L \| Continu L · 4 vps/.test(memoryAfter.buttons),
-        `champs : ${fields.join(" ; ")} ; boutons avant : ${memoryBefore.buttons} ; après : ${memoryAfter.buttons} ; fenêtres ${memoryAfter.inputs === memoryBefore.inputs ? "identiques" : `avant : ${memoryBefore.inputs} ; après : ${memoryAfter.inputs}`} ; écritures pendant le chargement : ${memoryWrites === null ? "non comptées" : memoryWrites.join(", ") || "aucune"} ; mémoire ${JSON.stringify(memoryAfter.storage) === JSON.stringify(memoryBefore.storage) ? "inchangée" : `changée : ${JSON.stringify(memoryAfter.storage)}`}`,
-      );
-    }
-    // Le paramètre ?defi= est retiré de l'adresse une fois lu et mémorisé (constat COD-03 de l'audit, version 0.3.72).
-    check(
-      "défi de l'adresse : mémorisé, puis retiré de l'adresse",
-      chosen.search === "" && (await page.evaluate(() => localStorage.getItem("tutophoto.defi"))) === "SIT-06",
-      `adresse après le chargement : ${chosen.path}${chosen.search || " (sans paramètre)"} ; tutophoto.defi : ${await page.evaluate(() => localStorage.getItem("tutophoto.defi"))}`,
+    }, dial);
+  const meterText = () => page.evaluate(() => document.getElementById("meter-value").textContent);
+  // Distance de l'indicateur de mise au point, en mètres (vue de dessus).
+  const badgeMetres = async () => {
+    const m = /(\d+[,.]\d) m$/.exec(await page.evaluate(() => document.getElementById("af-badge").textContent));
+    return m ? Number(m[1].replace(",", ".")) : NaN;
+  };
+  // Attend que la distance affichée en AF-C vérifie la condition (le rendu logiciel peut être lent) ; au plus 30 s.
+  // « group » : le groupe, à moins de 9 m ; « farther » : plus de v + 3 m ; « back » : à 0,3 m près de v.
+  const waitMetres = (kind, arg) =>
+    page
+      .waitForFunction(
+        ([mode, value]) => {
+          const m = /^AF-C · Auto · .* (\d+[,.]\d) m$/.exec(document.getElementById("af-badge").textContent);
+          if (!m) return false;
+          const d = Number(m[1].replace(",", "."));
+          return mode === "group" ? d < 9 : mode === "farther" ? d > value + 3 : Math.abs(d - value) < 0.3;
+        },
+        [kind, arg],
+        { timeout: 30000 },
+      )
+      .catch(() => undefined);
+  // Rapport signal/bruit de la ligne « bruit » de l'indicateur d'équilibre.
+  const snrOf = (text) => {
+    const m = /signal\/bruit (\d+):1/.exec(text ?? "");
+    return m ? Number(m[1]) : NaN;
+  };
+  // Clics répétés sur un bouton (molettes) ; profondeur de champ du viseur, par la fenêtre « Aperçu ».
+  const clicks = async (selector, n) => { for (let i = 0; i < n; i++) await page.click(selector); };
+  const setDof = async (on) => {
+    await page.click("#preview-button");
+    if (on) await page.check('#preview-dialog input[value="depthOfField"]');
+    else await page.uncheck('#preview-dialog input[value="depthOfField"]');
+    await page.click("#preview-close");
+  };
+  // Position de l'appareil, lue sur la vue de dessus : le centre du triangle qui le représente (ui/topView.ts),
+  // en mètres, x vers la droite et y = −z ; la vue de dessus doit être dépliée pour que ce triangle suive l'appareil.
+  const cameraAt = (x, z = null) =>
+    page.waitForFunction(
+      ([targetX, targetZ]) => {
+        const points = document.querySelector("#top-view-map .top-camera polygon")?.getAttribute("points");
+        if (!points) return false;
+        const corners = points.split(" ").map((point) => point.split(",").map(Number));
+        const centre = (k) => corners.reduce((sum, corner) => sum + corner[k], 0) / corners.length;
+        return Math.abs(centre(0) - targetX) < 0.05 && (targetZ === null || Math.abs(-centre(1) - targetZ) < 0.05);
+      },
+      [x, z],
+      { timeout: 30000 },
     );
-    // Progression du chargement (version 0.3.55) : tout fichier compté par la progression (ceux du manifeste, sauf
-    // les textes de licence) doit avoir été chargé par la scène, sinon elle n'atteint jamais « préparation ».
-    await page.waitForTimeout(1500);
-    const counted = await page.evaluate(async () => {
-      const manifest = await (await fetch("../scenes/parc/scene.json")).json();
-      const files = manifest.assets.flatMap((asset) => asset.files ?? []).filter((f) => !f.path.endsWith(".txt"));
-      const loaded = performance.getEntriesByType("resource").map((e) => decodeURIComponent(new URL(e.name).pathname));
-      return { count: files.length, missing: files.filter((f) => !loaded.some((name) => name.endsWith(`/scenes/parc/${f.path}`))).map((f) => f.path) };
+  // Grilles de cadrage (CMP-02, version 0.3.56), choisies dans la fenêtre « Aperçu » (étape « grilles de cadrage »).
+  // Lignes visibles du cadre :
+  // position du milieu de chaque ligne, en fraction du cadre, et plus grand écart en pixels aux positions
+  // attendues (k / n de la largeur pour les verticales, k / m de la hauteur pour les horizontales).
+  const gridState = (across, down = across) =>
+    page.evaluate(([partsAcross, partsDown]) => {
+      const frame = document.getElementById("frame").getBoundingClientRect();
+      const visible = (el) => el.getClientRects().length > 0 && getComputedStyle(el).visibility !== "hidden";
+      const lines = [...document.querySelectorAll("#frame-grid .grid-line")].filter(visible);
+      const middle = (el, vertical) => {
+        const r = el.getBoundingClientRect();
+        return vertical ? r.left + r.width / 2 - frame.left : r.top + r.height / 2 - frame.top;
+      };
+      const vertical = lines.filter((el) => el.classList.contains("vertical")).map((el) => middle(el, true)).sort((a, b) => a - b);
+      const horizontal = lines.filter((el) => el.classList.contains("horizontal")).map((el) => middle(el, false)).sort((a, b) => a - b);
+      const worst = (found, size, parts) => Math.max(0, ...found.map((v, k) => Math.abs(v - ((k + 1) * size) / parts)));
+      // Diagonales : deux traits clairs, dans un dessin qui couvre tout le cadre.
+      const diagonals = [...document.querySelectorAll("#frame-grid .grid-diagonal.light")].filter(visible);
+      const drawing = document.querySelector("#frame-grid .grid-diagonals")?.getBoundingClientRect();
+      const spread = drawing ? Math.max(Math.abs(drawing.left - frame.left), Math.abs(drawing.top - frame.top), Math.abs(drawing.width - frame.width), Math.abs(drawing.height - frame.height)) : NaN;
+      // Les lignes ne reçoivent pas les touchers : au croisement des deux premières, l'élément touché n'est ni une
+      // ligne ni le cadre.
+      const hit = vertical.length && horizontal.length ? document.elementFromPoint(frame.left + vertical[0], frame.top + horizontal[0]) : null;
+      let saved = null;
+      try {
+        saved = JSON.parse(localStorage.getItem("tutophoto.apercu") ?? "null")?.grid ?? null;
+      } catch {
+        saved = "illisible";
+      }
+      return {
+        vertical: vertical.length,
+        horizontal: horizontal.length,
+        error: Math.max(worst(vertical, frame.width, partsAcross), worst(horizontal, frame.height, partsDown)),
+        diagonals: diagonals.length,
+        spread,
+        tall: frame.height > frame.width,
+        at: `${vertical.map((v) => ((100 * v) / frame.width).toFixed(1)).join(" / ")} % × ${horizontal.map((v) => ((100 * v) / frame.height).toFixed(1)).join(" / ")} %`,
+        caught: Boolean(hit && hit.closest("#frame")),
+        checked: document.querySelector('#preview-dialog input[name="grid"]:checked')?.value ?? "",
+        saved,
+      };
+    }, [across, down]);
+  const setGrid = async (kind) => {
+    await page.click("#preview-button");
+    await page.check(`#preview-dialog input[name="grid"][value="${kind}"]`);
+    await page.click("#preview-close");
+  };
+  // Mise au point : texte de l'indicateur, distance qu'il donne, fenêtre « Mise au point », attente d'un texte.
+  const afText = () => page.evaluate(() => document.getElementById("af-badge").textContent);
+  const lockedMetres = (text) => {
+    const m = /(\d+[,.]\d) m/.exec(text);
+    return m ? Number(m[1].replace(",", ".")) : NaN;
+  };
+  const setAf = async (mode, area, detection) => {
+    await page.click("#af-button");
+    await page.check(`#af-dialog input[name="focusMode"][value="${mode}"]`);
+    await page.check(`#af-dialog input[name="areaMode"][value="${area}"]`);
+    if (detection) await page.check(`#af-dialog input[name="detection"][value="${detection}"]`);
+    await page.click("#af-close");
+  };
+  // Attend que l'indicateur corresponde au motif et renvoie ce texte-là ; null au bout du délai.
+  const waitBadge = (pattern, timeout) =>
+    page
+      .waitForFunction(
+        (source) => {
+          const text = document.getElementById("af-badge").textContent;
+          return new RegExp(source).test(text) ? text : null;
+        },
+        pattern.source,
+        { timeout },
+      )
+      .then((handle) => handle.jsonValue())
+      .catch(() => null);
+  // Orientation de l'appareil, lue sur la vue de dessus (triangle de l'appareil, ui/topView.ts) : pour les deux
+  // contrôles du viseur et du calcul d'une photo (COD-01, version 0.3.63), étapes « AF-S, zone L et AF-C » et
+  // « rafale ».
+  const yaw = () =>
+    page.evaluate(() => {
+      const points = document.querySelector("#top-view-map .top-camera polygon")?.getAttribute("points");
+      if (!points) return NaN;
+      const [nose, left, right] = points.split(" ").map((point) => point.split(",").map(Number));
+      return Math.atan2(nose[0] - (left[0] + right[0]) / 2, -(nose[1] - (left[1] + right[1]) / 2));
     });
-    check(
-      "progression du chargement : tous les fichiers comptés sont chargés par la scène",
-      counted.count > 0 && counted.missing.length === 0,
-      `${counted.count} fichiers comptés ; jamais chargés : ${counted.missing.join(", ") || "aucun"}`,
-    );
-    // Seconde lecture de la ligne de diagnostic, même critère que « aucun problème affiché » au chargement.
-    const problemAtEnd = await diagnosticText();
-    check(
-      "aucun problème affiché à la fin du parcours",
-      !problemBeforeReload && !problemAtEnd,
-      `avant le rechargement : ${problemBeforeReload ? `« ${problemBeforeReload} »` : "ligne vide"} ; à la fin, page rechargée pour le défi SIT-06 : ${problemAtEnd ? `« ${problemAtEnd} »` : "ligne vide"}`,
-    );
-    // Chemin de la contre-vérification de COD-03 : arrivée par ?defi=SIT-06, « Aucun défi » choisi dans la fenêtre,
-    // puis rechargement. Avant la version 0.3.72, le défi de l'adresse revenait et écrasait le choix mémorisé.
-    // Placé après les contrôles qui lisent la page chargée : le rechargement n'attend que le texte du bouton
-    // « Défis », écrit au démarrage, pas la fin du chargement de la scène.
-    await page.click("#challenge-button");
-    await page.check('#challenge-dialog input[name="challenge"][value="none"]');
-    await page.click("#challenge-close");
-    await page.reload();
-    await page.waitForFunction(() => (document.getElementById("challenge-button")?.textContent ?? "") !== "", null, { timeout: 60000 }).catch(() => undefined);
-    const afterReload = await page.evaluate(() => ({
-      text: document.getElementById("challenge-button").textContent,
-      saved: localStorage.getItem("tutophoto.defi"),
-      address: location.pathname + location.search,
-    }));
-    check(
-      "défi de l'adresse, puis « Aucun défi » et rechargement : le choix fait dans la page reste (COD-03)",
-      afterReload.text === "Défis" && afterReload.saved === "none" && afterReload.address === "/simulateur/",
-      `bouton « ${afterReload.text} » ; tutophoto.defi : ${afterReload.saved} ; adresse rechargée : ${afterReload.address}`,
-    );
-  } catch (error) {
-    // Dans la CI, il n'y a ni écran ni capture : le message garde le journal d'appel de Playwright (ce qu'il
-    // attendait de l'élément) et l'état de la page, lu en 10 secondes au plus au cas où elle ne répondrait plus.
+  // Orientation de l'appareil lue par l'accès de la routine : lacet, tangage (positif vers le bas) et élan qui reste ;
+  // puis la même, une fois l'élan éteint (l'inertie de Babylon.js l'éteint en une seconde environ), 10 s au plus.
+  const pose = () => page.evaluate(() => window.__tutophotoRoutine.pose());
+  const settledPose = async () => {
+    let current = await pose();
+    for (let i = 0; i < 40 && current.turning > 0; i++) {
+      await page.waitForTimeout(250);
+      current = await pose();
+    }
+    return current;
+  };
+  // État de la page, pour le contrôle du déroulement d'une étape arrêtée par une exception : dans la CI, il n'y a ni
+  // écran ni capture ; le message garde le journal d'appel de Playwright (ce qu'il attendait de l'élément) et cet état,
+  // lu en 10 secondes au plus au cas où la page ne répondrait plus.
+  const pageState = async () => {
     const state = await Promise.race([
       page.evaluate(() => ({
+        address: location.pathname + location.search,
         open: [...document.querySelectorAll("dialog[open]")].map((d) => d.id).join(", ") || "aucune",
         meter: document.getElementById("meter-value")?.textContent ?? "",
         status: document.getElementById("status")?.hidden ? "" : (document.getElementById("status")?.textContent ?? ""),
@@ -3134,10 +1715,1802 @@ async function runProfile(browser, name, base) {
       })),
       new Promise((resolve) => setTimeout(() => resolve(null), 10000)),
     ]).catch(() => null);
-    const where = state
-      ? `fenêtres ouvertes : ${state.open} ; posemètre : « ${state.meter} »${state.status ? ` ; message : « ${state.status} »` : ""}${state.problem ? ` ; problème affiché : « ${state.problem} »` : ""}`
+    return state
+      ? `page ${state.address} ; fenêtres ouvertes : ${state.open} ; posemètre : « ${state.meter} »${state.status ? ` ; message : « ${state.status} »` : ""}${state.problem ? ` ; problème affiché : « ${state.problem} »` : ""}`
       : "la page ne répond plus";
-    check("déroulement du test", false, `${String(error).split("\n").slice(0, 25).join(" ⏎ ")} ; ${where}`);
+  };
+
+  // État du simulateur entre les étapes : scène chargée ou non ; page neuve, aucune étape jouée depuis son chargement ;
+  // page à recharger, une étape s'étant arrêtée sur une exception ; réglages de départ, lus dans l'accès de la routine ;
+  // problèmes affichés par la page avant chaque rechargement, que le rechargement efface (« aucun problème affiché à
+  // la fin du parcours ») ; étapes après lesquelles la page a été rechargée.
+  const sim = { loaded: false, fresh: false, dirty: false, initial: null, problems: [], reloads: [] };
+  // Rechargement de départ : la ligne des problèmes relevée, le bouton de la souris relâché et le doigt levé,
+  // « réduire les animations » rendu, la mémoire des réglages et du défi effacée, puis le simulateur rechargé avec
+  // l'accès de la routine.
+  const reload = async (after) => {
+    const seen = await diagnosticText().catch(() => "");
+    if (seen) sim.problems.push(`avant le rechargement d'après l'étape « ${after} » : « ${seen} »`);
+    sim.reloads.push(after);
+    await g.release();
+    await page.emulateMedia({ reducedMotion: null }).catch(() => undefined);
+    await page
+      .evaluate(() => ["tutophoto.boitier", "tutophoto.apercu", "tutophoto.revue", "tutophoto.defi"].forEach((key) => localStorage.removeItem(key)))
+      .catch(() => undefined);
+    await page.goto(`${base}/simulateur/?routine`);
+    sim.loaded = await page
+      .waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 })
+      .then(() => true)
+      .catch(() => false);
+    sim.fresh = true;
+    sim.dirty = false;
+    if (!sim.loaded) throw new Error(`rechargement de départ : la scène ne s'est pas chargée en 300 s`);
+    sim.initial ??= await page.evaluate(() => window.__tutophotoRoutine?.initial() ?? null);
+  };
+  // Départ d'une étape du simulateur : la page est rechargée si elle n'est pas prête (exception de l'étape d'avant,
+  // accès de la routine absent, calcul en cours, écran de revue ou fenêtre encore ouverts) ou si l'étape demande une
+  // page neuve ; sinon, les réglages de départ, avec les écarts de l'étape (start), et l'appareil sont remis par un
+  // seul appel à l'accès de la routine.
+  const prepare = async (step, previous) => {
+    const ready =
+      !sim.dirty &&
+      sim.initial !== null &&
+      (await page
+        .evaluate(
+          () =>
+            typeof window.__tutophotoRoutine === "object" &&
+            document.getElementById("status").hidden &&
+            document.getElementById("progress").hidden &&
+            document.getElementById("review").hidden &&
+            document.querySelector("dialog[open]") === null,
+        )
+        .catch(() => false));
+    if (!ready || (step.fresh && !sim.fresh)) await reload(previous);
+    if (step.fresh) return;
+    sim.fresh = false;
+    await page.evaluate((changes) => window.__tutophotoRoutine.reset(changes), step.start ? step.start(sim.initial) : {});
+    // La vue de dessus se redessine toutes les 250 ms (ui/topView.ts) et l'autofocus mesure à son rythme.
+    await page.waitForTimeout(500);
+  };
+
+  // Les étapes, dans l'ordre du parcours d'une seule traite des versions 0.3.46 à 0.4.18 : « simulator » pour celles
+  // qui jouent dans le simulateur, « fresh » pour celle qui lit l'état d'une page neuve, « photo » pour celles qui
+  // demandent --photo, « only » pour les profils qui la jouent ; start donne les écarts aux réglages de départ (s0, ceux
+  // de l'accès de la routine), les molettes en crans : depuis le départ (f/8, 1/100 s, ISO 100, 50 mm), 18 crans d'ISO
+  // donnent ISO 6400 et 16 crans de vitesse 1/4000 s, l'état que le parcours d'une seule traite avait de l'étape
+  // « modes d'exposition » à la fin, avec la profondeur de champ du viseur coupée, qui ralentit chaque image en rendu
+  // logiciel.
+  const STEPS = [
+    { id: "pages", name: "pages", run: () => checkPages(page, base, name, check) },
+    { id: "sans-webgl", name: "sans WebGL", run: () => checkNoWebgl(browser, contextOptions, base, check) },
+    { id: "flottants", name: "rendu en flottants", run: () => checkFloatRender(browser, contextOptions, base, check, Boolean(noWebgl2)) },
+    { id: "demarrage-arrete", name: "démarrage arrêté", run: () => checkLostAtStart(browser, contextOptions, base, check, Boolean(noWebgl2)) },
+    { id: "textures-legeres", name: "textures allégées", run: () => checkLightTextures(browser, contextOptions, base, check, Boolean(noWebgl2)) },
+    // Mise en page sur téléphone, dans un contexte à part (Sujet 42, version 0.4.10) : profil iphone seulement, pour ne
+    // charger la scène qu'une fois de plus.
+    { id: "mise-en-page", name: "mise en page sur téléphone", only: ["iphone"], run: () => checkPhoneLayout(browser, base, check) },
+    {
+      id: "chargement",
+      name: "chargement du simulateur",
+      simulator: true,
+      run: async () => {
+        // Le simulateur est ouvert avec « ?lang=en », paramètre retiré en version 0.3.60 : il doit s'ouvrir en français,
+        // sans bouton de langue. Toute la suite de la routine lit des textes français sur cette page. « ?routine » y
+        // ajoute l'accès de la routine (app/src/routineAccess.ts), qui remet les réglages de départ au début des étapes.
+        await page.goto(`${base}/simulateur/?lang=en&routine`);
+        const french = await page.evaluate(() => ({
+          lang: document.documentElement.lang,
+          subtitle: document.getElementById("subtitle")?.textContent ?? "",
+          button: document.getElementById("lang") ? 1 : 0,
+          saved: localStorage.getItem("tutophoto.lang"),
+        }));
+        check(
+          "simulateur ouvert avec ?lang=en : en français, sans bouton de langue",
+          french.lang === "fr" && french.subtitle.startsWith("Simulateur photo") && french.button === 0 && french.saved === null,
+          `langue ${french.lang}, « ${french.subtitle} », ${french.button} bouton de langue, clé tutophoto.lang : ${french.saved}`,
+        );
+        const loaded = await page
+          .waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 })
+          .then(() => true)
+          .catch(() => false);
+        check("chargement", loaded, `${Math.round((Date.now() - started) / 1000)} s`);
+        const home = await page.evaluate(() => ({ text: document.getElementById("home")?.textContent ?? "", href: document.getElementById("home")?.getAttribute("href") ?? "" }));
+        check("simulateur : lien vers l'accueil", home.text === "Accueil" && home.href === "../", `« ${home.text} » → ${home.href}`);
+        // Titre propre au simulateur, distinct de celui de l'accueil dans l'historique et les onglets (INT-19, Sujet 13).
+        const simTitle = await page.title();
+        check("simulateur : titre de la page", simTitle === "Simulateur · TutoPhoto", `« ${simTitle} »`);
+        const diagnostic = await diagnosticText();
+        check("aucun problème affiché", !diagnostic, diagnostic);
+        // Affichage de diagnostic (version 0.3.88) : créé seulement avec « ?diagnostic » dans l'adresse.
+        const diagnosticView = await page.evaluate(() => document.getElementById("diagnostic-view") !== null);
+        check("sans ?diagnostic : pas d'affichage de diagnostic", !diagnosticView, diagnosticView ? "affichage présent" : "absent");
+        sim.loaded = loaded;
+        sim.fresh = true;
+        sim.dirty = false;
+        if (loaded) sim.initial = await page.evaluate(() => window.__tutophotoRoutine?.initial() ?? null);
+        check("accès de la routine (?routine)", !loaded || sim.initial !== null, sim.initial ? "réglages de départ lus" : loaded ? "absent : window.__tutophotoRoutine" : "scène non chargée");
+      },
+    },
+    {
+      id: "defauts",
+      name: "réglages par défaut",
+      simulator: true,
+      fresh: true,
+      run: async () => {
+        // Accessibilité (Sujet 38, version 0.4.7 ; constats INT-08, INT-15 et INT-16 de l'audit), lue dans les attributs.
+        const a11y = await page.evaluate(() => {
+          const named = (id) => {
+            const e = document.getElementById(id);
+            return { text: e?.textContent ?? "", label: e?.getAttribute("aria-label") ?? "", live: e?.hasAttribute("aria-live") ?? true };
+          };
+          return {
+            tabIndex: document.getElementById("scene").getAttribute("tabindex"),
+            outputs: [...document.querySelectorAll(".dial output")].map((o) => document.getElementById(o.getAttribute("aria-labelledby") ?? "")?.textContent ?? ""),
+            aperture: document.querySelector('[data-dial="aperture"][data-step="1"]')?.getAttribute("aria-label") ?? "",
+            shutter: document.querySelector('[data-dial="shutter"][data-step="1"]')?.getAttribute("aria-label") ?? "",
+            meter: named("meter-value"),
+            af: named("af-button"),
+            statusRole: document.getElementById("status").getAttribute("role"),
+            messageRole: document.getElementById("status-message")?.getAttribute("role") ?? "",
+          };
+        });
+        check(
+          "accessibilité : viseur à sa place dans la tabulation, valeurs et boutons nommés",
+          a11y.tabIndex === "0" &&
+            a11y.outputs.length === 4 &&
+            a11y.outputs.every((n) => n !== "") &&
+            /fermer/.test(a11y.aperture) &&
+            /pose plus longue/.test(a11y.shutter) &&
+            a11y.meter.text !== "" &&
+            a11y.meter.label.startsWith(a11y.meter.text) &&
+            !a11y.meter.live &&
+            a11y.af.text !== "" &&
+            a11y.af.label.startsWith(a11y.af.text) &&
+            a11y.statusRole === null &&
+            a11y.messageRole === "status",
+          `tabindex ${a11y.tabIndex} ; valeurs nommées : ${a11y.outputs.join(", ")} ; « ${a11y.aperture} » ; « ${a11y.shutter} » ; « ${a11y.meter.label} » ; « ${a11y.af.label} »`,
+        );
+        // Mise au point par défaut (MAP-04, MAP-05) : AF-S et point sélectif, comme le Z 6 (app/src/camera/settings.ts,
+        // [nikon-z6-defaults]). Lue avant que la routine ne règle quoi que ce soit en mise au point (INT-05 de l'audit,
+        // version 0.3.64), sur une page neuve : « mise au point : retour à AF-S et point sélectif », dans l'étape « AF-S,
+        // zone L et AF-C », relit un réglage que la routine vient de faire dans la fenêtre « Mise au point ».
+        const afDefault = await page.evaluate(() => document.getElementById("af-badge").textContent);
+        check("mise au point : AF-S et point sélectif par défaut (Z 6)", /^AF-S · Point · /.test(afDefault), afDefault);
+
+        // Le rendu est à la densité de l'écran, plafonnée à 2 (version 0.3.53 : pixels calculés = pixels CSS ×
+        // min(densité, 2)), et le cadre a les proportions du capteur (Nikon Z 6 : 35,9 / 23,9).
+        await page.waitForTimeout(500);
+        const geometry = await page.evaluate(() => {
+          const c = document.getElementById("scene");
+          const f = document.getElementById("frame").getBoundingClientRect();
+          return { rw: c.width, rh: c.height, cw: c.clientWidth, ch: c.clientHeight, dpr: window.devicePixelRatio, ratio: Math.max(f.width, f.height) / Math.min(f.width, f.height) };
+        });
+        check(
+          "rendu à la densité de l'écran",
+          Math.abs(geometry.rw - geometry.cw * Math.min(geometry.dpr, 2)) <= 2 && Math.abs(geometry.rh - geometry.ch * Math.min(geometry.dpr, 2)) <= 2,
+          `${geometry.rw}×${geometry.rh} rendu, ${geometry.cw}×${geometry.ch} affiché, densité ${geometry.dpr}, plafond 2`,
+        );
+        check("cadre aux proportions du capteur", Math.abs(geometry.ratio - 35.9 / 23.9) < 0.02, `rapport ${geometry.ratio.toFixed(3)}, attendu ${(35.9 / 23.9).toFixed(3)}`);
+
+        const viewfinder = await page.evaluate(() => ({ h: document.getElementById("scene").clientHeight, vh: window.innerHeight }));
+        check("viseur assez grand", viewfinder.h >= 0.35 * viewfinder.vh, `${viewfinder.h} px de haut, fenêtre de ${viewfinder.vh} px`);
+
+        // Indicateur d'équilibre, réglages par défaut (50 mm, f/8, 1/100 s, ISO 100).
+        const noiseDefault = (await balanceLine("balance-noise", /bruit /)) ?? (await page.evaluate(() => document.getElementById("balance-noise").textContent));
+        const dofDefault = await page.evaluate(() => document.getElementById("balance-dof").textContent);
+        check(
+          "indicateur d'équilibre aux réglages par défaut",
+          /zone nette\u00a0: \d+,\d m – (\d+,\d m|∞)/.test(dofDefault) && /ISO 100 · bruit excellent/.test(noiseDefault),
+          `${dofDefault} | ${noiseDefault}`,
+        );
+        // Exposition (BOI-07, BOI-08, MES-04, MES-10) : M et ISO auto par défaut, comme le Z 6. Les étapes suivantes
+        // partent sans ISO auto (start) : elles règlent l'ISO à la main.
+        const isoDefault = await dialState("iso");
+        const meterDefault = await meterText();
+        check("exposition par défaut : M et ISO auto (Z 6)", /^M · /.test(meterDefault) && isoDefault.name === "ISO auto" && isoDefault.value === "100", `${meterDefault} ; ${isoDefault.name} ${isoDefault.value}`);
+      },
+    },
+    {
+      id: "vue-de-dessus",
+      name: "vue de dessus",
+      simulator: true,
+      start: () => ({ autoIso: false }),
+      run: async () => {
+        // Vue de dessus (NET-01) et appareil déplaçable (NET-06). AF-C, zone automatique : l'œil de Sophia vers 6,6 m
+        // (le point central, au bord de Sophia une fois l'appareil reculé, tombait parfois à côté d'elle sur le profil
+        // Android). Reculé de 4 m en touchant la carte (x = 0, z = −4), l'appareil mesure environ 4 m de plus ;
+        // « Retour au départ » le ramène. Carte : x de −8 à 8 m, z de 15 m (en haut) à −7 m (en bas).
+        const topCollapsed = !(await page.locator("#top-view-map").isVisible());
+        if (topCollapsed) await page.click("#top-view-toggle");
+        await page.click("#af-button");
+        await page.check('#af-dialog input[name="focusMode"][value="continuous"]');
+        await page.check('#af-dialog input[name="areaMode"][value="auto"]');
+        await page.check('#af-dialog input[name="detection"][value="faceEye"]');
+        await page.click("#af-close");
+        await waitMetres("group", 0);
+        const fromStart = await badgeMetres();
+        const sharpCount = await page.evaluate(() => document.querySelectorAll("#top-view-map .top-things .sharp").length);
+        const map = await page.locator("#top-view-map").boundingBox();
+        await g.tap(map.x + ((0 + 8) / 16) * map.width, map.y + ((4 + 15) / 22) * map.height);
+        await waitMetres("farther", fromStart);
+        const fromBack = await badgeMetres();
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-vue-de-dessus.png`), timeout: 120000 });
+        await page.click("#top-view-reset");
+        await waitMetres("back", fromStart);
+        const fromReset = await badgeMetres();
+        check(
+          "vue de dessus : appareil reculé de 4 m, puis ramené",
+          sharpCount > 0 && fromBack - fromStart > 3.5 && fromBack - fromStart < 4.5 && Math.abs(fromReset - fromStart) < 0.3,
+          `${fromStart} m au départ, ${fromBack} m reculé, ${fromReset} m ramené ; ${sharpCount} sujets dans la zone nette`,
+        );
+        await page.click("#af-button");
+        await page.check('#af-dialog input[name="focusMode"][value="single"]');
+        await page.check('#af-dialog input[name="areaMode"][value="point"]');
+        await page.click("#af-close");
+        if (topCollapsed) await page.click("#top-view-toggle");
+      },
+    },
+    {
+      id: "profondeur-de-champ",
+      name: "profondeur de champ",
+      simulator: true,
+      start: () => ({ autoIso: false }),
+      run: async () => {
+        // Point de mise au point verrouillé sur le sol, en bas du cadre, comme avant cette mesure dans le parcours d'une
+        // seule traite : la mesure du viseur et la photo à grand flou se font avec lui.
+        const groundBox = await page.locator("#frame").boundingBox();
+        await g.tap(groundBox.x + groundBox.width / 2, groundBox.y + 0.95 * groundBox.height);
+        await page.waitForTimeout(2000);
+        // Profondeur de champ : 135 mm, f/1.4, vitesse ajustée pour rester près de l'exposition correcte. Les
+        // réglages se font effet coupé, puis l'effet reste coupé : en rendu logiciel, il ralentit chaque image.
+        await setDof(false);
+        await clicks('[data-dial="focal"][data-step="1"]', 4);
+        await clicks('[data-dial="aperture"][data-step="-1"]', 15);
+        await clicks('[data-dial="shutter"][data-step="-1"]', 14);
+        // Les deux mesures doivent comparer le même fond. Appareil au point de départ, ce n'était pas toujours le cas :
+        // la tête de Sophia (animée, presque dans le plan de netteté) et le promeneur (à 12,5 m, x de −5 à 5 m) passent
+        // dans la zone mesurée, et l'horloge de la scène avance entre les deux mesures. Selon l'instant, le contrôle
+        // échouait avec l'effet en place (« 1.40 avec, 2.34 sans », profil ordinateur, CI du 15 novembre 2026) et
+        // pouvait réussir sans effet. Appareil déplacé à x = −6 m (bord de la zone permise, même orientation), le cadre
+        // du 135 mm couvre à 12,5 m, en paysage, x de −7,7 à −4,3 m, et la zone mesurée x de −7,2 à −6,5 m (cadre
+        // vertical : plus étroit) : aucun personnage n'y va. Le critère n'a pas changé.
+        const topCollapsed = !(await page.locator("#top-view-map").isVisible());
+        if (topCollapsed) await page.click("#top-view-toggle");
+        // Toucher à x = −7 m, z = 0 : l'application ramène l'appareil au bord de la zone permise, x = −6 m.
+        const dofMap = await page.locator("#top-view-map").boundingBox();
+        await g.tap(dofMap.x + ((-7 + 8) / 16) * dofMap.width, dofMap.y + ((0 + 15) / 22) * dofMap.height);
+        await cameraAt(-6);
+        await setDof(true);
+        await page.waitForTimeout(1500);
+        const blurred = await sharpness(page);
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-profondeur-de-champ.png`), timeout: 120000 });
+        await setDof(false);
+        await page.waitForTimeout(800);
+        const sharp = await sharpness(page);
+        check("profondeur de champ du viseur", blurred < 0.6 * sharp, `netteté du fond ${blurred.toFixed(2)} avec, ${sharp.toFixed(2)} sans`);
+        // Photo à grand flou (constat PHY-21 de l'audit, Sujet 39, version 0.4.8) : au même endroit, au 135 mm à f/1.4, le
+        // fond de la photo doit avoir le flou de l'ouverture, même quand le plafond de 5 s arrête le calcul, ce qu'il fait
+        // d'ordinaire en rendu logiciel (« 97/256 rendus, calculée en 47,2 s » dans l'essai de la contre-vérification du
+        // constat). Avant la version 0.4.8, les rendus allaient du centre du disque d'ouverture vers son bord, et une photo
+        // arrêtée après k rendus sur M avait un flou réduit de √(k / M). Mesure : photo de référence à f/22 (8 crans
+        // d'ouverture et 8 crans de vitesse plus loin, même exposition), puis photo à f/1.4 ; diamètre du flou du bas de la
+        // zone de la mesure du viseur, plus bas (de 15 à 35 % de la largeur, de 10 à 20 % de la hauteur ; cette zone va de 2
+        // à 20 %), ajusté entre les deux (blurDiameter) ; diamètre attendu au fond, la sphère du fond étant à 500 m
+        // (DOME_RADIUS, app/src/scene.ts) : c = A × f × (D − S) / (D × (S − f)),
+        // A = f / N [wikipedia-circle-of-confusion], N = √2 (apertureValue, app/src/camera/exposure.ts), S la distance de
+        // mise au point de la légende (verrouillée par le toucher du sol, plus haut), ramené à la photo de 1500 px de grand
+        // côté (PHOTO_LONG_SIDE, app/src/camera/optics.ts) pour les 35,9 mm du Z 6 (app/src/camera/bodies.ts). Seuil : de
+        // 85 à 115 %. Essai de cette séquence pour la version 0.4.8 (CHANGELOG.md), photo arrêtée de force après 64, 97 ou
+        // 256 rendus, mise au point à 5,8 m : de 98,6 à 99,2 % du flou attendu ; avec l'ancien ordre, 49,9 % à 64 rendus
+        // et 60,7 % à 97.
+        if (withPhoto) {
+          const margin = 80;
+          const press = (selector, n) => page.evaluate(([s, k]) => { for (let i = 0; i < k; i++) document.querySelector(s).click(); }, [selector, n]);
+          const shootRegion = async () => {
+            await page.evaluate(() => document.getElementById("shutter-button").click());
+            await page.waitForFunction(
+              () => !document.getElementById("review").hidden && document.getElementById("progress").hidden && document.getElementById("review-image").complete && document.getElementById("review-image").naturalWidth > 0,
+              null,
+              { timeout: 600000 },
+            );
+            const region = await page.evaluate((m) => {
+              const img = document.getElementById("review-image");
+              const width = img.naturalWidth;
+              const height = img.naturalHeight;
+              const canvas = document.createElement("canvas");
+              canvas.width = width;
+              canvas.height = height;
+              const g = canvas.getContext("2d");
+              g.drawImage(img, 0, 0);
+              const w = Math.round(0.2 * width) + 2 * m;
+              const h = Math.round(0.1 * height) + 2 * m;
+              const d = g.getImageData(Math.round(0.15 * width) - m, Math.round(0.1 * height) - m, w, h).data;
+              const luma = new Array(w * h);
+              for (let i = 0; i < w * h; i++) luma[i] = ((d[4 * i] / 255) ** 2.2 + (d[4 * i + 1] / 255) ** 2.2 + (d[4 * i + 2] / 255) ** 2.2) / 3;
+              return { width: w, height: h, luma, size: `${width}×${height}`, caption: document.getElementById("review-caption").textContent };
+            }, margin);
+            await page.evaluate(() => document.getElementById("review-back").click());
+            await page.waitForFunction(() => document.getElementById("review").hidden, null, { timeout: 60000 });
+            return region;
+          };
+          await press('[data-dial="aperture"][data-step="1"]', 24);
+          await press('[data-dial="shutter"][data-step="1"]', 24);
+          const reference = await shootRegion();
+          await press('[data-dial="aperture"][data-step="-1"]', 24);
+          await press('[data-dial="shutter"][data-step="-1"]', 24);
+          const wide = await shootRegion();
+          const focusMatch = /(?:mise au point|verrouillée) à (\d+,\d) m/.exec(wide.caption);
+          const focusM = focusMatch ? Number(focusMatch[1].replace(",", ".")) : NaN;
+          const f = 135;
+          const expected = ((((f / Math.SQRT2) * f * (500 - focusM)) / (500 * (focusM * 1000 - f))) * 1500) / 35.9;
+          const measured = blurDiameter(reference, wide, margin);
+          const ratio = measured / expected;
+          const renders = /(\d+(?:\/\d+)?) rendus, calculée en ([\d,]+) s/.exec(wide.caption);
+          check(
+            "photo à grand flou : flou du fond gardé (135 mm, f/1.4)",
+            /^M · f\/1.4 · /.test(wide.caption) && /^M · f\/22 · /.test(reference.caption) && focusM > 0 && ratio >= 0.85 && ratio <= 1.15,
+            `${wide.size}, ${renders ? `${renders[1]} rendus en ${renders[2]} s` : wide.caption} ; flou du fond ${measured.toFixed(1)} px pour ${expected.toFixed(1)} px attendus (${(100 * ratio).toFixed(0)} %, mise au point à ${focusM} m) ; référence : ${reference.caption.split(" · ").slice(0, 2).join(" · ")}`,
+          );
+        }
+        // Retour au point de départ, vue de dessus repliée comme elle l'était ; les molettes, l'étape suivante les remet.
+        await page.click("#top-view-reset");
+        await cameraAt(0, 0);
+        if (topCollapsed) await page.click("#top-view-toggle");
+      },
+    },
+    {
+      id: "bruit",
+      name: "bruit du viseur et de l'indicateur",
+      simulator: true,
+      start: () => ({ autoIso: false }),
+      run: async () => {
+        // Point de mise au point sur le sol, immobile, en bas du cadre, pour comparer le bruit à deux ISO.
+        // Le premier toucher du viseur dit aussi comment la page le reçoit : en pointerdown de type « touch » sur les
+        // profils de téléphone, « mouse » sur ceux d'ordinateur (constat INT-13 de l'audit, version 0.4.19).
+        await page.evaluate(() => {
+          window.routinePointerType = null;
+          document.getElementById("scene").addEventListener("pointerdown", (e) => (window.routinePointerType = e.pointerType), { once: true });
+        });
+        const groundBox = await page.locator("#frame").boundingBox();
+        await g.tap(groundBox.x + groundBox.width / 2, groundBox.y + 0.95 * groundBox.height);
+        await page.waitForTimeout(2000);
+        const groundLow = await page.evaluate(() => document.getElementById("balance-noise").textContent);
+        const pointerType = await page.evaluate(() => window.routinePointerType);
+        const expectedPointer = g.touch ? "touch" : "mouse";
+        check(`gestes : un toucher du viseur reçu en pointerdown de type « ${expectedPointer} » (INT-13)`, pointerType === expectedPointer, `reçu : ${pointerType ?? "aucun pointerdown"}`);
+        // Comme dans le parcours d'une seule traite, où la mesure à ISO 6400 suivait l'étape « profondeur de champ » :
+        // l'aperçu de la profondeur de champ coupé.
+        await setDof(false);
+        for (let i = 0; i < 18; i++) await page.click('[data-dial="iso"][data-step="1"]');
+        for (let i = 0; i < 16; i++) await page.click('[data-dial="shutter"][data-step="-1"]');
+        await page.waitForTimeout(800);
+        const noisy = await frameNoise(page);
+        check("bruit du viseur à ISO 6400", Math.max(...noisy) > 0.3, noisy.map((v) => v.toFixed(2)).join(" / "));
+        const noiseHigh = (await balanceLine("balance-noise", /ISO 6400 · bruit /)) ?? (await page.evaluate(() => document.getElementById("balance-noise").textContent));
+        const snrRatio = snrOf(noiseHigh) / snrOf(groundLow);
+        check(
+          "indicateur : bruit au même point du sol, ISO 6400 contre ISO 100",
+          /ISO 100 · bruit excellent/.test(groundLow) && snrRatio < 0.4,
+          `${groundLow} → ${noiseHigh} (rapport ${snrRatio.toFixed(2)})`,
+        );
+        await g.tap(groundBox.x + groundBox.width / 2, groundBox.y + groundBox.height / 2);
+        await page.click("#preview-button");
+        await page.uncheck('#preview-dialog input[value="all"]');
+        await page.click("#preview-close");
+        await page.waitForTimeout(500);
+        const quiet = await frameNoise(page);
+        check("aperçu coupé : pas de bruit", Math.max(...quiet) < 0.05, quiet.map((v) => v.toFixed(2)).join(" / "));
+        await page.click("#preview-button");
+        await page.check('#preview-dialog input[value="all"]');
+        await page.click("#preview-close");
+      },
+    },
+    {
+      id: "modes-exposition",
+      name: "modes d'exposition",
+      simulator: true,
+      start: (s0) => ({ autoIso: false, previewDepthOfField: false, iso: s0.iso + 18, shutter: s0.shutter + 16 }),
+      run: async () => {
+        // Modes d'exposition, réglages de départ f/8, 1/4000 s, ISO 6400 sans ISO auto. Scène à 12,5 IL : en indices
+        // d'échelle (tiers d'IL), ouverture + vitesse − ISO = 49,5 − correction (camera/exposureModes.ts).
+        // A à ISO 6400 : vitesse 49,5 − 15 + 18 = 52,5, au-delà de 1/4000 s : elle clignote (trop de lumière).
+        await setExposure({ mode: "A" });
+        const aBright = await dialState("shutter");
+        check(
+          "mode A : vitesse au-delà de 1/4000 s, qui clignote",
+          aBright.value === "1/4000 s" && aBright.flashing && aBright.disabled && /\(auto\)/.test(aBright.name),
+          `${aBright.name} ${aBright.value}${aBright.flashing ? ", clignote" : ""}${aBright.disabled ? ", molette grisée" : ""}`,
+        );
+        // ISO 100 puis f/4 : vitesse 34,5 → 1/100 s, puis 40,5 → 1/400 s (à égalité, le cran qui assombrit).
+        await clicks('[data-dial="iso"][data-step="-1"]', 18);
+        const a8 = await dialState("shutter");
+        await clicks('[data-dial="aperture"][data-step="-1"]', 6);
+        const a4 = await dialState("shutter");
+        check("mode A : la vitesse suit l'ouverture", a8.value === "1/100 s" && a4.value === "1/400 s" && !a4.flashing, `f/8 : ${a8.value} ; f/4 : ${a4.value}`);
+        await clicks('[data-dial="aperture"][data-step="1"]', 6);
+        // S à 1/4000 s, ISO 100 : ouverture −1,5, plus grande que f/1.4 : elle clignote (pas assez de lumière). Avec
+        // l'ISO auto, ISO 125 et f/1.4.
+        await setExposure({ mode: "S" });
+        const sDark = await dialState("aperture");
+        await setExposure({ autoIso: true });
+        const sAuto = await dialState("aperture");
+        const sIso = await dialState("iso");
+        check(
+          "mode S : ouverture à f/1.4 qui clignote, puis ISO auto",
+          sDark.value === "f/1.4" && sDark.flashing && !sAuto.flashing && sIso.name === "ISO auto" && sIso.value === "125",
+          `${sDark.value}${sDark.flashing ? " clignote" : ""} ; ISO auto : ${sAuto.value}, ${sIso.name} ${sIso.value}`,
+        );
+        // M, 1/100 s, ISO auto, correction +1 IL : ISO 15 + 35 − 46,5 = 3,5 → ISO 200 ; l'indicateur montre l'écart à
+        // l'exposition visée, −0,2 IL.
+        await clicks('[data-dial="shutter"][data-step="1"]', 16);
+        await setExposure({ mode: "M", compensation: 3 });
+        const mIso = await dialState("iso");
+        const mMeter = await meterText();
+        check(
+          "mode M : ISO auto avec correction d'exposition",
+          mIso.value === "200" && /^M · −0,2 IL · corr\. \+1,0$/.test(mMeter),
+          `${mIso.name} ${mIso.value} ; ${mMeter}`,
+        );
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-exposition.png`), timeout: 120000 });
+      },
+    },
+    {
+      id: "grilles",
+      name: "grilles de cadrage",
+      simulator: true,
+      start: (s0) => ({ autoIso: false, previewDepthOfField: false, iso: s0.iso + 18, shutter: s0.shutter + 16 }),
+      run: async () => {
+        const gridDefault = await gridState(3);
+        check(
+          "grille de cadrage : aucune par défaut",
+          gridDefault.vertical + gridDefault.horizontal === 0 && gridDefault.checked === "none",
+          `${gridDefault.vertical + gridDefault.horizontal} ligne(s) visible(s) ; bouton coché : ${gridDefault.checked}`,
+        );
+        await setGrid("thirds");
+        const thirds = await gridState(3);
+        check(
+          "grille « Tiers » : quatre lignes à 1/3 et 2/3 du cadre",
+          thirds.vertical === 2 && thirds.horizontal === 2 && thirds.error <= 1 && !thirds.caught && thirds.saved === "thirds",
+          `${thirds.vertical} + ${thirds.horizontal} lignes à ${thirds.at} ; écart ${thirds.error.toFixed(2)} px ; toucher ${thirds.caught ? "pris par la grille" : "laissé au viseur"} ; tutophoto.apercu : ${thirds.saved}`,
+        );
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-grille-tiers.png`), timeout: 120000 });
+        // « Vingt-quatre cases » : six cases sur le grand côté du cadre, quatre sur le petit (cadre vertical sur le profil
+        // Android). « Tiers et diagonales » : les tiers, et deux diagonales d'un coin du cadre à l'autre.
+        await setGrid("twentyFour");
+        const tall = thirds.tall;
+        const twentyFour = await gridState(tall ? 4 : 6, tall ? 6 : 4);
+        check(
+          "grille « Vingt-quatre cases » : six cases sur le grand côté, quatre sur le petit",
+          twentyFour.vertical === (tall ? 3 : 5) && twentyFour.horizontal === (tall ? 5 : 3) && twentyFour.error <= 1 && twentyFour.diagonals === 0 && twentyFour.saved === "twentyFour",
+          `cadre ${tall ? "vertical" : "horizontal"} ; ${twentyFour.vertical} + ${twentyFour.horizontal} lignes à ${twentyFour.at} ; écart ${twentyFour.error.toFixed(2)} px`,
+        );
+        await setGrid("thirdsDiagonals");
+        const withDiagonals = await gridState(3);
+        check(
+          "grille « Tiers et diagonales » : tiers et deux diagonales sur tout le cadre",
+          withDiagonals.vertical === 2 && withDiagonals.horizontal === 2 && withDiagonals.error <= 1 && withDiagonals.diagonals === 2 && withDiagonals.spread <= 1 && !withDiagonals.caught && withDiagonals.saved === "thirdsDiagonals",
+          `${withDiagonals.vertical} + ${withDiagonals.horizontal} lignes, ${withDiagonals.diagonals} diagonale(s) ; dessin à ${Number.isFinite(withDiagonals.spread) ? withDiagonals.spread.toFixed(2) : "?"} px du cadre ; toucher ${withDiagonals.caught ? "pris par la grille" : "laissé au viseur"}`,
+        );
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-grille-diagonales.png`), timeout: 120000 });
+        await setGrid("sixteen");
+        const sixteen = await gridState(4);
+        check(
+          "grille « Seize cases » : six lignes à 1/4, 1/2 et 3/4 du cadre",
+          sixteen.vertical === 3 && sixteen.horizontal === 3 && sixteen.error <= 1 && !sixteen.caught && sixteen.saved === "sixteen",
+          `${sixteen.vertical} + ${sixteen.horizontal} lignes à ${sixteen.at} ; écart ${sixteen.error.toFixed(2)} px ; tutophoto.apercu : ${sixteen.saved}`,
+        );
+      },
+    },
+    {
+      id: "loupe",
+      name: "loupe du viseur",
+      simulator: true,
+      // La grille « Seize cases », que la loupe à 100 % doit masquer, comme à la fin de l'étape « grilles de cadrage ».
+      start: (s0) => ({ autoIso: false, previewDepthOfField: false, iso: s0.iso + 18, shutter: s0.shutter + 16, grid: "sixteen" }),
+      run: async () => {
+        // Loupe du viseur et son bruit (constat PHY-07 de l'audit, version 0.3.78), à ISO 6400 (M, f/8, 1/4000 s, sans ISO
+        // auto). Le point de mise au point est d'abord posé en haut du cadre, au milieu, sur le fond : la loupe se centre
+        // sur lui, et la zone mesurée ne montre que le fond, immobile. À densité 2, le bruit doit être tiré par pixel CSS :
+        // mesuré par pixel CSS, il vaut alors celui d'un pixel calculé ; tiré par pixel calculé, il en valait la moitié
+        // (0,52 fois, mesuré le 20 novembre 2026 : docs/camera-physique.md, « Loupe »). À densité 1, pixels CSS et pixels
+        // calculés se confondent : ce rapport n'est pas contrôlé. À toute densité, la loupe doit montrer du bruit, et le
+        // rapport du vert au rouge à 50 % dit si k est compté par pixel CSS. Le point est ramené au centre une fois la
+        // loupe coupée.
+        const loupeFrame = await page.locator("#frame").boundingBox();
+        // Premier point, en haut du cadre, où le clic arrive au viseur (sur un téléphone, une aide du viseur peut couvrir
+        // le haut du cadre ; document.elementFromPoint donne l'élément qui recevrait le clic).
+        const loupeTarget = await page.evaluate((box) => {
+          const canvas = document.getElementById("scene");
+          for (const [u, v] of [[0.5, 0.15], [0.5, 0.25], [0.65, 0.15], [0.35, 0.15]]) {
+            if (document.elementFromPoint(box.x + u * box.width, box.y + v * box.height) === canvas) return { u, v };
+          }
+          return null;
+        }, loupeFrame);
+        if (loupeTarget) await g.tap(loupeFrame.x + loupeTarget.u * loupeFrame.width, loupeFrame.y + loupeTarget.v * loupeFrame.height);
+        await page.waitForTimeout(1500);
+        await page.click("#loupe-button");
+        const loupeHalf = await page.evaluate(() => document.getElementById("loupe-badge").textContent);
+        await page.waitForTimeout(1500);
+        const noiseHalf = await loupeNoise(page);
+        await page.click("#loupe-button");
+        const loupe = await page.evaluate(() => document.getElementById("loupe-badge").textContent);
+        check("loupe du viseur à 100 %", /100/.test(loupe), loupe);
+        await page.waitForTimeout(1500);
+        const noiseFull = await loupeNoise(page);
+        const cssShare = (m) => m.css.map((v, c) => v / Math.max(1e-6, m.px[c]));
+        const loupeNoiseText = (label, m) =>
+          `${label} : ${m.px.map((v) => v.toFixed(2)).join(" / ")} par pixel calculé, ${m.css.map((v) => v.toFixed(2)).join(" / ")} par pixel CSS`;
+        // k compté par pixel CSS : à 50 %, un pixel CSS compte environ 4 photosites, dont 2 verts et 1 rouge ; le bruit du
+        // vert vaut environ 1 / √2 = 71 % de celui du rouge (mesuré de 71 à 74 %, Sujet 18). Avec k compté par pixel
+        // calculé à densité 2, les deux couleurs auraient le bruit d'un photosite (rapport de 1,05 mesuré avec le code
+        // d'avant) : ce rapport garde le compte de k, que le rapport entre pixels CSS et pixels calculés ne voit pas
+        // (relecture de la version 0.3.78).
+        const greenToRed = noiseHalf.css[1] / Math.max(1e-6, noiseHalf.css[0]);
+        const densityOk = noiseFull.density === 1 || !noiseFull.integer || [...cssShare(noiseHalf), ...cssShare(noiseFull)].every((r) => r > 0.85);
+        check(
+          `loupe du viseur : bruit tiré par pixel CSS, k compté par pixel CSS (densité ${noiseFull.density}${noiseFull.integer ? "" : ", non entière"})`,
+          loupeTarget !== null && /50/.test(loupeHalf) && noiseFull.px.every((v) => v > 1) && greenToRed < 0.85 && densityOk,
+          `${loupeTarget ? `point posé à ${Math.round(100 * loupeTarget.u)} % et ${Math.round(100 * loupeTarget.v)} % du cadre` : "aucun point du haut du cadre ne reçoit le clic"} ; ${loupeNoiseText(loupeHalf, noiseHalf)} ; ${loupeNoiseText(loupe, noiseFull)} ; vert / rouge à 50 % : ${greenToRed.toFixed(2)} ; zone de ${noiseFull.zone} pixels calculés${noiseFull.integer ? "" : " ; densité non entière : rapport entre pixels CSS et pixels calculés non contrôlé"}`,
+        );
+        const gridMagnified = await gridState(4);
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-loupe.png`), timeout: 120000 });
+        await page.click("#loupe-button");
+        await g.tap(loupeFrame.x + loupeFrame.width / 2, loupeFrame.y + loupeFrame.height / 2);
+        await page.waitForTimeout(500);
+        const gridBack = await gridState(4);
+        check(
+          "grille masquée par la loupe à 100 %, revenue ensuite",
+          gridMagnified.vertical + gridMagnified.horizontal === 0 && gridBack.vertical === 3 && gridBack.horizontal === 3 && gridBack.error <= 1,
+          `loupe à 100 % : ${gridMagnified.vertical + gridMagnified.horizontal} ligne(s) visible(s) ; loupe coupée : ${gridBack.vertical + gridBack.horizontal}`,
+        );
+        // Retour à « Aucune » avant la suite.
+        await setGrid("none");
+        const gridOff = await gridState(3);
+        check("grille de cadrage : retour à « Aucune »", gridOff.vertical + gridOff.horizontal === 0 && gridOff.saved === "none", `${gridOff.vertical + gridOff.horizontal} ligne(s) visible(s) ; tutophoto.apercu : ${gridOff.saved}`);
+      },
+    },
+    {
+      id: "photo",
+      name: "photo et écran de revue",
+      simulator: true,
+      photo: true,
+      start: (s0) => ({ autoIso: false, previewDepthOfField: false, iso: s0.iso + 18, shutter: s0.shutter + 16 }),
+      run: async () => {
+        // Point de mise au point verrouillé au centre du cadre, comme avant cette photo dans le parcours d'une seule
+        // traite (fin de l'étape « loupe du viseur »).
+        const centreBox = await page.locator("#frame").boundingBox();
+        await g.tap(centreBox.x + centreBox.width / 2, centreBox.y + centreBox.height / 2);
+        await page.waitForTimeout(500);
+        await g.tapElement("#shutter-button");
+        await page.waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("review-image").complete, null, { timeout: 300000 });
+        const photo = await page.evaluate(() => {
+          const img = document.getElementById("review-image");
+          if (!img.naturalWidth) return { mean: 0, caption: document.getElementById("review-caption").textContent };
+          const c = document.createElement("canvas");
+          c.width = img.naturalWidth;
+          c.height = img.naturalHeight;
+          const g = c.getContext("2d");
+          g.drawImage(img, 0, 0);
+          const d = g.getImageData(0, 0, c.width, c.height).data;
+          let s = 0;
+          for (let i = 0; i < d.length; i += 4) s += (d[i] + d[i + 1] + d[i + 2]) / 3;
+          return { mean: s / (d.length / 4), size: `${c.width}×${c.height}`, caption: document.getElementById("review-caption").textContent };
+        });
+        check("photo calculée, pas noire", photo.mean > 5, `${photo.size ?? "-"}, niveau moyen ${photo.mean.toFixed(1)} ; ${photo.caption}`);
+        check("légende : mode et réglages retenus", /^M · f\/8 · 1\/4000 s · ISO 6400 · 50 mm · /.test(photo.caption), photo.caption.slice(0, 60));
+        const bulletinText = await page.evaluate(() => document.getElementById("review-bulletin").innerText);
+        check("bulletin sous la photo", /Exposition\u00a0: /.test(bulletinText) && /Zone nette\u00a0: /.test(bulletinText), bulletinText.split("\n").slice(0, 3).join(" | "));
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-photo.png`), timeout: 120000 });
+
+        // Histogrammes et hautes lumières de l'écran de revue (MES-06, MES-07 ; version 0.3.57). Le bouton « Infos »
+        // fait défiler : photo seule (par défaut), histogrammes, hautes lumières. État lu dans la page :
+        // - histogrammes visibles, avec les nombres de pixels de leurs colonnes (attribut data-columns) ;
+        // - texte de la part écrêtée (« … : 3,2 % de l'image », avec une espace insécable devant « % », ou « Aucun
+        //   pixel à la valeur maximale ») ;
+        // - calque des zones écrêtées : affiché ou non (il clignote : sa visibilité ne compte pas), pixels opaques,
+        //   écart en pixels entre son rectangle et celui de la photo, et élément touché au centre de la photo.
+        const reviewInfo = () =>
+          page.evaluate(() => {
+            const shown = (el) => !el.hidden && el.getClientRects().length > 0;
+            const img = document.getElementById("review-image");
+            const pixels = img.naturalWidth * img.naturalHeight;
+            const histograms = [...document.querySelectorAll("#review-histograms svg[data-channel]")].filter(shown).map((svg) => {
+              const columns = (svg.dataset.columns ?? "").split(",").map(Number);
+              const sum = (list) => list.reduce((a, b) => a + b, 0);
+              return { channel: svg.dataset.channel, count: columns.length, total: sum(columns), left: sum(columns.slice(0, 128)) };
+            });
+            const clipping = document.getElementById("review-clipping");
+            const text = shown(clipping) ? clipping.textContent : "";
+            // La phrase, visible en son centre et pas sous la barre collée en bas de l'écran de revue (relecture de la
+            // version 0.4.10, R2) ; null quand elle n'est pas affichée.
+            let textVisible = null;
+            if (shown(clipping)) {
+              const c = clipping.getBoundingClientRect();
+              textVisible = clipping.contains(document.elementFromPoint(c.left + c.width / 2, c.top + c.height / 2));
+            }
+            const m = /: (\d+,\d)\s% de l'image/.exec(text);
+            const overlay = document.getElementById("review-highlights");
+            // pointer-events calculé : le calque ne doit prendre aucun toucher, quelle que soit la phase de son
+            // clignotement (version 0.4.19 ; elementFromPoint ne voit pas un élément caché par visibility, comme le
+            // clignotement l'était avant la version 0.3.62).
+            const zones = { shown: shown(overlay), opaque: 0, gap: NaN, events: getComputedStyle(overlay).pointerEvents };
+            if (zones.shown) {
+              const data = overlay.getContext("2d").getImageData(0, 0, overlay.width, overlay.height).data;
+              for (let i = 3; i < data.length; i += 4) if (data[i] === 255) zones.opaque++;
+              const a = overlay.getBoundingClientRect();
+              const b = img.getBoundingClientRect();
+              zones.gap = Math.max(Math.abs(a.left - b.left), Math.abs(a.top - b.top), Math.abs(a.right - b.right), Math.abs(a.bottom - b.bottom));
+            }
+            const box = img.getBoundingClientRect();
+            let saved = null;
+            try {
+              saved = JSON.parse(localStorage.getItem("tutophoto.revue") ?? "null")?.display ?? null;
+            } catch {
+              saved = "illisible";
+            }
+            return {
+              button: document.getElementById("review-info").textContent,
+              pixels,
+              histograms,
+              text,
+              textVisible,
+              share: m ? Number(m[1].replace(",", ".")) : /^Aucun pixel à la valeur maximale/.test(text) ? 0 : NaN,
+              zones,
+              touched: document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)?.id ?? "",
+              exposure: /Exposition\u00a0: (\S+ IL)/.exec(document.getElementById("review-bulletin").innerText)?.[1] ?? "",
+              saved,
+            };
+          });
+        const infoDefault = await reviewInfo();
+        check(
+          "revue : ni histogramme ni clignotement par défaut",
+          infoDefault.button === "Infos\u00a0: photo seule" && infoDefault.histograms.length === 0 && !infoDefault.zones.shown && infoDefault.text === "" && infoDefault.saved === null,
+          `bouton « ${infoDefault.button} » ; ${infoDefault.histograms.length} histogramme(s) ; zones écrêtées ${infoDefault.zones.shown ? "affichées" : "masquées"} ; tutophoto.revue : ${infoDefault.saved}`,
+        );
+        await page.click("#review-info");
+        const infoHistograms = await reviewInfo();
+        check(
+          "revue, « Infos » une fois : quatre histogrammes, somme des colonnes égale au nombre de pixels",
+          infoHistograms.button === "Infos\u00a0: histogrammes" &&
+            infoHistograms.histograms.map((h) => h.channel).join() === "luminance,red,green,blue" &&
+            infoHistograms.histograms.every((h) => h.count === 256 && h.total === infoHistograms.pixels) &&
+            infoHistograms.pixels > 0 &&
+            infoHistograms.saved === "histograms" &&
+            infoHistograms.textVisible === true,
+          `${infoHistograms.histograms.map((h) => `${h.channel} ${h.total}`).join(", ")} ; photo de ${infoHistograms.pixels} pixels ; ${infoHistograms.text} ; phrase ${infoHistograms.textVisible ? "visible" : "cachée"} ; tutophoto.revue : ${infoHistograms.saved}`,
+        );
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-histogrammes.png`), timeout: 120000 });
+        // Retour à « photo seule » (par « hautes lumières ») : la loupe de l'écran de revue est contrôlée comme avant.
+        await page.click("#review-info");
+        await page.click("#review-info");
+        const box = await page.locator("#review-image").boundingBox();
+        await g.tap(box.x + box.width / 2, box.y + box.height / 2);
+        await page.waitForFunction(() => document.getElementById("progress").hidden && !document.getElementById("review-whole").hidden, null, { timeout: 300000 });
+        const caption = await page.evaluate(() => document.getElementById("review-caption").textContent);
+        check("loupe de l'écran de revue", /100/.test(caption), caption);
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-loupe.png`), timeout: 120000 });
+
+        // Deux loupes séparées par « Photo entière », sur la même photo (constat COD-14 de l'audit, version 0.3.62).
+        // La première loupe, ci-dessus, est au centre. Après « Photo entière », la photo est touchée à 50 % de sa
+        // largeur et à 20 % de sa hauteur : la seconde loupe doit montrer cet endroit. Avant la correction, le toucher
+        // était lu comme une position dans la fenêtre de la première loupe, et la seconde loupe montrait un voisin du
+        // centre : pour ce point, le centre remonté de trois dixièmes de la hauteur de la fenêtre. Mesure, sur une
+        // seule photo (les sujets bougent d'une photo à l'autre ; la loupe rejoue l'instant de la photo) : la fenêtre
+        // de la loupe et une zone de la photo entière sont réduites à 12 × 4 cases, et l'écart est la moyenne, sur les
+        // cases, de la différence de luminance en valeur absolue (niveaux de 0 à 255). L'écart est pris avec la zone
+        // touchée, puis avec la zone du centre. La place d'une zone dans la photo entière vient de la taille de l'image
+        // complète du Nikon Z 6 (24,5 millions de pixels, capteur de 35,9 × 23,9 mm : sensorPixels,
+        // app/src/camera/bodies.ts) et de celle de la fenêtre, qui est à 100 % ; calcul de magnify
+        // (app/src/ui/shutter.ts). Cette taille est écrite ici en dur. Avec un autre boîtier par défaut, la zone serait
+        // fausse et le contrôle réussirait encore : la relecture de la version 0.3.62 l'a mesuré, hors de la routine,
+        // avec la taille du Canon EOS RP, boîtier retiré depuis (version 0.3.80) : 3 % en étendue, 2,5 niveaux sur
+        // ordinateur à ce point. C'est un changement du centrage de la fenêtre qui le fait échouer. La photo entière est relue à l'adresse du lien
+        // « Enregistrer ». Le contrôle demande un écart avec la zone touchée inférieur à 10 niveaux, et inférieur à
+        // l'écart avec la zone du centre.
+        //
+        // Le point touché est dans le haut de la photo, sur les arbres et les troncs. Le premier état du contrôle
+        // touchait à 85 % et 80 %, sur le sol de feuilles mortes, sans motif à l'échelle des cases. La relecture de la
+        // version 0.3.62 y a mesuré deux faiblesses, hors de la routine : sur les profils ordinateur et webgl1 (fenêtre
+        // de 1256 × 466), une loupe ouverte ailleurs sur le sol, à plusieurs fenêtres du point touché, restait sous 10
+        // niveaux (de 7,7 à 8,9) ; et sans la correction, l'écart avec la zone touchée restait inférieur à l'écart avec
+        // celle du centre sur trois profils sur quatre, où seul le seuil de 10 détectait le défaut. À 50 % et 20 %,
+        // même relecture, hors de la routine : avec la correction, 0,4 niveau (ordinateur, Pixel 7 émulé) et 0,7
+        // (iPhone 14 émulé, police de la CI) ; sans elle, 77 niveaux avec la zone touchée contre 33 avec celle du
+        // centre (ordinateur) et 86 contre 22 (Pixel 7 émulé) ; une image unie, au niveau moyen de la loupe, est à 14
+        // niveaux au moins. Dans la routine, le 17 novembre 2026, avec la correction : 0,4 niveau avec la zone touchée
+        // contre 51,8 avec celle du centre (ordinateur), 0,7 contre 112,9 (iphone, police de la CI).
+        //
+        // La zone touchée est placée d'après le point que la photo a reçu (décalage du clic dans l'image, divisé par sa
+        // taille affichée : ce que lit magnify), et non d'après le point visé : le clic arrive à un pixel CSS entier, et
+        // sur le profil iphone, avec la police de la CI (viseur de 238 px), la photo n'est affichée qu'en 178 × 118 px.
+        // Un pixel CSS y vaut 34 pixels de l'image complète, soit 8,5 pixels de la photo entière, plus qu'une case
+        // (7,5 × 6 pixels). Placé d'après le point visé, le premier état du contrôle échouait dans la CI sur ce profil,
+        // correction en place (16 novembre 2026, toucher à 85 % et 80 % : 12,6 niveaux ; refait sur la machine de
+        // Claude avec cette police : 12,9 d'après le point visé, 2,1 d'après le point reçu). Si le clic n'arrive pas à
+        // la photo (aucun point reçu en 30 s), aucune loupe n'est demandée : le contrôle échoue en le disant, sans
+        // attendre 300 s une loupe qui ne viendra pas.
+        await page.click("#review-whole");
+        await page.waitForFunction(() => document.getElementById("review-whole").hidden && document.getElementById("review-image").complete, null, { timeout: 300000 });
+        const secondTouch = { u: 0.5, v: 0.2 };
+        await page.evaluate(() => {
+          const image = document.getElementById("review-image");
+          window.routineSecondTouch = null;
+          image.addEventListener(
+            "click",
+            (e) => (window.routineSecondTouch = { u: e.offsetX / image.clientWidth, v: e.offsetY / image.clientHeight, shown: `${image.clientWidth}×${image.clientHeight}` }),
+            { capture: true, once: true },
+          );
+        });
+        const wholeBox = await page.locator("#review-image").boundingBox();
+        await g.tap(wholeBox.x + wholeBox.width * secondTouch.u, wholeBox.y + wholeBox.height * secondTouch.v);
+        // Le clic est reçu par la photo avant que magnify commence : sans point reçu, « Photo entière » restera masqué.
+        const secondArrived = await page.waitForFunction(() => window.routineSecondTouch !== null, null, { timeout: 30000 }).then(
+          () => true,
+          () => false,
+        );
+        if (secondArrived) {
+          await page.waitForFunction(
+            () => document.getElementById("progress").hidden && !document.getElementById("review-whole").hidden && document.getElementById("review-image").complete,
+            null,
+            { timeout: 300000 },
+          );
+        }
+        const secondLoupe = !secondArrived ? null : await page.evaluate(async () => {
+          const received = window.routineSecondTouch;
+          const { u, v } = received;
+          const COLUMNS = 12;
+          const ROWS = 4;
+          const load = (src) =>
+            new Promise((resolve, reject) => {
+              const image = new Image();
+              image.onload = () => resolve(image);
+              image.onerror = () => reject(new Error("image illisible"));
+              image.src = src;
+            });
+          // Luminance moyenne (Rec. 709) de chaque case d'une zone de l'image, donnée en pixels de l'image.
+          const cells = (image, x0, y0, width, height) => {
+            const c = document.createElement("canvas");
+            c.width = image.naturalWidth;
+            c.height = image.naturalHeight;
+            const g = c.getContext("2d");
+            g.drawImage(image, 0, 0);
+            const out = [];
+            for (let row = 0; row < ROWS; row++) {
+              for (let column = 0; column < COLUMNS; column++) {
+                const xa = Math.min(c.width - 1, Math.round(x0 + (column * width) / COLUMNS));
+                const xb = Math.min(c.width, Math.max(xa + 1, Math.round(x0 + ((column + 1) * width) / COLUMNS)));
+                const ya = Math.min(c.height - 1, Math.round(y0 + (row * height) / ROWS));
+                const yb = Math.min(c.height, Math.max(ya + 1, Math.round(y0 + ((row + 1) * height) / ROWS)));
+                const d = g.getImageData(xa, ya, xb - xa, yb - ya).data;
+                let sum = 0;
+                for (let i = 0; i < d.length; i += 4) sum += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+                out.push(sum / (d.length / 4));
+              }
+            }
+            return out;
+          };
+          const gap = (a, b) => a.reduce((sum, value, i) => sum + Math.abs(value - b[i]), 0) / a.length;
+          const loupe = await load(document.getElementById("review-image").src);
+          const photo = await load(document.getElementById("review-save").href);
+          const long = Math.sqrt((24.5e6 * 35.9) / 23.9);
+          const portrait = photo.naturalHeight > photo.naturalWidth;
+          const fullWidth = Math.round(portrait ? 24.5e6 / long : long);
+          const fullHeight = Math.round(portrait ? long : 24.5e6 / long);
+          const width = loupe.naturalWidth;
+          const height = loupe.naturalHeight;
+          // Fenêtre centrée sur le point, ramenée dans l'image complète, puis rapportée à la photo entière.
+          const zone = (x, y) => {
+            const left = Math.min(fullWidth - width, Math.max(0, Math.round(x * fullWidth - width / 2)));
+            const top = Math.min(fullHeight - height, Math.max(0, Math.round(y * fullHeight - height / 2)));
+            const sx = photo.naturalWidth / fullWidth;
+            const sy = photo.naturalHeight / fullHeight;
+            return cells(photo, left * sx, top * sy, width * sx, height * sy);
+          };
+          const shown = cells(loupe, 0, 0, width, height);
+          return {
+            touched: gap(shown, zone(u, v)),
+            centre: gap(shown, zone(0.5, 0.5)),
+            loupe: `${width}×${height}`,
+            photo: `${photo.naturalWidth}×${photo.naturalHeight}`,
+            shown: received.shown,
+            u,
+            v,
+            caption: document.getElementById("review-caption").textContent,
+          };
+        });
+        check(
+          "revue : après « Photo entière », la seconde loupe montre le point touché",
+          secondLoupe !== null && /100/.test(secondLoupe.caption) && secondLoupe.touched < 10 && secondLoupe.touched < secondLoupe.centre,
+          `toucher à ${(100 * secondTouch.u).toFixed(0)} % et ${(100 * secondTouch.v).toFixed(0)} %` +
+            (secondLoupe === null
+              ? " : le clic n'est pas arrivé à la photo (aucun point reçu en 30 s), aucune loupe n'a été demandée"
+              : `, reçu à ${(100 * secondLoupe.u).toFixed(1)} % et ${(100 * secondLoupe.v).toFixed(1)} % : écart de ${secondLoupe.touched.toFixed(1)} niveau(x) avec la zone touchée, de ${secondLoupe.centre.toFixed(1)} avec celle du centre ; fenêtre ${secondLoupe.loupe}, photo ${secondLoupe.photo}, affichée en ${secondLoupe.shown}`),
+        );
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-loupe-2.png`), timeout: 120000 });
+
+        // Loupe, puis « Revenir au viseur » pendant son calcul (constat COD-08 de l'audit, version 0.3.71) : la loupe doit
+        // être jetée, l'écran de revue rester fermé. Avant la correction, il se rouvrait à la fin du calcul avec la
+        // fenêtre de la loupe (essai du 20 novembre 2026, construction de origin/main, hors de la routine). À la tâche
+        // suivante du toucher de la photo, calcul commencé, la routine fait défiler l'écran de revue en bas ; puis elle
+        // clique « Revenir au viseur » à la souris, en son centre : écran défilé en bas, la bande « Calcul de la
+        // loupe… » recouvrait le bouton et prenait le clic (constat B1 de la relecture du Sujet 11, version 0.3.71). Le
+        // contrôle relève l'élément sous le centre du bouton, que le clic est arrivé au bouton pendant le calcul, et lit
+        // l'écran de revue une seconde après la fin du calcul ; il donne le temps entre le clic et la fin du calcul.
+        await page.waitForFunction(() => document.getElementById("progress").hidden && !document.getElementById("review").hidden);
+        await page.evaluate(() => {
+          window.routineBack = null;
+          window.routineBackClick = null;
+          window.routineProgressEnd = null;
+          const progress = document.getElementById("progress");
+          new MutationObserver((_, observer) => {
+            if (progress.hidden && window.routineBackClick) {
+              window.routineProgressEnd = performance.now();
+              observer.disconnect();
+            }
+          }).observe(progress, { attributes: true, attributeFilter: ["hidden"] });
+          document.getElementById("review-back").addEventListener(
+            "click",
+            () => (window.routineBackClick = { at: performance.now(), computing: !progress.hidden, label: document.getElementById("progress-label").textContent }),
+            { once: true },
+          );
+          document.getElementById("review-image").addEventListener(
+            "click",
+            () =>
+              setTimeout(() => {
+                const review = document.getElementById("review");
+                review.scrollTop = review.scrollHeight;
+                window.routineBack = { computing: !progress.hidden };
+              }, 0),
+            { once: true },
+          );
+        });
+        const backBox = await page.locator("#review-image").boundingBox();
+        await g.tap(backBox.x + backBox.width / 2, backBox.y + backBox.height / 2);
+        const backArrived = await page.waitForFunction(() => window.routineBack !== null, null, { timeout: 30000 }).then(
+          () => true,
+          () => false,
+        );
+        let backUnder = null;
+        if (backArrived) {
+          const button = await page.evaluate(() => {
+            const b = document.getElementById("review-back").getBoundingClientRect();
+            const x = b.left + b.width / 2;
+            const y = b.top + b.height / 2;
+            const under = document.elementFromPoint(x, y);
+            return { x, y, under: under ? under.id || under.className || under.tagName : null };
+          });
+          backUnder = button.under;
+          await page.mouse.click(button.x, button.y);
+        }
+        await page.waitForFunction(() => document.getElementById("progress").hidden);
+        await page.waitForTimeout(1000);
+        const back = await page.evaluate(() => ({
+          ...(window.routineBack ?? {}),
+          click: window.routineBackClick,
+          ended: window.routineProgressEnd && window.routineBackClick ? (window.routineProgressEnd - window.routineBackClick.at) / 1000 : null,
+          review: !document.getElementById("review").hidden,
+          caption: document.getElementById("review-caption").textContent,
+        }));
+        check(
+          "revue : loupe jetée après « Revenir au viseur » pendant son calcul, écran défilé en bas (COD-08, B1)",
+          backArrived && back.computing === true && back.click?.computing === true && !back.review,
+          !backArrived
+            ? "le clic n'est pas arrivé à la photo en 30 s"
+            : `sous le centre de « Revenir au viseur » : ${backUnder} ; clic ${back.click ? `arrivé au bouton, calcul ${back.click.computing ? `en cours (« ${back.click.label} »)` : "fini"}` : "pas arrivé au bouton"} ; écran de revue ${back.review ? `rouvert (« ${back.caption.slice(0, 60)} »)` : "resté fermé"}` +
+              (back.ended !== null ? ` ; calcul fini ${back.ended.toFixed(1).replace(".", ",")} s après le clic` : ""),
+        );
+
+        // Photo en échec après une bonne photo (constat B10 de la relecture de la version 0.3.70, version 0.3.71) : le
+        // message seul, sans l'image, « Touche la photo… » ni « Enregistrer la photo » de la photo d'avant, qui restaient
+        // affichés. La photo d'avant est une vue seule : les boutons de la série, relevés aussi, ne peuvent pas être
+        // affichés ici, et ce contrôle ne les vérifie pas (constat A1 de la relecture du Sujet 11). L'échec est provoqué par la routine : canvas.toBlob, dernière étape du calcul
+        // (app/src/camera/photo.ts), lève une erreur au texte reconnaissable, admise dans ADMITTED_ERRORS ; toBlob est
+        // rendu ensuite.
+        if (await page.isVisible("#review")) await page.click("#review-back");
+        await page.evaluate(() => {
+          const original = HTMLCanvasElement.prototype.toBlob;
+          window.routineRestoreBlob = () => (HTMLCanvasElement.prototype.toBlob = original);
+          HTMLCanvasElement.prototype.toBlob = function () {
+            throw new Error("échec injecté par la routine");
+          };
+        });
+        await g.tapElement("#shutter-button");
+        const failedShown = await page
+          .waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden && /n'a pas pu/.test(document.getElementById("review-caption").textContent), null, { timeout: 300000 })
+          .then(() => true, () => false);
+        await page.evaluate(() => window.routineRestoreBlob());
+        const failedView = await page.evaluate(() => {
+          const shown = (id) => {
+            const el = document.getElementById(id);
+            return !el.hidden && el.getClientRects().length > 0;
+          };
+          return {
+            caption: document.getElementById("review-caption").textContent,
+            left: ["review-image", "review-save", "review-hint", "review-series", "review-whole"].filter(shown),
+          };
+        });
+        check(
+          "revue : photo en échec après une bonne photo, sans l'image ni « Enregistrer » d'avant (B10)",
+          failedShown && /échec injecté par la routine/.test(failedView.caption) && /ne reconnaît pas la cause\u202f; réessaie/.test(failedView.caption) && failedView.left.length === 0,
+          `« ${failedView.caption.slice(0, 90)} » ; encore affichés : ${failedView.left.join(", ") || "rien"}`,
+        );
+        await page.click("#review-back");
+
+        // Photo surexposée, puis sous-exposée (MES-06, MES-07). Réglages de départ : M, f/8, 1/4000 s, ISO 6400, soit
+        // +0,5 IL (12,5 − 12). Les crans valent un tiers d'IL et la scène est à un demi-tiers : 3 IL exactement
+        // n'existe pas. Vitesse à 1/640 s (8 crans) : +0,5 + 8/3 = +3,2 IL. Puis 1/4000 s et ISO 500 (11 crans) :
+        // +0,5 − 11/3 = −3,2 IL.
+        const shoot = async () => {
+          await g.tapElement("#shutter-button");
+          await page.waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden && document.getElementById("review-image").complete, null, { timeout: 300000 });
+        };
+        await clicks('[data-dial="shutter"][data-step="1"]', 8);
+        await shoot();
+        // La photo suivante s'ouvre en haut de l'écran de revue (constat INT-17 de l'audit, version 0.3.59). Sur le
+        // profil iphone, avec la police de la CI (viseur de 238 px), « Infos » a fait défiler l'écran de revue de la
+        // première photo de 36 px ; ce défilement était gardé, et la photo, sans hauteur tant qu'elle n'était pas
+        // chargée, pouvait être poussée hors de l'écran par l'ancrage du défilement de Chromium : le contrôle « zones
+        // écrêtées posées sur la photo », plus bas, lisait alors l'en-tête au centre de la photo (CI du 15 novembre
+        // 2026). Sur les profils android et ordinateur, rien ne fait défiler l'écran de revue avant cette photo : ce
+        // contrôle y réussit aussi sur le site d'avant la correction, il n'y distingue pas le défaut.
+        const reopened = await page.evaluate(() => {
+          const review = document.getElementById("review");
+          return { scroll: review.scrollTop, top: document.getElementById("review-image").getBoundingClientRect().top - review.getBoundingClientRect().top };
+        });
+        check(
+          "photo suivante : écran de revue ouvert en haut",
+          reopened.scroll === 0 && reopened.top >= 0,
+          `défilement ${reopened.scroll.toFixed(0)} px ; haut de la photo à ${reopened.top.toFixed(0)} px du haut de l'écran de revue`,
+        );
+        await page.click("#review-info");
+        const over = await reviewInfo();
+        check(
+          "photo surexposée de 3,2 IL : part écrêtée supérieure à 0 dans le texte",
+          over.exposure === "+3,2 IL" && over.share > 0 && over.histograms.length === 4 && over.histograms.every((h) => h.total === over.pixels),
+          `exposition ${over.exposure} ; ${over.text}`,
+        );
+        await page.click("#review-info");
+        const overZones = await reviewInfo();
+        const zoneShare = (100 * overZones.zones.opaque) / overZones.pixels;
+        check(
+          "« Infos » encore une fois : zones écrêtées posées sur la photo",
+          overZones.button === "Infos\u00a0: hautes lumières" && overZones.zones.shown && overZones.zones.opaque > 0 && Math.abs(zoneShare - overZones.share) < 0.06 && overZones.zones.gap <= 1 && overZones.zones.events === "none" && overZones.touched === "review-image" && overZones.histograms.length === 0 && overZones.textVisible === true,
+          `${overZones.zones.opaque} pixels en noir, soit ${zoneShare.toFixed(2)} % ; ${overZones.text} ; phrase ${overZones.textVisible ? "visible" : "cachée"} ; écart avec la photo ${overZones.zones.gap.toFixed(2)} px ; toucher au centre de la photo : ${overZones.touched} ; pointer-events du calque : ${overZones.zones.events}`,
+        );
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-revue-hautes-lumieres.png`), timeout: 120000 });
+        // « Réduire les animations » (réglage du système, émulé par Playwright) : l'écran de revue écrit alors que les
+        // zones sont en noir « sans clignoter », et le calque ne doit avoir aucune animation. Des versions 0.3.57 à
+        // 0.3.61, la règle qui coupe l'animation était écrite avant celle du calque, qui l'emportait : les zones
+        // clignotaient (relecture de la version 0.3.62). Le texte n'est écrit qu'au changement d'affichage : trois
+        // touchers sur « Infos » ramènent à « hautes lumières » sous le réglage émulé. C'est l'état du calque qui est
+        // lu, et non des captures d'écran : en rendu logiciel, deux captures à une seconde d'écart ne distinguent pas
+        // le défaut de façon sûre. Le réglage est rendu ensuite, et le calque doit retrouver son animation ; le texte
+        // reste celui du réglage émulé jusqu'à la photo suivante, qui le réécrit.
+        const blinkState = () =>
+          page.evaluate(() => {
+            const overlay = document.getElementById("review-highlights");
+            const style = getComputedStyle(overlay);
+            const clipping = document.getElementById("review-clipping");
+            return {
+              asked: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+              shown: !overlay.hidden && overlay.getClientRects().length > 0,
+              animation: style.animationName,
+              running: overlay.getAnimations().length,
+              opacity: style.opacity,
+              button: document.getElementById("review-info").textContent,
+              text: !clipping.hidden && clipping.getClientRects().length > 0 ? clipping.textContent : "",
+            };
+          });
+        const blinking = await blinkState();
+        await page.emulateMedia({ reducedMotion: "reduce" });
+        await clicks("#review-info", 3);
+        const still = await blinkState();
+        await page.emulateMedia({ reducedMotion: null });
+        const blinkingAgain = await blinkState();
+        check(
+          "« réduire les animations » : zones écrêtées en noir sans clignoter, comme l'écrit l'écran de revue",
+          !blinking.asked && blinking.animation === "clignote" && blinking.running === 1 && /Ces zones clignotent en noir sur la photo\.$/.test(blinking.text) &&
+            still.asked && still.shown && still.button === "Infos\u00a0: hautes lumières" && still.animation === "none" && still.running === 0 && still.opacity === "1" && /sans clignoter/.test(still.text) &&
+            !blinkingAgain.asked && blinkingAgain.animation === "clignote" && blinkingAgain.running === 1,
+          `sans le réglage : animation « ${blinking.animation} », ${blinking.running} en cours ; avec : « ${still.animation} », ${still.running} en cours, opacité ${still.opacity}, bouton « ${still.button} », « ${still.text.split(". ").pop()} » ; réglage rendu : « ${blinkingAgain.animation} », ${blinkingAgain.running} en cours`,
+        );
+        await page.click("#review-back");
+        await clicks('[data-dial="shutter"][data-step="-1"]', 8);
+        await clicks('[data-dial="iso"][data-step="-1"]', 11);
+        // L'affichage « hautes lumières » est gardé pour la photo suivante : sans zone écrêtée, rien ne clignote.
+        await shoot();
+        const underZones = await reviewInfo();
+        await page.click("#review-info");
+        await page.click("#review-info");
+        const under = await reviewInfo();
+        const luminance = under.histograms.find((h) => h.channel === "luminance") ?? { left: 0, total: 0 };
+        check(
+          "photo sous-exposée de 3,2 IL : aucune zone écrêtée, luminance dans la moitié gauche",
+          under.exposure === "−3,2 IL" && underZones.button === "Infos\u00a0: hautes lumières" && underZones.share === 0 && !underZones.zones.shown && under.share === 0 && luminance.left > under.pixels / 2 && luminance.total === under.pixels,
+          `exposition ${under.exposure} ; hautes lumières : ${underZones.text} ; ${luminance.left} pixels sur ${under.pixels} dans la moitié gauche de la luminance`,
+        );
+        // Retour à « photo seule » et aux réglages de départ avant la suite.
+        await page.click("#review-info");
+        await page.click("#review-info");
+        const infoOff = await reviewInfo();
+        check(
+          "revue : retour à « photo seule »",
+          infoOff.button === "Infos\u00a0: photo seule" && infoOff.histograms.length === 0 && !infoOff.zones.shown && infoOff.text === "" && infoOff.saved === "photo",
+          `bouton « ${infoOff.button} » ; tutophoto.revue : ${infoOff.saved}`,
+        );
+        await page.click("#review-back");
+      },
+    },
+    {
+      id: "defis",
+      name: "défis",
+      simulator: true,
+      photo: true,
+      start: (s0) => ({ autoIso: false, previewDepthOfField: false, iso: s0.iso + 18, shutter: s0.shutter + 16 }),
+      run: async () => {
+        // Défis (SIT-05, SIT-01), zone automatique avec détection des yeux : mise au point sur l'œil de Sophia, vers
+        // 6,6 m. À f/8 et 50 mm, zone nette d'environ 4 m à 17 m : le groupe y est (SIT-05 réussi). À f/22, la distance
+        // hyperfocale vaut 2500 / (22 × 0,02875) ≈ 4 m : mise au point à 6,6 m, la zone nette va jusqu'à l'infini et le
+        // fond photo est net (SIT-01 à reprendre), quel que soit le cadrage (vertical sur le profil Android, où la
+        // poubelle sort du cadre).
+        const challengeShot = async (id, during = null) => {
+          await page.click("#challenge-button");
+          await page.check(`#challenge-dialog input[name="challenge"][value="${id}"]`);
+          await page.click("#challenge-close");
+          await g.tapElement("#shutter-button");
+          await page.waitForFunction(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden && !document.getElementById("review-bulletin").hidden, null, { timeout: 300000 });
+          const text = await page.evaluate(() => document.getElementById("review-bulletin").innerText);
+          if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-defi-${id}.png`), timeout: 120000 });
+          if (during) await during();
+          await page.click("#review-back");
+          return text;
+        };
+        await page.click("#af-button");
+        await page.check('#af-dialog input[name="focusMode"][value="continuous"]');
+        await page.check('#af-dialog input[name="areaMode"][value="auto"]');
+        await page.check('#af-dialog input[name="detection"][value="faceEye"]');
+        await page.click("#af-close");
+        await page
+          .waitForFunction(() => /^AF-C · Auto · œil · /.test(document.getElementById("af-badge").textContent), null, { timeout: 30000 })
+          .catch(() => undefined);
+        const group = await challengeShot("SIT-05");
+        check("défi SIT-05 : groupe net, réussi", /Défi SIT-05 · Photo de groupe\u00a0: réussi/.test(group), group.split("\n").filter((l) => /Défi|Réussi|Manqué/.test(l)).join(" | "));
+        await clicks('[data-dial="aperture"][data-step="1"]', 9);
+        // Fiche ouverte depuis le bulletin, puis une autre fiche depuis un lien de la première (version 0.3.47).
+        const ficheTitle = (prefix) =>
+          page
+            .waitForFunction((p) => document.getElementById("fiche-dialog").open && (document.getElementById("fiche-title")?.textContent ?? "").startsWith(p), prefix, { timeout: 30000 })
+            .then(() => page.evaluate(() => ({ title: document.getElementById("fiche-title").textContent, banner: document.querySelectorAll("#fiche-body .banner").length })))
+            .catch(() => ({ title: "", banner: 0 }));
+        let fromBulletin = { title: "", banner: 0 };
+        let fromLink = { title: "", banner: 0 };
+        const portrait = await challengeShot("SIT-01", async () => {
+          await page.click("#review-bulletin [data-fiche]");
+          fromBulletin = await ficheTitle("NET-01");
+          await page.click('#fiche-body a[href="SIT-01.html"]');
+          fromLink = await ficheTitle("SIT-01");
+          if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-fiche-fenetre.png`), timeout: 120000 });
+          await page.click("#fiche-close");
+        });
+        check(
+          "bulletin : fiche ouverte par-dessus le simulateur",
+          fromBulletin.title.startsWith("NET-01") && fromBulletin.banner === (isReviewed("NET-01") ? 0 : 1) && fromLink.title.startsWith("SIT-01"),
+          `${fromBulletin.title} (bandeau : ${fromBulletin.banner ? "oui" : "non"}) puis ${fromLink.title}`,
+        );
+        await clicks('[data-dial="aperture"][data-step="-1"]', 9);
+        check(
+          "défi SIT-01 à f/22 : fond encore net, à reprendre",
+          /Défi SIT-01 · .*\u00a0: à reprendre/.test(portrait) && /Manqué\u00a0: fond derrière Sophia hors de la zone nette\u00a0: encore net\u00a0: .*le fond photo/.test(portrait) && /À revoir\u00a0: NET-01/.test(portrait),
+          portrait.split("\n").filter((l) => /Défi|Réussi|Manqué|À revoir/.test(l)).join(" | "),
+        );
+        await page.click("#challenge-button");
+        await page.check('#challenge-dialog input[name="challenge"][value="none"]');
+        // Bouton « Fiche » de la fenêtre « Défis » : la fiche s'ouvre par-dessus, la fenêtre « Défis » reste derrière.
+        await page.click('#challenge-dialog .fiche-open[data-fiche="SIT-05"]');
+        const fromChallenges = await ficheTitle("SIT-05");
+        await page.click("#fiche-close");
+        const challengesOpen = await page.evaluate(() => document.getElementById("challenge-dialog").open);
+        check("défis : fiche de la situation", fromChallenges.title.startsWith("SIT-05") && challengesOpen, `${fromChallenges.title} ; fenêtre « Défis » encore ouverte : ${challengesOpen ? "oui" : "non"}`);
+        await page.click("#challenge-close");
+        await page.click("#af-button");
+        await page.check('#af-dialog input[name="focusMode"][value="single"]');
+        await page.check('#af-dialog input[name="areaMode"][value="point"]');
+        await page.click("#af-close");
+      },
+    },
+    {
+      id: "detection",
+      name: "détection en zone automatique",
+      simulator: true,
+      start: (s0) => ({ autoIso: false, previewDepthOfField: false, iso: s0.iso + 18, shutter: s0.shutter + 16 }),
+      run: async () => {
+        // Zone automatique, vue de départ : le groupe est à environ 6,5 m.
+        await setAf("continuous", "auto", "faceEye");
+        const eyeText = (await waitBadge(/^AF-C · Auto · œil · \d+,\d m$/, 30000)) ?? (await afText());
+        const eyeAt = lockedMetres(eyeText);
+        const amber = await page.evaluate(() => document.getElementById("focus-marker").classList.contains("detected"));
+        check("zone automatique : œil détecté dans le groupe", /œil/.test(eyeText) && amber && eyeAt > 5.5 && eyeAt < 7.5, `${eyeText}${amber ? ", repère ambre" : ""}`);
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-zone-auto.png`), timeout: 120000 });
+        await setAf("continuous", "auto", "off");
+        const nearestText = (await waitBadge(/^AF-C · Auto · sujet le plus proche · /, 30000)) ?? (await afText());
+        check(
+          "zone automatique sans détection : sujet le plus proche",
+          /sujet le plus proche/.test(nearestText) && lockedMetres(nearestText) < eyeAt,
+          `${nearestText} ; œil : ${eyeText}`,
+        );
+        await setAf("continuous", "auto", "animal");
+        // Le chien court entre x = −5 et 5 m, à 9 m de l'appareil, de profil.
+        const dogText = await waitBadge(/^AF-C · Auto · (œil|visage) · /, 30000);
+        const dogAt = dogText ? lockedMetres(dogText) : NaN;
+        check("détection des animaux : œil ou visage du chien", Boolean(dogText) && dogAt > 8 && dogAt < 12, dogText ?? (await afText()));
+        // À 1/4000 s, le chien (3,5 m/s à 9 m, 50 mm) laisse 50 × 3,5 × 0,00025 / 9 ≈ 0,005 mm, sous la limite,
+        // soit 0,005 × 1500 / 35,9 ≈ 0,2 px sur la photo.
+        const dogMotion = await balanceLine("balance-motion", /chien\u00a0: /);
+        const dogPixels = /\((\d+(?:,\d)?) px sur la photo\)/.exec(dogMotion ?? "");
+        check(
+          "indicateur : traînée du chien évaluée, en pixels",
+          /1\/4000 s · chien\u00a0: net/.test(dogMotion ?? "") && Boolean(dogPixels) && Number(dogPixels[1].replace(",", ".")) < 1,
+          dogMotion ?? "chien non visé",
+        );
+      },
+    },
+    {
+      id: "suivi-chien",
+      name: "suivi du chien (FMA-23)",
+      simulator: true,
+      // AF-C, zone automatique, détection des animaux, comme à la fin de l'étape « détection en zone automatique ».
+      start: (s0) => ({ autoIso: false, previewDepthOfField: false, iso: s0.iso + 18, shutter: s0.shutter + 16, focusMode: "continuous", areaMode: "auto", detection: "animal" }),
+      run: async () => {
+        // Suivi du chien à découvert (FMA-23, version 0.3.66). L'appareil tourne vers la droite jusqu'à ce que le cadre
+        // ne montre que la partie de la course du chien qu'aucun personnage ne cache (lacet de 0,55 à 0,7 rad, lu sur la
+        // vue de dessus : au 50 mm, le bord gauche du cadre coupe la course du chien vers x ≈ 1,9 m à 0,55 rad et
+        // x ≈ 2,7 m à 0,7 rad, et le groupe, à 6,5 m, ne le cache qu'en deçà de x ≈ 1,45 m). L'indicateur est noté à chaque changement, avec l'heure, pendant 60 s. Le chien y passe
+        // en séries de lectures « œil » ou « visage », séparées par de longues séries « sujet le plus proche » quand il
+        // est hors du cadre (environ 4,4 s d'horloge de la scène, contre 1,3 s dans le cadre). Une perte du chien à
+        // découvert est une série « sujet le plus proche » entre deux séries « œil » ou « visage », plus courte que la
+        // plus longue série « œil » ou « visage » : à cadence constante, une sortie du cadre dure plus de trois fois plus
+        // longtemps. Mesuré hors de la routine (serveur de développement, rendu logiciel, environ 3,3 images par seconde,
+        // même lacet de 0,6 rad) : avant la correction, 13 pertes en 57 s d'horloge de la scène, et le chien détecté sur
+        // 46 des 86 images où son œil était à découvert et dans la zone couverte ; après, aucune perte en 60 s, 96 sur 96
+        // (CHANGELOG.md, section 0.3.66). Le contrôle tolère une perte.
+        // L'appareil est ramené ensuite à son lacet de départ.
+        {
+          const topClosed = !(await page.locator("#top-view-map").isVisible());
+          if (topClosed) await page.click("#top-view-toggle");
+          const readYaw = () =>
+            page.evaluate(() => {
+              const points = document.querySelector("#top-view-map .top-camera polygon")?.getAttribute("points");
+              if (!points) return NaN;
+              const [nose, left, right] = points.split(" ").map((point) => point.split(",").map(Number));
+              return Math.atan2(nose[0] - (left[0] + right[0]) / 2, -(nose[1] - (left[1] + right[1]) / 2));
+            });
+          const box = await page.locator("#frame").boundingBox();
+          // Glissés vers la droite (lacet croissant) ou vers la gauche, de longueur proportionnelle à l'écart qui reste
+          // jusqu'au milieu de la fenêtre : 400 px par radian, au moins 8 px (au-delà du seuil d'un toucher, 6 px), au plus
+          // 120 px. Un glissé de 120 px tourne l'appareil de 0,10 à 0,14 rad sur un écran de 1280 × 800 (contrôle d'après
+          // la rafale) et de 0,30 rad sur un Pixel 7 émulé (mesuré hors de la routine) : à 400 px par radian, chaque glissé
+          // reprend de 40 % à 100 % de l'écart, sans le dépasser.
+          const turnTo = async (low, high) => {
+            let current = await readYaw();
+            for (let i = 0; i < 30 && Number.isFinite(current) && !(current >= low && current <= high); i++) {
+              const error = (low + high) / 2 - current;
+              const length = Math.min(120, Math.max(8, Math.round(Math.abs(error) * 400)));
+              const step = Math.sign(error);
+              // Départ au centre du cadre, comme le glissé du contrôle d'après la rafale : sur le profil Android, un départ à
+              // 60 px à droite du centre tombe sur la carte de la vue de dessus, dépliée pour lire le lacet, et le glissé ne
+              // tourne pas l'appareil (CI du commit a3df28e ; vérifié hors de la routine sur un Pixel 7 émulé).
+              const cx = box.x + box.width / 2;
+              const cy = box.y + box.height / 2;
+              await g.down(cx, cy);
+              for (let k = 1; k <= 6; k++) await g.move(cx + (step * length * k) / 6, cy);
+              await g.up();
+              // La caméra tourne image par image (inertie, éteinte en une seconde environ) et la vue de dessus se
+              // redessine toutes les 250 ms : relire toutes les 600 ms jusqu'à deux lectures égales.
+              let previous = NaN;
+              for (let k = 0; k < 20 && !(Math.abs(current - previous) < 1e-4); k++) {
+                await page.waitForTimeout(600);
+                previous = current;
+                current = await readYaw();
+              }
+            }
+            return current;
+          };
+          const yawStart = await readYaw();
+          const yawDog = await turnTo(0.55, 0.7);
+          await page.evaluate(() => {
+            window.routineBadges = [];
+            const badge = document.getElementById("af-badge");
+            const note = () => window.routineBadges.push({ at: performance.now(), text: badge.textContent });
+            note();
+            window.routineBadgeObserver = new MutationObserver(note);
+            window.routineBadgeObserver.observe(badge, { childList: true, characterData: true, subtree: true });
+          });
+          await page.waitForTimeout(60000);
+          const badges = await page.evaluate(() => {
+            window.routineBadgeObserver.disconnect();
+            return window.routineBadges;
+          });
+          // Séries : [vu, durée en ms], la dernière, en cours, exclue.
+          const runs = [];
+          for (let i = 0; i + 1 < badges.length; i++) {
+            const seen = /· (œil|visage) ·/.test(badges[i].text);
+            const duration = badges[i + 1].at - badges[i].at;
+            if (runs.length && runs[runs.length - 1][0] === seen) runs[runs.length - 1][1] += duration;
+            else runs.push([seen, duration]);
+          }
+          const longestSeen = Math.max(0, ...runs.filter((r) => r[0]).map((r) => r[1]));
+          const passes = runs.filter((r) => r[0]).length;
+          const losses = runs.filter((r, i) => !r[0] && i > 0 && i + 1 < runs.length && r[1] < longestSeen).length;
+          // Garde contre un faux vert : un chien vu un instant à l'entrée de chaque passage, puis perdu jusqu'à la sortie,
+          // ne compte aucune perte. Dans le cadre pendant environ 1,7 s d'horloge sur un aller-retour de 5,7 s, il doit être
+          // vu, dans la plus longue série, au moins 0,15 fois la plus longue série « perdu » (environ 0,4 attendu).
+          const longestLost = Math.max(0, ...runs.filter((r) => !r[0]).map((r) => r[1]));
+          const yawBack = await turnTo(yawStart - 0.03, yawStart + 0.03);
+          if (topClosed) await page.click("#top-view-toggle");
+          check(
+            "détection des animaux : le chien à découvert n'est pas lâché (FMA-23)",
+            yawDog >= 0.55 && yawDog <= 0.7 && passes >= 2 && losses <= 1 && longestSeen >= 0.15 * longestLost && Math.abs(yawBack - yawStart) <= 0.03,
+            `lacet ${yawDog.toFixed(3)} rad ; ${passes} série(s) « œil » ou « visage », la plus longue de ${(longestSeen / 1000).toFixed(1)} s (plus longue série « perdu » : ${(longestLost / 1000).toFixed(1)} s) ; ${losses} perte(s) à découvert ; séries : ${runs.map((r) => `${r[0] ? "vu" : "perdu"} ${(r[1] / 1000).toFixed(1)} s`).join(", ")} ; lacet ramené à ${yawBack.toFixed(3)} rad (départ ${yawStart.toFixed(3)})`,
+          );
+        }
+      },
+    },
+    {
+      id: "af",
+      name: "AF-S, zone L et AF-C",
+      simulator: true,
+      // AF-C en zone automatique, d'où la fenêtre « Mise au point » remet AF-S et point sélectif, comme à la fin de
+      // l'étape « suivi du chien » dans le parcours d'une seule traite.
+      start: (s0) => ({ autoIso: false, previewDepthOfField: false, iso: s0.iso + 18, shutter: s0.shutter + 16, focusMode: "continuous", areaMode: "auto" }),
+      run: async () => {
+        // Mise au point. Le bas du cadre montre le sol, proche ; relever l'appareil y amène le sol lointain ou le
+        // fond. Les personnages bougent : en AF-C, on attend que la distance change, au plus 15 s.
+        await setAf("single", "point");
+        // AF-S et point sélectif sont le dernier réglage que la routine a fait dans la fenêtre « Mise au point » : ce
+        // contrôle prouve que la fenêtre remet ce mode, pas le réglage de départ, contrôlé après le chargement (INT-05).
+        const startText = await afText();
+        check("mise au point : retour à AF-S et point sélectif", /^AF-S · Point · /.test(startText), startText);
+        const frameBox = await page.locator("#frame").boundingBox();
+        const tapLow = async (previous) => {
+          await g.tap(frameBox.x + frameBox.width / 2, frameBox.y + 0.92 * frameBox.height);
+          await page
+            .waitForFunction(
+              (before) => {
+                const text = document.getElementById("af-badge").textContent;
+                return document.getElementById("focus-marker").classList.contains("locked") && text !== before;
+              },
+              previous,
+              { timeout: 30000 },
+            )
+            .catch(() => undefined);
+          return afText();
+        };
+        const pointText = await tapLow(startText);
+        const pointAt = lockedMetres(pointText);
+        check("AF-S : toucher le viseur verrouille la distance", /^AF-S · Point · verrouillée à /.test(pointText), pointText);
+        await setAf("single", "wideL");
+        const lockedText = await tapLow(await afText());
+        const lockedAt = lockedMetres(lockedText);
+        check(
+          "zone large (L) : sujet le plus proche de la zone",
+          /^AF-S · Zone L · verrouillée à /.test(lockedText) && lockedAt < pointAt - 0.1,
+          `${lockedText} ; point sélectif : ${pointText}`,
+        );
+        const cx = frameBox.x + frameBox.width / 2;
+        const cy = frameBox.y + frameBox.height / 2;
+        // Inclinaison de l'appareil, lue par l'accès de la routine avant les deux glissés et une fois leur élan éteint
+        // (version 0.4.19 : jusque-là non lue, l'inertie de Babylon.js la laissant varier, et la zone visait tantôt un
+        // sujet, tantôt le fond). Sur la machine de Claude, profil ordinateur, depuis le départ (0,060 rad vers le bas) :
+        // de 0,685 à 0,688 rad vers le haut, près de la butée de 0,7 rad (app/src/scene.ts), en trois essais.
+        const pitchBefore = (await settledPose()).pitch;
+        for (let k = 0; k < 2; k++) {
+          await g.down(cx, cy);
+          for (let i = 1; i <= 10; i++) await g.move(cx, cy - 15 * i);
+          await g.up();
+        }
+        await page.waitForTimeout(2500);
+        const tilt = await settledPose();
+        const tiltedText = await afText();
+        check(
+          "AF-S : distance gardée en relevant l'appareil",
+          tiltedText === lockedText && tilt.pitch < pitchBefore - 0.3,
+          `${tiltedText} ; appareil relevé de ${pitchBefore.toFixed(3)} à ${tilt.pitch.toFixed(3)} rad (tangage, positif vers le bas)${tilt.turning > 0 ? ", encore en mouvement après 10 s" : ""}`,
+        );
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-af-s.png`), timeout: 120000 });
+        const topCollapsed = !(await page.locator("#top-view-map").isVisible());
+        if (withPhoto) {
+          // Glissé sur le viseur pendant le calcul de cette photo (COD-01, version 0.3.63). Pendant le calcul, la caméra
+          // n'a plus de commandes ; à la reprise, elles sont rattachées sans rien de ce que le geste a pu accumuler, et un
+          // bouton resté enfoncé ne la tourne plus tant qu'il n'est pas relâché puis enfoncé de nouveau. Le pointeur est
+          // enfoncé au centre du viseur une fois le calcul commencé, déplacé vers la gauche (2 px toutes les 100 ms, 100 px
+          // au plus), puis, l'écran de revue ouvert, cinq fois de 8 px encore, bouton tenu, avant d'être relâché.
+          // L'orientation de l'appareil est lue sur la vue de dessus, dépliée le temps du contrôle sur les petits écrans.
+          // Avant la correction, la caméra, qui avait capturé le pointeur à l'appui, tournait avec ces derniers
+          // déplacements, même sous l'écran de revue : le contrôle échoue sur ce site-là. Il réussit aussi quand les
+          // commandes ne sont jamais rattachées après le calcul : le contrôle d'après la rafale, plus bas, le voit et le
+          // nomme ; sur une copie sans le rattachement, « AF-C : la distance suit la zone » échoue aussi, sans nommer la
+          // cause (l'appareil relevé plus haut ne tourne plus, ce relevé venant après les premières photos de la routine).
+          // Il ne voit pas la surimpression dans la photo elle-même (rendus de la photo sans mise à jour de la caméra) :
+          // il faudrait lire la caméra à chaque rendu, ce que le site construit n'expose pas.
+          if (topCollapsed) await page.click("#top-view-toggle");
+          const yawBefore = await yaw();
+          await page.evaluate(() => {
+            window.routinePress = null;
+            document.getElementById("scene").addEventListener("pointerdown", () => (window.routinePress = !document.getElementById("progress").hidden), { once: true });
+          });
+          await g.tapElement("#shutter-button");
+          await page.waitForFunction(() => !document.getElementById("progress").hidden, null, { polling: 20, timeout: 60000 });
+          await g.down(cx, cy);
+          const reviewOpen = () => page.evaluate(() => !document.getElementById("review").hidden && document.getElementById("progress").hidden);
+          let dragged = 0;
+          for (let i = 0; i < 3000 && !(await reviewOpen()); i++) {
+            if (dragged < 100) {
+              dragged += 2;
+              await g.move(cx - dragged, cy);
+            }
+            await page.waitForTimeout(100);
+          }
+          const duringCompute = dragged;
+          for (let i = 0; i < 5; i++) {
+            dragged += 8;
+            await g.move(cx - dragged, cy);
+          }
+          await g.up();
+          const caption = await page.evaluate(() => document.getElementById("review-caption").textContent);
+          const m = /AF-S · Zone L · mise au point verrouillée à (\d+[,.]\d) m/.exec(caption);
+          check("AF-S : la photo garde la distance verrouillée", Boolean(m) && Number(m[1].replace(",", ".")) === lockedAt, caption);
+          await page.click("#review-back");
+          await page.waitForTimeout(1500);
+          const yawAfter = await yaw();
+          if (topCollapsed) await page.click("#top-view-toggle");
+          const pressed = await page.evaluate(() => window.routinePress);
+          check(
+            "photo : glissé sur le viseur pendant le calcul, viseur inchangé à la reprise (COD-01)",
+            pressed === true && Number.isFinite(yawBefore) && Math.abs(yawAfter - yawBefore) < 1e-4,
+            `pointeur enfoncé sur le viseur ${pressed === true ? "pendant le calcul" : pressed === false ? "après le calcul" : "jamais (appui non reçu)"}, déplacé de ${duringCompute} px pendant le calcul et de ${dragged - duringCompute} px l'écran de revue ouvert ; orientation de l'appareil (vue de dessus) : ${yawBefore.toFixed(5)} rad avant, ${yawAfter.toFixed(5)} rad après, écart de ${(yawAfter - yawBefore).toFixed(5)} rad`,
+          );
+        }
+        await setAf("continuous", "wideL");
+        const followed = await page
+          .waitForFunction(
+            (locked) => {
+              const text = document.getElementById("af-badge").textContent;
+              const m = /^AF-C · Zone L · (\d+[,.]\d) m/.exec(text);
+              // Seuil de 0,2 m (deux pas d'affichage). Depuis la version 0.3.34, la zone large est rognée à la zone couverte
+              // par l'autofocus : la distance verrouillée vaut 5,8 m au lieu de 5,4 m, et l'écart avec la mesure en AF-C
+              // après avoir relevé l'appareil (6,2 à 6,5 m dans les routines) n'est plus que de 0,5 à 0,7 m.
+              return Boolean(m) && Math.abs(Number(m[1].replace(",", ".")) - locked) > 0.2;
+            },
+            lockedAt,
+            { timeout: 15000 },
+          )
+          .then(() => true)
+          .catch(() => false);
+        const afterText = await afText();
+        const afterAt = lockedMetres(afterText);
+        const aimed = afterAt >= 499.9 ? "le fond (sphère de la photo à 360°, à 500 m)" : Number.isFinite(afterAt) ? `ce qui est à ${afterText.split(" · ").pop()}` : "?";
+        check("AF-C : la distance suit la zone", followed, `${afterText} ; avant : ${lockedText} ; appareil relevé à ${tilt.pitch.toFixed(3)} rad, la zone vise ${aimed}`);
+      },
+    },
+    {
+      id: "collimateurs",
+      name: "collimateurs",
+      simulator: true,
+      start: (s0) => ({ autoIso: false, previewDepthOfField: false, iso: s0.iso + 18, shutter: s0.shutter + 16 }),
+      run: async () => {
+        // Collimateurs (MAP-06) : la couverture de l'AF du Z 6 est d'environ 90 % du cadre en largeur et en
+        // hauteur. Un toucher dans le coin haut droit du cadre (l'indicateur d'équilibre occupe le coin haut gauche)
+        // ramène le point au bord de la zone couverte, à 5 % des bords.
+        await setAf("continuous", "point");
+        // Le cadre est mesuré ici, pas repris de plus haut : sa taille peut changer avec le mode AF. Sur le profil
+        // iPhone, avec une police plus large que celle de la machine de Claude (DejaVu Sans, celle de la CI), l'aide
+        // de la mise au point prend une ligne de plus en AF-S et le viseur perd 16 pixels de haut ; le cadre mesuré en
+        // AF-S donnait alors « repère à 98,0 % × 5,3 %, zone couverte 96,1 % × 96,0 % » (premier passage de la routine
+        // dans la CI, 12 novembre 2026, reproduit ensuite avec cette police).
+        await page.waitForTimeout(500);
+        const pointBox = await page.locator("#frame").boundingBox();
+        await g.tap(pointBox.x + 0.99 * pointBox.width, pointBox.y + 0.01 * pointBox.height);
+        await page.waitForTimeout(500);
+        const coverage = await page.locator("#af-coverage").boundingBox();
+        const marker = await page.locator("#focus-marker").boundingBox();
+        const at = (box) => ({
+          x: (box.x + box.width / 2 - pointBox.x) / pointBox.width,
+          y: (box.y + box.height / 2 - pointBox.y) / pointBox.height,
+        });
+        const markerAt = marker ? at(marker) : { x: NaN, y: NaN };
+        const coverageShare = coverage ? { x: coverage.width / pointBox.width, y: coverage.height / pointBox.height } : { x: NaN, y: NaN };
+        check(
+          "collimateurs : point ramené dans la zone couverte (90 %)",
+          Math.abs(markerAt.x - 0.95) < 0.01 && Math.abs(markerAt.y - 0.05) < 0.01 && Math.abs(coverageShare.x - 0.9) < 0.01 && Math.abs(coverageShare.y - 0.9) < 0.01,
+          `repère à ${(markerAt.x * 100).toFixed(1)} % × ${(markerAt.y * 100).toFixed(1)} % du cadre ; zone couverte ${(coverageShare.x * 100).toFixed(1)} % × ${(coverageShare.y * 100).toFixed(1)} %`,
+        );
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-collimateurs.png`), timeout: 120000 });
+        // Couverture par boîtier : un toucher en (99 % ; 1 %) du cadre est ramené au bord de la zone couverte. En cadre
+        // vertical (profil Android), grand et petit côtés du capteur sont échangés.
+        // Un boîtier par marque depuis la version 0.3.80 : la fenêtre n'a plus de choix du format.
+        const setBody = async (brand) => {
+          await page.click("#body-button");
+          await page.check(`#body-dialog input[name="brand"][value="${brand}"]`);
+          await page.click("#body-close");
+        };
+        const checkBodyCoverage = async (brand, label, long, short) => {
+          await setBody(brand);
+          const box = await page.locator("#frame").boundingBox();
+          await g.tap(box.x + 0.99 * box.width, box.y + 0.01 * box.height);
+          await page.waitForTimeout(500);
+          const zone = await page.locator("#af-coverage").boundingBox();
+          const mark = await page.locator("#focus-marker").boundingBox();
+          const got = mark
+            ? { x: (mark.x + mark.width / 2 - box.x) / box.width, y: (mark.y + mark.height / 2 - box.y) / box.height }
+            : { x: NaN, y: NaN };
+          const share = zone ? { x: zone.width / box.width, y: zone.height / box.height } : { x: NaN, y: NaN };
+          const vertical = box.height > box.width;
+          const w = vertical ? short : long;
+          const h = vertical ? long : short;
+          const expected = { x: Math.min(0.99, 1 - (1 - w) / 2), y: Math.max(0.01, (1 - h) / 2), w, h };
+          check(
+            label,
+            Math.abs(got.x - expected.x) < 0.01 && Math.abs(got.y - expected.y) < 0.01 && Math.abs(share.x - expected.w) < 0.01 && Math.abs(share.y - expected.h) < 0.01,
+            `cadre ${vertical ? "vertical" : "horizontal"} ; repère à ${(got.x * 100).toFixed(1)} % × ${(got.y * 100).toFixed(1)} % ; zone couverte ${(share.x * 100).toFixed(1)} % × ${(share.y * 100).toFixed(1)} %`,
+          );
+        };
+        // Canon EOS R50 : « Positions sélectionnables pour le collimateur AF », « Horizontal : environ 90 %, vertical :
+        // environ 100 % » (manuel en français, « Caractéristiques techniques »).
+        await checkBodyCoverage("canon", "collimateurs : couverture du Canon EOS R50 (90 % × 100 %)", 0.9, 1);
+        // EOS R50 en zone automatique : « sélection automatique », « Horizontal : environ 100 %, vertical : environ
+        // 100 % » (même page). La zone tracée suit le mode de zone : 100 % × 100 % en zone automatique, puis de nouveau
+        // 90 % × 100 % en point sélectif, sans autre geste que le changement de mode (version 0.3.80). Le point la suit
+        // aussi : en zone automatique sans détection, un toucher en (99 % ; 1 %) reste où il est touché (« point
+        // touché ») ; revenu en point sélectif, il est ramené dans la zone, à 95 % × 1 % en cadre horizontal et 99 % × 5 %
+        // en cadre vertical (relecture de la version 0.3.80, constat C2). La détection est ensuite remise à « faceEye »,
+        // celle d'avant ce passage.
+        const coverageShareNow = async () => {
+          const box = await page.locator("#frame").boundingBox();
+          const zone = await page.locator("#af-coverage").boundingBox();
+          return {
+            vertical: box.height > box.width,
+            x: zone ? zone.width / box.width : NaN,
+            y: zone ? zone.height / box.height : NaN,
+          };
+        };
+        const markerShareNow = async () => {
+          const box = await page.locator("#frame").boundingBox();
+          const mark = await page.locator("#focus-marker").boundingBox();
+          return mark
+            ? { x: (mark.x + mark.width / 2 - box.x) / box.width, y: (mark.y + mark.height / 2 - box.y) / box.height }
+            : { x: NaN, y: NaN };
+        };
+        await setAf("continuous", "auto", "off");
+        await page.waitForTimeout(500);
+        const autoShare = await coverageShareNow();
+        check(
+          "collimateurs : couverture du Canon EOS R50 en zone automatique (100 % × 100 %)",
+          Math.abs(autoShare.x - 1) < 0.01 && Math.abs(autoShare.y - 1) < 0.01,
+          `cadre ${autoShare.vertical ? "vertical" : "horizontal"} ; zone couverte ${(autoShare.x * 100).toFixed(1)} % × ${(autoShare.y * 100).toFixed(1)} %`,
+        );
+        const autoBox = await page.locator("#frame").boundingBox();
+        await g.tap(autoBox.x + 0.99 * autoBox.width, autoBox.y + 0.01 * autoBox.height);
+        const autoTouched = await waitBadge(/point touché/, 30000);
+        await page.waitForTimeout(500);
+        const autoMark = await markerShareNow();
+        check(
+          "collimateurs : Canon EOS R50 en zone automatique, toucher gardé à 99 % × 1 %",
+          autoTouched !== null && Math.abs(autoMark.x - 0.99) < 0.01 && Math.abs(autoMark.y - 0.01) < 0.01,
+          `${autoTouched ?? await afText()} ; repère à ${(autoMark.x * 100).toFixed(1)} % × ${(autoMark.y * 100).toFixed(1)} %`,
+        );
+        await setAf("continuous", "point");
+        await page.waitForTimeout(500);
+        const pointShare = await coverageShareNow();
+        const pointMark = await markerShareNow();
+        const pointW = pointShare.vertical ? 1 : 0.9;
+        const pointH = pointShare.vertical ? 0.9 : 1;
+        const pointBack = pointShare.vertical ? { x: 0.99, y: 0.05 } : { x: 0.95, y: 0.01 };
+        check(
+          "collimateurs : Canon EOS R50 revenu en point sélectif (90 % × 100 %), point ramené dans la zone",
+          Math.abs(pointShare.x - pointW) < 0.01 && Math.abs(pointShare.y - pointH) < 0.01 && Math.abs(pointMark.x - pointBack.x) < 0.01 && Math.abs(pointMark.y - pointBack.y) < 0.01,
+          `cadre ${pointShare.vertical ? "vertical" : "horizontal"} ; zone couverte ${(pointShare.x * 100).toFixed(1)} % × ${(pointShare.y * 100).toFixed(1)} % ; repère à ${(pointMark.x * 100).toFixed(1)} % × ${(pointMark.y * 100).toFixed(1)} %`,
+        );
+        await setAf("continuous", "auto", "faceEye");
+        await setAf("continuous", "point");
+        // Sony A6000 : « 179 phase detection points (covering almost the entire image) », sans pourcentage (page de
+        // Sony) : il garde la couverture du Z 6.
+        await checkBodyCoverage("sony", "collimateurs : couverture du Sony A6000 (celle du Z 6, 90 % × 90 %)", 0.9, 0.9);
+        await setBody("nikon");
+        const centreBox = await page.locator("#frame").boundingBox();
+        await g.tap(centreBox.x + centreBox.width / 2, centreBox.y + centreBox.height / 2);
+      },
+    },
+    {
+      id: "rafale",
+      name: "rafale",
+      simulator: true,
+      photo: true,
+      // AF-C et point sélectif, comme à la fin de l'étape « collimateurs ».
+      start: (s0) => ({ autoIso: false, previewDepthOfField: false, iso: s0.iso + 18, shutter: s0.shutter + 16, focusMode: "continuous", areaMode: "point" }),
+      run: async () => {
+        const topCollapsed = !(await page.locator("#top-view-map").isVisible());
+        // Rafale : Continu L à 5 vues par seconde. En rendu logiciel, l'horloge de la scène avance moins vite que
+        // le temps réel (100 ms au plus par image) : le déclencheur est relâché quand le bouton annonce au moins
+        // deux vues, et non au bout d'une durée fixe (une seconde ne suffisait pas sur les profils mobiles).
+        await page.click("#release-button");
+        await page.check('#release-dialog input[name="release"][value="cl"]');
+        await page.selectOption('#release-dialog select[name="clRate"]', "5");
+        await page.click("#release-close");
+        const shutterBox = await page.locator("#shutter-button").boundingBox();
+        await g.down(shutterBox.x + shutterBox.width / 2, shutterBox.y + shutterBox.height / 2);
+        await page.waitForFunction(() => /Rafale\u00a0: ([2-9]|\d\d) vues/.test(document.getElementById("shutter-button").textContent), null, { timeout: 60000 });
+        await g.up();
+        await page.waitForFunction(() => !document.getElementById("review").hidden && !document.getElementById("review-series").hidden, null, { timeout: 300000 });
+        const first = await page.evaluate(() => ({ count: document.getElementById("review-count").textContent, caption: document.getElementById("review-caption").textContent }));
+        await page.click("#review-next");
+        const second = await page.evaluate(() => document.getElementById("review-caption").textContent);
+        check(
+          "rafale : série de vues espacées de 0,2 s",
+          /^Vue 1\/[2-9]\d* · \+0,00 s · /.test(first.caption) && /^Vue 2\/\d+ · \+0,20 s · /.test(second),
+          `${first.count} ; ${first.caption.slice(0, 60)} | ${second.slice(0, 60)}`,
+        );
+        if (outDir) await page.screenshot({ path: path.join(outDir, `${name}-rafale.png`), timeout: 120000 });
+        await page.click("#review-back");
+        await page.click("#release-button");
+        await page.check('#release-dialog input[name="release"][value="single"]');
+        await page.click("#release-close");
+        // Viseur de nouveau commandé après les calculs (relecture de la version 0.3.63, constat C-2) : après la rafale,
+        // plusieurs calculs de suite, un glissé de 120 px sur le viseur, bouton relâché, doit tourner l'appareil de plus
+        // de 0,01 rad, lu sur la vue de dessus (dépliée le temps du contrôle sur les petits écrans). Mesuré hors de la
+        // routine, sur un écran de 1280 × 800 : de 0,10 à 0,14 rad avec les commandes rattachées à la fin du calcul,
+        // 0 sur une copie qui ne les rattache pas, sur laquelle le contrôle du glissé pendant le calcul réussit.
+        // L'orientation est relue toutes les 250 ms, 10 s au plus : la caméra tourne image par image (inertie).
+        const dragBox = await page.locator("#frame").boundingBox();
+        const dx = dragBox.x + dragBox.width / 2;
+        const dy = dragBox.y + dragBox.height / 2;
+        if (topCollapsed) await page.click("#top-view-toggle");
+        const yawRest = await yaw();
+        await g.down(dx, dy);
+        for (let i = 1; i <= 10; i++) await g.move(dx + 12 * i, dy);
+        await g.up();
+        let yawDragged = yawRest;
+        for (let i = 0; i < 40 && !(Math.abs(yawDragged - yawRest) > 0.01); i++) {
+          await page.waitForTimeout(250);
+          yawDragged = await yaw();
+        }
+        if (topCollapsed) await page.click("#top-view-toggle");
+        check(
+          "après la rafale : un glissé sur le viseur tourne l'appareil (commandes rattachées après le calcul)",
+          Number.isFinite(yawRest) && Math.abs(yawDragged - yawRest) > 0.01,
+          `glissé de 120 px sur le viseur ; orientation de l'appareil (vue de dessus) : ${yawRest.toFixed(5)} rad avant, ${yawDragged.toFixed(5)} rad après, écart de ${(yawDragged - yawRest).toFixed(5)} rad`,
+        );
+      },
+    },
+    {
+      id: "memoire",
+      name: "mémoire des réglages et défi de l'adresse",
+      simulator: true,
+      start: (s0) => ({ autoIso: false, previewDepthOfField: false, iso: s0.iso + 18, shutter: s0.shutter + 16 }),
+      run: async () => {
+        // Défi choisi depuis la fiche d'une situation : simulateur?defi=SIT-06 (version 0.3.47), ici sans la barre finale
+        // de simulateur/ : le serveur de la routine ne redirige pas, la page doit ajouter la barre elle-même (0.3.51).
+        // Pendant le chargement, la progression s'affiche en Mio reçus.
+        // Le texte est rendu par le contrôle d'attente lui-même : le relire ensuite par un second appel laissait le temps
+        // au chargement de finir et au message de se vider (échec isolé du 11 novembre 2026 sur la machine de Claude,
+        // puis dans la CI le 12, les deux fois sur le profil webgl1, texte lu vide). Si l'attente échoue, sa raison est
+        // gardée.
+        // La ligne de diagnostic est relue juste avant ce rechargement, qui l'efface : elle garde ce que la page a signalé
+        // pendant tout le parcours du simulateur (INT-06 de l'audit, version 0.3.64) ; puis une fois encore à la fin.
+        // Mémoire des réglages (magasin de réglages, constat ARC-02 de l'audit, version 0.4.9) : des réglages mémorisés,
+        // changés ici dans les fenêtres, par le code de la page (un clic de Playwright prend plusieurs secondes en rendu
+        // logiciel), doivent être relus au chargement qui suit. Choisis pour ne rien coûter au rendu de la suite : AF-S, bruit
+        // et profondeur de champ du viseur coupés. Le relevé des fenêtres et des boutons, avant et après, doit être le même.
+        const memoryState = () =>
+          page.evaluate(() => ({
+            storage: Object.fromEntries(["tutophoto.boitier", "tutophoto.apercu", "tutophoto.revue"].map((key) => [key, localStorage.getItem(key)])),
+            inputs: [
+              ...document.querySelectorAll(
+                "#exposure-dialog input, #exposure-dialog select, #release-dialog input, #release-dialog select, #af-dialog input, #body-dialog input, #preview-dialog input",
+              ),
+            ]
+              .map((e) => `${e.name}=${e.type === "radio" || e.type === "checkbox" ? (e.checked ? e.value : "") : e.value}`)
+              .filter((text) => !text.endsWith("="))
+              .join(" "),
+            buttons: ["body-button", "af-button", "release-button", "review-info"].map((id) => document.getElementById(id)?.textContent ?? "").join(" | "),
+          }));
+        await page.evaluate(() => {
+          const radio = (dialog, name, value) => document.querySelector(`#${dialog} input[name=${name}][value=${value}]`).click();
+          const choose = (dialog, name, value) => {
+            const select = document.querySelector(`#${dialog} select[name=${name}]`);
+            select.value = value;
+            select.dispatchEvent(new Event("change"));
+          };
+          const tick = (selector, checked) => {
+            const box = document.querySelector(selector);
+            if (box.checked !== checked) box.click();
+          };
+          radio("body-dialog", "brand", "sony");
+          radio("exposure-dialog", "exposureMode", "A");
+          choose("exposure-dialog", "compensation", "2");
+          // Plafond et vitesse minimale avant de couper l'ISO auto, qui grise leurs listes.
+          tick("#exposure-dialog input[name=autoIso]", true);
+          choose("exposure-dialog", "maxIso", "12");
+          choose("exposure-dialog", "minShutter", "33");
+          tick("#exposure-dialog input[name=autoIso]", false);
+          radio("release-dialog", "release", "cl");
+          choose("release-dialog", "clRate", "4");
+          choose("release-dialog", "timerDelay", "5");
+          radio("af-dialog", "focusMode", "single");
+          // La détection ne se choisit qu'en zone automatique.
+          radio("af-dialog", "areaMode", "auto");
+          radio("af-dialog", "detection", "animal");
+          radio("af-dialog", "areaMode", "wideL");
+          tick("#preview-dialog input[type=checkbox][value=all]", true);
+          tick("#preview-dialog input[type=checkbox][value=noise]", false);
+          tick("#preview-dialog input[type=checkbox][value=depthOfField]", false);
+          radio("preview-dialog", "grid", "thirds");
+          for (let i = 0; i < 3 && JSON.parse(localStorage.getItem("tutophoto.revue") ?? "null")?.display !== "histograms"; i++) {
+            document.getElementById("review-info").click();
+          }
+        });
+        const memoryBefore = await memoryState();
+        // Écritures dans les trois clés pendant le chargement qui suit, comptées par un script posé avant lui (il vaut pour les
+        // pages suivantes de l'onglet, sans rien changer d'autre). Comparer les chaînes avant et après ne suffisait pas : une
+        // écriture des mêmes réglages redonne les mêmes chaînes (relecture de la version 0.4.9, R1).
+        await page.addInitScript(() => {
+          const setItem = Storage.prototype.setItem;
+          window.__tutophotoMemoryWrites = [];
+          Storage.prototype.setItem = function (key, value) {
+            if (["tutophoto.boitier", "tutophoto.apercu", "tutophoto.revue"].includes(String(key))) window.__tutophotoMemoryWrites.push(String(key));
+            return setItem.call(this, key, value);
+          };
+        });
+        const problemBeforeReload = await diagnosticText();
+        await page.goto(`${base}/simulateur?defi=SIT-06`);
+        const progress = await page
+          .waitForFunction(() => {
+            const text = document.getElementById("status")?.textContent ?? "";
+            return /Mio reçus|préparation/.test(text) ? text : false;
+          }, null, { timeout: 60000 })
+          .then((handle) => handle.jsonValue())
+          .catch((error) => `attente échouée : ${String(error).split("\n")[0]}`);
+        await page.waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 }).catch(() => undefined);
+        const chosen = await page.evaluate(() => ({ text: document.getElementById("challenge-button").textContent, path: location.pathname, search: location.search }));
+        check(
+          "adresse sans barre finale, défi choisi par l'adresse, progression du chargement",
+          /SIT-06$/.test(chosen.text) && chosen.path === "/simulateur/" && /Mio reçus|préparation/.test(progress) && !/^attente échouée/.test(progress),
+          `${chosen.path} ; ${chosen.text} ; pendant le chargement : « ${progress} »`,
+        );
+        {
+          const memoryAfter = await memoryState();
+          const memoryWrites = await page.evaluate(() => window.__tutophotoMemoryWrites ?? null);
+          const saved = (key) => {
+            try {
+              return JSON.parse(memoryBefore.storage[key] ?? "null") ?? {};
+            } catch {
+              return {};
+            }
+          };
+          const box = saved("tutophoto.boitier");
+          const preview = saved("tutophoto.apercu");
+          const fields = [
+            Object.keys(box).join(","),
+            Object.keys(preview).join(","),
+            Object.keys(saved("tutophoto.revue")).join(","),
+          ];
+          const written =
+            fields[0] === "brand,focusMode,areaMode,detection,release,clRate,timerDelay,exposureMode,compensation,autoIso,maxIso,minShutter" &&
+            fields[1] === "all,brightness,noise,depthOfField,balance,grid" &&
+            fields[2] === "display" &&
+            JSON.stringify([box.brand, box.focusMode, box.areaMode, box.detection, box.release, box.clRate, box.timerDelay]) ===
+              JSON.stringify(["sony", "single", "wideL", "animal", "cl", 4, 5]) &&
+            JSON.stringify([box.exposureMode, box.compensation, box.autoIso, box.maxIso, box.minShutter]) === JSON.stringify(["A", 2, false, 12, 33]) &&
+            JSON.stringify([preview.all, preview.noise, preview.depthOfField, preview.grid]) === JSON.stringify([true, false, false, "thirds"]) &&
+            saved("tutophoto.revue").display === "histograms";
+          check(
+            "mémoire des réglages : écrite avec les champs d'avant le magasin, relue au chargement, pas récrite (ARC-02)",
+            written &&
+              Array.isArray(memoryWrites) &&
+              memoryWrites.length === 0 &&
+              JSON.stringify(memoryAfter.storage) === JSON.stringify(memoryBefore.storage) &&
+              memoryAfter.inputs === memoryBefore.inputs &&
+              memoryAfter.buttons === memoryBefore.buttons &&
+              /^Sony A6000 \| AF-S · Zone L \| Continu L · 4 vps/.test(memoryAfter.buttons),
+            `champs : ${fields.join(" ; ")} ; boutons avant : ${memoryBefore.buttons} ; après : ${memoryAfter.buttons} ; fenêtres ${memoryAfter.inputs === memoryBefore.inputs ? "identiques" : `avant : ${memoryBefore.inputs} ; après : ${memoryAfter.inputs}`} ; écritures pendant le chargement : ${memoryWrites === null ? "non comptées" : memoryWrites.join(", ") || "aucune"} ; mémoire ${JSON.stringify(memoryAfter.storage) === JSON.stringify(memoryBefore.storage) ? "inchangée" : `changée : ${JSON.stringify(memoryAfter.storage)}`}`,
+          );
+        }
+        // Le paramètre ?defi= est retiré de l'adresse une fois lu et mémorisé (constat COD-03 de l'audit, version 0.3.72).
+        check(
+          "défi de l'adresse : mémorisé, puis retiré de l'adresse",
+          chosen.search === "" && (await page.evaluate(() => localStorage.getItem("tutophoto.defi"))) === "SIT-06",
+          `adresse après le chargement : ${chosen.path}${chosen.search || " (sans paramètre)"} ; tutophoto.defi : ${await page.evaluate(() => localStorage.getItem("tutophoto.defi"))}`,
+        );
+        // Progression du chargement (version 0.3.55) : tout fichier compté par la progression (ceux du manifeste, sauf
+        // les textes de licence) doit avoir été chargé par la scène, sinon elle n'atteint jamais « préparation ».
+        await page.waitForTimeout(1500);
+        const counted = await page.evaluate(async () => {
+          const manifest = await (await fetch("../scenes/parc/scene.json")).json();
+          const files = manifest.assets.flatMap((asset) => asset.files ?? []).filter((f) => !f.path.endsWith(".txt"));
+          const loaded = performance.getEntriesByType("resource").map((e) => decodeURIComponent(new URL(e.name).pathname));
+          return { count: files.length, missing: files.filter((f) => !loaded.some((name) => name.endsWith(`/scenes/parc/${f.path}`))).map((f) => f.path) };
+        });
+        check(
+          "progression du chargement : tous les fichiers comptés sont chargés par la scène",
+          counted.count > 0 && counted.missing.length === 0,
+          `${counted.count} fichiers comptés ; jamais chargés : ${counted.missing.join(", ") || "aucun"}`,
+        );
+        // Seconde lecture de la ligne de diagnostic, même critère que « aucun problème affiché » au chargement.
+        const problemAtEnd = await diagnosticText();
+        check(
+          "aucun problème affiché à la fin du parcours",
+          !problemBeforeReload && !problemAtEnd && sim.problems.length === 0,
+          `avant le rechargement : ${problemBeforeReload ? `« ${problemBeforeReload} »` : "ligne vide"} ; à la fin, page rechargée pour le défi SIT-06 : ${problemAtEnd ? `« ${problemAtEnd} »` : "ligne vide"}` +
+            (sim.reloads.length ? ` ; rechargements de départ : ${sim.problems.length ? sim.problems.join(" ; ") : "lignes vides"}` : ""),
+        );
+        // Chemin de la contre-vérification de COD-03 : arrivée par ?defi=SIT-06, « Aucun défi » choisi dans la fenêtre,
+        // puis rechargement. Avant la version 0.3.72, le défi de l'adresse revenait et écrasait le choix mémorisé.
+        // Placé après les contrôles qui lisent la page chargée : le rechargement n'attend que le texte du bouton
+        // « Défis », écrit au démarrage, pas la fin du chargement de la scène.
+        await page.click("#challenge-button");
+        await page.check('#challenge-dialog input[name="challenge"][value="none"]');
+        await page.click("#challenge-close");
+        await page.reload();
+        await page.waitForFunction(() => (document.getElementById("challenge-button")?.textContent ?? "") !== "", null, { timeout: 60000 }).catch(() => undefined);
+        const afterReload = await page.evaluate(() => ({
+          text: document.getElementById("challenge-button").textContent,
+          saved: localStorage.getItem("tutophoto.defi"),
+          address: location.pathname + location.search,
+        }));
+        check(
+          "défi de l'adresse, puis « Aucun défi » et rechargement : le choix fait dans la page reste (COD-03)",
+          afterReload.text === "Défis" && afterReload.saved === "none" && afterReload.address === "/simulateur/",
+          `bouton « ${afterReload.text} » ; tutophoto.defi : ${afterReload.saved} ; adresse rechargée : ${afterReload.address}`,
+        );
+      },
+    },
+  ];
+
+  // Étapes jouées : toutes, ou celles de --etapes (--pages : « pages »), avec le chargement du simulateur si l'une
+  // d'elles en a besoin ; celles de --photo seulement avec --photo ; celles d'autres profils, non.
+  const wanted = (step) =>
+    chosenSteps === null ||
+    chosenSteps.has(step.id) ||
+    (step.id === "chargement" && STEPS.some((s) => s.simulator && s.id !== "chargement" && chosenSteps.has(s.id)));
+  const played = STEPS.filter((step) => (!step.photo || withPhoto) && (!step.only || step.only.includes(name)) && wanted(step));
+  const known = new Set(STEPS.map((step) => step.id));
+  for (const id of chosenSteps ?? []) {
+    if (!known.has(id)) check(`étape inconnue : ${id}`, false, `étapes : ${[...known].join(", ")}`);
+  }
+  const bilan = [];
+  let written = 0;
+  const flush = (header) => {
+    say(header);
+    for (const c of checks.slice(written)) report(c);
+    written = checks.length;
+  };
+  flush(`-- profil ${name} : ${played.length} étape(s) : ${played.map((step) => step.name).join(", ")}`);
+  let previous = "";
+  try {
+    for (const step of played) {
+      const from = checks.length;
+      const t0 = Date.now();
+      let status;
+      if (step.simulator && step.id !== "chargement" && !sim.loaded) {
+        status = "non jouée : le simulateur ne s'est pas chargé";
+      } else {
+        try {
+          if (step.simulator && step.id !== "chargement") await prepare(step, previous);
+          if (injected === step.id) throw new Error(`échec injecté par la routine au début de l'étape (--echec-injecte ${step.id})`);
+          await step.run();
+          status = checks.slice(from).every((c) => c.ok) ? "réussie" : "en échec";
+        } catch (error) {
+          if (step.simulator) sim.dirty = true;
+          const where = step.simulator || step.id === "pages" ? await pageState() : "";
+          check(`étape « ${step.name} » : déroulement`, false, `${String(error).split("\n").slice(0, 25).join(" ⏎ ")}${where ? ` ; ${where}` : ""}`);
+          status = "arrêtée par une exception";
+        }
+      }
+      previous = step.name;
+      bilan.push({ name: step.name, status, ms: Date.now() - t0 });
+      const count = checks.length - from;
+      flush(`-- étape « ${step.name} » : ${status}, ${count} contrôle(s), ${duration(Date.now() - t0)}`);
+    }
+    if (injected === "navigateur") await browser.close();
   } finally {
     // Erreurs des pages et de la console (INT-06 de l'audit, version 0.3.64) : un contrôle compté comme les autres,
     // fait ici pour l'être aussi quand le simulateur ne se charge pas (retour anticipé, plus haut) ou que la routine
@@ -3157,9 +3530,19 @@ async function runProfile(browser, name, base) {
       (unexpected.length ? `${unexpected.length} erreur(s) : ${describe(unexpected)}` : "aucune") +
         (admitted.length ? ` ; admises : ${describe(admitted)}` : ""),
     );
-    await context.close();
+    // Fermeture du contexte : si le navigateur a été fermé ou tué avant elle, elle lève une exception ; le profil la
+    // compte comme un échec, ses contrôles déjà écrits (défaut relevé à la version 0.3.64, corrigé à la version 0.4.19).
+    await context.close().catch((error) => check("fermeture du contexte du profil", false, String(error).split("\n").slice(0, 5).join(" ⏎ ")));
+    const by = (status) => bilan.filter((s) => s.status.startsWith(status)).map((s) => s.name);
+    const list = (names) => (names.length ? names.join(", ") : "aucune");
+    flush(`-- fin du profil ${name}`);
+    say(
+      `-- bilan du profil ${name} : ${bilan.length} étape(s) en ${duration(Date.now() - started)} ; réussies : ${by("réussie").length} ; ` +
+        `en échec : ${list(by("en échec"))} ; arrêtées par une exception : ${list(by("arrêtée"))} ; non jouées : ${list(by("non jouée"))} ; ` +
+        `page rechargée après : ${list(sim.reloads)}`,
+    );
   }
-  return { name, checks };
+  return { name, checks, steps: bilan };
 }
 
 (async () => {
@@ -3169,23 +3552,34 @@ async function runProfile(browser, name, base) {
   }
   const server = await serve(dist);
   const base = `http://127.0.0.1:${server.address().port}`;
-  const browser = await chromium.launch({ args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
+  const launch = () => chromium.launch({ args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
+  let browser = await launch();
   let failed = 0;
-  console.log("\n== pages");
-  for (const c of checkLinks(dist)) {
-    if (!c.ok) failed++;
+  const failures = [];
+  const say = (line) => console.log(line);
+  const report = (c, where) => {
+    if (!c.ok) {
+      failed++;
+      failures.push(`${where} : ${c.label}`);
+    }
     console.log(`${c.ok ? "ok    " : "ÉCHEC "} ${c.label}${c.detail ? ` : ${c.detail}` : ""}`);
-  }
+  };
+  console.log("\n== pages");
+  for (const c of checkLinks(dist)) report(c, "pages");
   for (const name of profileNames) {
-    const result = await runProfile(browser, name, base);
     console.log(`\n== ${name}`);
-    for (const c of result.checks) {
-      if (!c.ok) failed++;
-      console.log(`${c.ok ? "ok    " : "ÉCHEC "} ${c.label}${c.detail ? ` : ${c.detail}` : ""}`);
+    // Navigateur fermé ou tué pendant le profil d'avant : un autre, pour celui-ci.
+    if (!browser.isConnected()) browser = await launch();
+    try {
+      await runProfile(browser, name, base, say, (c) => report(c, name));
+    } catch (error) {
+      // Une exception hors des étapes (contexte impossible à créer, par exemple) : le profil est compté en échec, ses
+      // contrôles déjà écrits le restent.
+      report({ label: `profil ${name} : déroulement`, ok: false, detail: String(error).split("\n").slice(0, 10).join(" ⏎ ") }, name);
     }
   }
-  await browser.close();
+  await browser.close().catch(() => undefined);
   server.close();
-  console.log(`\n${failed} échec(s)`);
+  console.log(`\n${failed} échec(s)${failures.length ? ` : ${failures.join(" ; ")}` : ""}`);
   process.exit(failed ? 1 : 0);
 })();
