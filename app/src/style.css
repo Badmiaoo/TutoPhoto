@@ -188,9 +188,9 @@ body.no-webgl #challenge-button {
    problèmes, l'un sous l'autre en haut de main ; placés en haut du viseur comme d'habitude, la ligne des problèmes
    couvrait le message et son bouton (essai de la routine, iPhone 14 émulé). Le canevas, le panneau du boîtier, dont
    les boutons n'ont pas reçu leur texte, le voile du cadre, l'indicateur d'équilibre, la vue de dessus et le bouton
-   « Défis », que le démarrage n'a pas remplis, sont masqués. L'affichage de diagnostic (« ?diagnostic »), créé quand
-   le démarrage s'arrête pendant le chargement de la scène (version 0.4.15), reste sous la ligne des problèmes : il dit
-   les capacités lues avant la perte du contexte. */
+   « Défis », que le démarrage n'a pas remplis, sont masqués. L'affichage de diagnostic (« ?diagnostic »), déjà créé
+   quand le démarrage s'arrête pendant le chargement de la scène (version 0.4.15), reste affiché, sous la ligne des
+   problèmes : il dit les capacités et les textures lues avant la perte du contexte. */
 body.start-failed main > :not(#status):not(#diagnostic):not(.diagnostic-view),
 body.start-failed #challenge-button,
 body.start-failed #camera-panel {

@@ -270,4 +270,4 @@ Ce que Claude en fait : un sujet à part entière, le suivant, après le Sujet 4
 
 Dans la session de la demande du 23 novembre 2026, que la limite d'usage hebdomadaire arrêtait depuis 23 h 14 UTC la veille, Julien a changé le modèle de la session, par la commande de l'application, à 0 h 05 min 58 s UTC, puis écrit, mot pour mot : « Reprends ».
 
-Ce que Claude en fait : la limite refusait encore chaque tour ; le travail a repris le 28 novembre 2026 à 1 h 52 UTC, après sa réouverture (`CHANGELOG.md`, section 0.4.15). La session finit son sujet avec le modèle choisi par Julien, et crée la suivante avec ce modèle, au niveau d'effort « max » (« même modèle », 19 novembre 2026). Le nom du modèle n'est pas écrit dans le dépôt.
+Ce que Claude en fait : la limite refusait encore chaque tour ; le travail a repris le 28 novembre 2026 à 1 h 52 UTC, après sa réouverture (`CHANGELOG.md`, section 0.4.15). La session finit son sujet avec le modèle choisi par Julien, et crée la suivante avec ce modèle, au niveau d'effort « max » (consigne du 20 novembre 2026, plus haut). Le nom du modèle n'est pas écrit dans le dépôt.

@@ -42,7 +42,8 @@
 //   dans deux contextes à part : témoin, capacités du navigateur telles quelles, simulateur ouvert avec
 //   « ?diagnostic=densite-complete » et scène chargée : l'affichage donne la version du site, WebGL 2 (WebGL 1 sur le
 //   profil webgl1), un débit d'images, la durée d'une image côté processeur, la ligne du processeur graphique, les deux
-//   capacités exigées à « oui », la ligne des textures (de 200 à 600 Mio demandés, version 0.4.15) et un viseur à la
+//   capacités exigées à « oui », la ligne des textures (de 200 à 600 Mio demandés, et la limite du processeur
+//   graphique, version 0.4.15) et un viseur à la
 //   densité de l'écran, et aucun problème n'est affiché ; extension
 //   masquée (getExtension rend null pour EXT_color_buffer_float en WebGL 2, pour OES_texture_float et
 //   OES_texture_half_float en WebGL 1, comme les essais de la contre-vérification d'ARC-13), simulateur ouvert avec
@@ -61,10 +62,12 @@
 //   problèmes vide ou avec l'exception rattrapée (pendant le chargement : seulement les exceptions « Unable to
 //   create … » de Babylon.js), et aucune erreur non rattrapée (pendant le chargement : aucune autre que celles-là) ;
 //   pendant le chargement, le message est suivi de la progression du chargement figée à l'arrêt, et l'affichage de
-//   diagnostic reste affiché, sous la ligne des problèmes ;
+//   diagnostic reste affiché, sous la ligne des problèmes, avec la ligne « Textures relevées avant la perte du
+//   contexte WebGL », restauration comprise ;
 // - textures allégées (version 0.4.15), dans un contexte à part : ouvert avec « ?diagnostic=textures-legeres », le
-//   simulateur charge sa scène, l'affichage de diagnostic dit les textures allégées et de 30 à 150 Mio demandés (de
-//   200 à 600 Mio dans le témoin de l'affichage de diagnostic), sans problème ni erreur ;
+//   simulateur charge sa scène, l'affichage de diagnostic dit les textures allégées, de 30 à 150 Mio demandés (de
+//   200 à 600 Mio dans le témoin de l'affichage de diagnostic) et la limite du processeur graphique remise après le
+//   chargement, sans problème ni erreur ;
 // - mise en page sur téléphone (Sujet 42, version 0.4.10 ; constats INT-04, INT-12, INT-03, INT-11, INT-17, INT-20 et
 //   INT-14 de l'audit), profil iphone seulement, dans un contexte à part : le simulateur chargé téléphone tenu à
 //   l'horizontale (iPhone 14 émulé, 750 × 340 px) a son panneau à droite du viseur, un cadre d'au moins 60 % de la
@@ -734,8 +737,10 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
  * rattrapée de la page. Pendant le chargement, le chargement continue après l'arrêt et ses textures ne peuvent pas être
  * créées tant que le contexte est perdu : la ligne des problèmes peut donner, et changer pour donner, les exceptions
  * « Unable to create … » de Babylon.js, seules erreurs non rattrapées admises ; l'affichage de diagnostic reste
- * affiché, sous la ligne des problèmes. main.ts écrit aussi l'exception rattrapée dans la console : la console n'est pas
- * contrôlée.
+ * affiché, sous la ligne des problèmes, et sa ligne des textures garde le relevé d'avant la perte (« Textures relevées
+ * avant la perte du contexte WebGL »), même le contexte restauré. Passé 60 s de chargement, la progression figée
+ * nomme aussi les fichiers en attente. main.ts écrit aussi l'exception rattrapée dans la console : la console n'est
+ * pas contrôlée.
  */
 async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
   const cases = [
@@ -821,6 +826,7 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
             canvas: getComputedStyle(document.getElementById("scene")).display,
             panel: getComputedStyle(document.getElementById("camera-panel")).display,
             challenges: getComputedStyle(document.getElementById("challenge-button")).display,
+            diagnosticText: document.querySelector(".diagnostic-view")?.textContent ?? "",
             // Affichage de diagnostic : affiché, et sous la ligne des problèmes (ou sous le message, sans problème).
             diagnosticView: (() => {
               const view = document.querySelector(".diagnostic-view");
@@ -856,8 +862,9 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
             ? "Le simulateur n'a pas pu démarrer\u00a0: le navigateur a perdu l'affichage 3D (contexte WebGL) pendant le chargement de la scène. Recharge la page."
             : "Le simulateur n'a pas pu démarrer\u00a0: le navigateur a perdu l'affichage 3D (contexte WebGL) dès l'ouverture de la page. Recharge la page.";
       // Exceptions de Babylon.js quand une fonction de création rend null (« Unable to create texture », « … vertex
-      // buffer »…), seules admises pendant le chargement, dans la ligne des problèmes et comme erreurs de la page.
-      const creationFailure = /^(Erreur\u00a0: (Uncaught )?Error: Unable to create [a-z ]+ · )+Version du site\u00a0: \d+\.\d+\.\d+$/;
+      // buffer », « … VAO », « … webGL texture »…), seules admises pendant le chargement, dans la ligne des problèmes
+      // et comme erreurs de la page.
+      const creationFailure = /^(Erreur\u00a0: (Uncaught )?Error: Unable to create [A-Za-z ]+ · )+Version du site\u00a0: \d+\.\d+\.\d+$/;
       const problemOk =
         mode === "buffer"
           ? /^Erreur\u00a0: Error: Unable to create vertex buffer · Version du site\u00a0: \d+\.\d+\.\d+$/.test(r.problem)
@@ -866,13 +873,13 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
             : mode === "loading"
               ? r.problem === "" || creationFailure.test(r.problem)
               : r.problem === "";
-      const unexpected = mode === "loading" ? errors.filter((e) => !/^page : Unable to create [a-z ]+$/.test(e)) : errors;
+      const unexpected = mode === "loading" ? errors.filter((e) => !/^page : Unable to create [A-Za-z ]+$/.test(e)) : errors;
       check(
-        `démarrage arrêté, ${label} (WebGL ${webgl1 ? 1 : 2}) : message lisible avec la version et « Recharger », inchangé 2 s plus tard, sans message des flottants, canevas et panneau du boîtier masqués, ${mode === "loading" ? "affichage de diagnostic sous la ligne des problèmes, aucune erreur non rattrapée autre que « Unable to create … »" : "aucune erreur non rattrapée"}`,
+        `démarrage arrêté, ${label} (WebGL ${webgl1 ? 1 : 2}) : message lisible avec la version et « Recharger », inchangé 2 s plus tard, sans message des flottants, canevas et panneau du boîtier masqués, ${mode === "loading" ? "affichage de diagnostic sous la ligne des problèmes, textures relevées avant la perte, aucune erreur non rattrapée autre que « Unable to create … »" : "aucune erreur non rattrapée"}`,
         shown &&
           r.text.startsWith(expected) &&
           (mode === "loading"
-            ? /Version du site\u00a0: \d+\.\d+\.\d+\. Chargement à ce moment\u00a0: .*\d+ s\. Recharger$/
+            ? /Version du site\u00a0: \d+\.\d+\.\d+\. Chargement à ce moment\u00a0: .*\d+ s(\.| · en attente\u00a0: .+[.…]) Recharger$/
             : /Version du site\u00a0: \d+\.\d+\.\d+\. Recharger$/
           ).test(r.text) &&
           r.reload === "Recharger" &&
@@ -887,9 +894,12 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
           r.panel === "none" &&
           r.challenges === "none" &&
           (mode !== "restore" || restored === "contexte restauré") &&
-          (mode !== "loading" || (restored === "contexte restauré" && r.diagnosticView === "affiché, sous la ligne des problèmes")) &&
+          (mode !== "loading" ||
+            (restored === "contexte restauré" &&
+              r.diagnosticView === "affiché, sous la ligne des problèmes" &&
+              /^Textures relevées avant la perte du contexte WebGL, une seconde au plus avant elle$/m.test(r.diagnosticText))) &&
           unexpected.length === 0,
-        `${shown ? "" : "démarrage non arrêté ; "}${restored ? `${restored} ; ` : ""}« ${r.text} »${r.text === first.text ? "" : ` (2 s avant : « ${first.text} »)`} ; de ${r.top} à ${r.bottom} px sur ${r.height} ; rendu en son centre : ${r.hit ? "oui" : "non"} ; « Recharger » rendu en son centre : ${r.reloadHit ? "oui" : "non"} ; problème : ${r.problem || "aucun"}${r.problem === first.problem ? "" : ` (2 s avant : ${first.problem || "aucun"})`} ; canevas : ${r.canvas} ; panneau : ${r.panel} ; bouton « Défis » : ${r.challenges}${mode === "loading" ? ` ; affichage de diagnostic : ${r.diagnosticView}` : ""} ; erreurs : ${errors.join(" | ") || "aucune"}`,
+        `${shown ? "" : "démarrage non arrêté ; "}${restored ? `${restored} ; ` : ""}« ${r.text} »${r.text === first.text ? "" : ` (2 s avant : « ${first.text} »)`} ; de ${r.top} à ${r.bottom} px sur ${r.height} ; rendu en son centre : ${r.hit ? "oui" : "non"} ; « Recharger » rendu en son centre : ${r.reloadHit ? "oui" : "non"} ; problème : ${r.problem || "aucun"}${r.problem === first.problem ? "" : ` (2 s avant : ${first.problem || "aucun"})`} ; canevas : ${r.canvas} ; panneau : ${r.panel} ; bouton « Défis » : ${r.challenges}${mode === "loading" ? ` ; affichage de diagnostic : ${r.diagnosticView} ; ${(/^Textures.*$/m.exec(r.diagnosticText) ?? ["ligne des textures absente"])[0]}${/^Textures relevées avant la perte/m.test(r.diagnosticText) ? " ; relevé d'avant la perte" : " ; ligne « Textures relevées avant la perte » absente"}` : ""} ; erreurs : ${errors.join(" | ") || "aucune"}`,
       );
     } finally {
       await context.close();
@@ -902,8 +912,9 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
  * profil (WebGL 1 sur le profil webgl1) : le simulateur ouvert avec « ?diagnostic=textures-legeres » charge sa scène,
  * et l'affichage de diagnostic donne la ligne « Textures allégées pour cet essai », des textures qui demandent entre
  * 30 et 150 Mio (environ 105 Mio mesurés, contre environ 294 Mio sans le réglage : la photo de fond et les textures de
- * 2048 px réduites à 1024 px de côté au plus), le plus grand côté de texture du processeur graphique inchangé, un débit
- * du viseur, aucun problème affiché et aucune erreur de la page ni de la console.
+ * 2048 px réduites à 1024 px de côté au plus), la limite du processeur graphique, que main.ts abaisse à 1024 px pour
+ * le chargement, remise ensuite (la ligne des textures ne dit plus « abaissée » : attendu jusqu'à 120 s), un débit du
+ * viseur, aucun problème affiché et aucune erreur de la page ni de la console.
  */
 async function checkLightTextures(browser, contextOptions, base, check, webgl1) {
   const context = await browser.newContext(contextOptions);
@@ -931,7 +942,7 @@ async function checkLightTextures(browser, contextOptions, base, check, webgl1) 
       .waitForFunction(
         () => {
           const text = document.getElementById("diagnostic-view")?.textContent ?? "";
-          return /Images par seconde/.test(text) ? text : null;
+          return /Images par seconde/.test(text) && !/abaissée/.test(text) ? text : null;
         },
         null,
         { timeout: 120000 },
@@ -942,10 +953,10 @@ async function checkLightTextures(browser, contextOptions, base, check, webgl1) 
       const line = document.getElementById("diagnostic");
       return line.hidden ? "" : line.textContent;
     });
-    const textures = /^Textures\u00a0: (\d+), environ (\d+) Mio demandés · côté maximal\u00a0: (\d+) px$/m.exec(view);
+    const textures = /^Textures\u00a0: (\d+), environ (\d+) Mio demandés · limite du processeur graphique\u00a0: (\d+) px de côté$/m.exec(view);
     const fps = /^Images par seconde\u00a0: (\d+,\d)$/m.exec(view);
     check(
-      `textures allégées (?diagnostic=textures-legeres, WebGL ${webgl1 ? 1 : 2}) : scène chargée, ligne « Textures allégées », de 30 à 150 Mio demandés, côté maximal du processeur graphique inchangé, débit du viseur, aucun problème ni erreur`,
+      `textures allégées (?diagnostic=textures-legeres, WebGL ${webgl1 ? 1 : 2}) : scène chargée, ligne « Textures allégées », de 30 à 150 Mio demandés, limite du processeur graphique remise après le chargement, débit du viseur, aucun problème ni erreur`,
       loaded &&
         Boolean(textures) &&
         Number(textures[1]) >= 20 &&
@@ -957,7 +968,7 @@ async function checkLightTextures(browser, contextOptions, base, check, webgl1) 
         Number(fps[1].replace(",", ".")) > 0 &&
         !problem &&
         errors.length === 0,
-      `scène ${loaded ? "chargée" : "non chargée"} ; ${view.replace(/\n/g, " | ") || "affichage absent"} ; problème : ${problem || "aucun"} ; erreurs : ${errors.join(" | ") || "aucune"}`,
+      `scène ${loaded ? "chargée" : "non chargée"} ; ${view.replace(/\n/g, " | ") || "affichage absent, ou limite du processeur graphique restée abaissée"} ; problème : ${problem || "aucun"} ; erreurs : ${errors.join(" | ") || "aucune"}`,
     );
   } finally {
     await context.close();
@@ -968,8 +979,9 @@ async function checkLightTextures(browser, contextOptions, base, check, webgl1) 
  * Affichage de diagnostic et capacités de rendu en flottants (constats ARC-06 et ARC-13 de l'audit, version 0.3.88),
  * dans deux contextes à part, aux dimensions du profil. Témoin, ouvert avec « ?diagnostic=densite-complete » et scène
  * chargée : l'affichage donne la version, WebGL, un débit, les durées, la ligne du processeur graphique, les deux
- * capacités exigées à « oui » et un viseur à la densité de l'écran ; aucun problème affiché, aucune erreur de la page ni
- * de la console. Extension masquée, ouvert avec « ?diagnostic » : le message, avec la mise au point et l'aperçu ; le
+ * capacités exigées à « oui », la ligne des textures (au moins 20, de 200 à 600 Mio demandés, une limite du processeur
+ * graphique d'au moins 1024 px, sans la ligne des textures allégées ; version 0.4.15) et un viseur à la densité de
+ * l'écran ; aucun problème affiché, aucune erreur de la page ni de la console. Extension masquée, ouvert avec « ?diagnostic » : le message, avec la mise au point et l'aperçu ; le
  * déclencheur grisé, et, réactivé par la routine, un appui qui ne calcule rien et le regrise ; l'affichage donne les
  * deux capacités à « non » et la densité du viseur plafonnée à 2. Dans ce contexte, Babylon.js et le pilote écrivent
  * des avertissements sur les cibles de rendu incomplètes (« Render to float textures is not supported », « Framebuffer
@@ -1044,9 +1056,9 @@ async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
         Boolean(density) && density[1] === decimal2(screen) && density[2] === decimal2(viewfinder) && Number(density[3]) > 0 && Number(density[4]) > 0;
       const densityText = density ? density[0] : "ligne des densités absente";
       // Ligne des textures (version 0.4.15) : la scène chargée en demande environ 294 Mio, d'après l'estimation de
-      // l'affichage comme d'après les appels à WebGL relevés à part (docs/pile-technique.md, « Contexte perdu au
-      // démarrage ») ; bornes larges, pour une scène dont une texture changerait.
-      const textures = /^Textures\u00a0: (\d+), environ (\d+) Mio demandés · côté maximal\u00a0: (\d+) px$/m.exec(view);
+      // l'affichage comme d'après les appels à WebGL relevés à part (docs/pile-technique.md, « Contexte perdu pendant
+      // le chargement » et « Affichage de diagnostic ») ; bornes larges, pour une scène dont une texture changerait.
+      const textures = /^Textures\u00a0: (\d+), environ (\d+) Mio demandés · limite du processeur graphique\u00a0: (\d+) px de côté$/m.exec(view);
       const texturesOk = Boolean(textures) && Number(textures[1]) >= 20 && Number(textures[2]) >= 200 && Number(textures[2]) <= 600 && Number(textures[3]) >= 1024;
       if (!masked) {
         check(

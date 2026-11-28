@@ -354,8 +354,12 @@ const messages = {
   diagGpuMissing: "Durée d'une image, processeur graphique : non mesurée ({extension} absente)",
   diagGpuUnsupported: "Durée d'une image, processeur graphique : non mesurée (WebGL 1 sans horodatage, que Babylon.js 9.35.0 ne mesure qu'une fois)",
   diagCaps: "Rendu en flottants : {caps}",
-  // Textures créées par Babylon.js, et textures allégées de « ?diagnostic=textures-legeres » (version 0.4.15).
-  diagTextures: "Textures : {count}, environ {mio} Mio demandés · côté maximal : {max} px",
+  // Textures créées par Babylon.js, plus grand côté de texture que le processeur graphique accepte, et textures
+  // allégées de « ?diagnostic=textures-legeres » (version 0.4.15).
+  diagTextures: "Textures : {count}, environ {mio} Mio demandés · limite du processeur graphique : {max} px de côté",
+  diagTexturesLowered:
+    "Textures : {count}, environ {mio} Mio demandés · limite du processeur graphique : {max} px de côté, abaissée à {current} px pour le chargement",
+  diagTexturesLost: "Textures relevées avant la perte du contexte WebGL, une seconde au plus avant elle",
   diagTexturesLight: "Textures allégées pour cet essai : images réduites à {size} px de côté au plus pendant le chargement",
   diagYes: "oui",
   diagNo: "non",

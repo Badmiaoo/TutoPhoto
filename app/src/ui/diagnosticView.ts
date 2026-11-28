@@ -3,8 +3,9 @@
 // bas à gauche du viseur, qui ne prend pas les touchers, réécrit chaque seconde : version du site, WebGL et processeur
 // graphique, densité et taille de l'image calculée, images par seconde, durée moyenne d'une image et de sa phase des
 // textures de rendu côté processeur, durée d'une image côté processeur graphique quand le navigateur expose l'extension
-// de mesure, capacités de rendu en flottants. Lignes et compteur : diagnosticModel.ts ; ce que valent ces chiffres, et
-// comment comparer deux versions : docs/pile-technique.md, « Prise en charge des navigateurs ».
+// de mesure, capacités de rendu en flottants, textures (version 0.4.15). Lignes et compteur : diagnosticModel.ts ; ce
+// que valent ces chiffres, et comment comparer deux versions : docs/pile-technique.md, « Prise en charge des
+// navigateurs ».
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";
@@ -31,6 +32,9 @@ const REFRESH_MS = 1000;
 const NS_PER_MS = 1e6;
 
 export class DiagnosticView {
+  /** Lecture des textures figée par main.ts quand le démarrage s'arrête (freezeTextures). */
+  private texturesFrozen = false;
+
   /**
    * `host` : l'élément `main` de la page. Le calque y est placé juste avant l'écran de revue : à z-index égal (1), celui-ci
    * le couvre, et la bande de calcul, la ligne des problèmes et les messages de la scène passent au-dessus de lui
@@ -87,6 +91,22 @@ export class DiagnosticView {
       return fresh ? { state: "measured", ms: counter.lastSecAverage / NS_PER_MS } : { state: "waiting" };
     };
 
+    // Textures que Babylon.js a créées, textures de rendu comprises (version 0.4.15), relues à chaque réécriture, et
+    // limite de taille que Babylon.js applique à cet instant (`caps.maxTextureSize`, que main.ts abaisse pendant le
+    // chargement aux textures allégées). Sur un contexte perdu, Babylon.js continue d'inscrire et de dimensionner des
+    // textures que le navigateur ne crée pas (Engines/thinEngine.pure.js, `_prepareWebGLTexture`) : la lecture garde
+    // alors le nombre et les octets de la dernière réécriture avant la perte, et, après un démarrage arrêté, même si
+    // le contexte est restauré (relecture de la version 0.4.15, R5).
+    let seen = { count: 0, bytes: 0 };
+    const textureReading = (): TextureReading => {
+      const lost = this.texturesFrozen || engine._gl.isContextLost();
+      if (!lost) {
+        const cache = engine.getLoadedTexturesCache();
+        seen = { count: cache.length, bytes: cache.reduce((sum, texture) => sum + estimatedTextureBytes(texture), 0) };
+      }
+      return { ...textures, ...seen, currentMaxSize: caps.maxTextureSize, lost };
+    };
+
     const render = () => {
       element.textContent = diagnosticLines({
         version: siteVersion(),
@@ -99,16 +119,18 @@ export class DiagnosticView {
         window: meter.take(performance.now()),
         gpu: gpuReading(),
         caps: floatCaps,
-        // Textures que Babylon.js a créées, textures de rendu comprises (version 0.4.15) : relues à chaque réécriture,
-        // elles disent où en était le chargement quand le contexte WebGL s'est perdu.
-        textures: {
-          ...textures,
-          count: engine.getLoadedTexturesCache().length,
-          bytes: engine.getLoadedTexturesCache().reduce((sum, texture) => sum + estimatedTextureBytes(texture), 0),
-        },
+        textures: textureReading(),
       }).join("\n");
     };
     render();
     window.setInterval(render, REFRESH_MS);
+  }
+
+  /**
+   * Démarrage arrêté sur une perte du contexte (main.ts, failStart) : la ligne des textures garde ce qui était relevé
+   * avant, pour qu'une capture d'écran dise où en était le chargement.
+   */
+  freezeTextures(): void {
+    this.texturesFrozen = true;
   }
 }
