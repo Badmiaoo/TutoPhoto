@@ -334,6 +334,9 @@ const messages = {
   startContextLostLoading:
     "Le simulateur n'a pas pu démarrer : le navigateur a perdu l'affichage 3D (contexte WebGL) pendant le chargement de la scène. Recharge la page.",
   startError: "Le simulateur n'a pas pu démarrer. Recharge la page.",
+  // Où en était le chargement quand il s'est arrêté sur une perte du contexte (version 0.4.15) : après la version du
+  // site, pour qu'une capture d'écran le dise ; {progress} est la progression du chargement, figée à l'arrêt.
+  startProgress: "Chargement à ce moment : {progress}.",
   creditsUnavailable:
     "Crédits indisponibles : la liste des éléments de la scène (scenes/parc/scene.json) n'a pas pu être chargée. Recharge la page pour réessayer.",
   noWebgl: "Ce navigateur ne permet pas d'afficher la scène 3D (WebGL indisponible).",
@@ -351,6 +354,9 @@ const messages = {
   diagGpuMissing: "Durée d'une image, processeur graphique : non mesurée ({extension} absente)",
   diagGpuUnsupported: "Durée d'une image, processeur graphique : non mesurée (WebGL 1 sans horodatage, que Babylon.js 9.35.0 ne mesure qu'une fois)",
   diagCaps: "Rendu en flottants : {caps}",
+  // Textures créées par Babylon.js, et textures allégées de « ?diagnostic=textures-legeres » (version 0.4.15).
+  diagTextures: "Textures : {count}, environ {mio} Mio demandés · côté maximal : {max} px",
+  diagTexturesLight: "Textures allégées pour cet essai : images réduites à {size} px de côté au plus pendant le chargement",
   diagYes: "oui",
   diagNo: "non",
 } satisfies Record<string, string>;

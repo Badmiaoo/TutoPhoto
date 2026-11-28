@@ -14,7 +14,15 @@ import type { Scene } from "@babylonjs/core/scene";
 import { RegisterAbstractEngineTimeQuery } from "@babylonjs/core/Engines/AbstractEngine/abstractEngine.timeQuery.pure";
 import { RegisterEnginesExtensionsEngineQuery } from "@babylonjs/core/Engines/Extensions/engine.query.pure";
 import { EngineInstrumentation } from "@babylonjs/core/Instrumentation/engineInstrumentation";
-import { FrameMeter, SHOWN_FLOAT_CAPS, diagnosticLines, type FloatCaps, type GpuReading } from "../diagnosticModel";
+import {
+  FrameMeter,
+  SHOWN_FLOAT_CAPS,
+  diagnosticLines,
+  estimatedTextureBytes,
+  type FloatCaps,
+  type GpuReading,
+  type TextureReading,
+} from "../diagnosticModel";
 import { siteVersion } from "../version";
 
 /** Intervalle de réécriture de l'affichage, et durée de la fenêtre du compteur des images. */
@@ -29,7 +37,7 @@ export class DiagnosticView {
    * (style.css, .diagnostic-view ; relecture de la version 0.3.88, constat C4). À créer après l'autofocus : sa
    * préparation des os, au début de la phase des textures de rendu, reste ainsi hors de la part mesurée (constat C7).
    */
-  constructor(engine: Engine, scene: Scene, host: HTMLElement) {
+  constructor(engine: Engine, scene: Scene, host: HTMLElement, textures: Pick<TextureReading, "maxSize" | "light">) {
     const element = document.createElement("div");
     element.id = "diagnostic-view";
     element.className = "diagnostic-view";
@@ -91,6 +99,13 @@ export class DiagnosticView {
         window: meter.take(performance.now()),
         gpu: gpuReading(),
         caps: floatCaps,
+        // Textures que Babylon.js a créées, textures de rendu comprises (version 0.4.15) : relues à chaque réécriture,
+        // elles disent où en était le chargement quand le contexte WebGL s'est perdu.
+        textures: {
+          ...textures,
+          count: engine.getLoadedTexturesCache().length,
+          bytes: engine.getLoadedTexturesCache().reduce((sum, texture) => sum + estimatedTextureBytes(texture), 0),
+        },
       }).join("\n");
     };
     render();

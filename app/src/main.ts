@@ -17,7 +17,14 @@ import { FicheDialog } from "./ui/ficheDialog";
 import { ReviewInfo } from "./ui/reviewInfo";
 import { DiagnosticView } from "./ui/diagnosticView";
 import { closeOnBackdrop, openDialog } from "./ui/dialogs";
-import { diagnosticRequested, floatRenderMessage, fullDensityRequested, missingFloatRender } from "./diagnosticModel";
+import {
+  LIGHT_TEXTURE_SIZE,
+  diagnosticRequested,
+  floatRenderMessage,
+  fullDensityRequested,
+  lightTexturesRequested,
+  missingFloatRender,
+} from "./diagnosticModel";
 import { t } from "./texts";
 import { siteVersion } from "./version";
 
@@ -122,6 +129,8 @@ let contextLost = false;
  * arrête le démarrage ; après, c'est une perte en cours d'usage.
  */
 let sceneLoading = true;
+/** Progression du chargement, figée quand il s'arrête sur une perte du contexte (version 0.4.15) ; vide sinon. */
+let stoppedProgress = "";
 /**
  * Chargement en échec, et scène toujours pas prête 20 s après l'arrivée ou l'échec du dernier fichier : une photo est
  * alors refusée tout de suite, au lieu d'attendre 20 s pour échouer (relecture du Sujet 10, version 0.3.70).
@@ -185,6 +194,9 @@ function renderStatus(): void {
   let reload = true;
   if (statusKey === "startContextLost" || statusKey === "startContextLostLoading" || statusKey === "startError") {
     message = withVersion(t(statusKey));
+    // Arrêt pendant le chargement (version 0.4.15) : où il en était, pour qu'une capture d'écran dise si la perte est
+    // venue avant, pendant ou après la réception des fichiers.
+    if (stoppedProgress) detail = ` ${t("startProgress").replace("{progress}", stoppedProgress)}`;
   } else if (contextLost) {
     message = withVersion(t("contextLost"));
   } else if (statusKey === "loadError") {
@@ -361,6 +373,7 @@ function failStart(key: StartFailure, engine: Engine | null): void {
   engine?.stopRenderLoop();
   const onRestored = (engine as unknown as { _onContextRestored?: (event: Event) => void } | null)?._onContextRestored;
   if (onRestored) canvas.removeEventListener("webglcontextrestored", onRestored);
+  if (key === "startContextLostLoading") stoppedProgress = loadingProgress().trim().replace(/^· /, "");
   statusKey = key;
   document.body.classList.add("start-failed");
   // L'affichage de diagnostic, inséré avant l'écran de revue, passe sous la ligne des problèmes : le message reste en
@@ -377,9 +390,26 @@ function startSimulator(engine: Engine): void {
   // sa légende ordinaire, et l'autofocus ne voyait plus les sujets, sans aucun message. Le message le dit dès le
   // démarrage, et ui/shutter.ts grise le déclencheur et refuse tout calcul. Aucun repli n'est écrit (décision D24 en
   // attente).
-  const missingFloat = missingFloatRender(engine.getCaps());
+  const caps = engine.getCaps();
+  const missingFloat = missingFloatRender(caps);
   if (missingFloat.length > 0) report("problemFloatRender", floatRenderMessage(missingFloat));
+  // Textures allégées, avec « ?diagnostic=textures-legeres » seulement (version 0.4.15, diagnosticModel.ts) : un essai,
+  // pour voir sur un téléphone où le navigateur perd l'affichage 3D au chargement si la panne tient à la mémoire
+  // graphique demandée. Babylon.js 9.35.0 réduit toute image plus grande que `maxTextureSize` à cette taille, par un
+  // canevas, avant de l'envoyer au processeur graphique (Engines/thinEngine.pure.js, `createTexture`, l. 2616-2627, et
+  // `_prepareWebGLTexture`, l. 2957-2959) : la limite est abaissée le temps du chargement des fichiers de la scène,
+  // puis remise. Tant qu'elle est abaissée, Babylon.js y plafonne aussi la taille des post-traitements du viseur
+  // (PostProcesses/postProcess.pure.js, l. 633), qui reprennent leur taille ensuite : sans effet sur un viseur calculé
+  // à moins de 1024 px de côté, celui d'un téléphone tenu droit.
+  const fullTextureSize = caps.maxTextureSize;
+  const lightTextures = lightTexturesRequested(window.location.search);
+  if (lightTextures) caps.maxTextureSize = Math.min(fullTextureSize, LIGHT_TEXTURE_SIZE);
   const { scene, camera, ready, filesSettled, time, subjects, eye } = createScene(engine, canvas);
+  if (lightTextures) {
+    void filesSettled.then(() => {
+      caps.maxTextureSize = fullTextureSize;
+    });
+  }
   // Serveur de développement seulement (absent du site construit) : accès pour les mesures sur la scène.
   if (import.meta.env.DEV) {
     void import("@babylonjs/core/Culling/ray");
@@ -425,7 +455,9 @@ function startSimulator(engine: Engine): void {
   panel.attachAutofocus(autofocus);
   // Affichage de diagnostic (constat ARC-06 de l'audit, version 0.3.88) : seulement avec « ?diagnostic » dans l'adresse ;
   // créé après l'autofocus (ui/diagnosticView.ts).
-  if (diagnosticRequested(window.location.search)) new DiagnosticView(engine, scene, canvas.parentElement ?? document.body);
+  if (diagnosticRequested(window.location.search)) {
+    new DiagnosticView(engine, scene, canvas.parentElement ?? document.body, { maxSize: fullTextureSize, light: lightTextures });
+  }
   const dof = new ViewfinderDepthOfField(
     scene,
     camera,

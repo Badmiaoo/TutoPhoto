@@ -12,11 +12,14 @@ import {
   decimal,
   diagnosticLines,
   diagnosticRequested,
+  estimatedTextureBytes,
   floatRenderMessage,
   fullDensityRequested,
+  lightTexturesRequested,
   missingFloatRender,
   type DiagnosticReading,
   type FloatCaps,
+  type TextureInfo,
 } from "../src/diagnosticModel";
 import { assertClose } from "./approx";
 
@@ -189,6 +192,8 @@ function reading(overrides: Partial<DiagnosticReading> = {}): DiagnosticReading 
     window: { seconds: 1, frames: 60, fps: 59.83, frameMs: 4.24, targetsMs: 1.06 },
     gpu: { state: "measured", ms: 12.34 },
     caps: allCaps(true),
+    // 293,6 Mio : arrondi à 294 par la ligne.
+    textures: { count: 31, bytes: 307863552, maxSize: 8192, light: false },
     ...overrides,
   };
 }
@@ -203,14 +208,58 @@ test("lignes de l'affichage : version, WebGL, densités, débit, durées, capaci
     `Durée d'une image, processeur${NBSP}: 4,2 ms (textures de rendu${NBSP}: 1,1 ms)`,
     `Durée d'une image, processeur graphique${NBSP}: 12,3 ms`,
     `Rendu en flottants${NBSP}: textureFloatRender oui, textureHalfFloatRender oui, colorBufferFloat oui, colorBufferHalfFloat oui, textureHalfFloatLinearFiltering oui`,
+    `Textures${NBSP}: 31, environ 294 Mio demandés · côté maximal${NBSP}: 8192 px`,
   ]);
+});
+
+test("lignes de l'affichage : textures allégées, une ligne de plus, en dernier", () => {
+  const lines = diagnosticLines(reading({ textures: { count: 3, bytes: 5 * 2 ** 20, maxSize: 4096, light: true } }));
+  assert.equal(lines.length, 9);
+  assert.equal(lines[7], `Textures${NBSP}: 3, environ 5 Mio demandés · côté maximal${NBSP}: 4096 px`);
+  assert.equal(lines[8], `Textures allégées pour cet essai${NBSP}: images réduites à 1024 px de côté au plus pendant le chargement`);
+});
+
+test("textures allégées : seulement « diagnostic=textures-legeres »", () => {
+  for (const search of ["?diagnostic=textures-legeres", "?defi=SIT-05&diagnostic=textures-legeres"]) {
+    assert.equal(lightTexturesRequested(search), true, search);
+    assert.equal(diagnosticRequested(search), true, search);
+    assert.equal(fullDensityRequested(search), false, search);
+  }
+  for (const search of ["", "?diagnostic", "?diagnostic=densite-complete", "?diagnostic=Textures-Legeres", "?textures-legeres", "?textures=legeres"]) {
+    assert.equal(lightTexturesRequested(search), false, search);
+  }
+});
+
+test("octets demandés par une texture : taille × octets par pixel, un tiers de plus avec mipmaps, six faces pour un cube", () => {
+  const texture = (overrides: Partial<TextureInfo>): TextureInfo => ({ width: 1024, height: 1024, depth: 0, isCube: false, generateMipMaps: false, format: 5, type: 0, ...overrides });
+  // RGBA sur 8 bits : 1024 × 1024 × 4 = 4 194 304 octets ; avec mipmaps, × 4/3 = 5 592 405,33, arrondi.
+  assert.equal(estimatedTextureBytes(texture({})), 4194304);
+  assert.equal(estimatedTextureBytes(texture({ generateMipMaps: true })), 5592405);
+  // Photo de fond : RGB sur 8 bits, 8192 × 4096 × 3 = 100 663 296 octets (96 Mio).
+  assert.equal(estimatedTextureBytes(texture({ width: 8192, height: 4096, format: 4 })), 100663296);
+  // Format et type non fixés (-1) : comptés comme RGBA sur 8 bits.
+  assert.equal(estimatedTextureBytes(texture({ format: -1, type: -1 })), 4194304);
+  // Flottants (type 1) : 4 octets par canal ; demi-flottants (type 2) : 2. R (6) : un canal ; RG (7) : deux.
+  assert.equal(estimatedTextureBytes(texture({ type: 1 })), 16777216);
+  assert.equal(estimatedTextureBytes(texture({ type: 2 })), 8388608);
+  assert.equal(estimatedTextureBytes(texture({ format: 6, type: 1 })), 4194304);
+  assert.equal(estimatedTextureBytes(texture({ format: 7 })), 2097152);
+  // Cube de 256 px, RGBA en demi-flottants, avec mipmaps : 256 × 256 × 6 × 8 × 4/3 = 4 194 304.
+  assert.equal(estimatedTextureBytes(texture({ width: 256, height: 256, isCube: true, type: 2, generateMipMaps: true })), 4194304);
+  // Profondeur : DEPTH16 (15) 2 octets, DEPTH32FLOAT_STENCIL8 (18) 8, les autres 4, quel que soit le type.
+  assert.equal(estimatedTextureBytes(texture({ format: 15, type: 5 })), 2097152);
+  assert.equal(estimatedTextureBytes(texture({ format: 18, type: 1 })), 8388608);
+  assert.equal(estimatedTextureBytes(texture({ format: 14, type: 1 })), 4194304);
+  // Texture à trois dimensions : la profondeur compte.
+  assert.equal(estimatedTextureBytes(texture({ width: 16, height: 16, depth: 16 })), 16384);
 });
 
 test("lignes de l'affichage : sans image, sans extension de mesure, WebGL 1 sans horodatage, en attente, capacités absentes", () => {
   const stopped = diagnosticLines(
     reading({ window: { seconds: 1, frames: 0, fps: 0, frameMs: null, targetsMs: null }, gpu: { state: "missing", extension: "EXT_disjoint_timer_query_webgl2" } }),
   );
-  assert.equal(stopped.length, 6);
+  // Six lignes de la version 0.3.88, et celle des textures (version 0.4.15).
+  assert.equal(stopped.length, 7);
   assert.ok(stopped[3].startsWith("Aucune image du viseur dans la dernière seconde"), stopped[3]);
   assert.equal(stopped[4], `Durée d'une image, processeur graphique${NBSP}: non mesurée (EXT_disjoint_timer_query_webgl2 absente)`);
   const waiting = diagnosticLines(reading({ gpu: { state: "waiting" } }));
