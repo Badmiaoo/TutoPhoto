@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "scene.schema.json",
   "title": "Manifeste d'une scène 3D (app/public/scenes/<scène>/scene.json)",
-  "$comment": "Chaque fichier de la scène y figure, avec son origine, son auteur et sa licence (docs/licences.md). Contrôlé par scripts/check_scenes.py.",
+  "$comment": "Chaque fichier de la scène y figure, avec son origine, son auteur et sa licence (docs/licences.md). Contrôlé par scripts/check_scenes.py, qui compare aussi le titre, la page d'origine, l'auteur et la licence d'un élément à ce qu'en disent son license.txt et ses fichiers glTF.",
   "type": "object",
   "additionalProperties": false,
   "required": ["id", "title", "situations", "assets"],
@@ -12,7 +12,8 @@
     "situations": {
       "type": "array",
       "minItems": 1,
-      "items": {"type": "string", "pattern": "^SIT-(V2-)?[0-9]{2}$"}
+      "items": {"type": "string", "pattern": "^SIT-(V2-)?[0-9]{2}$"},
+      "$comment": "Situations de data/situations.yaml ; le schéma n'en contrôle que la forme, scripts/check_scenes.py qu'elles existent."
     },
     "assets": {
       "type": "array",
@@ -37,7 +38,7 @@
         },
         "license_url": {"type": "string", "pattern": "^https://creativecommons\\.org/"},
         "license_checked_at": {"type": "string", "pattern": "^https://", "$comment": "Page où la licence a été lue."},
-        "verified": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", "$comment": "Date de lecture de la licence."},
+        "verified": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", "$comment": "Date de lecture de la licence. Le schéma n'en contrôle que la forme ; scripts/check_scenes.py, qu'elle existe et n'est pas plus d'un jour dans le futur."},
         "changes": {"type": "string", "minLength": 1, "$comment": "Modifications apportées à l'œuvre ; obligatoire à signaler pour CC BY (section 3(a)(1)(B))."},
         "files": {
           "type": "array",
