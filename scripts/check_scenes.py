@@ -3,7 +3,8 @@
 
 Pour chaque scène, le manifeste scene.json doit :
 - respecter schemas/scene.schema.json (licence CC0 ou CC BY, auteur, page d'origine, date de vérification) ;
-- lister chaque fichier de la scène une fois et une seule, avec sa taille et son empreinte SHA-256 exactes ;
+- lister chaque fichier de la scène une fois et une seule, avec sa taille et son empreinte SHA-256 exactes, la
+  scène n'ayant aucun lien symbolique ;
 - ne nommer, dans `situations`, que des situations de data/situations.yaml ;
 - donner à chaque élément une date `verified` qui existe, au plus un jour après la date du jour en UTC.
 
@@ -11,13 +12,14 @@ Le manifeste n'est pas cru sur parole : ce que les fichiers d'un élément disen
 en dit (constat LIC-05 de l'audit, docs/audit/licences-scripts-ci.md ; version 0.4.16).
 - Un fichier license.txt, lu en entier au format des archives de Sketchfab, et le bloc `asset.extras` d'un fichier glTF
   (.gltf, ou .glb, dont le JSON est le premier bloc) : titre, page d'origine, auteur et licence sont ceux du manifeste.
-- Un élément dont la page d'origine est sur sketchfab.com liste son license.txt (docs/licences.md).
+- Un élément dont la page d'origine est sur sketchfab.com liste son license.txt (docs/licences.md) ; l'hôte de la
+  page d'origine s'écrit sans détour, pour que le script le lise comme un navigateur.
 
 Un fichier glTF ne doit rien faire charger que le manifeste ne liste pas :
 - toute propriété `uri` est une uri en `data:` aux données en base64, ou le chemin, écrit tel quel, d'un fichier listé
   de la scène ;
 - il n'emploie que des extensions de EXTENSIONS_ADMISES ;
-- ses images sont en PNG ou en JPEG.
+- ses images, écrites dans une liste, sont en PNG ou en JPEG.
 
 Ce que le script ne contrôle pas : docs/licences.md, « Règles pour les scènes 3D ».
 
@@ -38,7 +40,6 @@ import posixpath
 import re
 import struct
 import sys
-import urllib.parse
 
 import jsonschema
 
@@ -64,6 +65,12 @@ EXIGENCES = {
 # Chemin d'un fichier dans un manifeste : la forme que demande le schéma. Un segment « . » ou « .. » est refusé à part.
 CHEMIN = re.compile(r"[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*")
 
+# Une page d'origine dont l'hôte se lit sans détour : « https », un hôte fait de lettres minuscules, de chiffres, de
+# tirets et de points, puis, s'il y en a un, un chemin sans espace ni barre oblique inverse. Un navigateur lit
+# « sketchfab.com » dans un hôte écrit avec un « %2e », un point idéographique, une lettre de pleine largeur ou suivi
+# d'une barre oblique inverse, ce que `urllib.parse` ne fait pas (contrôle final de la version 0.4.16, constat F4).
+PAGE = re.compile(r"https:/{2}([a-z0-9-]+(?:\.[a-z0-9-]+)+)(?:/[^\s\\]*)?")
+
 # Le fichier license.txt d'une archive glTF de Sketchfab, en entier. Cinq lignes « * champ:<tabulation>valeur » : le
 # titre, la page du modèle, l'auteur (son nom, puis l'adresse de son profil entre parenthèses), la licence (son
 # identifiant SPDX, puis l'adresse de son texte entre parenthèses, en http) et ce qu'elle demande ; pour un modèle sous
@@ -88,11 +95,16 @@ CHAMPS = ("title", "source", "author", "license")
 VALEUR_ET_ADRESSE = re.compile(r"(.*\S)\s+\((https?:/{2}[^\s()]+)\)")
 
 # Une uri en `data:` dont les données sont dans le fichier glTF : un type facultatif, « ;base64, », puis l'alphabet du
-# base64. C'est, en plus strict, ce que le chargeur de Babylon.js 9.35.0 tient pour des données incluses
+# base64, le tout en lettres ASCII. C'est, en plus strict, ce que le chargeur de Babylon.js 9.35.0 tient pour des
+# données incluses
 # (« ^data:([^,]+\/[^,]+)?;base64, », sans égard à la casse : @babylonjs/core, Misc/fileTools.pure.js, l. 17) ; il prend
 # toute autre uri, même en `data:`, pour un chemin, qu'il ajoute à l'adresse du dossier du modèle
 # (@babylonjs/loaders, glTF/2.0/glTFLoader.pure.js, l. 2241).
-URI_EN_DATA = re.compile(r"data:(?:([a-z0-9.+-]+/[a-z0-9.+-]+))?;base64,[A-Za-z0-9+/]*={0,2}", re.IGNORECASE)
+# « re.ASCII » : sans lui, « sans égard à la casse » prend un « ſ » (U+017F) pour un « s », et le chargeur, qui ne le
+# fait pas, lirait l'uri comme un chemin (contrôle final, constat F8).
+URI_EN_DATA = re.compile(
+    r"data:(?:([a-z0-9.+-]+/[a-z0-9.+-]+))?;base64,[A-Za-z0-9+/]*={0,2}", re.IGNORECASE | re.ASCII
+)
 
 # Extensions de glTF qu'un fichier d'une scène peut employer : celles des fichiers de la scène de parc, dont le
 # simulateur ne demande rien hors du site. Toute autre est refusée tant que ce que le chargeur en fait n'a pas été lu :
@@ -101,9 +113,12 @@ URI_EN_DATA = re.compile(r"data:(?:([a-z0-9.+-]+/[a-z0-9.+-]+))?;base64,[A-Za-z0
 EXTENSIONS_ADMISES = {"KHR_materials_specular"}
 
 # Les deux formats d'image de la spécification de glTF 2.0 (« supports only image resources stored in PNG and JPEG
-# image formats ») [khronos-gltf-2-0]. Le chargeur choisit le décodeur d'une image d'après son type déclaré, sinon
-# d'après son uri (glTFLoader.pure.js, l. 2157) : pour une image nommée « .basis », il demande un transcodeur à un
-# autre hôte (essai du 28 novembre 2026).
+# image formats ») [khronos-gltf-2-0]. Le chargeur donne à la texture le type déclaré de l'image, sinon celui que dit
+# la fin de son uri (glTFLoader.pure.js, l. 2157), et une adresse faite de cette uri (l. 2167 à 2170) ; le moteur
+# choisit le décodeur d'après la fin de cette adresse et ce type (@babylonjs/core, Engines/abstractEngine.pure.js,
+# l. 662 à 670) : pour une image nommée « .basis », il demande un transcodeur à un autre hôte (essai du 28 novembre
+# 2026). Il lit `images[texture.source]` (glTFLoader.pure.js, l. 43 à 47 et 2107), donc aussi un `images` écrit
+# comme un objet : le script le refuse, faute de quoi ses images échapperaient au contrôle (contrôle final, F1).
 TYPES_D_IMAGE = ("image/png", "image/jpeg")
 SUFFIXES_D_IMAGE = (".png", ".jpg", ".jpeg")
 
@@ -160,13 +175,14 @@ def json_de_gltf(chemin, octets):
 
 def proprietes(gltf, nom):
     """Toutes les propriétés `nom` d'un JSON de glTF, où qu'elles soient, dans l'ordre du fichier : (endroit, valeur).
-    Parcours sans récursion : la profondeur du JSON ne compte pas. Une propriété trouvée n'est pas parcourue."""
+    Parcours sans récursion : la profondeur du JSON ne compte pas. Une propriété trouvée est parcourue aussi : un
+    objet `extensions` posé dans l'objet d'une extension est trouvé (contrôle final de la version 0.4.16, F2)."""
     trouvees, pile = [], [("", gltf, False)]
     while pile:
         ou, noeud, trouvee = pile.pop()
         if trouvee:
             trouvees.append((ou, noeud))
-        elif isinstance(noeud, dict):
+        if isinstance(noeud, dict):
             for cle, valeur in reversed(noeud.items()):
                 pile.append((f"{ou}.{lisible(cle, 60)}" if ou else lisible(cle, 60), valeur, cle == nom))
         elif isinstance(noeud, list):
@@ -218,6 +234,8 @@ def erreurs_de_gltf(chemin, gltf, listed):
         out.append(f"extension « {lisible(nom)} » hors des extensions admises (docs/licences.md)")
 
     images = gltf.get("images", [])
+    if not isinstance(images, list):
+        out.append("images n'est pas une liste")
     for i, image in enumerate(images if isinstance(images, list) else []):
         if not isinstance(image, dict):
             continue
@@ -273,12 +291,14 @@ def ecarts(asset, lu):
     return out
 
 
-def est_de_sketchfab(adresse):
-    """Vrai si l'hôte de l'adresse est sketchfab.com ou l'un de ses sous-domaines."""
-    try:
-        hote = (urllib.parse.urlsplit(adresse).hostname or "").rstrip(".")
-    except ValueError:
-        return False
+def hote_de_la_page(adresse):
+    """L'hôte d'une page d'origine écrite à la forme de PAGE ; None pour toute autre adresse."""
+    trouve = PAGE.fullmatch(adresse)
+    return trouve.group(1) if trouve else None
+
+
+def est_de_sketchfab(hote):
+    """Vrai si l'hôte est sketchfab.com ou l'un de ses sous-domaines."""
     return hote == "sketchfab.com" or hote.endswith(".sketchfab.com")
 
 
@@ -327,7 +347,12 @@ def main(root, today=None):
         except (ValueError, RecursionError) as e:
             errors.append(f"{rel(manifest_path)} : JSON invalide ({e})")
             continue
-        schema_errors = sorted(validator.iter_errors(manifest), key=lambda e: list(e.absolute_path))
+        try:
+            schema_errors = sorted(validator.iter_errors(manifest), key=lambda e: list(e.absolute_path))
+        except RecursionError:
+            # À une profondeur que `json` lit encore, la validation du schéma peut dépasser la limite de récursion.
+            errors.append(f"{rel(manifest_path)} : JSON trop imbriqué pour être comparé au schéma")
+            continue
         for e in schema_errors:
             where = "/".join(str(p) for p in e.absolute_path) or "(racine)"
             errors.append(f"{rel(manifest_path)} : {where} : {lisible(e.message, 300)}")
@@ -367,7 +392,13 @@ def main(root, today=None):
                         f"futur (date du jour en UTC : {today.isoformat()} ; un jour d'avance est admis)"
                     )
             names = [entry["path"].rsplit("/", 1)[-1].lower() for entry in asset["files"]]
-            if est_de_sketchfab(asset["source"]) and "license.txt" not in names:
+            hote = hote_de_la_page(asset["source"])
+            if hote is None:
+                errors.append(
+                    f"{rel(manifest_path)} : {ident} : page d'origine « {lisible(asset['source'])} » : une adresse en "
+                    "https est attendue, son hôte écrit en lettres minuscules, chiffres, tirets et points"
+                )
+            elif est_de_sketchfab(hote) and "license.txt" not in names:
                 errors.append(
                     f"{rel(manifest_path)} : {ident} : modèle de Sketchfab sans le fichier license.txt de son "
                     "archive glTF (docs/licences.md)"
@@ -387,7 +418,14 @@ def main(root, today=None):
                     errors.append(f"{rel(manifest_path)} : {path} listé deux fois ({listed[path]} et {ident})")
                 listed[path] = ident
                 file_path = scene_dir / path
-                if not file_path.is_file():
+                try:
+                    la = file_path.is_file()
+                except OSError as e:  # un nom de plus de 255 octets, par exemple
+                    errors.append(
+                        f"{rel(manifest_path)} : {ident} : chemin illisible « {lisible(path)} » ({e.strerror or e})"
+                    )
+                    continue
+                if not la:
                     errors.append(f"{rel(manifest_path)} : {path} absent du dossier")
                     continue
                 try:
@@ -436,6 +474,10 @@ def main(root, today=None):
             errors.extend(f"{where} : asset.extras : {ecart}" for ecart in ecarts(asset, lu))
             errors.extend(f"{where} : {erreur}" for erreur in erreurs_de_gltf(path, gltf, listed))
 
+        # Un lien symbolique est refusé : le parcours ne suit pas un lien vers un dossier, dont les fichiers ne seraient
+        # ni listés ni signalés, alors que la construction du site les copierait (contrôle final, constat F9).
+        for lien in sorted(p for p in scene_dir.rglob("*") if p.is_symlink()):
+            errors.append(f"{rel(lien)} : lien symbolique refusé (ce qu'il vise n'est pas contrôlé)")
         present = {
             p.relative_to(scene_dir).as_posix()
             for p in scene_dir.rglob("*")
