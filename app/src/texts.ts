@@ -359,7 +359,8 @@ const messages = {
   diagTextures: "Textures : {count}, environ {mio} Mio demandés · limite du processeur graphique : {max} px de côté",
   diagTexturesLowered:
     "Textures : {count}, environ {mio} Mio demandés · limite du processeur graphique : {max} px de côté, abaissée à {current} px pour le chargement",
-  diagTexturesLost: "Textures relevées avant la perte du contexte WebGL, une seconde au plus avant elle",
+  diagTexturesLost: "Textures relevées avant la perte du contexte WebGL, à la dernière réécriture qui la précède",
+  diagTexturesUnread: "Textures : non relevées avant la perte du contexte WebGL · limite du processeur graphique : {max} px de côté",
   diagTexturesLight: "Textures allégées pour cet essai : images réduites à {size} px de côté au plus pendant le chargement",
   diagYes: "oui",
   diagNo: "non",

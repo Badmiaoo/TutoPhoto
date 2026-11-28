@@ -95,16 +95,24 @@ export class DiagnosticView {
     // limite de taille que Babylon.js applique à cet instant (`caps.maxTextureSize`, que main.ts abaisse pendant le
     // chargement aux textures allégées). Sur un contexte perdu, Babylon.js continue d'inscrire et de dimensionner des
     // textures que le navigateur ne crée pas (Engines/thinEngine.pure.js, `_prepareWebGLTexture`) : la lecture garde
-    // alors le nombre et les octets de la dernière réécriture avant la perte, et, après un démarrage arrêté, même si
-    // le contexte est restauré (relecture de la version 0.4.15, R5).
-    let seen = { count: 0, bytes: 0 };
+    // alors le nombre et les octets de la dernière réécriture avant la perte, et, après un démarrage arrêté sur une
+    // perte, même si le contexte est restauré (relecture de la version 0.4.15, R5). Sans lecture avant la perte, ils
+    // ne sont pas écrits (contrôle final, F3). La limite est relue sur le moteur : Babylon.js refait ses capacités
+    // quand un contexte est restauré (`_initGLContext`).
+    let seen: { count: number; bytes: number } | null = null;
     const textureReading = (): TextureReading => {
       const lost = this.texturesFrozen || engine._gl.isContextLost();
       if (!lost) {
         const cache = engine.getLoadedTexturesCache();
         seen = { count: cache.length, bytes: cache.reduce((sum, texture) => sum + estimatedTextureBytes(texture), 0) };
       }
-      return { ...textures, ...seen, currentMaxSize: caps.maxTextureSize, lost };
+      return {
+        ...textures,
+        count: seen?.count ?? 0,
+        bytes: seen?.bytes ?? 0,
+        currentMaxSize: engine.getCaps().maxTextureSize,
+        state: !lost ? "read" : seen ? "frozen" : "unread",
+      };
     };
 
     const render = () => {
@@ -127,8 +135,8 @@ export class DiagnosticView {
   }
 
   /**
-   * Démarrage arrêté sur une perte du contexte (main.ts, failStart) : la ligne des textures garde ce qui était relevé
-   * avant, pour qu'une capture d'écran dise où en était le chargement.
+   * Démarrage arrêté sur une perte du contexte, et seulement alors (main.ts, failStart) : la ligne des textures garde
+   * ce qui était relevé avant, pour qu'une capture d'écran dise où en était le chargement.
    */
   freezeTextures(): void {
     this.texturesFrozen = true;

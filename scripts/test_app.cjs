@@ -63,7 +63,8 @@
 //   create … » de Babylon.js), et aucune erreur non rattrapée (pendant le chargement : aucune autre que celles-là) ;
 //   pendant le chargement, le message est suivi de la progression du chargement figée à l'arrêt, et l'affichage de
 //   diagnostic reste affiché, sous la ligne des problèmes, avec la ligne « Textures relevées avant la perte du
-//   contexte WebGL », restauration comprise ;
+//   contexte WebGL » et une ligne des textures inchangée, restauration comprise ; pour l'exception sans perte,
+//   l'affichage de diagnostic reste affiché sans cette ligne ;
 // - textures allégées (version 0.4.15), dans un contexte à part : ouvert avec « ?diagnostic=textures-legeres », le
 //   simulateur charge sa scène, l'affichage de diagnostic dit les textures allégées, de 30 à 150 Mio demandés (de
 //   200 à 600 Mio dans le témoin de l'affichage de diagnostic) et la limite du processeur graphique remise après le
@@ -724,7 +725,7 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
  * contexte et rend null, comme quand le processeur graphique ne crée pas le tampon. Quatrième contexte : une exception
  * sans perte du contexte, le constructeur de ResizeObserver levant une erreur injectée. Cinquième contexte (version
  * 0.4.15, demande de Julien du 23 novembre 2026 : sur l'iPhone de la capture, le contexte se perdait aussi pendant le
- * chargement, puis Babylon.js levait « Unable to create texture ») : la page perd le contexte au premier envoi d'une
+ * chargement, et Babylon.js levait « Unable to create texture ») : la page perd le contexte au premier envoi d'une
  * image (texImage2D dont la source n'est pas un tableau d'octets), après son chargement, donc pendant le chargement de
  * la scène et après la fin de startSimulator ; mêmes fonctions de création rendant null ; affichage de diagnostic
  * ouvert ; puis la page restaure le contexte, comme dans le deuxième cas. Dans chaque cas : le message du démarrage
@@ -738,7 +739,8 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
  * créées tant que le contexte est perdu : la ligne des problèmes peut donner, et changer pour donner, les exceptions
  * « Unable to create … » de Babylon.js, seules erreurs non rattrapées admises ; l'affichage de diagnostic reste
  * affiché, sous la ligne des problèmes, et sa ligne des textures garde le relevé d'avant la perte (« Textures relevées
- * avant la perte du contexte WebGL »), même le contexte restauré. Passé 60 s de chargement, la progression figée
+ * avant la perte du contexte WebGL »), la même à l'arrêt et 2 s plus tard, le contexte restauré. Le quatrième contexte
+ * s'ouvre aussi avec l'affichage de diagnostic : il reste affiché, sans ligne de perte. Passé 60 s de chargement, la progression figée
  * nomme aussi les fichiers en attente. main.ts écrit aussi l'exception rattrapée dans la console : la console n'est
  * pas contrôlée.
  */
@@ -801,7 +803,9 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
       const page = await context.newPage();
       const errors = [];
       page.on("pageerror", (error) => errors.push(`page : ${error.message}`));
-      await page.goto(`${base}/simulateur/${mode === "loading" ? "?diagnostic" : ""}`);
+      // Avec l'affichage de diagnostic pour l'exception sans perte (contrôle final de la version 0.4.15, F1) et pour la
+      // perte pendant le chargement : il reste affiché à l'arrêt.
+      await page.goto(`${base}/simulateur/${mode === "loading" || mode === "exception" ? "?diagnostic" : ""}`);
       const shown = await page
         .waitForFunction(() => document.body.classList.contains("start-failed"), null, { timeout: 60000 })
         .then(() => true)
@@ -873,9 +877,12 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
             : mode === "loading"
               ? r.problem === "" || creationFailure.test(r.problem)
               : r.problem === "";
+      // Ligne des textures de l'affichage de diagnostic : figée par une perte du contexte (la même à l'arrêt et 2 s
+      // plus tard, restauration comprise ; relecture R5, contrôle final F5), pas par une exception sans perte (F1).
+      const texturesLine = (text) => (/^Textures\u00a0: \d+, environ \d+ Mio demandés.*$/m.exec(text) ?? [""])[0];
       const unexpected = mode === "loading" ? errors.filter((e) => !/^page : Unable to create [A-Za-z ]+$/.test(e)) : errors;
       check(
-        `démarrage arrêté, ${label} (WebGL ${webgl1 ? 1 : 2}) : message lisible avec la version et « Recharger », inchangé 2 s plus tard, sans message des flottants, canevas et panneau du boîtier masqués, ${mode === "loading" ? "affichage de diagnostic sous la ligne des problèmes, textures relevées avant la perte, aucune erreur non rattrapée autre que « Unable to create … »" : "aucune erreur non rattrapée"}`,
+        `démarrage arrêté, ${label} (WebGL ${webgl1 ? 1 : 2}) : message lisible avec la version et « Recharger », inchangé 2 s plus tard, sans message des flottants, canevas et panneau du boîtier masqués, ${mode === "loading" ? "affichage de diagnostic sous la ligne des problèmes, textures relevées avant la perte et figées, aucune erreur non rattrapée autre que « Unable to create … »" : mode === "exception" ? "affichage de diagnostic sous la ligne des problèmes, sans ligne de perte, aucune erreur non rattrapée" : "aucune erreur non rattrapée"}`,
         shown &&
           r.text.startsWith(expected) &&
           (mode === "loading"
@@ -897,9 +904,15 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
           (mode !== "loading" ||
             (restored === "contexte restauré" &&
               r.diagnosticView === "affiché, sous la ligne des problèmes" &&
-              /^Textures relevées avant la perte du contexte WebGL, une seconde au plus avant elle$/m.test(r.diagnosticText))) &&
+              /^Textures relevées avant la perte du contexte WebGL, à la dernière réécriture qui la précède$/m.test(r.diagnosticText) &&
+              texturesLine(r.diagnosticText) !== "" &&
+              texturesLine(r.diagnosticText) === texturesLine(first.diagnosticText))) &&
+          (mode !== "exception" ||
+            (r.diagnosticView === "affiché, sous la ligne des problèmes" &&
+              texturesLine(r.diagnosticText) !== "" &&
+              !/avant la perte du contexte/.test(r.diagnosticText))) &&
           unexpected.length === 0,
-        `${shown ? "" : "démarrage non arrêté ; "}${restored ? `${restored} ; ` : ""}« ${r.text} »${r.text === first.text ? "" : ` (2 s avant : « ${first.text} »)`} ; de ${r.top} à ${r.bottom} px sur ${r.height} ; rendu en son centre : ${r.hit ? "oui" : "non"} ; « Recharger » rendu en son centre : ${r.reloadHit ? "oui" : "non"} ; problème : ${r.problem || "aucun"}${r.problem === first.problem ? "" : ` (2 s avant : ${first.problem || "aucun"})`} ; canevas : ${r.canvas} ; panneau : ${r.panel} ; bouton « Défis » : ${r.challenges}${mode === "loading" ? ` ; affichage de diagnostic : ${r.diagnosticView} ; ${(/^Textures.*$/m.exec(r.diagnosticText) ?? ["ligne des textures absente"])[0]}${/^Textures relevées avant la perte/m.test(r.diagnosticText) ? " ; relevé d'avant la perte" : " ; ligne « Textures relevées avant la perte » absente"}` : ""} ; erreurs : ${errors.join(" | ") || "aucune"}`,
+        `${shown ? "" : "démarrage non arrêté ; "}${restored ? `${restored} ; ` : ""}« ${r.text} »${r.text === first.text ? "" : ` (2 s avant : « ${first.text} »)`} ; de ${r.top} à ${r.bottom} px sur ${r.height} ; rendu en son centre : ${r.hit ? "oui" : "non"} ; « Recharger » rendu en son centre : ${r.reloadHit ? "oui" : "non"} ; problème : ${r.problem || "aucun"}${r.problem === first.problem ? "" : ` (2 s avant : ${first.problem || "aucun"})`} ; canevas : ${r.canvas} ; panneau : ${r.panel} ; bouton « Défis » : ${r.challenges}${mode === "loading" || mode === "exception" ? ` ; affichage de diagnostic : ${r.diagnosticView} ; ${texturesLine(r.diagnosticText) || "ligne des textures absente"}${texturesLine(r.diagnosticText) === texturesLine(first.diagnosticText) ? "" : ` (à l'arrêt : ${texturesLine(first.diagnosticText) || "absente"})`}${/avant la perte du contexte/.test(r.diagnosticText) ? " ; ligne du relevé d'avant la perte" : " ; pas de ligne du relevé d'avant la perte"}` : ""} ; erreurs : ${errors.join(" | ") || "aucune"}`,
       );
     } finally {
       await context.close();

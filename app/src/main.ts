@@ -385,8 +385,10 @@ function failStart(key: StartFailure, engine: Engine | null): void {
   statusKey = key;
   document.body.classList.add("start-failed");
   // L'affichage de diagnostic, inséré avant l'écran de revue, passe sous la ligne des problèmes : le message reste en
-  // haut (version 0.4.15). Sa ligne des textures garde ce qui était relevé avant l'arrêt.
-  diagnosticView?.freezeTextures();
+  // haut (version 0.4.15). Arrêté sur une perte du contexte, sa ligne des textures garde ce qui était relevé avant
+  // elle ; arrêté par une autre exception (startError), il continue de lire : rien n'est perdu (contrôle final de la
+  // version 0.4.15, F1).
+  if (key !== "startError") diagnosticView?.freezeTextures();
   const view = document.getElementById("diagnostic-view");
   if (view) diagnostic.after(view);
   applyTexts();
@@ -403,15 +405,18 @@ function startSimulator(engine: Engine): void {
   const missingFloat = missingFloatRender(caps);
   if (missingFloat.length > 0) report("problemFloatRender", floatRenderMessage(missingFloat));
   // Textures allégées, avec « ?diagnostic=textures-legeres » seulement (version 0.4.15, diagnosticModel.ts) : un essai,
-  // pour voir sur un téléphone où le navigateur perd l'affichage 3D au chargement si la panne tient à la mémoire
-  // graphique demandée. Babylon.js 9.35.0 réduit toute image plus grande que `maxTextureSize` à cette taille, par un
+  // pour voir sur un téléphone où le navigateur perd l'affichage 3D au chargement si la panne tient à la taille des
+  // images de la scène, par la mémoire des textures ou par leur envoi au processeur graphique, sans séparer les deux.
+  // Babylon.js 9.35.0 réduit toute image plus grande que `maxTextureSize` à cette taille, par un
   // canevas, avant de l'envoyer au processeur graphique (Engines/thinEngine.pure.js, `createTexture`, l. 2616-2627, et
   // `_prepareWebGLTexture`, l. 2957-2959) : la limite est abaissée le temps du chargement des fichiers de la scène,
-  // puis remise. Babylon.js lit aussi cette limite ailleurs, sans effet sur cette scène : pour la taille d'un
+  // puis remise. Babylon.js lit aussi cette limite ailleurs ; dans ce dont le simulateur se sert, sans effet sur
+  // cette scène : pour la taille d'un
   // post-traitement en puissance de deux avec mipmaps (PostProcesses/postProcess.pure.js, l. 633 et 650-656), ce que
   // ne sont pas ceux du viseur ; pour la texture des os d'un squelette plus large qu'elle (Bones/skeleton.js,
   // l. 451-455 ; 360 px au plus ici) ; pour les cibles de morphing (Morph/morphTargetManager.js, l. 483-487), que la
-  // scène n'a pas.
+  // scène n'a pas. Ses autres lecteurs (calques d'effets, textures dynamiques, particules, lignes, « Gaussian
+  // splatting ») ne sont pas utilisés par le simulateur.
   const fullTextureSize = caps.maxTextureSize;
   const lightTextures = lightTexturesRequested(window.location.search);
   if (lightTextures) caps.maxTextureSize = Math.min(fullTextureSize, LIGHT_TEXTURE_SIZE);

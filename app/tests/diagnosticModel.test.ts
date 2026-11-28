@@ -193,7 +193,7 @@ function reading(overrides: Partial<DiagnosticReading> = {}): DiagnosticReading 
     gpu: { state: "measured", ms: 12.34 },
     caps: allCaps(true),
     // 293,6 Mio : arrondi à 294 par la ligne.
-    textures: { count: 31, bytes: 307863552, maxSize: 8192, currentMaxSize: 8192, lost: false, light: false },
+    textures: { count: 31, bytes: 307863552, maxSize: 8192, currentMaxSize: 8192, state: "read", light: false },
     ...overrides,
   };
 }
@@ -214,7 +214,7 @@ test("lignes de l'affichage : version, WebGL, densités, débit, durées, capaci
 
 test("lignes de l'affichage : textures allégées, une ligne de plus, en dernier ; la limite abaissée dite pendant le chargement", () => {
   // Pendant le chargement : la limite que Babylon.js applique est plus basse que celle du processeur graphique.
-  const loading = diagnosticLines(reading({ textures: { count: 3, bytes: 5 * 2 ** 20, maxSize: 4096, currentMaxSize: 1024, lost: false, light: true } }));
+  const loading = diagnosticLines(reading({ textures: { count: 3, bytes: 5 * 2 ** 20, maxSize: 4096, currentMaxSize: 1024, state: "read", light: true } }));
   assert.equal(loading.length, 9);
   assert.equal(
     loading[7],
@@ -222,19 +222,23 @@ test("lignes de l'affichage : textures allégées, une ligne de plus, en dernier
   );
   assert.equal(loading[8], `Textures allégées pour cet essai${NBSP}: images réduites à 1024 px de côté au plus pendant le chargement`);
   // Après le chargement : la limite est remise, la ligne ne le dit plus.
-  const loaded = diagnosticLines(reading({ textures: { count: 31, bytes: 110 * 2 ** 20, maxSize: 4096, currentMaxSize: 4096, lost: false, light: true } }));
+  const loaded = diagnosticLines(reading({ textures: { count: 31, bytes: 110 * 2 ** 20, maxSize: 4096, currentMaxSize: 4096, state: "read", light: true } }));
   assert.equal(loaded.length, 9);
   assert.equal(loaded[7], `Textures${NBSP}: 31, environ 110 Mio demandés · limite du processeur graphique${NBSP}: 4096 px de côté`);
   assert.equal(loaded[8], loading[8]);
 });
 
 test("lignes de l'affichage : contexte perdu, la ligne des textures garde le relevé d'avant, et une ligne le dit", () => {
-  const lost = diagnosticLines(reading({ textures: { count: 12, bytes: 40 * 2 ** 20, maxSize: 8192, currentMaxSize: 8192, lost: true, light: false } }));
+  const lost = diagnosticLines(reading({ textures: { count: 12, bytes: 40 * 2 ** 20, maxSize: 8192, currentMaxSize: 8192, state: "frozen", light: false } }));
   assert.equal(lost.length, 9);
   assert.equal(lost[7], `Textures${NBSP}: 12, environ 40 Mio demandés · limite du processeur graphique${NBSP}: 8192 px de côté`);
-  assert.equal(lost[8], "Textures relevées avant la perte du contexte WebGL, une seconde au plus avant elle");
+  assert.equal(lost[8], "Textures relevées avant la perte du contexte WebGL, à la dernière réécriture qui la précède");
+  // Aucune lecture avant la perte : ni nombre ni octets, et pas de ligne du relevé.
+  const unread = diagnosticLines(reading({ textures: { count: 0, bytes: 0, maxSize: 8192, currentMaxSize: 8192, state: "unread", light: false } }));
+  assert.equal(unread.length, 8);
+  assert.equal(unread[7], `Textures${NBSP}: non relevées avant la perte du contexte WebGL · limite du processeur graphique${NBSP}: 8192 px de côté`);
   // Avec les textures allégées : la ligne de la perte, puis celle de l'essai.
-  const both = diagnosticLines(reading({ textures: { count: 12, bytes: 40 * 2 ** 20, maxSize: 8192, currentMaxSize: 1024, lost: true, light: true } }));
+  const both = diagnosticLines(reading({ textures: { count: 12, bytes: 40 * 2 ** 20, maxSize: 8192, currentMaxSize: 1024, state: "frozen", light: true } }));
   assert.equal(both.length, 10);
   assert.ok(both[7].endsWith("abaissée à 1024 px pour le chargement"), both[7]);
   assert.equal(both[8], lost[8]);

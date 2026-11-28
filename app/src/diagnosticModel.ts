@@ -35,7 +35,8 @@ export function fullDensityRequested(search: string): boolean {
  * à LIGHT_TEXTURE_SIZE pixels de côté au plus avant de l'envoyer au processeur graphique (main.ts, startSimulator) :
  * la photo de fond, de 8192 × 4096 px, et les textures de 2048 px des personnages et du chien. Le fond et les
  * personnages sont moins nets : ce n'est pas un réglage du simulateur, mais un essai, pour voir sur le téléphone en
- * panne si elle tient à la mémoire graphique demandée (essai T29, docs/tests-a-faire-faire.md ;
+ * panne si elle tient à la taille des images de la scène, par la mémoire des textures ou par leur envoi au processeur
+ * graphique, sans séparer les deux (essai T29, docs/tests-a-faire-faire.md ;
  * docs/pile-technique.md, « Contexte perdu pendant le chargement »).
  */
 export const LIGHT_TEXTURES_VALUE = "textures-legeres";
@@ -91,15 +92,17 @@ export function estimatedTextureBytes(texture: TextureInfo): number {
  * Textures que Babylon.js a créées : leur nombre, l'estimation des octets qu'elles demandent (estimatedTextureBytes),
  * le plus grand côté de texture que le processeur graphique accepte (MAX_TEXTURE_SIZE de WebGL, lu à la création du
  * moteur), la limite que Babylon.js applique à l'instant de la lecture (plus basse pendant le chargement aux textures
- * allégées, main.ts), si le nombre et les octets sont ceux d'avant une perte du contexte WebGL (ui/diagnosticView.ts),
- * et si les textures allégées sont demandées (LIGHT_TEXTURES_VALUE).
+ * allégées, main.ts), l'état de la lecture, et si les textures allégées sont demandées (LIGHT_TEXTURES_VALUE). État :
+ * « read », lu à l'instant ; « frozen », le nombre et les octets sont ceux de la dernière lecture avant une perte du
+ * contexte WebGL ; « unread », aucune lecture n'a eu lieu avant la perte, et ils ne sont pas écrits
+ * (ui/diagnosticView.ts).
  */
 export interface TextureReading {
   count: number;
   bytes: number;
   maxSize: number;
   currentMaxSize: number;
-  lost: boolean;
+  state: "read" | "frozen" | "unread";
   light: boolean;
 }
 
@@ -300,9 +303,10 @@ export function diagnosticLines(r: DiagnosticReading): string[] {
   // que le démarrage s'est arrêté sur sa perte, la ligne garde les textures relevées avant, et une ligne le dit.
   const textures = r.textures;
   const values = { count: String(textures.count), mio: String(Math.round(textures.bytes / MIB)), max: String(textures.maxSize) };
-  if (textures.currentMaxSize < textures.maxSize) lines.push(fill("diagTexturesLowered", { ...values, current: String(textures.currentMaxSize) }));
+  if (textures.state === "unread") lines.push(fill("diagTexturesUnread", { max: values.max }));
+  else if (textures.currentMaxSize < textures.maxSize) lines.push(fill("diagTexturesLowered", { ...values, current: String(textures.currentMaxSize) }));
   else lines.push(fill("diagTextures", values));
-  if (textures.lost) lines.push(t("diagTexturesLost"));
+  if (textures.state === "frozen") lines.push(t("diagTexturesLost"));
   if (textures.light) lines.push(fill("diagTexturesLight", { size: String(LIGHT_TEXTURE_SIZE) }));
   return lines;
 }
