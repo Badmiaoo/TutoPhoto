@@ -18,9 +18,17 @@ En cours : cette section se complète à chaque étape de la pull request.
 
 Révision du plan de corrections de l'audit (`docs/audit/README.md`) d'après la décision D10 de Julien, du 15 novembre 2026 (`docs/historique.md` : « Les neuf refontes de l'audit. ») : le plan suivait la version réduite par la contre-vérification du rapport d'architecture (`docs/audit/architecture-application.md`, « Plan de refontes » et « Contre-avis sur le plan ») ; les refontes qu'il n'a pas y entrent comme Sujets 49 et suivants. Sujet de documentation : ni `app/` ni `data/` ne changent. Numérotation : ni notion ni situation ajoutée, retirée ou reclassée, donc Z.
 
+### Ajouté
+
+- `docs/audit/README.md`, plan de corrections : une cinquième partie, « les refontes que retient D10 », avec la table des neuf refontes du rapport d'architecture et six sujets nouveaux, à la forme des autres (constats, à faire, fichiers, tests, dépend de, taille). Sujet 49 : la routine de test en étapes indépendantes (refonte 3, ARC-05), avec les gestes au toucher d'INT-13, la routine rendue requérable de CHX-03 (voie C), le niveau « pages » de CHX-07 (voie B) et quatre défauts de la routine. Sujet 50 : les mesures de la photo rendues par `takePhoto`, dont découle le bulletin (refonte 5, ARC-10). Sujet 51 : l'identifiant de boîtier (refonte 6, second temps, ARC-11, réfuté), qui attend la réponse de Julien. Sujet 52 : les textes posés par attribut et `cameraPanel.ts` découpé (refonte 7, ARC-02). Sujet 53 : les rôles à la place des noms dans les défis et la luminosité portée par la scène (refonte 8, ARC-03). Sujet 54 : la partie « produit » de `docs/architecture.md` (refonte 9, ARC-09). Les autres étaient au plan : refonte 1, Sujets 26 et 27 ; refonte 2, Sujets 1 et 28 ; refonte 4, Sujet 40 ; le magasin de la refonte 6, Sujet 41 ; la carte de la refonte 9, Sujet 29. Ce que chaque contre-vérification écartait et que D10 reprend est dit sous le sujet (choix 1).
+- `docs/audit/README.md` : une note du 28 novembre 2026 dans l'introduction du plan ; sous D10, la réponse de Julien.
+- `docs/propositions.md`, section 5 : « Révision du plan d'après D10 », quinze choix.
+- `docs/etat-des-travaux.md`, « Décisions en attente » : la question du Sujet 51 ; la ligne des choix de cette version.
+
 ### Modifié
 
-- `docs/etat-des-travaux.md` : la fin de la version 0.4.16 relue ; le Sujet 47 publié, la révision du plan en cours ; « Lignée des sessions », avec la profondeur 5 de cette session.
+- `docs/audit/README.md` : l'arbitrage des refontes dit la réponse de Julien ; l'index des constats renvoie ARC-02, ARC-03, ARC-05, ARC-09, ARC-10, INT-13 et CHX-03 aux sujets nouveaux ; les tableaux des constats sans correction à faire maintenant et des constats réfutés disent ce que D10 fait entrer au plan (ARC-03, ARC-11, CHX-07). Les sujets écrits avant ne sont ni renumérotés ni réécrits (choix 2).
+- `docs/etat-des-travaux.md` : la fin de la version 0.4.16 relue ; le Sujet 47 publié, la révision du plan en cours ; « Lignée des sessions », avec la profondeur 5 de cette session ; en tête de la file, la révision faite et les deux autres retirées, ce que les décisions changent aux Sujets 40 et 48 étant écrit dans leur colonne « Attend » (choix 12) ; les lignes des Sujets 49 à 54, et le sujet suivant, le Sujet 49 (choix 13) ; D21 reformulée, que Claude lit comme tranchée par D10 (choix 6) ; les quatre défauts de la routine renvoyés au Sujet 49, et l'en-tête de « Défauts connus, hors du plan » qui le permet (choix 4) ; les lignes 4 et 6 de « Après le plan » (choix 10).
 
 ### Corrigé
 
