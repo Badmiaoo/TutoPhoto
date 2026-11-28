@@ -718,7 +718,7 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
  * scène et fait rendre null aux fonctions de création de WebGL (createBuffer, createTexture…) tant qu'il est perdu,
  * comme le code de WebKit des branches safari-7618 à safari-7624 (Chromium rend un objet marqué perdu, comme la branche
  * safari-7625 et le brouillon de la spécification de WebGL) : c'est le scénario qui reproduit l'écran de l'iPhone de la
- * capture envoyée par Julien (docs/pile-technique.md, « Contexte perdu au démarrage »). Perdu dès la création : avant
+ * capture envoyée par Julien (docs/outillage.md, « Contexte perdu au démarrage »). Perdu dès la création : avant
  * que getContext rende le contexte ; puis restauré : même cas, puis la page restaure le contexte (restoreContext),
  * comme WebKit essaie de le faire quand l'événement de la perte a été annulé, ce que fait Babylon.js, et le contrôle
  * exige l'événement webglcontextrestored ; perdu au premier createBuffer : la création du premier tampon perd le
@@ -1000,7 +1000,7 @@ async function checkLightTextures(browser, contextOptions, base, check, webgl1) 
  * des avertissements sur les cibles de rendu incomplètes (« Render to float textures is not supported », « Framebuffer
  * is incomplete ») : la console n'y est pas contrôlée, seules les erreurs de la page le sont. La ligne du processeur
  * graphique est contrôlée dans sa forme (une durée, l'attente d'une mesure, ou « non mesurée » et sa raison), pas dans
- * sa valeur : selon la machine, Chromium expose ou non l'extension de mesure (docs/pile-technique.md, « Affichage de
+ * sa valeur : selon la machine, Chromium expose ou non l'extension de mesure (docs/outillage.md, « Affichage de
  * diagnostic »). N'est pas essayée : une photo prise avec l'affichage ouvert.
  */
 async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
@@ -1069,7 +1069,7 @@ async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
         Boolean(density) && density[1] === decimal2(screen) && density[2] === decimal2(viewfinder) && Number(density[3]) > 0 && Number(density[4]) > 0;
       const densityText = density ? density[0] : "ligne des densités absente";
       // Ligne des textures (version 0.4.15) : la scène chargée en demande environ 294 Mio, d'après l'estimation de
-      // l'affichage comme d'après les appels à WebGL relevés à part (docs/pile-technique.md, « Contexte perdu pendant
+      // l'affichage comme d'après les appels à WebGL relevés à part (docs/outillage.md, « Contexte perdu pendant
       // le chargement » et « Affichage de diagnostic ») ; bornes larges, pour une scène dont une texture changerait.
       const textures = /^Textures\u00a0: (\d+), environ (\d+) Mio demandés · limite du processeur graphique\u00a0: (\d+) px de côté$/m.exec(view);
       const texturesOk = Boolean(textures) && Number(textures[1]) >= 20 && Number(textures[2]) >= 200 && Number(textures[2]) <= 600 && Number(textures[3]) >= 1024;

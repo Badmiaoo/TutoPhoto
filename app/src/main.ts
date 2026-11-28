@@ -296,7 +296,7 @@ if (!Engine.isSupported()) {
  * pendant le démarrage, arrêtent maintenant le démarrage avec un message et « Recharger », et le message des capacités
  * n'est donné que pour un contexte qui n'est pas perdu. Depuis la version 0.4.15 (demande de Julien du 23 novembre
  * 2026), un contexte perdu pendant le chargement de la scène l'arrête aussi. Ce qui est établi, et ce qui ne l'est pas :
- * docs/pile-technique.md, « Contexte perdu au démarrage » et, pour la version 0.4.15, « Contexte perdu pendant le
+ * docs/outillage.md, « Contexte perdu au démarrage » et, pour la version 0.4.15, « Contexte perdu pendant le
  * chargement ».
  */
 function startOrFail(): void {
@@ -333,7 +333,7 @@ function startOrFail(): void {
     // L'événement de la perte arrive par une tâche, après la fin du code en cours : une perte pendant startSimulator
     // est vue ici après lui, ou par l'exception qu'il rattrape (startContextLost).
     // Dans Chromium, la page faisant rendre null aux fonctions de création comme WebKit jusqu'à sa branche
-    // safari-7624 (docs/pile-technique.md, « Contexte perdu pendant le chargement »), l'exception
+    // safari-7624 (docs/outillage.md, « Contexte perdu pendant le chargement »), l'exception
     // de Babylon.js arrive avant l'événement, et fait échouer le chargement d'un fichier : le démarrage s'arrête alors
     // aussi après l'échec d'un fichier (loadError), tant que le chargement n'est pas fini, et ready.catch, plus bas,
     // regarde le contexte.

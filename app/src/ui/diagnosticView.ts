@@ -4,8 +4,7 @@
 // graphique, densité et taille de l'image calculée, images par seconde, durée moyenne d'une image et de sa phase des
 // textures de rendu côté processeur, durée d'une image côté processeur graphique quand le navigateur expose l'extension
 // de mesure, capacités de rendu en flottants, textures (version 0.4.15). Lignes et compteur : diagnosticModel.ts ; ce
-// que valent ces chiffres, et comment comparer deux versions : docs/pile-technique.md, « Prise en charge des
-// navigateurs ».
+// que valent ces chiffres, et comment comparer deux versions : docs/outillage.md, « Affichage de diagnostic ».
 
 import type { Engine } from "@babylonjs/core/Engines/engine";
 import type { Scene } from "@babylonjs/core/scene";

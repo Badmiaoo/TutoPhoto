@@ -3,7 +3,7 @@
 // en flottants que demandent la photo et l'autofocus, le compteur des images du viseur et les lignes de l'affichage.
 // La part qui lit Babylon.js et écrit dans la page est ui/diagnosticView.ts ; le contrôle des capacités au démarrage
 // et le refus du déclenchement sont dans main.ts et ui/shutter.ts. Ce que mesure l'affichage, et ses limites :
-// docs/pile-technique.md, « Prise en charge des navigateurs ».
+// docs/outillage.md, « Affichage de diagnostic ».
 
 import { t, type MessageKey } from "./texts";
 
@@ -19,7 +19,8 @@ export function diagnosticRequested(search: string): boolean {
  * Valeur du paramètre qui calcule aussi le viseur à la densité complète de l'écran, sans le plafond de 2 pixels calculés
  * par pixel CSS (main.ts, MAX_DEVICE_RATIO, version 0.3.53) : « simulateur/?diagnostic=densite-complete ». Elle charge
  * le processeur graphique, pour comparer deux versions par leur débit sous la cadence de l'écran quand la durée d'une
- * image ne se mesure pas côté processeur graphique (contre-vérification d'ARC-06 ; docs/pile-technique.md).
+ * image ne se mesure pas côté processeur graphique (contre-vérification d'ARC-06 ; docs/outillage.md, « Affichage de
+ * diagnostic »).
  */
 export const FULL_DENSITY_VALUE = "densite-complete";
 
@@ -37,7 +38,7 @@ export function fullDensityRequested(search: string): boolean {
  * personnages sont moins nets : ce n'est pas un réglage du simulateur, mais un essai, pour voir sur le téléphone en
  * panne si elle tient à la taille des images de la scène, par la mémoire des textures ou par leur envoi au processeur
  * graphique, sans séparer les deux (essai T29, docs/tests-a-faire-faire.md ;
- * docs/pile-technique.md, « Contexte perdu pendant le chargement »).
+ * docs/outillage.md, « Contexte perdu pendant le chargement »).
  */
 export const LIGHT_TEXTURES_VALUE = "textures-legeres";
 
