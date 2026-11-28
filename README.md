@@ -59,7 +59,7 @@ python3 scripts/coverage.py
 
 - Une branche et une pull request par sujet ; pas de push direct sur `main`.
 - Toute modification de `data/` passe par `scripts/validate.py`.
-- Toute scène 3D passe par `scripts/check_scenes.py` : chaque fichier figure dans le manifeste `scene.json` de sa scène, avec son auteur, sa licence (CC0 ou CC BY) et son empreinte.
+- Toute scène 3D passe par `scripts/check_scenes.py` : chaque fichier figure dans le manifeste `scene.json` de sa scène, avec son auteur, sa licence (CC0 ou CC BY) et son empreinte, et ce que ses fichiers disent d'eux-mêmes (titre, page d'origine, auteur, licence) est comparé au manifeste (`docs/licences.md`, « Règles pour les scènes 3D »).
 - Les identifiants sont stables : jamais renumérotés ; un identifiant retiré va dans `data/referentiel/retired.yaml`.
 - Toute affirmation factuelle est sourcée ; les sources vont dans `data/sources.yaml`.
 - Dépôt public : aucun secret, aucune donnée personnelle, aucun lien privé ([docs/publication.md](docs/publication.md)) ; `python3 scripts/check_public.py --commits all` le vérifie.
