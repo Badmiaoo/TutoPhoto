@@ -250,7 +250,7 @@ Puis, le même soir, vers 20 h 05 UTC, Julien ouvre depuis l'application une ses
 
 ## 20 novembre 2026 : niveau d'effort des sessions
 
-Message de Julien dans la session du Sujet 15, vers 9 h 51 UTC, mot pour mot sauf le nom du modèle, remplacé par « [modèle] » (`CLAUDE.md` : aucun nom de modèle dans le dépôt) : « Il y a un tic qui me dérange tu n'utilise pas [modèle] effort max dans tes session. Oublie toi a l'utiliser dans chaque session »
+Message de Julien dans la session du Sujet 15, vers 9 h 51 UTC, mot pour mot sauf le nom du modèle, remplacé par « [modèle] » (`docs/etat-des-travaux.md`, « Leçons pratiques », « Commits » : aucun nom de modèle dans le dépôt) : « Il y a un tic qui me dérange tu n'utilise pas [modèle] effort max dans tes session. Oublie toi a l'utiliser dans chaque session »
 
 Ce que Claude en fait : chaque session de la chaîne est créée avec le même modèle et le niveau d'effort le plus haut, « max » (paramètre `effort` de l'outil qui crée une session), et la consigne de la session suivante le redit. Une session ne peut pas changer son propre niveau d'effort : la session du Sujet 15, créée sans ce paramètre, finit son sujet au niveau qu'elle a. Les agents lancés dans une session gardent leur niveau par défaut tant que Julien ne demande rien pour eux.
 
@@ -271,3 +271,9 @@ Ce que Claude en fait : un sujet à part entière, le suivant, après le Sujet 4
 Dans la session de la demande du 23 novembre 2026, que la limite d'usage hebdomadaire arrêtait depuis 23 h 14 UTC la veille, Julien a changé le modèle de la session, par la commande de l'application, à 0 h 05 min 58 s UTC, puis écrit, mot pour mot : « Reprends ».
 
 Ce que Claude en fait : la limite refusait encore chaque tour ; le travail a repris le 28 novembre 2026 à 1 h 52 UTC, après sa réouverture (`CHANGELOG.md`, section 0.4.15). La session finit son sujet avec le modèle choisi par Julien, et crée la suivante avec ce modèle, au niveau d'effort « max » (consigne du 20 novembre 2026, plus haut). Le nom du modèle n'est pas écrit dans le dépôt.
+
+## 28 novembre 2026 : modèle des sessions suivantes ; réponses sur l'iPhone
+
+Réponses de Julien aux questions à choix que la session de la demande du 23 novembre 2026 lui a posées à sa fin, après la fusion de la version 0.4.15 ; cette session les a relayées à celle du Sujet 47, qui les a relues dans le relevé de la session où Julien a répondu. À 8 h 14 UTC, quatre réponses sur l'iPhone où le simulateur s'arrête au chargement : ce sont des résultats d'essai, notés dans `docs/tests-a-faire-faire.md`, T29. À 8 h 49 UTC, à la question « Le 24 novembre, tu as changé le modèle de cette session TutoPhoto. J'ai créé la session suivante (Sujet 47) avec ce modèle-là, au niveau d'effort « max ». Quel modèle pour les sessions d'après ? », qui proposait « Garder ce modèle » et « Revenir au modèle d'avant », il a répondu en texte libre, mot pour mot sauf le nom du modèle, remplacé par « [modèle] » (`docs/etat-des-travaux.md`, « Leçons pratiques », « Commits » : aucun nom de modèle dans le dépôt) : « Je veux [modèle] effort max ».
+
+Ce que Claude en fait : le modèle qu'il nomme est celui des sessions d'avant le 24 novembre 2026, celui avec lequel la session de la demande du 23 novembre avait été créée (d'après l'outil qui décrit la session). La session du Sujet 47, créée avant cette réponse avec l'autre modèle, finit son sujet avec le sien, qu'elle ne peut pas changer ; elle crée la suivante avec le modèle que Julien nomme, au niveau d'effort « max », et la consigne de chaque session le redit. Le choix 13 de la version 0.4.15 (`docs/propositions.md`, « Erreur du simulateur sur iPhone, au chargement ») est tranché par cette réponse.
