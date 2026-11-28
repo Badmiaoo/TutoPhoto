@@ -326,11 +326,17 @@ const messages = {
   reload: "Recharger",
   contextLost: "Affichage 3D interrompu par le navigateur. Il peut reprendre seul ; sinon, recharge la page.",
   // Démarrage arrêté (version 0.4.4, demande de Julien du 22 novembre 2026 ; main.ts, startOrFail) : contexte WebGL
-  // perdu dès la création du moteur ou pendant le démarrage, ou autre exception, dont le détail est dans la ligne des
-  // problèmes. La version du site et « Recharger » suivent le message.
+  // perdu dès la création du moteur ou pendant le démarrage, perdu pendant le chargement de la scène (version 0.4.15,
+  // demande de Julien du 23 novembre 2026), ou autre exception, dont le détail est dans la ligne des problèmes. La
+  // version du site et « Recharger » suivent le message.
   startContextLost:
     "Le simulateur n'a pas pu démarrer : le navigateur a perdu l'affichage 3D (contexte WebGL) dès l'ouverture de la page. Recharge la page.",
+  startContextLostLoading:
+    "Le simulateur n'a pas pu démarrer : le navigateur a perdu l'affichage 3D (contexte WebGL) pendant le chargement de la scène. Recharge la page.",
   startError: "Le simulateur n'a pas pu démarrer. Recharge la page.",
+  // Où en était le chargement quand il s'est arrêté sur une perte du contexte (version 0.4.15) : après la version du
+  // site, pour qu'une capture d'écran le dise ; {progress} est la progression du chargement, figée à l'arrêt.
+  startProgress: "Chargement à ce moment : {progress}.",
   creditsUnavailable:
     "Crédits indisponibles : la liste des éléments de la scène (scenes/parc/scene.json) n'a pas pu être chargée. Recharge la page pour réessayer.",
   noWebgl: "Ce navigateur ne permet pas d'afficher la scène 3D (WebGL indisponible).",
@@ -348,6 +354,14 @@ const messages = {
   diagGpuMissing: "Durée d'une image, processeur graphique : non mesurée ({extension} absente)",
   diagGpuUnsupported: "Durée d'une image, processeur graphique : non mesurée (WebGL 1 sans horodatage, que Babylon.js 9.35.0 ne mesure qu'une fois)",
   diagCaps: "Rendu en flottants : {caps}",
+  // Textures créées par Babylon.js, plus grand côté de texture que le processeur graphique accepte, et textures
+  // allégées de « ?diagnostic=textures-legeres » (version 0.4.15).
+  diagTextures: "Textures : {count}, environ {mio} Mio demandés · limite du processeur graphique : {max} px de côté",
+  diagTexturesLowered:
+    "Textures : {count}, environ {mio} Mio demandés · limite du processeur graphique : {max} px de côté, abaissée à {current} px pour le chargement",
+  diagTexturesLost: "Textures relevées avant la perte du contexte WebGL, à la dernière réécriture qui la précède",
+  diagTexturesUnread: "Textures : non relevées avant la perte du contexte WebGL · limite du processeur graphique : {max} px de côté",
+  diagTexturesLight: "Textures allégées pour cet essai : images réduites à {size} px de côté au plus pendant le chargement",
   diagYes: "oui",
   diagNo: "non",
 } satisfies Record<string, string>;

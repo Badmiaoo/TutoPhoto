@@ -29,6 +29,84 @@ export function fullDensityRequested(search: string): boolean {
 }
 
 /**
+ * Valeur du paramètre qui charge la scène avec des textures allégées : « simulateur/?diagnostic=textures-legeres »
+ * (version 0.4.15, demande de Julien du 23 novembre 2026 : sur un iPhone, le navigateur perd l'affichage 3D au
+ * chargement, sans que la cause soit établie). Pendant le chargement de la scène, Babylon.js réduit alors toute image
+ * à LIGHT_TEXTURE_SIZE pixels de côté au plus avant de l'envoyer au processeur graphique (main.ts, startSimulator) :
+ * la photo de fond, de 8192 × 4096 px, et les textures de 2048 px des personnages et du chien. Le fond et les
+ * personnages sont moins nets : ce n'est pas un réglage du simulateur, mais un essai, pour voir sur le téléphone en
+ * panne si elle tient à la taille des images de la scène, par la mémoire des textures ou par leur envoi au processeur
+ * graphique, sans séparer les deux (essai T29, docs/tests-a-faire-faire.md ;
+ * docs/pile-technique.md, « Contexte perdu pendant le chargement »).
+ */
+export const LIGHT_TEXTURES_VALUE = "textures-legeres";
+
+/** Côté maximal d'une image envoyée au processeur graphique avec les textures allégées, en pixels. */
+export const LIGHT_TEXTURE_SIZE = 1024;
+
+/** L'adresse demande-t-elle les textures allégées ? */
+export function lightTexturesRequested(search: string): boolean {
+  return new URLSearchParams(search).get(DIAGNOSTIC_PARAMETER) === LIGHT_TEXTURES_VALUE;
+}
+
+/**
+ * Ce que l'affichage lit d'une texture de Babylon.js 9.35.0 (`InternalTexture`, `engine.getLoadedTexturesCache()`) :
+ * taille, profondeur (0 pour une texture à deux dimensions), cube ou non, niveaux de mipmap ou non, format et type
+ * (constantes TEXTUREFORMAT_ et TEXTURETYPE_ de Engines/constants.js ; -1 tant qu'ils ne sont pas fixés).
+ */
+export interface TextureInfo {
+  width: number;
+  height: number;
+  depth: number;
+  isCube: boolean;
+  generateMipMaps: boolean;
+  format: number;
+  type: number;
+}
+
+/** Octets par pixel des formats de profondeur de Babylon.js : DEPTH16 (15), DEPTH32FLOAT_STENCIL8 (18), les autres. */
+const DEPTH_BYTES: Record<number, number> = { 13: 4, 14: 4, 15: 2, 16: 4, 17: 4, 18: 8 };
+/** Canaux des formats de couleur : ALPHA (0), LUMINANCE (1), LUMINANCE_ALPHA (2), RGB (4), RGBA (5), R (6), RG (7). */
+const CHANNELS: Record<number, number> = { 0: 1, 1: 1, 2: 2, 4: 3, 5: 4, 6: 1, 7: 2 };
+const TYPE_FLOAT = 1;
+const TYPE_HALF_FLOAT = 2;
+const MIB = 2 ** 20;
+
+/**
+ * Octets qu'une texture demande au processeur graphique, par estimation : largeur × hauteur (× profondeur, × 6 faces
+ * pour un cube) × octets par pixel, un tiers de plus avec ses niveaux de mipmap (1 + 1/4 + 1/16 + … = 4/3). Octets par
+ * pixel : le nombre de canaux du format (1 pour ALPHA, LUMINANCE et R ; 2 pour LUMINANCE_ALPHA et RG ; 3 pour RGB ;
+ * 4 pour RGBA et pour un format non fixé ou inconnu) × 1 octet, 2 en demi-flottants, 4 en flottants ; pour une
+ * texture de profondeur, 2 (DEPTH16), 8 (DEPTH32FLOAT_STENCIL8) ou 4 octets. C'est ce que la page demande : ce que le
+ * processeur graphique alloue réellement n'est pas mesuré.
+ */
+export function estimatedTextureBytes(texture: TextureInfo): number {
+  const pixels = texture.width * texture.height * Math.max(1, texture.depth) * (texture.isCube ? 6 : 1);
+  const depthBytes = DEPTH_BYTES[texture.format];
+  const perChannel = texture.type === TYPE_FLOAT ? 4 : texture.type === TYPE_HALF_FLOAT ? 2 : 1;
+  const perPixel = depthBytes ?? (CHANNELS[texture.format] ?? 4) * perChannel;
+  return Math.round(pixels * perPixel * (texture.generateMipMaps ? 4 / 3 : 1));
+}
+
+/**
+ * Textures que Babylon.js a créées : leur nombre, l'estimation des octets qu'elles demandent (estimatedTextureBytes),
+ * le plus grand côté de texture que le processeur graphique accepte (MAX_TEXTURE_SIZE de WebGL, lu à la création du
+ * moteur), la limite que Babylon.js applique à l'instant de la lecture (plus basse pendant le chargement aux textures
+ * allégées, main.ts), l'état de la lecture, et si les textures allégées sont demandées (LIGHT_TEXTURES_VALUE). État :
+ * « read », lu à l'instant ; « frozen », le nombre et les octets sont ceux de la dernière lecture avant une perte du
+ * contexte WebGL ; « unread », aucune lecture n'a eu lieu avant la perte, et ils ne sont pas écrits
+ * (ui/diagnosticView.ts).
+ */
+export interface TextureReading {
+  count: number;
+  bytes: number;
+  maxSize: number;
+  currentMaxSize: number;
+  state: "read" | "frozen" | "unread";
+  light: boolean;
+}
+
+/**
  * Capacités exigées, sous leur nom dans Babylon.js 9.35.0 (`engine.getCaps()`) : la photo rend chaque image dans une
  * texture en demi-flottants et fait sa somme dans deux textures en flottants de 32 bits (camera/photo.ts), et
  * l'autofocus rend sa carte de profondeur en flottants de 32 bits (camera/autofocus.ts), que l'aperçu de la profondeur
@@ -179,6 +257,8 @@ export interface DiagnosticReading {
   /** Durée d'une image côté processeur graphique. */
   gpu: GpuReading;
   caps: FloatCaps;
+  /** Textures créées par Babylon.js (version 0.4.15). */
+  textures: TextureReading;
 }
 
 /**
@@ -219,5 +299,14 @@ export function diagnosticLines(r: DiagnosticReading): string[] {
   else lines.push(fill("diagGpu", { gpu: decimal(gpu.ms, 1) }));
   const caps = SHOWN_FLOAT_CAPS.map((name) => `${name} ${t(r.caps[name] ? "diagYes" : "diagNo")}`).join(", ");
   lines.push(fill("diagCaps", { caps }));
+  // Textures (version 0.4.15) : en dernier, après les lignes de la version 0.3.88. Quand le contexte est perdu, ou
+  // que le démarrage s'est arrêté sur sa perte, la ligne garde les textures relevées avant, et une ligne le dit.
+  const textures = r.textures;
+  const values = { count: String(textures.count), mio: String(Math.round(textures.bytes / MIB)), max: String(textures.maxSize) };
+  if (textures.state === "unread") lines.push(fill("diagTexturesUnread", { max: values.max }));
+  else if (textures.currentMaxSize < textures.maxSize) lines.push(fill("diagTexturesLowered", { ...values, current: String(textures.currentMaxSize) }));
+  else lines.push(fill("diagTextures", values));
+  if (textures.state === "frozen") lines.push(t("diagTexturesLost"));
+  if (textures.light) lines.push(fill("diagTexturesLight", { size: String(LIGHT_TEXTURE_SIZE) }));
   return lines;
 }

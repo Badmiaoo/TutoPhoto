@@ -265,3 +265,9 @@ Ce que Claude en fait : un sujet à part entière, traité avant le Sujet 36 du 
 Message de Julien dans la session du Sujet 46, après 20 h 47 UTC, pendant ce sujet, mot pour mot : « Il y a un bug », avec une capture d'écran d'un iPhone (transcrite dans `docs/tests-a-faire-faire.md`, T22). Ses réponses aux questions à choix de la session, avant 20 h 58 UTC : la panne est arrivée « Dès le chargement » ; au rechargement, « Nouveau message d'erreur au rechargement je te donne la capture d'écran » ; elle arrive « Régulièrement très régulièrement » ; à la question de savoir si l'essai T21 était suivi : « Je ne sais pas c'est pas moi qui utilise l'outil ». Puis, vers 20 h 58 UTC, la seconde capture, du rechargement (transcrite au même endroit).
 
 Ce que Claude en fait : un sujet à part entière, le suivant, après le Sujet 46, en cours à l'arrivée du message, et avant le Sujet 47 du plan de corrections ; les choix : `docs/propositions.md`, « Licences et publication », choix 14.
+
+## 24 novembre 2026 : session de la demande du 23 novembre, modèle changé, « Reprends »
+
+Dans la session de la demande du 23 novembre 2026, que la limite d'usage hebdomadaire arrêtait depuis 23 h 14 UTC la veille, Julien a changé le modèle de la session, par la commande de l'application, à 0 h 05 min 58 s UTC, puis écrit, mot pour mot : « Reprends ».
+
+Ce que Claude en fait : la limite refusait encore chaque tour ; le travail a repris le 28 novembre 2026 à 1 h 52 UTC, après sa réouverture (`CHANGELOG.md`, section 0.4.15). La session finit son sujet avec le modèle choisi par Julien, et crée la suivante avec ce modèle, au niveau d'effort « max » (consigne du 20 novembre 2026, plus haut). Le nom du modèle n'est pas écrit dans le dépôt.

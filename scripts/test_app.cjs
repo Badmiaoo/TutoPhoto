@@ -8,9 +8,10 @@
 //
 // Limites : Chromium seul, avec un rendu logiciel (SwiftShader). Les profils mobiles émulent la taille et la
 // densité de l'écran et l'identification du navigateur (Babylon.js change de comportement sur iPhone et iPad), et
-// déclarent un écran tactile ; mais aucun geste de la routine n'est un toucher : clics, glissés et appuis tenus
-// passent par la souris (constat INT-13 de l'audit). Ils n'émulent ni le processeur graphique ni le moteur
-// Safari : un vrai téléphone reste nécessaire. Dans la liste des contrôles ci-dessous et dans leurs noms,
+// déclarent un écran tactile ; mais un seul geste de la routine est un toucher, la fermeture d'une fenêtre par un
+// toucher sur le fond (page.touchscreen.tap, profil iphone, checkPhoneLayout, depuis la version 0.4.10) : les autres
+// clics, glissés et appuis tenus passent par la souris (constat INT-13 de l'audit). Ils n'émulent ni le processeur
+// graphique ni le moteur Safari : un vrai téléphone reste nécessaire. Dans la liste des contrôles ci-dessous et dans leurs noms,
 // « toucher » nomme le geste de l'application (toucher le viseur, la carte, la photo) : la routine le fait à la
 // souris ; qu'un élément ne reçoive pas les touchers, elle le vérifie par l'élément qui se trouve sous le point
 // visé, lu avec document.elementFromPoint (relecture de la version 0.3.64).
@@ -41,20 +42,33 @@
 //   dans deux contextes à part : témoin, capacités du navigateur telles quelles, simulateur ouvert avec
 //   « ?diagnostic=densite-complete » et scène chargée : l'affichage donne la version du site, WebGL 2 (WebGL 1 sur le
 //   profil webgl1), un débit d'images, la durée d'une image côté processeur, la ligne du processeur graphique, les deux
-//   capacités exigées à « oui » et un viseur à la densité de l'écran, et aucun problème n'est affiché ; extension
+//   capacités exigées à « oui », la ligne des textures (de 200 à 600 Mio demandés, et la limite du processeur
+//   graphique, version 0.4.15) et un viseur à la
+//   densité de l'écran, et aucun problème n'est affiché ; extension
 //   masquée (getExtension rend null pour EXT_color_buffer_float en WebGL 2, pour OES_texture_float et
 //   OES_texture_half_float en WebGL 1, comme les essais de la contre-vérification d'ARC-13), simulateur ouvert avec
 //   « ?diagnostic » : le message le dit, avec la mise au point, l'aperçu de la profondeur de champ et la version du
 //   site, le déclencheur est grisé, et, réactivé par la routine, un appui ne lance aucun calcul, n'ouvre pas l'écran de
 //   revue et le regrise ; l'affichage donne les deux capacités à « non » et le viseur à la densité plafonnée à 2 ;
 //   aucune erreur de la page dans les deux contextes, ni de la console dans le témoin ;
-// - démarrage arrêté (version 0.4.4, demande de Julien du 22 novembre 2026), dans quatre contextes à part : contexte
+// - démarrage arrêté (version 0.4.4, demande de Julien du 22 novembre 2026), dans cinq contextes à part : contexte
 //   WebGL perdu dès la création, puis le même restauré, puis perdu au premier createBuffer, les fonctions de création
 //   de WebGL rendant null sur un contexte perdu, comme le code de WebKit des branches safari-7618 à safari-7624 (le
-//   scénario qui reproduit l'écran de l'iPhone de la capture) ; et une exception sans perte du contexte ; dans chaque cas,
-//   le message du démarrage arrêté, avec la version du site et « Recharger », lisible et inchangé 2 s plus tard, aucun
-//   message des capacités de rendu en flottants, le canevas, le panneau du boîtier et le bouton « Défis » masqués, la
-//   ligne des problèmes vide ou avec l'exception rattrapée, et aucune erreur non rattrapée ;
+//   scénario qui reproduit l'écran de l'iPhone de la capture) ; et une exception sans perte du contexte ; et, depuis la
+//   version 0.4.15 (demande de Julien du 23 novembre 2026), le contexte perdu pendant le chargement de la scène, au
+//   premier envoi d'une image (texImage2D), puis restauré, avec l'affichage de diagnostic ; dans chaque cas, le message
+//   du démarrage arrêté, avec la version du site et « Recharger », lisible et inchangé 2 s plus tard, aucun message des
+//   capacités de rendu en flottants, le canevas, le panneau du boîtier et le bouton « Défis » masqués, la ligne des
+//   problèmes vide ou avec l'exception rattrapée (pendant le chargement : seulement les exceptions « Unable to
+//   create … » de Babylon.js), et aucune erreur non rattrapée (pendant le chargement : aucune autre que celles-là) ;
+//   pendant le chargement, le message est suivi de la progression du chargement figée à l'arrêt, et l'affichage de
+//   diagnostic reste affiché, sous la ligne des problèmes, avec la ligne « Textures relevées avant la perte du
+//   contexte WebGL » et une ligne des textures inchangée, restauration comprise ; pour l'exception sans perte,
+//   l'affichage de diagnostic reste affiché sans cette ligne ;
+// - textures allégées (version 0.4.15), dans un contexte à part : ouvert avec « ?diagnostic=textures-legeres », le
+//   simulateur charge sa scène, l'affichage de diagnostic dit les textures allégées, de 30 à 150 Mio demandés (de
+//   200 à 600 Mio dans le témoin de l'affichage de diagnostic) et la limite du processeur graphique remise après le
+//   chargement, sans problème ni erreur ;
 // - mise en page sur téléphone (Sujet 42, version 0.4.10 ; constats INT-04, INT-12, INT-03, INT-11, INT-17, INT-20 et
 //   INT-14 de l'audit), profil iphone seulement, dans un contexte à part : le simulateur chargé téléphone tenu à
 //   l'horizontale (iPhone 14 émulé, 750 × 340 px) a son panneau à droite du viseur, un cadre d'au moins 60 % de la
@@ -699,7 +713,7 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
 }
 
 /**
- * Démarrage arrêté (version 0.4.4, demande de Julien du 22 novembre 2026), dans quatre contextes à part, aux dimensions
+ * Démarrage arrêté (version 0.4.4, demande de Julien du 22 novembre 2026), dans cinq contextes à part, aux dimensions
  * du profil (WebGL 1 sur le profil webgl1). Dans les trois premiers, la page perd le contexte WebGL du canevas de la
  * scène et fait rendre null aux fonctions de création de WebGL (createBuffer, createTexture…) tant qu'il est perdu,
  * comme le code de WebKit des branches safari-7618 à safari-7624 (Chromium rend un objet marqué perdu, comme la branche
@@ -709,13 +723,26 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
  * comme WebKit essaie de le faire quand l'événement de la perte a été annulé, ce que fait Babylon.js, et le contrôle
  * exige l'événement webglcontextrestored ; perdu au premier createBuffer : la création du premier tampon perd le
  * contexte et rend null, comme quand le processeur graphique ne crée pas le tampon. Quatrième contexte : une exception
- * sans perte du contexte, le constructeur de ResizeObserver levant une erreur injectée. Dans chaque cas : le message du
- * démarrage arrêté (celui du contexte perdu dans les trois premiers, le message général dans le quatrième), avec la
- * version du site et « Recharger », lisible (dans la fenêtre, rendu en son centre, comme le bouton) et inchangé 2 s
- * plus tard (restauration comprise) ; aucun message des capacités de rendu en flottants ; le canevas, le panneau du
- * boîtier et le bouton « Défis » masqués ; la ligne des problèmes vide, ou qui donne l'exception rattrapée (premier
- * createBuffer, exception injectée) ; aucune erreur non rattrapée de la page. main.ts écrit aussi l'exception rattrapée
- * dans la console : la console n'est pas contrôlée.
+ * sans perte du contexte, le constructeur de ResizeObserver levant une erreur injectée. Cinquième contexte (version
+ * 0.4.15, demande de Julien du 23 novembre 2026 : sur l'iPhone de la capture, le contexte se perdait aussi pendant le
+ * chargement, et Babylon.js levait « Unable to create texture ») : la page perd le contexte au premier envoi d'une
+ * image (texImage2D dont la source n'est pas un tableau d'octets), après son chargement, donc pendant le chargement de
+ * la scène et après la fin de startSimulator ; mêmes fonctions de création rendant null ; affichage de diagnostic
+ * ouvert ; puis la page restaure le contexte, comme dans le deuxième cas. Dans chaque cas : le message du démarrage
+ * arrêté (celui du contexte perdu dès l'ouverture dans les trois premiers, le message général dans le quatrième, celui
+ * du contexte perdu pendant le chargement dans le cinquième, suivi de la progression du chargement figée à l'arrêt,
+ * « Chargement à ce moment : … »), avec la version du site et « Recharger », lisible (dans
+ * la fenêtre, rendu en son centre, comme le bouton) et inchangé 2 s plus tard (restauration comprise) ; aucun message
+ * des capacités de rendu en flottants ; le canevas, le panneau du boîtier et le bouton « Défis » masqués ; la ligne
+ * des problèmes vide, ou qui donne l'exception rattrapée (premier createBuffer, exception injectée) ; aucune erreur non
+ * rattrapée de la page. Pendant le chargement, le chargement continue après l'arrêt et ses textures ne peuvent pas être
+ * créées tant que le contexte est perdu : la ligne des problèmes peut donner, et changer pour donner, les exceptions
+ * « Unable to create … » de Babylon.js, seules erreurs non rattrapées admises ; l'affichage de diagnostic reste
+ * affiché, sous la ligne des problèmes, et sa ligne des textures garde le relevé d'avant la perte (« Textures relevées
+ * avant la perte du contexte WebGL »), la même à l'arrêt et 2 s plus tard, le contexte restauré. Le quatrième contexte
+ * s'ouvre aussi avec l'affichage de diagnostic : il reste affiché, sans ligne de perte. Passé 60 s de chargement, la progression figée
+ * nomme aussi les fichiers en attente. main.ts écrit aussi l'exception rattrapée dans la console : la console n'est
+ * pas contrôlée.
  */
 async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
   const cases = [
@@ -723,6 +750,7 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
     { mode: "restore", label: "contexte WebGL perdu dès la création, puis restauré" },
     { mode: "buffer", label: "contexte WebGL perdu au premier createBuffer" },
     { mode: "exception", label: "exception sans perte du contexte (ResizeObserver)" },
+    { mode: "loading", label: "contexte WebGL perdu pendant le chargement de la scène, puis restauré" },
   ];
   for (const { mode, label } of cases) {
     const context = await browser.newContext(contextOptions);
@@ -754,7 +782,19 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
                 return gl.isContextLost() ? null : create(...args);
               };
             }
-            if (mode !== "buffer") lose.loseContext();
+            if (mode === "loading") {
+              const upload = gl.texImage2D.bind(gl);
+              let lost = false;
+              gl.texImage2D = (...args) => {
+                const source = args[args.length - 1];
+                if (!lost && source !== null && typeof source === "object" && !ArrayBuffer.isView(source)) {
+                  lost = true;
+                  lose.loseContext();
+                }
+                return upload(...args);
+              };
+            }
+            if (mode !== "buffer" && mode !== "loading") lose.loseContext();
             return gl;
           };
         },
@@ -763,7 +803,9 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
       const page = await context.newPage();
       const errors = [];
       page.on("pageerror", (error) => errors.push(`page : ${error.message}`));
-      await page.goto(`${base}/simulateur/`);
+      // Avec l'affichage de diagnostic pour l'exception sans perte (contrôle final de la version 0.4.15, F1) et pour la
+      // perte pendant le chargement : il reste affiché à l'arrêt.
+      await page.goto(`${base}/simulateur/${mode === "loading" || mode === "exception" ? "?diagnostic" : ""}`);
       const shown = await page
         .waitForFunction(() => document.body.classList.contains("start-failed"), null, { timeout: 60000 })
         .then(() => true)
@@ -788,11 +830,20 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
             canvas: getComputedStyle(document.getElementById("scene")).display,
             panel: getComputedStyle(document.getElementById("camera-panel")).display,
             challenges: getComputedStyle(document.getElementById("challenge-button")).display,
+            diagnosticText: document.querySelector(".diagnostic-view")?.textContent ?? "",
+            // Affichage de diagnostic : affiché, et sous la ligne des problèmes (ou sous le message, sans problème).
+            diagnosticView: (() => {
+              const view = document.querySelector(".diagnostic-view");
+              if (!view) return "absent";
+              if (getComputedStyle(view).display === "none") return "masqué";
+              const above = (line.hidden ? status : line).getBoundingClientRect().bottom;
+              return view.getBoundingClientRect().top >= above - 1 ? "affiché, sous la ligne des problèmes" : "affiché, sur la ligne des problèmes";
+            })(),
           };
         });
       const first = await read();
       let restored = "";
-      if (mode === "restore") {
+      if (mode === "restore" || mode === "loading") {
         restored = await page.evaluate(() => {
           const lose = window.__routineLoseContext;
           if (!lose) return "extension absente";
@@ -804,29 +855,44 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
       const r = await read();
       // Restauration constatée par l'événement webglcontextrestored, que la page écoute à part de Babylon.js (contrôle
       // final de la version 0.4.4 : sans cela, le cas resterait vert si la restauration n'avait plus lieu).
-      if (mode === "restore" && restored === "restauration demandée") {
+      if ((mode === "restore" || mode === "loading") && restored === "restauration demandée") {
         const done = await page.evaluate(() => window.__routineRestored === true);
         restored = done ? "contexte restauré" : "restauration demandée, pas constatée";
       }
       const expected =
         mode === "exception"
           ? "Le simulateur n'a pas pu démarrer. Recharge la page."
-          : "Le simulateur n'a pas pu démarrer\u00a0: le navigateur a perdu l'affichage 3D (contexte WebGL) dès l'ouverture de la page. Recharge la page.";
+          : mode === "loading"
+            ? "Le simulateur n'a pas pu démarrer\u00a0: le navigateur a perdu l'affichage 3D (contexte WebGL) pendant le chargement de la scène. Recharge la page."
+            : "Le simulateur n'a pas pu démarrer\u00a0: le navigateur a perdu l'affichage 3D (contexte WebGL) dès l'ouverture de la page. Recharge la page.";
+      // Exceptions de Babylon.js quand une fonction de création rend null (« Unable to create texture », « … vertex
+      // buffer », « … VAO », « … webGL texture »…), seules admises pendant le chargement, dans la ligne des problèmes
+      // et comme erreurs de la page.
+      const creationFailure = /^(Erreur\u00a0: (Uncaught )?Error: Unable to create [A-Za-z ]+ · )+Version du site\u00a0: \d+\.\d+\.\d+$/;
       const problemOk =
         mode === "buffer"
           ? /^Erreur\u00a0: Error: Unable to create vertex buffer · Version du site\u00a0: \d+\.\d+\.\d+$/.test(r.problem)
           : mode === "exception"
             ? /^Erreur\u00a0: Error: échec injecté par la routine \(ResizeObserver\) · Version du site\u00a0: \d+\.\d+\.\d+$/.test(r.problem)
-            : r.problem === "";
+            : mode === "loading"
+              ? r.problem === "" || creationFailure.test(r.problem)
+              : r.problem === "";
+      // Ligne des textures de l'affichage de diagnostic : figée par une perte du contexte (la même à l'arrêt et 2 s
+      // plus tard, restauration comprise ; relecture R5, contrôle final F5), pas par une exception sans perte (F1).
+      const texturesLine = (text) => (/^Textures\u00a0: \d+, environ \d+ Mio demandés.*$/m.exec(text) ?? [""])[0];
+      const unexpected = mode === "loading" ? errors.filter((e) => !/^page : Unable to create [A-Za-z ]+$/.test(e)) : errors;
       check(
-        `démarrage arrêté, ${label} (WebGL ${webgl1 ? 1 : 2}) : message lisible avec la version et « Recharger », inchangé 2 s plus tard, sans message des flottants, canevas et panneau du boîtier masqués, aucune erreur non rattrapée`,
+        `démarrage arrêté, ${label} (WebGL ${webgl1 ? 1 : 2}) : message lisible avec la version et « Recharger », inchangé 2 s plus tard, sans message des flottants, canevas et panneau du boîtier masqués, ${mode === "loading" ? "affichage de diagnostic sous la ligne des problèmes, textures relevées avant la perte et figées, aucune erreur non rattrapée autre que « Unable to create … »" : mode === "exception" ? "affichage de diagnostic sous la ligne des problèmes, sans ligne de perte, aucune erreur non rattrapée" : "aucune erreur non rattrapée"}`,
         shown &&
           r.text.startsWith(expected) &&
-          /Version du site\u00a0: \d+\.\d+\.\d+\. Recharger$/.test(r.text) &&
+          (mode === "loading"
+            ? /Version du site\u00a0: \d+\.\d+\.\d+\. Chargement à ce moment\u00a0: .*\d+ s(\.| · en attente\u00a0: .+[.…]) Recharger$/
+            : /Version du site\u00a0: \d+\.\d+\.\d+\. Recharger$/
+          ).test(r.text) &&
           r.reload === "Recharger" &&
           r.reloadHit &&
           r.text === first.text &&
-          r.problem === first.problem &&
+          (mode === "loading" || r.problem === first.problem) &&
           r.top >= 0 &&
           r.bottom <= r.height &&
           r.hit &&
@@ -835,8 +901,18 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
           r.panel === "none" &&
           r.challenges === "none" &&
           (mode !== "restore" || restored === "contexte restauré") &&
-          errors.length === 0,
-        `${shown ? "" : "démarrage non arrêté ; "}${restored ? `${restored} ; ` : ""}« ${r.text} »${r.text === first.text ? "" : ` (2 s avant : « ${first.text} »)`} ; de ${r.top} à ${r.bottom} px sur ${r.height} ; rendu en son centre : ${r.hit ? "oui" : "non"} ; « Recharger » rendu en son centre : ${r.reloadHit ? "oui" : "non"} ; problème : ${r.problem || "aucun"}${r.problem === first.problem ? "" : ` (2 s avant : ${first.problem || "aucun"})`} ; canevas : ${r.canvas} ; panneau : ${r.panel} ; bouton « Défis » : ${r.challenges} ; erreurs : ${errors.join(" | ") || "aucune"}`,
+          (mode !== "loading" ||
+            (restored === "contexte restauré" &&
+              r.diagnosticView === "affiché, sous la ligne des problèmes" &&
+              /^Textures relevées avant la perte du contexte WebGL, à la dernière réécriture qui la précède$/m.test(r.diagnosticText) &&
+              texturesLine(r.diagnosticText) !== "" &&
+              texturesLine(r.diagnosticText) === texturesLine(first.diagnosticText))) &&
+          (mode !== "exception" ||
+            (r.diagnosticView === "affiché, sous la ligne des problèmes" &&
+              texturesLine(r.diagnosticText) !== "" &&
+              !/avant la perte du contexte/.test(r.diagnosticText))) &&
+          unexpected.length === 0,
+        `${shown ? "" : "démarrage non arrêté ; "}${restored ? `${restored} ; ` : ""}« ${r.text} »${r.text === first.text ? "" : ` (2 s avant : « ${first.text} »)`} ; de ${r.top} à ${r.bottom} px sur ${r.height} ; rendu en son centre : ${r.hit ? "oui" : "non"} ; « Recharger » rendu en son centre : ${r.reloadHit ? "oui" : "non"} ; problème : ${r.problem || "aucun"}${r.problem === first.problem ? "" : ` (2 s avant : ${first.problem || "aucun"})`} ; canevas : ${r.canvas} ; panneau : ${r.panel} ; bouton « Défis » : ${r.challenges}${mode === "loading" || mode === "exception" ? ` ; affichage de diagnostic : ${r.diagnosticView} ; ${texturesLine(r.diagnosticText) || "ligne des textures absente"}${texturesLine(r.diagnosticText) === texturesLine(first.diagnosticText) ? "" : ` (à l'arrêt : ${texturesLine(first.diagnosticText) || "absente"})`}${/avant la perte du contexte/.test(r.diagnosticText) ? " ; ligne du relevé d'avant la perte" : " ; pas de ligne du relevé d'avant la perte"}` : ""} ; erreurs : ${errors.join(" | ") || "aucune"}`,
       );
     } finally {
       await context.close();
@@ -845,11 +921,80 @@ async function checkLostAtStart(browser, contextOptions, base, check, webgl1) {
 }
 
 /**
+ * Textures allégées (version 0.4.15, demande de Julien du 23 novembre 2026), dans un contexte à part, aux dimensions du
+ * profil (WebGL 1 sur le profil webgl1) : le simulateur ouvert avec « ?diagnostic=textures-legeres » charge sa scène,
+ * et l'affichage de diagnostic donne la ligne « Textures allégées pour cet essai », des textures qui demandent entre
+ * 30 et 150 Mio (environ 105 Mio mesurés, contre environ 294 Mio sans le réglage : la photo de fond et les textures de
+ * 2048 px réduites à 1024 px de côté au plus), la limite du processeur graphique, que main.ts abaisse à 1024 px pour
+ * le chargement, remise ensuite (la ligne des textures ne dit plus « abaissée » : attendu jusqu'à 120 s), un débit du
+ * viseur, aucun problème affiché et aucune erreur de la page ni de la console.
+ */
+async function checkLightTextures(browser, contextOptions, base, check, webgl1) {
+  const context = await browser.newContext(contextOptions);
+  try {
+    if (webgl1) {
+      await context.addInitScript(() => {
+        const original = HTMLCanvasElement.prototype.getContext;
+        HTMLCanvasElement.prototype.getContext = function (type, attributes) {
+          return type === "webgl2" ? null : original.call(this, type, attributes);
+        };
+      });
+    }
+    const page = await context.newPage();
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(`page : ${error.message}`));
+    page.on("console", (message) => {
+      if (message.type() === "error") errors.push(`console : ${message.text().slice(0, 200)}`);
+    });
+    await page.goto(`${base}/simulateur/?diagnostic=textures-legeres`);
+    const loaded = await page
+      .waitForFunction(() => document.getElementById("status").hidden, null, { timeout: 300000 })
+      .then(() => true)
+      .catch(() => false);
+    const view = await page
+      .waitForFunction(
+        () => {
+          const text = document.getElementById("diagnostic-view")?.textContent ?? "";
+          return /Images par seconde/.test(text) && !/abaissée/.test(text) ? text : null;
+        },
+        null,
+        { timeout: 120000 },
+      )
+      .then((handle) => handle.jsonValue())
+      .catch(() => "");
+    const problem = await page.evaluate(() => {
+      const line = document.getElementById("diagnostic");
+      return line.hidden ? "" : line.textContent;
+    });
+    const textures = /^Textures\u00a0: (\d+), environ (\d+) Mio demandés · limite du processeur graphique\u00a0: (\d+) px de côté$/m.exec(view);
+    const fps = /^Images par seconde\u00a0: (\d+,\d)$/m.exec(view);
+    check(
+      `textures allégées (?diagnostic=textures-legeres, WebGL ${webgl1 ? 1 : 2}) : scène chargée, ligne « Textures allégées », de 30 à 150 Mio demandés, limite du processeur graphique remise après le chargement, débit du viseur, aucun problème ni erreur`,
+      loaded &&
+        Boolean(textures) &&
+        Number(textures[1]) >= 20 &&
+        Number(textures[2]) >= 30 &&
+        Number(textures[2]) <= 150 &&
+        Number(textures[3]) > 1024 &&
+        /^Textures allégées pour cet essai\u00a0: images réduites à 1024 px de côté au plus pendant le chargement$/m.test(view) &&
+        Boolean(fps) &&
+        Number(fps[1].replace(",", ".")) > 0 &&
+        !problem &&
+        errors.length === 0,
+      `scène ${loaded ? "chargée" : "non chargée"} ; ${view.replace(/\n/g, " | ") || "affichage absent, ou limite du processeur graphique restée abaissée"} ; problème : ${problem || "aucun"} ; erreurs : ${errors.join(" | ") || "aucune"}`,
+    );
+  } finally {
+    await context.close();
+  }
+}
+
+/**
  * Affichage de diagnostic et capacités de rendu en flottants (constats ARC-06 et ARC-13 de l'audit, version 0.3.88),
  * dans deux contextes à part, aux dimensions du profil. Témoin, ouvert avec « ?diagnostic=densite-complete » et scène
  * chargée : l'affichage donne la version, WebGL, un débit, les durées, la ligne du processeur graphique, les deux
- * capacités exigées à « oui » et un viseur à la densité de l'écran ; aucun problème affiché, aucune erreur de la page ni
- * de la console. Extension masquée, ouvert avec « ?diagnostic » : le message, avec la mise au point et l'aperçu ; le
+ * capacités exigées à « oui », la ligne des textures (au moins 20, de 200 à 600 Mio demandés, une limite du processeur
+ * graphique d'au moins 1024 px, sans la ligne des textures allégées ; version 0.4.15) et un viseur à la densité de
+ * l'écran ; aucun problème affiché, aucune erreur de la page ni de la console. Extension masquée, ouvert avec « ?diagnostic » : le message, avec la mise au point et l'aperçu ; le
  * déclencheur grisé, et, réactivé par la routine, un appui qui ne calcule rien et le regrise ; l'affichage donne les
  * deux capacités à « non » et la densité du viseur plafonnée à 2. Dans ce contexte, Babylon.js et le pilote écrivent
  * des avertissements sur les cibles de rendu incomplètes (« Render to float textures is not supported », « Framebuffer
@@ -923,9 +1068,14 @@ async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
       const densityOk =
         Boolean(density) && density[1] === decimal2(screen) && density[2] === decimal2(viewfinder) && Number(density[3]) > 0 && Number(density[4]) > 0;
       const densityText = density ? density[0] : "ligne des densités absente";
+      // Ligne des textures (version 0.4.15) : la scène chargée en demande environ 294 Mio, d'après l'estimation de
+      // l'affichage comme d'après les appels à WebGL relevés à part (docs/pile-technique.md, « Contexte perdu pendant
+      // le chargement » et « Affichage de diagnostic ») ; bornes larges, pour une scène dont une texture changerait.
+      const textures = /^Textures\u00a0: (\d+), environ (\d+) Mio demandés · limite du processeur graphique\u00a0: (\d+) px de côté$/m.exec(view);
+      const texturesOk = Boolean(textures) && Number(textures[1]) >= 20 && Number(textures[2]) >= 200 && Number(textures[2]) <= 600 && Number(textures[3]) >= 1024;
       if (!masked) {
         check(
-          `affichage de diagnostic (?diagnostic=densite-complete), témoin, scène chargée : version, WebGL ${version}, débit, durées, capacités exigées à « oui », viseur à la densité de l'écran (${decimal2(screen)}), aucun problème`,
+          `affichage de diagnostic (?diagnostic=densite-complete), témoin, scène chargée : version, WebGL ${version}, débit, durées, capacités exigées à « oui », textures (de 200 à 600 Mio demandés), viseur à la densité de l'écran (${decimal2(screen)}), aucun problème`,
           loaded &&
             /^Diagnostic \(moyennes sur 1 s\) · Version du site\u00a0: \d+\.\d+\.\d+$/.test(lines[0]) &&
             (lines[1] ?? "").startsWith(`WebGL ${version} · `) &&
@@ -935,6 +1085,8 @@ async function checkFloatRender(browser, contextOptions, base, check, webgl1) {
             /^Durée d'une image, processeur graphique\u00a0: (\d+,\d ms|en attente d'une mesure|non mesurée \(.+\))$/m.test(view) &&
             caps.includes("textureFloatRender oui, textureHalfFloatRender oui") &&
             densityOk &&
+            texturesOk &&
+            !/Textures allégées/.test(view) &&
             !problem &&
             errors.length === 0,
           `scène ${loaded ? "chargée" : "non chargée"} ; ${view.replace(/\n/g, " | ") || "affichage absent"} ; problème : ${problem || "aucun"} ; erreurs : ${errors.join(" | ") || "aucune"}`,
@@ -1275,6 +1427,7 @@ async function runProfile(browser, name, base) {
     await checkNoWebgl(browser, contextOptions, base, check);
     await checkFloatRender(browser, contextOptions, base, check, Boolean(noWebgl2));
     await checkLostAtStart(browser, contextOptions, base, check, Boolean(noWebgl2));
+    await checkLightTextures(browser, contextOptions, base, check, Boolean(noWebgl2));
     // Mise en page sur téléphone, dans un contexte à part (Sujet 42, version 0.4.10) : profil iphone seulement, pour ne
     // charger la scène qu'une fois de plus.
     if (name === "iphone") await checkPhoneLayout(browser, base, check);
