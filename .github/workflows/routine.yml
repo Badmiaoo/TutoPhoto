@@ -1,16 +1,22 @@
 name: Routine de test du site
 
-# La routine scripts/test_app.cjs (ordinateur, Android, iPhone, WebGL 1 ; CLAUDE.md) sur chaque pull request qui
-# touche le site construit : un job par profil, en parallèle. Sur la machine de Claude, les quatre profils à la
-# suite occupaient tous les cœurs pendant 53 minutes (mesuré le 11 novembre 2026, version 0.3.53).
+# La routine scripts/test_app.cjs (ordinateur, Android, iPhone, WebGL 1 ; CLAUDE.md) sur chaque pull request : un job
+# par profil, en parallèle, pour le scénario du simulateur ; un job pour les pages seules. Sur la machine de Claude, les
+# quatre profils à la suite occupaient tous les cœurs pendant 53 minutes (mesuré le 11 novembre 2026, version 0.3.53).
+#
+# Quels jobs jouent (Sujet 49 du plan de corrections, version 0.4.19 ; constats CHX-03, voie C, et CHX-07, voie B, de
+# l'audit) : le premier job, « fichiers changés », lit les fichiers que la pull request change, entre le commit de
+# fusion qu'elle essaie (refs/pull/N/merge) et son premier parent, la branche visée. Le scénario sur les quatre profils
+# joue si l'un est sous app/, ou est scripts/test_app.cjs ou ce workflow ; les pages seules (--pages, profils
+# ordinateur et iphone) jouent aussi quand la pull request ne touche, de ces chemins, que content/ ou data/. Avant la
+# version 0.4.19, un filtre par chemins du déclencheur faisait ce tri, et GitHub déconseille ce filtre pour un workflow
+# requis (source github-actions-path-filtering-required de data/sources.yaml). Les jobs tournent toujours, et seules leurs
+# étapes sont sautées : un job sauté compte comme réussi (github-actions-skipped-job-success), mais ce que GitHub rapporte
+# pour un job de matrice sauté par sa condition, et sous quel nom, ni ce que vaut le résultat d'une matrice dont un seul job échoue (github-actions-needs-result), les pages lues ne le disent pas. Ainsi, les cinq jobs
+# « routine (…) » rendent toujours un contrôle à leur nom, et peuvent être requis par une règle de la branche main :
+# un réglage de Julien. Un lancement à la main (workflow_dispatch) joue tout.
 on:
   pull_request:
-    paths:
-      - "app/**"
-      - "content/**"
-      - "data/**"
-      - "scripts/test_app.cjs"
-      - ".github/workflows/routine.yml"
   workflow_dispatch: # relance à la main
 
 permissions:
@@ -21,9 +27,55 @@ concurrency:
   group: routine-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # Même version que sur la machine de Claude (docs/outillage.md, « Versions de Node.js et de Playwright ») ; licence
+  # Apache-2.0. scripts/test_app.cjs lit cette ligne pour dire quoi installer quand Playwright manque.
+  PLAYWRIGHT_VERSION: "1.63.0"
+
 jobs:
+  chemins:
+    name: fichiers changés
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      scenario: ${{ steps.tri.outputs.scenario }}
+      pages: ${{ steps.tri.outputs.pages }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # Actions épinglées par commit ; licence MIT vérifiée le 7 novembre 2026. Profondeur 2 : le commit de fusion de la
+      # pull request et ses deux parents (github-actions-pull-request-sha, actions-checkout-readme ; essayé sur un dépôt
+      # local le 28 novembre 2026 : un clone à la profondeur 2 d'un commit de fusion a ses deux parents).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+      - id: tri
+        # Noms de fichiers séparés par un octet nul (-z), lus sans être insérés dans la commande.
+        run: |
+          if [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
+            echo "Lancement à la main : scénario et pages."
+            { echo "scenario=true"; echo "pages=true"; } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git diff -z --name-only HEAD^1 HEAD > "$RUNNER_TEMP/fichiers"
+          scenario=false
+          pages=false
+          if grep -zqE '^(app/|scripts/test_app\.cjs$|\.github/workflows/routine\.yml$)' "$RUNNER_TEMP/fichiers"; then
+            scenario=true
+            pages=true
+          elif grep -zqE '^(content|data)/' "$RUNNER_TEMP/fichiers"; then
+            pages=true
+          fi
+          echo "Fichiers changés : $(tr -cd '\0' < "$RUNNER_TEMP/fichiers" | wc -c) ; scénario : $scenario ; pages : $pages."
+          { echo "scenario=$scenario"; echo "pages=$pages"; } >> "$GITHUB_OUTPUT"
+
+  # Les deux jobs suivants jouent même si « fichiers changés » a échoué (!cancelled() : github-actions-jobs-needs,
+  # github-actions-cancelled), pour échouer à leur tour : sautés, ils compteraient comme réussis.
   routine:
     name: routine (${{ matrix.profil }})
+    needs: chemins
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
@@ -33,37 +85,102 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      JOUER: ${{ needs.chemins.outputs.scenario }}
     steps:
-      # Actions épinglées par commit ; licence MIT vérifiée le 7 novembre 2026.
+      - name: Tri des fichiers en échec
+        if: needs.chemins.result != 'success'
+        run: |
+          echo "Le job « fichiers changés » n'a pas réussi : on ne sait pas quoi jouer."
+          exit 1
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: env.JOUER == 'true'
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: env.JOUER == 'true'
         with:
           node-version: "22"
           cache: npm
           cache-dependency-path: app/package-lock.json
       - name: Construire le site
+        if: env.JOUER == 'true'
         working-directory: app
         run: |
           npm ci
           npm run build
       - name: Installer Playwright et son Chromium, hors du dépôt
-        env:
-          # Même version que sur la machine de Claude (docs/outillage.md, « Versions de Node.js et de Playwright ») ;
-          # licence Apache-2.0.
-          PLAYWRIGHT_VERSION: "1.63.0"
+        if: env.JOUER == 'true'
         run: |
           npm install --prefix "$RUNNER_TEMP/outils" --no-save "playwright@${PLAYWRIGHT_VERSION}"
           "$RUNNER_TEMP/outils/node_modules/.bin/playwright" install --with-deps chromium
       - name: Routine de test
+        if: env.JOUER == 'true'
         env:
           NODE_PATH: ${{ runner.temp }}/outils/node_modules
           PROFIL: ${{ matrix.profil }}
         run: node scripts/test_app.cjs --photo --profils "$PROFIL" 2>&1 | tee "$RUNNER_TEMP/routine.txt"
       - name: Résultats dans le résumé du job
-        if: always()
+        if: always() && env.JOUER == 'true'
         run: |
           {
             echo '```'
             cat "$RUNNER_TEMP/routine.txt" 2>/dev/null || echo "La routine n'a rien écrit."
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Routine sautée
+        if: needs.chemins.result == 'success' && env.JOUER != 'true'
+        run: |
+          echo "Routine sautée : la pull request ne change rien sous app/, ni scripts/test_app.cjs, ni ce workflow." >> "$GITHUB_STEP_SUMMARY"
+
+  pages:
+    name: routine (pages)
+    needs: chemins
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    env:
+      JOUER: ${{ needs.chemins.outputs.pages }}
+    steps:
+      - name: Tri des fichiers en échec
+        if: needs.chemins.result != 'success'
+        run: |
+          echo "Le job « fichiers changés » n'a pas réussi : on ne sait pas quoi jouer."
+          exit 1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: env.JOUER == 'true'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: env.JOUER == 'true'
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Construire le site
+        if: env.JOUER == 'true'
+        working-directory: app
+        run: |
+          npm ci
+          npm run build
+      - name: Installer Playwright et son Chromium, hors du dépôt
+        if: env.JOUER == 'true'
+        run: |
+          npm install --prefix "$RUNNER_TEMP/outils" --no-save "playwright@${PLAYWRIGHT_VERSION}"
+          "$RUNNER_TEMP/outils/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Pages seules (liens internes, accueil, fiches, activité)
+        if: env.JOUER == 'true'
+        env:
+          NODE_PATH: ${{ runner.temp }}/outils/node_modules
+        run: node scripts/test_app.cjs --pages --profils ordinateur,iphone 2>&1 | tee "$RUNNER_TEMP/routine.txt"
+      - name: Résultats dans le résumé du job
+        if: always() && env.JOUER == 'true'
+        run: |
+          {
+            echo '```'
+            cat "$RUNNER_TEMP/routine.txt" 2>/dev/null || echo "La routine n'a rien écrit."
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Pages sautées
+        if: needs.chemins.result == 'success' && env.JOUER != 'true'
+        run: |
+          echo "Pages sautées : la pull request ne change rien sous app/, content/ ou data/, ni scripts/test_app.cjs, ni ce workflow." >> "$GITHUB_STEP_SUMMARY"

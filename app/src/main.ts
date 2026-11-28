@@ -10,6 +10,7 @@ import { ViewfinderNoise } from "./camera/noise";
 import { ViewfinderDepthOfField } from "./camera/viewfinderDof";
 import { Autofocus } from "./camera/autofocus";
 import { SettingsStore, browserStorage } from "./camera/settings";
+import { routineAccess, routineRequested } from "./routineAccess";
 import { BalanceIndicator } from "./ui/balance";
 import { TopView } from "./ui/topView";
 import { ChallengePicker } from "./ui/challenges";
@@ -435,6 +436,9 @@ function startSimulator(engine: Engine): void {
   // Magasin de réglages (camera/settings.ts, version 0.4.9) : relit la mémoire du navigateur ; le panneau, l'autofocus,
   // le déclencheur et l'écran de revue y lisent les réglages.
   const settings = new SettingsStore(browserStorage());
+  // Accès de la routine de test (routineAccess.ts ; Sujet 49 du plan de corrections, version 0.4.19), avec « ?routine »
+  // dans l'adresse seulement : posé ici, avant tout geste, il garde l'orientation de départ de la caméra.
+  if (routineRequested(window.location.search)) Object.assign(window, { __tutophotoRoutine: routineAccess({ settings, eye, camera }) });
   cameraPanel = new CameraPanel(
     engine,
     scene,
