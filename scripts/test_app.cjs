@@ -31,12 +31,12 @@
 // l'étape suivante la recharge d'abord, mémoire des réglages et du défi effacée. Les contrôles d'une étape sont écrits
 // dès sa fin, sous une ligne qui donne son nom, son issue et sa durée ; le bilan de chaque profil suit, puis le nombre
 // d'échecs. Options : --pages ne joue que les pages, liens internes une fois puis, pour chaque profil, l'étape « pages »
-// (accueil, deux fiches, l'activité LUM-02) et les erreurs des pages (constat CHX-07 de l'audit, voie B ; la CI le
+// (accueil, fiches NET-01, SIT-05 et LUM-02, activité LUM-02) et les erreurs des pages (constat CHX-07 de l'audit, voie B ; la CI le
 // lance sur les profils ordinateur et iphone, seul quand une pull request ne touche que content/ ou data/) ;
 // --etapes id,id ne joue que ces étapes (et le chargement du simulateur, si l'une en a besoin) ; --echec-injecte id
-// lève une exception au début de cette étape, pour voir qu'elle seule s'arrête ; --echec-injecte navigateur ferme le
-// navigateur juste avant la fermeture du contexte du profil (défaut relevé à la version 0.3.64 : la routine sortait
-// alors sans écrire les contrôles du profil).
+// lève une exception au début de cette étape, pour voir qu'elle seule s'arrête ; --echec-injecte navigateur tue le
+// navigateur (SIGKILL) juste avant la fermeture du contexte du profil (défaut relevé à la version 0.3.64 : la routine
+// sortait alors sur une exception, sans écrire les contrôles du profil) ; le profil suivant en relance un.
 //
 // Contrôles des pages statiques (version 0.3.46), une fois : chaque lien interne de chaque page HTML du site
 // construit mène à un fichier qui existe, et chaque ancre à un seul élément de la page visée (version 0.3.73).
@@ -711,6 +711,10 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
       const canvas = document.getElementById("scene");
       const box = message.getBoundingClientRect();
       const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      // Opacité du message, produit de celles de ses ancêtres : elementFromPoint voit un élément transparent
+      // (relecture de la version 0.4.19 : le contrôle réussissait sur une construction au message en opacity: 0).
+      let opacity = 1;
+      for (let e = message; e; e = e.parentElement) opacity *= Number(getComputedStyle(e).opacity);
       const shown = [...document.querySelector("main").children]
         .filter((e) => e !== message && getComputedStyle(e).display !== "none")
         .map((e) => e.id || e.className);
@@ -720,6 +724,7 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
         bottom: Math.round(box.bottom),
         height: innerHeight,
         hit: hit !== null && message.contains(hit),
+        opacity,
         shown,
         canvas: getComputedStyle(canvas).display,
         challenges: getComputedStyle(document.getElementById("challenge-button")).display,
@@ -732,11 +737,12 @@ async function checkNoWebgl(browser, contextOptions, base, check) {
         r.top >= 0 &&
         r.bottom <= r.height &&
         r.hit &&
+        r.opacity === 1 &&
         r.shown.length === 0 &&
         r.canvas === "none" &&
         r.challenges === "none" &&
         errors.length === 0,
-      `« ${r.text} » ; de ${r.top} à ${r.bottom} px sur ${r.height} ; rendu en son centre : ${r.hit ? "oui" : "non"} ; autres éléments affichés : ${r.shown.join(", ") || "aucun"} ; canevas : ${r.canvas} ; bouton « Défis » : ${r.challenges} ; erreurs : ${errors.join(" | ") || "aucune"}`,
+      `« ${r.text} » ; de ${r.top} à ${r.bottom} px sur ${r.height} ; rendu en son centre : ${r.hit ? "oui" : "non"} ; opacité ${r.opacity} ; autres éléments affichés : ${r.shown.join(", ") || "aucun"} ; canevas : ${r.canvas} ; bouton « Défis » : ${r.challenges} ; erreurs : ${errors.join(" | ") || "aucune"}`,
     );
   } finally {
     await context.close();
@@ -1962,7 +1968,8 @@ async function runProfile(browser, name, base, say, report) {
         await g.tap(groundBox.x + groundBox.width / 2, groundBox.y + 0.95 * groundBox.height);
         await page.waitForTimeout(2000);
         // Profondeur de champ : 135 mm, f/1.4, vitesse ajustée pour rester près de l'exposition correcte. Les
-        // réglages se font effet coupé, puis l'effet reste coupé : en rendu logiciel, il ralentit chaque image.
+        // réglages se font effet coupé, puis l'effet reste coupé : en rendu logiciel, il ralentit chaque image ; les étapes
+        // suivantes partent sans lui (start).
         await setDof(false);
         await clicks('[data-dial="focal"][data-step="1"]', 4);
         await clicks('[data-dial="aperture"][data-step="-1"]', 15);
@@ -2263,7 +2270,7 @@ async function runProfile(browser, name, base, say, report) {
           gridMagnified.vertical + gridMagnified.horizontal === 0 && gridBack.vertical === 3 && gridBack.horizontal === 3 && gridBack.error <= 1,
           `loupe à 100 % : ${gridMagnified.vertical + gridMagnified.horizontal} ligne(s) visible(s) ; loupe coupée : ${gridBack.vertical + gridBack.horizontal}`,
         );
-        // Retour à « Aucune » avant la suite.
+        // Retour à « Aucune », écrit dans la mémoire du navigateur.
         await setGrid("none");
         const gridOff = await gridState(3);
         check("grille de cadrage : retour à « Aucune »", gridOff.vertical + gridOff.horizontal === 0 && gridOff.saved === "none", `${gridOff.vertical + gridOff.horizontal} ligne(s) visible(s) ; tutophoto.apercu : ${gridOff.saved}`);
@@ -2729,7 +2736,7 @@ async function runProfile(browser, name, base, say, report) {
           under.exposure === "−3,2 IL" && underZones.button === "Infos\u00a0: hautes lumières" && underZones.share === 0 && !underZones.zones.shown && under.share === 0 && luminance.left > under.pixels / 2 && luminance.total === under.pixels,
           `exposition ${under.exposure} ; hautes lumières : ${underZones.text} ; ${luminance.left} pixels sur ${under.pixels} dans la moitié gauche de la luminance`,
         );
-        // Retour à « photo seule » et aux réglages de départ avant la suite.
+        // Retour à « photo seule », écrit dans la mémoire du navigateur ; les molettes, l'étape suivante les remet.
         await page.click("#review-info");
         await page.click("#review-info");
         const infoOff = await reviewInfo();
@@ -3029,7 +3036,8 @@ async function runProfile(browser, name, base, say, report) {
           // déplacements, même sous l'écran de revue : le contrôle échoue sur ce site-là. Il réussit aussi quand les
           // commandes ne sont jamais rattachées après le calcul : le contrôle d'après la rafale, plus bas, le voit et le
           // nomme ; sur une copie sans le rattachement, « AF-C : la distance suit la zone » échoue aussi, sans nommer la
-          // cause (l'appareil relevé plus haut ne tourne plus, ce relevé venant après les premières photos de la routine).
+          // cause (l'appareil relevé plus haut ne tourne plus quand une photo a été prise avant lui sur la même page, dans
+          // les étapes « photo et écran de revue » ou « défis »).
           // Il ne voit pas la surimpression dans la photo elle-même (rendus de la photo sans mise à jour de la caméra) :
           // il faudrait lire la caméra à chaque rendu, ce que le site construit n'expose pas.
           if (topCollapsed) await page.click("#top-view-toggle");
@@ -3510,12 +3518,17 @@ async function runProfile(browser, name, base, say, report) {
       const count = checks.length - from;
       flush(`-- étape « ${step.name} » : ${status}, ${count} contrôle(s), ${duration(Date.now() - t0)}`);
     }
-    if (injected === "navigateur") await browser.close();
+    // Navigateur tué (--echec-injecte navigateur), comme par le système quand la mémoire manque : SIGKILL de ses
+    // processus, enfants de celui de la routine.
+    if (injected === "navigateur") {
+      require("child_process").execFileSync("pkill", ["-KILL", "-P", String(process.pid)]);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
   } finally {
     // Erreurs des pages et de la console (INT-06 de l'audit, version 0.3.64) : un contrôle compté comme les autres,
-    // fait ici pour l'être aussi quand le simulateur ne se charge pas (retour anticipé, plus haut) ou que la routine
-    // s'arrête sur une exception (« déroulement du test »). Chaque erreur distincte est nommée, avec son nombre
-    // d'occurrences ; au-delà de 40, le nombre de celles qui restent.
+    // fait ici, après les étapes, pour l'être aussi quand le simulateur ne se charge pas (étapes non jouées) ou qu'une
+    // étape s'arrête sur une exception. Chaque erreur distincte est nommée, avec son nombre d'occurrences ; au-delà de
+    // 40, le nombre de celles qui restent.
     const describe = (list) => {
       const counts = new Map();
       for (const e of list) counts.set(e, (counts.get(e) ?? 0) + 1);
@@ -3530,8 +3543,9 @@ async function runProfile(browser, name, base, say, report) {
       (unexpected.length ? `${unexpected.length} erreur(s) : ${describe(unexpected)}` : "aucune") +
         (admitted.length ? ` ; admises : ${describe(admitted)}` : ""),
     );
-    // Fermeture du contexte : si le navigateur a été fermé ou tué avant elle, elle lève une exception ; le profil la
-    // compte comme un échec, ses contrôles déjà écrits (défaut relevé à la version 0.3.64, corrigé à la version 0.4.19).
+    // Fermeture du contexte : une exception qu'elle lèverait est comptée comme un échec, les contrôles du profil déjà
+    // écrits (défaut relevé à la version 0.3.64). Avec Playwright 1.63, elle n'en lève pas quand le navigateur a été
+    // tué avant elle (essai de la version 0.4.19, SIGKILL de ses processus) ; le profil suivant en relance un.
     await context.close().catch((error) => check("fermeture du contexte du profil", false, String(error).split("\n").slice(0, 5).join(" ⏎ ")));
     const by = (status) => bilan.filter((s) => s.status.startsWith(status)).map((s) => s.name);
     const list = (names) => (names.length ? names.join(", ") : "aucune");
