@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 # Un groupe par référence : un lancement à la main sur une autre branche, dont le job est sauté, ne peut plus annuler
-# une exécution de main en attente dans le même groupe. Sources : docs/pile-technique.md, « Outillage de l'application ».
+# une exécution de main en attente dans le même groupe. Sources : docs/outillage.md, « Publication ».
 concurrency:
   group: tags-${{ github.ref }}
   cancel-in-progress: false
@@ -19,7 +19,7 @@ jobs:
   tag:
     # Sur main seulement (constat LIC-07 de l'audit, version 0.3.85) : lancé à la main sur une autre branche, le job
     # poserait des tags et des releases sur des commits de cette branche, que ce workflow ne déplace jamais ensuite.
-    # Sources et limites : docs/pile-technique.md, « Outillage de l'application ».
+    # Sources et limites : docs/outillage.md, « Publication ».
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     defaults:

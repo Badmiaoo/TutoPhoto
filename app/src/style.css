@@ -1119,7 +1119,7 @@ dialog fieldset label {
    en bas à gauche du viseur, coin que n'occupent ni l'indicateur d'équilibre (en haut à gauche), ni la vue de dessus (en
    bas à droite), ni la pastille de l'aperçu (en haut, au centre), sur un écran large. Depuis la version 0.4.10, la loupe et
    la pastille de mise au point sont aussi en bas à gauche : le calque les couvre, et ses chiffres restent lisibles. Sur un téléphone, il couvre une bonne part du viseur
-   (docs/pile-technique.md, « Affichage de diagnostic »). Placé dans la page juste avant l'écran de revue, au même
+   (docs/outillage.md, « Affichage de diagnostic »). Placé dans la page juste avant l'écran de revue, au même
    z-index (1), il passe sous lui, sous la bande « Calcul de la photo… » (2), sous la ligne des problèmes et les
    messages de la scène (3), et au-dessus de la vue de dessus et de l'indicateur d'équilibre. Il ne prend pas les
    touchers : le viseur se touche à travers lui. */

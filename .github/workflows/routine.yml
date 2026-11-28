@@ -48,7 +48,8 @@ jobs:
           npm run build
       - name: Installer Playwright et son Chromium, hors du dépôt
         env:
-          # Même version que sur la machine de Claude (docs/pile-technique.md) ; licence Apache-2.0.
+          # Même version que sur la machine de Claude (docs/outillage.md, « Versions de Node.js et de Playwright ») ;
+          # licence Apache-2.0.
           PLAYWRIGHT_VERSION: "1.63.0"
         run: |
           npm install --prefix "$RUNNER_TEMP/outils" --no-save "playwright@${PLAYWRIGHT_VERSION}"

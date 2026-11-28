@@ -272,8 +272,8 @@ const messages = {
   // la ligne des problèmes, en haut du viseur, avec le détail floatRenderDetail, suivi de floatRenderFocus quand
   // textureFloatRender manque, la seule dont dépend la carte de profondeur de l'autofocus et de l'aperçu de la
   // profondeur de champ. Sans ces capacités, la photo sort presque noire, l'autofocus rend la distance du sol ou du
-  // fond, et l'aperçu floute tout le cadre autant que sa partie la plus floue (essais : docs/pile-technique.md,
-  // « Prise en charge des navigateurs »).
+  // fond, et l'aperçu floute tout le cadre autant que sa partie la plus floue (essais : docs/outillage.md, « Rendu en
+  // flottants : une exigence de l'appareil »).
   problemFloatRender: "Photo impossible sur cet appareil",
   floatRenderDetail:
     "son navigateur ne sait pas rendre l'image dans des textures en flottants ({caps} : non) ; le bouton « Déclencher » est désactivé.",
@@ -342,7 +342,7 @@ const messages = {
   noWebgl: "Ce navigateur ne permet pas d'afficher la scène 3D (WebGL indisponible).",
   // Affichage de diagnostic, ouvert par « ?diagnostic » dans l'adresse (constat ARC-06 de l'audit, version 0.3.88 ;
   // diagnosticModel.ts, ui/diagnosticView.ts). Les capacités et l'extension gardent leur nom technique : c'est celui que
-  // relèvent Julien et les testeurs, et que cite docs/pile-technique.md.
+  // relèvent Julien et les testeurs, et que cite docs/outillage.md.
   diagTitle: "Diagnostic (moyennes sur 1 s)",
   diagWebgl: "WebGL {version} · {renderer}",
   diagDensity: "Densité : écran {screen}, viseur {density} · image de {width} × {height} px",
